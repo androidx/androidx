@@ -5524,17 +5524,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatAutoCompleteTextView.java"
-            line="202"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setTextAppearance(Context context, int resId) {"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -5590,17 +5579,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="375"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void onSupportActionModeStarted(ActionMode mode);"
         errorLine2="                                    ~~~~~~~~~~">
         <location
@@ -5640,17 +5618,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatCheckBox.java"
             line="86"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckedTextView.java"
-            line="268"
-            column="54"/>
     </issue>
 
     <issue
@@ -6052,22 +6019,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="241"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public boolean onDragEvent(@SuppressWarnings(&quot;MissingNullability&quot;) DragEvent event) {"
         errorLine2="                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="277"
+            line="285"
             column="72"/>
     </issue>
 
@@ -6360,22 +6316,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="446"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public CharSequence getText() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="500"
+            line="508"
             column="12"/>
     </issue>
 
@@ -12174,17 +12119,6 @@
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
             line="1437"
             column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1460"
-            column="54"/>
     </issue>
 
     <issue

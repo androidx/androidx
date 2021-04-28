@@ -84,7 +84,7 @@
         errorLine1="    &lt;string name=&quot;drawer_navigation&quot;>Drawer Nav&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="16"
             column="13"/>
     </issue>
@@ -95,7 +95,7 @@
         errorLine1="    &lt;string name=&quot;drawer_open&quot;>Open Navigation Drawer&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="17"
             column="13"/>
     </issue>
@@ -106,7 +106,7 @@
         errorLine1="    &lt;string name=&quot;drawer_close&quot;>Close Navigation Drawer&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="18"
             column="13"/>
     </issue>
@@ -117,7 +117,7 @@
         errorLine1="    &lt;string name=&quot;bottom_navigation&quot;>Bottom Nav&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="19"
             column="13"/>
     </issue>

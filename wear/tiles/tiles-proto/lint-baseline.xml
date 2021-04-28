@@ -7906,7 +7906,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="388"
+            line="356"
             column="19"/>
     </issue>
 
@@ -7917,7 +7917,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="389"
+            line="357"
             column="9"/>
     </issue>
 
@@ -7925,6 +7925,149 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="362"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        java.nio.ByteBuffer data,"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="363"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        com.google.protobuf.ExtensionRegistryLite extensionRegistry)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="364"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="369"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        com.google.protobuf.ByteString data)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="370"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="375"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        com.google.protobuf.ByteString data,"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="376"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        com.google.protobuf.ExtensionRegistryLite extensionRegistry)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="377"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(byte[] data)"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="382"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(byte[] data)"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="382"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="387"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        byte[] data,"
+        errorLine2="        ~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="388"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        com.google.protobuf.ExtensionRegistryLite extensionRegistry)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="389"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(java.io.InputStream input)"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
@@ -7935,154 +8078,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        java.nio.ByteBuffer data,"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="395"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        com.google.protobuf.ExtensionRegistryLite extensionRegistry)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="396"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="401"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        com.google.protobuf.ByteString data)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="402"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="407"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        com.google.protobuf.ByteString data,"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="408"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        com.google.protobuf.ExtensionRegistryLite extensionRegistry)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="409"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(byte[] data)"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="414"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(byte[] data)"
-        errorLine2="                                                                            ~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="414"
-            column="77"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="419"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        byte[] data,"
-        errorLine2="        ~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="420"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        com.google.protobuf.ExtensionRegistryLite extensionRegistry)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="421"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(java.io.InputStream input)"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="426"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static androidx.wear.tiles.proto.DimensionProto.SpProp parseFrom(java.io.InputStream input)"
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="426"
+            line="394"
             column="77"/>
     </issue>
 
@@ -8093,7 +8093,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="431"
+            line="399"
             column="19"/>
     </issue>
 
@@ -8104,7 +8104,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="432"
+            line="400"
             column="9"/>
     </issue>
 
@@ -8115,7 +8115,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="433"
+            line="401"
             column="9"/>
     </issue>
 
@@ -8126,7 +8126,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="438"
+            line="406"
             column="19"/>
     </issue>
 
@@ -8137,7 +8137,7 @@
         errorLine2="                                                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="438"
+            line="406"
             column="86"/>
     </issue>
 
@@ -8148,7 +8148,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="442"
+            line="410"
             column="19"/>
     </issue>
 
@@ -8159,7 +8159,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="443"
+            line="411"
             column="9"/>
     </issue>
 
@@ -8170,7 +8170,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="444"
+            line="412"
             column="9"/>
     </issue>
 
@@ -8181,7 +8181,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="448"
+            line="416"
             column="19"/>
     </issue>
 
@@ -8192,7 +8192,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="449"
+            line="417"
             column="9"/>
     </issue>
 
@@ -8203,7 +8203,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="454"
+            line="422"
             column="19"/>
     </issue>
 
@@ -8214,7 +8214,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="455"
+            line="423"
             column="9"/>
     </issue>
 
@@ -8225,7 +8225,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="456"
+            line="424"
             column="9"/>
     </issue>
 
@@ -8236,7 +8236,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="462"
+            line="430"
             column="19"/>
     </issue>
 
@@ -8247,7 +8247,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="465"
+            line="433"
             column="19"/>
     </issue>
 
@@ -8258,30 +8258,8 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="465"
+            line="433"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="      public Builder setDeprecatedIntValue(int value) {"
-        errorLine2="             ~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="500"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="      public Builder clearDeprecatedIntValue() {"
-        errorLine2="             ~~~~~~~">
-        <location
-            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="509"
-            column="14"/>
     </issue>
 
     <issue
@@ -8291,7 +8269,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="536"
+            line="476"
             column="14"/>
     </issue>
 
@@ -8302,7 +8280,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="549"
+            line="489"
             column="14"/>
     </issue>
 
@@ -8313,7 +8291,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="559"
+            line="499"
             column="21"/>
     </issue>
 
@@ -8324,7 +8302,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="560"
+            line="500"
             column="9"/>
     </issue>
 
@@ -8335,7 +8313,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="561"
+            line="501"
             column="9"/>
     </issue>
 
@@ -8346,7 +8324,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="561"
+            line="501"
             column="32"/>
     </issue>
 
@@ -8357,7 +8335,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="620"
+            line="558"
             column="19"/>
     </issue>
 
@@ -8368,7 +8346,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="626"
+            line="564"
             column="19"/>
     </issue>
 
@@ -8379,7 +8357,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="697"
+            line="635"
             column="19"/>
     </issue>
 
@@ -8390,7 +8368,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="698"
+            line="636"
             column="9"/>
     </issue>
 
@@ -8401,7 +8379,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="703"
+            line="641"
             column="19"/>
     </issue>
 
@@ -8412,7 +8390,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="704"
+            line="642"
             column="9"/>
     </issue>
 
@@ -8423,7 +8401,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="705"
+            line="643"
             column="9"/>
     </issue>
 
@@ -8434,7 +8412,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="710"
+            line="648"
             column="19"/>
     </issue>
 
@@ -8445,7 +8423,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="711"
+            line="649"
             column="9"/>
     </issue>
 
@@ -8456,7 +8434,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="716"
+            line="654"
             column="19"/>
     </issue>
 
@@ -8467,7 +8445,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="717"
+            line="655"
             column="9"/>
     </issue>
 
@@ -8478,7 +8456,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="718"
+            line="656"
             column="9"/>
     </issue>
 
@@ -8489,7 +8467,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="723"
+            line="661"
             column="19"/>
     </issue>
 
@@ -8500,7 +8478,7 @@
         errorLine2="                                                                            ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="723"
+            line="661"
             column="77"/>
     </issue>
 
@@ -8511,7 +8489,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="728"
+            line="666"
             column="19"/>
     </issue>
 
@@ -8522,7 +8500,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="729"
+            line="667"
             column="9"/>
     </issue>
 
@@ -8533,7 +8511,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="730"
+            line="668"
             column="9"/>
     </issue>
 
@@ -8544,7 +8522,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="735"
+            line="673"
             column="19"/>
     </issue>
 
@@ -8555,7 +8533,7 @@
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="735"
+            line="673"
             column="77"/>
     </issue>
 
@@ -8566,7 +8544,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="740"
+            line="678"
             column="19"/>
     </issue>
 
@@ -8577,7 +8555,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="741"
+            line="679"
             column="9"/>
     </issue>
 
@@ -8588,7 +8566,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="742"
+            line="680"
             column="9"/>
     </issue>
 
@@ -8599,7 +8577,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="747"
+            line="685"
             column="19"/>
     </issue>
 
@@ -8610,7 +8588,7 @@
         errorLine2="                                                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="747"
+            line="685"
             column="86"/>
     </issue>
 
@@ -8621,7 +8599,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="751"
+            line="689"
             column="19"/>
     </issue>
 
@@ -8632,7 +8610,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="752"
+            line="690"
             column="9"/>
     </issue>
 
@@ -8643,7 +8621,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="753"
+            line="691"
             column="9"/>
     </issue>
 
@@ -8654,7 +8632,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="757"
+            line="695"
             column="19"/>
     </issue>
 
@@ -8665,7 +8643,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="758"
+            line="696"
             column="9"/>
     </issue>
 
@@ -8676,7 +8654,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="763"
+            line="701"
             column="19"/>
     </issue>
 
@@ -8687,7 +8665,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="764"
+            line="702"
             column="9"/>
     </issue>
 
@@ -8698,7 +8676,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="765"
+            line="703"
             column="9"/>
     </issue>
 
@@ -8709,7 +8687,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="771"
+            line="709"
             column="19"/>
     </issue>
 
@@ -8720,7 +8698,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="774"
+            line="712"
             column="19"/>
     </issue>
 
@@ -8731,7 +8709,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="774"
+            line="712"
             column="38"/>
     </issue>
 
@@ -8742,7 +8720,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="817"
+            line="755"
             column="14"/>
     </issue>
 
@@ -8753,7 +8731,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="830"
+            line="768"
             column="14"/>
     </issue>
 
@@ -8764,7 +8742,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="840"
+            line="778"
             column="21"/>
     </issue>
 
@@ -8775,7 +8753,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="841"
+            line="779"
             column="9"/>
     </issue>
 
@@ -8786,7 +8764,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="842"
+            line="780"
             column="9"/>
     </issue>
 
@@ -8797,7 +8775,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="842"
+            line="780"
             column="32"/>
     </issue>
 
@@ -8808,7 +8786,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="899"
+            line="837"
             column="19"/>
     </issue>
 
@@ -8819,7 +8797,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="905"
+            line="843"
             column="19"/>
     </issue>
 
@@ -8830,7 +8808,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="976"
+            line="914"
             column="19"/>
     </issue>
 
@@ -8841,7 +8819,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="977"
+            line="915"
             column="9"/>
     </issue>
 
@@ -8852,7 +8830,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="982"
+            line="920"
             column="19"/>
     </issue>
 
@@ -8863,7 +8841,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="983"
+            line="921"
             column="9"/>
     </issue>
 
@@ -8874,7 +8852,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="984"
+            line="922"
             column="9"/>
     </issue>
 
@@ -8885,7 +8863,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="989"
+            line="927"
             column="19"/>
     </issue>
 
@@ -8896,7 +8874,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="990"
+            line="928"
             column="9"/>
     </issue>
 
@@ -8907,7 +8885,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="995"
+            line="933"
             column="19"/>
     </issue>
 
@@ -8918,7 +8896,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="996"
+            line="934"
             column="9"/>
     </issue>
 
@@ -8929,7 +8907,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="997"
+            line="935"
             column="9"/>
     </issue>
 
@@ -8940,7 +8918,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1002"
+            line="940"
             column="19"/>
     </issue>
 
@@ -8951,7 +8929,7 @@
         errorLine2="                                                                                 ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1002"
+            line="940"
             column="82"/>
     </issue>
 
@@ -8962,7 +8940,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1007"
+            line="945"
             column="19"/>
     </issue>
 
@@ -8973,7 +8951,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1008"
+            line="946"
             column="9"/>
     </issue>
 
@@ -8984,7 +8962,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1009"
+            line="947"
             column="9"/>
     </issue>
 
@@ -8995,7 +8973,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1014"
+            line="952"
             column="19"/>
     </issue>
 
@@ -9006,7 +8984,7 @@
         errorLine2="                                                                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1014"
+            line="952"
             column="82"/>
     </issue>
 
@@ -9017,7 +8995,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1019"
+            line="957"
             column="19"/>
     </issue>
 
@@ -9028,7 +9006,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1020"
+            line="958"
             column="9"/>
     </issue>
 
@@ -9039,7 +9017,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1021"
+            line="959"
             column="9"/>
     </issue>
 
@@ -9050,7 +9028,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1026"
+            line="964"
             column="19"/>
     </issue>
 
@@ -9061,7 +9039,7 @@
         errorLine2="                                                                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1026"
+            line="964"
             column="91"/>
     </issue>
 
@@ -9072,7 +9050,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1030"
+            line="968"
             column="19"/>
     </issue>
 
@@ -9083,7 +9061,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1031"
+            line="969"
             column="9"/>
     </issue>
 
@@ -9094,7 +9072,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1032"
+            line="970"
             column="9"/>
     </issue>
 
@@ -9105,7 +9083,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1036"
+            line="974"
             column="19"/>
     </issue>
 
@@ -9116,7 +9094,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1037"
+            line="975"
             column="9"/>
     </issue>
 
@@ -9127,7 +9105,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1042"
+            line="980"
             column="19"/>
     </issue>
 
@@ -9138,7 +9116,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1043"
+            line="981"
             column="9"/>
     </issue>
 
@@ -9149,7 +9127,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1044"
+            line="982"
             column="9"/>
     </issue>
 
@@ -9160,7 +9138,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1050"
+            line="988"
             column="19"/>
     </issue>
 
@@ -9171,7 +9149,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1053"
+            line="991"
             column="19"/>
     </issue>
 
@@ -9182,7 +9160,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1053"
+            line="991"
             column="38"/>
     </issue>
 
@@ -9193,7 +9171,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1096"
+            line="1034"
             column="14"/>
     </issue>
 
@@ -9204,7 +9182,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1109"
+            line="1047"
             column="14"/>
     </issue>
 
@@ -9215,7 +9193,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1119"
+            line="1057"
             column="21"/>
     </issue>
 
@@ -9226,7 +9204,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1120"
+            line="1058"
             column="9"/>
     </issue>
 
@@ -9237,7 +9215,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1121"
+            line="1059"
             column="9"/>
     </issue>
 
@@ -9248,7 +9226,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1121"
+            line="1059"
             column="32"/>
     </issue>
 
@@ -9259,7 +9237,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1178"
+            line="1116"
             column="19"/>
     </issue>
 
@@ -9270,7 +9248,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1184"
+            line="1122"
             column="19"/>
     </issue>
 
@@ -9281,7 +9259,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1208"
+            line="1146"
             column="19"/>
     </issue>
 
@@ -9292,7 +9270,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1209"
+            line="1147"
             column="9"/>
     </issue>
 
@@ -9303,7 +9281,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1214"
+            line="1152"
             column="19"/>
     </issue>
 
@@ -9314,7 +9292,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1215"
+            line="1153"
             column="9"/>
     </issue>
 
@@ -9325,7 +9303,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1216"
+            line="1154"
             column="9"/>
     </issue>
 
@@ -9336,7 +9314,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1221"
+            line="1159"
             column="19"/>
     </issue>
 
@@ -9347,7 +9325,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1222"
+            line="1160"
             column="9"/>
     </issue>
 
@@ -9358,7 +9336,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1227"
+            line="1165"
             column="19"/>
     </issue>
 
@@ -9369,7 +9347,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1228"
+            line="1166"
             column="9"/>
     </issue>
 
@@ -9380,7 +9358,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1229"
+            line="1167"
             column="9"/>
     </issue>
 
@@ -9391,7 +9369,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1234"
+            line="1172"
             column="19"/>
     </issue>
 
@@ -9402,7 +9380,7 @@
         errorLine2="                                                                                           ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1234"
+            line="1172"
             column="92"/>
     </issue>
 
@@ -9413,7 +9391,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1239"
+            line="1177"
             column="19"/>
     </issue>
 
@@ -9424,7 +9402,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1240"
+            line="1178"
             column="9"/>
     </issue>
 
@@ -9435,7 +9413,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1241"
+            line="1179"
             column="9"/>
     </issue>
 
@@ -9446,7 +9424,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1246"
+            line="1184"
             column="19"/>
     </issue>
 
@@ -9457,7 +9435,7 @@
         errorLine2="                                                                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1246"
+            line="1184"
             column="92"/>
     </issue>
 
@@ -9468,7 +9446,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1251"
+            line="1189"
             column="19"/>
     </issue>
 
@@ -9479,7 +9457,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1252"
+            line="1190"
             column="9"/>
     </issue>
 
@@ -9490,7 +9468,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1253"
+            line="1191"
             column="9"/>
     </issue>
 
@@ -9501,7 +9479,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1258"
+            line="1196"
             column="19"/>
     </issue>
 
@@ -9512,7 +9490,7 @@
         errorLine2="                                                                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1258"
+            line="1196"
             column="101"/>
     </issue>
 
@@ -9523,7 +9501,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1262"
+            line="1200"
             column="19"/>
     </issue>
 
@@ -9534,7 +9512,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1263"
+            line="1201"
             column="9"/>
     </issue>
 
@@ -9545,7 +9523,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1264"
+            line="1202"
             column="9"/>
     </issue>
 
@@ -9556,7 +9534,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1268"
+            line="1206"
             column="19"/>
     </issue>
 
@@ -9567,7 +9545,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1269"
+            line="1207"
             column="9"/>
     </issue>
 
@@ -9578,7 +9556,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1274"
+            line="1212"
             column="19"/>
     </issue>
 
@@ -9589,7 +9567,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1275"
+            line="1213"
             column="9"/>
     </issue>
 
@@ -9600,7 +9578,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1276"
+            line="1214"
             column="9"/>
     </issue>
 
@@ -9611,7 +9589,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1282"
+            line="1220"
             column="19"/>
     </issue>
 
@@ -9622,7 +9600,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1285"
+            line="1223"
             column="19"/>
     </issue>
 
@@ -9633,7 +9611,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1285"
+            line="1223"
             column="38"/>
     </issue>
 
@@ -9644,7 +9622,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1312"
+            line="1250"
             column="21"/>
     </issue>
 
@@ -9655,7 +9633,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1313"
+            line="1251"
             column="9"/>
     </issue>
 
@@ -9666,7 +9644,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1314"
+            line="1252"
             column="9"/>
     </issue>
 
@@ -9677,7 +9655,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1314"
+            line="1252"
             column="32"/>
     </issue>
 
@@ -9688,7 +9666,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1368"
+            line="1306"
             column="19"/>
     </issue>
 
@@ -9699,7 +9677,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1374"
+            line="1312"
             column="19"/>
     </issue>
 
@@ -9710,7 +9688,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1398"
+            line="1336"
             column="19"/>
     </issue>
 
@@ -9721,7 +9699,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1399"
+            line="1337"
             column="9"/>
     </issue>
 
@@ -9732,7 +9710,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1404"
+            line="1342"
             column="19"/>
     </issue>
 
@@ -9743,7 +9721,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1405"
+            line="1343"
             column="9"/>
     </issue>
 
@@ -9754,7 +9732,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1406"
+            line="1344"
             column="9"/>
     </issue>
 
@@ -9765,7 +9743,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1411"
+            line="1349"
             column="19"/>
     </issue>
 
@@ -9776,7 +9754,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1412"
+            line="1350"
             column="9"/>
     </issue>
 
@@ -9787,7 +9765,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1417"
+            line="1355"
             column="19"/>
     </issue>
 
@@ -9798,7 +9776,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1418"
+            line="1356"
             column="9"/>
     </issue>
 
@@ -9809,7 +9787,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1419"
+            line="1357"
             column="9"/>
     </issue>
 
@@ -9820,7 +9798,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1424"
+            line="1362"
             column="19"/>
     </issue>
 
@@ -9831,7 +9809,7 @@
         errorLine2="                                                                                          ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1424"
+            line="1362"
             column="91"/>
     </issue>
 
@@ -9842,7 +9820,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1429"
+            line="1367"
             column="19"/>
     </issue>
 
@@ -9853,7 +9831,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1430"
+            line="1368"
             column="9"/>
     </issue>
 
@@ -9864,7 +9842,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1431"
+            line="1369"
             column="9"/>
     </issue>
 
@@ -9875,7 +9853,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1436"
+            line="1374"
             column="19"/>
     </issue>
 
@@ -9886,7 +9864,7 @@
         errorLine2="                                                                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1436"
+            line="1374"
             column="91"/>
     </issue>
 
@@ -9897,7 +9875,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1441"
+            line="1379"
             column="19"/>
     </issue>
 
@@ -9908,7 +9886,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1442"
+            line="1380"
             column="9"/>
     </issue>
 
@@ -9919,7 +9897,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1443"
+            line="1381"
             column="9"/>
     </issue>
 
@@ -9930,7 +9908,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1448"
+            line="1386"
             column="19"/>
     </issue>
 
@@ -9941,7 +9919,7 @@
         errorLine2="                                                                                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1448"
+            line="1386"
             column="100"/>
     </issue>
 
@@ -9952,7 +9930,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1452"
+            line="1390"
             column="19"/>
     </issue>
 
@@ -9963,7 +9941,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1453"
+            line="1391"
             column="9"/>
     </issue>
 
@@ -9974,7 +9952,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1454"
+            line="1392"
             column="9"/>
     </issue>
 
@@ -9985,7 +9963,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1458"
+            line="1396"
             column="19"/>
     </issue>
 
@@ -9996,7 +9974,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1459"
+            line="1397"
             column="9"/>
     </issue>
 
@@ -10007,7 +9985,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1464"
+            line="1402"
             column="19"/>
     </issue>
 
@@ -10018,7 +9996,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1465"
+            line="1403"
             column="9"/>
     </issue>
 
@@ -10029,7 +10007,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1466"
+            line="1404"
             column="9"/>
     </issue>
 
@@ -10040,7 +10018,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1472"
+            line="1410"
             column="19"/>
     </issue>
 
@@ -10051,7 +10029,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1475"
+            line="1413"
             column="19"/>
     </issue>
 
@@ -10062,7 +10040,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1475"
+            line="1413"
             column="38"/>
     </issue>
 
@@ -10073,7 +10051,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1502"
+            line="1440"
             column="21"/>
     </issue>
 
@@ -10084,7 +10062,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1503"
+            line="1441"
             column="9"/>
     </issue>
 
@@ -10095,7 +10073,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1504"
+            line="1442"
             column="9"/>
     </issue>
 
@@ -10106,7 +10084,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1504"
+            line="1442"
             column="32"/>
     </issue>
 
@@ -10117,7 +10095,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1558"
+            line="1496"
             column="19"/>
     </issue>
 
@@ -10128,7 +10106,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1564"
+            line="1502"
             column="19"/>
     </issue>
 
@@ -10139,7 +10117,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1690"
+            line="1628"
             column="19"/>
     </issue>
 
@@ -10150,7 +10128,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1691"
+            line="1629"
             column="9"/>
     </issue>
 
@@ -10161,7 +10139,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1696"
+            line="1634"
             column="19"/>
     </issue>
 
@@ -10172,7 +10150,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1697"
+            line="1635"
             column="9"/>
     </issue>
 
@@ -10183,7 +10161,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1698"
+            line="1636"
             column="9"/>
     </issue>
 
@@ -10194,7 +10172,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1703"
+            line="1641"
             column="19"/>
     </issue>
 
@@ -10205,7 +10183,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1704"
+            line="1642"
             column="9"/>
     </issue>
 
@@ -10216,7 +10194,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1709"
+            line="1647"
             column="19"/>
     </issue>
 
@@ -10227,7 +10205,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1710"
+            line="1648"
             column="9"/>
     </issue>
 
@@ -10238,7 +10216,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1711"
+            line="1649"
             column="9"/>
     </issue>
 
@@ -10249,7 +10227,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1716"
+            line="1654"
             column="19"/>
     </issue>
 
@@ -10260,7 +10238,7 @@
         errorLine2="                                                                                               ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1716"
+            line="1654"
             column="96"/>
     </issue>
 
@@ -10271,7 +10249,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1721"
+            line="1659"
             column="19"/>
     </issue>
 
@@ -10282,7 +10260,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1722"
+            line="1660"
             column="9"/>
     </issue>
 
@@ -10293,7 +10271,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1723"
+            line="1661"
             column="9"/>
     </issue>
 
@@ -10304,7 +10282,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1728"
+            line="1666"
             column="19"/>
     </issue>
 
@@ -10315,7 +10293,7 @@
         errorLine2="                                                                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1728"
+            line="1666"
             column="96"/>
     </issue>
 
@@ -10326,7 +10304,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1733"
+            line="1671"
             column="19"/>
     </issue>
 
@@ -10337,7 +10315,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1734"
+            line="1672"
             column="9"/>
     </issue>
 
@@ -10348,7 +10326,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1735"
+            line="1673"
             column="9"/>
     </issue>
 
@@ -10359,7 +10337,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1740"
+            line="1678"
             column="19"/>
     </issue>
 
@@ -10370,7 +10348,7 @@
         errorLine2="                                                                                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1740"
+            line="1678"
             column="105"/>
     </issue>
 
@@ -10381,7 +10359,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1744"
+            line="1682"
             column="19"/>
     </issue>
 
@@ -10392,7 +10370,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1745"
+            line="1683"
             column="9"/>
     </issue>
 
@@ -10403,7 +10381,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1746"
+            line="1684"
             column="9"/>
     </issue>
 
@@ -10414,7 +10392,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1750"
+            line="1688"
             column="19"/>
     </issue>
 
@@ -10425,7 +10403,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1751"
+            line="1689"
             column="9"/>
     </issue>
 
@@ -10436,7 +10414,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1756"
+            line="1694"
             column="19"/>
     </issue>
 
@@ -10447,7 +10425,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1757"
+            line="1695"
             column="9"/>
     </issue>
 
@@ -10458,7 +10436,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1758"
+            line="1696"
             column="9"/>
     </issue>
 
@@ -10469,7 +10447,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1764"
+            line="1702"
             column="19"/>
     </issue>
 
@@ -10480,7 +10458,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1767"
+            line="1705"
             column="19"/>
     </issue>
 
@@ -10491,7 +10469,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1767"
+            line="1705"
             column="38"/>
     </issue>
 
@@ -10502,7 +10480,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1817"
+            line="1755"
             column="14"/>
     </issue>
 
@@ -10513,7 +10491,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1830"
+            line="1768"
             column="14"/>
     </issue>
 
@@ -10524,7 +10502,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1857"
+            line="1795"
             column="14"/>
     </issue>
 
@@ -10535,7 +10513,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1870"
+            line="1808"
             column="14"/>
     </issue>
 
@@ -10546,7 +10524,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1880"
+            line="1818"
             column="21"/>
     </issue>
 
@@ -10557,7 +10535,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1881"
+            line="1819"
             column="9"/>
     </issue>
 
@@ -10568,7 +10546,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1882"
+            line="1820"
             column="9"/>
     </issue>
 
@@ -10579,7 +10557,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1882"
+            line="1820"
             column="32"/>
     </issue>
 
@@ -10590,7 +10568,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1941"
+            line="1879"
             column="19"/>
     </issue>
 
@@ -10601,7 +10579,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1947"
+            line="1885"
             column="19"/>
     </issue>
 
@@ -10612,7 +10590,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1965"
+            line="1903"
             column="5"/>
     </issue>
 
@@ -10623,7 +10601,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1976"
+            line="1914"
             column="5"/>
     </issue>
 
@@ -10634,7 +10612,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1987"
+            line="1925"
             column="5"/>
     </issue>
 
@@ -10645,7 +10623,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="1989"
+            line="1927"
             column="12"/>
     </issue>
 
@@ -10656,7 +10634,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2020"
+            line="1958"
             column="21"/>
     </issue>
 
@@ -10667,7 +10645,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2024"
+            line="1962"
             column="21"/>
     </issue>
 
@@ -10678,7 +10656,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2039"
+            line="1977"
             column="12"/>
     </issue>
 
@@ -10689,7 +10667,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2062"
+            line="2000"
             column="12"/>
     </issue>
 
@@ -10700,7 +10678,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2124"
+            line="2062"
             column="12"/>
     </issue>
 
@@ -10711,7 +10689,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2186"
+            line="2124"
             column="12"/>
     </issue>
 
@@ -10722,7 +10700,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2236"
+            line="2174"
             column="19"/>
     </issue>
 
@@ -10733,7 +10711,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2237"
+            line="2175"
             column="9"/>
     </issue>
 
@@ -10744,7 +10722,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2242"
+            line="2180"
             column="19"/>
     </issue>
 
@@ -10755,7 +10733,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2243"
+            line="2181"
             column="9"/>
     </issue>
 
@@ -10766,7 +10744,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2244"
+            line="2182"
             column="9"/>
     </issue>
 
@@ -10777,7 +10755,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2249"
+            line="2187"
             column="19"/>
     </issue>
 
@@ -10788,7 +10766,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2250"
+            line="2188"
             column="9"/>
     </issue>
 
@@ -10799,7 +10777,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2255"
+            line="2193"
             column="19"/>
     </issue>
 
@@ -10810,7 +10788,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2256"
+            line="2194"
             column="9"/>
     </issue>
 
@@ -10821,7 +10799,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2257"
+            line="2195"
             column="9"/>
     </issue>
 
@@ -10832,7 +10810,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2262"
+            line="2200"
             column="19"/>
     </issue>
 
@@ -10843,7 +10821,7 @@
         errorLine2="                                                                                        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2262"
+            line="2200"
             column="89"/>
     </issue>
 
@@ -10854,7 +10832,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2267"
+            line="2205"
             column="19"/>
     </issue>
 
@@ -10865,7 +10843,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2268"
+            line="2206"
             column="9"/>
     </issue>
 
@@ -10876,7 +10854,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2269"
+            line="2207"
             column="9"/>
     </issue>
 
@@ -10887,7 +10865,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2274"
+            line="2212"
             column="19"/>
     </issue>
 
@@ -10898,7 +10876,7 @@
         errorLine2="                                                                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2274"
+            line="2212"
             column="89"/>
     </issue>
 
@@ -10909,7 +10887,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2279"
+            line="2217"
             column="19"/>
     </issue>
 
@@ -10920,7 +10898,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2280"
+            line="2218"
             column="9"/>
     </issue>
 
@@ -10931,7 +10909,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2281"
+            line="2219"
             column="9"/>
     </issue>
 
@@ -10942,7 +10920,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2286"
+            line="2224"
             column="19"/>
     </issue>
 
@@ -10953,7 +10931,7 @@
         errorLine2="                                                                                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2286"
+            line="2224"
             column="98"/>
     </issue>
 
@@ -10964,7 +10942,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2290"
+            line="2228"
             column="19"/>
     </issue>
 
@@ -10975,7 +10953,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2291"
+            line="2229"
             column="9"/>
     </issue>
 
@@ -10986,7 +10964,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2292"
+            line="2230"
             column="9"/>
     </issue>
 
@@ -10997,7 +10975,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2296"
+            line="2234"
             column="19"/>
     </issue>
 
@@ -11008,7 +10986,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2297"
+            line="2235"
             column="9"/>
     </issue>
 
@@ -11019,7 +10997,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2302"
+            line="2240"
             column="19"/>
     </issue>
 
@@ -11030,7 +11008,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2303"
+            line="2241"
             column="9"/>
     </issue>
 
@@ -11041,7 +11019,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2304"
+            line="2242"
             column="9"/>
     </issue>
 
@@ -11052,7 +11030,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2310"
+            line="2248"
             column="19"/>
     </issue>
 
@@ -11063,7 +11041,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2313"
+            line="2251"
             column="19"/>
     </issue>
 
@@ -11074,7 +11052,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2313"
+            line="2251"
             column="38"/>
     </issue>
 
@@ -11085,7 +11063,7 @@
         errorLine2="             ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2335"
+            line="2273"
             column="14"/>
     </issue>
 
@@ -11096,7 +11074,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2340"
+            line="2278"
             column="14"/>
     </issue>
 
@@ -11107,7 +11085,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2358"
+            line="2296"
             column="14"/>
     </issue>
 
@@ -11118,7 +11096,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2364"
+            line="2302"
             column="14"/>
     </issue>
 
@@ -11129,7 +11107,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2364"
+            line="2302"
             column="41"/>
     </issue>
 
@@ -11140,7 +11118,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2372"
+            line="2310"
             column="14"/>
     </issue>
 
@@ -11151,7 +11129,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2373"
+            line="2311"
             column="11"/>
     </issue>
 
@@ -11162,7 +11140,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2381"
+            line="2319"
             column="14"/>
     </issue>
 
@@ -11173,7 +11151,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2381"
+            line="2319"
             column="43"/>
     </issue>
 
@@ -11184,7 +11162,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2389"
+            line="2327"
             column="14"/>
     </issue>
 
@@ -11195,7 +11173,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2406"
+            line="2344"
             column="14"/>
     </issue>
 
@@ -11206,7 +11184,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2412"
+            line="2350"
             column="14"/>
     </issue>
 
@@ -11217,7 +11195,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2412"
+            line="2350"
             column="43"/>
     </issue>
 
@@ -11228,7 +11206,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2420"
+            line="2358"
             column="14"/>
     </issue>
 
@@ -11239,7 +11217,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2421"
+            line="2359"
             column="11"/>
     </issue>
 
@@ -11250,7 +11228,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2429"
+            line="2367"
             column="14"/>
     </issue>
 
@@ -11261,7 +11239,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2429"
+            line="2367"
             column="45"/>
     </issue>
 
@@ -11272,7 +11250,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2437"
+            line="2375"
             column="14"/>
     </issue>
 
@@ -11283,7 +11261,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2454"
+            line="2392"
             column="14"/>
     </issue>
 
@@ -11294,7 +11272,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2460"
+            line="2398"
             column="14"/>
     </issue>
 
@@ -11305,7 +11283,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2460"
+            line="2398"
             column="42"/>
     </issue>
 
@@ -11316,7 +11294,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2468"
+            line="2406"
             column="14"/>
     </issue>
 
@@ -11327,7 +11305,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2469"
+            line="2407"
             column="11"/>
     </issue>
 
@@ -11338,7 +11316,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2477"
+            line="2415"
             column="14"/>
     </issue>
 
@@ -11349,7 +11327,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2477"
+            line="2415"
             column="44"/>
     </issue>
 
@@ -11360,7 +11338,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2485"
+            line="2423"
             column="14"/>
     </issue>
 
@@ -11371,7 +11349,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2495"
+            line="2433"
             column="21"/>
     </issue>
 
@@ -11382,7 +11360,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2496"
+            line="2434"
             column="9"/>
     </issue>
 
@@ -11393,7 +11371,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2497"
+            line="2435"
             column="9"/>
     </issue>
 
@@ -11404,7 +11382,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2497"
+            line="2435"
             column="32"/>
     </issue>
 
@@ -11415,7 +11393,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2559"
+            line="2497"
             column="19"/>
     </issue>
 
@@ -11426,7 +11404,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2565"
+            line="2503"
             column="19"/>
     </issue>
 
@@ -11437,7 +11415,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2583"
+            line="2521"
             column="5"/>
     </issue>
 
@@ -11448,7 +11426,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2594"
+            line="2532"
             column="5"/>
     </issue>
 
@@ -11459,7 +11437,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2605"
+            line="2543"
             column="5"/>
     </issue>
 
@@ -11470,7 +11448,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2607"
+            line="2545"
             column="12"/>
     </issue>
 
@@ -11481,7 +11459,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2638"
+            line="2576"
             column="21"/>
     </issue>
 
@@ -11492,7 +11470,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2642"
+            line="2580"
             column="21"/>
     </issue>
 
@@ -11503,7 +11481,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2657"
+            line="2595"
             column="12"/>
     </issue>
 
@@ -11514,7 +11492,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2680"
+            line="2618"
             column="12"/>
     </issue>
 
@@ -11525,7 +11503,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2742"
+            line="2680"
             column="12"/>
     </issue>
 
@@ -11536,7 +11514,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2804"
+            line="2742"
             column="12"/>
     </issue>
 
@@ -11547,7 +11525,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2854"
+            line="2792"
             column="19"/>
     </issue>
 
@@ -11558,7 +11536,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2855"
+            line="2793"
             column="9"/>
     </issue>
 
@@ -11569,7 +11547,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2860"
+            line="2798"
             column="19"/>
     </issue>
 
@@ -11580,7 +11558,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2861"
+            line="2799"
             column="9"/>
     </issue>
 
@@ -11591,7 +11569,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2862"
+            line="2800"
             column="9"/>
     </issue>
 
@@ -11602,7 +11580,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2867"
+            line="2805"
             column="19"/>
     </issue>
 
@@ -11613,7 +11591,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2868"
+            line="2806"
             column="9"/>
     </issue>
 
@@ -11624,7 +11602,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2873"
+            line="2811"
             column="19"/>
     </issue>
 
@@ -11635,7 +11613,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2874"
+            line="2812"
             column="9"/>
     </issue>
 
@@ -11646,7 +11624,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2875"
+            line="2813"
             column="9"/>
     </issue>
 
@@ -11657,7 +11635,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2880"
+            line="2818"
             column="19"/>
     </issue>
 
@@ -11668,7 +11646,7 @@
         errorLine2="                                                                                    ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2880"
+            line="2818"
             column="85"/>
     </issue>
 
@@ -11679,7 +11657,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2885"
+            line="2823"
             column="19"/>
     </issue>
 
@@ -11690,7 +11668,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2886"
+            line="2824"
             column="9"/>
     </issue>
 
@@ -11701,7 +11679,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2887"
+            line="2825"
             column="9"/>
     </issue>
 
@@ -11712,7 +11690,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2892"
+            line="2830"
             column="19"/>
     </issue>
 
@@ -11723,7 +11701,7 @@
         errorLine2="                                                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2892"
+            line="2830"
             column="85"/>
     </issue>
 
@@ -11734,7 +11712,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2897"
+            line="2835"
             column="19"/>
     </issue>
 
@@ -11745,7 +11723,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2898"
+            line="2836"
             column="9"/>
     </issue>
 
@@ -11756,7 +11734,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2899"
+            line="2837"
             column="9"/>
     </issue>
 
@@ -11767,7 +11745,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2904"
+            line="2842"
             column="19"/>
     </issue>
 
@@ -11778,7 +11756,7 @@
         errorLine2="                                                                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2904"
+            line="2842"
             column="94"/>
     </issue>
 
@@ -11789,7 +11767,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2908"
+            line="2846"
             column="19"/>
     </issue>
 
@@ -11800,7 +11778,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2909"
+            line="2847"
             column="9"/>
     </issue>
 
@@ -11811,7 +11789,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2910"
+            line="2848"
             column="9"/>
     </issue>
 
@@ -11822,7 +11800,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2914"
+            line="2852"
             column="19"/>
     </issue>
 
@@ -11833,7 +11811,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2915"
+            line="2853"
             column="9"/>
     </issue>
 
@@ -11844,7 +11822,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2920"
+            line="2858"
             column="19"/>
     </issue>
 
@@ -11855,7 +11833,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2921"
+            line="2859"
             column="9"/>
     </issue>
 
@@ -11866,7 +11844,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2922"
+            line="2860"
             column="9"/>
     </issue>
 
@@ -11877,7 +11855,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2928"
+            line="2866"
             column="19"/>
     </issue>
 
@@ -11888,7 +11866,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2931"
+            line="2869"
             column="19"/>
     </issue>
 
@@ -11899,7 +11877,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2931"
+            line="2869"
             column="38"/>
     </issue>
 
@@ -11910,7 +11888,7 @@
         errorLine2="             ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2953"
+            line="2891"
             column="14"/>
     </issue>
 
@@ -11921,7 +11899,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2958"
+            line="2896"
             column="14"/>
     </issue>
 
@@ -11932,7 +11910,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2976"
+            line="2914"
             column="14"/>
     </issue>
 
@@ -11943,7 +11921,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2982"
+            line="2920"
             column="14"/>
     </issue>
 
@@ -11954,7 +11932,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2982"
+            line="2920"
             column="41"/>
     </issue>
 
@@ -11965,7 +11943,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2990"
+            line="2928"
             column="14"/>
     </issue>
 
@@ -11976,7 +11954,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2991"
+            line="2929"
             column="11"/>
     </issue>
 
@@ -11987,7 +11965,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2999"
+            line="2937"
             column="14"/>
     </issue>
 
@@ -11998,7 +11976,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="2999"
+            line="2937"
             column="43"/>
     </issue>
 
@@ -12009,7 +11987,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3007"
+            line="2945"
             column="14"/>
     </issue>
 
@@ -12020,7 +11998,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3024"
+            line="2962"
             column="14"/>
     </issue>
 
@@ -12031,7 +12009,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3030"
+            line="2968"
             column="14"/>
     </issue>
 
@@ -12042,7 +12020,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3030"
+            line="2968"
             column="43"/>
     </issue>
 
@@ -12053,7 +12031,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3038"
+            line="2976"
             column="14"/>
     </issue>
 
@@ -12064,7 +12042,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3039"
+            line="2977"
             column="11"/>
     </issue>
 
@@ -12075,7 +12053,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3047"
+            line="2985"
             column="14"/>
     </issue>
 
@@ -12086,7 +12064,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3047"
+            line="2985"
             column="45"/>
     </issue>
 
@@ -12097,7 +12075,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3055"
+            line="2993"
             column="14"/>
     </issue>
 
@@ -12108,7 +12086,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3072"
+            line="3010"
             column="14"/>
     </issue>
 
@@ -12119,7 +12097,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3078"
+            line="3016"
             column="14"/>
     </issue>
 
@@ -12130,7 +12108,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3078"
+            line="3016"
             column="47"/>
     </issue>
 
@@ -12141,7 +12119,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3086"
+            line="3024"
             column="14"/>
     </issue>
 
@@ -12152,7 +12130,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3087"
+            line="3025"
             column="11"/>
     </issue>
 
@@ -12163,7 +12141,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3095"
+            line="3033"
             column="14"/>
     </issue>
 
@@ -12174,7 +12152,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3095"
+            line="3033"
             column="49"/>
     </issue>
 
@@ -12185,7 +12163,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3103"
+            line="3041"
             column="14"/>
     </issue>
 
@@ -12196,7 +12174,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3113"
+            line="3051"
             column="21"/>
     </issue>
 
@@ -12207,7 +12185,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3114"
+            line="3052"
             column="9"/>
     </issue>
 
@@ -12218,7 +12196,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3115"
+            line="3053"
             column="9"/>
     </issue>
 
@@ -12229,7 +12207,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3115"
+            line="3053"
             column="32"/>
     </issue>
 
@@ -12240,7 +12218,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3177"
+            line="3115"
             column="19"/>
     </issue>
 
@@ -12251,7 +12229,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3183"
+            line="3121"
             column="19"/>
     </issue>
 
@@ -12262,7 +12240,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3209"
+            line="3147"
             column="5"/>
     </issue>
 
@@ -12273,7 +12251,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3211"
+            line="3149"
             column="12"/>
     </issue>
 
@@ -12284,7 +12262,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3240"
+            line="3178"
             column="21"/>
     </issue>
 
@@ -12295,7 +12273,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3244"
+            line="3182"
             column="21"/>
     </issue>
 
@@ -12306,7 +12284,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3257"
+            line="3195"
             column="12"/>
     </issue>
 
@@ -12317,7 +12295,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3288"
+            line="3226"
             column="12"/>
     </issue>
 
@@ -12328,7 +12306,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3354"
+            line="3292"
             column="19"/>
     </issue>
 
@@ -12339,7 +12317,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3355"
+            line="3293"
             column="9"/>
     </issue>
 
@@ -12350,7 +12328,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3360"
+            line="3298"
             column="19"/>
     </issue>
 
@@ -12361,7 +12339,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3361"
+            line="3299"
             column="9"/>
     </issue>
 
@@ -12372,7 +12350,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3362"
+            line="3300"
             column="9"/>
     </issue>
 
@@ -12383,7 +12361,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3367"
+            line="3305"
             column="19"/>
     </issue>
 
@@ -12394,7 +12372,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3368"
+            line="3306"
             column="9"/>
     </issue>
 
@@ -12405,7 +12383,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3373"
+            line="3311"
             column="19"/>
     </issue>
 
@@ -12416,7 +12394,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3374"
+            line="3312"
             column="9"/>
     </issue>
 
@@ -12427,7 +12405,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3375"
+            line="3313"
             column="9"/>
     </issue>
 
@@ -12438,7 +12416,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3380"
+            line="3318"
             column="19"/>
     </issue>
 
@@ -12449,7 +12427,7 @@
         errorLine2="                                                                                     ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3380"
+            line="3318"
             column="86"/>
     </issue>
 
@@ -12460,7 +12438,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3385"
+            line="3323"
             column="19"/>
     </issue>
 
@@ -12471,7 +12449,7 @@
         errorLine2="        ~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3386"
+            line="3324"
             column="9"/>
     </issue>
 
@@ -12482,7 +12460,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3387"
+            line="3325"
             column="9"/>
     </issue>
 
@@ -12493,7 +12471,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3392"
+            line="3330"
             column="19"/>
     </issue>
 
@@ -12504,7 +12482,7 @@
         errorLine2="                                                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3392"
+            line="3330"
             column="86"/>
     </issue>
 
@@ -12515,7 +12493,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3397"
+            line="3335"
             column="19"/>
     </issue>
 
@@ -12526,7 +12504,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3398"
+            line="3336"
             column="9"/>
     </issue>
 
@@ -12537,7 +12515,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3399"
+            line="3337"
             column="9"/>
     </issue>
 
@@ -12548,7 +12526,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3404"
+            line="3342"
             column="19"/>
     </issue>
 
@@ -12559,7 +12537,7 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3404"
+            line="3342"
             column="95"/>
     </issue>
 
@@ -12570,7 +12548,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3408"
+            line="3346"
             column="19"/>
     </issue>
 
@@ -12581,7 +12559,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3409"
+            line="3347"
             column="9"/>
     </issue>
 
@@ -12592,7 +12570,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3410"
+            line="3348"
             column="9"/>
     </issue>
 
@@ -12603,7 +12581,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3414"
+            line="3352"
             column="19"/>
     </issue>
 
@@ -12614,7 +12592,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3415"
+            line="3353"
             column="9"/>
     </issue>
 
@@ -12625,7 +12603,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3420"
+            line="3358"
             column="19"/>
     </issue>
 
@@ -12636,7 +12614,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3421"
+            line="3359"
             column="9"/>
     </issue>
 
@@ -12647,7 +12625,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3422"
+            line="3360"
             column="9"/>
     </issue>
 
@@ -12658,7 +12636,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3428"
+            line="3366"
             column="19"/>
     </issue>
 
@@ -12669,7 +12647,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3431"
+            line="3369"
             column="19"/>
     </issue>
 
@@ -12680,7 +12658,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3431"
+            line="3369"
             column="38"/>
     </issue>
 
@@ -12691,7 +12669,7 @@
         errorLine2="             ~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3453"
+            line="3391"
             column="14"/>
     </issue>
 
@@ -12702,7 +12680,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3458"
+            line="3396"
             column="14"/>
     </issue>
 
@@ -12713,7 +12691,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3484"
+            line="3422"
             column="14"/>
     </issue>
 
@@ -12724,7 +12702,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3494"
+            line="3432"
             column="14"/>
     </issue>
 
@@ -12735,7 +12713,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3494"
+            line="3432"
             column="41"/>
     </issue>
 
@@ -12746,7 +12724,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3506"
+            line="3444"
             column="14"/>
     </issue>
 
@@ -12757,7 +12735,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3507"
+            line="3445"
             column="11"/>
     </issue>
 
@@ -12768,7 +12746,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3519"
+            line="3457"
             column="14"/>
     </issue>
 
@@ -12779,7 +12757,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3519"
+            line="3457"
             column="43"/>
     </issue>
 
@@ -12790,7 +12768,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3531"
+            line="3469"
             column="14"/>
     </issue>
 
@@ -12801,7 +12779,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3541"
+            line="3479"
             column="21"/>
     </issue>
 
@@ -12812,7 +12790,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3542"
+            line="3480"
             column="9"/>
     </issue>
 
@@ -12823,7 +12801,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3543"
+            line="3481"
             column="9"/>
     </issue>
 
@@ -12834,7 +12812,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3543"
+            line="3481"
             column="32"/>
     </issue>
 
@@ -12845,7 +12823,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3602"
+            line="3540"
             column="19"/>
     </issue>
 
@@ -12856,7 +12834,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
-            line="3608"
+            line="3546"
             column="19"/>
     </issue>
 
