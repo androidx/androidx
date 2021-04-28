@@ -71,6 +71,8 @@ class regexes_matcher(object):
             if self.matches(text):
                 return 0
             return None
+        if not self.matches(text):
+            return None
         self.ensure_split()
         count = 0
         for child in self.children:
