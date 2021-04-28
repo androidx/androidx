@@ -89,7 +89,8 @@ class Encoding {
         byte[] buffer = read(is, numberOfBytes);
         long value = 0;
         for (int i = 0; i < numberOfBytes; i++) {
-            value += buffer[i] << (i * SIZEOF_BYTE);
+            long next = buffer[i] & 0xff;
+            value += next << (i * SIZEOF_BYTE);
         }
         return value;
     }

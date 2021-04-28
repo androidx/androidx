@@ -43,6 +43,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 @RequiresApi(19)
@@ -56,7 +58,7 @@ class ProfileTranscoder {
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
-    private static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
+    static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
 
     /**
      * Transcode (or convert) a binary profile from one format version to another.
@@ -142,7 +144,7 @@ class ProfileTranscoder {
             String profileKey = entry.getKey();
             DexProfileData data = entry.getValue();
             writeUInt16(os, utf8Length(profileKey));
-            writeUInt32(os, data.methods.size());
+            writeUInt16(os, data.methods.size());
             writeUInt16(os, data.classes.size());
             writeUInt32(os, data.dexChecksum);
             writeString(os, profileKey);
@@ -253,7 +255,7 @@ class ProfileTranscoder {
      * @param is The InputStream for the P+ binary profile
      * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
      */
-    private static @NonNull Map<String, DexProfileData> readProfile(
+    static @NonNull Map<String, DexProfileData> readProfile(
             @NonNull InputStream is
     ) throws IOException {
         int numberOfDexFiles = readUInt8(is);
@@ -304,8 +306,10 @@ class ProfileTranscoder {
                     classSetSize,
                     (int) hotMethodRegionSize,
                     (int) numMethodIds,
-                    new HashSet<>(),
-                    new HashMap<>()
+                    // NOTE: It is important to use LinkedHashSet/LinkedHashMap here to
+                    // ensure that iteration order matches insertion order
+                    new LinkedHashSet<>(),
+                    new LinkedHashMap<>()
             );
         }
 
@@ -448,7 +452,7 @@ class ProfileTranscoder {
         }
     }
 
-    private static class DexProfileData {
+    static class DexProfileData {
         final @NonNull String key;
         final long dexChecksum;
         final int classSetSize;

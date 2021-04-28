@@ -27,6 +27,8 @@ dependencies {
     annotationProcessor(NULLAWAY)
     api("androidx.startup:startup-runtime:1.0.0")
     implementation("androidx.annotation:annotation:1.2.0")
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 
 androidx {
