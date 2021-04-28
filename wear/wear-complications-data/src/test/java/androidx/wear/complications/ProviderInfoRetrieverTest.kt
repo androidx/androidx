@@ -18,6 +18,7 @@ package androidx.wear.complications
 
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.drawable.Icon
 import android.os.IBinder
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
@@ -146,5 +147,17 @@ public class ProviderInfoRetrieverTest {
             assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
+    }
+
+    @Test
+    public fun complicationProviderInfo_NullComponentName() {
+        val complicationProviderInfo = ComplicationProviderInfo(
+            "appName",
+            "name",
+            Icon.createWithContentUri("icon"),
+            ComplicationType.SHORT_TEXT,
+            componentName = null
+        )
+        assertThat(complicationProviderInfo.componentName).isNull()
     }
 }

@@ -62,21 +62,24 @@ public final class ComplicationProviderInfo implements Parcelable {
     @Nullable private String mProviderName;
     @Nullable private Icon mProviderIcon;
     @ComplicationData.ComplicationType private int mComplicationType;
+    /** This field is only populate in Android R and up and it is null otherwise. */
     @Nullable private ComponentName mProviderComponentName;
 
     /**
      * Constructs a {@link ComplicationProviderInfo} with the details of a complication provider.
      *
+     * <p>The providerComponentName field is only populated from Android R and up.
+     *
      * @param appName The name of the app providing the complication
      * @param providerName The name of the complication provider within the app
      * @param providerIcon The icon for the complication provider
      * @param complicationType The type of complication provided
-     * @param providerComponentName The preview complication data
+     * @param providerComponentName The component name of the complication provider
      */
     public ComplicationProviderInfo(
             @NonNull String appName, @NonNull String providerName, @NonNull Icon providerIcon,
             @ComplicationData.ComplicationType int complicationType,
-            @NonNull ComponentName providerComponentName) {
+            @Nullable ComponentName providerComponentName) {
         this.mAppName = appName;
         this.mProviderName = providerName;
         this.mProviderIcon = providerIcon;
