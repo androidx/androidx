@@ -356,7 +356,11 @@ public final class ActivityResultContracts {
      * <p>
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
+     *
+     * @deprecated The thumbnail bitmap is rarely returned and is not a good signal to determine
+     * whether the video was actually successfully captured. Use {@link CaptureVideo} to instead.
      */
+    @Deprecated
     public static class TakeVideo extends ActivityResultContract<Uri, Bitmap> {
 
         @CallSuper
@@ -379,6 +383,40 @@ public final class ActivityResultContracts {
         public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getParcelableExtra("data");
+        }
+    }
+
+    /**
+     * An {@link ActivityResultContract} to
+     * {@link MediaStore#ACTION_VIDEO_CAPTURE take a video} saving it into the provided
+     * content-{@link Uri}.
+     * <p>
+     * Returns {@code true} if the video was saved into the given {@link Uri}.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
+     */
+    public static class CaptureVideo extends ActivityResultContract<Uri, Boolean> {
+
+        @CallSuper
+        @NonNull
+        @Override
+        public Intent createIntent(@NonNull Context context, @NonNull Uri input) {
+            return new Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                    .putExtra(MediaStore.EXTRA_OUTPUT, input);
+        }
+
+        @Nullable
+        @Override
+        public final SynchronousResult<Boolean> getSynchronousResult(@NonNull Context context,
+                @NonNull Uri input) {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public final Boolean parseResult(int resultCode, @Nullable Intent intent) {
+            return resultCode == Activity.RESULT_OK;
         }
     }
 

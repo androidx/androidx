@@ -35,6 +35,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.CaptureVideo
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -59,6 +60,10 @@ class MainActivity : ComponentActivity() {
 
     val takePicture = registerForActivityResult(TakePicture()) { success ->
         toast("Got picture: $success")
+    }
+
+    val captureVideo = registerForActivityResult(CaptureVideo()) { success ->
+        toast("Got video: $success")
     }
 
     val getContent = registerForActivityResult(GetContent()) { uri ->
@@ -97,6 +102,11 @@ class MainActivity : ComponentActivity() {
                     val file = File(filesDir, "image")
                     val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
                     takePicture.launch(uri)
+                }
+                button("Capture video") {
+                    val file = File(filesDir, "video")
+                    val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
+                    captureVideo.launch(uri)
                 }
                 button("Pick an image") {
                     getContent.launch("image/*")
