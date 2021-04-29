@@ -33,7 +33,6 @@ import androidx.core.os.CancellationSignal;
 import androidx.core.util.Preconditions;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -694,23 +693,23 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     /**
      * Gets the Views in the hierarchy affected by entering and exiting transitions.
      *
-     * @param transitioningViews This View will be added to transitioningViews if it is VISIBLE and
-     *                           a normal View or a ViewGroup with
+     * @param transitioningViews This View will be added to transitioningViews if it has a
+     *                           transition name, is VISIBLE and a normal View, or a ViewGroup with
      *                           {@link android.view.ViewGroup#isTransitionGroup()} true.
      * @param view               The base of the view hierarchy to look in.
      */
     void captureTransitioningViews(ArrayList<View> transitioningViews, View view) {
         if (view instanceof ViewGroup) {
+            if (!transitioningViews.contains(view)
+                    && ViewCompat.getTransitionName(view) != null) {
+                transitioningViews.add(view);
+            }
             ViewGroup viewGroup = (ViewGroup) view;
-            if (ViewGroupCompat.isTransitionGroup(viewGroup)) {
-                transitioningViews.add(viewGroup);
-            } else {
-                int count = viewGroup.getChildCount();
-                for (int i = 0; i < count; i++) {
-                    View child = viewGroup.getChildAt(i);
-                    if (child.getVisibility() == View.VISIBLE) {
-                        captureTransitioningViews(transitioningViews, child);
-                    }
+            int count = viewGroup.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = viewGroup.getChildAt(i);
+                if (child.getVisibility() == View.VISIBLE) {
+                    captureTransitioningViews(transitioningViews, child);
                 }
             }
         } else {
