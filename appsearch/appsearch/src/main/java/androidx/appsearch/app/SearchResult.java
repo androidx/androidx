@@ -35,7 +35,7 @@ import java.util.List;
  * <ul>
  *   <li>The document which matched, using {@link #getGenericDocument}
  *   <li>Information about which properties in the document matched, and "snippet" information
- *       containing textual summaries of the document's matches, using {@link #getMatches}
+ *       containing textual summaries of the document's matches, using {@link #getMatchInfos}
  *  </ul>
  *
  * <p>"Snippet" refers to a substring of text from the content of document that is returned as a
@@ -45,7 +45,7 @@ import java.util.List;
  */
 public final class SearchResult {
     static final String DOCUMENT_FIELD = "document";
-    static final String MATCHES_FIELD = "matches";
+    static final String MATCH_INFOS_FIELD = "matchInfos";
     static final String PACKAGE_NAME_FIELD = "packageName";
     static final String DATABASE_NAME_FIELD = "databaseName";
     static final String RANKING_SIGNAL_FIELD = "rankingSignal";
@@ -59,7 +59,7 @@ public final class SearchResult {
 
     /** Cache of the inflated matches. Comes from inflating mMatchBundles at first use. */
     @Nullable
-    private List<MatchInfo> mMatches;
+    private List<MatchInfo> mMatchInfos;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -106,7 +106,19 @@ public final class SearchResult {
     }
 
     /**
-     * Contains a list of Snippets that matched the request.
+     * @deprecated This method exists only for dogfooder transition and must be removed.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Deprecated
+    @NonNull
+    public List<MatchInfo> getMatches() {
+        return getMatchInfos();
+    }
+
+    /**
+     * Returns a list of {@link MatchInfo}s providing information about how the document in
+     * {@link #getGenericDocument} matched the query.
      *
      * @return List of matches based on {@link SearchSpec}. If snippeting is disabled using
      * {@link SearchSpec.Builder#setSnippetCount} or
@@ -114,17 +126,17 @@ public final class SearchResult {
      * value, this method returns an empty list.
      */
     @NonNull
-    public List<MatchInfo> getMatches() {
-        if (mMatches == null) {
+    public List<MatchInfo> getMatchInfos() {
+        if (mMatchInfos == null) {
             List<Bundle> matchBundles =
-                    Preconditions.checkNotNull(mBundle.getParcelableArrayList(MATCHES_FIELD));
-            mMatches = new ArrayList<>(matchBundles.size());
+                    Preconditions.checkNotNull(mBundle.getParcelableArrayList(MATCH_INFOS_FIELD));
+            mMatchInfos = new ArrayList<>(matchBundles.size());
             for (int i = 0; i < matchBundles.size(); i++) {
                 MatchInfo matchInfo = new MatchInfo(matchBundles.get(i), getGenericDocument());
-                mMatches.add(matchInfo);
+                mMatchInfos.add(matchInfo);
             }
         }
-        return mMatches;
+        return mMatchInfos;
     }
 
     /**
@@ -225,9 +237,20 @@ public final class SearchResult {
             return this;
         }
 
-        /** Adds another match to this SearchResult. */
+        /**
+         * @deprecated this method exists only for dogfooder transition and must be removed
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Deprecated
         @NonNull
         public Builder addMatch(@NonNull MatchInfo matchInfo) {
+            return addMatchInfo(matchInfo);
+        }
+
+        /** Adds another match to this SearchResult. */
+        @NonNull
+        public Builder addMatchInfo(@NonNull MatchInfo matchInfo) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkState(
                     matchInfo.mDocument == null,
@@ -253,7 +276,7 @@ public final class SearchResult {
         @NonNull
         public SearchResult build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putParcelableArrayList(MATCHES_FIELD, mMatchInfos);
+            mBundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfos);
             mBuilt = true;
             return new SearchResult(mBundle);
         }

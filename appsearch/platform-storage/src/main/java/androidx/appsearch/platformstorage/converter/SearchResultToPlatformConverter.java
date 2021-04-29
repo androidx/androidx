@@ -50,7 +50,7 @@ public class SearchResultToPlatformConverter {
                 platformResult.getMatches();
         for (int i = 0; i < platformMatches.size(); i++) {
             SearchResult.MatchInfo jetpackMatchInfo = toJetpackMatchInfo(platformMatches.get(i));
-            builder.addMatch(jetpackMatchInfo);
+            builder.addMatchInfo(jetpackMatchInfo);
         }
         return builder.build();
     }

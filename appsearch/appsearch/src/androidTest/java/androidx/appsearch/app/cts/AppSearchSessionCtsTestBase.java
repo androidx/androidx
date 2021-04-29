@@ -1789,7 +1789,7 @@ public abstract class AppSearchSessionCtsTestBase {
         List<SearchResult> results = searchResults.getNextPage().get();
         assertThat(results).hasSize(1);
 
-        List<SearchResult.MatchInfo> matchInfos = results.get(0).getMatches();
+        List<SearchResult.MatchInfo> matchInfos = results.get(0).getMatchInfos();
         assertThat(matchInfos).isNotNull();
         assertThat(matchInfos).hasSize(1);
         SearchResult.MatchInfo matchInfo = matchInfos.get(0);
@@ -2672,7 +2672,7 @@ public abstract class AppSearchSessionCtsTestBase {
         List<SearchResult> page = searchResults.getNextPage().get();
         assertThat(page).hasSize(1);
         assertThat(page.get(0).getGenericDocument()).isEqualTo(yesNestedIndex);
-        List<SearchResult.MatchInfo> matches = page.get(0).getMatches();
+        List<SearchResult.MatchInfo> matches = page.get(0).getMatchInfos();
         assertThat(matches).hasSize(1);
         assertThat(matches.get(0).getPropertyPath()).isEqualTo("prop.subject");
         assertThat(matches.get(0).getFullText()).isEqualTo("This is the body");
