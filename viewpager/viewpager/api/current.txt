@@ -63,7 +63,6 @@ package androidx.viewpager.widget {
     method public void fakeDragBy(float);
     method public androidx.viewpager.widget.PagerAdapter? getAdapter();
     method public int getCurrentItem();
-    method public int getEdgeEffectType();
     method public int getOffscreenPageLimit();
     method public int getPageMargin();
     method public boolean isDragInGutterEnabled();
@@ -77,7 +76,6 @@ package androidx.viewpager.widget {
     method public void setCurrentItem(int);
     method public void setCurrentItem(int, boolean);
     method public void setDragInGutterEnabled(boolean);
-    method public void setEdgeEffectType(int);
     method public void setOffscreenPageLimit(int);
     method @Deprecated public void setOnPageChangeListener(androidx.viewpager.widget.ViewPager.OnPageChangeListener!);
     method public void setPageMargin(int);

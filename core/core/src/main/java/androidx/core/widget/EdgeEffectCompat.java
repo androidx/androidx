@@ -15,24 +15,16 @@
  */
 package androidx.core.widget;
 
-import static android.widget.EdgeEffect.TYPE_GLOW;
-import static android.widget.EdgeEffect.TYPE_STRETCH;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.EdgeEffect;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.core.os.BuildCompat;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * Helper for accessing {@link android.widget.EdgeEffect}.
@@ -44,13 +36,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class EdgeEffectCompat {
     private EdgeEffect mEdgeEffect;
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({TYPE_GLOW, TYPE_STRETCH})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface EdgeEffectType {
-    }
 
     /**
      * Construct a new EdgeEffect themed using the given context.
@@ -70,7 +55,7 @@ public final class EdgeEffectCompat {
 
     /**
      * Constructs and returns a new EdgeEffect themed using the given context, allowing support
-     * for the <code>edgeEffectType</code> attribute in the tag.
+     * for the view attributes.
      *
      * @param context Context to use for theming the effect
      * @param attrs The attributes of the XML tag that is inflating the view
@@ -82,35 +67,6 @@ public final class EdgeEffectCompat {
         }
 
         return new EdgeEffect(context);
-    }
-
-    /**
-     * Return the edge effect type to use. This will always be {@link EdgeEffect#TYPE_GLOW} for
-     * API versions {@link Build.VERSION_CODES#R} and earlier.
-     *
-     * @return The edge effect type to use.
-     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
-     */
-    @EdgeEffectType
-    public static int getType(@NonNull EdgeEffect edgeEffect) {
-        if (BuildCompat.isAtLeastS()) {
-            return EdgeEffectCompatApi31.getType(edgeEffect);
-        }
-        return TYPE_GLOW;
-    }
-
-    /**
-     * Sets the edge effect type to use. The default without a theme attribute set is
-     * {@link EdgeEffect#TYPE_GLOW}. This does not affect the edge effect type for versions
-     * {@link Build.VERSION_CODES#R} and earlier.
-     *
-     * @param type The edge effect type to use.
-     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
-     */
-    public static void setType(@NonNull EdgeEffect edgeEffect, @EdgeEffectType int type) {
-        if (BuildCompat.isAtLeastS()) {
-            EdgeEffectCompatApi31.setType(edgeEffect, type);
-        }
     }
 
     /**
@@ -369,22 +325,6 @@ public final class EdgeEffectCompat {
                 return edgeEffect.getDistance();
             } catch (Throwable t) {
                 return 0; // Old preview release
-            }
-        }
-
-        public static int getType(EdgeEffect edgeEffect) {
-            try {
-                return edgeEffect.getType();
-            } catch (Throwable t) {
-                return TYPE_GLOW; // Old preview release
-            }
-        }
-
-        public static void setType(EdgeEffect edgeEffect, int type) {
-            try {
-                edgeEffect.setType(type);
-            } catch (Throwable t) {
-                // do nothing for old preview releases
             }
         }
     }

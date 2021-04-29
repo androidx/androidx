@@ -67,7 +67,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -589,8 +588,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     // Reusable int array to be passed to method calls that mutate it in order to "return" two ints.
     final int[] mReusableIntPair = new int[2];
 
-    private int mEdgeEffectType;
-
     /**
      * These are views that had their a11y importance changed during a layout. We defer these events
      * until the end of the layout because a11y service may make sync calls back to the RV while
@@ -722,9 +719,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                 defStyleAttr, 0);
-        if (BuildCompat.isAtLeastS()) {
-            mEdgeEffectType = EdgeEffectCompat.getType(EdgeEffectCompat.create(context, attrs));
-        }
 
         ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.RecyclerView,
                 attrs, a, defStyleAttr, 0);
@@ -1111,35 +1105,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     public boolean hasFixedSize() {
         return mHasFixedSize;
-    }
-
-    /**
-     * Returns the {@link EdgeEffect#getType()} passed into
-     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int, int)}.
-     *
-     * @return the {@link EdgeEffect#getType()} passed into
-     *      * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int, int)}.
-     * @attr R.styleable.RecyclerView_android_edgeEffectType
-     */
-    @EdgeEffectCompat.EdgeEffectType
-    public int getEdgeEffectType() {
-        return mEdgeEffectType;
-    }
-
-    /**
-     * Sets the {@link EdgeEffect#getType()} passed into
-     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int, int)} and any existing
-     * over-scroll effects are cleared and new effects are created as needed using
-     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int, int)}
-     *
-     * @param type the {@link EdgeEffect#getType()} to pass into
-     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int, int)}.
-     * @attr R.styleable.RecyclerView_android_edgeEffectType
-     */
-    public void setEdgeEffectType(@EdgeEffectCompat.EdgeEffectType int type) {
-        mEdgeEffectType = type;
-        invalidateGlows();
-        invalidate();
     }
 
     @Override
@@ -2880,8 +2845,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (mLeftGlow != null) {
             return;
         }
-        mLeftGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_LEFT,
-                mEdgeEffectType);
+        mLeftGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_LEFT);
         if (mClipToPadding) {
             mLeftGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
                     getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
@@ -2894,8 +2858,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (mRightGlow != null) {
             return;
         }
-        mRightGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_RIGHT,
-                mEdgeEffectType);
+        mRightGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_RIGHT);
         if (mClipToPadding) {
             mRightGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
                     getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
@@ -2908,8 +2871,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (mTopGlow != null) {
             return;
         }
-        mTopGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_TOP,
-                mEdgeEffectType);
+        mTopGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_TOP);
         if (mClipToPadding) {
             mTopGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                     getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
@@ -2923,8 +2885,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (mBottomGlow != null) {
             return;
         }
-        mBottomGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_BOTTOM,
-                mEdgeEffectType);
+        mBottomGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_BOTTOM);
         if (mClipToPadding) {
             mBottomGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                     getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
@@ -2942,7 +2903,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * <p>
      * When a new {@link EdgeEffectFactory} is set, any existing over-scroll effects are cleared
      * and new effects are created as needed using
-     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int, int)}
+     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int)}
      *
      * @param edgeEffectFactory The {@link EdgeEffectFactory} instance.
      */
@@ -5956,16 +5917,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         @EdgeDirection int direction) {
             return new EdgeEffect(view.getContext());
         }
-
-        /**
-         * Create a new EdgeEffect for the provided direction and the given EdgeEffect type.
-         * By default, this returns {@link #createEdgeEffect(RecyclerView, int)}.
-         */
-        protected @NonNull EdgeEffect createEdgeEffect(@NonNull RecyclerView view,
-                        @EdgeDirection int direction,
-                @EdgeEffectCompat.EdgeEffectType int edgeEffectType) {
-            return createEdgeEffect(view, direction);
-        }
     }
 
     /**
@@ -5974,12 +5925,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     static class StretchEdgeEffectFactory extends EdgeEffectFactory {
         @NonNull
         @Override
-        protected EdgeEffect createEdgeEffect(
-                @NonNull RecyclerView view, int direction,
-                @EdgeEffectCompat.EdgeEffectType int edgeEffectType) {
-            EdgeEffect edgeEffect = new EdgeEffect(view.getContext());
-            EdgeEffectCompat.setType(edgeEffect, edgeEffectType);
-            return edgeEffect;
+        protected EdgeEffect createEdgeEffect(@NonNull RecyclerView view, int direction) {
+            return new EdgeEffect(view.getContext());
         }
     }
 

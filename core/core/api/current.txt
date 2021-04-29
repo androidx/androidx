@@ -3385,7 +3385,6 @@ package androidx.core.widget {
     method @Deprecated public boolean draw(android.graphics.Canvas!);
     method @Deprecated public void finish();
     method public static float getDistance(android.widget.EdgeEffect);
-    method public static int getType(android.widget.EdgeEffect);
     method @Deprecated public boolean isFinished();
     method @Deprecated public boolean onAbsorb(int);
     method @Deprecated public boolean onPull(float);
@@ -3394,7 +3393,6 @@ package androidx.core.widget {
     method public static float onPullDistance(android.widget.EdgeEffect, float, float);
     method @Deprecated public boolean onRelease();
     method @Deprecated public void setSize(int, int);
-    method public static void setType(android.widget.EdgeEffect, int);
   }
 
   public class ImageViewCompat {
@@ -3439,7 +3437,6 @@ package androidx.core.widget {
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fling(int);
     method public boolean fullScroll(int);
-    method public int getEdgeEffectType();
     method public int getMaxScrollAmount();
     method public boolean hasNestedScrollingParent(int);
     method public boolean isFillViewport();
@@ -3452,7 +3449,6 @@ package androidx.core.widget {
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View, int);
     method public boolean pageScroll(int);
-    method public void setEdgeEffectType(int);
     method public void setFillViewport(boolean);
     method public void setOnScrollChangeListener(androidx.core.widget.NestedScrollView.OnScrollChangeListener?);
     method public void setSmoothScrollingEnabled(boolean);

@@ -16,9 +16,6 @@
 
 package androidx.viewpager.widget;
 
-import static androidx.viewpager.widget.BaseViewPagerTest.isSOrHigher;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -26,15 +23,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.viewpager.test.R;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -75,25 +69,6 @@ public final class ViewPagerTest {
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertTrue(adapter.primaryCalled);
-    }
-
-    @Test
-    @UiThreadTest
-    public void testEdgeEffectType() throws Throwable {
-        activityRule.getActivity().setContentView(R.layout.view_pager_with_stretch);
-        ViewPager viewPager = (ViewPager) activityRule.getActivity().findViewById(R.id.pager);
-        if (isSOrHigher()) {
-            // Starts out as stretch because the attribute is set
-            assertEquals(EdgeEffect.TYPE_STRETCH, viewPager.getEdgeEffectType());
-            // Set the type to glow
-            viewPager.setEdgeEffectType(EdgeEffect.TYPE_GLOW);
-            assertEquals(EdgeEffect.TYPE_GLOW, viewPager.getEdgeEffectType());
-        } else {
-            // Earlier versions only support glow
-            assertEquals(EdgeEffect.TYPE_GLOW, viewPager.getEdgeEffectType());
-            viewPager.setEdgeEffectType(EdgeEffect.TYPE_STRETCH);
-            assertEquals(EdgeEffect.TYPE_GLOW, viewPager.getEdgeEffectType());
-        }
     }
 
     static final class PrimaryItemPagerAdapter extends PagerAdapter {

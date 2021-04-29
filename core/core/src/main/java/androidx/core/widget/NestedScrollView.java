@@ -219,28 +219,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         ViewCompat.setAccessibilityDelegate(this, ACCESSIBILITY_DELEGATE);
     }
 
-    /**
-     * Returns the {@link EdgeEffect#getType()} for the edge effects.
-     * @return the {@link EdgeEffect#getType()} for the edge effects.
-     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
-     */
-    @EdgeEffectCompat.EdgeEffectType
-    public int getEdgeEffectType() {
-        // Both bottom and top will have the same type.
-        return EdgeEffectCompat.getType(mEdgeGlowBottom);
-    }
-
-    /**
-     * Sets the {@link EdgeEffect#setType(int)} for the edge effects.
-     * @param type The edge effect type to use for the edge effects.
-     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
-     */
-    public void setEdgeEffectType(@EdgeEffectCompat.EdgeEffectType int type) {
-        EdgeEffectCompat.setType(mEdgeGlowTop, type);
-        EdgeEffectCompat.setType(mEdgeGlowBottom, type);
-        invalidate();
-    }
-
     // NestedScrollingChild3
 
     @Override
