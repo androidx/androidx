@@ -29,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <androidx.wear.widget.WearArcLayout
+    <androidx.wear.widget.ArcLayout
         android:id="@+id/arc_layout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -37,7 +37,7 @@
         circular:anchorPosition="center"
         circular:clockwise="true">
 
-        <androidx.wear.widget.WearCurvedTextView
+        <androidx.wear.widget.CurvedTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Left"
@@ -59,7 +59,7 @@
             tools:ignore="HardcodedText"
             />
 
-        <androidx.wear.widget.WearCurvedTextView
+        <androidx.wear.widget.CurvedTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Center"
@@ -73,7 +73,7 @@
             tools:ignore="HardcodedText"
             />
 
-        <androidx.wear.widget.WearCurvedTextView
+        <androidx.wear.widget.CurvedTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Right"
@@ -95,9 +95,9 @@
             tools:ignore="HardcodedText"
             />
 
-    </androidx.wear.widget.WearArcLayout>
+    </androidx.wear.widget.ArcLayout>
 
-    <androidx.wear.widget.WearArcLayout
+    <androidx.wear.widget.ArcLayout
         android:id="@+id/arc_layout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -114,7 +114,7 @@
             tools:ignore="HardcodedText"
             />
 
-        <androidx.wear.widget.WearCurvedTextView
+        <androidx.wear.widget.CurvedTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="ACL"
@@ -139,7 +139,7 @@
             tools:ignore="HardcodedText"
             />
 
-        <androidx.wear.widget.WearCurvedTextView
+        <androidx.wear.widget.CurvedTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="ACR"
@@ -152,5 +152,5 @@
             android:textSize="30sp"
             tools:ignore="HardcodedText"
             />
-    </androidx.wear.widget.WearArcLayout>
+    </androidx.wear.widget.ArcLayout>
 </FrameLayout>
