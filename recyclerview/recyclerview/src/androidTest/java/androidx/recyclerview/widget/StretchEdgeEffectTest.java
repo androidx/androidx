@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
@@ -32,7 +31,6 @@ import android.widget.EdgeEffect;
 import androidx.annotation.NonNull;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.widget.EdgeEffectCompat;
-import androidx.recyclerview.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -71,61 +69,13 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         assertThat("Assumption check", mRecyclerView.getChildCount() > 0, is(true));
     }
 
-    @Test
-    public void testEdgeEffectTypeAttribute() throws Throwable {
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mLayoutManager.ensureLayoutState();
-
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        mRecyclerView = (RecyclerView) inflater.inflate(R.layout.stretch_rv, null);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(new TestAdapter(NUM_ITEMS) {
-
-            @Override
-            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                    int viewType) {
-                TestViewHolder holder = super.onCreateViewHolder(parent, viewType);
-                holder.itemView.setMinimumHeight(mRecyclerView.getMeasuredHeight() * 2 / NUM_ITEMS);
-                holder.itemView.setMinimumWidth(mRecyclerView.getMeasuredWidth() * 2 / NUM_ITEMS);
-                return holder;
-            }
-        });
-        setRecyclerView(mRecyclerView);
-        getInstrumentation().waitForIdleSync();
-        assertThat("Assumption check", mRecyclerView.getChildCount() > 0, is(true));
-
-        TestEdgeEffectFactory
-                factory = new TestEdgeEffectFactory();
-        mRecyclerView.setEdgeEffectFactory(factory);
-
-        int expectedType = isSOrHigher() ? EdgeEffect.TYPE_STRETCH : EdgeEffect.TYPE_GLOW;
-        assertEquals(expectedType, mRecyclerView.getEdgeEffectType());
-
-        scrollToPosition(0);
-        waitForIdleScroll(mRecyclerView);
-        scrollVerticalBy(3);
-
-        assertEquals(expectedType, factory.mEdgeEffectType);
-        mRecyclerView.setEdgeEffectType(EdgeEffect.TYPE_GLOW);
-        assertEquals(EdgeEffect.TYPE_GLOW, mRecyclerView.getEdgeEffectType());
-
-        waitForIdleScroll(mRecyclerView);
-        scrollVerticalBy(3);
-        waitForIdleScroll(mRecyclerView);
-        assertEquals(EdgeEffect.TYPE_GLOW, factory.mEdgeEffectType);
-    }
-
     /**
      * After pulling the edge effect, releasing should return the edge effect to 0.
      */
     @Test
     public void testLeftEdgeEffectRetract() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-            }
-        });
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
         TestEdgeEffectFactory
                 factory = new TestEdgeEffectFactory();
         mRecyclerView.setEdgeEffectFactory(factory);
@@ -140,7 +90,6 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         if (isSOrHigher()) {
             assertTrue(factory.mLeft.isFinished());
         }
-        assertEquals(EdgeEffect.TYPE_GLOW, factory.mEdgeEffectType);
     }
 
     /**
@@ -162,7 +111,6 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         if (isSOrHigher()) {
             assertTrue(factory.mTop.isFinished());
         }
-        assertEquals(EdgeEffect.TYPE_GLOW, factory.mEdgeEffectType);
     }
 
     /**
@@ -170,12 +118,8 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
      */
     @Test
     public void testRightEdgeEffectRetract() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-            }
-        });
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
         TestEdgeEffectFactory
                 factory = new TestEdgeEffectFactory();
         mRecyclerView.setEdgeEffectFactory(factory);
@@ -190,7 +134,6 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         if (isSOrHigher()) {
             assertTrue(factory.mRight.isFinished());
         }
-        assertEquals(EdgeEffect.TYPE_GLOW, factory.mEdgeEffectType);
     }
 
     /**
@@ -212,7 +155,6 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
             assertEquals(0f, EdgeEffectCompat.getDistance(factory.mBottom), 0f);
             assertTrue(factory.mBottom.isFinished());
         }
-        assertEquals(EdgeEffect.TYPE_GLOW, factory.mEdgeEffectType);
     }
 
     private static boolean isSOrHigher() {
@@ -223,37 +165,22 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     private void scrollVerticalBy(final int value) throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TouchUtils.scrollView(MotionEvent.AXIS_VSCROLL, value,
-                        InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView);
-            }
-        });
+        mActivityRule.runOnUiThread(() -> TouchUtils.scrollView(MotionEvent.AXIS_VSCROLL, value,
+                InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView));
     }
 
     private void scrollHorizontalBy(final int value) throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TouchUtils.scrollView(MotionEvent.AXIS_HSCROLL, value,
-                        InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView);
-            }
-        });
+        mActivityRule.runOnUiThread(() -> TouchUtils.scrollView(MotionEvent.AXIS_HSCROLL, value,
+                InputDeviceCompat.SOURCE_CLASS_POINTER, mRecyclerView));
     }
 
     private class TestEdgeEffectFactory extends RecyclerView.EdgeEffectFactory {
-        int mEdgeEffectType = -1;
-
         TestEdgeEffect mTop, mBottom, mLeft, mRight;
 
         @NonNull
         @Override
-        protected EdgeEffect createEdgeEffect(RecyclerView view, int direction,
-                int edgeEffectType) {
-            mEdgeEffectType = edgeEffectType;
+        protected EdgeEffect createEdgeEffect(RecyclerView view, int direction) {
             TestEdgeEffect effect = new TestEdgeEffect(view.getContext());
-            EdgeEffectCompat.setType(effect, edgeEffectType);
             switch (direction) {
                 case DIRECTION_LEFT:
                     mLeft = effect;

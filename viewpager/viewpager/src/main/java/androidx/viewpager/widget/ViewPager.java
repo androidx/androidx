@@ -16,9 +16,6 @@
 
 package androidx.viewpager.widget;
 
-import static android.widget.EdgeEffect.TYPE_GLOW;
-import static android.widget.EdgeEffect.TYPE_STRETCH;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -49,11 +46,9 @@ import android.widget.Scroller;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -130,13 +125,6 @@ public class ViewPager extends ViewGroup {
     static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({TYPE_GLOW, TYPE_STRETCH})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface EdgeEffectType {
-    }
 
     /**
      * Used to track what the expected number of items in the adapter should be.
@@ -487,27 +475,6 @@ public class ViewPager extends ViewGroup {
                                 .build();
                     }
                 });
-    }
-
-    /**
-     * Returns the {@link EdgeEffect#getType()} for the edge effects.
-     * @return the {@link EdgeEffect#getType()} for the edge effects.
-     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
-     */
-    @EdgeEffectType
-    public int getEdgeEffectType() {
-        return EdgeEffectCompat.getType(mLeftEdge);
-    }
-
-    /**
-     * Sets the {@link EdgeEffect#setType(int)} for the edge effects.
-     * @param type The edge effect type to use for the edge effects.
-     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
-     */
-    public void setEdgeEffectType(@EdgeEffectType int type) {
-        EdgeEffectCompat.setType(mLeftEdge, type);
-        EdgeEffectCompat.setType(mRightEdge, type);
-        invalidate();
     }
 
     @Override

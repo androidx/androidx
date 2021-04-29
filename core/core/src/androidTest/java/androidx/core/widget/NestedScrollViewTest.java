@@ -16,9 +16,6 @@
 
 package androidx.core.widget;
 
-import static android.widget.EdgeEffect.TYPE_GLOW;
-import static android.widget.EdgeEffect.TYPE_STRETCH;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -30,12 +27,9 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Parcelable;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EdgeEffect;
 
-import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -311,25 +305,6 @@ public class NestedScrollViewTest {
         mNestedScrollView.scrollTo(0, 100);
 
         assertThat(mNestedScrollView.getScrollY(), is(100));
-    }
-
-    @Test
-    public void testEdgeEffectType() {
-        Context context = ApplicationProvider.getApplicationContext();
-        LayoutInflater layoutInflater = LayoutInflater.from(context);
-        mNestedScrollView = (NestedScrollView) layoutInflater.inflate(
-                R.layout.nested_scroll_view_stretch, null);
-
-        if (isSOrHigher()) {
-            assertEquals(TYPE_STRETCH, mNestedScrollView.getEdgeEffectType());
-            mNestedScrollView.setEdgeEffectType(EdgeEffect.TYPE_GLOW);
-            assertEquals(TYPE_GLOW, mNestedScrollView.getEdgeEffectType());
-        } else {
-            // Older versions can't change. They're always glow edge effects.
-            assertEquals(TYPE_GLOW, mNestedScrollView.getEdgeEffectType());
-            mNestedScrollView.setEdgeEffectType(TYPE_STRETCH);
-            assertEquals(TYPE_GLOW, mNestedScrollView.getEdgeEffectType());
-        }
     }
 
     @Test

@@ -53,29 +53,6 @@ public class EdgeEffectCompatTest extends
         mView = activity.findViewById(R.id.edgeEffectView);
         mEdgeEffect = mView.mEdgeEffect;
     }
-    // TODO(b/181171227): Change to R
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    public void edgeEffectTypeApi30() {
-        assertEquals(EdgeEffect.TYPE_GLOW, EdgeEffectCompat.getType(mEdgeEffect));
-        EdgeEffectCompat.setType(mEdgeEffect, EdgeEffect.TYPE_STRETCH);
-        // nothing should change for R and earlier
-        assertEquals(EdgeEffect.TYPE_GLOW, EdgeEffectCompat.getType(mEdgeEffect));
-    }
-
-    // TODO(b/181171227): Change to S
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
-    @Test
-    public void edgeEffectTypeApi31() {
-        // TODO(b/181171227): Remove this condition
-        if (isSOrHigher()) {
-            assertEquals(EdgeEffect.TYPE_STRETCH, EdgeEffectCompat.getType(mEdgeEffect));
-            EdgeEffectCompat.setType(mEdgeEffect, EdgeEffect.TYPE_GLOW);
-            assertEquals(EdgeEffect.TYPE_GLOW, EdgeEffectCompat.getType(mEdgeEffect));
-        } else {
-            edgeEffectTypeApi30();
-        }
-    }
 
     // TODO(b/181171227): Change to R
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
