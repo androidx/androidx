@@ -65,13 +65,13 @@ public open class ListenableWatchFaceControlClient(
         ): ListenableFuture<T> {
             val traceEvent = AsyncTraceEvent(traceTag)
             val future = ResolvableFuture.create<T>()
-            val immediateCoroutineScope = createImmediateCoroutineScope()
-            scopeFactory().launch {
+            val coroutineScope = scopeFactory()
+            coroutineScope.launch {
                 // Propagate future cancellation.
                 future.addListener(
                     {
                         if (future.isCancelled) {
-                            immediateCoroutineScope.cancel()
+                            coroutineScope.cancel()
                         }
                     },
                     { runner -> runner.run() }
