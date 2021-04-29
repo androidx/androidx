@@ -29,7 +29,6 @@ dependencies {
     // Not really sure about these:
     implementation("androidx.benchmark:benchmark-gradle-plugin:1.0.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
-    implementation("org.anarres.jarjar:jarjar-gradle:1.0.1")
     implementation(build_libs.shadow)
     implementation(build_libs.wire_plugin)
 }
