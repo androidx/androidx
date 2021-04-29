@@ -15,12 +15,14 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.appcompat.resources.test">
+    package="androidx.appcompat.resources.test">
 
     <application
-            android:theme="@android:style/Theme">
+        android:theme="@android:style/Theme">
+
         <activity
-                android:name="android.app.Activity"/>
+            android:name="android.app.Activity"/>
+
     </application>
 
 </manifest>
