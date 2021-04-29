@@ -20,6 +20,32 @@
 #
 # Example usage (from root dir of androidx workspace):
 # $ ./frameworks/support/appsearch/exportToFramework.py "$HOME/android/master" "<jetpack changeid>"
+
+# Special directives supported by this script:
+#
+# Causes the file where it appears to not be copied at all:
+#   @exportToFramework:skipFile()
+#
+# Causes the text appearing between startStrip() and endStrip() to be removed during export:
+#   // @exportToFramework:startStrip() ... // @exportToFramework:endStrip()
+#
+# Replaced with @hide:
+#   <!--@exportToFramework:hide-->
+#
+# Replaced with @CurrentTimeMillisLong:
+#   /*@exportToFramework:CurrentTimeMillisLong*/
+#
+# Removes the text appearing between ifJetpack() and else(), and causes the text appearing between
+# else() and --> to become uncommented, to support framework-only Javadocs:
+#   <!--@exportToFramework:ifJetpack()-->
+#   Jetpack-only Javadoc
+#   <!--@exportToFramework:else()
+#   Framework-only Javadoc
+#   -->
+# Note: Using the above pattern, you can hide a method in Jetpack but unhide it in Framework like
+# this:
+#   <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
+
 import os
 import re
 import subprocess
@@ -81,10 +107,17 @@ class ExportToFramework:
     def _TransformCommonCode(self, contents):
         # Apply stripping
         contents = re.sub(
-                r'\/\/ @exportToFramework:startStrip\(\).*?\/\/ @exportToFramework:endStrip\(\)',
-                '',
-                contents,
-                flags=re.DOTALL)
+            r'\/\/ @exportToFramework:startStrip\(\).*?\/\/ @exportToFramework:endStrip\(\)',
+            '',
+            contents,
+            flags=re.DOTALL)
+
+        # Apply if/elses in javadocs
+        contents = re.sub(
+            r'<!--@exportToFramework:ifJetpack\(\)-->.*?<!--@exportToFramework:else\(\)(.*?)-->',
+            r'\1',
+            contents,
+            flags=re.DOTALL)
 
         # Add additional imports if required
         imports_to_add = []
@@ -125,6 +158,7 @@ class ExportToFramework:
             .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
             .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
+            .replace('<!--@exportToFramework:hide-->', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
 

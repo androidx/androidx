@@ -31,9 +31,11 @@ import java.util.List;
 /**
  * Encapsulates a request to index documents into an {@link AppSearchSession} database.
  *
+ * <!--@exportToFramework:ifJetpack()-->
  * <p>Documents added to the request can be instances of classes annotated with
  * {@link androidx.appsearch.annotation.Document} or instances of
  * {@link GenericDocument}.
+ * <!--@exportToFramework:else()-->
  *
  * @see AppSearchSession#put
  */

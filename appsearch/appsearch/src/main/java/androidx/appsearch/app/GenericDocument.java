@@ -43,8 +43,12 @@ import java.util.Set;
  * <p>Documents contain structured data conforming to their {@link AppSearchSchema} type.
  * Each document is uniquely identified by a namespace and a String ID within that namespace.
  *
+ * <!--@exportToFramework:ifJetpack()-->
  * <p>Documents are constructed either by using the {@link GenericDocument.Builder} or providing
  * an annotated {@link Document} data class.
+ * <!--@exportToFramework:else()
+ * <p>Documents are constructed by using the {@link GenericDocument.Builder}.
+ * -->
  *
  * @see AppSearchSession#put
  * @see AppSearchSession#getByDocumentId
@@ -893,11 +897,12 @@ public class GenericDocument {
      * {@link GenericDocument.Builder}.
      *
      * <p>The returned builder is a deep copy whose data is separate from this document.
+     * <!--@exportToFramework:hide-->
      */
     @NonNull
     public GenericDocument.Builder<GenericDocument.Builder<?>> toBuilder() {
         Bundle clonedBundle = BundleUtil.deepCopy(mBundle);
-        return new GenericDocument.Builder<GenericDocument.Builder<?>>(clonedBundle);
+        return new GenericDocument.Builder<>(clonedBundle);
     }
 
     @Override
@@ -1057,6 +1062,7 @@ public class GenericDocument {
          * <p>The number of namespaces per app should be kept small for efficiency reasons.
          *
          * @throws IllegalStateException if the builder has already been used.
+         * <!--@exportToFramework:hide-->
          */
         @NonNull
         public BuilderType setNamespace(@NonNull String namespace) {
@@ -1073,6 +1079,7 @@ public class GenericDocument {
          * <p>Document IDs are unique within a namespace.
          *
          * @throws IllegalStateException if the builder has already been used.
+         * <!--@exportToFramework:hide-->
          */
         @NonNull
         public BuilderType setId(@NonNull String id) {
@@ -1089,6 +1096,7 @@ public class GenericDocument {
          * {@link AppSearchSchema} object previously provided to {@link AppSearchSession#setSchema}.
          *
          * @throws IllegalStateException if the builder has already been used.
+         * <!--@exportToFramework:hide-->
          */
         @NonNull
         public BuilderType setSchemaType(@NonNull String schemaType) {
@@ -1298,6 +1306,7 @@ public class GenericDocument {
          * <p>Note that this method does not support property paths.
          *
          * @param name The name of the property to clear.
+         * <!--@exportToFramework:hide-->
          */
         @NonNull
         public BuilderType clearProperty(@NonNull String name) {
