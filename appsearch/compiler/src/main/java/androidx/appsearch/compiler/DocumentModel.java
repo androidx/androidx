@@ -60,21 +60,28 @@ class DocumentModel {
     private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
     private final AnnotationMirror mDocumentAnnotation;
-    private final Set<ExecutableElement> mCreationMethods = new LinkedHashSet<>();
-    private final Set<ExecutableElement> mMethods = new LinkedHashSet<>();
+
+    // Warning: if you change this to a HashSet, we may choose different getters or setters from
+    // run to run, causing the generated code to bounce.
+    private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
     // Key: Name of the field which is accessed through the getter method.
     // Value: ExecutableElement of the getter method.
     private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
     // Key: Name of the field whose value is set through the setter method.
     // Value: ExecutableElement of the setter method.
     private final Map<String, ExecutableElement> mSetterMethods = new HashMap<>();
+    // Warning: if you change this to a HashMap, we may assign fields in a different order from run
+    // to run, causing the generated code to bounce.
     private final Map<String, VariableElement> mAllAppSearchFields = new LinkedHashMap<>();
+    // Warning: if you change this to a HashMap, we may assign fields in a different order from run
+    // to run, causing the generated code to bounce.
     private final Map<String, VariableElement> mPropertyFields = new LinkedHashMap<>();
     private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
     private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
     private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
     // Contains the reason why that field couldn't be written either by field or by setter.
-    private final Map<VariableElement, ProcessingException> mWritePendingFields = new HashMap<>();
+    private final Map<VariableElement, ProcessingException> mWriteWhyCreationMethod =
+            new HashMap<>();
     private ExecutableElement mChosenCreationMethod = null;
     private List<String> mChosenCreationMethodParams = null;
 
@@ -93,21 +100,21 @@ class DocumentModel {
         // Scan methods and constructors. AppSearch doesn't define any annotations that apply to
         // these, but we will need this info when processing fields to make sure the fields can
         // be get and set.
+        Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
         for (Element child : mClass.getEnclosedElements()) {
             if (child.getKind() == ElementKind.CONSTRUCTOR) {
-                mCreationMethods.add((ExecutableElement) child);
+                creationMethods.add((ExecutableElement) child);
             } else if (child.getKind() == ElementKind.METHOD) {
                 ExecutableElement method = (ExecutableElement) child;
+                mAllMethods.add(method);
                 if (isFactoryMethod(method)) {
-                    mCreationMethods.add(method);
-                } else {
-                    mMethods.add((ExecutableElement) child);
+                    creationMethods.add(method);
                 }
             }
         }
 
         scanFields();
-        scanCreationMethods(mCreationMethods);
+        scanCreationMethods(creationMethods);
     }
 
     /**
@@ -186,7 +193,7 @@ class DocumentModel {
         Map<String, Object> params = mHelper.getAnnotationParams(annotation);
         String propertyName = params.get("name").toString();
         if (propertyName.isEmpty()) {
-            propertyName = property.getSimpleName().toString();
+            propertyName = getNormalizedFieldName(property.getSimpleName().toString());
         }
         return propertyName;
     }
@@ -401,7 +408,7 @@ class DocumentModel {
                 // We'll look for a creation method, so we may still be able to set this field,
                 // but it's more likely the developer configured the setter incorrectly. Keep
                 // the exception around to include it in the report if no creation method is found.
-                mWritePendingFields.put(field, e);
+                mWriteWhyCreationMethod.put(field, e);
                 mWriteKinds.put(field, WriteKind.CREATION_METHOD);
             }
         } else {
@@ -411,13 +418,21 @@ class DocumentModel {
 
     private void scanCreationMethods(Set<ExecutableElement> creationMethods)
             throws ProcessingException {
-        // Maps name to Element
+        // Maps field name to Element.
+        // If this is changed to a HashSet, we might report errors to the developer in a different
+        // order about why a field was written via creation method.
         Map<String, VariableElement> creationMethodWrittenFields = new LinkedHashMap<>();
         for (Map.Entry<VariableElement, WriteKind> it : mWriteKinds.entrySet()) {
             if (it.getValue() == WriteKind.CREATION_METHOD) {
                 String name = it.getKey().getSimpleName().toString();
                 creationMethodWrittenFields.put(name, it.getKey());
             }
+        }
+
+        // Maps normalized field name to real field name.
+        Map<String, String> normalizedToRawFieldName = new HashMap<>();
+        for (String fieldName : mAllAppSearchFields.keySet()) {
+            normalizedToRawFieldName.put(getNormalizedFieldName(fieldName), fieldName);
         }
 
         Map<ExecutableElement, String> whyNotCreationMethod = new HashMap<>();
@@ -427,19 +442,22 @@ class DocumentModel {
                 whyNotCreationMethod.put(method, "Creation method is private");
                 continue creationMethodSearch;
             }
+            // The field name of each field that goes into the creation method, in the order they
+            // are declared in the creation method signature.
             List<String> creationMethodParamFields = new ArrayList<>();
             Set<String> remainingFields = new HashSet<>(creationMethodWrittenFields.keySet());
             for (VariableElement parameter : method.getParameters()) {
-                String name = parameter.getSimpleName().toString();
-                if (!mAllAppSearchFields.containsKey(name)) {
+                String paramName = parameter.getSimpleName().toString();
+                String fieldName = normalizedToRawFieldName.get(paramName);
+                if (fieldName == null) {
                     whyNotCreationMethod.put(
                             method,
-                            "Parameter \"" + name + "\" is not an AppSearch parameter; don't know "
-                                    + "how to supply it.");
+                            "Parameter \"" + paramName + "\" is not an AppSearch parameter; don't "
+                                    + "know how to supply it.");
                     continue creationMethodSearch;
                 }
-                remainingFields.remove(name);
-                creationMethodParamFields.add(name);
+                remainingFields.remove(fieldName);
+                creationMethodParamFields.add(fieldName);
             }
             if (!remainingFields.isEmpty()) {
                 whyNotCreationMethod.put(
@@ -462,7 +480,7 @@ class DocumentModel {
 
         // Inform the developer why we started looking for creation methods in the first place.
         for (VariableElement field : creationMethodWrittenFields.values()) {
-            ProcessingException warning = mWritePendingFields.get(field);
+            ProcessingException warning = mWriteWhyCreationMethod.get(field);
             if (warning != null) {
                 e.addWarning(warning);
             }
@@ -480,17 +498,19 @@ class DocumentModel {
     }
 
     /** Finds getter function for a private field. */
-    private void findGetter(String fieldName) throws ProcessingException {
+    private void findGetter(@NonNull String fieldName) throws ProcessingException {
         ProcessingException e = new ProcessingException(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
                         + "for field \"" + fieldName + "\"",
                 mAllAppSearchFields.get(fieldName));
-        String getFieldName = "get" + fieldName.substring(0, 1).toUpperCase()
-                + fieldName.substring(1);
 
-        for (ExecutableElement method : mMethods) {
+        for (ExecutableElement method : mAllMethods) {
             String methodName = method.getSimpleName().toString();
-            if (methodName.equals(getFieldName) || methodName.equals(fieldName)) {
+            String normalizedFieldName = getNormalizedFieldName(fieldName);
+            if (methodName.equals(normalizedFieldName)
+                    || methodName.equals("get"
+                    + normalizedFieldName.substring(0, 1).toUpperCase()
+                    + normalizedFieldName.substring(1))) {
                 if (method.getModifiers().contains(Modifier.PRIVATE)) {
                     e.addWarning(new ProcessingException(
                             "Getter cannot be used: private visibility", method));
@@ -512,7 +532,7 @@ class DocumentModel {
     }
 
     /** Finds setter function for a private field. */
-    private void findSetter(String fieldName) throws ProcessingException {
+    private void findSetter(@NonNull String fieldName) throws ProcessingException {
         // We can't report setter failure until we've searched the creation methods, so this
         // message is anticipatory and should be buffered by the caller.
         ProcessingException e = new ProcessingException(
@@ -521,12 +541,14 @@ class DocumentModel {
                         + fieldName
                         + "\". Trying to find a suitable creation method.",
                 mAllAppSearchFields.get(fieldName));
-        String setFieldName = "set" + fieldName.substring(0, 1).toUpperCase()
-                + fieldName.substring(1);
 
-        for (ExecutableElement method : mMethods) {
+        for (ExecutableElement method : mAllMethods) {
             String methodName = method.getSimpleName().toString();
-            if (methodName.equals(setFieldName) || methodName.equals(fieldName)) {
+            String normalizedFieldName = getNormalizedFieldName(fieldName);
+            if (methodName.equals(normalizedFieldName)
+                    || methodName.equals("set"
+                    + normalizedFieldName.substring(0, 1).toUpperCase()
+                    + normalizedFieldName.substring(1))) {
                 if (method.getModifiers().contains(Modifier.PRIVATE)) {
                     e.addWarning(new ProcessingException(
                             "Setter cannot be used: private visibility", method));
@@ -547,5 +569,38 @@ class DocumentModel {
 
         // Broke out of the loop without finding anything.
         throw e;
+    }
+
+    /**
+     * Produces the canonical name of a field (which is used as the default property name as well as
+     * to find accessors) by removing prefixes and suffixes of common conventions.
+     */
+    private String getNormalizedFieldName(String fieldName) {
+        if (fieldName.length() < 2) {
+            return fieldName;
+        }
+
+        // Handle convention of having field names start with m
+        // (e.g. String mName; public String getName())
+        if (fieldName.charAt(0) == 'm' && Character.isUpperCase(fieldName.charAt(1))) {
+            return fieldName.substring(1, 2).toLowerCase() + fieldName.substring(2);
+        }
+
+        // Handle convention of having field names start with _
+        // (e.g. String _name; public String getName())
+        if (fieldName.charAt(0) == '_'
+                && fieldName.charAt(1) != '_'
+                && Character.isLowerCase(fieldName.charAt(1))) {
+            return fieldName.substring(1);
+        }
+
+        // Handle convention of having field names end with _
+        // (e.g. String name_; public String getName())
+        if (fieldName.charAt(fieldName.length() - 1) == '_'
+                && fieldName.charAt(fieldName.length() - 2) != '_') {
+            return fieldName.substring(0, fieldName.length() - 1);
+        }
+
+        return fieldName;
     }
 }

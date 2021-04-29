@@ -41,7 +41,9 @@ import java.lang.annotation.Target;
  *
  * <p>The field must also meet at least one of the following conditions:
  * <ol>
- *     <li>There must be a setter named set&lt;Fieldname&gt; in the class (with package-private
+ *     <li>There must be a setter named {@code set<FieldName>(arg)} in the class (with
+ *     package-private visibility or greater), or
+ *     <li>There must be a setter named {@code fieldname(arg)} in the class (with package-private
  *     visibility or greater), or
  *     <li>The field itself must be mutable (non-final) and have package-private visibility or
  *     greater, or
@@ -50,6 +52,19 @@ import java.lang.annotation.Target;
  *     also accept fields that do meet conditions 1 and 2, in which case the constructor will be
  *     used to populate those fields instead of methods 1 and 2.
  * </ol>
+ *
+ * <p>Fields may be named according to any of the following conventions:
+ * <ul>
+ *   <li>exampleName
+ *   <li>mExampleName
+ *   <li>_exampleName
+ *   <li>exampleName_
+ * </ul>
+ *
+ * <p>In all of the above cases, the default property name will be "exampleName", the allowed
+ * getters are {@code getExampleName()} or {@code exampleName()}, the allowed setters are {@code
+ * setExampleName(arg)} or {@code exampleName(arg)}, and the expected constructor parameter for
+ * the field is "exampleName".
  *
  * <p>The class must also have exactly one member annotated with {@link Id @Id}.
  *

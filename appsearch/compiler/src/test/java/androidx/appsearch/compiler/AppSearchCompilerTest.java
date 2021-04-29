@@ -514,6 +514,35 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testWrite_multipleConventions() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id private String id_;\n"
+                        + "  @Document.Int64Property private int price1;\n"
+                        + "  @Document.Int64Property private int mPrice2;\n"
+                        + "  @Document.Int64Property private int _price3;\n"
+                        + "  @Document.Int64Property final int price4_;\n"
+                        + "  int getPrice1() { return price1; }\n"
+                        + "  int price2() { return mPrice2; }\n"
+                        + "  int getPrice3() { return _price3; }\n"
+                        + "  void setPrice1(int n) {}\n"
+                        + "  void price2(int n) {}\n"
+                        + "  void price3(int n) {}\n"
+                        + "  String getId() {\n"
+                        + "    return id_;\n"
+                        + "  }\n"
+                        + "  public Gift(String id, int price4) {\n"
+                        + "    id_ = id;"
+                        + "    price4_ = price4;\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testSuccessSimple() throws Exception {
         Compilation compilation = compile(
                 "@Document\n"
