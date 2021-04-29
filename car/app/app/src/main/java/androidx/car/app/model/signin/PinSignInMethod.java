@@ -18,8 +18,6 @@ package androidx.car.app.model.signin;
 
 import static java.util.Objects.requireNonNull;
 
-import android.text.TextUtils;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +33,9 @@ import java.util.Objects;
 @ExperimentalCarApi
 @RequiresCarApi(2)
 public final class PinSignInMethod implements SignInTemplate.SignInMethod {
+    /** Maximum length, in characters, for a PIN. */
+    private static final int MAX_PIN_LENGTH = 12;
+
     @Keep
     @Nullable
     private final String mPin;
@@ -92,17 +93,22 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
         /**
          * Returns a {@link PinSignInMethod.Builder} instance.
          *
-         * <p>The provided pin must be no more than 20 characters long. To facilitate typing this
+         * <p>The provided pin must be no more than 12 characters long. To facilitate typing this
          * code, it is recommended restricting the string to a limited set (for example, numbers,
          * upper-case letters, hexadecimal, etc.).
          *
-         * @param pin the PIN to display
-         * @throws IllegalArgumentException if {@code pin} is {@code null} or empty
+         * @param pin the PIN to display is empty.
+         * @throws IllegalArgumentException if {@code pin} is empty or longer than 12 characters.
+         * @throws NullPointerException     if {@code pin} is {@code null}
          */
-        // TODO(b/182309112): follow up on how to enforce the 20-character limit.
         public Builder(@NonNull String pin) {
-            if (TextUtils.isEmpty(pin)) {
+            int pinLength = pin.length();
+            if (pinLength == 0) {
                 throw new IllegalArgumentException("PIN must not be empty");
+            }
+            if (pinLength > MAX_PIN_LENGTH) {
+                throw new IllegalArgumentException(
+                        "PIN must not be longer than " + MAX_PIN_LENGTH + " characters");
             }
             mPin = pin;
         }
