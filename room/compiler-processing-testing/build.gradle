@@ -66,6 +66,9 @@ java {
     }
 }
 
+tasks.named("sourceJar").configure {
+    dependsOn(writeTestPropsTask)
+}
 tasks.named("processResources").configure {
     dependsOn(writeTestPropsTask)
 }

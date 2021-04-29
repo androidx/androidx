@@ -234,6 +234,7 @@ def checkArtifactContentsTask = tasks.register("checkArtifactTask", CheckArtifac
     def pomTask = (GenerateMavenPom) project.tasks
             .named("generatePomFileForMavenPublication").get()
     it.pomFile = pomTask.destination
+    it.dependsOn("publishMavenPublicationToMavenRepository")
 }
 
 // make sure we validate published artifacts on the build server.
