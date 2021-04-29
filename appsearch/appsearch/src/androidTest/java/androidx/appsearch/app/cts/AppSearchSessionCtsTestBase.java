@@ -30,7 +30,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchEmail;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
@@ -48,6 +47,7 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.cts.customer.EmailDocument;
+import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
 

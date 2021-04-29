@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 

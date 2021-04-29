@@ -18,6 +18,8 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.util.AppSearchEmail;
+
 import org.junit.Test;
 
 public class AppSearchEmailTest {
