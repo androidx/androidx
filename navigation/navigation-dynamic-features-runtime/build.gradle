@@ -26,6 +26,12 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     api(project(":navigation:navigation-runtime"))
     api(PLAY_CORE)
@@ -47,6 +53,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(MULTIDEX)
 }
 
 androidx {
