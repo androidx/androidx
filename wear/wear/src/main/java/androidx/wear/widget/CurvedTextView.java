@@ -45,15 +45,16 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.wear.R;
 
 /**
- * A WearCurvedTextView is a component allowing developers to easily write curved text following
- * the curvature of the largest circle that can be inscribed in the view. WearArcLayout could be
+ * CurvedTextView is a component allowing developers to easily write curved text following
+ * the curvature of the largest circle that can be inscribed in the view. ArcLayout could be
  * used to concatenate multiple curved texts, also layout together with other widgets such as icons.
  */
-public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutWidget {
+public class CurvedTextView extends View implements ArcLayout.Widget {
     private static final float UNSET_ANCHOR_DEGREE = -1f;
     private static final int UNSET_ANCHOR_TYPE = -1;
     private static final float MIN_SWEEP_DEGREE = 0f;
@@ -81,7 +82,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private int mLastUsedTextAlignment = -1;
     private float mLocalRotateAngle = 0f;
 
-    @WearArcLayout.AnchorType
+    @ArcLayout.AnchorType
     private int mAnchorType;
     private float mAnchorAngleDegrees;
     private float mMinSweepDegrees;
@@ -105,22 +106,22 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private boolean mHandlingTouch = false;
 
 
-    public WearCurvedTextView(@NonNull Context context) {
+    public CurvedTextView(@NonNull Context context) {
         this(context, null);
     }
 
-    public WearCurvedTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public CurvedTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, android.R.attr.textViewStyle);
     }
 
-    public WearCurvedTextView(
+    public CurvedTextView(
             @NonNull Context context,
             @Nullable AttributeSet attrs,
             int defStyle) {
         this(context, attrs, defStyle, 0);
     }
 
-    public WearCurvedTextView(
+    public CurvedTextView(
             @NonNull Context context,
             @Nullable AttributeSet attrs,
             int defStyle,
@@ -149,16 +150,16 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
 
         a = context.obtainStyledAttributes(
-                attrs, R.styleable.WearCurvedTextView, defStyle, defStyleRes);
+                attrs, R.styleable.CurvedTextView, defStyle, defStyleRes);
         // overrride the value in the appearance with explicitly specified attribute values
         readTextAppearance(a, attributes, false);
 
         // read the other supported TextView attributes
-        if (a.hasValue(R.styleable.WearCurvedTextView_android_text)) {
-            mText = a.getString(R.styleable.WearCurvedTextView_android_text);
+        if (a.hasValue(R.styleable.CurvedTextView_android_text)) {
+            mText = a.getString(R.styleable.CurvedTextView_android_text);
         }
 
-        int textEllipsize = a.getInt(R.styleable.WearCurvedTextView_android_ellipsize, 0);
+        int textEllipsize = a.getInt(R.styleable.CurvedTextView_android_ellipsize, 0);
         switch (textEllipsize) {
             case 1:
                 mEllipsize = TextUtils.TruncateAt.START;
@@ -173,23 +174,23 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
                 mEllipsize = null;
         }
 
-        // read the custom WearCurvedTextView attributes
+        // read the custom CurvedTextView attributes
         mMaxSweepDegrees =
-                a.getFloat(R.styleable.WearCurvedTextView_maxSweepDegrees, MAX_SWEEP_DEGREE);
+                a.getFloat(R.styleable.CurvedTextView_maxSweepDegrees, MAX_SWEEP_DEGREE);
         mMaxSweepDegrees = min(mMaxSweepDegrees, MAX_SWEEP_DEGREE);
         mMinSweepDegrees =
-                a.getFloat(R.styleable.WearCurvedTextView_minSweepDegrees, MIN_SWEEP_DEGREE);
+                a.getFloat(R.styleable.CurvedTextView_minSweepDegrees, MIN_SWEEP_DEGREE);
         if (mMinSweepDegrees > mMaxSweepDegrees) {
             throw new IllegalArgumentException(
                     "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
             );
         }
-        mAnchorType = a.getInt(R.styleable.WearCurvedTextView_anchorPosition, UNSET_ANCHOR_TYPE);
+        mAnchorType = a.getInt(R.styleable.CurvedTextView_anchorPosition, UNSET_ANCHOR_TYPE);
         mAnchorAngleDegrees = a.getFloat(
-                R.styleable.WearCurvedTextView_anchorAngleDegrees, UNSET_ANCHOR_DEGREE
+                R.styleable.CurvedTextView_anchorAngleDegrees, UNSET_ANCHOR_DEGREE
         );
         mAnchorAngleDegrees = mAnchorAngleDegrees % 360f;
-        mClockwise = a.getBoolean(R.styleable.WearCurvedTextView_clockwise, DEFAULT_CLOCKWISE);
+        mClockwise = a.getBoolean(R.styleable.CurvedTextView_clockwise, DEFAULT_CLOCKWISE);
 
         a.recycle();
 
@@ -199,38 +200,40 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     @Override
+    @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true)
     public float getSweepAngleDegrees() {
         return mBackgroundSweepDegrees;
     }
 
     @Override
-    public int getThicknessPx() {
+    @Px
+    public int getThickness() {
         return round(mPaint.getFontMetrics().descent - mPaint.getFontMetrics().ascent);
     }
 
     /**
      * @throws IllegalArgumentException if the anchorType and/or anchorAngleDegrees attributes
-     *                                  were set for a widget in WearArcLayout
+     *                                  were set for a widget in ArcLayout
      */
     @Override
     public void checkInvalidAttributeAsChild() {
         if (mAnchorType != UNSET_ANCHOR_TYPE) {
             throw new IllegalArgumentException(
-                    "WearCurvedTextView shall not set anchorType value when added into"
-                            + "WearArcLayout"
+                    "CurvedTextView shall not set anchorType value when added into"
+                            + "ArcLayout"
             );
         }
 
         if (mAnchorAngleDegrees != UNSET_ANCHOR_DEGREE) {
             throw new IllegalArgumentException(
-                    "WearCurvedTextView shall not set anchorAngleDegrees value when added into "
-                            + "WearArcLayout"
+                    "CurvedTextView shall not set anchorAngleDegrees value when added into "
+                            + "ArcLayout"
             );
         }
     }
 
     /**
-     * See {@link WearArcLayout.ArcLayoutWidget#isPointInsideClickArea(float, float)}
+     * See {@link ArcLayout.Widget#isPointInsideClickArea(float, float)}
      */
     @Override
     public boolean isPointInsideClickArea(float x, float y) {
@@ -343,13 +346,13 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
         float anchorTypeFactor;
         switch (mAnchorType) {
-            case WearArcLayout.ANCHOR_START:
+            case ArcLayout.ANCHOR_START:
                 anchorTypeFactor = 0.5f;
                 break;
-            case WearArcLayout.ANCHOR_END:
+            case ArcLayout.ANCHOR_END:
                 anchorTypeFactor = -0.5f;
                 break;
-            case WearArcLayout.ANCHOR_CENTER: // Center is the default.
+            case ArcLayout.ANCHOR_CENTER: // Center is the default.
             default:
                 anchorTypeFactor = 0f;
         }
@@ -499,10 +502,10 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     /**
      * Sets the Typeface taking into account the given attributes.
      *
-     * @param familyName    family name string, e.g. "serif"
-     * @param typefaceIndex an index of the typeface enum, e.g. SANS, SERIF.
-     * @param style         a typeface style
-     * @param weight        a weight value for the Typeface or -1 if not specified.
+     * @param familyName    Family name string, e.g. "serif"
+     * @param typefaceIndex An index of the typeface enum, e.g. SANS, SERIF.
+     * @param style         A typeface style
+     * @param weight        A weight value for the Typeface or -1 if not specified.
      */
     private void setTypefaceFromAttrs(
             @Nullable String familyName,
@@ -640,27 +643,27 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
             boolean isTextAppearance
     ) {
         int attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_textColor :
-                R.styleable.WearCurvedTextView_android_textColor;
+                R.styleable.CurvedTextView_android_textColor;
         if (appearance.hasValue(attrIndex)) {
             attributes.mTextColor = appearance.getColorStateList(attrIndex);
         }
 
         attributes.mTextSize = appearance.getDimensionPixelSize(
                 isTextAppearance ? R.styleable.TextAppearance_android_textSize :
-                        R.styleable.WearCurvedTextView_android_textSize,
+                        R.styleable.CurvedTextView_android_textSize,
                 (int) attributes.mTextSize
         );
 
         attributes.mTextStyle = appearance.getInt(
                 isTextAppearance ? R.styleable.TextAppearance_android_textStyle :
-                        R.styleable.WearCurvedTextView_android_textStyle,
+                        R.styleable.CurvedTextView_android_textStyle,
                 attributes.mTextStyle
         );
 
         // make sure that the typeface attribute is read before fontFamily attribute
         attributes.mTypefaceIndex = appearance.getInt(
                 isTextAppearance ? R.styleable.TextAppearance_android_typeface :
-                        R.styleable.WearCurvedTextView_android_typeface,
+                        R.styleable.CurvedTextView_android_typeface,
                 attributes.mTypefaceIndex
         );
         if (attributes.mTypefaceIndex != -1 && !attributes.mFontFamilyExplicit) {
@@ -668,7 +671,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
 
         attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_fontFamily :
-                R.styleable.WearCurvedTextView_android_fontFamily;
+                R.styleable.CurvedTextView_android_fontFamily;
         if (appearance.hasValue(attrIndex)) {
             attributes.mFontFamily = appearance.getString(attrIndex);
             attributes.mFontFamilyExplicit = !isTextAppearance;
@@ -676,24 +679,24 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
         attributes.mFontWeight = appearance.getInt(
                 isTextAppearance ? R.styleable.TextAppearance_android_textFontWeight :
-                        R.styleable.WearCurvedTextView_android_textFontWeight,
+                        R.styleable.CurvedTextView_android_textFontWeight,
                 attributes.mFontWeight
         );
 
         attributes.mLetterSpacing = appearance.getFloat(
                 isTextAppearance ? R.styleable.TextAppearance_android_letterSpacing :
-                        R.styleable.WearCurvedTextView_android_letterSpacing,
+                        R.styleable.CurvedTextView_android_letterSpacing,
                 attributes.mLetterSpacing
         );
 
         attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_fontFeatureSettings :
-                R.styleable.WearCurvedTextView_android_fontFeatureSettings;
+                R.styleable.CurvedTextView_android_fontFeatureSettings;
         if (appearance.hasValue(attrIndex)) {
             attributes.mFontFeatureSettings = appearance.getString(attrIndex);
         }
 
         attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_fontVariationSettings :
-                R.styleable.WearCurvedTextView_android_fontVariationSettings;
+                R.styleable.CurvedTextView_android_fontVariationSettings;
         if (appearance.hasValue(attrIndex)) {
             attributes.mFontVariationSettings = appearance.getString(attrIndex);
         }
@@ -711,7 +714,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     /** Returns the anchor type for positioning the curved text */
-    @WearArcLayout.AnchorType
+    @ArcLayout.AnchorType
     public int getAnchorType() {
         return mAnchorType;
     }
@@ -720,7 +723,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
      * Sets the anchor type for positioning the curved text.
      * @param value the anchor type,  one of {ANCHOR_START, ANCHOR_CENTER, ANCHOR_END}
      */
-    public void setAnchorType(@WearArcLayout.AnchorType int value) {
+    public void setAnchorType(@ArcLayout.AnchorType int value) {
         mAnchorType = value;
         doUpdate();
     }
@@ -739,9 +742,9 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     /** Sets the minimum and maximum sweep angle in degrees for rendering the text.
-     * @param minSweep ensure the text takes at least this angle (in degrees) in the arc. Use 0f if
+     * @param minSweep Ensure the text takes at least this angle (in degrees) in the arc. Use 0f if
      *                 you don't want to specify a minimum.
-     * @param maxSweep limit the maximum angle (in degrees) that this curved text can take. Use
+     * @param maxSweep Limit the maximum angle (in degrees) that this curved text can take. Use
      *                 360f if you don't want to specify a maximum.
      */
     public void setSweepRangeDegrees(
@@ -809,7 +812,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     /** Returns the curved text layout direction */
-    public boolean getClockwise() {
+    public boolean isClockwise() {
         return mClockwise;
     }
 
@@ -871,7 +874,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     /**
      * Returns the font feature settings. The format is the same as the CSS font-feature-settings
      * attribute: https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @return the currently set font feature settings. Default is null.
+     * @return The currently set font feature settings. Default is null.
      */
     @Nullable
     public String getFontFeatureSettings() {
@@ -881,7 +884,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     /**
      * Sets font feature settings. The format is the same as the CSS font-feature-settings
      * attribute: https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
-     * @param value font feature settings represented as CSS compatible string. This value may be
+     * @param value Font feature settings represented as CSS compatible string. This value may be
      *             null.
      */
     public void setFontFeatureSettings(@Nullable String value) {
@@ -897,7 +900,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     /**
      * Sets TrueType or OpenType font variation settings.
-     * @param value font variation settings. You can pass null or empty string as no variation
+     * @param value Font variation settings. You can pass null or empty string as no variation
      *              settings. This value may be null
      */
     public void setFontVariationSettings(@Nullable String value) {

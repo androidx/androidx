@@ -31,9 +31,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.wear.R;
@@ -64,34 +66,40 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>"Curved" widgets:
  *
- * <p>Widgets which implement {@link ArcLayoutWidget} are expected to draw themselves within an arc
+ * <p>Widgets which implement {@link ArcLayout.Widget} are expected to draw themselves within an arc
  * automatically. These widgets will be measured with the full dimensions of the arc container.
  * They are also expected to provide their thickness (used when calculating the thickness of the
  * arc) and the current sweep angle (used for laying out when drawing). Note that the
- * WearArcLayout will apply a rotation transform to the canvas before drawing this child; the
+ * ArcLayout will apply a rotation transform to the canvas before drawing this child; the
  * inner child need not perform any rotations itself.
  *
- * <p>An example of a widget which implements this interface is {@link WearCurvedTextView}, which
+ * <p>An example of a widget which implements this interface is {@link CurvedTextView}, which
  * will lay itself out along the arc.
  */
 @UiThread
-public class WearArcLayout extends ViewGroup {
+public class ArcLayout extends ViewGroup {
 
     /**
      * Interface for a widget which knows it is being rendered inside an arc, and will draw
      * itself accordingly. Any widget implementing this interface will receive the full-sized
      * canvas, pre-rotated, in its draw call.
      */
-    public interface ArcLayoutWidget {
+    public interface Widget {
 
         /** Returns the sweep angle that this widget is drawn with. */
+        @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true)
         float getSweepAngleDegrees();
 
         /** Returns the thickness of this widget inside the arc. */
-        int getThicknessPx();
+        @Px
+        int getThickness();
 
         /**
-         * Check whether the widget contains invalid attributes as a child of WearArcLayout
+         * Check whether the widget contains invalid attributes as a child of ArcLayout, throwing
+         * a Exception if something is wrong.
+         * This is important for widgets that can be both standalone or used inside an ArcLayout,
+         * some parameters used when the widget is standalone doesn't make sense when the widget
+         * is inside an ArcLayout.
          */
         void checkInvalidAttributeAsChild();
 
@@ -117,22 +125,22 @@ public class WearArcLayout extends ViewGroup {
         /** @hide */
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @IntDef({VALIGN_OUTER, VALIGN_CENTER, VALIGN_INNER})
+        @IntDef({VERTICAL_ALIGN_OUTER, VERTICAL_ALIGN_CENTER, VERTICAL_ALIGN_INNER})
         public @interface VerticalAlignment {
         }
 
-        /** Align to the outer edge of the parent WearArcLayout. */
-        public static final int VALIGN_OUTER = 0;
+        /** Align to the outer edge of the parent ArcLayout. */
+        public static final int VERTICAL_ALIGN_OUTER = 0;
 
-        /** Align to the center of the parent WearArcLayout. */
-        public static final int VALIGN_CENTER = 1;
+        /** Align to the center of the parent ArcLayout. */
+        public static final int VERTICAL_ALIGN_CENTER = 1;
 
-        /** Align to the inner edge of the parent WearArcLayout. */
-        public static final int VALIGN_INNER = 2;
+        /** Align to the inner edge of the parent ArcLayout. */
+        public static final int VERTICAL_ALIGN_INNER = 2;
 
-        private boolean mRotate = true;
+        private boolean mRotated = true;
         @VerticalAlignment
-        private int mVerticalAlignment = VALIGN_CENTER;
+        private int mVerticalAlignment = VERTICAL_ALIGN_CENTER;
 
         // Internally used during layout/draw
         // Stores the angle of the child, used to handle touch events.
@@ -142,17 +150,18 @@ public class WearArcLayout extends ViewGroup {
          * Creates a new set of layout parameters. The values are extracted from the supplied
          * attributes set and context.
          *
-         * @param context  the application environment
-         * @param attrs    the set of attributes from which to extract the layout parameters' values
+         * @param context  The Context the ArcLayout is running in, through which it can access the
+         *                 current theme, resources, etc.
+         * @param attrs    The set of attributes from which to extract the layout parameters' values
          */
         public LayoutParams(@NonNull Context context, @Nullable AttributeSet attrs) {
             super(context, attrs);
 
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WearArcLayout_Layout);
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ArcLayout_Layout);
 
-            mRotate = a.getBoolean(R.styleable.WearArcLayout_Layout_layout_rotate, true);
+            mRotated = a.getBoolean(R.styleable.ArcLayout_Layout_layout_rotate, true);
             mVerticalAlignment =
-                    a.getInt(R.styleable.WearArcLayout_Layout_layout_valign, VALIGN_CENTER);
+                    a.getInt(R.styleable.ArcLayout_Layout_layout_valign, VERTICAL_ALIGN_CENTER);
 
             a.recycle();
         }
@@ -160,8 +169,8 @@ public class WearArcLayout extends ViewGroup {
         /**
          * Creates a new set of layout parameters with specified width and height
          *
-         * @param width   the width, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
-         * @param height  the height, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
+         * @param width   The width, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
+         * @param height  The height, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
          */
         public LayoutParams(int width, int height) {
             super(width, height);
@@ -173,23 +182,23 @@ public class WearArcLayout extends ViewGroup {
         }
 
         /**
-         * Gets whether the widget shall be rotated by the WearArcLayout container corresponding
+         * Gets whether the widget shall be rotated by the ArcLayout container corresponding
          * to its layout position angle
          */
-        public boolean getRotate() {
-            return mRotate;
+        public boolean isRotated() {
+            return mRotated;
         }
 
         /**
-         * Sets whether the widget shall be rotated by the WearArcLayout container corresponding
+         * Sets whether the widget shall be rotated by the ArcLayout container corresponding
          * to its layout position angle
          */
-        public void setRotate(boolean rotate) {
-            mRotate = rotate;
+        public void setRotated(boolean rotated) {
+            mRotated = rotated;
         }
 
         /**
-         * Gets how the widget is positioned vertically in the WearArcLayout.
+         * Gets how the widget is positioned vertically in the ArcLayout.
          */
         @VerticalAlignment
         public int getVerticalAlignment() {
@@ -197,7 +206,7 @@ public class WearArcLayout extends ViewGroup {
         }
 
         /**
-         * Sets how the widget is positioned vertically in the WearArcLayout.
+         * Sets how the widget is positioned vertically in the ArcLayout.
          * @param verticalAlignment align the widget to outer, inner edges or center.
          */
         public void setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
@@ -257,19 +266,19 @@ public class WearArcLayout extends ViewGroup {
     @SuppressWarnings("SyntheticAccessor")
     private final ChildArcAngles mChildArcAngles = new ChildArcAngles();
 
-    public WearArcLayout(@NonNull Context context) {
+    public ArcLayout(@NonNull Context context) {
         this(context, null);
     }
 
-    public WearArcLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public ArcLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public WearArcLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ArcLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public WearArcLayout(
+    public ArcLayout(
             @NonNull Context context,
             @Nullable AttributeSet attrs,
             int defStyleAttr,
@@ -278,16 +287,16 @@ public class WearArcLayout extends ViewGroup {
 
         TypedArray a =
                 context.obtainStyledAttributes(
-                        attrs, R.styleable.WearArcLayout, defStyleAttr, defStyleRes
+                        attrs, R.styleable.ArcLayout, defStyleAttr, defStyleRes
                 );
 
-        mAnchorType = a.getInt(R.styleable.WearArcLayout_anchorPosition, DEFAULT_ANCHOR_TYPE);
+        mAnchorType = a.getInt(R.styleable.ArcLayout_anchorPosition, DEFAULT_ANCHOR_TYPE);
         mAnchorAngleDegrees =
                 a.getFloat(
-                        R.styleable.WearArcLayout_anchorAngleDegrees, DEFAULT_START_ANGLE_DEGREES
+                        R.styleable.ArcLayout_anchorAngleDegrees, DEFAULT_START_ANGLE_DEGREES
                 );
         mClockwise = a.getBoolean(
-                R.styleable.WearArcLayout_clockwise, DEFAULT_LAYOUT_DIRECTION_IS_CLOCKWISE
+                R.styleable.ArcLayout_clockwise, DEFAULT_LAYOUT_DIRECTION_IS_CLOCKWISE
         );
 
         a.recycle();
@@ -350,8 +359,8 @@ public class WearArcLayout extends ViewGroup {
             // ArcLayoutWidget is a special case. Because of how it draws, fit it to the size
             // of the whole widget.
             int childMeasuredHeight;
-            if (child instanceof ArcLayoutWidget) {
-                childMeasuredHeight = ((ArcLayoutWidget) child).getThicknessPx();
+            if (child instanceof Widget) {
+                childMeasuredHeight = ((Widget) child).getThickness();
             } else {
                 measureChild(
                         child,
@@ -377,7 +386,7 @@ public class WearArcLayout extends ViewGroup {
                 continue;
             }
 
-            if (child instanceof ArcLayoutWidget) {
+            if (child instanceof Widget) {
                 LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
 
                 float insetPx = getChildTopInset(child);
@@ -413,7 +422,7 @@ public class WearArcLayout extends ViewGroup {
             // Curved container widgets have been measured so that the "arc" inside their widget
             // will touch the outside of the box they have been measured in, taking into account
             // the vertical alignment. Just grow them from the center.
-            if (child instanceof ArcLayoutWidget) {
+            if (child instanceof Widget) {
                 int leftPx =
                         round((getMeasuredWidth() / 2f) - (child.getMeasuredWidth() / 2f));
                 int topPx =
@@ -503,8 +512,8 @@ public class WearArcLayout extends ViewGroup {
     }
 
     private static boolean insideChildClickArea(View child, float x, float y) {
-        if (child instanceof ArcLayoutWidget) {
-            return ((ArcLayoutWidget) child).isPointInsideClickArea(x, y);
+        if (child instanceof Widget) {
+            return ((Widget) child).isPointInsideClickArea(x, y);
         }
         return x >= 0 && x < child.getMeasuredWidth() && y >= 0 && y < child.getMeasuredHeight();
     }
@@ -517,9 +526,9 @@ public class WearArcLayout extends ViewGroup {
         Matrix m = new Matrix();
         m.postRotate(-angle, cx, cy);
         m.postTranslate(-child.getX(), -child.getY());
-        if (!(child instanceof  ArcLayoutWidget)) {
+        if (!(child instanceof Widget)) {
             LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
-            if (!childLayoutParams.getRotate()) {
+            if (!childLayoutParams.isRotated()) {
                 m.postRotate(angle, child.getWidth() / 2, child.getHeight() / 2);
             }
         }
@@ -567,15 +576,15 @@ public class WearArcLayout extends ViewGroup {
                 getMeasuredWidth() / 2f,
                 getMeasuredHeight() / 2f);
 
-        if (child instanceof ArcLayoutWidget) {
-            ((ArcLayoutWidget) child).checkInvalidAttributeAsChild();
+        if (child instanceof Widget) {
+            ((Widget) child).checkInvalidAttributeAsChild();
         } else {
             // Do we need to do some counter rotation?
             LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
             float angleToRotate = 0f;
 
-            if (layoutParams.getRotate()) {
+            if (layoutParams.isRotated()) {
                 // For counterclockwise layout, especially when mixing standard Android widget with
                 // ArcLayoutWidget as children, we might need to rotate the standard widget to make
                 // them have the same upwards direction.
@@ -652,8 +661,8 @@ public class WearArcLayout extends ViewGroup {
         childAngles.rightMarginAsAngle =
                 widthToAngleDegrees(childLayoutParams.rightMargin, radiusPx);
 
-        if (view instanceof ArcLayoutWidget) {
-            childAngles.actualChildAngle = ((ArcLayoutWidget) view).getSweepAngleDegrees();
+        if (view instanceof Widget) {
+            childAngles.actualChildAngle = ((Widget) view).getSweepAngleDegrees();
         } else {
             childAngles.actualChildAngle =
                     widthToAngleDegrees(view.getMeasuredWidth(), radiusPx);
@@ -663,8 +672,8 @@ public class WearArcLayout extends ViewGroup {
     private float getChildTopInset(@NonNull View child) {
         LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
 
-        int childHeight = child instanceof ArcLayoutWidget
-                ? ((ArcLayoutWidget) child).getThicknessPx()
+        int childHeight = child instanceof Widget
+                ? ((Widget) child).getThickness()
                 : child.getMeasuredHeight();
 
         int thicknessDiffPx =
@@ -675,11 +684,11 @@ public class WearArcLayout extends ViewGroup {
         float topInset = margin + getChildTopOffset(child);
 
         switch (childLayoutParams.getVerticalAlignment()) {
-            case LayoutParams.VALIGN_OUTER:
+            case LayoutParams.VERTICAL_ALIGN_OUTER:
                 return topInset;
-            case LayoutParams.VALIGN_CENTER:
+            case LayoutParams.VERTICAL_ALIGN_CENTER:
                 return topInset + thicknessDiffPx / 2f;
-            case LayoutParams.VALIGN_INNER:
+            case LayoutParams.VERTICAL_ALIGN_INNER:
                 return topInset + thicknessDiffPx;
             default:
                 // Normally unreachable...
@@ -692,7 +701,7 @@ public class WearArcLayout extends ViewGroup {
      * y position of normal widget in order to be in the correct place in the circle.
      */
     private float getChildTopOffset(View child) {
-        if (child instanceof ArcLayoutWidget || getMeasuredWidth() >= getMeasuredHeight()) {
+        if (child instanceof Widget || getMeasuredWidth() >= getMeasuredHeight()) {
             return 0;
         }
         return round((getMeasuredHeight() - getMeasuredWidth()) / 2f);
@@ -739,18 +748,20 @@ public class WearArcLayout extends ViewGroup {
     }
 
     /** Returns the anchor angle used for this container, in degrees. */
+    @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true)
     public float getAnchorAngleDegrees() {
         return mAnchorAngleDegrees;
     }
 
     /** Sets the anchor angle used for this container, in degrees. */
-    public void setAnchorAngleDegrees(float anchorAngleDegrees) {
+    public void setAnchorAngleDegrees(
+            @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true) float anchorAngleDegrees) {
         mAnchorAngleDegrees = anchorAngleDegrees;
         invalidate();
     }
 
     /** returns the layout direction */
-    public boolean getClockwise() {
+    public boolean isClockwise() {
         return mClockwise;
     }
 

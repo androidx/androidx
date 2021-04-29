@@ -49,9 +49,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.test.R
-import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_CENTER
-import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_INNER
-import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_OUTER
+import androidx.wear.widget.ArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER
+import androidx.wear.widget.ArcLayout.LayoutParams.VERTICAL_ALIGN_INNER
+import androidx.wear.widget.ArcLayout.LayoutParams.VERTICAL_ALIGN_OUTER
 import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.any
@@ -66,7 +66,7 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @MediumTest
-class WearArcLayoutTest(private val testHeight: Int) {
+class ArcLayoutTest(private val testHeight: Int) {
     private val testWidth: Int = SCREEN_SIZE_DEFAULT
     private val renderDoneLatch = CountDownLatch(1)
 
@@ -107,81 +107,89 @@ class WearArcLayoutTest(private val testHeight: Int) {
     }
 
     private fun createArc(text1: String = "SWEEP", text2: String = "Default") =
-        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
-            addView(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = text1
-                    textColor = Color.BLUE
-                    setBackgroundColor(Color.rgb(100, 100, 0))
-                    setSweepRangeDegrees(45f, 360f)
-                }
-            )
-            addView(
-                TextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "TXT"
-                    setTextColor(Color.GREEN)
-                    layoutParams =
-                        WearArcLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                        )
-                }
-            )
-            addView(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = text2
-                    textColor = Color.RED
-                    setBackgroundColor(Color.rgb(0, 100, 100))
-                }
-            )
-        }
+        ArcLayout(ApplicationProvider.getApplicationContext())
+            .apply {
+                addView(
+                    CurvedTextView(ApplicationProvider.getApplicationContext())
+                        .apply {
+                            text = text1
+                            textColor = Color.BLUE
+                            setBackgroundColor(Color.rgb(100, 100, 0))
+                            setSweepRangeDegrees(45f, 360f)
+                        }
+                )
+                addView(
+                    TextView(ApplicationProvider.getApplicationContext()).apply {
+                        text = "TXT"
+                        setTextColor(Color.GREEN)
+                        layoutParams =
+                            ArcLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT
+                            )
+                    }
+                )
+                addView(
+                    CurvedTextView(ApplicationProvider.getApplicationContext())
+                        .apply {
+                            text = text2
+                            textColor = Color.RED
+                            setBackgroundColor(Color.rgb(0, 100, 100))
+                        }
+                )
+            }
 
     private fun createMixedArc() =
-        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
-            addView(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "One"
-                    setBackgroundColor(Color.rgb(100, 100, 100))
-                    setSweepRangeDegrees(0f, 20f)
-                    clockwise = true
-                }
-            )
-            addView(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "Two"
-                    setBackgroundColor(Color.rgb(150, 150, 150))
-                    setSweepRangeDegrees(0f, 20f)
-                    clockwise = false
-                }
-            )
-            addView(
-                TextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "TXT"
-                    setTextColor(Color.GREEN)
-                    layoutParams =
-                        WearArcLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                        ).apply { rotate = false }
-                }
-            )
-            addView(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "Three"
-                    setBackgroundColor(Color.rgb(100, 100, 100))
-                    setSweepRangeDegrees(0f, 20f)
-                    clockwise = true
-                }
-            )
-            addView(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "Four"
-                    setBackgroundColor(Color.rgb(150, 150, 150))
-                    setSweepRangeDegrees(0f, 20f)
-                    clockwise = false
-                }
-            )
-        }
+        ArcLayout(ApplicationProvider.getApplicationContext())
+            .apply {
+                addView(
+                    CurvedTextView(ApplicationProvider.getApplicationContext())
+                        .apply {
+                            text = "One"
+                            setBackgroundColor(Color.rgb(100, 100, 100))
+                            setSweepRangeDegrees(0f, 20f)
+                            isClockwise = true
+                        }
+                )
+                addView(
+                    CurvedTextView(ApplicationProvider.getApplicationContext())
+                        .apply {
+                            text = "Two"
+                            setBackgroundColor(Color.rgb(150, 150, 150))
+                            setSweepRangeDegrees(0f, 20f)
+                            isClockwise = false
+                        }
+                )
+                addView(
+                    TextView(ApplicationProvider.getApplicationContext()).apply {
+                        text = "TXT"
+                        setTextColor(Color.GREEN)
+                        layoutParams =
+                            ArcLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT
+                            ).apply { isRotated = false }
+                    }
+                )
+                addView(
+                    CurvedTextView(ApplicationProvider.getApplicationContext())
+                        .apply {
+                            text = "Three"
+                            setBackgroundColor(Color.rgb(100, 100, 100))
+                            setSweepRangeDegrees(0f, 20f)
+                            isClockwise = true
+                        }
+                )
+                addView(
+                    CurvedTextView(ApplicationProvider.getApplicationContext())
+                        .apply {
+                            text = "Four"
+                            setBackgroundColor(Color.rgb(150, 150, 150))
+                            setSweepRangeDegrees(0f, 20f)
+                            isClockwise = false
+                        }
+                )
+            }
 
     @Test
     @Throws(Exception::class)
@@ -192,15 +200,15 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 createArc(),
                 createArc("SWEEP", "Start").apply {
                     anchorAngleDegrees = 90f
-                    anchorType = WearArcLayout.ANCHOR_START
+                    anchorType = ArcLayout.ANCHOR_START
                 },
                 createArc("SWEEP", "End").apply {
                     anchorAngleDegrees = 270f
-                    anchorType = WearArcLayout.ANCHOR_END
+                    anchorType = ArcLayout.ANCHOR_END
                 },
                 createArc("SWEEP", "Center").apply {
                     anchorAngleDegrees = 315f
-                    anchorType = WearArcLayout.ANCHOR_CENTER
+                    anchorType = ArcLayout.ANCHOR_CENTER
                 }
             )
         )
@@ -215,17 +223,17 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 createArc(),
                 createArc("SWEEP", "Start").apply {
                     anchorAngleDegrees = 270f
-                    anchorType = WearArcLayout.ANCHOR_START
+                    anchorType = ArcLayout.ANCHOR_START
                 },
                 createArc("SWEEP", "End").apply {
                     anchorAngleDegrees = 90f
-                    anchorType = WearArcLayout.ANCHOR_END
+                    anchorType = ArcLayout.ANCHOR_END
                 },
                 createArc("SWEEP", "Center").apply {
                     anchorAngleDegrees = 45f
-                    anchorType = WearArcLayout.ANCHOR_CENTER
+                    anchorType = ArcLayout.ANCHOR_CENTER
                 }
-            ).apply { forEach { it.clockwise = false } }
+            ).apply { forEach { it.isClockwise = false } }
         )
     }
 
@@ -237,7 +245,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
             listOf(
                 createMixedArc(),
                 createMixedArc().apply {
-                    clockwise = false
+                    isClockwise = false
                 }
             )
         )
@@ -259,20 +267,21 @@ class WearArcLayoutTest(private val testHeight: Int) {
     }
 
     // Extension functions to make the margin test more readable.
-    fun WearArcLayout.addSeparator(angle: Float = 10f) {
+    fun ArcLayout.addSeparator(angle: Float = 10f) {
         addView(
-            WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                text = " "
-                setSweepRangeDegrees(angle, 360f)
-                setBackgroundColor(Color.rgb(100, 100, 100))
-                clockwise = true
-                textSize = 40f
-            }
+            CurvedTextView(ApplicationProvider.getApplicationContext())
+                .apply {
+                    text = " "
+                    setSweepRangeDegrees(angle, 360f)
+                    setBackgroundColor(Color.rgb(100, 100, 100))
+                    isClockwise = true
+                    textSize = 40f
+                }
         )
         testColors.add(colorProcessor(Color.rgb(150, 150, 150)))
     }
 
-    fun WearArcLayout.addCurvedText(
+    fun ArcLayout.addCurvedText(
         text: String,
         color: Int,
         marginLeft: Int? = null,
@@ -285,44 +294,45 @@ class WearArcLayoutTest(private val testHeight: Int) {
         paddingRight: Int? = null,
         paddingBottom: Int? = null,
         padding: Int? = null,
-        vAlign: Int = VALIGN_CENTER,
+        vAlign: Int = VERTICAL_ALIGN_CENTER,
         clockwise: Boolean = true,
         textSize: Float = 14f,
         textAlignment: Int = View.TEXT_ALIGNMENT_TEXT_START,
         minSweep: Float = 0f
     ) {
         addView(
-            WearCurvedTextView(ApplicationProvider.getApplicationContext()).also {
-                it.text = text
-                it.setBackgroundColor(color)
-                it.clockwise = clockwise
-                it.textSize = textSize
-                it.textAlignment = textAlignment
-                it.setSweepRangeDegrees(minSweep, 360f)
-                it.setPadding(
-                    paddingLeft ?: padding ?: 0,
-                    paddingTop ?: padding ?: 0,
-                    paddingRight ?: padding ?: 0,
-                    paddingBottom ?: padding ?: 0
-                )
-                it.layoutParams = WearArcLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                ).apply {
-                    setMargins(
-                        marginLeft ?: margin ?: 0,
-                        marginTop ?: margin ?: 0,
-                        marginRight ?: margin ?: 0,
-                        marginBottom ?: margin ?: 0
+            CurvedTextView(ApplicationProvider.getApplicationContext())
+                .also {
+                    it.text = text
+                    it.setBackgroundColor(color)
+                    it.isClockwise = clockwise
+                    it.textSize = textSize
+                    it.textAlignment = textAlignment
+                    it.setSweepRangeDegrees(minSweep, 360f)
+                    it.setPadding(
+                        paddingLeft ?: padding ?: 0,
+                        paddingTop ?: padding ?: 0,
+                        paddingRight ?: padding ?: 0,
+                        paddingBottom ?: padding ?: 0
                     )
-                    verticalAlignment = vAlign
+                    it.layoutParams = ArcLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        setMargins(
+                            marginLeft ?: margin ?: 0,
+                            marginTop ?: margin ?: 0,
+                            marginRight ?: margin ?: 0,
+                            marginBottom ?: margin ?: 0
+                        )
+                        verticalAlignment = vAlign
+                    }
                 }
-            }
         )
         testColors.add(colorProcessor(color))
     }
 
-    fun WearArcLayout.addTextView(
+    fun ArcLayout.addTextView(
         text: String,
         color: Int,
         textSize: Float = 14f
@@ -337,7 +347,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
         testColors.add(colorProcessor(color))
     }
 
-    fun WearArcLayout.addInvisibleTextView() {
+    fun ArcLayout.addInvisibleTextView() {
         addView(
             TextView(context).also {
                 it.text = "Invisible"
@@ -347,7 +357,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
         testColors.add(0xFF13579B.toInt())
     }
 
-    fun WearArcLayout.addGoneTextView() {
+    fun ArcLayout.addGoneTextView() {
         addView(
             TextView(context).also {
                 it.text = "Gone"
@@ -358,28 +368,41 @@ class WearArcLayoutTest(private val testHeight: Int) {
     }
 
     private fun createArcWithMargin() =
-        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
-            anchorType = WearArcLayout.ANCHOR_CENTER
-            addSeparator()
-            addCurvedText("RI", Color.RED, marginTop = 16, vAlign = VALIGN_INNER)
-            addCurvedText("GI", Color.GREEN, marginTop = 8, marginBottom = 8, vAlign = VALIGN_INNER)
-            addCurvedText("BI", Color.BLUE, marginBottom = 16, vAlign = VALIGN_INNER)
-            addSeparator()
-            addCurvedText("Red", Color.RED, marginTop = 16)
-            addCurvedText("Green", Color.GREEN, marginTop = 8, marginBottom = 8)
-            addCurvedText("Blue", Color.BLUE, marginBottom = 16)
-            addSeparator()
-            addCurvedText("RO", Color.RED, marginTop = 16, vAlign = VALIGN_OUTER)
-            addCurvedText("GO", Color.GREEN, marginTop = 8, marginBottom = 8, vAlign = VALIGN_OUTER)
-            addCurvedText("BO", Color.BLUE, marginBottom = 16, vAlign = VALIGN_OUTER)
-            addSeparator()
-            addCurvedText("L", Color.WHITE, marginRight = 20)
-            addSeparator()
-            addCurvedText("C", Color.WHITE, marginRight = 10, marginLeft = 10)
-            addSeparator()
-            addCurvedText("R", Color.WHITE, marginLeft = 20)
-            addSeparator()
-        }
+        ArcLayout(ApplicationProvider.getApplicationContext())
+            .apply {
+                anchorType = ArcLayout.ANCHOR_CENTER
+                addSeparator()
+                addCurvedText("RI", Color.RED, marginTop = 16, vAlign = VERTICAL_ALIGN_INNER)
+                addCurvedText(
+                    "GI",
+                    Color.GREEN,
+                    marginTop = 8,
+                    marginBottom = 8,
+                    vAlign = VERTICAL_ALIGN_INNER
+                )
+                addCurvedText("BI", Color.BLUE, marginBottom = 16, vAlign = VERTICAL_ALIGN_INNER)
+                addSeparator()
+                addCurvedText("Red", Color.RED, marginTop = 16)
+                addCurvedText("Green", Color.GREEN, marginTop = 8, marginBottom = 8)
+                addCurvedText("Blue", Color.BLUE, marginBottom = 16)
+                addSeparator()
+                addCurvedText("RO", Color.RED, marginTop = 16, vAlign = VERTICAL_ALIGN_OUTER)
+                addCurvedText(
+                    "GO",
+                    Color.GREEN,
+                    marginTop = 8,
+                    marginBottom = 8,
+                    vAlign = VERTICAL_ALIGN_OUTER
+                )
+                addCurvedText("BO", Color.BLUE, marginBottom = 16, vAlign = VERTICAL_ALIGN_OUTER)
+                addSeparator()
+                addCurvedText("L", Color.WHITE, marginRight = 20)
+                addSeparator()
+                addCurvedText("C", Color.WHITE, marginRight = 10, marginLeft = 10)
+                addSeparator()
+                addCurvedText("R", Color.WHITE, marginLeft = 20)
+                addSeparator()
+            }
 
     private fun createTwoArcsWithMargin() = listOf(
         // First arc goes on top
@@ -389,7 +412,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
         createArcWithMargin().apply {
             anchorAngleDegrees = 180f
             children.forEach {
-                (it as? WearCurvedTextView)?.clockwise = false
+                (it as? CurvedTextView)?.isClockwise = false
             }
         }
     )
@@ -404,7 +427,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
         doOneTest(
             "margin_ccw_test",
             createTwoArcsWithMargin().map {
-                it.apply { clockwise = false }
+                it.apply { isClockwise = false }
             }
         )
     }
@@ -414,52 +437,62 @@ class WearArcLayoutTest(private val testHeight: Int) {
         doOneTest(
             "inivisible_gone_test",
             listOf(
-                WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
-                    anchorType = WearArcLayout.ANCHOR_CENTER
-                    addCurvedText("Initial", Color.RED, textSize = 30f)
-                    addInvisibleTextView()
-                    addCurvedText("Second", Color.GREEN, textSize = 30f)
-                    addGoneTextView()
-                    addCurvedText("Third", Color.BLUE, textSize = 30f)
-                    addSeparator()
-                    addCurvedText("Initial", Color.RED, textSize = 30f, clockwise = false)
-                    addInvisibleTextView()
-                    addCurvedText("Second", Color.GREEN, textSize = 30f, clockwise = false)
-                    addGoneTextView()
-                    addCurvedText("Third", Color.BLUE, textSize = 30f, clockwise = false)
-                }
+                ArcLayout(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        anchorType = ArcLayout.ANCHOR_CENTER
+                        addCurvedText("Initial", Color.RED, textSize = 30f)
+                        addInvisibleTextView()
+                        addCurvedText("Second", Color.GREEN, textSize = 30f)
+                        addGoneTextView()
+                        addCurvedText("Third", Color.BLUE, textSize = 30f)
+                        addSeparator()
+                        addCurvedText("Initial", Color.RED, textSize = 30f, clockwise = false)
+                        addInvisibleTextView()
+                        addCurvedText("Second", Color.GREEN, textSize = 30f, clockwise = false)
+                        addGoneTextView()
+                        addCurvedText("Third", Color.BLUE, textSize = 30f, clockwise = false)
+                    }
             )
         )
     }
 
     private fun createArcsWithPaddingAndMargins() = listOf(
-        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
-            anchorType = WearArcLayout.ANCHOR_CENTER
-            listOf(VALIGN_INNER, VALIGN_CENTER, VALIGN_OUTER).forEach { align ->
+        ArcLayout(ApplicationProvider.getApplicationContext())
+            .apply {
+                anchorType = ArcLayout.ANCHOR_CENTER
+                listOf(VERTICAL_ALIGN_INNER, VERTICAL_ALIGN_CENTER, VERTICAL_ALIGN_OUTER).forEach {
+                    align ->
+                    addSeparator()
+                    addCurvedText("None", 0xFFFF0000.toInt(), vAlign = align)
+                    addSeparator(angle = 1f)
+                    addCurvedText("Pad", 0xFF80FF00.toInt(), padding = 8, vAlign = align)
+                    addSeparator(angle = 1f)
+                    addCurvedText("Mar", 0xFF00FFFF.toInt(), margin = 8, vAlign = align)
+                    addSeparator(angle = 1f)
+                    addCurvedText(
+                        "Both",
+                        0xFF8000FF.toInt(),
+                        padding = 8,
+                        margin = 8,
+                        vAlign = align
+                    )
+                }
                 addSeparator()
-                addCurvedText("None", 0xFFFF0000.toInt(), vAlign = align)
-                addSeparator(angle = 1f)
-                addCurvedText("Pad", 0xFF80FF00.toInt(), padding = 8, vAlign = align)
-                addSeparator(angle = 1f)
-                addCurvedText("Mar", 0xFF00FFFF.toInt(), margin = 8, vAlign = align)
-                addSeparator(angle = 1f)
-                addCurvedText("Both", 0xFF8000FF.toInt(), padding = 8, margin = 8, vAlign = align)
+            },
+        ArcLayout(ApplicationProvider.getApplicationContext())
+            .apply {
+                anchorType = ArcLayout.ANCHOR_CENTER
+                anchorAngleDegrees = 180f
+                addSeparator()
+                addCurvedText("Top", 0xFFFF0000.toInt(), paddingTop = 16)
+                addSeparator()
+                addCurvedText("Bottom", 0xFF80FF00.toInt(), paddingBottom = 16)
+                addSeparator()
+                addCurvedText("Left", 0xFF00FFFF.toInt(), paddingLeft = 16)
+                addSeparator()
+                addCurvedText("Right", 0xFF8000FF.toInt(), paddingRight = 16)
+                addSeparator()
             }
-            addSeparator()
-        },
-        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
-            anchorType = WearArcLayout.ANCHOR_CENTER
-            anchorAngleDegrees = 180f
-            addSeparator()
-            addCurvedText("Top", 0xFFFF0000.toInt(), paddingTop = 16)
-            addSeparator()
-            addCurvedText("Bottom", 0xFF80FF00.toInt(), paddingBottom = 16)
-            addSeparator()
-            addCurvedText("Left", 0xFF00FFFF.toInt(), paddingLeft = 16)
-            addSeparator()
-            addCurvedText("Right", 0xFF8000FF.toInt(), paddingRight = 16)
-            addSeparator()
-        }
     )
 
     @Test
@@ -478,7 +511,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
             createArcsWithPaddingAndMargins().map {
                 it.apply {
                     children.forEach { child ->
-                        (child as? WearCurvedTextView)?.let { cv -> cv.clockwise = false }
+                        (child as? CurvedTextView)?.let { cv -> cv.isClockwise = false }
                     }
                 }
             }
@@ -609,9 +642,9 @@ class WearArcLayoutTest(private val testHeight: Int) {
             }
         }
         views.forEach { view ->
-            (view as? WearArcLayout)?.let { arcLayout ->
+            (view as? ArcLayout)?.let { arcLayout ->
                 arcLayout.forEach { innerView ->
-                    if (innerView is TextView || innerView is WearCurvedTextView) {
+                    if (innerView is TextView || innerView is CurvedTextView) {
                         innerView.setOnTouchListener(onTouchListenerGenerator(viewNumber++))
                     }
                 }
@@ -669,10 +702,10 @@ class WearArcLayoutTest(private val testHeight: Int) {
         val context: Context = ApplicationProvider.getApplicationContext()
         // This views are the same as the test testTouchEvents()
         val views = listOf(
-            WearArcLayout(context).apply {
+            ArcLayout(context).apply {
                 anchorAngleDegrees = 0f
-                anchorType = WearArcLayout.ANCHOR_CENTER
-                clockwise = true
+                anchorType = ArcLayout.ANCHOR_CENTER
+                isClockwise = true
                 addCurvedText(
                     "Left", color = 0x66FF0000, textSize = 48f, minSweep = 60f,
                     textAlignment = View.TEXT_ALIGNMENT_TEXT_START
@@ -688,10 +721,10 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 )
                 addGoneTextView()
             },
-            WearArcLayout(context).apply {
+            ArcLayout(context).apply {
                 anchorAngleDegrees = 180f
-                anchorType = WearArcLayout.ANCHOR_CENTER
-                clockwise = true
+                anchorType = ArcLayout.ANCHOR_CENTER
+                isClockwise = true
                 addGoneTextView()
                 addCurvedText(
                     "ACL", color = 0x66FFFF00, textSize = 48f, minSweep = 40f,
