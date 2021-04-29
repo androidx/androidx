@@ -107,7 +107,7 @@ public final class SearchResult {
 
     /**
      * @deprecated This method exists only for dogfooder transition and must be removed.
-     * @hide
+     * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated
@@ -239,7 +239,7 @@ public final class SearchResult {
 
         /**
          * @deprecated this method exists only for dogfooder transition and must be removed
-         * @hide
+         * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated
