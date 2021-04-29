@@ -70,8 +70,6 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    def multidex_version = "2.0.1"
-
     releaseBundleInside(project(path: ":icing", configuration: "exportRelease"))
     debugBundleInside(project(path: ":icing", configuration: "exportDebug"))
 
@@ -80,7 +78,7 @@ dependencies {
     implementation(project(":appsearch:appsearch"))
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.2.0")
-    implementation "androidx.multidex:multidex:$multidex_version"
+    implementation "androidx.multidex:multidex:2.0.1"
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)
