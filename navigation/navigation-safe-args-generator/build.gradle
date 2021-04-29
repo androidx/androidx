@@ -58,8 +58,8 @@ tasks.findByName("test").doFirst {
     it.classpath = files(classpath.minus(androidJar).plus(androidJar))
 }
 
-tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarRelease")
 
 androidx {
     name = "Android Navigation TypeSafe Arguments Generator"

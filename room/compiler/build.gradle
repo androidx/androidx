@@ -242,8 +242,8 @@ BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
 tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarRelease")
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
