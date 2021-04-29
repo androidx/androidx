@@ -43,6 +43,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 @RequiresApi(19)
@@ -56,10 +58,7 @@ class ProfileTranscoder {
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
-    private static final byte[] V010_P = new byte[]{'0', '1', '0', '\u0000'};
-    private static final byte[] V005_O = new byte[]{'0', '0', '5', '\u0000'};
-    private static final byte[] V001_N = new byte[]{'0', '0', '1', '\u0000'};
-    private static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
+    static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
 
     /**
      * Transcode (or convert) a binary profile from one format version to another.
@@ -86,8 +85,8 @@ class ProfileTranscoder {
         }
         os.write(MAGIC);
 
-        byte[] version = read(is, V010_P.length);
-        if (!Arrays.equals(V010_P, version)) {
+        byte[] version = read(is, ProfileVersion.V010_P.length);
+        if (!Arrays.equals(ProfileVersion.V010_P, version)) {
             // Right now, we only ever expect these profiles to be in the P+ format. If we ever
             // see anything else, we fail as we don't know how to interpret it.
 
@@ -97,7 +96,7 @@ class ProfileTranscoder {
             throw error("Can only read P profiles");
         }
 
-        if (Arrays.equals(desiredVersion, V010_P)) {
+        if (Arrays.equals(desiredVersion, ProfileVersion.V010_P)) {
             // no transcoding necessary, we can just stream the bytes directly from the input
             // stream to the output stream. This is more efficient than loading the profile into
             // memory and then rewriting it to the outputstream, especially because the bulk of
@@ -107,14 +106,14 @@ class ProfileTranscoder {
             return true;
         }
 
-        if (Arrays.equals(desiredVersion, V005_O)) {
-            os.write(V005_O);
+        if (Arrays.equals(desiredVersion, ProfileVersion.V005_O)) {
+            os.write(ProfileVersion.V005_O);
             writeProfileForO(os, readProfile(is));
             return true;
         }
 
-        if (Arrays.equals(desiredVersion, V001_N)) {
-            os.write(V001_N);
+        if (Arrays.equals(desiredVersion, ProfileVersion.V001_N)) {
+            os.write(ProfileVersion.V001_N);
             writeProfileForN(os, readProfile(is));
             return true;
         }
@@ -145,7 +144,7 @@ class ProfileTranscoder {
             String profileKey = entry.getKey();
             DexProfileData data = entry.getValue();
             writeUInt16(os, utf8Length(profileKey));
-            writeUInt32(os, data.methods.size());
+            writeUInt16(os, data.methods.size());
             writeUInt16(os, data.classes.size());
             writeUInt32(os, data.dexChecksum);
             writeString(os, profileKey);
@@ -256,7 +255,7 @@ class ProfileTranscoder {
      * @param is The InputStream for the P+ binary profile
      * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
      */
-    private static @NonNull Map<String, DexProfileData> readProfile(
+    static @NonNull Map<String, DexProfileData> readProfile(
             @NonNull InputStream is
     ) throws IOException {
         int numberOfDexFiles = readUInt8(is);
@@ -307,8 +306,10 @@ class ProfileTranscoder {
                     classSetSize,
                     (int) hotMethodRegionSize,
                     (int) numMethodIds,
-                    new HashSet<>(),
-                    new HashMap<>()
+                    // NOTE: It is important to use LinkedHashSet/LinkedHashMap here to
+                    // ensure that iteration order matches insertion order
+                    new LinkedHashSet<>(),
+                    new LinkedHashMap<>()
             );
         }
 
@@ -451,7 +452,7 @@ class ProfileTranscoder {
         }
     }
 
-    private static class DexProfileData {
+    static class DexProfileData {
         final @NonNull String key;
         final long dexChecksum;
         final int classSetSize;

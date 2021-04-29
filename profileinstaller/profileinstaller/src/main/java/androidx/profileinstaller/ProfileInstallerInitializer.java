@@ -21,12 +21,17 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.startup.Initializer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Startup library initializer that installs an AOT profile several seconds after launch.
@@ -34,7 +39,7 @@ import java.util.List;
  * During application startup this will schedule background profile installation several seconds
  * later. At the scheduled time, a background thread will be created to install the profile.
  *
- * You can disable this initializer and call {@link ProfileInstaller#tryInstallProfile(Context)}
+ * You can disable this initializer and call {@link ProfileInstaller#tryInstallSync(Context)}
  * yourself to control the threading behavior.
  *
  * To disable this initializer add the following to your manifest:
@@ -50,16 +55,12 @@ import java.util.List;
  *     </provider>
  * </pre>
  *
- * If you disable the initializer, ensure that {@link ProfileInstaller#tryInstallProfile(Context)}
+ * If you disable the initializer, ensure that {@link ProfileInstaller#tryInstallSync(Context)}
  * is called within a few (5-10) seconds of your app starting up.
  */
 public class ProfileInstallerInitializer
         implements Initializer<ProfileInstallerInitializer.Result> {
     private static final int DELAY_MS = 5_000;
-
-    void doDelayedInit(Context appContext) {
-        new BackgroundProfileInstaller(appContext).start();
-    }
 
     /**
      *
@@ -69,14 +70,22 @@ public class ProfileInstallerInitializer
     @NonNull
     @Override
     public Result create(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+            // If we are below the supported SDK, there is nothing for us to do, so return early.
+            return new Result();
+        }
+
+        // If we made it this far, we are going to try and install the profile in the background.
         Context appContext = context.getApplicationContext();
         Handler handler;
         if (Build.VERSION.SDK_INT >= 28) {
+            // avoid aligning with vsync when available using createAsync API
             handler = Handler28Impl.createAsync(Looper.getMainLooper());
         } else {
             handler = new Handler(Looper.getMainLooper());
         }
-        handler.postDelayed(() -> doDelayedInit(appContext), DELAY_MS);
+
+        handler.postDelayed(() -> ProfileInstaller.tryInstallInBackground(appContext), DELAY_MS);
         return new Result();
     }
 
@@ -101,9 +110,9 @@ public class ProfileInstallerInitializer
         }
 
         // avoid aligning with vsync when available (API 28+)
+        @DoNotInline
         public static Handler createAsync(Looper looper) {
             return Handler.createAsync(looper);
         }
-
     }
 }
