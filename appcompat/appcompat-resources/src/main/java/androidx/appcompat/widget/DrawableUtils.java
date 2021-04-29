@@ -19,6 +19,9 @@ package androidx.appcompat.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.Insets;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -28,14 +31,17 @@ import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ScaleDrawable;
 import android.os.Build;
-import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appcompat.graphics.drawable.DrawableWrapper;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /** @hide */
@@ -45,89 +51,44 @@ public class DrawableUtils {
     private static final int[] CHECKED_STATE_SET = new int[]{android.R.attr.state_checked};
     private static final int[] EMPTY_STATE_SET = new int[0];
 
-    private static final String TAG = "DrawableUtils";
-
     public static final Rect INSETS_NONE = new Rect();
-    private static Class<?> sInsetsClazz;
 
     private static final String VECTOR_DRAWABLE_CLAZZ_NAME
             = "android.graphics.drawable.VectorDrawable";
 
-    static {
-        if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                sInsetsClazz = Class.forName("android.graphics.Insets");
-            } catch (ClassNotFoundException e) {
-                // Oh well...
-            }
-        }
+    private DrawableUtils() {
+        // This class is non-instantiable.
     }
-
-    private DrawableUtils() {}
 
     /**
      * Allows us to get the optical insets for a {@link Drawable}. Since this is hidden we need to
      * use reflection. Since the {@code Insets} class is hidden also, we return a Rect instead.
      */
-    public static Rect getOpticalBounds(Drawable drawable) {
+    @NonNull
+    public static Rect getOpticalBounds(@NonNull Drawable drawable) {
         if (Build.VERSION.SDK_INT >= 29) {
-            final android.graphics.Insets insets = drawable.getOpticalInsets();
-            final Rect result = new Rect();
-            result.left = insets.left;
-            result.right = insets.right;
-            result.top = insets.top;
-            result.bottom = insets.bottom;
-            return result;
-        }
-        if (sInsetsClazz != null) {
-            try {
-                // If the Drawable is wrapped, we need to manually unwrap it and process
-                // the wrapped drawable.
-                drawable = DrawableCompat.unwrap(drawable);
-
-                final Method getOpticalInsetsMethod = drawable.getClass()
-                        .getMethod("getOpticalInsets");
-                final Object insets = getOpticalInsetsMethod.invoke(drawable);
-
-                if (insets != null) {
-                    // If the drawable has some optical insets, let's copy them into a Rect
-                    final Rect result = new Rect();
-
-                    for (Field field : sInsetsClazz.getFields()) {
-                        switch (field.getName()) {
-                            case "left":
-                               result.left = field.getInt(insets);
-                                break;
-                            case "top":
-                                result.top = field.getInt(insets);
-                                break;
-                            case "right":
-                                result.right = field.getInt(insets);
-                                break;
-                            case "bottom":
-                                result.bottom = field.getInt(insets);
-                                break;
-                        }
-                    }
-                    return result;
-                }
-            } catch (Exception e) {
-                // Eugh, we hit some kind of reflection issue...
-                Log.e(TAG, "Couldn't obtain the optical insets. Ignoring.");
-            }
+            final Insets insets = Api29Impl.getOpticalInsets(drawable);
+            return new Rect(
+                    insets.left,
+                    insets.top,
+                    insets.right,
+                    insets.bottom
+            );
+        } else if (Build.VERSION.SDK_INT >= 18) {
+            return Api18Impl.getOpticalInsets(DrawableCompat.unwrap(drawable));
         }
 
         // If we reach here, either we're running on a device pre-v18, the Drawable didn't have
-        // any optical insets, or a reflection issue, so we'll just return an empty rect
+        // any optical insets, or a reflection issue, so we'll just return an empty rect.
         return INSETS_NONE;
     }
 
     /**
      * Attempt the fix any issues in the given drawable, usually caused by platform bugs in the
      * implementation. This method should be call after retrieval from
-     * {@link android.content.res.Resources} or a {@link android.content.res.TypedArray}.
+     * {@link Resources} or a {@link TypedArray}.
      */
-    static void fixDrawable(@NonNull final Drawable drawable) {
+    static void fixDrawable(@NonNull Drawable drawable) {
         if (Build.VERSION.SDK_INT == 21
                 && VECTOR_DRAWABLE_CLAZZ_NAME.equals(drawable.getClass().getName())) {
             fixVectorDrawableTinting(drawable);
@@ -141,7 +102,7 @@ public class DrawableUtils {
     public static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
         if (Build.VERSION.SDK_INT < 15 && drawable instanceof InsetDrawable) {
             return false;
-        }  else if (Build.VERSION.SDK_INT < 15 && drawable instanceof GradientDrawable) {
+        } else if (Build.VERSION.SDK_INT < 15 && drawable instanceof GradientDrawable) {
             // GradientDrawable has a bug pre-ICS which results in mutate() resulting
             // in loss of color
             return false;
@@ -162,13 +123,9 @@ public class DrawableUtils {
                 }
             }
         } else if (drawable instanceof WrappedDrawable) {
-            return canSafelyMutateDrawable(
-                    ((WrappedDrawable) drawable)
-                            .getWrappedDrawable());
-        } else if (drawable instanceof androidx.appcompat.graphics.drawable.DrawableWrapper) {
-            return canSafelyMutateDrawable(
-                    ((androidx.appcompat.graphics.drawable.DrawableWrapper) drawable)
-                            .getWrappedDrawable());
+            return canSafelyMutateDrawable(((WrappedDrawable) drawable).getWrappedDrawable());
+        } else if (drawable instanceof DrawableWrapper) {
+            return canSafelyMutateDrawable(((DrawableWrapper) drawable).getWrappedDrawable());
         } else if (drawable instanceof ScaleDrawable) {
             return canSafelyMutateDrawable(((ScaleDrawable) drawable).getDrawable());
         }
@@ -198,14 +155,111 @@ public class DrawableUtils {
      */
     public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
         switch (value) {
-            case 3: return PorterDuff.Mode.SRC_OVER;
-            case 5: return PorterDuff.Mode.SRC_IN;
-            case 9: return PorterDuff.Mode.SRC_ATOP;
-            case 14: return PorterDuff.Mode.MULTIPLY;
-            case 15: return PorterDuff.Mode.SCREEN;
-            case 16: return PorterDuff.Mode.ADD;
-            default: return defaultMode;
+            case 3:
+                return PorterDuff.Mode.SRC_OVER;
+            case 5:
+                return PorterDuff.Mode.SRC_IN;
+            case 9:
+                return PorterDuff.Mode.SRC_ATOP;
+            case 14:
+                return PorterDuff.Mode.MULTIPLY;
+            case 15:
+                return PorterDuff.Mode.SCREEN;
+            case 16:
+                return PorterDuff.Mode.ADD;
+            default:
+                return defaultMode;
         }
     }
 
+    // Only accessible on SDK_INT >= 18 and < 29.
+    @RequiresApi(18)
+    static class Api18Impl {
+        private static final boolean sReflectionSuccessful;
+        private static final Method sGetOpticalInsets;
+        private static final Field sLeft;
+        private static final Field sTop;
+        private static final Field sRight;
+        private static final Field sBottom;
+
+        static {
+            Method getOpticalInsets = null;
+            Field left = null;
+            Field top = null;
+            Field right = null;
+            Field bottom = null;
+            boolean success = false;
+
+            try {
+                Class<?> insets = Class.forName("android.graphics.Insets");
+                getOpticalInsets = Drawable.class.getMethod("getOpticalInsets");
+                left = insets.getField("left");
+                top = insets.getField("top");
+                right = insets.getField("right");
+                bottom = insets.getField("bottom");
+                success = true;
+            } catch (NoSuchMethodException e) {
+                // Not successful, null everything out.
+            } catch (ClassNotFoundException e) {
+                // Not successful, null everything out.
+            } catch (NoSuchFieldException e) {
+                // Not successful, null everything out.
+            }
+
+            if (success) {
+                sGetOpticalInsets = getOpticalInsets;
+                sLeft = left;
+                sTop = top;
+                sRight = right;
+                sBottom = bottom;
+                sReflectionSuccessful = true;
+            } else {
+                sGetOpticalInsets = null;
+                sLeft = null;
+                sTop = null;
+                sRight = null;
+                sBottom = null;
+                sReflectionSuccessful = false;
+            }
+        }
+
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @NonNull
+        static Rect getOpticalInsets(@NonNull Drawable drawable) {
+            // Check the SDK_INT to avoid UncheckedReflection error.
+            if (Build.VERSION.SDK_INT < 29 && sReflectionSuccessful) {
+                try {
+                    Object insets = sGetOpticalInsets.invoke(drawable);
+                    if (insets != null) {
+                        return new Rect(
+                                sLeft.getInt(insets),
+                                sTop.getInt(insets),
+                                sRight.getInt(insets),
+                                sBottom.getInt(insets)
+                        );
+                    }
+                } catch (IllegalAccessException e) {
+                    // Ignore, we'll return empty insets.
+                } catch (InvocationTargetException e) {
+                    // Ignore, we'll return empty insets.
+                }
+            }
+            return DrawableUtils.INSETS_NONE;
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Insets getOpticalInsets(Drawable drawable) {
+            return drawable.getOpticalInsets();
+        }
+    }
 }
