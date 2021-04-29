@@ -18,7 +18,6 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Insets;
@@ -46,15 +45,12 @@ import java.lang.reflect.Method;
 
 /** @hide */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 public class DrawableUtils {
-    private static final int[] CHECKED_STATE_SET = new int[]{android.R.attr.state_checked};
+
+    private static final int[] CHECKED_STATE_SET = new int[] { android.R.attr.state_checked };
     private static final int[] EMPTY_STATE_SET = new int[0];
 
     public static final Rect INSETS_NONE = new Rect();
-
-    private static final String VECTOR_DRAWABLE_CLAZZ_NAME
-            = "android.graphics.drawable.VectorDrawable";
 
     private DrawableUtils() {
         // This class is non-instantiable.
@@ -89,9 +85,17 @@ public class DrawableUtils {
      * {@link Resources} or a {@link TypedArray}.
      */
     static void fixDrawable(@NonNull Drawable drawable) {
+        String className = drawable.getClass().getName();
         if (Build.VERSION.SDK_INT == 21
-                && VECTOR_DRAWABLE_CLAZZ_NAME.equals(drawable.getClass().getName())) {
-            fixVectorDrawableTinting(drawable);
+                && "android.graphics.drawable.VectorDrawable".equals(className)) {
+            // VectorDrawable has an issue on API 21 where it sometimes doesn't create its tint
+            // filter until a state change event has occurred.
+            forceDrawableStateChange(drawable);
+        } else if (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 31
+                && "android.graphics.drawable.ColorStateListDrawable".equals(className)) {
+            // ColorStateListDrawable has an issue on APIs 29 and 30 where it doesn't set up the
+            // default color until a state change event has occurred.
+            forceDrawableStateChange(drawable);
         }
     }
 
@@ -134,10 +138,9 @@ public class DrawableUtils {
     }
 
     /**
-     * VectorDrawable has an issue on API 21 where it sometimes doesn't create its tint filter.
-     * Fixed by toggling its state to force a filter creation.
+     * Force a drawable state change.
      */
-    private static void fixVectorDrawableTinting(final Drawable drawable) {
+    private static void forceDrawableStateChange(final Drawable drawable) {
         final int[] originalState = drawable.getState();
         if (originalState == null || originalState.length == 0) {
             // The drawable doesn't have a state, so set it to be checked
