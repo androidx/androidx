@@ -205,13 +205,16 @@ package androidx.car.app.model {
     method public static String typeToString(int);
     field public static final androidx.car.app.model.Action APP_ICON;
     field public static final androidx.car.app.model.Action BACK;
+    field public static final androidx.car.app.model.Action PAN;
     field public static final int TYPE_APP_ICON = 65538; // 0x10002
     field public static final int TYPE_BACK = 65539; // 0x10003
     field public static final int TYPE_CUSTOM = 1; // 0x1
+    field public static final int TYPE_PAN = 65540; // 0x10004
   }
 
   public static final class Action.Builder {
     ctor public Action.Builder();
+    ctor @androidx.car.app.annotations.RequiresCarApi(2) public Action.Builder(androidx.car.app.model.Action);
     method public androidx.car.app.model.Action build();
     method public androidx.car.app.model.Action.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.Action.Builder setIcon(androidx.car.app.model.CarIcon);
@@ -942,7 +945,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.TravelEstimate? getDestinationTravelEstimate();
     method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getMapActionStrip();
     method public androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo? getNavigationInfo();
-    method @androidx.car.app.annotations.RequiresCarApi(2) public boolean isInPanMode();
+    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.Toggle? getPanModeToggle();
   }
 
   public static final class NavigationTemplate.Builder {
@@ -951,12 +954,16 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setDestinationTravelEstimate(androidx.car.app.navigation.model.TravelEstimate);
-    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.navigation.model.NavigationTemplate.Builder setInPanMode(boolean);
     method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.navigation.model.NavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setNavigationInfo(androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo);
+    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.navigation.model.NavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
   }
 
   public static interface NavigationTemplate.NavigationInfo {
+  }
+
+  public interface PanModeListener {
+    method public void onPanModeChanged(boolean);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
