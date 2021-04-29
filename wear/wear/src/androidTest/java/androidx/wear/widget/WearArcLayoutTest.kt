@@ -113,7 +113,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
                     text = text1
                     textColor = Color.BLUE
                     setBackgroundColor(Color.rgb(100, 100, 0))
-                    minSweepDegrees = 45f
+                    setSweepRangeDegrees(45f, 360f)
                 }
             )
             addView(
@@ -142,7 +142,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "One"
                     setBackgroundColor(Color.rgb(100, 100, 100))
-                    maxSweepDegrees = 20f
+                    setSweepRangeDegrees(0f, 20f)
                     clockwise = true
                 }
             )
@@ -150,7 +150,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Two"
                     setBackgroundColor(Color.rgb(150, 150, 150))
-                    maxSweepDegrees = 20f
+                    setSweepRangeDegrees(0f, 20f)
                     clockwise = false
                 }
             )
@@ -169,7 +169,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Three"
                     setBackgroundColor(Color.rgb(100, 100, 100))
-                    maxSweepDegrees = 20f
+                    setSweepRangeDegrees(0f, 20f)
                     clockwise = true
                 }
             )
@@ -177,7 +177,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Four"
                     setBackgroundColor(Color.rgb(150, 150, 150))
-                    maxSweepDegrees = 20f
+                    setSweepRangeDegrees(0f, 20f)
                     clockwise = false
                 }
             )
@@ -263,7 +263,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
         addView(
             WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                 text = " "
-                minSweepDegrees = angle
+                setSweepRangeDegrees(angle, 360f)
                 setBackgroundColor(Color.rgb(100, 100, 100))
                 clockwise = true
                 textSize = 40f
@@ -298,7 +298,7 @@ class WearArcLayoutTest(private val testHeight: Int) {
                 it.clockwise = clockwise
                 it.textSize = textSize
                 it.textAlignment = textAlignment
-                it.minSweepDegrees = minSweep
+                it.setSweepRangeDegrees(minSweep, 360f)
                 it.setPadding(
                     paddingLeft ?: padding ?: 0,
                     paddingTop ?: padding ?: 0,

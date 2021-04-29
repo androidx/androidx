@@ -114,7 +114,7 @@ class WearCurvedTextViewTest {
                 "right"
             ).apply {
                 forEach {
-                    it.maxSweepDegrees = 55f
+                    it.setSweepRangeDegrees(0f, 55f)
                     it.ellipsize = TextUtils.TruncateAt.END
                 }
             }
@@ -132,7 +132,7 @@ class WearCurvedTextViewTest {
                 "right"
             ).apply {
                 forEach {
-                    it.minSweepDegrees = 55f
+                    it.setSweepRangeDegrees(55f, 360f)
                     it.ellipsize = TextUtils.TruncateAt.END
                 }
             }
@@ -150,8 +150,7 @@ class WearCurvedTextViewTest {
                 "right"
             ).apply {
                 forEachIndexed { ix, v ->
-                    v.minSweepDegrees = 50f
-                    v.maxSweepDegrees = 60f
+                    v.setSweepRangeDegrees(50f, 60f)
                     v.ellipsize = TextUtils.TruncateAt.END
                     v.textAlignment = listOf(
                         View.TEXT_ALIGNMENT_CENTER,
@@ -197,7 +196,12 @@ class WearCurvedTextViewTest {
                     )
                 )
                 .map
-                { (v, e) -> v.ellipsize = e ; v.maxSweepDegrees = 50f; v.text += " but Longer" ; v }
+                { (v, e) ->
+                    v.ellipsize = e
+                    v.setSweepRangeDegrees(0f, 50f)
+                    v.text += " but Longer"
+                    v
+                }
         )
     }
 
