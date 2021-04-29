@@ -34,6 +34,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -224,6 +225,7 @@ class SharedPreferencesToPreferencesTest {
         assertEquals(1, prefs.asMap().size)
     }
 
+    @Ignore
     @Test
     fun migratedStringSetNotMutable() = runBlockingTest {
         val stringSetKey =

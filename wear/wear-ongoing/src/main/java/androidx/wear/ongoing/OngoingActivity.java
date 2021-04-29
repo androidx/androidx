@@ -37,9 +37,10 @@ import java.util.function.Predicate;
  * Main class to access the Ongoing Activities API.
  *
  * It's created with the {@link Builder}. After it's created (and before building and
- * posting the {@link Notification}) {@link OngoingActivity#apply(Context)} apply} needs to be
+ * posting the {@link Notification}) {@link OngoingActivity#apply(Context)} apply needs to be
  * called:
- * {@code
+ *
+ * <pre>{@code
  * NotificationCompat.Builder builder = new NotificationCompat.Builder(context)....
  *
  * OngoingActivity ongoingActivity = new OngoingActivity.Builder(context, notificationId, builder);
@@ -47,13 +48,18 @@ import java.util.function.Predicate;
  * ongoingActivity.apply(context);
  *
  * notificationManager.notify(notificationId, builder.build());
- * }
+ * }</pre>
  *
+ * Note that if a Notification with that id was previously posted it will be replaced. If you
+ * need more than one Notification with the same ID you can use a String tag to differentiate
+ * them in both the {@link Builder#Builder(Context, String, int, NotificationCompat.Builder)} and
+ * {@link NotificationManager#notify(String, int, Notification)}
+ * <p>
  * Afterward, {@link OngoingActivity#update(Context, OngoingActivityStatus) update} can be used to
  * update the status.
- *
+ * <p>
  * If saving the {@link OngoingActivity} instance is not convenient, it can be recovered (after the
- * notification is posted) with {@link OngoingActivity#fromExistingOngoingActivity(Context)}
+ * notification is posted) with {@link OngoingActivity#recoverOngoingActivity(Context)}
  */
 @RequiresApi(24)
 public final class OngoingActivity {
@@ -131,8 +137,6 @@ public final class OngoingActivity {
          * {@link OngoingActivity}. For example, in the WatchFace.
          * Should be white with a transparent background, preferably an AnimatedVectorDrawable.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setAnimatedIcon(@NonNull Icon animatedIcon) {
             mAnimatedIcon = animatedIcon;
@@ -144,8 +148,6 @@ public final class OngoingActivity {
          * {@link OngoingActivity}. For example, in the WatchFace.
          * Should be white with a transparent background, preferably an AnimatedVectorDrawable.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setAnimatedIcon(@DrawableRes int animatedIcon) {
             mAnimatedIcon = Icon.createWithResource(mContext, animatedIcon);
@@ -157,8 +159,6 @@ public final class OngoingActivity {
          * {@link OngoingActivity}, for example in the WatchFace in ambient mode.
          * Should be white with a transparent background, preferably an VectorDrawable.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setStaticIcon(@NonNull Icon staticIcon) {
             mStaticIcon = staticIcon;
@@ -170,8 +170,6 @@ public final class OngoingActivity {
          * {@link OngoingActivity}, for example in the WatchFace in ambient mode.
          * Should be white with a transparent background, preferably an VectorDrawable.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setStaticIcon(@DrawableRes int staticIcon) {
             mStaticIcon = Icon.createWithResource(mContext, staticIcon);
@@ -182,8 +180,6 @@ public final class OngoingActivity {
          * Set the initial status of this ongoing activity, the status may be displayed on the UI to
          * show progress of the Ongoing Activity.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setStatus(@NonNull OngoingActivityStatus status) {
             mStatus = status;
@@ -194,8 +190,6 @@ public final class OngoingActivity {
          * Set the intent to be used to go back to the activity when the user interacts with the
          * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace)
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setTouchIntent(@NonNull PendingIntent touchIntent) {
             mTouchIntent = touchIntent;
@@ -206,8 +200,6 @@ public final class OngoingActivity {
          * Set the corresponding LocusId of this {@link OngoingActivity}, this will be used by the
          * launcher to identify the corresponding launcher item and display it accordingly.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setLocusId(@NonNull LocusIdCompat locusId) {
             mLocusId = locusId;
@@ -216,10 +208,8 @@ public final class OngoingActivity {
 
         /**
          * Give an id to this {@link OngoingActivity}, as a way to reference it in
-         * {@link OngoingActivity#fromExistingOngoingActivity(Context, int)}
+         * {@link OngoingActivity#recoverOngoingActivity(Context, int)}
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setOngoingActivityId(int ongoingActivityId) {
             mOngoingActivityId = ongoingActivityId;
@@ -230,8 +220,6 @@ public final class OngoingActivity {
          * Set the category of this {@link OngoingActivity}, this may be used by the system to
          * prioritize it.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setCategory(@NonNull String category) {
             mCategory = category;
@@ -290,6 +278,95 @@ public final class OngoingActivity {
     }
 
     /**
+     * Get the notificationId of the notification associated with this {@link OngoingActivity}.
+     */
+    public int getNotificationId() {
+        return mNotificationId;
+    }
+
+    /**
+     * Get the tag of the notification associated with this {@link OngoingActivity}, or null if
+     * there is none.
+     */
+    @Nullable
+    public String getTag() {
+        return mTag;
+    }
+
+    /**
+     * Get the animated icon that can be used on some surfaces to represent this
+     * {@link OngoingActivity}. For example, in the WatchFace.
+     */
+    @Nullable
+    public Icon getAnimatedIcon() {
+        return mData.getAnimatedIcon();
+    }
+
+    /**
+     * Get the static icon that can be used on some surfaces to represent this
+     * {@link OngoingActivity}. For example in the WatchFace in ambient mode. If not set, returns
+     *  the small icon of the corresponding Notification.
+     */
+    @NonNull
+    public Icon getStaticIcon() {
+        return mData.getStaticIcon();
+    }
+
+    /**
+     * Get the status of this ongoing activity, the status may be displayed on the UI to
+     * show progress of the Ongoing Activity. If not set, returns the content text of the
+     * corresponding Notification.
+     */
+    @Nullable
+    public OngoingActivityStatus getStatus() {
+        return mData.getStatus();
+    }
+
+    /**
+     * Get the intent to be used to go back to the activity when the user interacts with the
+     * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace). If not
+     * set, returns the touch intent of the corresponding Notification.
+     */
+    @NonNull
+    public PendingIntent getTouchIntent() {
+        return mData.getTouchIntent();
+    }
+
+    /**
+     * Get the LocusId of this {@link OngoingActivity}, this can be used by the launcher to
+     * identify the corresponding launcher item and display it accordingly. If not set, returns
+     * the one in the corresponding Notification.
+     */
+    @Nullable
+    public LocusIdCompat getLocusId() {
+        return mData.getLocusId();
+    }
+
+    /**
+     * Get the id to this {@link OngoingActivity}. This id is used to reference it in
+     * {@link #recoverOngoingActivity(Context, int)}
+     */
+    public int getOngoingActivityId() {
+        return mData.getOngoingActivityId();
+    }
+
+    /**
+     * Get the Category of this {@link OngoingActivity} if set, otherwise the category of the
+     * corresponding notification.
+     */
+    @Nullable
+    public String getCategory() {
+        return mData.getCategory();
+    }
+
+    /**
+     * Get the time (in {@link SystemClock#elapsedRealtime()} time) the OngoingActivity was built.
+     */
+    public long getTimestamp() {
+        return mData.getTimestamp();
+    }
+
+    /**
      * Notify the system that this activity should be shown as an Ongoing Activity.
      *
      * This will modify the notification builder associated with this Ongoing Activity, so needs
@@ -333,7 +410,7 @@ public final class OngoingActivity {
      * @return the Ongoing Activity or null if not found
      */
     @Nullable
-    public static OngoingActivity fromExistingOngoingActivity(
+    public static OngoingActivity recoverOngoingActivity(
             @NonNull Context context,
             @NonNull Predicate<OngoingActivityData> filter
     ) {
@@ -366,8 +443,8 @@ public final class OngoingActivity {
      * @return the Ongoing Activity or null if not found
      */
     @Nullable
-    public static OngoingActivity fromExistingOngoingActivity(@NonNull Context context) {
-        return fromExistingOngoingActivity(context, (data) -> true);
+    public static OngoingActivity recoverOngoingActivity(@NonNull Context context) {
+        return recoverOngoingActivity(context, (data) -> true);
     }
 
     /**
@@ -381,9 +458,9 @@ public final class OngoingActivity {
      * @return the Ongoing Activity or null if not found
      */
     @Nullable
-    public static OngoingActivity fromExistingOngoingActivity(@NonNull Context context,
+    public static OngoingActivity recoverOngoingActivity(@NonNull Context context,
             int ongoingActivityId) {
-        return fromExistingOngoingActivity(context,
+        return recoverOngoingActivity(context,
                 (data) -> data.getOngoingActivityId() == ongoingActivityId);
     }
 

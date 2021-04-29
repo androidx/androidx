@@ -34,8 +34,8 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':internal-testutils-runtime')
     androidTestImplementation(KOTLIN_STDLIB)
 }
@@ -43,7 +43,7 @@ dependencies {
 androidx {
     name = "Emoji2 Benchmarks"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.NAVIGATION
-    inceptionYear = "2018"
-    description = "Navigation Benchmarks"
+    mavenGroup = LibraryGroups.EMOJI2
+    inceptionYear = "2021"
+    description = "Emoji2 Benchmarks"
 }

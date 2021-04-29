@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
@@ -33,7 +32,6 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Base64
 import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
-import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
@@ -42,14 +40,14 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.watchface.style.UserStyle
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.WatchFaceLayer
-import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
@@ -90,12 +88,13 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
     val hashMap = HashMap<String, ByteArray>()
     try {
         val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
-        while (true) {
-            val key = reader.readLine() ?: break
-            val value = reader.readLine() ?: break
-            hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
+        reader.use {
+            while (true) {
+                val key = reader.readLine() ?: break
+                val value = reader.readLine() ?: break
+                hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
+            }
         }
-        reader.close()
     } catch (e: FileNotFoundException) {
         // We don't need to do anything special here.
     }
@@ -104,13 +103,14 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
 
 private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
-    for ((key, value) in style.selectedOptions) {
-        writer.write(key.id.value)
-        writer.newLine()
-        writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
-        writer.newLine()
+    writer.use {
+        for ((key, value) in style.selectedOptions) {
+            writer.write(key.id.value)
+            writer.newLine()
+            writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
+            writer.newLine()
+        }
     }
-    writer.close()
 }
 
 /**
@@ -124,10 +124,10 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * @param complicationsManager The [ComplicationsManager] for this WatchFace.
  */
 public class WatchFace @JvmOverloads constructor(
-    @WatchFaceType internal var watchFaceType: Int,
+    @WatchFaceType public var watchFaceType: Int,
     public val currentUserStyleRepository: CurrentUserStyleRepository,
-    internal val renderer: Renderer,
-    internal var complicationsManager: ComplicationsManager =
+    public val renderer: Renderer,
+    public var complicationsManager: ComplicationsManager =
         ComplicationsManager(emptyList(), currentUserStyleRepository)
 ) {
     internal var tapListener: TapListener? = null
@@ -148,7 +148,7 @@ public class WatchFace @JvmOverloads constructor(
         private val componentNameToEditorDelegate = HashMap<ComponentName, EditorDelegate>()
 
         private var pendingComponentName: ComponentName? = null
-        private var pendingEditorDelegateCB: CompletableDeferred<EditorDelegate?>? = null
+        private var pendingEditorDelegateCB: CompletableDeferred<EditorDelegate>? = null
 
         /** @hide */
         @JvmStatic
@@ -159,6 +159,18 @@ public class WatchFace @JvmOverloads constructor(
             editorDelegate: EditorDelegate
         ) {
             componentNameToEditorDelegate[componentName] = editorDelegate
+
+            if (componentName == pendingComponentName) {
+                pendingEditorDelegateCB?.complete(editorDelegate)
+            } else {
+                pendingEditorDelegateCB?.completeExceptionally(
+                    IllegalStateException(
+                        "Expected $pendingComponentName to be created but got $componentName"
+                    )
+                )
+            }
+            pendingComponentName = null
+            pendingEditorDelegateCB = null
         }
 
         internal fun unregisterEditorDelegate(componentName: ComponentName) {
@@ -183,7 +195,7 @@ public class WatchFace @JvmOverloads constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun getOrCreateEditorDelegate(
             componentName: ComponentName
-        ): CompletableDeferred<EditorDelegate?> {
+        ): CompletableDeferred<EditorDelegate> {
             componentNameToEditorDelegate[componentName]?.let {
                 return CompletableDeferred(it)
             }
@@ -193,21 +205,6 @@ public class WatchFace @JvmOverloads constructor(
             pendingComponentName = componentName
             pendingEditorDelegateCB = CompletableDeferred()
             return pendingEditorDelegateCB!!
-        }
-
-        @UiThread
-        internal fun maybeCreatePendingEditorDelegate(watchface: WatchFaceImpl) {
-            if (pendingComponentName != null) {
-                pendingEditorDelegateCB?.complete(
-                    if (watchface.componentName == pendingComponentName) {
-                        watchface.createWFEditorDelegate()
-                    } else {
-                        null
-                    }
-                )
-                pendingComponentName = null
-                pendingEditorDelegateCB = null
-            }
         }
     }
 
@@ -255,10 +252,34 @@ public class WatchFace @JvmOverloads constructor(
 
     /** Listens for taps on the watchface which didn't land on [Complication]s. */
     public interface TapListener {
-        /** Called whenever the user taps on the watchface but doesn't hit a [Complication]. */
+        /**
+         * Called whenever the user taps on the watchface but doesn't hit a [Complication].
+         *
+         * The watch face receives three different types of touch events:
+         * - [TapType.DOWN] when the user puts the finger down on the touchscreen
+         * - [TapType.UP] when the user lifts the finger from the touchscreen
+         * - [TapType.CANCEL] when the system detects that the user is performing a gesture other
+         *   than a tap
+         *
+         * Note that the watch face is only given tap events, i.e., events where the user puts
+         * the finger down on the screen and then lifts it at the position. If the user performs any
+         * other type of gesture while their finger in on the touchscreen, the watch face will be
+         * receive a cancel, as all other gestures are reserved by the system.
+         *
+         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed
+         * to be close enough to be considered a tap according to the value returned by
+         * [android.view.ViewConfiguration.getScaledTouchSlop].
+         *
+         * If the watch face receives a [TapType.CANCEL] event, it should not trigger any action, as
+         * the system is already processing the gesture.
+         *
+         * @param tapType the type of touch event sent to the watch face
+         * @param xPos the horizontal position in pixels on the screen where the touch happened
+         * @param yPos the vertical position in pixels on the screen where the touch happened
+         */
         @UiThread
         public fun onTap(
-            @TapType originalTapType: Int,
+            @TapType tapType: Int,
             @Px xPos: Int,
             @Px yPos: Int
         )
@@ -358,13 +379,15 @@ public class WatchFace @JvmOverloads constructor(
     }
 }
 
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("SyntheticAccessor")
-internal class WatchFaceImpl(
+public class WatchFaceImpl(
     watchface: WatchFace,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState
 ) {
-    companion object {
+    internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
@@ -412,7 +435,6 @@ internal class WatchFaceImpl(
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
     private var lastTappedComplicationId: Int? = null
-    private var lastTappedPosition: Point? = null
     private var registeredReceivers = false
 
     // True if NotificationManager.INTERRUPTION_FILTER_NONE.
@@ -424,8 +446,6 @@ internal class WatchFaceImpl(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     public val calendar: Calendar = Calendar.getInstance()
 
-    private val pendingSingleTap: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getHandler())
     private val pendingUpdateTime: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
 
@@ -512,43 +532,6 @@ internal class WatchFaceImpl(
             else -> throw InvalidParameterException("Unrecognized watchFaceType")
         }
 
-    init {
-        // If the system has a stored user style then Home/SysUI is in charge of style
-        // persistence, otherwise we need to do our own.
-        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
-        if (storedUserStyle != null) {
-            userStyleRepository.userStyle =
-                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
-        } else {
-            // The system doesn't support preference persistence we need to do it ourselves.
-            val preferencesFile =
-                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
-
-            userStyleRepository.userStyle = UserStyle(
-                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
-                userStyleRepository.schema
-            )
-
-            userStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
-                    }
-                })
-        }
-
-        renderer.watchFaceHostApi = watchFaceHostApi
-
-        setIsBatteryLowAndNotChargingFromBatteryStatus(
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
-                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
-            }
-        )
-
-        WatchFace.maybeCreatePendingEditorDelegate(this)
-    }
-
     private var inOnSetStyle = false
 
     private val ambientObserver = Observer<Boolean> {
@@ -595,6 +578,39 @@ internal class WatchFaceImpl(
     }
 
     init {
+        // If the system has a stored user style then Home/SysUI is in charge of style
+        // persistence, otherwise we need to do our own.
+        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
+        if (storedUserStyle != null) {
+            userStyleRepository.userStyle =
+                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
+        } else {
+            // The system doesn't support preference persistence we need to do it ourselves.
+            val preferencesFile =
+                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
+
+            userStyleRepository.userStyle = UserStyle(
+                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
+                userStyleRepository.schema
+            )
+
+            userStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
+                    @SuppressLint("SyntheticAccessor")
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
+                        writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
+                    }
+                })
+        }
+
+        renderer.watchFaceHostApi = watchFaceHostApi
+
+        setIsBatteryLowAndNotChargingFromBatteryStatus(
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
+                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
+            }
+        )
+
         // We need to inhibit an immediate callback during initialization because members are not
         // fully constructed and it will fail. It's also superfluous because we're going to render
         // anyway.
@@ -720,7 +736,6 @@ internal class WatchFaceImpl(
     }
 
     internal fun onDestroy() {
-        pendingSingleTap.cancel()
         pendingUpdateTime.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
@@ -881,39 +896,22 @@ internal class WatchFaceImpl(
      * Called when a tap or touch related event occurs. Detects double and single taps on
      * complications and triggers the associated action.
      *
-     * @param originalTapType Value representing the event sent to the wallpaper
+     * @param tapType Value representing the event sent to the wallpaper
      * @param x X coordinate of the event
      * @param y Y coordinate of the event
      */
     @UiThread
     internal fun onTapCommand(
-        @TapType originalTapType: Int,
+        @TapType tapType: Int,
         x: Int,
         y: Int
     ) {
         val tappedComplication = complicationsManager.getComplicationAt(x, y)
         if (tappedComplication == null) {
-            clearGesture()
-            tapListener?.onTap(originalTapType, x, y)
+            // The event does not belong to any of the complications, pass to the listener.
+            lastTappedComplicationId = null
+            tapListener?.onTap(tapType, x, y)
             return
-        }
-
-        // Unfortunately we don't get MotionEvents so we can't directly use the GestureDetector
-        // to distinguish between single and double taps. Currently we do that ourselves.
-        // TODO(alexclarke): Revisit this
-        var tapType = originalTapType
-        when (tapType) {
-            TapType.DOWN -> {
-                lastTappedPosition = Point(x, y)
-            }
-            TapType.CANCEL -> {
-                lastTappedPosition?.let { safeLastTappedPosition ->
-                    if ((safeLastTappedPosition.x == x) && (safeLastTappedPosition.y == y)) {
-                        tapType = TapType.UP
-                    }
-                }
-                lastTappedPosition = null
-            }
         }
 
         when (tapType) {
@@ -921,47 +919,25 @@ internal class WatchFaceImpl(
                 if (tappedComplication.id != lastTappedComplicationId &&
                     lastTappedComplicationId != null
                 ) {
-                    clearGesture()
+                    // The UP event belongs to a different complication then the DOWN event,
+                    // do not consider this a tap on either of them.
+                    lastTappedComplicationId = null
                     return
                 }
-                if (!pendingSingleTap.isPending()) {
-                    // Give the user immediate visual feedback, the UI feels sluggish if we defer
-                    // this.
-                    complicationsManager.displayPressedAnimation(tappedComplication.id)
-
-                    lastTappedComplicationId = tappedComplication.id
-
-                    // This could either be a single or a double tap, post a task to process the
-                    // single tap which will get canceled if a double tap gets there first
-                    pendingSingleTap.postDelayedUnique(
-                        ViewConfiguration.getDoubleTapTimeout().toLong()
-                    ) {
-                        complicationsManager.onComplicationSingleTapped(tappedComplication.id)
-                        watchFaceHostApi.invalidate()
-                        clearGesture()
-                    }
-                }
+                complicationsManager.displayPressedAnimation(tappedComplication.id)
+                complicationsManager.onComplicationSingleTapped(tappedComplication.id)
+                watchFaceHostApi.invalidate()
+                lastTappedComplicationId = null
             }
             TapType.DOWN -> {
-                // Make sure the user isn't doing a swipe.
-                if (tappedComplication.id != lastTappedComplicationId &&
-                    lastTappedComplicationId != null
-                ) {
-                    clearGesture()
-                }
                 lastTappedComplicationId = tappedComplication.id
             }
-            else -> clearGesture()
+            else -> lastTappedComplicationId = null
         }
     }
 
-    private fun clearGesture() {
-        lastTappedComplicationId = null
-        pendingSingleTap.cancel()
-    }
-
     @UiThread
-    fun dump(writer: IndentingPrintWriter) {
+    internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchFaceImpl ($componentName): ")
         writer.increaseIndent()
         writer.println("calendar=$calendar")
@@ -970,10 +946,8 @@ internal class WatchFaceImpl(
         writer.println("mockTime.speed=${mockTime.speed}")
         writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
         writer.println("muteMode=$muteMode")
-        writer.println("pendingSingleTap=${pendingSingleTap.isPending()}")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
-        writer.println("lastTappedPosition=$lastTappedPosition")
         writer.println("currentUserStyleRepository.userStyle=${userStyleRepository.userStyle}")
         writer.println("currentUserStyleRepository.schema=${userStyleRepository.schema}")
         watchState.dump(writer)

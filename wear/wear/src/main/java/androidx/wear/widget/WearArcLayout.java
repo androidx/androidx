@@ -100,7 +100,7 @@ public class WearArcLayout extends ViewGroup {
          * In particular, the coordinates should be considered as if the child was drawn
          * centered at the default angle (12 o clock).
          */
-        boolean insideClickArea(float x, float y);
+        boolean isPointInsideClickArea(float x, float y);
     }
 
     /**
@@ -504,7 +504,7 @@ public class WearArcLayout extends ViewGroup {
 
     private static boolean insideChildClickArea(View child, float x, float y) {
         if (child instanceof ArcLayoutWidget) {
-            return ((ArcLayoutWidget) child).insideClickArea(x, y);
+            return ((ArcLayoutWidget) child).isPointInsideClickArea(x, y);
         }
         return x >= 0 && x < child.getMeasuredWidth() && y >= 0 && y < child.getMeasuredHeight();
     }

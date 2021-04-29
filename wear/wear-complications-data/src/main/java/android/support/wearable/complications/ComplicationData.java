@@ -39,7 +39,8 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>A {@link androidx.wear.complications.ComplicationProviderService} should create instances of
  * this class using {@link ComplicationData.Builder} and send them to the complication system in
- * response to {@link androidx.wear.complications.ComplicationProviderService#onComplicationUpdate}.
+ * response to
+ * {@link androidx.wear.complications.ComplicationProviderService#onComplicationRequest}.
  * Depending on the type of complication data, some fields will be required and some will be
  * optional - see the documentation for each type, and for the builder's set methods, for details.
  *
@@ -48,8 +49,11 @@ import java.lang.annotation.RetentionPolicy;
  * <p>When rendering the complication data for a given time, the watch face should first call {@link
  * #isActiveAt} to determine whether the data is valid at that time. See the documentation for each
  * of the complication types below for details of which fields are expected to be displayed.
+ *
+ * @hide
  */
 @SuppressLint("BanParcelableUsage")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationData implements Parcelable {
 
     private static final String TAG = "ComplicationData";

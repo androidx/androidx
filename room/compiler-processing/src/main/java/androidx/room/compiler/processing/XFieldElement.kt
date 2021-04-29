@@ -21,10 +21,17 @@ package androidx.room.compiler.processing
  */
 interface XFieldElement : XVariableElement, XHasModifiers {
     /**
-     * The [XTypeElement] that declared this executable.
+     * The element that declared this field.
+     *
+     * @see requireEnclosingTypeElement
      */
-    val enclosingTypeElement: XTypeElement
+    val enclosingElement: XElement
 
     override val fallbackLocationText: String
-        get() = "$name in ${enclosingTypeElement.fallbackLocationText}"
+        get() = "$name in ${enclosingElement.fallbackLocationText}"
+}
+
+fun XFieldElement.requireEnclosingTypeElement(): XTypeElement {
+    return enclosingElement as? XTypeElement
+        ?: error("Required enclosing type element for $this but found $enclosingElement")
 }

@@ -16,14 +16,9 @@
 
 package androidx.car.app.sample.showcase.common.misc;
 
-import static androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver.INTENT_ACTION_CANCEL_RESERVATION;
-import static androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver.INTENT_ACTION_PHONE;
-
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -32,8 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -43,16 +37,19 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridTemplate;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Template;
 import androidx.car.app.notification.CarAppExtender;
-import androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver;
+import androidx.car.app.notification.CarNotificationManager;
+import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.sample.showcase.common.ShowcaseService;
+import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -143,7 +140,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
                         .setImage(new CarIcon.Builder(mIcon).build())
                         .setOnClickListener(() -> {
                             mHandler.removeMessages(MSG_SEND_NOTIFICATION);
-                            NotificationManagerCompat.from(getCarContext()).cancelAll();
+                            CarNotificationManager.from(getCarContext()).cancelAll();
                             mNotificationCount = 0;
                         })
                         .build());
@@ -221,16 +218,12 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
     @SuppressLint({"UnsafeNewApiCall", "ObsoleteSdkInt"})
     private void sendNotification(CharSequence title, CharSequence text, String channelId,
             CharSequence channelName, int notificationId, int importance) {
-        NotificationManagerCompat notificationManagerCompat =
-                NotificationManagerCompat.from(getCarContext());
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            NotificationChannel channel =
-                    new NotificationChannel(
-                            channelId,
-                            channelName,
-                            importance);
-            notificationManagerCompat.createNotificationChannel(channel);
-        }
+        CarNotificationManager carNotificationManager =
+                CarNotificationManager.from(getCarContext());
+
+        NotificationChannelCompat channel = new NotificationChannelCompat.Builder(channelId,
+                importance).setName(channelName).build();
+        carNotificationManager.createNotificationChannel(channel);
 
         NotificationCompat.Builder builder;
         builder = new NotificationCompat.Builder(getCarContext(), channelId);
@@ -239,46 +232,60 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         }
         builder.setOngoing(mSetOngoing);
 
-        Notification notification =
-                builder.setSmallIcon(R.drawable.ic_bug_report_24px)
-                        .setContentTitle(title + " (phone)")
-                        .setContentText(text + " (phone)")
-                        .setLargeIcon(
-                                BitmapFactory.decodeResource(
-                                        getCarContext().getResources(), R.drawable.ic_hi))
-                        .addAction(
-                                new NotificationCompat.Action.Builder(
+        builder.setSmallIcon(R.drawable.ic_bug_report_24px)
+                .setContentTitle(title + " (phone)")
+                .setContentText(text + " (phone)")
+                .setColor(getCarContext().getColor(R.color.carColorGreen))
+                .setColorized(true)
+                .setLargeIcon(
+                        BitmapFactory.decodeResource(
+                                getCarContext().getResources(), R.drawable.ic_hi))
+                .addAction(
+                        new NotificationCompat.Action.Builder(
+                                R.drawable.ic_face_24px,
+                                "Action1 (phone)",
+                                createPendingIntent(INTENT_ACTION_PRIMARY_PHONE))
+                                .build())
+                .addAction(
+                        R.drawable.ic_commute_24px,
+                        "Action2 (phone)",
+                        createPendingIntent(INTENT_ACTION_SECONDARY_PHONE))
+                .extend(
+                        new CarAppExtender.Builder()
+                                .setContentTitle(title)
+                                .setContentText(text)
+                                .setContentIntent(
+                                        CarPendingIntent.getCarApp(getCarContext(), 0,
+                                                new Intent(Intent.ACTION_VIEW).setComponent(
+                                                        new ComponentName(getCarContext(),
+                                                                ShowcaseService.class)), 0))
+                                .setColor(CarColor.PRIMARY)
+                                .setSmallIcon(R.drawable.ic_bug_report_24px)
+                                .setLargeIcon(
+                                        BitmapFactory.decodeResource(
+                                                getCarContext().getResources(),
+                                                R.drawable.ic_hi))
+                                .addAction(
+                                        R.drawable.ic_commute_24px,
+                                        "Navigate",
+                                        getPendingIntentForNavigation())
+                                .addAction(
                                         R.drawable.ic_face_24px,
-                                        "Action1 (phone)",
-                                        createPendingIntent(INTENT_ACTION_PRIMARY_PHONE))
-                                        .build())
-                        .addAction(
-                                R.drawable.ic_commute_24px,
-                                "Action2 (phone)",
-                                createPendingIntent(INTENT_ACTION_SECONDARY_PHONE))
-                        .extend(
-                                new CarAppExtender.Builder()
-                                        .setContentTitle(title)
-                                        .setContentText(text)
-                                        .setSmallIcon(R.drawable.ic_bug_report_24px)
-                                        .setLargeIcon(
-                                                BitmapFactory.decodeResource(
-                                                        getCarContext().getResources(),
-                                                        R.drawable.ic_hi))
-                                        .addAction(
-                                                R.drawable.ic_commute_24px,
-                                                "Complete on Phone",
-                                                createDeepLinkActionPendingIntent(
-                                                        INTENT_ACTION_PHONE))
-                                        .addAction(
-                                                R.drawable.ic_face_24px,
-                                                "Cancel",
-                                                createDeepLinkActionPendingIntent(
-                                                        INTENT_ACTION_CANCEL_RESERVATION))
-                                        .build())
-                        .build();
+                                        "Call",
+                                        createPendingIntentForCall())
+                                .build());
 
-        notificationManagerCompat.notify(notificationId, notification);
+        carNotificationManager.notify(notificationId, builder);
+    }
+
+    private PendingIntent createPendingIntentForCall() {
+        Intent intent = new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:+14257232350"));
+        return CarPendingIntent.getCarApp(getCarContext(), intent.hashCode(), intent, 0);
+    }
+
+    private PendingIntent getPendingIntentForNavigation() {
+        Intent intent = new Intent(CarContext.ACTION_NAVIGATE).setData(Uri.parse("geo:0,0?q=Home"));
+        return CarPendingIntent.getCarApp(getCarContext(), intent.hashCode(), intent, 0);
     }
 
     private String getImportanceString() {
@@ -328,16 +335,6 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
 
     private void unregisterBroadcastReceiver() {
         getCarContext().unregisterReceiver(mBroadcastReceiver);
-    }
-
-    /** Returns a pending intent with the provided intent action. */
-    private PendingIntent createDeepLinkActionPendingIntent(String intentAction) {
-        Intent intent =
-                new Intent(intentAction)
-                        .setComponent(
-                                new ComponentName(
-                                        getCarContext(), DeepLinkNotificationReceiver.class));
-        return PendingIntent.getBroadcast(getCarContext(), intentAction.hashCode(), intent, 0);
     }
 
     /** Returns a pending intent with the provided intent action. */

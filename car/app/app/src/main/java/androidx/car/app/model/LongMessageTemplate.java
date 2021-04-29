@@ -45,7 +45,6 @@ import java.util.Objects;
 @ExperimentalCarApi
 @RequiresCarApi(2)
 public final class LongMessageTemplate implements Template {
-
     @Keep
     @Nullable
     private final CarText mTitle;
@@ -175,7 +174,7 @@ public final class LongMessageTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -233,6 +232,9 @@ public final class LongMessageTemplate implements Template {
         /**
          * Adds an {@link Action} to display along with the message.
          *
+         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances, any other spans will be ignored by the host.
+         *
          * <h4>Requirements</h4>
          *
          * Any actions above the maximum limit of 2 will be ignored. These {@link Action}s will
@@ -277,7 +279,6 @@ public final class LongMessageTemplate implements Template {
          *
          * @param message the text message to display in the template. This message will only be
          *                displayed when the car is parked.
-         *
          * @throws NullPointerException if the {@code message} is {@code null}
          */
         public Builder(@NonNull CharSequence message) {

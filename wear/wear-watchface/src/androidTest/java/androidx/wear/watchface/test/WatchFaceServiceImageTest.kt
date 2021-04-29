@@ -38,6 +38,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
@@ -47,6 +48,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
+import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
@@ -60,6 +62,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -120,7 +123,10 @@ public class WatchFaceServiceImageTest {
 
     private val complicationProviders = mapOf(
         SystemProviders.PROVIDER_DAY_OF_WEEK to
-            ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("Mon").build(),
+                ComplicationText.EMPTY
+            )
                 .setTitle(PlainComplicationText.Builder("23rd").build())
                 .setTapAction(
                     PendingIntent.getActivity(
@@ -137,7 +143,10 @@ public class WatchFaceServiceImageTest {
                 .build()
                 .asWireComplicationData(),
         SystemProviders.PROVIDER_STEP_COUNT to
-            ShortTextComplicationData.Builder(PlainComplicationText.Builder("100").build())
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("100").build(),
+                ComplicationText.EMPTY
+            )
                 .setTitle(PlainComplicationText.Builder("Steps").build())
                 .build()
                 .asWireComplicationData()
@@ -260,6 +269,10 @@ public class WatchFaceServiceImageTest {
                                     TimeZone.getTimeZone("UTC")
                                 initLatch.countDown()
                             }
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
                         }
                     }
                 )
@@ -485,14 +498,20 @@ public class WatchFaceServiceImageTest {
         val previewComplicationData = listOf(
             IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(PlainComplicationText.Builder("A").build())
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("A").build(),
+                    ComplicationText.EMPTY
+                )
                     .setTitle(PlainComplicationText.Builder("Preview").build())
                     .build()
                     .asWireComplicationData()
             ),
             IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(PlainComplicationText.Builder("B").build())
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("B").build(),
+                    ComplicationText.EMPTY
+                )
                     .setTitle(PlainComplicationText.Builder("Preview").build())
                     .build()
                     .asWireComplicationData()

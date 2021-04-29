@@ -32,17 +32,13 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
     androidTestImplementation(TRUTH)
     androidTestAnnotationProcessor project(":versionedparcelable:versionedparcelable-compiler")
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     buildFeatures {
         aidl = true
     }

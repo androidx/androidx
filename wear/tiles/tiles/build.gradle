@@ -29,14 +29,17 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
 
-    implementation 'androidx.annotation:annotation:1.2.0-alpha01'
+    implementation("androidx.annotation:annotation-experimental:1.1.0")
     implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+
+    compileOnly(KOTLIN_STDLIB) // For annotation-experimental
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_EXT_TRUTH)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation("androidx.concurrent:concurrent-futures:1.1.0")
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
 }

@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"Desactivar"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"Desactivado"</string>
     <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"Pista de audio"</string>
     <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"Ningunha pista de audio"</string>
     <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"Velocidade de reprodución"</string>

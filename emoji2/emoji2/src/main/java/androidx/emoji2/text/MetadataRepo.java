@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
-import androidx.text.emoji.flatbuffer.MetadataList;
+import androidx.emoji2.text.flatbuffer.MetadataList;
 
 import java.io.IOException;
 import java.io.InputStream;

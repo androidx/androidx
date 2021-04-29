@@ -32,13 +32,13 @@ internal class JavacFieldElement(
     XHasModifiers by JavacHasModifiers(element) {
 
     private val kotlinMetadata: KmProperty? by lazy {
-        (enclosingTypeElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(name)
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(name)
     }
 
     override val kotlinType: KmType?
         get() = kotlinMetadata?.type
 
-    override val enclosingTypeElement: XTypeElement by lazy {
+    override val enclosingElement: XTypeElement by lazy {
         element.requireEnclosingType(env)
     }
 }

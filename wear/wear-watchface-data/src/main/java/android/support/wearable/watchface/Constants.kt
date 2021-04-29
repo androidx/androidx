@@ -57,8 +57,11 @@ public class Constants {
         public const val KEY_BITMAP_CONFIG_ORDINAL: String = "KEY_BITMAP_CONFIG_ORDINAL"
         public const val KEY_SCREENSHOT: String = "KEY_SCREENSHOT"
 
-        /** Used to identify our provider chooser requests. */
-        public const val PROVIDER_CHOOSER_REQUEST_CODE: Int = 1
+        public const val PERMISSION_BIND_WATCH_FACE_CONTROL: String =
+            "com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL"
+
+        public const val ACTION_WATCH_FACE_REFRESH_A11Y_LABELS: String =
+            "androidx.watchface.action.WATCH_FACE_A11Y_LABELS_REFRESH"
 
         @SuppressWarnings("ActionValue")
         public const val ACTION_REQUEST_STATE: String =

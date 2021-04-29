@@ -117,7 +117,7 @@ internal class WordIterator(
 
     /**
      * If `offset` is within a group of punctuation as defined
-     * by [.isPunctuation], returns the index of the first character
+     * by [isPunctuation], returns the index of the first character
      * of that group, otherwise returns BreakIterator.DONE.
      *
      * @param offset the offset to search from.
@@ -134,7 +134,7 @@ internal class WordIterator(
 
     /**
      * If `offset` is within a group of punctuation as defined
-     * by [.isPunctuation], returns the index of the last character
+     * by [isPunctuation], returns the index of the last character
      * of that group plus one, otherwise returns BreakIterator.DONE.
      *
      * @param offset the offset to search from.
@@ -151,7 +151,7 @@ internal class WordIterator(
 
     /**
      * Indicates if the provided offset is after a punctuation character
-     * as defined by [.isPunctuation].
+     * as defined by [isPunctuation].
      *
      * @param offset the offset to check from.
      * @return Whether the offset is after a punctuation character.
@@ -166,7 +166,7 @@ internal class WordIterator(
 
     /**
      * Indicates if the provided offset is at a punctuation character
-     * as defined by [.isPunctuation].
+     * as defined by [isPunctuation].
      *
      * @param offset the offset to check from.
      * @return Whether the offset is at a punctuation character.

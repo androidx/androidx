@@ -21,7 +21,7 @@
         <activity
             android:name=".CarAppInternalActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:exported="false">
-        </activity>
+            android:exported="false"/>
+        <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
     </application>
 </manifest>

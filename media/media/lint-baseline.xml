@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder = new AudioAttributes.Builder();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder = new AudioAttributes.Builder((AudioAttributes) aa);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new AudioAttributesImplApi21(mFwkBuilder.build());"
         errorLine2="                                                            ~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder.setUsage(usage);"
         errorLine2="                        ~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder.setContentType(contentType);"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder.setFlags(flags);"
         errorLine2="                        ~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder.setLegacyStreamType(streamType);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi26.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi26.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new AudioAttributesImplApi26(mFwkBuilder.build());"
         errorLine2="                                                            ~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi26.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi26.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mFwkBuilder.setUsage(usage);"
         errorLine2="                        ~~~~~~~~">
         <location
@@ -101,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    new AudioFocusRequest.Builder(mFocusGain)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -112,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            .setAudioAttributes(getAudioAttributes())"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~">
         <location
@@ -123,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            .setWillPauseWhenDucked(mPauseOnDuck)"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            .setOnAudioFocusChangeListener("
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -145,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            .build();"
         errorLine2="                             ~~~~~">
         <location
@@ -156,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioManagerCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioManagerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return audioManager.requestAudioFocus(focusRequest.getAudioFocusRequest());"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
@@ -167,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.AudioManagerCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioManagerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return audioManager.abandonAudioFocusRequest(focusRequest.getAudioFocusRequest());"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -178,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.media.AudioManagerCompat is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.media.AudioManagerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return audioManager.getStreamMinVolume(streamType);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~">
         <location
@@ -189,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaBrowserCompat.MediaItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaBrowserCompat.MediaItem is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            int flags = itemFwk.getFlags();"
         errorLine2="                                ~~~~~~~~">
         <location
@@ -200,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaBrowserCompat.MediaItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaBrowserCompat.MediaItem is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    MediaDescriptionCompat.fromMediaDescription(itemFwk.getDescription());"
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
@@ -211,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mServiceFwk.setSessionToken((MediaSession.Token) token.getToken());"
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
@@ -222,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.MediaBrowserServiceCompat.MediaBrowserServiceImplApi21.MediaBrowserServiceApi21 is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.MediaBrowserServiceCompat.MediaBrowserServiceImplApi21.MediaBrowserServiceApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return browserRootCompat == null ? null : new MediaBrowserService.BrowserRoot("
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -233,140 +233,140 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media.session.MediaButtonReceiver is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media.session.MediaButtonReceiver is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            context.startForegroundService(intent);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="297"
+            line="301"
             column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                controllerFwk = new MediaController(activity, (MediaSession.Token) sessionTokenObj);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="168"
+            line="169"
             column="33"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            activity.setMediaController(controllerFwk);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="170"
+            line="171"
             column="22"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            MediaController controllerFwk = activity.getMediaController();"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="191"
+            line="192"
             column="54"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();"
         errorLine2="                                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="195"
+            line="196"
             column="64"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class android.support.v4.media.session.MediaControllerCompat.MediaControllerImplApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class android.support.v4.media.session.MediaControllerCompat.MediaControllerImplApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mSessionInfo = mControllerFwk.getSessionInfo();"
         errorLine2="                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2264"
+            line="2270"
             column="47"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mControlsFwk.prepare();"
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2388"
+            line="2394"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mControlsFwk.prepareFromMediaId(mediaId, extras);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2397"
+            line="2403"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mControlsFwk.prepareFromSearch(query, extras);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2409"
+            line="2415"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mControlsFwk.prepareFromUri(uri, extras);"
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2421"
+            line="2427"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mControlsFwk.setPlaybackSpeed(speed);"
         errorLine2="                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2489"
+            line="2495"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mControlsFwk.playFromUri(uri, extras);"
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2531"
+            line="2537"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        MediaDescription.Builder bob = new MediaDescription.Builder();"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -376,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setMediaId(mMediaId);"
         errorLine2="            ~~~~~~~~~~">
         <location
@@ -387,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setTitle(mTitle);"
         errorLine2="            ~~~~~~~~">
         <location
@@ -398,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setSubtitle(mSubtitle);"
         errorLine2="            ~~~~~~~~~~~">
         <location
@@ -409,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setDescription(mDescription);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
@@ -420,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setIconBitmap(mIcon);"
         errorLine2="            ~~~~~~~~~~~~~">
         <location
@@ -431,8 +431,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setIconUri(mIconUri);"
         errorLine2="            ~~~~~~~~~~">
         <location
@@ -442,8 +442,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        bob.setExtras(extras);"
         errorLine2="            ~~~~~~~~~">
         <location
@@ -453,8 +453,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setMediaUri(mMediaUri);"
         errorLine2="                ~~~~~~~~~~~">
         <location
@@ -464,8 +464,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        mDescriptionFwk = bob.build();"
         errorLine2="                              ~~~~~">
         <location
@@ -475,8 +475,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setMediaId(description.getMediaId());"
         errorLine2="                                       ~~~~~~~~~~">
         <location
@@ -486,8 +486,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setTitle(description.getTitle());"
         errorLine2="                                     ~~~~~~~~">
         <location
@@ -497,8 +497,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setSubtitle(description.getSubtitle());"
         errorLine2="                                        ~~~~~~~~~~~">
         <location
@@ -508,8 +508,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setDescription(description.getDescription());"
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location
@@ -519,8 +519,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setIconBitmap(description.getIconBitmap());"
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
@@ -530,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            bob.setIconUri(description.getIconUri());"
         errorLine2="                                       ~~~~~~~~~~">
         <location
@@ -541,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Bundle extras = description.getExtras();"
         errorLine2="                                        ~~~~~~~~~">
         <location
@@ -552,8 +552,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                bob.setMediaUri(description.getMediaUri());"
         errorLine2="                                            ~~~~~~~~~~~">
         <location
@@ -563,74 +563,74 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class android.support.v4.media.session.MediaSessionCompat is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class android.support.v4.media.session.MediaSessionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new MediaSession(context, tag, sessionInfo);"
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="603"
+            line="613"
             column="20"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new MediaSession(context, tag);"
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="605"
+            line="615"
             column="20"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mItemFwk = new MediaSession.QueueItem("
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2220"
+            line="2231"
             column="24"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Object descriptionObj = queueItemObj.getDescription();"
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2241"
+            line="2252"
             column="50"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            long id = queueItemObj.getQueueId();"
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2244"
+            line="2255"
             column="36"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 22, the call containing class android.support.v4.media.session.MediaSessionCompat.MediaSessionImplApi21 is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 22; however, the containing class android.support.v4.media.session.MediaSessionCompat.MediaSessionImplApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mSessionFwk.setRatingType(type);"
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="3963"
+            line="3974"
             column="29"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                builder.getBuilder().setStyle("
         errorLine2="                                     ~~~~~~~~">
         <location
@@ -640,8 +640,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        fillInMediaStyle(new Notification.MediaStyle()));"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -651,8 +651,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                style.setShowActionsInCompactView(mActionsToShowInCompact);"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -662,8 +662,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                style.setMediaSession((MediaSession.Token) mToken.getToken());"
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
@@ -673,8 +673,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 15, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 15. Either annotate the containing class with at least @RequiresApi(15) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(15)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 15; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                button.setContentDescription(R.id.action0, action.getTitle());"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -684,8 +684,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                builder.getBuilder().setStyle("
         errorLine2="                                     ~~~~~~~~">
         <location
@@ -695,8 +695,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        fillInMediaStyle(new Notification.DecoratedMediaCustomViewStyle()));"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -706,8 +706,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            List&lt;PlaybackState.CustomAction> customActionFwks = stateFwk.getCustomActions();"
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
         <location
@@ -717,8 +717,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 22, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 22; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                extras = stateFwk.getExtras();"
         errorLine2="                                  ~~~~~~~~~">
         <location
@@ -728,8 +728,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getState(),"
         errorLine2="                             ~~~~~~~~">
         <location
@@ -739,8 +739,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getPosition(),"
         errorLine2="                             ~~~~~~~~~~~">
         <location
@@ -750,8 +750,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getBufferedPosition(),"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -761,8 +761,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getPlaybackSpeed(),"
         errorLine2="                             ~~~~~~~~~~~~~~~~">
         <location
@@ -772,8 +772,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getActions(),"
         errorLine2="                             ~~~~~~~~~~">
         <location
@@ -783,8 +783,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getErrorMessage(),"
         errorLine2="                             ~~~~~~~~~~~~~~~">
         <location
@@ -794,8 +794,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getLastPositionUpdateTime(),"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -805,8 +805,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    stateFwk.getActiveQueueItemId(),"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -816,8 +816,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            PlaybackState.Builder builder = new PlaybackState.Builder();"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -827,8 +827,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setState(mState, mPosition, mSpeed, mUpdateTime);"
         errorLine2="                    ~~~~~~~~">
         <location
@@ -838,8 +838,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setBufferedPosition(mBufferedPosition);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -849,8 +849,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setActions(mActions);"
         errorLine2="                    ~~~~~~~~~~">
         <location
@@ -860,8 +860,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setErrorMessage(mErrorMessage);"
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
@@ -871,8 +871,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                builder.addCustomAction("
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
@@ -882,8 +882,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setActiveQueueItemId(mActiveItemId);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -893,8 +893,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 22, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 22; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                builder.setExtras(mExtras);"
         errorLine2="                        ~~~~~~~~~">
         <location
@@ -904,8 +904,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mStateFwk = builder.build();"
         errorLine2="                                ~~~~~">
         <location
@@ -915,8 +915,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Bundle extras = customActionFwk.getExtras();"
         errorLine2="                                            ~~~~~~~~~">
         <location
@@ -926,8 +926,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            customActionFwk.getAction(),"
         errorLine2="                                            ~~~~~~~~~">
         <location
@@ -937,8 +937,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            customActionFwk.getName(),"
         errorLine2="                                            ~~~~~~~">
         <location
@@ -948,8 +948,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            customActionFwk.getIcon(),"
         errorLine2="                                            ~~~~~~~">
         <location
@@ -959,8 +959,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            PlaybackState.CustomAction.Builder builder = new PlaybackState.CustomAction.Builder("
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -970,8 +970,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setExtras(mExtras);"
         errorLine2="                    ~~~~~~~~~">
         <location
@@ -981,8 +981,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return builder.build();"
         errorLine2="                           ~~~~~">
         <location
@@ -992,8 +992,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            final int ratingStyle = ((Rating) ratingObj).getRatingStyle();"
         errorLine2="                                                         ~~~~~~~~~~~~~~">
         <location
@@ -1003,8 +1003,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (((Rating) ratingObj).isRated()) {"
         errorLine2="                                     ~~~~~~~">
         <location
@@ -1014,8 +1014,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        rating = newHeartRating(((Rating) ratingObj).hasHeart());"
         errorLine2="                                                                     ~~~~~~~~">
         <location
@@ -1025,8 +1025,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        rating = newThumbRating(((Rating) ratingObj).isThumbUp());"
         errorLine2="                                                                     ~~~~~~~~~">
         <location
@@ -1036,8 +1036,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                ((Rating) ratingObj).getStarRating());"
         errorLine2="                                                     ~~~~~~~~~~~~~">
         <location
@@ -1047,8 +1047,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                ((Rating) ratingObj).getPercentRating());"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~">
         <location
@@ -1058,8 +1058,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mRatingObj = Rating.newHeartRating(hasHeart());"
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
@@ -1069,8 +1069,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mRatingObj = Rating.newThumbRating(isThumbUp());"
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
@@ -1080,8 +1080,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mRatingObj = Rating.newStarRating(mRatingStyle,"
         errorLine2="                                            ~~~~~~~~~~~~~">
         <location
@@ -1091,8 +1091,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mRatingObj = Rating.newPercentageRating(getPercentRating());"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1102,8 +1102,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mRatingObj = Rating.newUnratedRating(mRatingStyle);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
@@ -1113,8 +1113,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media.VolumeProviderCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media.VolumeProviderCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            volumeProviderFwk.setCurrentVolume(currentVolume);"
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
@@ -1533,39 +1533,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void sendResult(T result) {"
-        errorLine2="                               ~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="848"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void sendProgressUpdate(Bundle extras) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="863"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void sendError(Bundle extras) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="878"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void attachToBaseContext(Context base) {"
         errorLine2="                                    ~~~~~~~">
         <location
@@ -1746,7 +1713,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="103"
+            line="106"
             column="27"/>
     </issue>
 
@@ -1757,7 +1724,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="103"
+            line="106"
             column="44"/>
     </issue>
 
@@ -1768,7 +1735,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="188"
+            line="191"
             column="19"/>
     </issue>
 
@@ -1779,7 +1746,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="188"
+            line="191"
             column="41"/>
     </issue>
 
@@ -1790,7 +1757,7 @@
         errorLine2="                                                                               ~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="188"
+            line="191"
             column="80"/>
     </issue>
 
@@ -1801,7 +1768,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="221"
+            line="224"
             column="19"/>
     </issue>
 
@@ -1812,7 +1779,7 @@
         errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="221"
+            line="224"
             column="63"/>
     </issue>
 
@@ -1823,7 +1790,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="254"
+            line="258"
             column="19"/>
     </issue>
 
@@ -1834,7 +1801,7 @@
         errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="254"
+            line="258"
             column="63"/>
     </issue>
 
@@ -1845,7 +1812,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="255"
+            line="259"
             column="13"/>
     </issue>
 
@@ -1856,7 +1823,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="279"
+            line="283"
             column="19"/>
     </issue>
 
@@ -1867,7 +1834,7 @@
         errorLine2="                                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="279"
+            line="283"
             column="65"/>
     </issue>
 
@@ -1878,7 +1845,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="161"
+            line="162"
             column="13"/>
     </issue>
 
@@ -1889,7 +1856,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="185"
+            line="186"
             column="19"/>
     </issue>
 
@@ -1900,7 +1867,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="234"
+            line="235"
             column="34"/>
     </issue>
 
@@ -1911,7 +1878,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="253"
+            line="254"
             column="34"/>
     </issue>
 
@@ -1922,7 +1889,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="271"
+            line="272"
             column="12"/>
     </issue>
 
@@ -1933,7 +1900,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="282"
+            line="283"
             column="45"/>
     </issue>
 
@@ -1944,7 +1911,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="299"
+            line="300"
             column="12"/>
     </issue>
 
@@ -1955,7 +1922,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="308"
+            line="309"
             column="12"/>
     </issue>
 
@@ -1966,7 +1933,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="318"
+            line="319"
             column="12"/>
     </issue>
 
@@ -1977,7 +1944,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="334"
+            line="335"
             column="30"/>
     </issue>
 
@@ -1988,7 +1955,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="354"
+            line="355"
             column="30"/>
     </issue>
 
@@ -1999,7 +1966,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="371"
+            line="372"
             column="33"/>
     </issue>
 
@@ -2010,7 +1977,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="401"
+            line="402"
             column="12"/>
     </issue>
 
@@ -2021,7 +1988,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="408"
+            line="409"
             column="12"/>
     </issue>
 
@@ -2032,7 +1999,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="488"
+            line="489"
             column="12"/>
     </issue>
 
@@ -2043,7 +2010,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="498"
+            line="499"
             column="12"/>
     </issue>
 
@@ -2054,7 +2021,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="507"
+            line="508"
             column="12"/>
     </issue>
 
@@ -2065,7 +2032,7 @@
         errorLine2="                                                             ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="575"
+            line="576"
             column="62"/>
     </issue>
 
@@ -2076,7 +2043,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="653"
+            line="654"
             column="12"/>
     </issue>
 
@@ -2087,7 +2054,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="683"
+            line="684"
             column="12"/>
     </issue>
 
@@ -2098,7 +2065,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="728"
+            line="729"
             column="36"/>
     </issue>
 
@@ -2109,7 +2076,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="728"
+            line="729"
             column="50"/>
     </issue>
 
@@ -2120,7 +2087,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="736"
+            line="737"
             column="44"/>
     </issue>
 
@@ -2131,7 +2098,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="745"
+            line="746"
             column="39"/>
     </issue>
 
@@ -2142,7 +2109,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="756"
+            line="757"
             column="36"/>
     </issue>
 
@@ -2153,7 +2120,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="766"
+            line="767"
             column="41"/>
     </issue>
 
@@ -2164,7 +2131,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="775"
+            line="776"
             column="37"/>
     </issue>
 
@@ -2175,7 +2142,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="783"
+            line="784"
             column="40"/>
     </issue>
 
@@ -2186,7 +2153,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="821"
+            line="823"
             column="16"/>
     </issue>
 
@@ -2197,7 +2164,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1168"
+            line="1174"
             column="49"/>
     </issue>
 
@@ -2208,7 +2175,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1168"
+            line="1174"
             column="65"/>
     </issue>
 
@@ -2219,7 +2186,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1180"
+            line="1186"
             column="48"/>
     </issue>
 
@@ -2230,7 +2197,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1180"
+            line="1186"
             column="62"/>
     </issue>
 
@@ -2241,7 +2208,7 @@
         errorLine2="                                            ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1191"
+            line="1197"
             column="45"/>
     </issue>
 
@@ -2252,7 +2219,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1191"
+            line="1197"
             column="54"/>
     </issue>
 
@@ -2263,7 +2230,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1205"
+            line="1211"
             column="46"/>
     </issue>
 
@@ -2274,7 +2241,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1205"
+            line="1211"
             column="62"/>
     </issue>
 
@@ -2285,7 +2252,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1216"
+            line="1222"
             column="45"/>
     </issue>
 
@@ -2296,7 +2263,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1216"
+            line="1222"
             column="59"/>
     </issue>
 
@@ -2307,7 +2274,7 @@
         errorLine2="                                         ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1225"
+            line="1231"
             column="42"/>
     </issue>
 
@@ -2318,7 +2285,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1225"
+            line="1231"
             column="51"/>
     </issue>
 
@@ -2329,7 +2296,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1281"
+            line="1287"
             column="40"/>
     </issue>
 
@@ -2340,7 +2307,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1295"
+            line="1301"
             column="40"/>
     </issue>
 
@@ -2351,7 +2318,7 @@
         errorLine2="                                                            ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1295"
+            line="1301"
             column="61"/>
     </issue>
 
@@ -2362,7 +2329,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1341"
+            line="1347"
             column="47"/>
     </issue>
 
@@ -2373,7 +2340,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1342"
+            line="1348"
             column="17"/>
     </issue>
 
@@ -2384,7 +2351,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1360"
+            line="1366"
             column="47"/>
     </issue>
 
@@ -2395,7 +2362,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1360"
+            line="1366"
             column="62"/>
     </issue>
 
@@ -2923,7 +2890,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="619"
+            line="629"
             column="29"/>
     </issue>
 
@@ -2934,7 +2901,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="635"
+            line="645"
             column="29"/>
     </issue>
 
@@ -2945,7 +2912,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="635"
+            line="645"
             column="48"/>
     </issue>
 
@@ -2956,7 +2923,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="651"
+            line="661"
             column="36"/>
     </issue>
 
@@ -2967,7 +2934,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="668"
+            line="678"
             column="40"/>
     </issue>
 
@@ -2978,7 +2945,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="710"
+            line="720"
             column="37"/>
     </issue>
 
@@ -2989,7 +2956,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="754"
+            line="764"
             column="34"/>
     </issue>
 
@@ -3000,7 +2967,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="754"
+            line="764"
             column="48"/>
     </issue>
 
@@ -3011,7 +2978,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="784"
+            line="794"
             column="12"/>
     </issue>
 
@@ -3022,7 +2989,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="794"
+            line="804"
             column="12"/>
     </issue>
 
@@ -3033,7 +3000,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="803"
+            line="813"
             column="34"/>
     </issue>
 
@@ -3044,7 +3011,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="815"
+            line="825"
             column="29"/>
     </issue>
 
@@ -3055,7 +3022,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="831"
+            line="841"
             column="26"/>
     </issue>
 
@@ -3066,7 +3033,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="855"
+            line="865"
             column="31"/>
     </issue>
 
@@ -3077,7 +3044,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="924"
+            line="934"
             column="27"/>
     </issue>
 
@@ -3088,7 +3055,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="938"
+            line="948"
             column="12"/>
     </issue>
 
@@ -3099,7 +3066,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="952"
+            line="962"
             column="12"/>
     </issue>
 
@@ -3110,7 +3077,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="988"
+            line="998"
             column="12"/>
     </issue>
 
@@ -3121,7 +3088,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="999"
+            line="1009"
             column="43"/>
     </issue>
 
@@ -3132,7 +3099,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1012"
+            line="1022"
             column="46"/>
     </issue>
 
@@ -3143,7 +3110,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1035"
+            line="1045"
             column="19"/>
     </issue>
 
@@ -3154,7 +3121,7 @@
         errorLine2="                                                      ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1035"
+            line="1045"
             column="55"/>
     </issue>
 
@@ -3165,7 +3132,7 @@
         errorLine2="                                                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1035"
+            line="1045"
             column="72"/>
     </issue>
 
@@ -3176,7 +3143,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1168"
+            line="1178"
             column="31"/>
     </issue>
 
@@ -3187,7 +3154,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1168"
+            line="1178"
             column="47"/>
     </issue>
 
@@ -3198,7 +3165,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1168"
+            line="1178"
             column="62"/>
     </issue>
 
@@ -3209,7 +3176,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1182"
+            line="1192"
             column="43"/>
     </issue>
 
@@ -3220,7 +3187,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1275"
+            line="1285"
             column="42"/>
     </issue>
 
@@ -3231,7 +3198,7 @@
         errorLine2="                                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1275"
+            line="1285"
             column="58"/>
     </issue>
 
@@ -3242,7 +3209,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1285"
+            line="1295"
             column="41"/>
     </issue>
 
@@ -3253,7 +3220,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1285"
+            line="1295"
             column="55"/>
     </issue>
 
@@ -3264,7 +3231,7 @@
         errorLine2="                                     ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1293"
+            line="1303"
             column="38"/>
     </issue>
 
@@ -3275,7 +3242,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1293"
+            line="1303"
             column="47"/>
     </issue>
 
@@ -3286,7 +3253,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1306"
+            line="1316"
             column="39"/>
     </issue>
 
@@ -3297,7 +3264,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1306"
+            line="1316"
             column="55"/>
     </issue>
 
@@ -3308,7 +3275,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1315"
+            line="1325"
             column="38"/>
     </issue>
 
@@ -3319,7 +3286,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1315"
+            line="1325"
             column="52"/>
     </issue>
 
@@ -3330,7 +3297,7 @@
         errorLine2="                                  ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1321"
+            line="1331"
             column="35"/>
     </issue>
 
@@ -3341,7 +3308,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1321"
+            line="1331"
             column="44"/>
     </issue>
 
@@ -3352,7 +3319,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1380"
+            line="1390"
             column="33"/>
     </issue>
 
@@ -3363,7 +3330,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1389"
+            line="1399"
             column="33"/>
     </issue>
 
@@ -3374,7 +3341,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1389"
+            line="1399"
             column="54"/>
     </issue>
 
@@ -3385,7 +3352,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1460"
+            line="1470"
             column="36"/>
     </issue>
 
@@ -3396,7 +3363,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1460"
+            line="1470"
             column="51"/>
     </issue>
 
@@ -3407,7 +3374,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1470"
+            line="1480"
             column="36"/>
     </issue>
 
@@ -3418,7 +3385,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1482"
+            line="1492"
             column="36"/>
     </issue>
 
@@ -3429,7 +3396,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1493"
+            line="1503"
             column="39"/>
     </issue>
 
@@ -3440,7 +3407,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1953"
+            line="1964"
             column="23"/>
     </issue>
 
@@ -3451,7 +3418,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1953"
+            line="1964"
             column="39"/>
     </issue>
 
@@ -3462,7 +3429,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1971"
+            line="1982"
             column="23"/>
     </issue>
 
@@ -3473,7 +3440,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1971"
+            line="1982"
             column="39"/>
     </issue>
 
@@ -3484,7 +3451,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1971"
+            line="1982"
             column="53"/>
     </issue>
 
@@ -3495,7 +3462,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1988"
+            line="1999"
             column="35"/>
     </issue>
 
@@ -3506,7 +3473,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2032"
+            line="2043"
             column="16"/>
     </issue>
 
@@ -3517,7 +3484,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2040"
+            line="2051"
             column="16"/>
     </issue>
 
@@ -3528,7 +3495,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2050"
+            line="2061"
             column="36"/>
     </issue>
 
@@ -3539,7 +3506,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2060"
+            line="2071"
             column="16"/>
     </issue>
 
@@ -3550,7 +3517,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2070"
+            line="2081"
             column="38"/>
     </issue>
 
@@ -3561,7 +3528,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2080"
+            line="2091"
             column="16"/>
     </issue>
 
@@ -3572,7 +3539,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2102"
+            line="2113"
             column="23"/>
     </issue>
 
@@ -3583,7 +3550,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2102"
+            line="2113"
             column="40"/>
     </issue>
 
@@ -3594,7 +3561,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2157"
+            line="2168"
             column="26"/>
     </issue>
 
@@ -3605,7 +3572,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2184"
+            line="2195"
             column="16"/>
     </issue>
 
@@ -3616,7 +3583,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2196"
+            line="2207"
             column="35"/>
     </issue>
 
@@ -3627,7 +3594,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2216"
+            line="2227"
             column="16"/>
     </issue>
 
@@ -3638,7 +3605,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2236"
+            line="2247"
             column="23"/>
     </issue>
 
@@ -3649,7 +3616,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2236"
+            line="2247"
             column="47"/>
     </issue>
 
@@ -3660,7 +3627,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2258"
+            line="2269"
             column="23"/>
     </issue>
 
@@ -3671,7 +3638,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2258"
+            line="2269"
             column="57"/>
     </issue>
 

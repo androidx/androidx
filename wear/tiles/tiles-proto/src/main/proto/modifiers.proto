@@ -100,7 +100,7 @@ message Modifiers {
   // Draws a border around the modified element.
   Border border = 4;
 
-  // Adds a background (with optional corner radius) to the modified element.
+  // Adds a background (with corner radius) to the modified element.
   Background background = 5;
 }
 

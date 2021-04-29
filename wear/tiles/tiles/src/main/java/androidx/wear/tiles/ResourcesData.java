@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Holder for ProtoTiles' Resources class, to be parceled and transferred to Wear.
+ * Holder for Tiles' Resources class, to be parceled and transferred to Wear.
  *
  * <p>All this does is to serialize Resources as a protobuf and transmit it.
  *

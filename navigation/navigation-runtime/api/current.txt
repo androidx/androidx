@@ -14,7 +14,6 @@ package androidx.navigation {
     method public static final void applyPopAnimationsToPendingTransition(android.app.Activity activity);
     method public androidx.navigation.ActivityNavigator.Destination createDestination();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
     field public static final androidx.navigation.ActivityNavigator.Companion Companion;
   }
 
@@ -85,19 +84,6 @@ package androidx.navigation {
 
   public final class ActivityNavigatorExtrasKt {
     method public static androidx.navigation.ActivityNavigator.Extras ActivityNavigatorExtras(optional androidx.core.app.ActivityOptionsCompat? activityOptions, optional int flags);
-  }
-
-  public final class NavBackStackEntry implements androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
-    method public android.os.Bundle? getArguments();
-    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
-    method public androidx.navigation.NavDestination getDestination();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
-    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
-    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
-    method public androidx.lifecycle.ViewModelStore getViewModelStore();
-    property public final android.os.Bundle? arguments;
-    property public final androidx.navigation.NavDestination destination;
-    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
   }
 
   public class NavController {

@@ -92,6 +92,7 @@ public class ListenableWatchFaceControlClientTest {
             )
 
         headlessInstance.close()
+        client.close()
     }
 
     @Test
@@ -115,6 +116,7 @@ public class ListenableWatchFaceControlClientTest {
                 400
             )
         )
+        client.close()
     }
 
     @Test
@@ -161,6 +163,7 @@ public class ListenableWatchFaceControlClientTest {
             )
 
         interactiveInstance.close()
+        client.close()
     }
 
     @Test
@@ -210,6 +213,7 @@ public class ListenableWatchFaceControlClientTest {
         headlessInstance3.close()
         headlessInstance2.close()
         headlessInstance1.close()
+        client.close()
     }
 
     @Test
@@ -261,6 +265,7 @@ public class ListenableWatchFaceControlClientTest {
 
         headlessInstance1.close()
         interactiveInstance.close()
+        client.close()
     }
 
     @Test
@@ -272,6 +277,76 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         assertNull(client.getInteractiveWatchFaceClientInstance("I do not exist"))
+    }
+
+    @Test
+    public fun createWatchFaceControlClient_cancel() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        ListenableWatchFaceControlClient.createWatchFaceControlClient(
+            context,
+            context.packageName
+        ).cancel(true)
+
+        // Canceling should not prevent a subsequent createWatchFaceControlClient.
+        val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
+            context,
+            context.packageName
+        ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        assertThat(client).isNotNull()
+        client.close()
+    }
+
+    @Test
+    public fun listenableGetOrCreateInteractiveWatchFaceClient_cancel() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
+            context,
+            context.packageName
+        ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+
+        client.listenableGetOrCreateInteractiveWatchFaceClient(
+            "listenableTestId",
+            DeviceConfig(
+                false,
+                false,
+                0,
+                0
+            ),
+            WatchUiState(false, 0),
+            null,
+            null
+        ).cancel(true)
+
+        // Canceling should not prevent a subsequent listenableGetOrCreateInteractiveWatchFaceClient
+        val interactiveInstanceFuture =
+            client.listenableGetOrCreateInteractiveWatchFaceClient(
+                "listenableTestId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                null,
+                null
+            )
+        val service = object : TestWatchFaceService() {
+            init {
+                attachBaseContext(context)
+            }
+        }
+        service.onCreateEngine().onSurfaceChanged(
+            surfaceHolder,
+            0,
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
+
+        val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        assertThat(interactiveInstance).isNotNull()
+        interactiveInstance.close()
+        client.close()
     }
 }
 

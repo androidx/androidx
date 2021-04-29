@@ -25,13 +25,12 @@ import androidx.wear.tiles.TileData;
   * by standard proto version compatibility in the underlying payload. Any significant changes to
   * this interface will be handled by instead adding new calls into TileProvider.
   *
-  *
   * @hide
   */
 interface TileCallback {
     /**
       * Pass a new tile timeline to the system. This should be called in
-      * response to a request from ProtoTileProvider.onTileRequest.
+      * response to a request from TileProvider.onTileRequest.
       */
     oneway void updateTileData(in TileData tileData) = 0;
 }

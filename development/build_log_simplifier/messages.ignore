@@ -15,8 +15,6 @@ at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.mainUri\(JavaL
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.linkTo\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.linkTo\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
 at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
-at java\.base/jdk\.internal\.reflect\.DelegatingMethodAccessorImpl\.invoke\(DelegatingMethodAccessorImpl\.java:[0-9]+\)
-at java\.base/java\.lang\.reflect\.Method\.invoke\(Method\.java:[0-9]+\)
 at com\.google\.inject\.internal\.DelegatingInvocationHandler\.invoke\(DelegatingInvocationHandler\.java:[0-9]+\)
 at com\.sun\.proxy\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
@@ -66,93 +64,9 @@ at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPages\(Ja
 at org\.jetbrains\.dokka\.GeneratorKt\.buildAll\(Generator\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.DokkaGenerator\.generate\(DokkaGenerator\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.DokkaBootstrapImpl\.generate\(DokkaBootstrapImpl\.kt:[0-9]+\)
-at java\.base/jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke[0-9]+\(Native Method\)
-at java\.base/jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke\(NativeMethodAccessorImpl\.java:[0-9]+\)
 at org\.jetbrains\.dokka\.DelegatedInvocationHandler\.invoke\(ProxyUtils\.kt:[0-9]+\)
 at com\.sun\.proxy\.\$Proxy[0-9]+\.generate\(Unknown Source\)
 at org\.jetbrains\.dokka\.gradle\.DokkaTask\.generate\(main\.kt:[0-9]+\)
-at org\.gradle\.internal\.reflect\.JavaMethod\.invoke\(JavaMethod\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.project\.taskfactory\.StandardTaskAction\.doExecute\(StandardTaskAction\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.project\.taskfactory\.StandardTaskAction\.execute\(StandardTaskAction\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$[0-9]+\.run\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\$[0-9]+\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.run\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.lambda\$run\$[0-9]+\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.UnmanagedBuildOperationWrapper\.runWithUnmanagedSupport\(UnmanagedBuildOperationWrapper\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.run\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeAction\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeActions\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.access\$[0-9]+\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\.executeWithPreviousOutputFiles\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\.execute\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.lambda\$executeOperation\$[0-9]+\(ExecuteStep\.java:[0-9]+\)
-at java\.base/java\.util\.Optional\.orElseGet\(Optional\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.executeOperation\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.access\$[0-9]+\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\$[0-9]+\.call\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\$CallableBuildOperationWorker\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.call\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.lambda\$call\$[0-9]+\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.UnmanagedBuildOperationWrapper\.callWithUnmanagedSupport\(UnmanagedBuildOperationWrapper\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.call\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.execute\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.RemovePreviousOutputsStep\.execute\(RemovePreviousOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ResolveInputChangesStep\.execute\(ResolveInputChangesStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CancelExecutionStep\.execute\(CancelExecutionStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.TimeoutStep\.executeWithoutTimeout\(TimeoutStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.TimeoutStep\.execute\(TimeoutStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CreateOutputsStep\.execute\(CreateOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CaptureStateAfterExecutionStep\.execute\(CaptureStateAfterExecutionStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.BroadcastChangingOutputsStep\.execute\(BroadcastChangingOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.BuildCacheStep\.executeWithoutCache\(BuildCacheStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.BuildCacheStep\.execute\(BuildCacheStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.StoreExecutionStateStep\.execute\(StoreExecutionStateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.RecordOutputsStep\.execute\(RecordOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.executeBecause\(SkipUpToDateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.lambda\$execute\$[0-9]+\(SkipUpToDateStep\.java:[0-9]+\)
-at java\.base/java\.util\.Optional\.map\(Optional\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.execute\(SkipUpToDateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ResolveChangesStep\.execute\(ResolveChangesStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.legacy\.MarkSnapshottingInputsFinishedStep\.execute\(MarkSnapshottingInputsFinishedStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ResolveCachingStateStep\.execute\(ResolveCachingStateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CaptureStateBeforeExecutionStep\.execute\(CaptureStateBeforeExecutionStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ValidateStep\.execute\(ValidateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipEmptyWorkStep\.lambda\$execute\$[0-9]+\(SkipEmptyWorkStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipEmptyWorkStep\.execute\(SkipEmptyWorkStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.legacy\.MarkSnapshottingInputsStartedStep\.execute\(MarkSnapshottingInputsStartedStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.LoadExecutionStateStep\.execute\(LoadExecutionStateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.AssignWorkspaceStep\.lambda\$execute\$[0-9]+\(AssignWorkspaceStep\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\$[0-9]+\.withWorkspace\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.AssignWorkspaceStep\.execute\(AssignWorkspaceStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.IdentityCacheStep\.execute\(IdentityCacheStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.IdentifyStep\.execute\(IdentifyStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.impl\.DefaultExecutionEngine\.execute\(DefaultExecutionEngine\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.lambda\$executeIfValid\$[0-9]+\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeIfValid\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.execute\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.CleanupStaleOutputsExecuter\.execute\(CleanupStaleOutputsExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.FinalizePropertiesTaskExecuter\.execute\(FinalizePropertiesTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ResolveTaskExecutionModeExecuter\.execute\(ResolveTaskExecutionModeExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.SkipTaskWithNoActionsExecuter\.execute\(SkipTaskWithNoActionsExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.SkipOnlyIfTaskExecuter\.execute\(SkipOnlyIfTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.CatchExceptionTaskExecuter\.execute\(CatchExceptionTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\$[0-9]+\.executeTask\(EventFiringTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\$[0-9]+\.call\(EventFiringTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\.execute\(EventFiringTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.LocalTaskNodeExecutor\.execute\(LocalTaskNodeExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.taskgraph\.DefaultTaskExecutionGraph\$InvokeNodeExecutorsAction\.execute\(DefaultTaskExecutionGraph\.java:[0-9]+\)
-at org\.gradle\.execution\.taskgraph\.DefaultTaskExecutionGraph\$BuildOperationAwareExecutionAction\.execute\(DefaultTaskExecutionGraph\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.lambda\$run\$[0-9]+\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.execute\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.executeNextNode\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.run\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.concurrent\.ExecutorPolicy\$CatchAndRecordFailures\.onExecute\(ExecutorPolicy\.java:[0-9]+\)
-at org\.gradle\.internal\.concurrent\.ManagedExecutorImpl\$[0-9]+\.run\(ManagedExecutorImpl\.java:[0-9]+\)
-at java\.base/java\.util\.concurrent\.ThreadPoolExecutor\.runWorker\(ThreadPoolExecutor\.java:[0-9]+\)
-at java\.base/java\.util\.concurrent\.ThreadPoolExecutor\$Worker\.run\(ThreadPoolExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.concurrent\.ThreadFactoryImpl\$ManagedThreadRunnable\.run\(ThreadFactoryImpl\.java:[0-9]+\)
-at java\.base/java\.lang\.Thread\.run\(Thread\.java:[0-9]+\)
 Exception while resolving link to Module: Package:androidx\.compose\.animation\.core Class:KeyframesSpec Class:KeyframesSpecConfig Function:at Receiver:<this>
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeContent\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
@@ -286,6 +200,9 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+symbol\:   static FLAG_MUTABLE
+location\: class PendingIntent
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
 symbol:   class ExtensionDeviceState
 location: package androidx\.window\.extensions
 DeviceState translate\(ExtensionDeviceState deviceState\) \{
@@ -462,7 +379,7 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$OUT_DIR/androidx/compose/compiler/compiler\-hosted/integration\-tests/kotlin\-compiler\-repackaged/build/repackaged/kotlin\-compiler\-repackaged\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper \(file\:\$GRADLE_USER_HOME\/caches\/[0-9]+\.[0-9]+\.[0-9]+\/generated\-gradle\-jars\/gradle\-api\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to class java\.lang\.ClassLoader
 WARNING\: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
@@ -606,6 +523,11 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$X[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$XDH\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/module\-info\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-commons/[0-9]+\.[0-9]+/asm\-commons\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-util/[0-9]+\.[0-9]+/asm\-util\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-analysis/[0-9]+\.[0-9]+/asm\-analysis\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-tree/[0-9]+\.[0-9]+/asm\-tree\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm/[0-9]+\.[0-9]+/asm\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 # > Task :compose:foundation:foundation-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:material:material-benchmark:processReleaseAndroidTestManifest
@@ -623,6 +545,8 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-graphics\/ui\-graphics\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :docs-public:doclavaDocs
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
+import static android\.app\.PendingIntent\.FLAG_MUTABLE\;
 \$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionAdapter\.java:[0-9]+: error: cannot find symbol
 import androidx\.window\.extensions\.ExtensionDeviceState;
 # > Task :docs-public:dackkaDocs
@@ -721,3 +645,293 @@ Transforming documentation model after merging\: *[0-9]+
 Creating pages\: *[0-9]+
 Transforming pages\: *[0-9]+
 Rendering\: *[0-9]+
+WARNING\: unable to find what is referred to by
+@param initVal
+in DClass AnimationVector[0-9]+D
+@param a,
+@param b,
+@param c,
+@param d
+in DClass CubicBezierEasing
+@param v[0-9]+,
+@param v[0-9]+
+@param frictionMultiplier,
+@param absVelocityThreshold
+in DClass FloatExponentialDecaySpec
+@param duration,
+@param delay,
+@param easing
+in DClass FloatTweenSpec
+@param dampingRatio,
+@param stiffness,
+@param visibilityThreshold
+in DClass SpringSpec
+@param durationMillis,
+in DClass TweenSpec
+in DClass FloatSpringSpec
+@param iterations,
+@param animation,
+@param repeatMode
+in DClass RepeatableSpec
+in DClass VectorizedInfiniteRepeatableSpec
+@param keyframes,
+@param delayMillis
+in DClass VectorizedKeyframesSpec
+@param delayMillis,
+in DClass VectorizedTweenSpec
+@param animationSpec,
+@param initialValue,
+@param targetValue,
+@param typeConverter,
+@param initialVelocityVector
+in DClass TargetBasedAnimation
+@param delay
+in DClass SnapSpec
+in DClass InfiniteRepeatableSpec
+in DClass VectorizedRepeatableSpec
+@param initialVelocityVector,
+@param lastFrameTimeNanos,
+@param finishedTimeNanos,
+@param isRunning
+in DClass AnimationState
+in DClass VectorizedSnapSpec
+in DClass Animatable
+@param width,
+@param brush
+in DClass BorderStroke
+@param initial
+in DClass ScrollState
+@param firstVisibleItemIndex,
+@param firstVisibleItemScrollOffset
+in DClass LazyListState
+@param builder
+in DClass GenericShape
+@param topLeft,
+@param topRight,
+@param bottomRight,
+@param bottomLeft
+in DClass AbsoluteCutCornerShape
+@param topStart,
+@param topEnd,
+@param bottomEnd,
+@param bottomStart
+in DClass RoundedCornerShape
+in DClass CutCornerShape
+in DClass AbsoluteRoundedCornerShape
+in DClass CornerBasedShape
+@param capitalization,
+@param autoCorrect,
+@param keyboardType,
+@param imeAction
+in DClass KeyboardOptions
+@param drawerState,
+@param bottomSheetState,
+@param snackbarHostState
+in DClass BottomSheetScaffoldState
+@param confirmStateChange,
+in DClass BackdropScaffoldState
+@param confirmStateChange
+in DClass DismissState
+in DClass BottomDrawerState
+in DClass ScaffoldState
+@param basis,
+@param factorAtMin,
+@param factorAtMax
+in DClass ResistanceConfig
+in DClass BottomSheetState
+in DClass DrawerState
+@param offset
+in DClass FixedThreshold
+@param fraction
+in DClass FractionalThreshold
+in DClass ModalBottomSheetState
+@param from,
+@param to,
+in DClass SwipeProgress
+in DClass SwipeableState
+@param file
+in DAnnotation LiveLiteralFileInfo
+@param name,
+@param id
+in DAnnotation DecoyImplementation
+@param key,
+in DAnnotation LiveLiteralInfo
+@param parameters
+in DAnnotation StabilityInferred
+@param targetName,
+@param signature
+in DAnnotation Decoy
+@param left,
+@param top,
+@param right,
+@param bottom
+in DClass MutableRect
+@param buffer,
+@param bufferOffset,
+@param height,
+@param stride
+in DClass PixelMap
+@param image,
+@param srcOffset,
+@param srcSize
+in DClass BitmapPainter
+@param imageVector
+in DClass AnimatedImageVector
+@param keyCode
+in DClass Key
+@param value
+in DClass PointerId
+@param positionChange,
+@param downChange
+in DClass ConsumedData
+@param id,
+@param uptimeMillis,
+@param position,
+@param pressed,
+@param previousUptimeMillis,
+@param previousPosition,
+@param previousPressed,
+@param consumed,
+@param type
+in DClass PointerInputChange
+@param merger
+in DClass VerticalAlignmentLine
+in DClass HorizontalAlignmentLine
+@param value,
+@param maxValue,
+@param reverseScrolling
+in DClass ScrollAxisRange
+@param current,
+@param range,
+@param steps
+in DClass ProgressBarRangeInfo
+@param label,
+@param action
+in DClass AccessibilityAction
+in DClass CustomAccessibilityAction
+@param selectedNodes,
+@param customErrorOnNoMatch
+in DClass SelectionResult
+@param description,
+@param requiresExactlyOneNode,
+@param chainedInputSelector,
+@param selector
+in DClass SemanticsSelector
+@param activityRule,
+@param activityProvider
+in DClass AndroidComposeTestRule
+@param placeholderVerticalAlign
+in DClass Placeholder
+@param item,
+@param start,
+@param end,
+@param tag
+in DClass Range
+@param verbatim
+in DClass VerbatimTtsAnnotation
+@param annotatedString,
+@param style,
+@param placeholders,
+@param density,
+@param resourceLoader
+in DClass MultiParagraphIntrinsics
+@param textAlign,
+@param textDirection,
+@param textIndent,
+@param lineHeight
+in DClass ParagraphStyle
+@param color,
+@param fontSize,
+@param fontWeight,
+@param fontStyle,
+@param fontSynthesis,
+@param fontFamily,
+@param fontFeatureSettings,
+@param letterSpacing,
+@param baselineShift,
+@param textGeometricTransform,
+@param localeList,
+@param background,
+@param textDecoration,
+@param shadow
+in DClass SpanStyle
+@param shadow,
+in DClass TextStyle
+@param intrinsics,
+@param maxLines,
+@param ellipsis,
+@param width
+in DClass MultiParagraph
+@param capacity
+in DClass Builder
+@param typeface
+in DClass LoadedFontFamily
+@param resId,
+@param weight,
+@param style
+in DClass ResourceFont
+@param name
+in DClass GenericFontFamily
+@param weight
+in DClass FontWeight
+@param singleLine,
+in DClass ImeOptions
+@param selection,
+@param composition
+in DClass TextFieldValue
+@param mask
+in DClass PasswordVisualTransformation
+@param multiplier
+in DClass BaselineShift
+@param firstLine,
+@param restLine
+in DClass TextIndent
+@param scaleX,
+@param skewX
+in DClass TextGeometricTransform
+@param provider,
+@param limit
+in DAnnotation PreviewParameter
+@param group,
+@param apiLevel,
+@param widthDp,
+@param heightDp,
+@param locale,
+@param fontScale,
+@param showSystemUi,
+@param showBackground,
+@param backgroundColor,
+@param uiMode,
+@param device
+in DAnnotation Preview
+@param words
+in DClass LoremIpsum
+@param securePolicy
+in DClass PopupProperties
+@param rowCount,
+@param columnCount
+in DClass CollectionInfo
+@param rowIndex,
+@param rowSpan,
+@param columnIndex,
+@param columnSpan
+in DClass CollectionItemInfo
+@param endOfPaginationReached
+in DClass LoadState
+in DClass NotLoading
+@param error
+in DClass Error
+@param pagingSourceFactory
+in DClass InvalidatingPagingSourceFactory
+@param flow
+in DClass LazyPagingItems
+@param density
+in DClass SplineBasedFloatDecayAnimationSpec
+Did you make a typo\? Are you trying to refer to something not visible to users\?
+# Wire proto generation, task :generateDebugProtos
+Writing .* to \$OUT_DIR/.*/build/generated/source/wire
+# > Task :benchmark:benchmark-macro:lintDebug
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+# > Task :docs-tip-of-tree:doclavaDocs
+javadoc\: warning \- Multiple sources of package comments found for package \"javax\.annotation\"
+[0-9]+ warning

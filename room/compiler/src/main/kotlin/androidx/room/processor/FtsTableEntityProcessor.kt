@@ -200,7 +200,7 @@ class FtsTableEntityProcessor internal constructor(
                 )
                 field?.let { pkField ->
                     PrimaryKey(
-                        declaredIn = pkField.element.enclosingTypeElement,
+                        declaredIn = pkField.element.enclosingElement,
                         fields = Fields(pkField),
                         autoGenerateId = true
                     )
@@ -210,7 +210,7 @@ class FtsTableEntityProcessor internal constructor(
         val keysFromPrimaryKeyAnnotations = fields.mapNotNull { field ->
             if (field.element.hasAnnotation(androidx.room.PrimaryKey::class)) {
                 PrimaryKey(
-                    declaredIn = field.element.enclosingTypeElement,
+                    declaredIn = field.element.enclosingElement,
                     fields = Fields(field),
                     autoGenerateId = true
                 )

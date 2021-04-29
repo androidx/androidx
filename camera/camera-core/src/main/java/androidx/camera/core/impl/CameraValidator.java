@@ -26,7 +26,8 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 
 /**
- * Validation methods to verify the camera is initialized successfully.
+ * Validation methods to verify the camera is initialized successfully, more info please reference
+ * b/167201193.
  */
 public final class CameraValidator {
     private CameraValidator() {

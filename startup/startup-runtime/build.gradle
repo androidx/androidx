@@ -31,10 +31,6 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {
@@ -46,8 +42,8 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has its own MockMaker
     testImplementation(JUNIT)
 }
 

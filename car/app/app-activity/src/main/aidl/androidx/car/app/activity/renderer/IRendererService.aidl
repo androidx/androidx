@@ -56,11 +56,4 @@ interface IRendererService {
    * @param serviceName the service that is associated with the activity
    */
   void terminate(in ComponentName serviceName) = 3;
-
-  /**
-   * Returns whether the given version is supported.
-   *
-   * @return true if the version is supported
-   */
-  boolean isVersionSupported(String version) = 4;
 }

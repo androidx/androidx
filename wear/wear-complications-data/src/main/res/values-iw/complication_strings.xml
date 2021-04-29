@@ -31,13 +31,13 @@
       <item quantity="two"><xliff:g id="NUMBER_OF_HOURS_1">%d</xliff:g> שעות</item>
       <item quantity="many"><xliff:g id="NUMBER_OF_HOURS_1">%d</xliff:g> שעות</item>
       <item quantity="other"><xliff:g id="NUMBER_OF_HOURS_1">%d</xliff:g> שעות</item>
-      <item quantity="one">שעה <xliff:g id="NUMBER_OF_HOURS_0">%d</xliff:g></item>
+      <item quantity="one">שעה (<xliff:g id="NUMBER_OF_HOURS_0">%d</xliff:g>)‏</item>
     </plurals>
     <plurals name="time_difference_words_minutes" formatted="false" msgid="9081188175463984403">
       <item quantity="two"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> דק‘</item>
       <item quantity="many"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> דק‘</item>
       <item quantity="other"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> דק‘</item>
-      <item quantity="one">דקה <xliff:g id="NUMBER_OF_MINUTES_0">%d</xliff:g></item>
+      <item quantity="one">דקה (<xliff:g id="NUMBER_OF_MINUTES_0">%d</xliff:g>‏)</item>
     </plurals>
     <string name="time_difference_now" msgid="1141173224250945412">"עכשיו"</string>
 </resources>

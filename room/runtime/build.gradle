@@ -58,8 +58,8 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
 
@@ -73,7 +73,7 @@ android.libraryVariants.all { variant ->
     project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn(variant.javaCompileProvider.get())
         from(variant.javaCompileProvider.get().destinationDir)
-        destinationDir(new File(project.buildDir, "libJar"))
+        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
     }
 }
 

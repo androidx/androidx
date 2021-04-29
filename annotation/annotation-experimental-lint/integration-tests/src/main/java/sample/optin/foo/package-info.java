@@ -14,5 +14,7 @@
  * limitations under the License.
  */
 
-@ExperimentalPackage
+@ExperimentalJavaAnnotation
 package sample.optin.foo;
+
+import sample.optin.ExperimentalJavaAnnotation;

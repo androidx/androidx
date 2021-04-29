@@ -20,7 +20,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 
 /**
  * Abstract class to represent An Ongoing activity status or part of it.
- *
+ * <p>
  * Parts are used to create complex statuses, that may contain several timers, placeholders for
  * text, etc.
  * They may also be used to convey information to the system about this Ongoing Activity.

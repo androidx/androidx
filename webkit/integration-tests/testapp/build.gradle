@@ -32,13 +32,13 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
+    androidTestImplementation(ESPRESSO_CONTRIB, excludes.espresso)
     androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
-    androidTestImplementation(ESPRESSO_WEB, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(ESPRESSO_WEB, excludes.espresso)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
     // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
 }
 
 rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":assembleRelease")

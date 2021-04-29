@@ -33,6 +33,6 @@ public class CarAppApiLevelsTest {
 
     @Test
     public void isValid_apiHigherThanLatest_notValid() {
-        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.getOldest() + 1)).isFalse();
+        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.getLatest() + 1)).isFalse();
     }
 }

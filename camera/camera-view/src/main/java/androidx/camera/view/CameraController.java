@@ -19,6 +19,7 @@ package androidx.camera.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
@@ -161,7 +162,7 @@ public abstract class CameraController {
     private ImageAnalysis.Analyzer mAnalysisAnalyzer;
 
     @NonNull
-    private ImageAnalysis mImageAnalysis;
+    ImageAnalysis mImageAnalysis;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -219,7 +220,7 @@ public abstract class CameraController {
     private final ListenableFuture<Void> mInitializationFuture;
 
     CameraController(@NonNull Context context) {
-        mAppContext = context.getApplicationContext();
+        mAppContext = getApplicationContext(context);
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
@@ -242,10 +243,26 @@ public abstract class CameraController {
         mSensorRotationListener = new SensorRotationListener(mAppContext) {
             @Override
             public void onRotationChanged(int rotation) {
+                mImageAnalysis.setTargetRotation(rotation);
                 mImageCapture.setTargetRotation(rotation);
                 mVideoCapture.setTargetRotation(rotation);
             }
         };
+    }
+
+    /**
+     * Gets the application context and preserves the attribution tag.
+     *
+     * TODO(b/185272953): instrument test getting attribution tag once the view artifact depends
+     * on a core version that has the fix.
+     */
+    private static Context getApplicationContext(@NonNull Context context) {
+        Context applicationContext = context.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return applicationContext.createAttributionContext(context.getAttributionTag());
+        } else {
+            return applicationContext;
+        }
     }
 
     /**
@@ -353,17 +370,6 @@ public abstract class CameraController {
      */
     private boolean isUseCaseEnabled(int useCaseMask) {
         return (mEnabledUseCases & useCaseMask) != 0;
-    }
-
-    /**
-     * Same as {@link #isVideoCaptureEnabled()}.
-     *
-     * <p> This wrapper method is to workaround the limitation that currently only one
-     * UseExperimental mark class is allowed per method.
-     */
-    @OptIn(markerClass = ExperimentalVideo.class)
-    private boolean isVideoCaptureEnabledInternal() {
-        return isVideoCaptureEnabled();
     }
 
     // ------------------
@@ -1125,7 +1131,7 @@ public abstract class CameraController {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = {ExperimentalUseCaseGroup.class, ExperimentalVideo.class})
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);
@@ -1151,7 +1157,7 @@ public abstract class CameraController {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
-        if (isVideoCaptureEnabledInternal()) {
+        if (isVideoCaptureEnabled()) {
             builder.addUseCase(mVideoCapture);
         } else {
             mCameraProvider.unbind(mVideoCapture);

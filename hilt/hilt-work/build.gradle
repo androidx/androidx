@@ -48,7 +48,7 @@ android.libraryVariants.all { variant ->
     project.tasks.register("jar${suffix}", Jar).configure {
         dependsOn(variant.javaCompileProvider)
         from(variant.javaCompileProvider.map { task -> task.destinationDir})
-        destinationDir(new File(project.buildDir, "libJar"))
+        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
     }
 }
 

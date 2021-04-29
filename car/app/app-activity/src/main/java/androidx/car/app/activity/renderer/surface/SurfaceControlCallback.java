@@ -16,7 +16,10 @@
 
 package androidx.car.app.activity.renderer.surface;
 
+import static androidx.car.app.activity.LogTags.TAG;
+
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -35,4 +38,9 @@ public interface SurfaceControlCallback {
 
     /** Notifies when the window focus changes. */
     void onWindowFocusChanged(boolean hasFocus, boolean isInTouchMode);
+
+    /** Notifies when there is an error. Provide default implementation for easier transition. */
+    default void onError(@NonNull String msg, @NonNull Throwable e) {
+        Log.e(TAG, msg, e);
+    }
 }

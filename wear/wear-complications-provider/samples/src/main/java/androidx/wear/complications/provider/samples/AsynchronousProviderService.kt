@@ -21,6 +21,8 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import androidx.wear.complications.ComplicationProviderService
+import androidx.wear.complications.ComplicationRequest
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -30,21 +32,23 @@ import java.util.concurrent.Executors
 class AsynchronousProviderService : ComplicationProviderService() {
     val executor = Executors.newFixedThreadPool(5)
 
-    override fun onComplicationUpdate(
-        complicationId: Int,
-        type: ComplicationType,
-        listener: ComplicationUpdateListener
+    override fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     ) {
         executor.execute {
-            listener.onUpdateComplication(
-                when (type) {
+            listener.onComplicationData(
+                when (request.complicationType) {
                     ComplicationType.SHORT_TEXT ->
-                        ShortTextComplicationData.Builder(plainText("# $complicationId")).build()
+                        ShortTextComplicationData.Builder(
+                            plainText("# $request.complicationId"),
+                            ComplicationText.EMPTY
+                        ).build()
 
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
                             plainText(
-                                SpannableString("hello $complicationId").apply {
+                                SpannableString("hello $request.complicationId").apply {
                                     setSpan(
                                         ForegroundColorSpan(Color.RED),
                                         0,
@@ -52,7 +56,8 @@ class AsynchronousProviderService : ComplicationProviderService() {
                                         Spanned.SPAN_INCLUSIVE_INCLUSIVE
                                     )
                                 }
-                            )
+                            ),
+                            ComplicationText.EMPTY
                         ).build()
 
                     else -> null
@@ -63,7 +68,10 @@ class AsynchronousProviderService : ComplicationProviderService() {
 
     override fun getPreviewData(type: ComplicationType) = when (type) {
         ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(plainText("# 123")).build()
+            ShortTextComplicationData.Builder(
+                plainText("# 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         ComplicationType.LONG_TEXT ->
             LongTextComplicationData.Builder(
@@ -76,7 +84,8 @@ class AsynchronousProviderService : ComplicationProviderService() {
                             Spanned.SPAN_INCLUSIVE_INCLUSIVE
                         )
                     }
-                )
+                ),
+                ComplicationText.EMPTY
             ).build()
 
         else

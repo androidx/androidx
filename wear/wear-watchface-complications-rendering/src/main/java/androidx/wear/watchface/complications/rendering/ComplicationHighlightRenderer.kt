@@ -25,6 +25,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import kotlin.math.floor
 
 /** Helper for rendering a thick outline around a complication to highlight it. */
 public class ComplicationHighlightRenderer(
@@ -58,16 +59,20 @@ public class ComplicationHighlightRenderer(
         outlinePaint.color = color
         val radius = bounds.height() / 2.0f
         if (bounds.width() == bounds.height()) {
+            // Round the center coordinates to the nearest whole integer.
+            val ctrX = floor(bounds.exactCenterX() + 0.5f)
+            val ctrY = floor(bounds.exactCenterY() + 0.5f)
+
             canvas.drawCircle(
-                bounds.exactCenterX() + 1.0f, // Offset necessary to properly center.
-                bounds.exactCenterY(),
+                ctrX,
+                ctrY,
                 radius + outlineExpansion,
                 transparentWhitePaint
             )
 
             canvas.drawCircle(
-                bounds.exactCenterX() + 1.0f, // Offset necessary to properly center.
-                bounds.exactCenterY(),
+                ctrX,
+                ctrY,
                 radius + outlineExpansion,
                 outlinePaint
             )

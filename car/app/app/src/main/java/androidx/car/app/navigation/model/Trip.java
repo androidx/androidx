@@ -233,7 +233,7 @@ public final class Trip {
         /**
          * Sets a description of the current road.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code currentRoad} is {@code null}
          * @see CarText

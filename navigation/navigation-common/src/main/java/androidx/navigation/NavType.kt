@@ -749,12 +749,9 @@ public abstract class NavType<T> internal constructor(
          */
         @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         public override fun parseValue(value: String): D {
-            for (constant in type.enumConstants) {
-                if ((constant as Enum<*>).name == value) {
-                    return constant
-                }
-            }
-            throw IllegalArgumentException(
+            return type.enumConstants.firstOrNull { constant ->
+                constant.name.equals(value, ignoreCase = true)
+            } ?: throw IllegalArgumentException(
                 "Enum value $value not found for type ${type.name}."
             )
         }

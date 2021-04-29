@@ -34,7 +34,6 @@ import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
-import android.view.ViewConfiguration
 import android.view.WindowInsets
 import androidx.annotation.Px
 import androidx.test.core.app.ApplicationProvider
@@ -49,6 +48,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
+import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
@@ -70,6 +70,7 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -421,6 +422,10 @@ public class WatchFaceServiceTest {
                         ) {
                             interactiveWatchFaceInstance = iInteractiveWatchFace
                         }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
                     }
                 )
             )
@@ -460,7 +465,7 @@ public class WatchFaceServiceTest {
         hasLowBitAmbient: Boolean,
         hasBurnInProtection: Boolean
     ) {
-        engine.onPropertiesChanged(
+        engine.wslFlow.onPropertiesChanged(
             Bundle().apply {
                 putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, hasLowBitAmbient)
                 putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
@@ -673,20 +678,6 @@ public class WatchFaceServiceTest {
         watchFaceImpl.onTapCommand(TapType.UP, x, y)
     }
 
-    private fun doubleTapAt(x: Int, y: Int, delayMillis: Long) {
-        tapAt(x, y)
-        runPostedTasksFor(delayMillis)
-        tapAt(x, y)
-    }
-
-    private fun tripleTapAt(x: Int, y: Int, delayMillis: Long) {
-        tapAt(x, y)
-        runPostedTasksFor(delayMillis)
-        tapAt(x, y)
-        runPostedTasksFor(delayMillis)
-        tapAt(x, y)
-    }
-
     private fun tapCancelAt(x: Int, y: Int) {
         watchFaceImpl.onTapCommand(TapType.DOWN, x, y)
         watchFaceImpl.onTapCommand(TapType.CANCEL, x, y)
@@ -706,8 +697,8 @@ public class WatchFaceServiceTest {
         // Tap left complication.
         tapAt(30, 50)
         assertThat(complicationDrawableLeft.isHighlighted).isTrue()
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.tappedComplicationIds)
+            .isEqualTo(listOf(LEFT_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
@@ -716,8 +707,8 @@ public class WatchFaceServiceTest {
         testWatchFaceService.reset()
         tapAt(70, 50)
         assertThat(complicationDrawableRight.isHighlighted).isTrue()
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.tappedComplicationIds)
+            .isEqualTo(listOf(RIGHT_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
@@ -725,16 +716,15 @@ public class WatchFaceServiceTest {
         // Tap on blank space.
         testWatchFaceService.reset()
         tapAt(1, 1)
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
+        assertThat(testWatchFaceService.tappedComplicationIds).isEmpty()
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(2)
+        assertThat(testWatchFaceService.tappedComplicationIds).isEmpty()
     }
 
     @Test
-    public fun fastTap_onDifferentComplications() {
+    public fun singleTaps_onDifferentComplications() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -746,59 +736,24 @@ public class WatchFaceServiceTest {
 
         // Rapidly tap left then right complication.
         tapAt(30, 50)
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
         tapAt(70, 50)
 
-        // Both complications get temporarily highlighted but only the second one registers a tap.
+        // Both complications get temporarily highlighted.
         assertThat(complicationDrawableLeft.isHighlighted).isTrue()
         assertThat(complicationDrawableRight.isHighlighted).isTrue()
-        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
 
+        // And the highlight goes away after a delay.
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
         assertThat(complicationDrawableRight.isHighlighted).isFalse()
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(1)
+
+        // Taps are registered on both complications.
+        assertThat(testWatchFaceService.tappedComplicationIds)
+            .isEqualTo(listOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID))
     }
 
     @Test
-    public fun slow_doubleTap_recognisedAsSingleTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(complicationDrawableRight.isHighlighted).isFalse()
-
-        // Slowly tap left complication twice.
-        doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() * 2)
-
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(1)
-    }
-
-    @Test
-    public fun tripleTap_recognisedAsSingleTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(complicationDrawableRight.isHighlighted).isFalse()
-
-        // Quickly tap left complication thrice.
-        tripleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
-
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(1)
-    }
-
-    @Test
-    public fun tapCancel_after_tapDown_at_same_location_HandledAsSingleTap() {
+    public fun tapCancel_after_tapDown_CancelsTap() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -808,74 +763,7 @@ public class WatchFaceServiceTest {
         testWatchFaceService.reset()
         // Tap/Cancel left complication
         tapCancelAt(30, 50)
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
-    }
-
-    @Test
-    public fun tapDown_then_tapDown_tapCancel_HandledAsSingleTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        testWatchFaceService.reset()
-        // Tap down left Complication
-        watchFaceImpl.onTapCommand(TapType.DOWN, 30, 50)
-
-        // Tap down at right complication
-        watchFaceImpl.onTapCommand(TapType.DOWN, 70, 50)
-
-        // Now Tap cancel at the second position
-        watchFaceImpl.onTapCommand(TapType.CANCEL, 70, 50)
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(1)
-    }
-
-    @Test
-    public fun tapDown_tapCancel_different_positions_CancelsTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        testWatchFaceService.reset()
-        // Tap down at a position in left Complication
-        watchFaceImpl.onTapCommand(TapType.DOWN, 30, 50)
-        // Tap cancel at different position stillin left Complication
-        watchFaceImpl.onTapCommand(TapType.CANCEL, 32, 50)
-
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(0)
-    }
-
-    @Test
-    public fun singleTap_recognisedAfterTripleTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        // Quickly tap right complication thrice.
-        tripleTapAt(70, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
-
-        // Wait a bit for the condition to reset and clear our detection state.
-        testWatchFaceService.clearTappedState()
-        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(complicationDrawableRight.isHighlighted).isFalse()
-
-        // Tap right complication.
-        tapAt(70, 50)
-        assertThat(complicationDrawableRight.isHighlighted).isTrue()
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(3)
+        assertThat(testWatchFaceService.tappedComplicationIds).isEmpty()
     }
 
     @Test
@@ -901,8 +789,8 @@ public class WatchFaceServiceTest {
         // Tap the edge complication.
         tapAt(0, 50)
         assertThat(complicationDrawableEdge.isHighlighted).isTrue()
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(EDGE_COMPLICATION_ID)
+        assertThat(testWatchFaceService.tappedComplicationIds)
+            .isEqualTo(listOf(EDGE_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableEdge.isHighlighted).isFalse()
@@ -1450,8 +1338,8 @@ public class WatchFaceServiceTest {
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
-        val contentDescriptionLabels =
-            watchFaceImpl.complicationsManager.getContentDescriptionLabels()
+        engineWrapper.updateContentDescriptionLabels()
+        val contentDescriptionLabels = engineWrapper.contentDescriptionLabels
         assertThat(contentDescriptionLabels.size).isEqualTo(3)
         assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
             Rect(
@@ -1477,6 +1365,103 @@ public class WatchFaceServiceTest {
                 95
             )
         ) // Right complication.
+    }
+
+    @Test
+    public fun styleChangesAccessibilityTraversalIndex() {
+        val leftAndRightComplicationsOptionIndexReversed = ComplicationsOption(
+            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
+            "Both",
+            null,
+            listOf(
+                ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+                    .setEnabled(true).setAccessibilityTraversalIndex(RIGHT_COMPLICATION_ID).build(),
+                ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+                    .setEnabled(true).setAccessibilityTraversalIndex(LEFT_COMPLICATION_ID).build()
+            )
+        )
+
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting"),
+            "AllComplications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                leftAndRightComplicationsOption,
+                leftAndRightComplicationsOptionIndexReversed
+            ),
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
+            4
+        )
+
+        // Despite disabling the background complication we should still get a
+        // ContentDescriptionLabel for the main clock element.
+        engineWrapper.updateContentDescriptionLabels()
+        val contentDescriptionLabels = engineWrapper.contentDescriptionLabels
+        assertThat(contentDescriptionLabels.size).isEqualTo(3)
+        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
+            Rect(
+                25,
+                25,
+                75,
+                75
+            )
+        ) // Clock element.
+        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(
+            Rect(
+                20,
+                40,
+                40,
+                60
+            )
+        ) // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(
+            Rect(
+                60,
+                40,
+                80,
+                60
+            )
+        ) // Right complication.
+
+        // Change the style
+        engineWrapper.watchFaceImpl.userStyleRepository.userStyle = UserStyle(
+            hashMapOf(complicationsStyleSetting to leftAndRightComplicationsOptionIndexReversed)
+        )
+        runPostedTasksFor(0)
+
+        val contentDescriptionLabels2 = engineWrapper.contentDescriptionLabels
+        assertThat(contentDescriptionLabels2.size).isEqualTo(3)
+        assertThat(contentDescriptionLabels2[0].bounds).isEqualTo(
+            Rect(
+                25,
+                25,
+                75,
+                75
+            )
+        ) // Clock element.
+        assertThat(contentDescriptionLabels2[1].bounds).isEqualTo(
+            Rect(
+                60,
+                40,
+                80,
+                60
+            )
+        ) // Right complication.
+        assertThat(contentDescriptionLabels2[2].bounds).isEqualTo(
+            Rect(
+                20,
+                40,
+                40,
+                60
+            )
+        ) // Left complication.
     }
 
     @Test
@@ -1943,6 +1928,80 @@ public class WatchFaceServiceTest {
 
         assertTrue(leftComplication.enabled)
         assertFalse(rightComplication.enabled)
+    }
+
+    public fun UserStyleManager_init_applies_ComplicationsUserStyleSetting() {
+        val complicationId1 = 101
+        val complicationId2 = 102
+
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            UserStyleSetting.Id("ID"),
+            "",
+            "",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationsOption(
+                    Option.Id("one"),
+                    "one",
+                    null,
+                    listOf(
+                        ComplicationOverlay(
+                            complicationId1,
+                            enabled = true
+                        ),
+                    )
+                ),
+                ComplicationsOption(
+                    Option.Id("two"),
+                    "teo",
+                    null,
+                    listOf(
+                        ComplicationOverlay(
+                            complicationId2,
+                            enabled = true
+                        ),
+                    )
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        val currentUserStyleRepository =
+            CurrentUserStyleRepository(UserStyleSchema(listOf(complicationsStyleSetting)))
+
+        val manager = ComplicationsManager(
+            listOf(
+                Complication.createRoundRectComplicationBuilder(
+                    complicationId1,
+                    CanvasComplicationDrawable(complicationDrawableLeft, watchState.asWatchState()),
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                    ),
+                    DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                    ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                ).setDefaultProviderType(ComplicationType.RANGED_VALUE)
+                    .setEnabled(false)
+                    .build(),
+
+                Complication.createRoundRectComplicationBuilder(
+                    complicationId2,
+                    CanvasComplicationDrawable(
+                        complicationDrawableRight, watchState.asWatchState()
+                    ),
+                    listOf(
+                        ComplicationType.LONG_TEXT,
+                    ),
+                    DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                    ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+                    .setEnabled(false)
+                    .build()
+            ),
+            currentUserStyleRepository
+        )
+
+        // The init function of ComplicationsManager should enable complicationId1.
+        assertThat(manager[complicationId1]!!.enabled).isTrue()
     }
 
     @Test

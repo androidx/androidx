@@ -1,6 +1,7 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
+import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.lang.Override;
@@ -9,10 +10,10 @@ import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
-class AutoMigration_1_2_Impl extends Migration {
-    private final ValidAutoMigrationWithDefault callback = new ValidAutoMigrationWithDefault();
+class ValidAutoMigrationWithDefault_AutoMigration_1_2_Impl extends Migration {
+    private final AutoMigrationSpec callback = new ValidAutoMigrationWithDefault();
 
-    public AutoMigration_1_2_Impl() {
+    public ValidAutoMigrationWithDefault_AutoMigration_1_2_Impl() {
         super(1, 2);
     }
 

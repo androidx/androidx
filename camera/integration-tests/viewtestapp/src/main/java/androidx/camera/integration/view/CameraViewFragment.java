@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +59,9 @@ public class CameraViewFragment extends Fragment {
     // Possible values for this intent key are the name values of CameraView.CaptureMode encoded as
     // strings (case-insensitive): "image", "video", "mixed"
     private static final String INTENT_EXTRA_CAPTURE_MODE = "captureMode";
+
+    // The time-out to wait for the ready of CameraProver in the CameraXModule of CameraView.
+    private static final int CAMERA_PROVIDER_READY_TIMEOUT = 2000;
 
     // Argument key which determines the lifecycle used to control the camera of CameraView.
     // Possible values for this argument key are LIFECYCLE_TYPE_ACTIVITY, LIFECYCLE_TYPE_FRAGMENT,
@@ -197,16 +202,23 @@ public class CameraViewFragment extends Fragment {
         // Set clickable, Let the cameraView can be interacted by Voice Access
         mCameraView.setClickable(true);
 
-        if (mToggleCameraButton != null) {
-            mToggleCameraButton.setVisibility(
-                    (mCameraView.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)
-                            && mCameraView.hasCameraWithLensFacing(
-                            CameraSelector.LENS_FACING_FRONT))
-                            ? View.VISIBLE
-                            : View.INVISIBLE);
-            mToggleCameraButton.setChecked(
-                    mCameraView.getCameraLensFacing() == CameraSelector.LENS_FACING_FRONT);
-        }
+        // CameraView.hasCameraWithLensFacing need to wait for the ready of CameraProvider. Check
+        // the b/183916771 for the workaround.
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> {
+            if (mToggleCameraButton != null) {
+                if (mToggleCameraButton != null) {
+                    mToggleCameraButton.setVisibility(
+                            (mCameraView.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)
+                                    && mCameraView.hasCameraWithLensFacing(
+                                    CameraSelector.LENS_FACING_FRONT))
+                                    ? View.VISIBLE
+                                    : View.INVISIBLE);
+                    mToggleCameraButton.setChecked(
+                            mCameraView.getCameraLensFacing() == CameraSelector.LENS_FACING_FRONT);
+                }
+            }
+        }, CAMERA_PROVIDER_READY_TIMEOUT);
 
         // Set listeners here, or else restoring state will trigger them.
         if (mToggleCameraButton != null) {

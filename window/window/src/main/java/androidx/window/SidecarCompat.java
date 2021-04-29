@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import static androidx.window.ActivityUtil.getActivityWindowToken;
+import static androidx.window.ActivityExtKt.getActivityWindowToken;
 import static androidx.window.ExtensionCompat.DEBUG;
 import static androidx.window.Version.VERSION_0_1;
 

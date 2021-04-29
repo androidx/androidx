@@ -594,6 +594,10 @@ private class TestAppContextWrapper(base: Context, val app: Application? = null)
     override fun getResources(): Resources {
         return testResources
     }
+
+    override fun createAttributionContext(attributionTag: String?): Context {
+        return this
+    }
 }
 
 private class TestApplication(val pm: PackageManager) : Application(), CameraXConfig.Provider {
@@ -608,6 +612,10 @@ private class TestApplication(val pm: PackageManager) : Application(), CameraXCo
 
     override fun getPackageManager(): PackageManager {
         return pm
+    }
+
+    override fun createAttributionContext(attributionTag: String?): Context {
+        return this
     }
 }
 

@@ -21,9 +21,9 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':internal-testutils-runtime')
 }
 
@@ -37,7 +37,7 @@ android {
 
 androidx {
     name = "Android Emoji2 Compat Views"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI2
     mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2017"

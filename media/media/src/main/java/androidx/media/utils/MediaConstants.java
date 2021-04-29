@@ -125,6 +125,23 @@ public final class MediaConstants {
             "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
 
     /**
+     * Bundle key used for next episode's media content ID in {@link MediaMetadataCompat metadata},
+     * following the same ID and format provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to the next episode of the current title episode. Google uses this information to allow users
+     * to resume watching the next episode of this title on your app once the current episode ends
+     * across the supported surfaces (e.g., Android TV's Play Next row). This can be left blank for
+     * movies.
+     *
+     * <p>TYPE: String
+     *
+     * @see MediaMetadataCompat
+     */
+    @SuppressLint("IntentName")
+    public static final String METADATA_KEY_NEXT_EPISODE_CONTENT_ID =
+            "androidx.media.MediaMetadatCompat.METADATA_KEY_NEXT_EPISODE_CONTENT_ID";
+
+    /**
      * Key sent through a key-value mapping in {@link MediaMetadataCompat#getLong(String)} or in the
      * {@link MediaDescriptionCompat#getExtras()} bundle to the hosting {@link MediaBrowserCompat}
      * to indicate that the corresponding {@link MediaMetadataCompat} or {@link
@@ -447,6 +464,54 @@ public final class MediaConstants {
     @SuppressLint("IntentName")
     public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT =
             "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
+
+    /**
+     * Bundle key passed through the {@code extras} of
+     * {@link MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)}, or
+     * {@link MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)} to indicate the
+     * stream type to be used by the session when playing or preparing the media.
+     *
+     * <p>TYPE: int
+     *
+     * @see MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_LEGACY_STREAM_TYPE =
+            "android.media.session.extra.LEGACY_STREAM_TYPE";
+
+    /**
+     * Bundle key passed through the {@code extras} of
+     * {@link MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)}, or
+     * {@link MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)} to indicate whether
+     * the session should shuffle the media to be played or not. The extra parameter is limited to
+     * the current request and doesn't affect the {@link MediaSessionCompat#setShuffleMode(int)
+     * shuffle mode}.
+     *
+     * <p>TYPE: boolean
+     *
+     * @see MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_SHUFFLE =
+            "androidx.media.MediaControllerCompat.TransportControls.extras.KEY_SHUFFLE";
 
     private MediaConstants() {}
 }

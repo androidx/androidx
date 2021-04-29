@@ -192,7 +192,7 @@ public open class ActivityNavigator(
      * NavDestination for activity navigation
      *
      * Construct a new activity destination. This destination is not valid until you set the
-     * Intent via [.setIntent] or one or more of the other set method.
+     * Intent via [setIntent] or one or more of the other set method.
      *
      * @param activityNavigator The [ActivityNavigator] which this destination
      * will be associated with. Generally retrieved via a
@@ -246,7 +246,7 @@ public open class ActivityNavigator(
 
         /**
          * Construct a new activity destination. This destination is not valid until you set the
-         * Intent via [.setIntent] or one or more of the other set method.
+         * Intent via [setIntent] or one or more of the other set method.
          *
          *
          * @param navigatorProvider The [NavController] which this destination
@@ -367,7 +367,7 @@ public open class ActivityNavigator(
          *
          *
          * To use a dynamic URI that changes based on the arguments passed in when navigating,
-         * use [.setDataPattern], which will take precedence when arguments are
+         * use [setDataPattern], which will take precedence when arguments are
          * present.
          *
          * @param data A static URI that should always be used.

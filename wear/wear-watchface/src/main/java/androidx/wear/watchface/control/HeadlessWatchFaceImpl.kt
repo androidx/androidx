@@ -23,6 +23,7 @@ import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.runBlockingOnHandlerWithTracing
 import androidx.wear.watchface.runOnHandlerWithTracing
 
 /**
@@ -64,19 +65,23 @@ internal class HeadlessWatchFaceImpl(
     override fun getApiVersion() = IHeadlessWatchFace.API_VERSION
 
     override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
-        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.renderWatchFaceToBitmap") {
+        uiThreadHandler.runBlockingOnHandlerWithTracing(
+            "HeadlessWatchFaceImpl.renderWatchFaceToBitmap"
+        ) {
             engine!!.renderWatchFaceToBitmap(params)
         }
 
     override fun getPreviewReferenceTimeMillis() = engine!!.watchFaceImpl.previewReferenceTimeMillis
 
     override fun getComplicationState() =
-        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.getComplicationState") {
+        uiThreadHandler.runBlockingOnHandlerWithTracing(
+            "HeadlessWatchFaceImpl.getComplicationState"
+        ) {
             engine!!.getComplicationState()
         }
 
     override fun renderComplicationToBitmap(params: ComplicationRenderParams) =
-        uiThreadHandler.runOnHandlerWithTracing(
+        uiThreadHandler.runBlockingOnHandlerWithTracing(
             "HeadlessWatchFaceImpl.renderComplicationToBitmap"
         ) {
             engine!!.renderComplicationToBitmap(params)

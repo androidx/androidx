@@ -21,8 +21,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
-import android.support.wearable.watchface.accessibility.AccessibilityUtils
-import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
@@ -79,7 +77,8 @@ public class ComplicationsManager(
 
     private class InitialComplicationConfig(
         val complicationBounds: ComplicationBounds,
-        val enabled: Boolean
+        val enabled: Boolean,
+        val accessibilityTraversalIndex: Int
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -91,7 +90,8 @@ public class ComplicationsManager(
             {
                 InitialComplicationConfig(
                     it.complicationBounds,
-                    it.enabled
+                    it.enabled,
+                    it.accessibilityTraversalIndex
                 )
             }
         )
@@ -107,6 +107,33 @@ public class ComplicationsManager(
         this.renderer = renderer
     }
 
+    init {
+        val complicationsStyleCategory =
+            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
+                it is ComplicationsUserStyleSetting
+            }
+
+        // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
+        // automatically apply them.
+        if (complicationsStyleCategory != null) {
+            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
+            var previousOption: ComplicationsOption? = null
+            currentUserStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
+                        val newlySelectedOption =
+                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
+                        if (previousOption != newlySelectedOption) {
+                            previousOption = newlySelectedOption
+                            applyComplicationsStyleCategoryOption(newlySelectedOption)
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    /** Finish initialization. */
     internal fun init(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
@@ -122,37 +149,11 @@ public class ComplicationsManager(
             complication.init(this, complicationInvalidateListener)
         }
 
-        val complicationsStyleCategory =
-            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
-                it is ComplicationsUserStyleSetting
-            }
-
-        // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
-        // automatically apply them.
-        if (complicationsStyleCategory != null) {
-            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
-            var previousOption: ComplicationsUserStyleSetting.ComplicationsOption? = null
-            currentUserStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        val newlySelectedOption =
-                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
-                        if (previousOption != newlySelectedOption) {
-                            previousOption = newlySelectedOption
-                            applyComplicationsStyleCategoryOption(newlySelectedOption)
-                        }
-                    }
-                }
-            )
-        }
-
         // Activate complications.
         scheduleUpdate()
     }
 
-    internal fun applyComplicationsStyleCategoryOption(
-        styleOption: ComplicationsUserStyleSetting.ComplicationsOption
-    ) {
+    internal fun applyComplicationsStyleCategoryOption(styleOption: ComplicationsOption) {
         for ((id, complication) in complications) {
             val override = styleOption.complicationOverlays.find { it.complicationId == id }
             val initialConfig = initialComplicationConfigs[id]!!
@@ -161,6 +162,8 @@ public class ComplicationsManager(
                 override?.complicationBounds ?: initialConfig.complicationBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
+            complication.accessibilityTraversalIndex =
+                override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
         }
     }
 
@@ -171,40 +174,6 @@ public class ComplicationsManager(
         if (!pendingUpdate.isPending()) {
             pendingUpdate.postUnique(this::updateComplications)
         }
-    }
-
-    internal fun getContentDescriptionLabels(): Array<ContentDescriptionLabel> {
-        val labels = mutableListOf<ContentDescriptionLabel>()
-
-        // Add a ContentDescriptionLabel for the main clock element.
-        labels.add(
-            ContentDescriptionLabel(
-                renderer.getMainClockElementBounds(),
-                AccessibilityUtils.makeTimeAsComplicationText(
-                    watchFaceHostApi.getContext()
-                )
-            )
-        )
-        // Add a ContentDescriptionLabel for each enabled complication.
-        for ((_, complication) in complications) {
-            if (complication.enabled) {
-                if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
-                    ComplicationBoundsType.BACKGROUND
-                } else {
-                    complication.renderer.getData()?.let {
-                        labels.add(
-                            ContentDescriptionLabel(
-                                watchFaceHostApi.getContext(),
-                                complication.computeBounds(renderer.screenBounds),
-                                it.asWireComplicationData()
-                            )
-                        )
-                    }
-                }
-            }
-        }
-
-        return labels.toTypedArray()
     }
 
     private fun updateComplications() {
@@ -222,7 +191,8 @@ public class ComplicationsManager(
                 activeKeys.add(id)
 
                 labelsDirty =
-                    labelsDirty || complication.dataDirty || complication.complicationBoundsDirty
+                    labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
+                    complication.accessibilityTraversalIndexDirty
 
                 if (complication.defaultProviderPolicyDirty ||
                     complication.defaultProviderTypeDirty
@@ -250,10 +220,7 @@ public class ComplicationsManager(
         }
 
         if (labelsDirty) {
-            // Register ContentDescriptionLabels which are used to provide accessibility data.
-            watchFaceHostApi.setContentDescriptionLabels(
-                getContentDescriptionLabels()
-            )
+            watchFaceHostApi.updateContentDescriptionLabels()
         }
     }
 

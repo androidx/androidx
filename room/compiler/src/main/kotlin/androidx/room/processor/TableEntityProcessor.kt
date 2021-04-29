@@ -20,6 +20,7 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.requireEnclosingTypeElement
 import androidx.room.ext.isNotNone
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
@@ -103,13 +104,13 @@ class TableEntityProcessor internal constructor(
                         )
                     )
                     null
-                } else if (it.element.enclosingTypeElement != element && !inheritSuperIndices) {
+                } else if (it.element.enclosingElement != element && !inheritSuperIndices) {
                     it.indexed = false
                     context.logger.w(
                         Warning.INDEX_FROM_PARENT_FIELD_IS_DROPPED,
                         ProcessorErrors.droppedSuperClassFieldIndex(
                             it.columnName, element.qualifiedName,
-                            it.element.enclosingTypeElement.qualifiedName
+                            it.element.requireEnclosingTypeElement().qualifiedName
                         )
                     )
                     null
@@ -343,7 +344,7 @@ class TableEntityProcessor internal constructor(
                     null
                 } else {
                     PrimaryKey(
-                        declaredIn = field.element.enclosingTypeElement,
+                        declaredIn = field.element.enclosingElement,
                         fields = Fields(field),
                         autoGenerateId = it.value.autoGenerate
                     )
@@ -389,7 +390,7 @@ class TableEntityProcessor internal constructor(
         val superPKeys = if (mySuper != null && mySuper.isNotNone()) {
             // my super cannot see my fields so remove them.
             val remainingFields = availableFields.filterNot {
-                it.element.enclosingTypeElement == typeElement
+                it.element.enclosingElement == typeElement
             }
             collectPrimaryKeysFromEntityAnnotations(mySuper.typeElement!!, remainingFields)
         } else {
@@ -409,7 +410,7 @@ class TableEntityProcessor internal constructor(
                     ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS
                 )
                 PrimaryKey(
-                    declaredIn = embeddedField.field.element.enclosingTypeElement,
+                    declaredIn = embeddedField.field.element.enclosingElement,
                     fields = embeddedField.pojo.fields,
                     autoGenerateId = it.value.autoGenerate
                 )

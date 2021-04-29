@@ -330,7 +330,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          * Error messages can have only up to 2 lines of text, amd additional texts beyond the
          * second line may be truncated.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code message} is {@code null}
          */

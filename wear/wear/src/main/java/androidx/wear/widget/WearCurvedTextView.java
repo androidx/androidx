@@ -42,6 +42,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -227,8 +228,11 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
     }
 
+    /**
+     * See {@link WearArcLayout.ArcLayoutWidget#isPointInsideClickArea(float, float)}
+     */
     @Override
-    public boolean insideClickArea(float x, float y) {
+    public boolean isPointInsideClickArea(float x, float y) {
         float radius2 = min(getWidth(), getHeight()) / 2f
                 - (mClockwise ? getPaddingTop() : getPaddingBottom());
         float radius1 =
@@ -446,7 +450,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         x0 = tempX;
 
         // Should we start handling the touch events?
-        if (!mHandlingTouch && insideClickArea(x0, y0)) {
+        if (!mHandlingTouch && isPointInsideClickArea(x0, y0)) {
             mHandlingTouch = true;
         }
 
@@ -731,12 +735,14 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     /** returns the maximum sweep angle in degrees for rendering the text */
+    @FloatRange(from = 0f, to = 360f, toInclusive = false)
     public float getMaxSweepDegrees() {
         return mMaxSweepDegrees;
     }
 
     /** sets the maximum sweep angle in degrees for rendering the text */
-    public void setMaxSweepDegrees(float value) {
+    public void setMaxSweepDegrees(
+            @FloatRange(from = 0f, to = 360f, toInclusive = false) float value) {
         if (value < mMinSweepDegrees) {
             throw new IllegalArgumentException(
                     "MaxSweepDegrees cannot be smaller than MinSweepDegrees"
@@ -746,18 +752,20 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         doUpdate();
     }
     /** returns the sweep angle in degrees for rendering the text */
+    @FloatRange(from = 0f, to = 360f, toInclusive = false)
     public float getMinSweepDegrees() {
         return mMinSweepDegrees;
     }
 
     /** sets the sweep angle in degrees for rendering the text */
-    public void setMinSweepDegrees(float value) {
+    public void setMinSweepDegrees(
+            @FloatRange(from = 0f, to = 360f, toInclusive = false) float value) {
         if (value > mMaxSweepDegrees) {
             throw new IllegalArgumentException(
                     "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
             );
         }
-        mMinSweepDegrees = value;
+        mMinSweepDegrees = max(value, 0f);
         doUpdate();
     }
 

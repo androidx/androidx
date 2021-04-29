@@ -263,18 +263,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     };
 
-    // True if the View was added, and its animation has yet to be run. This could
-    // also indicate that the fragment view hasn't been made visible, even if there is no
-    // animation for this fragment.
-    boolean mIsNewlyAdded;
-
     // True if mHidden has been changed and the animation should be scheduled.
     boolean mHiddenChanged;
-
-    // The alpha of the view when the view was added and then postponed. If the value is less
-    // than zero, this means that the view's add was canceled and should not participate in
-    // removal animations.
-    float mPostponedAlpha;
 
     // The cached value from onGetLayoutInflater(Bundle) that will be returned from
     // getLayoutInflater()
@@ -1142,16 +1132,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     final public boolean isRemoving() {
         return mRemoving;
-    }
-
-    /**
-     * Return <code>true</code> if this fragment or any of its ancestors are currently being removed
-     * from its activity.  This is <em>not</em> whether its activity is finishing, but rather
-     * whether it, or its ancestors are in the process of being removed from its activity.
-     */
-    final boolean isRemovingParent() {
-        Fragment parent = getParentFragment();
-        return parent != null && (parent.isRemoving() || parent.isRemovingParent());
     }
 
     /**
@@ -2676,10 +2656,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * independent containers will not interfere with each other's postponement.
      * <p>
      * Calling postponeEnterTransition on Fragments with a null View will not postpone the
-     * transition. Likewise, postponement only works if
-     * {@link FragmentTransaction#setReorderingAllowed(boolean) FragmentTransaction reordering} is
-     * enabled if you have called {@link FragmentManager#enableNewStateManager(boolean)} with
-     * <code>false</code>.
+     * transition.
      *
      * @see Activity#postponeEnterTransition()
      * @see FragmentTransaction#setReorderingAllowed(boolean)
@@ -2709,10 +2686,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * independent containers will not interfere with each other's postponement.
      * <p>
      * Calling postponeEnterTransition on Fragments with a null View will not postpone the
-     * transition. Likewise, postponement only works if
-     * {@link FragmentTransaction#setReorderingAllowed(boolean) FragmentTransaction reordering} is
-     * enabled if you have called {@link FragmentManager#enableNewStateManager(boolean)} with
-     * <code>false</code>.
+     * transition.
      *
      * @param duration The length of the delay in {@code timeUnit} units
      * @param timeUnit The units of time for {@code duration}
@@ -2768,18 +2742,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void callStartTransitionListener(boolean calledDirectly) {
-        final OnStartEnterTransitionListener listener;
-        if (mAnimationInfo == null) {
-            listener = null;
-        } else {
+        if (mAnimationInfo != null) {
             mAnimationInfo.mEnterTransitionPostponed = false;
-            listener = mAnimationInfo.mStartEnterTransitionListener;
-            mAnimationInfo.mStartEnterTransitionListener = null;
         }
-        if (listener != null) {
-            listener.onStartEnterTransition();
-        } else if (FragmentManager.USE_STATE_MANAGER && mView != null
-                && mContainer != null && mFragmentManager != null) {
+        if (mView != null && mContainer != null && mFragmentManager != null) {
             // Mark the updated postponed state with the SpecialEffectsController immediately
             final SpecialEffectsController controller = SpecialEffectsController
                     .getOrCreateController(mContainer, mFragmentManager);
@@ -3256,23 +3222,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
-    void setOnStartEnterTransitionListener(OnStartEnterTransitionListener listener) {
-        ensureAnimationInfo();
-        if (listener == mAnimationInfo.mStartEnterTransitionListener) {
-            return;
-        }
-        if (listener != null && mAnimationInfo.mStartEnterTransitionListener != null) {
-            throw new IllegalStateException("Trying to set a replacement "
-                    + "startPostponedEnterTransition on " + this);
-        }
-        if (mAnimationInfo.mEnterTransitionPostponed) {
-            mAnimationInfo.mStartEnterTransitionListener = listener;
-        }
-        if (listener != null) {
-            listener.startListening();
-        }
-    }
-
     private AnimationInfo ensureAnimationInfo() {
         if (mAnimationInfo == null) {
             mAnimationInfo = new AnimationInfo();
@@ -3391,21 +3340,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mAnimatingAway;
     }
 
-    void setAnimatingAway(View view) {
-        ensureAnimationInfo().mAnimatingAway = view;
-    }
-
-    void setAnimator(Animator animator) {
-        ensureAnimationInfo().mAnimator = animator;
-    }
-
-    Animator getAnimator() {
-        if (mAnimationInfo == null) {
-            return null;
-        }
-        return mAnimationInfo.mAnimator;
-    }
-
     void setPostOnViewCreatedAlpha(float alpha) {
         ensureAnimationInfo().mPostOnViewCreatedAlpha = alpha;
     }
@@ -3433,17 +3367,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             return false;
         }
         return mAnimationInfo.mEnterTransitionPostponed;
-    }
-
-    boolean isHideReplaced() {
-        if (mAnimationInfo == null) {
-            return false;
-        }
-        return mAnimationInfo.mIsHideReplaced;
-    }
-
-    void setHideReplaced(boolean replaced) {
-        ensureAnimationInfo().mIsHideReplaced = replaced;
     }
 
     /**
@@ -3556,16 +3479,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Used internally to be notified when {@link #startPostponedEnterTransition()} has
-     * been called. This listener will only be called once and then be removed from the
-     * listeners.
-     */
-    interface OnStartEnterTransitionListener {
-        void onStartEnterTransition();
-        void startListening();
-    }
-
-    /**
      * Contains all the animation and transition information for a fragment. This will only
      * be instantiated for Fragments that have Views.
      */
@@ -3574,10 +3487,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // meaning we need to wait a bit on completely destroying it.  This is the
         // view that is animating.
         View mAnimatingAway;
-
-        // Non-null if the fragment's view hierarchy is currently animating away with an
-        // animator instead of an animation.
-        Animator mAnimator;
 
         // If app requests the animation direction, this is what to use
         boolean mIsPop;
@@ -3613,12 +3522,5 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // True when postponeEnterTransition has been called and startPostponeEnterTransition
         // hasn't been called yet.
         boolean mEnterTransitionPostponed;
-
-        // Listener to wait for startPostponeEnterTransition. After being called, it will
-        // be set to null
-        OnStartEnterTransitionListener mStartEnterTransitionListener;
-
-        // True if the View was hidden, but the transition is handling the hide
-        boolean mIsHideReplaced;
     }
 }

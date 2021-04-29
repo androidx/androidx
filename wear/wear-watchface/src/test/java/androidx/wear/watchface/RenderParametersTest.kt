@@ -140,4 +140,116 @@ public class RenderParametersTest {
             RenderParameters.HighlightedElement.UserStyle
         assertThat(userStyle.id.value).isEqualTo("id-1")
     }
+
+    @Test
+    public fun equality() {
+        val renderParameters1a = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            null
+        )
+        val renderParameters1b = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            null
+        )
+
+        val renderParameters2a = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
+                Color.RED,
+                Color.BLACK
+            )
+        )
+        val renderParameters2b = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
+                Color.RED,
+                Color.BLACK
+            )
+        )
+        val renderParameters2c = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-2")),
+                Color.RED,
+                Color.BLACK
+            )
+        )
+
+        val renderParameters3a = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.Complication(1),
+                Color.RED,
+                Color.BLUE
+            )
+        )
+        val renderParameters3b = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.Complication(1),
+                Color.RED,
+                Color.BLUE
+            )
+        )
+        val renderParameters3c = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.Complication(2),
+                Color.RED,
+                Color.BLUE
+            )
+        )
+
+        val renderParameters4a = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.AllComplications,
+                Color.RED,
+                Color.BLUE
+            )
+        )
+        val renderParameters4b = RenderParameters(
+            DrawMode.INTERACTIVE,
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            RenderParameters.HighlightLayer(
+                RenderParameters.HighlightedElement.AllComplications,
+                Color.RED,
+                Color.BLUE
+            )
+        )
+
+        assertThat(renderParameters1a).isEqualTo(renderParameters1a)
+        assertThat(renderParameters1a).isEqualTo(renderParameters1b)
+
+        assertThat(renderParameters2a).isEqualTo(renderParameters2a)
+        assertThat(renderParameters2a).isEqualTo(renderParameters2b)
+
+        assertThat(renderParameters3a).isEqualTo(renderParameters3a)
+        assertThat(renderParameters3a).isEqualTo(renderParameters3b)
+
+        assertThat(renderParameters4a).isEqualTo(renderParameters4a)
+        assertThat(renderParameters4a).isEqualTo(renderParameters4b)
+
+        assertThat(renderParameters1a).isNotEqualTo(renderParameters2a)
+        assertThat(renderParameters1a).isNotEqualTo(renderParameters3a)
+        assertThat(renderParameters1a).isNotEqualTo(renderParameters4a)
+
+        assertThat(renderParameters2a).isNotEqualTo(renderParameters2c)
+        assertThat(renderParameters2a).isNotEqualTo(renderParameters3a)
+        assertThat(renderParameters2a).isNotEqualTo(renderParameters4a)
+
+        assertThat(renderParameters3a).isNotEqualTo(renderParameters3c)
+        assertThat(renderParameters3a).isNotEqualTo(renderParameters4a)
+    }
 }

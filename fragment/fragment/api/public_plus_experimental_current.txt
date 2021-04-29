@@ -276,7 +276,6 @@ package androidx.fragment.app {
     method public final void clearFragmentResultListener(String);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method @Deprecated public static void enableDebugLogging(boolean);
-    method @androidx.fragment.app.FragmentStateManagerControl public static void enableNewStateManager(boolean);
     method public boolean executePendingTransactions();
     method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
     method public androidx.fragment.app.Fragment? findFragmentById(@IdRes int);
@@ -368,9 +367,6 @@ package androidx.fragment.app {
     method public void clearFragmentResultListener(String);
     method public void setFragmentResult(String, android.os.Bundle);
     method public void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener);
-  }
-
-  @experimental.Experimental(level=androidx.annotation.experimental.Experimental.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface FragmentStateManagerControl {
   }
 
   @Deprecated public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {

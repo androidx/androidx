@@ -28,6 +28,7 @@ package androidx.camera.core {
   }
 
   public interface CameraInfo {
+    method @androidx.camera.core.ExperimentalCameraFilter public androidx.camera.core.CameraSelector getCameraSelector();
     method @androidx.camera.core.ExperimentalExposureCompensation public androidx.camera.core.ExposureState getExposureState();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);

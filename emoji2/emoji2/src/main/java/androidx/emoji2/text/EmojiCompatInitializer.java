@@ -49,8 +49,6 @@ import java.util.List;
  *     </provider>
  * </pre>
  *
- * For more information see {@link https://developer.android.com/topic/libraries/app-startup#manual}
- *
  * @see androidx.emoji2.text.DefaultEmojiCompatConfig
  */
 public class EmojiCompatInitializer implements Initializer<Boolean> {

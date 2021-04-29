@@ -36,8 +36,10 @@ public class ComplicationsTestRunner extends RobolectricTestRunner {
                 .doNotInstrumentPackage("android.support.wearable.complications")
                 .doNotInstrumentPackage("android.support.wearable.watchface")
                 .doNotInstrumentPackage("androidx.wear.complications")
+                .doNotInstrumentPackage("androidx.wear.complications.data")
                 .doNotInstrumentPackage("androidx.wear.complications.rendering")
                 .doNotInstrumentPackage("androidx.wear.watchface")
+                .doNotInstrumentPackage("androidx.wear.watchface.complications.rendering")
                 .build();
     }
 }

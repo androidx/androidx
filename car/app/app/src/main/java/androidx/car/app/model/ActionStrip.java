@@ -116,8 +116,9 @@ public final class ActionStrip {
         /**
          * Adds an {@link Action} to the list.
          *
-         * <p>Background colors are not supported on an action inside an {@link ActionStrip}, and
-         * any spans set in the action's title will be ignored.
+         * <p>Background colors are not supported on an action inside an {@link ActionStrip}.
+         *
+         * <p>Spans are not supported in the title of the action and will be ignored.
          *
          * @throws IllegalArgumentException if the background color of the action is specified,
          *                                  or if {@code action} is a standard action and an

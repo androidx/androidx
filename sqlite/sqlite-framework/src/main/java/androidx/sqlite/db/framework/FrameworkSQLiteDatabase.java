@@ -124,7 +124,7 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
 
     // Adding @RequiresApi(30) would prevent unbundled implementations from offering this
     // functionality to lower API levels.
-    @SuppressWarnings("UnsafeNewApiCall")
+    @SuppressWarnings("ClassVerificationFailure")
     @Override
     public void execPerConnectionSQL(@NonNull String sql, @Nullable Object[] bindArgs) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

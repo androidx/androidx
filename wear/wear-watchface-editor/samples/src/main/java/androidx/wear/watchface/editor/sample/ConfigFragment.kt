@@ -16,9 +16,7 @@
 
 package androidx.wear.watchface.editor.sample
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
@@ -156,22 +154,13 @@ internal class ConfigFragment : Fragment() {
             )
             infoArray?.let {
                 it[0].info?.apply {
-                    backgroundConfigOption.summary = providerName!!
+                    backgroundConfigOption.summary = name
                 }
                 configViewAdapter.notifyDataSetChanged()
             }
             providerInfoRetriever.close()
         }
         return backgroundConfigOption
-    }
-
-    /** Called with the result from the call to watchFaceImpl.onComplicationConfigTap() above. */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == Constants.PROVIDER_CHOOSER_REQUEST_CODE &&
-            resultCode == Activity.RESULT_OK
-        ) {
-            activity?.finish()
-        }
     }
 
     override fun onDestroy() {

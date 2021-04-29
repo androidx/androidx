@@ -47,7 +47,6 @@ import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.model.Instruction;
-import androidx.car.app.sample.navigation.common.nav.DeepLinkNotificationReceiver;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -287,7 +286,7 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
 
             Screen top = screenManager.getTop();
             switch (uri.getFragment()) {
-                case DeepLinkNotificationReceiver.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP:
+                case NavigationService.DEEP_LINK_ACTION:
                     if (!(top instanceof NavigationScreen)) {
                         screenManager.popToRoot();
                     }

@@ -16,21 +16,17 @@
 
 package androidx.car.app.sample.showcase.common.navigation;
 
-import static androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP;
+import static androidx.car.app.sample.showcase.common.ShowcaseService.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -39,8 +35,11 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.notification.CarAppExtender;
-import androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver;
+import androidx.car.app.notification.CarNotificationManager;
+import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.sample.showcase.common.ShowcaseService;
+import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -75,8 +74,8 @@ public final class NavigationNotificationService extends Service {
     @Override
     public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
         initNotifications(this);
-        Notification notification = getNavigationNotification(this, mNotificationCount);
-        startForeground(NAV_NOTIFICATION_ID, notification);
+        startForeground(NAV_NOTIFICATION_ID,
+                getNavigationNotification(this, mNotificationCount).build());
 
         // Start updating the notification continuously.
         mHandler.sendMessageDelayed(
@@ -107,22 +106,34 @@ public final class NavigationNotificationService extends Service {
     // levels
     @SuppressLint({"UnsafeNewApiCall", "ObsoleteSdkInt"})
     private static void initNotifications(Context context) {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            NotificationChannel navChannel =
-                    new NotificationChannel(
-                            NAV_NOTIFICATION_CHANNEL_ID,
-                            NAV_NOTIFICATION_CHANNEL_NAME,
-                            NotificationManager.IMPORTANCE_HIGH);
-            NotificationManagerCompat.from(context).createNotificationChannel(navChannel);
-        }
+        NotificationChannelCompat navChannel =
+                new NotificationChannelCompat.Builder(
+                        NAV_NOTIFICATION_CHANNEL_ID,
+                        NotificationManagerCompat.IMPORTANCE_HIGH)
+                        .setName(NAV_NOTIFICATION_CHANNEL_NAME).build();
+        CarNotificationManager.from(context).createNotificationChannel(navChannel);
     }
 
     /** Returns the navigation notification that corresponds to the given notification count. */
-    static Notification getNavigationNotification(
+    static NotificationCompat.Builder getNavigationNotification(
             Context context, int notificationCount) {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, NAV_NOTIFICATION_CHANNEL_ID);
         DirectionInfo directionInfo = getDirectionInfo(notificationCount);
+
+        // Set an intent to open the car app. The app receives this intent when the user taps the
+        // heads-up notification or the rail widget.
+        PendingIntent pendingIntent = CarPendingIntent.getCarApp(
+                context,
+                INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP.hashCode(),
+                new Intent(
+                        INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP).setComponent(
+                        new ComponentName(context,
+                                ShowcaseService.class)).setData(
+                        ShowcaseService.createDeepLinkUri(
+                                INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP)),
+                0);
+
         return builder
                 // This title, text, and icon will be shown in both phone and car screen. These
                 // values can
@@ -141,33 +152,15 @@ public final class NavigationNotificationService extends Service {
                 .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
 
                 // If set to true, the notification will only show the alert once in both phone and
-                // car
-                // screen. This value cannot be overridden in the extender.
+                // car screen. This value cannot be overridden in the extender.
                 .setOnlyAlertOnce(directionInfo.mOnlyAlertOnce)
 
                 // This extender must be set in order to display the notification in the car screen.
                 // The extender also allows various customizations, such as showing different title
-                // or icon
-                // on the car screen.
-                .extend(
-                        new CarAppExtender.Builder()
-                                .setContentIntent(
-
-                                        // Set an intent to open the car app. The app receives this
-                                        // intent when the
-                                        // user taps the heads-up notification or the rail widget.
-                                        PendingIntent.getBroadcast(
-                                                context,
-                                                INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP.hashCode(),
-                                                new Intent(INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP)
-                                                        .setComponent(
-                                                                new ComponentName(
-                                                                        context,
-                                                                        DeepLinkNotificationReceiver
-                                                                                .class)),
-                                                0))
-                                .build())
-                .build();
+                // or icon on the car screen.
+                .extend(new CarAppExtender.Builder()
+                        .setContentIntent(pendingIntent)
+                        .build());
     }
 
     /**
@@ -178,8 +171,8 @@ public final class NavigationNotificationService extends Service {
         public boolean handleMessage(Message msg) {
             if (msg.what == MSG_SEND_NOTIFICATION) {
                 Context context = NavigationNotificationService.this;
-                Notification notification = getNavigationNotification(context, mNotificationCount);
-                NotificationManagerCompat.from(context).notify(NAV_NOTIFICATION_ID, notification);
+                CarNotificationManager.from(context).notify(NAV_NOTIFICATION_ID,
+                        getNavigationNotification(context, mNotificationCount));
                 mNotificationCount++;
                 mHandler.sendMessageDelayed(
                         mHandler.obtainMessage(MSG_SEND_NOTIFICATION),

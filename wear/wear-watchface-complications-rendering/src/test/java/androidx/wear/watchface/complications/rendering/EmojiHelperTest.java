@@ -21,11 +21,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** EmojiHelper tests. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
 public class EmojiHelperTest {
 

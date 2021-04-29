@@ -52,7 +52,7 @@ public class NavArgument internal constructor(
 
     /**
      * Returns the default value of this argument or `null` if it doesn't have a default value.
-     * Use [.isDefaultValuePresent] to distinguish between `null` and absence of a value.
+     * Use [isDefaultValuePresent] to distinguish between `null` and absence of a value.
      * @return The default value assigned to this argument.
      */
     public val defaultValue: Any?

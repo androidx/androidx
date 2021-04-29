@@ -21,10 +21,9 @@ import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.NonNull;
 
-/**
- * LetterSpacingSpan class used to apply custom spacing between letters.
- */
+/** LetterSpacingSpan class used to apply custom spacing between letters. */
 public class LetterSpacingSpan extends MetricAffectingSpan {
+
     private final float mLetterSpacingEm;
 
     /** @param letterSpacingEm letter-spacing for text. */

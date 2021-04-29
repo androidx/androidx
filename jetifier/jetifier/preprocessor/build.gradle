@@ -20,9 +20,6 @@ plugins {
     id("application")
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
 mainClassName = "com.android.tools.build.jetifier.preprocessor.MainKt"
 
 dependencies {

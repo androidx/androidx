@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.ForegroundCarColorSpan;
 
 import java.util.Objects;
 
@@ -103,6 +104,9 @@ public final class ProviderSignInMethod implements SignInTemplate.SignInMethod {
 
         /**
          * Returns a {@link ProviderSignInMethod.Builder} instance.
+         *
+         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances, any other spans will be ignored by the host.
          *
          * <h4>Requirements</h4>
          *

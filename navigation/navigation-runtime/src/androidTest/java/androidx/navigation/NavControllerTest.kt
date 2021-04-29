@@ -156,7 +156,7 @@ class NavControllerTest {
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
-        val foundArgs = navigator.current.second
+        val foundArgs = navigator.current.arguments
         assertThat(foundArgs).isNotNull()
         assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
@@ -188,7 +188,7 @@ class NavControllerTest {
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
-        val foundArgs = navigator.current.second
+        val foundArgs = navigator.current.arguments
         assertThat(foundArgs).isNotNull()
         assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
@@ -290,6 +290,22 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testSetNewLifecycleOwner() {
+        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        navController.setLifecycleOwner(lifecycleOwner)
+        assertThat(lifecycleOwner.observerCount).isEqualTo(1)
+
+        val replacementLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        navController.setLifecycleOwner(replacementLifecycleOwner)
+        assertThat(lifecycleOwner.observerCount).isEqualTo(0)
+        assertThat(replacementLifecycleOwner.observerCount).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigate() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -334,7 +350,7 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        val intent = navigator.current.second?.getParcelable<Intent>(
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.data).isEqualTo(deepLink)
@@ -369,7 +385,7 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        val intent = navigator.current.second?.getParcelable<Intent>(
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.action).isEqualTo(action)
@@ -413,7 +429,7 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.forth_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        val intent = navigator.current.second?.getParcelable<Intent>(
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.type).isEqualTo(mimeType)
@@ -644,13 +660,14 @@ class NavControllerTest {
     fun testSaveRestoreStateXml() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
-        val navigator = SaveStateTestNavigator()
+        var navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
 
         val savedState = navController.saveState()
         navController = NavController(context)
+        navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         // Restore state doesn't recreate any graph
@@ -670,13 +687,14 @@ class NavControllerTest {
     fun testSaveRestoreStateDestinationChanged() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
-        val navigator = SaveStateTestNavigator()
+        var navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         navController.setGraph(R.navigation.nav_simple)
 
         val savedState = navController.saveState()
         navController = NavController(context)
+        navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         // Restore state doesn't recreate any graph
@@ -702,7 +720,7 @@ class NavControllerTest {
     fun testSaveRestoreStateProgrammatic() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
-        val navigator = TestNavigator()
+        var navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         val graph = NavInflater(context, navController.navigatorProvider)
             .inflate(R.navigation.nav_simple)
@@ -711,6 +729,7 @@ class NavControllerTest {
 
         val savedState = navController.saveState()
         navController = NavController(context)
+        navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         // Restore state doesn't recreate any graph
@@ -728,7 +747,7 @@ class NavControllerTest {
     fun testSaveRestoreStateBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
-        val navigator = SaveStateTestNavigator()
+        var navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         navController.setGraph(R.navigation.nav_simple)
 
@@ -743,6 +762,7 @@ class NavControllerTest {
         val restoredState = Bundle.CREATOR.createFromParcel(parcel)
 
         navController = NavController(context)
+        navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         navController.restoreState(restoredState)
@@ -757,7 +777,7 @@ class NavControllerTest {
     fun testSaveRestoreAfterNavigateToDifferentNavGraph() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
-        val navigator = SaveStateTestNavigator()
+        var navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         navController.setGraph(R.navigation.nav_multiple_navigation)
         assertThat(navController.currentDestination?.id ?: 0)
@@ -778,6 +798,7 @@ class NavControllerTest {
 
         val savedState = navController.saveState()
         navController = NavController(context)
+        navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         // Restore state doesn't recreate any graph
@@ -798,7 +819,7 @@ class NavControllerTest {
     fun testBackstackArgsBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
-        val navigator = SaveStateTestNavigator()
+        var navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         val backStackArg1 = Bundle()
@@ -815,6 +836,7 @@ class NavControllerTest {
         val restoredState = Bundle.CREATOR.createFromParcel(parcel)
 
         navController = NavController(context)
+        navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
 
         navController.restoreState(restoredState)
@@ -833,7 +855,7 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_arguments)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs).isNotNull()
         assertThat(returnedArgs!!["test_start_default"])
             .isEqualTo("default")
@@ -893,7 +915,7 @@ class NavControllerTest {
         navController.navigate(R.id.second_test, args)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs).isNotNull()
 
         return returnedArgs!!
@@ -1127,7 +1149,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
     }
@@ -1140,7 +1162,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navigator.backStack.size).isEqualTo(1)
-        assertThat(navigator.current.second).isNull()
+        assertThat(navigator.current.arguments).isNull()
 
         val args = Bundle()
         val testKey = "testKey"
@@ -1165,7 +1187,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
     }
@@ -1180,8 +1202,8 @@ class NavControllerTest {
             .isEqualTo(R.id.start_test_with_default_arg)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        assertThat(navigator.current.second).isNotNull()
-        assertThat(navigator.current.second?.getBoolean("defaultArg", false)).isTrue()
+        assertThat(navigator.current.arguments).isNotNull()
+        assertThat(navigator.current.arguments?.getBoolean("defaultArg", false)).isTrue()
 
         val args = Bundle()
         val testKey = "testKey"
@@ -1208,7 +1230,7 @@ class NavControllerTest {
             .isEqualTo(R.id.start_test_with_default_arg)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(returnedArgs?.getBoolean("defaultArg", false)).isTrue()
         assertThat(destinationListenerExecuted).isTrue()
@@ -1242,7 +1264,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
     }
@@ -1323,7 +1345,7 @@ class NavControllerTest {
         navController.navigate(R.id.second, args)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs).isNotNull()
 
         // Test that arguments without a default value aren't passed through at all
@@ -1705,15 +1727,16 @@ class SaveStateTestNavigator : TestNavigator() {
     var saveStateCount = 0
     var customParcel: CustomTestParcelable? = null
 
-    override fun onSaveState(): Bundle? {
+    override fun onSaveState(): Bundle {
         saveStateCount += 1
-        val state = Bundle()
+        val state = super.onSaveState() ?: Bundle()
         state.putInt(STATE_SAVED_COUNT, saveStateCount)
         state.putParcelable(TEST_PARCEL, customParcel)
         return state
     }
 
     override fun onRestoreState(savedState: Bundle) {
+        super.onRestoreState(savedState)
         saveStateCount = savedState.getInt(STATE_SAVED_COUNT)
         customParcel = savedState.getParcelable(TEST_PARCEL)
     }
