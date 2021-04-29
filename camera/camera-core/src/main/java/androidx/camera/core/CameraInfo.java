@@ -157,10 +157,7 @@ public interface CameraInfo {
      * respectively.
      *
      * @return A {@link LiveData} of the camera's state.
-     * @hide
      */
-    // TODO(b/150921286): Unhide once the camera state implementation is done
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     LiveData<CameraState> getCameraState();
 

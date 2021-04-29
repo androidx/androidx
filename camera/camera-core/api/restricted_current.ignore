@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.camera.core.CameraInfo#getCameraState():
+    Added method androidx.camera.core.CameraInfo.getCameraState()
