@@ -17,6 +17,7 @@
 package androidx.testutils
 
 import android.os.Bundle
+import androidx.navigation.testing.TestNavigatorState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,22 +29,24 @@ class TestNavigatorTest {
     @Test
     fun backStack() {
         val testNavigator = TestNavigator()
+        val state = TestNavigatorState()
+        testNavigator.onAttach(state)
         val destination = testNavigator.createDestination()
         val args = Bundle()
-        testNavigator.navigate(destination, args, null, null)
+        testNavigator.navigate(listOf(state.createBackStackEntry(destination, args)), null, null)
         assertEquals(
             "TestNavigator back stack size is 1 after navigate",
             1,
             testNavigator.backStack.size
         )
-        val (foundDestination, foundArgs) = testNavigator.current
+        val current = testNavigator.current
         assertEquals(
             "last() returns last destination navigated to",
-            destination, foundDestination
+            destination, current.destination
         )
         assertEquals(
             "last() returns arguments Bundle",
-            args, foundArgs
+            args, current.arguments
         )
     }
 }

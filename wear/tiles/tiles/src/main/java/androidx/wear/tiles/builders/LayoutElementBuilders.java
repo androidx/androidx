@@ -21,8 +21,10 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.tiles.TilesExperimental;
 import androidx.wear.tiles.builders.ColorBuilders.ColorProp;
 import androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.builders.DimensionBuilders.DegreesProp;
@@ -104,8 +106,9 @@ public final class LayoutElementBuilders {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_BOLD})
+    @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = TilesExperimental.class)
     public @interface FontWeight {}
 
     /** Font weight is undefined. */
@@ -114,8 +117,59 @@ public final class LayoutElementBuilders {
     /** Normal font weight. */
     public static final int FONT_WEIGHT_NORMAL = 400;
 
+    /** Medium font weight. */
+    @TilesExperimental public static final int FONT_WEIGHT_MEDIUM = 500;
+
     /** Bold font weight. */
     public static final int FONT_WEIGHT_BOLD = 700;
+
+    /**
+     * The variant of a font. Some renderers may use different fonts for title and body text, which
+     * can be selected using this field.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FontVariant {}
+
+    /** Font variant is undefined. */
+    public static final int FONT_VARIANT_UNDEFINED = 0;
+
+    /** Font variant suited for title text. */
+    public static final int FONT_VARIANT_TITLE = 1;
+
+    /** Font variant suited for body text. */
+    public static final int FONT_VARIANT_BODY = 2;
+
+    /**
+     * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
+     * Spannable}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({SPAN_VALIGN_UNDEFINED, SPAN_VALIGN_BOTTOM, SPAN_VALIGN_TEXT_BASELINE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SpanVerticalAlignment {}
+
+    /** Alignment is undefined. */
+    public static final int SPAN_VALIGN_UNDEFINED = 0;
+
+    /**
+     * Align to the bottom of the line (descent of the largest text in this line). If there is no
+     * text in the line containing this image, this will align to the bottom of the line, where the
+     * line height is defined as the height of the largest image in the line.
+     */
+    public static final int SPAN_VALIGN_BOTTOM = 1;
+
+    /**
+     * Align to the baseline of the text. Note that if the line in the {@link Spannable} which
+     * contains this image does not contain any text, the effects of using this alignment are
+     * undefined.
+     */
+    public static final int SPAN_VALIGN_TEXT_BASELINE = 2;
 
     /**
      * Alignment of a text element.
@@ -389,6 +443,20 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setLetterSpacing(@NonNull EmProp.Builder letterSpacingBuilder) {
                 mImpl.setLetterSpacing(letterSpacingBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets the variant of a font. Some renderers may use different fonts for title and body
+             * text, which can be selected using this field. If not specified, defaults to "body".
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @TilesExperimental
+            @NonNull
+            public Builder setVariant(@FontVariant int variant) {
+                mImpl.setVariant(
+                        LayoutElementProto.FontVariantProp.newBuilder()
+                                .setValue(LayoutElementProto.FontVariant.forNumber(variant)));
                 return this;
             }
 
@@ -1203,6 +1271,21 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets alignment of this image within the line height of the surrounding {@link
+             * Spannable}. If undefined, defaults to SPAN_VALIGN_BOTTOM.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setAlignment(@SpanVerticalAlignment int alignment) {
+                mImpl.setAlignment(
+                        LayoutElementProto.SpanVerticalAlignmentProp.newBuilder()
+                                .setValue(
+                                        LayoutElementProto.SpanVerticalAlignment.forNumber(
+                                                alignment)));
+                return this;
+            }
+
             @Override
             @NonNull
             public SpanImage build() {
@@ -1225,6 +1308,24 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Span toSpanProto();
+
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Span fromSpanProto(@NonNull LayoutElementProto.Span proto) {
+            if (proto.hasText()) {
+                return SpanText.fromProto(proto.getText());
+            }
+            if (proto.hasImage()) {
+                return SpanImage.fromProto(proto.getImage());
+            }
+            throw new IllegalStateException("Proto was not a recognised instance of Span");
+        }
 
         /** Builder to create {@link Span} objects. */
         @SuppressLint("StaticFinalBuilder")
@@ -2296,6 +2397,43 @@ public final class LayoutElementBuilders {
         @NonNull
         LayoutElementProto.LayoutElement toLayoutElementProto();
 
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static LayoutElement fromLayoutElementProto(
+                @NonNull LayoutElementProto.LayoutElement proto) {
+            if (proto.hasColumn()) {
+                return Column.fromProto(proto.getColumn());
+            }
+            if (proto.hasRow()) {
+                return Row.fromProto(proto.getRow());
+            }
+            if (proto.hasBox()) {
+                return Box.fromProto(proto.getBox());
+            }
+            if (proto.hasSpacer()) {
+                return Spacer.fromProto(proto.getSpacer());
+            }
+            if (proto.hasText()) {
+                return Text.fromProto(proto.getText());
+            }
+            if (proto.hasImage()) {
+                return Image.fromProto(proto.getImage());
+            }
+            if (proto.hasArc()) {
+                return Arc.fromProto(proto.getArc());
+            }
+            if (proto.hasSpannable()) {
+                return Spannable.fromProto(proto.getSpannable());
+            }
+            throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
+        }
+
         /** Builder to create {@link LayoutElement} objects. */
         @SuppressLint("StaticFinalBuilder")
         interface Builder {
@@ -2319,6 +2457,32 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
+
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ArcLayoutElement fromArcLayoutElementProto(
+                @NonNull LayoutElementProto.ArcLayoutElement proto) {
+            if (proto.hasText()) {
+                return ArcText.fromProto(proto.getText());
+            }
+            if (proto.hasLine()) {
+                return ArcLine.fromProto(proto.getLine());
+            }
+            if (proto.hasSpacer()) {
+                return ArcSpacer.fromProto(proto.getSpacer());
+            }
+            if (proto.hasAdapter()) {
+                return ArcAdapter.fromProto(proto.getAdapter());
+            }
+            throw new IllegalStateException(
+                    "Proto was not a recognised instance of ArcLayoutElement");
+        }
 
         /** Builder to create {@link ArcLayoutElement} objects. */
         @SuppressLint("StaticFinalBuilder")
@@ -2393,102 +2557,231 @@ public final class LayoutElementBuilders {
     public static class FontStyles {
         private static final int LARGE_SCREEN_WIDTH_DP = 210;
 
-        private final int mScreenWidthDp;
+        private final DeviceParameters mDeviceParameters;
 
-        private FontStyles(int screenWidthDp) {
-            this.mScreenWidthDp = screenWidthDp;
+        private FontStyles(DeviceParameters deviceParameters) {
+            this.mDeviceParameters = deviceParameters;
         }
 
-        private boolean isLargeScreen() {
-            return mScreenWidthDp >= LARGE_SCREEN_WIDTH_DP;
+        private static boolean isLargeScreen(@NonNull DeviceParameters deviceParameters) {
+            return deviceParameters.getScreenWidthDp() >= LARGE_SCREEN_WIDTH_DP;
         }
 
         /**
          * Create a FontStyles instance, using the given device parameters to determine font sizes.
+         *
+         * @deprecated Use static functions, accepting a {@link DeviceParameters} instance instead
+         *     (e.g. {@link FontStyles#display1(DeviceParameters)}).
          */
+        @Deprecated
         @NonNull
         public static FontStyles withDeviceParameters(@NonNull DeviceParameters deviceParameters) {
-            return new FontStyles(deviceParameters.getScreenWidthDp());
+            return new FontStyles(deviceParameters);
+        }
+
+        /**
+         * Font style for large display text.
+         *
+         * @deprecated Use {@link FontStyles#display1(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder display1() {
+            return display1(mDeviceParameters);
+        }
+
+        /**
+         * Font style for medium display text.
+         *
+         * @deprecated Use {@link FontStyles#display2(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder display2() {
+            return display2(mDeviceParameters);
+        }
+
+        /**
+         * Font style for small display text.
+         *
+         * @deprecated Use {@link FontStyles#display3(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder display3() {
+            return display3(mDeviceParameters);
+        }
+
+        /**
+         * Font style for large title text.
+         *
+         * @deprecated Use {@link FontStyles#title1(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder title1() {
+            return title1(mDeviceParameters);
+        }
+
+        /**
+         * Font style for medium title text.
+         *
+         * @deprecated Use {@link FontStyles#title2(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder title2() {
+            return title2(mDeviceParameters);
+        }
+
+        /**
+         * Font style for small title text.
+         *
+         * @deprecated Use {@link FontStyles#title3(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder title3() {
+            return title3(mDeviceParameters);
+        }
+
+        /**
+         * Font style for large body text.
+         *
+         * @deprecated Use {@link FontStyles#body1(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder body1() {
+            return body1(mDeviceParameters);
+        }
+
+        /**
+         * Font style for medium body text.
+         *
+         * @deprecated Use {@link FontStyles#body2(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder body2() {
+            return body2(mDeviceParameters);
+        }
+
+        /**
+         * Font style for button text.
+         *
+         * @deprecated Use {@link FontStyles#button(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder button() {
+            return button(mDeviceParameters);
+        }
+
+        /**
+         * Font style for large caption text.
+         *
+         * @deprecated Use {@link FontStyles#caption1(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder caption1() {
+            return caption1(mDeviceParameters);
+        }
+
+        /**
+         * Font style for medium caption text.
+         *
+         * @deprecated Use {@link FontStyles#caption2(DeviceParameters)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public FontStyle.Builder caption2() {
+            return caption2(mDeviceParameters);
         }
 
         /** Font style for large display text. */
         @NonNull
-        public FontStyle.Builder display1() {
+        public static FontStyle.Builder display1(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 54 : 50));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 54 : 50));
         }
 
         /** Font style for medium display text. */
         @NonNull
-        public FontStyle.Builder display2() {
+        public static FontStyle.Builder display2(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 44 : 40));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 44 : 40));
         }
 
         /** Font style for small display text. */
         @NonNull
-        public FontStyle.Builder display3() {
+        public static FontStyle.Builder display3(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 34 : 30));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 34 : 30));
         }
 
         /** Font style for large title text. */
         @NonNull
-        public FontStyle.Builder title1() {
+        public static FontStyle.Builder title1(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 26 : 24));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 26 : 24));
         }
 
         /** Font style for medium title text. */
         @NonNull
-        public FontStyle.Builder title2() {
+        public static FontStyle.Builder title2(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 22 : 20));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 22 : 20));
         }
 
         /** Font style for small title text. */
         @NonNull
-        public FontStyle.Builder title3() {
+        public static FontStyle.Builder title3(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 18 : 16));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /** Font style for large body text. */
         @NonNull
-        public FontStyle.Builder body1() {
-            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 18 : 16));
+        public static FontStyle.Builder body1(@NonNull DeviceParameters deviceParameters) {
+            return FontStyle.builder()
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /** Font style for medium body text. */
         @NonNull
-        public FontStyle.Builder body2() {
-            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14));
+        public static FontStyle.Builder body2(@NonNull DeviceParameters deviceParameters) {
+            return FontStyle.builder()
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for button text. */
         @NonNull
-        public FontStyle.Builder button() {
+        public static FontStyle.Builder button(@NonNull DeviceParameters deviceParameters) {
             return FontStyle.builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14));
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for large caption text. */
         @NonNull
-        public FontStyle.Builder caption1() {
-            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14));
+        public static FontStyle.Builder caption1(@NonNull DeviceParameters deviceParameters) {
+            return FontStyle.builder()
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for medium caption text. */
         @NonNull
-        public FontStyle.Builder caption2() {
-            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 14 : 12));
+        public static FontStyle.Builder caption2(@NonNull DeviceParameters deviceParameters) {
+            return FontStyle.builder()
+                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
         }
     }
 }

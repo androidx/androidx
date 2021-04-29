@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -43,8 +44,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.core.internal.compat.quirk.IncompleteCameraListQuirk;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
@@ -396,7 +395,7 @@ public final class CameraX {
         } else {
             // Try to retrieve the CameraXConfig.Provider through the application's resources
             try {
-                Resources resources = context.getApplicationContext().getResources();
+                Resources resources = getApplicationContext(context).getResources();
                 String defaultProviderClassName =
                         resources.getString(
                                 R.string.androidx_camera_default_config_provider);
@@ -431,18 +430,42 @@ public final class CameraX {
     @Nullable
     private static Application getApplicationFromContext(@NonNull Context context) {
         Application application = null;
-        Context appContext = context.getApplicationContext();
+        Context appContext = getApplicationContext(context);
         while (appContext instanceof ContextWrapper) {
             if (appContext instanceof Application) {
                 application = (Application) appContext;
                 break;
             } else {
-                appContext = ((ContextWrapper) appContext).getBaseContext();
+                appContext = getBaseContext((ContextWrapper) appContext);
             }
         }
-
         return application;
     }
+
+    /**
+     * Gets the application context and preserves the attribution tag.
+     */
+    private static Context getApplicationContext(@NonNull Context context) {
+        Context applicationContext = context.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return applicationContext.createAttributionContext(context.getAttributionTag());
+        } else {
+            return applicationContext;
+        }
+    }
+
+    /**
+     * Gets the base context and preserves the attribution tag.
+     */
+    private static Context getBaseContext(ContextWrapper context) {
+        Context baseContext = context.getBaseContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return baseContext.createAttributionContext(context.getAttributionTag());
+        } else {
+            return baseContext;
+        }
+    }
+
 
     @NonNull
     private static ListenableFuture<CameraX> getInstance() {
@@ -551,7 +574,7 @@ public final class CameraX {
                 //  the context within the called method.
                 mAppContext = getApplicationFromContext(context);
                 if (mAppContext == null) {
-                    mAppContext = context.getApplicationContext();
+                    mAppContext = getApplicationContext(context);
                 }
                 CameraFactory.Provider cameraFactoryProvider =
                         mCameraXConfig.getCameraFactoryProvider(null);
@@ -595,12 +618,9 @@ public final class CameraX {
 
                 mCameraRepository.init(mCameraFactory);
 
-                // Only verify the devices might have the b/167201193
-                if (DeviceQuirks.get(IncompleteCameraListQuirk.class) != null) {
-                    // Please ensure only validate the camera at the last of the initialization.
-                    CameraValidator.validateCameras(mAppContext, mCameraRepository,
-                            availableCamerasLimiter);
-                }
+                // Please ensure only validate the camera at the last of the initialization.
+                CameraValidator.validateCameras(mAppContext, mCameraRepository,
+                        availableCamerasLimiter);
 
                 // Set completer to null if the init was successful.
                 setStateToInitialized();

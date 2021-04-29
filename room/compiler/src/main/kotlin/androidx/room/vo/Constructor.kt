@@ -21,6 +21,7 @@ import androidx.room.ext.T
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.isConstructor
 import androidx.room.compiler.processing.isMethod
+import androidx.room.compiler.processing.requireEnclosingTypeElement
 import com.squareup.javapoet.CodeBlock
 
 /**
@@ -45,13 +46,15 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
             element.isConstructor() -> {
                 builder.addStatement(
                     "$L = new $T($L)", outVar,
-                    element.enclosingTypeElement.className, args
+                    element.enclosingElement.className, args
                 )
             }
             element.isMethod() -> {
+                // TODO when we generate Kotlin code, we need to handle not having enclosing
+                //  elements.
                 builder.addStatement(
                     "$L = $T.$L($L)", outVar,
-                    element.enclosingTypeElement.className,
+                    element.requireEnclosingTypeElement().className,
                     element.name, args
                 )
             }

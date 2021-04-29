@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles;
 
-import android.app.Service;
-
 import androidx.annotation.NonNull;
 
 import java.util.List;
@@ -25,8 +23,8 @@ import java.util.List;
 /**
  * Tile update requester which uses multiple underlying update requesters.
  *
- * This can be used to dispatch a tile update request to both the viewer classes and to SysUI at the
- * same time.
+ * <p>This can be used to dispatch a tile update request to both the viewer classes and to SysUI at
+ * the same time.
  */
 class CompositeTileUpdateRequester implements TileUpdateRequester {
     private final List<TileUpdateRequester> mUpdateRequesters;
@@ -36,7 +34,7 @@ class CompositeTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
         for (TileUpdateRequester requester : mUpdateRequesters) {
             requester.requestUpdate(tileProvider);
         }

@@ -40,13 +40,17 @@
       android:icon="@drawable/ic_launcher">
 
     <meta-data
-        android:name="com.google.android.gms.car.application"
+        android:name="com.android.automotive"
         android:resource="@xml/automotive_app_desc"
         tools:ignore="MetadataTagInsideApplicationTag" />
 
     <meta-data
         android:name="androidx.car.app.theme"
         android:resource="@style/CarAppTheme"
+        tools:ignore="MetadataTagInsideApplicationTag" />
+
+    <meta-data android:name="androidx.car.app.minApiLevel"
+        android:value="1"
         tools:ignore="MetadataTagInsideApplicationTag" />
 
     <service
@@ -64,19 +68,6 @@
         android:name=".common.navigation.NavigationNotificationService"
         android:exported="true">
     </service>
-
-    <!-- TODO(b/184079723): investigate whether we need DeepLinkNotificationReceiver
-    in automotive samples -->
-    <receiver
-        android:name="androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver"
-        android:enabled="true"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="com.showcase.INTENT_ACTION_PHONE"/>
-        <action android:name="com.showcase.INTENT_ACTION_CANCEL_RESERVATION"/>
-        <action android:name="com.showcase.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP"/>
-      </intent-filter>
-    </receiver>
 
     <provider
         android:name="androidx.car.app.sample.showcase.common.textandicons.DelayedFileProvider"

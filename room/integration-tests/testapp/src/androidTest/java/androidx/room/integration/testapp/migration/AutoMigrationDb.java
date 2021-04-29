@@ -16,14 +16,12 @@
 
 package androidx.room.integration.testapp.migration;
 
-
-import android.database.sqlite.SQLiteDatabase;
-
 import androidx.annotation.NonNull;
 import androidx.room.AutoMigration;
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.DatabaseView;
 import androidx.room.DeleteColumn;
 import androidx.room.DeleteTable;
 import androidx.room.Entity;
@@ -38,6 +36,7 @@ import androidx.room.RenameColumn;
 import androidx.room.RenameTable;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.AutoMigrationSpec;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.List;
 
@@ -66,12 +65,16 @@ import java.util.List;
                 AutoMigrationDb.Entity21.class,
                 AutoMigrationDb.Entity22.class,
                 AutoMigrationDb.Entity23.class,
-                AutoMigrationDb.Entity24.class
+                AutoMigrationDb.Entity24.class,
+                AutoMigrationDb.Entity25.class
         },
         autoMigrations = {
                 @AutoMigration(
                         from = 1, to = 2, spec = AutoMigrationDb.SimpleAutoMigration1.class
                 )
+        },
+        views = {
+                AutoMigrationDb.Entity25Detail.class
         },
         exportSchema = true
 )
@@ -395,6 +398,28 @@ public abstract class AutoMigrationDb extends RoomDatabase {
         public int addedInV1;
     }
 
+    @DatabaseView(
+            "SELECT Entity25.id, Entity25.name, Entity25.entity1Id, Entity1.name AS userNameAndId "
+                    + "FROM Entity25 INNER JOIN Entity1 ON Entity25.entity1Id = Entity1.id ")
+    static class Entity25Detail {
+        public int id;
+        public String name;
+        public String entity1Id;
+    }
+
+    /**
+     * Change the view between versions to use Entity1 instead of Entity7.
+     */
+    @Entity
+    static class Entity25 {
+        public static final String TABLE_NAME = "Entity25";
+        @PrimaryKey
+        public int id;
+        public String name;
+        @ColumnInfo(defaultValue = "1")
+        public int entity1Id;
+    }
+
     @Dao
     interface AutoMigrationDao {
         @Query("SELECT * from Entity1 ORDER BY id ASC")
@@ -412,8 +437,14 @@ public abstract class AutoMigrationDb extends RoomDatabase {
     @RenameColumn(tableName = "Entity20", fromColumnName = "addedInV1",
             toColumnName = "renamedInV2")
     @DeleteColumn(tableName = "Entity15", columnName = "addedInV1")
+    @RenameColumn(
+            tableName = "Entity25",
+            fromColumnName = "entity7Id",
+            toColumnName = "entity1Id"
+    )
     static class SimpleAutoMigration1 implements AutoMigrationSpec {
-        void onPostMigrate(SQLiteDatabase db) {
+        @Override
+        public void onPostMigrate(@NonNull SupportSQLiteDatabase db) {
             // Do something
         }
     }

@@ -18,10 +18,13 @@ package androidx.wear.complications.data
 
 import android.content.Context
 import android.icu.util.TimeZone
+import android.support.wearable.complications.ComplicationText
+import android.support.wearable.complications.TimeFormatText
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.ParcelableSubject
 import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
@@ -53,7 +56,7 @@ public class AsWireComplicationTextTest {
         )
             .setText("^1 after lunch")
             .setDisplayAsNow(false)
-            .setMinimumUnit(TimeUnit.SECONDS)
+            .setMinimumTimeUnit(TimeUnit.SECONDS)
             .build()
 
         ParcelableSubject.assertThat(text.toWireComplicationText())
@@ -82,7 +85,7 @@ public class AsWireComplicationTextTest {
         )
             .setText("^1 before lunch")
             .setDisplayAsNow(false)
-            .setMinimumUnit(TimeUnit.SECONDS)
+            .setMinimumTimeUnit(TimeUnit.SECONDS)
             .build()
 
         ParcelableSubject.assertThat(text.toWireComplicationText())
@@ -182,6 +185,45 @@ public class FromWireComplicationTextTest {
         assertThat(text.isAlwaysEmpty()).isFalse()
         assertThat(text.returnsSameText(dateTimeMillis, dateTimeMillis + 20.seconds)).isTrue()
         assertThat(text.returnsSameText(dateTimeMillis, dateTimeMillis + 60.seconds)).isFalse()
+    }
+
+    @Test
+    public fun testGetMinimumTimeUnit_WithValidTimeDependentTextObject() {
+        val minimumTimeUnit = TimeUnit.SECONDS
+
+        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val text = TimeDifferenceComplicationText.Builder(
+            TimeDifferenceStyle.STOPWATCH,
+            CountUpTimeReference(referenceMillis)
+        )
+            .setMinimumTimeUnit(minimumTimeUnit)
+            .build()
+
+        assertThat(minimumTimeUnit).isEqualTo(text.getMinimumTimeUnit())
+    }
+
+    @Test
+    public fun testGetMinimumTimeUnit_WithoutTimeDependentTextObject() {
+        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val text = TimeDifferenceComplicationText.Builder(
+            TimeDifferenceStyle.STOPWATCH,
+            CountUpTimeReference(referenceMillis)
+        )
+            .build()
+
+        assertNull(text.getMinimumTimeUnit())
+    }
+
+    @Test
+    public fun testGetMinimumTimeUnit_WithWrongTimeDependentTextObject() {
+        val tft = TimeFormatText(
+            "E 'in' LLL",
+            ComplicationText.FORMAT_STYLE_DEFAULT,
+            null
+        )
+        val text = TimeDifferenceComplicationText(ComplicationText("test", tft))
+
+        assertNull(text.getMinimumTimeUnit())
     }
 
     private fun getResource() = ApplicationProvider.getApplicationContext<Context>().resources

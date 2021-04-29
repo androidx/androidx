@@ -26,6 +26,8 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":compose:integration-tests:demos:common") return true
     if (name == ":compose:lint:common") return true
     if (name == ":compose:lint:internal-lint-checks") return true
+    if (name == ":compose:test-utils") return true
+    if (name == ":test-screenshot") return true
     return false
 })
 

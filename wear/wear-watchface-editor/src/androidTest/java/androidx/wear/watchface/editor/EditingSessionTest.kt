@@ -21,50 +21,59 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.os.Parcel
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
+import android.view.Surface
+import android.view.SurfaceHolder
 import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.ProviderChooserIntent
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceHostApi
+import androidx.wear.watchface.WatchFaceImpl
+import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiEditorState
-import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -84,6 +93,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -100,9 +110,13 @@ private const val TIMEOUT_MILLIS = 500L
 private const val PROVIDER_CHOOSER_EXTRA_KEY = "PROVIDER_CHOOSER_EXTRA_KEY"
 private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
 
+private typealias WireComplicationProviderInfo =
+    android.support.wearable.complications.ComplicationProviderInfo
+
 /** Trivial "editor" which exposes the EditorSession for testing. */
 public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     public lateinit var editorSession: EditorSession
+    public lateinit var onCreateException: Exception
 
     public val listenableEditorSession: ListenableEditorSession by lazy {
         ListenableEditorSession(editorSession)
@@ -118,11 +132,15 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immediateCoroutineScope.launch {
-            editorSession = EditorSession.createOnWatchEditingSessionImpl(
-                this@OnWatchFaceEditingTestActivity,
-                intent!!,
-                providerInfoRetrieverProvider!!
-            )!!
+            try {
+                editorSession = EditorSession.createOnWatchEditingSessionImpl(
+                    this@OnWatchFaceEditingTestActivity,
+                    intent!!,
+                    providerInfoRetrieverProvider!!
+                )!!
+            } catch (e: Exception) {
+                onCreateException = e
+            }
         }
     }
 }
@@ -141,29 +159,32 @@ public open class TestProviderInfoRetrieverProvider :
             "ProviderApp1",
             "Provider1",
             providerIcon1,
-            ComplicationType.SHORT_TEXT.toWireComplicationType(),
+            ComplicationType.SHORT_TEXT,
             provider1
         ),
         RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
             "ProviderApp2",
             "Provider2",
             providerIcon2,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            ComplicationType.LONG_TEXT,
             provider2
         )
     )
     private val previewData = mapOf(
         provider1 to
             ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("Left").build()
+                PlainComplicationText.Builder("Left").build(),
+                ComplicationText.EMPTY
             ).build().asWireComplicationData(),
         provider2 to
             LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Right").build()
+                PlainComplicationText.Builder("Right").build(),
+                ComplicationText.EMPTY
             ).build().asWireComplicationData(),
         provider3 to
             LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Provider3").build()
+                PlainComplicationText.Builder("Provider3").build(),
+                ComplicationText.EMPTY
             ).build().asWireComplicationData(),
     )
 
@@ -172,13 +193,13 @@ public open class TestProviderInfoRetrieverProvider :
     override fun getProviderInfos(
         watchFaceComponent: ComponentName,
         ids: IntArray
-    ): Array<ComplicationProviderInfo>? {
+    ): Array<WireComplicationProviderInfo?>? {
         if (watchFaceComponent != this.watchFaceComponent) {
             return null
         }
-        return ArrayList<ComplicationProviderInfo>().apply {
+        return ArrayList<WireComplicationProviderInfo?>().apply {
             for (id in ids) {
-                providerData[id]?.let { add(it) }
+                add(providerData[id]?.toWireComplicationProviderInfo())
             }
         }.toTypedArray()
     }
@@ -200,6 +221,7 @@ public class TestComplicationHelperActivity : Activity() {
 
     public companion object {
         public var lastIntent: Intent? = null
+        public var resultIntent: Intent? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,23 +229,7 @@ public class TestComplicationHelperActivity : Activity() {
 
         lastIntent = intent
 
-        setResult(
-            123,
-            Intent().apply {
-                putExtra(
-                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                    ComplicationProviderInfo(
-                        "TestProvider3App",
-                        "TestProvider3",
-                        Icon.createWithBitmap(
-                            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-                        ),
-                        ComplicationType.LONG_TEXT.toWireComplicationType(),
-                        provider3
-                    )
-                )
-            }
-        )
+        setResult(123, resultIntent)
         finish()
     }
 }
@@ -600,7 +606,7 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val complicationType = ComplicationType.SHORT_TEXT
                 val complicationText = "TestText"
                 val mockBinder = Mockito.mock(IBinder::class.java)
 
@@ -611,13 +617,14 @@ public class EditorSessionTest {
                     val callback = it.arguments[2] as IPreviewComplicationDataCallback
                     callback.updateComplicationData(
                         ShortTextComplicationData.Builder(
-                            PlainComplicationText.Builder(complicationText).build()
+                            PlainComplicationText.Builder(complicationText).build(),
+                            ComplicationText.EMPTY
                         ).build().asWireComplicationData()
                     )
                     true
                 }.`when`(mockProviderInfoService).requestPreviewComplicationData(
                     eq(providerComponentName),
-                    eq(complicationType),
+                    eq(complicationType.toWireComplicationType()),
                     any()
                 )
 
@@ -659,24 +666,18 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val complicationType = ComplicationType.SHORT_TEXT
 
                 val providerInfoRetriever = ProviderInfoRetriever(mockProviderInfoService)
                 val previewComplication = editorSession.getPreviewData(
                     providerInfoRetriever,
                     // Construct a ComplicationProviderInfo with null providerComponentName.
                     ComplicationProviderInfo(
-                        Parcel.obtain().apply {
-                            writeBundle(
-                                Bundle().apply {
-                                    putString("app_name", "provider.app")
-                                    putString("provider_name", "provider")
-                                    putParcelable("provider_icon", providerIcon)
-                                    putInt("complication_type", complicationType)
-                                }
-                            )
-                            setDataPosition(0)
-                        }
+                        "provider.app",
+                        "provider",
+                        providerIcon,
+                        complicationType,
+                        null,
                     )
                 ) as ShortTextComplicationData
 
@@ -702,13 +703,13 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val complicationType = ComplicationType.SHORT_TEXT
 
                 `when`(mockProviderInfoService.apiVersion).thenReturn(1)
                 `when`(
                     mockProviderInfoService.requestPreviewComplicationData(
                         eq(providerComponentName),
-                        eq(complicationType),
+                        eq(complicationType.toWireComplicationType()),
                         any(IPreviewComplicationDataCallback::class.java)
                     )
                 ).thenReturn(false) // Triggers the ExecutionException.
@@ -737,6 +738,20 @@ public class EditorSessionTest {
     @Test
     public fun launchComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                ComplicationProviderInfo(
+                    "TestProvider3App",
+                    "TestProvider3",
+                    Icon.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                    ),
+                    ComplicationType.LONG_TEXT,
+                    provider3
+                ).toWireComplicationProviderInfo()
+            )
+        }
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -776,8 +791,71 @@ public class EditorSessionTest {
     }
 
     @Test
+    public fun launchComplicationProviderChooser_chooseEmpty() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {}
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            /**
+             * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
+             * the preview data) for [LEFT_COMPLICATION_ID].
+             */
+            assertTrue(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+            assertThat(editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID])
+                .isInstanceOf(EmptyComplicationData::class.java)
+        }
+    }
+
+    @Test
+    public fun launchComplicationProviderChooser_cancel() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = null
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            /**
+             * Invoke [TestComplicationHelperActivity] which will simulate the user canceling.
+             */
+            assertFalse(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+        }
+    }
+
+    @Test
     public fun launchComplicationProviderChooser_ComplicationConfigExtras() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                ComplicationProviderInfo(
+                    "TestProvider3App",
+                    "TestProvider3",
+                    Icon.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                    ),
+                    ComplicationType.LONG_TEXT,
+                    provider3
+                ).toWireComplicationProviderInfo()
+            )
+        }
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -1106,7 +1184,7 @@ public class EditorSessionTest {
                         "provider.app",
                         "provider",
                         providerIcon,
-                        ComplicationData.TYPE_SHORT_TEXT,
+                        ComplicationType.SHORT_TEXT,
                         providerComponentName
                     )
                 )
@@ -1120,5 +1198,137 @@ public class EditorSessionTest {
 
         // Ensure the providerInfoRetriever was closed despite forceClose() being called.
         assertThat(providerInfoRetriever.closed).isTrue()
+    }
+
+    @Test
+    public fun getComplicationsPreviewData() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        scenario.onActivity { activity ->
+            runBlocking {
+                val previewData = activity.editorSession.getComplicationsPreviewData()
+                assertThat(previewData.size).isEqualTo(2)
+                assertThat(previewData[LEFT_COMPLICATION_ID])
+                    .isInstanceOf(ShortTextComplicationData::class.java)
+                val leftComplicationData =
+                    previewData[LEFT_COMPLICATION_ID] as ShortTextComplicationData
+                assertThat(
+                    leftComplicationData.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("Left")
+
+                assertThat(previewData[RIGHT_COMPLICATION_ID])
+                    .isInstanceOf(LongTextComplicationData::class.java)
+                val rightComplicationData =
+                    previewData[RIGHT_COMPLICATION_ID] as LongTextComplicationData
+                assertThat(
+                    rightComplicationData.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("Right")
+            }
+        }
+    }
+
+    public fun getComplicationsPreviewData_withEmptyBackgroundComplication() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, backgroundComplication)
+        )
+
+        scenario.onActivity { activity ->
+            runBlocking {
+                val previewData = activity.editorSession.getComplicationsPreviewData()
+                assertThat(previewData.size).isEqualTo(2)
+                assertThat(previewData[LEFT_COMPLICATION_ID])
+                    .isInstanceOf(ShortTextComplicationData::class.java)
+                val leftComplicationData =
+                    previewData[LEFT_COMPLICATION_ID] as ShortTextComplicationData
+                assertThat(
+                    leftComplicationData.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("Left")
+
+                // TestProviderInfoRetrieverProvider isn't configured with a provider for the
+                // background complication which means it behaves as if it was an empty
+                // complication as far as fetching preview data is concerned.
+                assertThat(previewData[BACKGROUND_COMPLICATION_ID])
+                    .isInstanceOf(EmptyComplicationData::class.java)
+            }
+        }
+    }
+
+    @Test
+    public fun testComponentNameMismatch() {
+        val watchFaceId = WatchFaceId("ID-1")
+        val scenario: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
+            WatchFaceEditorContract().createIntent(
+                ApplicationProvider.getApplicationContext<Context>(),
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
+            ).apply {
+                component = ComponentName(
+                    ApplicationProvider.getApplicationContext<Context>(),
+                    OnWatchFaceEditingTestActivity::class.java
+                )
+            }
+        )
+
+        scenario.onActivity { activity ->
+            val mockWatchFaceHostApi = mock(WatchFaceHostApi::class.java)
+            val mockHandler = mock(Handler::class.java)
+            `when`(mockWatchFaceHostApi.getHandler()).thenReturn(mockHandler)
+            `when`(mockWatchFaceHostApi.getContext()).thenReturn(
+                ApplicationProvider.getApplicationContext<Context>()
+            )
+            val watchState = MutableWatchState().asWatchState()
+            val currentUserStyleRepository =
+                CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+            val mockSurfaceHolder = mock(SurfaceHolder::class.java)
+            val mockSurface = mock(Surface::class.java)
+            `when`(mockSurfaceHolder.surface).thenReturn(mockSurface)
+            `when`(mockSurfaceHolder.surfaceFrame).thenReturn(Rect())
+            `when`(mockSurface.isValid).thenReturn(false)
+
+            // Construct a WatchFaceImpl which creates a delegate whose ComponentName doesn't match
+            // testComponentName.
+            WatchFaceImpl(
+                WatchFace(
+                    WatchFaceType.DIGITAL,
+                    currentUserStyleRepository,
+                    object : Renderer.CanvasRenderer(
+                        mockSurfaceHolder,
+                        currentUserStyleRepository,
+                        watchState, CanvasType.SOFTWARE,
+                        16
+                    ) {
+                        override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+
+                        override fun renderHighlightLayer(
+                            canvas: Canvas,
+                            bounds: Rect,
+                            calendar: Calendar
+                        ) {
+                        }
+                    }
+                ),
+                mockWatchFaceHostApi,
+                watchState
+            )
+
+            assertThat(activity.onCreateException).isInstanceOf(IllegalStateException::class.java)
+            assertThat(activity.onCreateException.message).isEqualTo(
+                "Expected ComponentInfo{test.package/test.class} to be created but " +
+                    "got ComponentInfo{androidx.wear.watchface.editor.test/" +
+                    "android.app.Application}"
+            )
+        }
     }
 }

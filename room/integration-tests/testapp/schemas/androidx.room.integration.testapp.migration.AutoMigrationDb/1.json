@@ -787,9 +787,47 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Entity25",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `entity7Id` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "entity7Id",
+            "columnName": "entity7Id",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
-    "views": [],
+    "views": [
+      {
+        "viewName": "Entity25Detail",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT Entity25.id, Entity25.name, Entity25.entity7Id, Entity7.name AS userNameAndId FROM Entity25 INNER JOIN Entity7 ON Entity25.entity7Id = Entity7.id"
+      }
+    ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
       "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4effe9c46eb525253fa7650696035fa5')"

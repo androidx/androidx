@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Holder for ProtoTiles' TileRequest class, to be parceled and transferred to Wear.
+ * Holder for Tiles' TileRequest class, to be parceled and transferred to a Tile Provider.
  *
  * <p>All this does is to serialize TileRequest as a protobuf and transmit it.
  *

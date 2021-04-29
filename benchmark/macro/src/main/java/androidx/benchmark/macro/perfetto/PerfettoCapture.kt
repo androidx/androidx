@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
@@ -35,15 +36,16 @@ import java.io.File
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(29)
-public class PerfettoCapture {
-    private val helper = PerfettoHelper()
+@RequiresApi(21)
+public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_INT in 21..28) {
+
+    private val helper: PerfettoHelper = PerfettoHelper(unbundled)
 
     /**
      * Kill perfetto process, if it is running.
      */
     public fun cancel() {
-        if (helper.isPerfettoRunning) {
+        if (helper.isPerfettoRunning()) {
             helper.stopPerfetto()
         }
     }
@@ -76,7 +78,7 @@ public class PerfettoCapture {
     public fun stop(destinationPath: String) {
         if (!helper.stopCollecting(400, destinationPath)) {
             // TODO: move internal failures to be exceptions
-            throw IllegalStateException("Unable to store perfetto trace")
+            throw IllegalStateException("Unable to store perfetto trace in $destinationPath")
         }
     }
 }

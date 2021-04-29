@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    api project(":recyclerview:recyclerview")
+    api("androidx.recyclerview:recyclerview:1.2.0")
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
@@ -33,9 +33,9 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(JUNIT)
 }
 

@@ -26,7 +26,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FtsEntityBundle
-import androidx.room.vo.AutoMigrationResult
+import androidx.room.vo.AutoMigration
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -39,31 +39,33 @@ import javax.lang.model.element.Modifier
  */
 class AutoMigrationWriter(
     private val dbElement: XElement,
-    val autoMigrationResult: AutoMigrationResult
-) : ClassWriter(autoMigrationResult.implTypeName) {
-    private val addedColumns = autoMigrationResult.schemaDiff.addedColumns
-    private val addedTables = autoMigrationResult.schemaDiff.addedTables
-    private val renamedTables = autoMigrationResult.schemaDiff.renamedTables
-    private val complexChangedTables = autoMigrationResult.schemaDiff.complexChangedTables
-    private val deletedTables = autoMigrationResult.schemaDiff.deletedTables
+    val autoMigration: AutoMigration
+) : ClassWriter(autoMigration.implTypeName) {
+    private val addedColumns = autoMigration.schemaDiff.addedColumns
+    private val addedTables = autoMigration.schemaDiff.addedTables
+    private val renamedTables = autoMigration.schemaDiff.renamedTables
+    private val complexChangedTables = autoMigration.schemaDiff.complexChangedTables
+    private val deletedTables = autoMigration.schemaDiff.deletedTables
 
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
-        val builder = TypeSpec.classBuilder(autoMigrationResult.implTypeName)
+        val builder = TypeSpec.classBuilder(autoMigration.implTypeName)
         builder.apply {
             addOriginatingElement(dbElement)
             superclass(RoomTypeNames.MIGRATION)
 
-            if (autoMigrationResult.specClassName != null) {
-                builder.addField(
+            if (autoMigration.specClassName != null) {
+                val callbackField =
                     FieldSpec.builder(
-                        autoMigrationResult.specClassName,
+                        RoomTypeNames.AUTO_MIGRATION_SPEC,
                         "callback",
                         Modifier.PRIVATE,
                         Modifier.FINAL
-                    ).initializer(
-                        "new $T()", autoMigrationResult.specClassName
-                    ).build()
-                )
+                    ).apply {
+                        if (!autoMigration.isSpecProvided) {
+                            initializer("new $T()", autoMigration.specClassName)
+                        }
+                    }
+                builder.addField(callbackField.build())
             }
             addMethod(createConstructor())
             addMethod(createMigrateMethod())
@@ -79,7 +81,20 @@ class AutoMigrationWriter(
     private fun createConstructor(): MethodSpec {
         return MethodSpec.constructorBuilder().apply {
             addModifiers(Modifier.PUBLIC)
-            addStatement("super($L, $L)", autoMigrationResult.from, autoMigrationResult.to)
+            addStatement(
+                "super($L, $L)",
+                autoMigration.from,
+                autoMigration.to
+            )
+            if (autoMigration.isSpecProvided) {
+                addParameter(
+                    ParameterSpec.builder(
+                        RoomTypeNames.AUTO_MIGRATION_SPEC,
+                        "callback"
+                    ).addAnnotation(NonNull::class.java).build()
+                )
+                addStatement("this.callback = callback")
+            }
         }.build()
     }
 
@@ -95,8 +110,8 @@ class AutoMigrationWriter(
                 addAnnotation(Override::class.java)
                 addModifiers(Modifier.PUBLIC)
                 returns(TypeName.VOID)
-                addAutoMigrationResultToMigrate(this)
-                if (autoMigrationResult.specClassName != null) {
+                addMigrationStatements(this)
+                if (autoMigration.specClassName != null) {
                     addStatement("callback.onPostMigrate(database)")
                 }
             }
@@ -110,9 +125,33 @@ class AutoMigrationWriter(
      *
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
-    private fun addAutoMigrationResultToMigrate(migrateBuilder: MethodSpec.Builder) {
+    private fun addMigrationStatements(migrateBuilder: MethodSpec.Builder) {
+        addDropViewStatements(migrateBuilder)
         addSimpleChangeStatements(migrateBuilder)
         addComplexChangeStatements(migrateBuilder)
+        addRecreateViewStatements(migrateBuilder)
+    }
+
+    /**
+     * Adds SQL statements to drop all views of the database in the 'from' version.
+     *
+     * @param migrateBuilder Builder for the migrate() function to be generated
+     */
+    private fun addDropViewStatements(migrateBuilder: MethodSpec.Builder) {
+        autoMigration.schemaDiff.fromViews.forEach { view ->
+            addDatabaseExecuteSqlStatement(migrateBuilder, "DROP VIEW ${view.viewName}")
+        }
+    }
+
+    /**
+     * Adds SQL statements to create all views of the database in the 'to' version.
+     *
+     * @param migrateBuilder Builder for the migrate() function to be generated
+     */
+    private fun addRecreateViewStatements(migrateBuilder: MethodSpec.Builder) {
+        autoMigration.schemaDiff.toViews.forEach { view ->
+            addDatabaseExecuteSqlStatement(migrateBuilder, view.createView())
+        }
     }
 
     /**

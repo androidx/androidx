@@ -169,6 +169,27 @@ public sealed class Renderer(
             }
         }
 
+    /**
+     * Accessibility [ContentDescriptionLabel] for any rendered watch face elements other than the
+     * time and [Complication]s which are generated automatically.
+     *
+     * The [Int] in the `Pair<Int, ContentDescriptionLabel>` is used to sort the
+     * [ContentDescriptionLabel]s. Note the time piece has an accessibility traversal index of -1
+     * and each complication's index is defined by its [Complication.accessibilityTraversalIndex].
+     */
+    public var additionalContentDescriptionLabels:
+        Collection<Pair<Int, ContentDescriptionLabel>> = emptyList()
+            set(value) {
+                field = value
+                for (pair in value) {
+                    require(pair.first >= 0) {
+                        "Each accessibility label index in additionalContentDescriptionLabels " +
+                            "must be >= 0"
+                    }
+                }
+                watchFaceHostApi.updateContentDescriptionLabels()
+            }
+
     /** Called when the Renderer is destroyed. */
     @UiThread
     public open fun onDestroy() {
@@ -577,12 +598,15 @@ public sealed class Renderer(
         }
 
         /**
-         * Sets our GL context to be the current one. This method *must* be called before any OpenGL
-         * APIs are used.
+         * Sets our GL context to be the current one. The library does this on your behalf before
+         * calling [onGlContextCreated] or [render]. If you need to make any OpenGL calls outside
+         * those functions, this method *must* be called first.
+         *
+         * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
          */
-        private fun makeContextCurrent() {
+        public fun makeContextCurrent() {
             if (!EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-                throw RuntimeException("eglMakeCurrent failed")
+                throw IllegalStateException("eglMakeCurrent failed")
             }
         }
 
@@ -625,7 +649,10 @@ public sealed class Renderer(
             initDone = true
         }
 
-        /** Called when a new GL context is created. It's safe to use GL APIs in this method. */
+        /**
+         * Called when a new GL context is created. It's safe to use GL APIs in this method. Note
+         * [makeContextCurrent] is called by the library before this method.
+         */
         @UiThread
         public open fun onGlContextCreated() {
         }
@@ -739,7 +766,8 @@ public sealed class Renderer(
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
          * where possible. For correct behavior this function must use the supplied [Calendar]
-         * in favor of any other ways of getting the time.
+         * in favor of any other ways of getting the time. Note [makeContextCurrent] is called by
+         * the library before this method.
          *
          * @param calendar The current [Calendar]
          */

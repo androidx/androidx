@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.builders.ResourceBuilders;
+import androidx.wear.tiles.proto.ResourceProto;
 
 /** Utility class to get ResourceAccessors populated with standard options. */
 public class StandardResourceAccessors {
@@ -31,16 +31,17 @@ public class StandardResourceAccessors {
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *
+     * @param protoResources ProtoLayout resources for the current layout.
      * @param appContext Context for the app that both owns the resources and displays the layout.
-     * @param tileResources Resources for the current layout.
      */
     @NonNull
     public static ResourceAccessors.Builder forLocalApp(
-            @NonNull Context appContext, @NonNull ResourceBuilders.Resources tileResources) {
+            @NonNull ResourceProto.Resources protoResources, @NonNull Context appContext) {
         AndroidResourceAccessor androidResourceAccessor =
                 new AndroidResourceAccessor(appContext.getResources());
+
         InlineResourceAccessor inlineResourceAccessor = new InlineResourceAccessor(appContext);
-        return ResourceAccessors.builder(tileResources.toProto())
+        return ResourceAccessors.builder(protoResources)
                 .setAndroidImageResourceByResIdAccessor(androidResourceAccessor)
                 .setInlineImageResourceAccessor(inlineResourceAccessor);
     }
@@ -50,19 +51,22 @@ public class StandardResourceAccessors {
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *
-     * @param hostAppContext Context for the app hosting the renderer displaying the layout.
-     * @param tileResources Resources for the current layout.
+     * @param protoResources ProtoLayout resources for the current layout.
+     * @param servicePackageName Package name for the service that owns the resources.
      * @param serviceAndroidResources Android resources from the service.
+     * @param hostAppContext Context for the app hosting the renderer displaying the layout.
      */
     @NonNull
     public static ResourceAccessors.Builder forRemoteService(
-            @NonNull Context hostAppContext,
-            @NonNull ResourceBuilders.Resources tileResources,
-            @NonNull Resources serviceAndroidResources) {
+            @NonNull ResourceProto.Resources protoResources,
+            @NonNull String servicePackageName,
+            @NonNull Resources serviceAndroidResources,
+            @NonNull Context hostAppContext) {
         AndroidResourceAccessor androidResourceAccessor =
                 new AndroidResourceAccessor(serviceAndroidResources);
+
         InlineResourceAccessor inlineResourceAccessor = new InlineResourceAccessor(hostAppContext);
-        return ResourceAccessors.builder(tileResources.toProto())
+        return ResourceAccessors.builder(protoResources)
                 .setAndroidImageResourceByResIdAccessor(androidResourceAccessor)
                 .setInlineImageResourceAccessor(inlineResourceAccessor);
     }

@@ -50,11 +50,15 @@ internal class TestWatchFaceService(
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
-    var singleTapCount = 0
-    var complicationSingleTapped: Int? = null
+    /** The ids of the complications that have been tapped. */
+    val tappedComplicationIds: List<Int>
+        get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var lastUserStyle: UserStyle? = null
+
+    /** A mutable list of the ids of the complications that have been tapped. */
+    private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
 
     init {
         currentUserStyleRepository.addUserStyleChangeListener(
@@ -68,8 +72,7 @@ internal class TestWatchFaceService(
         complicationsManager.addTapListener(
             object : ComplicationsManager.TapCallback {
                 override fun onComplicationTapped(complicationId: Int) {
-                    complicationSingleTapped = complicationId
-                    singleTapCount++
+                    mutableTappedComplicationIds.add(complicationId)
                 }
             })
     }
@@ -82,7 +85,7 @@ internal class TestWatchFaceService(
     }
 
     fun clearTappedState() {
-        complicationSingleTapped = null
+        mutableTappedComplicationIds.clear()
     }
 
     init {

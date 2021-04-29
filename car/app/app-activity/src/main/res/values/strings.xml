@@ -15,8 +15,33 @@
   -->
 
 <resources>
-    <string name="error_message_key">error message key</string>
-    <string name="error_type_key">Error type key</string>
-    <string name="exit">Exit</string>
-    <string name="redirect">PlayStore</string>
+    <!-- Action titles -->
+    <!-- Title of a button that allows the user to exit the application [CHAR_LIMIT=50] -->
+    <string name="error_action_finish">Exit application</string>
+    <!-- Title of a button that allows the user to check for updates [CHAR_LIMIT=50] -->
+    <string name="error_action_update_host">Check for updates</string>
+
+    <!-- Error messages -->
+    <!-- Message displayed when there is an error on the client side [CHAR_LIMIT=200] -->
+    <string name="error_message_client_side_error">Application error. Please close and try
+        again. If the problem persists, please contact the application developer.</string>
+    <!-- Message displayed when there is an error on the host side [CHAR_LIMIT=200] -->
+    <string name="error_message_host_error">System error. Please close and try again.
+        If the problem persists, please contact the device manufacturer.</string>
+    <!-- Message displayed when the connection to the host is interrupted [CHAR_LIMIT=200] -->
+    <string name="error_message_host_connection_lost">Unable to connect with the system. Please
+        close and try again. If the problem persists, please contact the system
+        manufacturer.</string>
+    <!-- Message displayed when no host is found in the system [CHAR_LIMIT=200] -->
+    <string name="error_message_host_not_found">System requires update. Please check for
+        updates, or contact your device manufacturer.</string>
+    <!-- Message displayed when the host is not compatible with this client [CHAR_LIMIT=200] -->
+    <string name="error_message_host_incompatible">System requires update. Please check for
+        updates, or contact your device manufacturer.</string>
+    <!-- Message displayed when there are multiple hosts in the system [CHAR_LIMIT=200] -->
+    <string name="error_message_multiple_hosts">Incompatible system. Please contact your device
+        manufacturer.</string>
+    <!-- Message displayed when an unknown error is detected [CHAR_LIMIT=200] -->
+    <string name="error_message_unknown_error">Unknown error detected. Please close the app and try
+        again. If the problem persists, please contact the application developer.</string>
 </resources>

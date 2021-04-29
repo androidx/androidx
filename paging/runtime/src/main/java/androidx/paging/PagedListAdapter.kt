@@ -194,10 +194,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     /**
      * Called when the current PagedList is updated.
      *
-     * This may be dispatched as part of [.submitList] if a background diff isn't
+     * This may be dispatched as part of [submitList] if a background diff isn't
      * needed (such as when the first list is passed, or the list is cleared). In either case,
      * PagedListAdapter will simply call
-     * [notifyItemRangeInserted/Removed(0, mPreviousSize)][.notifyItemRangeInserted].
+     * [notifyItemRangeInserted/Removed(0, mPreviousSize)][notifyItemRangeInserted].
      *
      * This method will *not*be called when the Adapter switches from presenting a PagedList
      * to a snapshot version of the PagedList during a diff. This means you cannot observe each
@@ -217,7 +217,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     /**
      * Called when the current PagedList is updated.
      *
-     * This may be dispatched as part of [.submitList] if a background diff isn't
+     * This may be dispatched as part of [submitList] if a background diff isn't
      * needed (such as when the first list is passed, or the list is cleared). In either case,
      * PagedListAdapter will simply call
      * [notifyItemRangeInserted/Removed(0, mPreviousSize)][notifyItemRangeInserted].

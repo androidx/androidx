@@ -264,9 +264,32 @@ public class CurrentUserStyleRepositoryTest {
             userStyleRepository.schema
         )
 
-        val customValue = userStyle.selectedOptions[customStyleSetting]!! as
-            UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption
+        val customValue = userStyle.selectedOptions[customStyleSetting]!! as CustomValueOption
         assertThat(customValue.customValue.decodeToString()).isEqualTo("TEST 123")
+    }
+
+    @Test
+    public fun userStyle_multiple_ComplicationsUserStyleSetting_notAllowed() {
+        val customStyleSetting1 = CustomValueUserStyleSetting(
+            listOf(WatchFaceLayer.BASE),
+            "default".encodeToByteArray()
+        )
+        val customStyleSetting2 = CustomValueUserStyleSetting(
+            listOf(WatchFaceLayer.BASE),
+            "default".encodeToByteArray()
+        )
+
+        try {
+            UserStyleSchema(
+                listOf(customStyleSetting1, customStyleSetting2)
+            )
+            fail(
+                "Constructing a UserStyleSchema with more than one ComplicationsUserStyleSetting " +
+                    "should fail"
+            )
+        } catch (e: Exception) {
+            // expected
+        }
     }
 
     @Test
@@ -308,8 +331,7 @@ public class CurrentUserStyleRepositoryTest {
 
         userStyleRepository.userStyle = UserStyle(
             mapOf(
-                customStyleSetting to
-                    CustomValueUserStyleSetting.CustomValueOption("test".encodeToByteArray())
+                customStyleSetting to CustomValueOption("test".encodeToByteArray())
             )
         )
 
@@ -370,9 +392,6 @@ public class CurrentUserStyleRepositoryTest {
             .isEqualTo("12.3")
         assertThat(LongRangeUserStyleSetting.LongRangeOption(123).toString())
             .isEqualTo("123")
-        assertThat(
-            CustomValueUserStyleSetting.CustomValueOption("test".encodeToByteArray())
-                .toString()
-        ).isEqualTo("test")
+        assertThat(CustomValueOption("test".encodeToByteArray()).toString()).isEqualTo("test")
     }
 }

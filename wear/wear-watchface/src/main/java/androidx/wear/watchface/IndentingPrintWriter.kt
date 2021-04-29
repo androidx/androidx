@@ -36,7 +36,7 @@ internal class IndentingPrintWriter(
     /** Mutable version of current indent  */
     private val indentBuilder = StringBuilder()
 
-    /** Cache of current [.indentBuilder] value  */
+    /** Cache of current [indentBuilder] value  */
     private var currentIndent: CharArray? = null
 
     /**

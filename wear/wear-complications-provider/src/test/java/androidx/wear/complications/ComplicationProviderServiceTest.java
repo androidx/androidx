@@ -31,10 +31,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.complications.data.ComplicationData;
+import androidx.wear.complications.data.ComplicationText;
 import androidx.wear.complications.data.ComplicationType;
 import androidx.wear.complications.data.LongTextComplicationData;
 import androidx.wear.complications.data.PlainComplicationText;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,18 +70,20 @@ public class ComplicationProviderServiceTest {
     private ComplicationProviderService mTestService = new ComplicationProviderService() {
 
         @Override
-        public void onComplicationUpdate(
-                int complicationId,
-                @NonNull ComplicationType type,
-                @NonNull ComplicationUpdateListener callback) {
+        public void onComplicationRequest(
+                @NotNull ComplicationRequest request,
+                @NonNull ComplicationRequestListener listener) {
             try {
-                callback.onUpdateComplication(
+                listener.onComplicationData(
                         new LongTextComplicationData.Builder(
-                                new PlainComplicationText.Builder("hello " + complicationId).build()
+                                new PlainComplicationText.Builder(
+                                        "hello " + request.getComplicationId()
+                                ).build(),
+                                ComplicationText.EMPTY
                         ).build()
                 );
             } catch (RemoteException e) {
-                Log.e(TAG, "onComplicationUpdate failed with error: ", e);
+                Log.e(TAG, "onComplicationRequest failed with error: ", e);
             }
         }
 
@@ -90,7 +94,8 @@ public class ComplicationProviderServiceTest {
                 return null;
             }
             return new LongTextComplicationData.Builder(
-                    new PlainComplicationText.Builder("hello preview").build()
+                    new PlainComplicationText.Builder("hello preview").build(),
+                    ComplicationText.EMPTY
             ).build();
         }
     };
@@ -98,15 +103,14 @@ public class ComplicationProviderServiceTest {
     private ComplicationProviderService mNoUpdateTestService = new ComplicationProviderService() {
 
         @Override
-        public void onComplicationUpdate(
-                int complicationId,
-                @NonNull ComplicationType type,
-                @NonNull ComplicationUpdateListener callback) {
+        public void onComplicationRequest(
+                @NotNull ComplicationRequest request,
+                @NonNull ComplicationRequestListener listener) {
             try {
                 // Null means no update required.
-                callback.onUpdateComplication(null);
+                listener.onComplicationData(null);
             } catch (RemoteException e) {
-                Log.e(TAG, "onComplicationUpdate failed with error: ", e);
+                Log.e(TAG, "onComplicationRequest failed with error: ", e);
             }
         }
 
@@ -114,7 +118,8 @@ public class ComplicationProviderServiceTest {
         @Override
         public ComplicationData getPreviewData(@NonNull ComplicationType type) {
             return new LongTextComplicationData.Builder(
-                    new PlainComplicationText.Builder("hello preview").build()
+                    new PlainComplicationText.Builder("hello preview").build(),
+                    ComplicationText.EMPTY
             ).build();
         }
     };
@@ -132,7 +137,7 @@ public class ComplicationProviderServiceTest {
     }
 
     @Test
-    public void testOnComplicationUpdate() throws Exception {
+    public void testOnComplicationRequest() throws Exception {
         int id = 123;
         mComplicationProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
@@ -148,7 +153,7 @@ public class ComplicationProviderServiceTest {
     }
 
     @Test
-    public void testOnComplicationUpdateNoUpdateRequired() throws Exception {
+    public void testOnComplicationRequestNoUpdateRequired() throws Exception {
         int id = 123;
         mNoUpdateComplicationProvider.onUpdate(
                 id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);

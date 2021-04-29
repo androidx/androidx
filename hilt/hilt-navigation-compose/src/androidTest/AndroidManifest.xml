@@ -19,6 +19,6 @@
           package="androidx.hilt.navigation.compose">
     <application>
         <activity
-            android:name="androidx.hilt.navigation.compose.HiltNavGraphViewModelComposeTest$TestActivity" />
+            android:name="androidx.hilt.navigation.compose.HiltViewModelComposeTest$TestActivity" />
     </application>
 </manifest>

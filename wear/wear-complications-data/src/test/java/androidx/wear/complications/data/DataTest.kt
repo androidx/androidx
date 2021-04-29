@@ -60,9 +60,11 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun shortTextComplicationData() {
-        val data = ShortTextComplicationData.Builder("text".complicationText)
+        val data = ShortTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
             .setTitle("title".complicationText)
-            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -77,9 +79,11 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun longTextComplicationData() {
-        val data = LongTextComplicationData.Builder("text".complicationText)
+        val data = LongTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
             .setTitle("title".complicationText)
-            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -94,9 +98,11 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun rangedValueComplicationData() {
-        val data = RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+        val data = RangedValueComplicationData.Builder(
+            value = 95f, min = 0f, max = 100f,
+            contentDescription = "content description".complicationText
+        )
             .setTitle("battery".complicationText)
-            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -314,7 +320,7 @@ public class TapActionTest {
     @Test
     public fun shortTextComplicationData() {
         assertThat(
-            ShortTextComplicationData.Builder("text".complicationText)
+            ShortTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -323,7 +329,7 @@ public class TapActionTest {
     @Test
     public fun longTextComplicationData() {
         assertThat(
-            LongTextComplicationData.Builder("text".complicationText)
+            LongTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -332,7 +338,10 @@ public class TapActionTest {
     @Test
     public fun rangedValueComplicationData() {
         assertThat(
-            RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+            RangedValueComplicationData.Builder(
+                value = 95f, min = 0f, max = 100f,
+                contentDescription = ComplicationText.EMPTY
+            )
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -383,7 +392,9 @@ public class ValidTimeRangeTest {
 
     @Test
     public fun shortTextComplicationData() {
-        val data = ShortTextComplicationData.Builder("text".complicationText)
+        val data = ShortTextComplicationData.Builder(
+            "text".complicationText, ComplicationText.EMPTY
+        )
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -398,7 +409,7 @@ public class ValidTimeRangeTest {
 
     @Test
     public fun longTextComplicationData() {
-        val data = LongTextComplicationData.Builder("text".complicationText)
+        val data = LongTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -413,7 +424,10 @@ public class ValidTimeRangeTest {
 
     @Test
     public fun rangedValueComplicationData() {
-        val data = RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+        val data = RangedValueComplicationData.Builder(
+            value = 95f, min = 0f, max = 100f,
+            contentDescription = ComplicationText.EMPTY
+        )
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())

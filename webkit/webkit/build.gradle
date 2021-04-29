@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Hamcrest matchers:
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CONTRIB, excludes.espresso)
 }
 
 ext {

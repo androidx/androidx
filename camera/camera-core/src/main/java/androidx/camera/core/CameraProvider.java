@@ -50,6 +50,11 @@ public interface CameraProvider {
      * selected through
      * {@link androidx.camera.core.CameraXConfig.Builder#setAvailableCamerasLimiter(CameraSelector)}
      *
+     * <p>While iterating through all the available {@link CameraInfo}, if one of them meets some
+     * predefined requirements, a {@link CameraSelector} that uniquely identifies its camera
+     * can be retrieved using {@link CameraInfo#getCameraSelector()}, which can then be used to bind
+     * {@linkplain UseCase use cases} to that camera.
+     *
      * @return A list of {@link CameraInfo} instances for the available cameras.
      */
     @NonNull

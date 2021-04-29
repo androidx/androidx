@@ -79,7 +79,8 @@ public abstract class EmojiSpan extends ReplacementSpan {
 
     @Override
     public int getSize(@NonNull final Paint paint,
-            @SuppressLint("UnknownNullness") final CharSequence text,
+            @SuppressLint("UnknownNullness") @SuppressWarnings("MissingNullability")
+            final CharSequence text,
             final int start,
             final int end,
             @Nullable final Paint.FontMetricsInt fm) {

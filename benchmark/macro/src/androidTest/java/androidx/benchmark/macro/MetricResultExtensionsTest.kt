@@ -28,9 +28,9 @@ import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class MetricResultExtensionsTest {
+public class MetricResultExtensionsTest {
     @Test
-    fun mergeToMetricResults_trivial() {
+    public fun mergeToMetricResults_trivial() {
         assertEquals(
             expected = listOf(
                 // note, bar sorted first
@@ -44,7 +44,7 @@ class MetricResultExtensionsTest {
     }
 
     @Test
-    fun mergeToMetricResults_standard() {
+    public fun mergeToMetricResults_standard() {
         assertEquals(
             expected = listOf(
                 // note, bar sorted first
@@ -60,7 +60,7 @@ class MetricResultExtensionsTest {
     }
 
     @Test
-    fun mergeToMetricResults_missingKey() {
+    public fun mergeToMetricResults_missingKey() {
         val exception = assertFailsWith<IllegalStateException> {
             listOf(
                 mapOf("foo" to 100L, "bar" to 101L),

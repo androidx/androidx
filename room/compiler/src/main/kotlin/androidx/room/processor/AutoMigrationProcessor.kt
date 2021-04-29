@@ -18,30 +18,28 @@ package androidx.room.processor
 
 import androidx.room.DeleteColumn
 import androidx.room.DeleteTable
+import androidx.room.ProvidedAutoMigrationSpec
 import androidx.room.RenameColumn
 import androidx.room.RenameTable
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
-import androidx.room.migration.bundle.SchemaBundle.deserialize
 import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS
 import androidx.room.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
 import androidx.room.processor.ProcessorErrors.autoMigrationElementMustImplementSpec
 import androidx.room.processor.ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom
 import androidx.room.util.DiffException
 import androidx.room.util.SchemaDiffer
-import androidx.room.vo.AutoMigrationResult
-import java.io.File
+import androidx.room.vo.AutoMigration
 
 // TODO: (b/183435544) Support downgrades in AutoMigrations.
 class AutoMigrationProcessor(
     val element: XTypeElement,
     val context: Context,
-    val from: Int,
-    val to: Int,
     val spec: XType,
-    val latestDbSchema: DatabaseBundle
+    val fromSchemaBundle: DatabaseBundle,
+    val toSchemaBundle: DatabaseBundle
 ) {
     /**
      * Retrieves two schemas of the same database provided in the @AutoMigration annotation,
@@ -49,20 +47,26 @@ class AutoMigrationProcessor(
      *
      * @return the AutoMigrationResult containing the schema changes detected
      */
-    fun process(): AutoMigrationResult? {
+    fun process(): AutoMigration? {
+        val isSpecProvided = spec.typeElement?.hasAnnotation(
+            ProvidedAutoMigrationSpec::class
+        ) ?: false
         val specElement = if (!spec.isTypeOf(Any::class)) {
             val typeElement = spec.typeElement
+
             if (typeElement == null || typeElement.isInterface() || typeElement.isAbstract()) {
                 context.logger.e(element, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
                 return null
             }
 
-            val constructors = element.getConstructors()
-            context.checker.check(
-                constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
-                element,
-                ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
-            )
+            if (!isSpecProvided) {
+                val constructors = element.getConstructors()
+                context.checker.check(
+                    constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
+                    element,
+                    ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
+                )
+            }
 
             context.checker.check(
                 typeElement.enclosingTypeElement == null || typeElement.isStatic(),
@@ -85,31 +89,20 @@ class AutoMigrationProcessor(
             null
         }
 
-        if (to <= from) {
+        if (toSchemaBundle.version <= fromSchemaBundle.version) {
             context.logger.e(
-                autoMigrationToVersionMustBeGreaterThanFrom(to, from)
+                autoMigrationToVersionMustBeGreaterThanFrom(
+                    toSchemaBundle.version,
+                    fromSchemaBundle.version
+                )
             )
             return null
-        }
-
-        val validatedFromSchemaFile = getValidatedSchemaFile(from) ?: return null
-        val fromSchemaBundle = validatedFromSchemaFile.inputStream().use {
-            deserialize(it).database
-        }
-
-        val validatedToSchemaFile = getValidatedSchemaFile(to) ?: return null
-        val toSchemaBundle = if (to == latestDbSchema.version) {
-            latestDbSchema
-        } else {
-            validatedToSchemaFile.inputStream().use {
-                deserialize(it).database
-            }
         }
 
         val specClassName = specElement?.className?.simpleName()
         val deleteColumnEntries = specElement?.let { element ->
             element.getAnnotations(DeleteColumn::class).map {
-                AutoMigrationResult.DeletedColumn(
+                AutoMigration.DeletedColumn(
                     tableName = it.value.tableName,
                     columnName = it.value.columnName
                 )
@@ -118,7 +111,7 @@ class AutoMigrationProcessor(
 
         val deleteTableEntries = specElement?.let { element ->
             element.getAnnotations(DeleteTable::class).map {
-                AutoMigrationResult.DeletedTable(
+                AutoMigration.DeletedTable(
                     deletedTableName = it.value.tableName
                 )
             }
@@ -126,7 +119,7 @@ class AutoMigrationProcessor(
 
         val renameTableEntries = specElement?.let { element ->
             element.getAnnotations(RenameTable::class).map {
-                AutoMigrationResult.RenamedTable(
+                AutoMigration.RenamedTable(
                     originalTableName = it.value.fromTableName,
                     newTableName = it.value.toTableName
                 )
@@ -135,7 +128,7 @@ class AutoMigrationProcessor(
 
         val renameColumnEntries = specElement?.let { element ->
             element.getAnnotations(RenameColumn::class).map {
-                AutoMigrationResult.RenamedColumn(
+                AutoMigration.RenamedColumn(
                     tableName = it.value.tableName,
                     originalColumnName = it.value.fromColumnName,
                     newColumnName = it.value.toColumnName
@@ -158,31 +151,13 @@ class AutoMigrationProcessor(
             return null
         }
 
-        return AutoMigrationResult(
+        return AutoMigration(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
             schemaDiff = schemaDiff,
-            specElement = specElement
+            specElement = specElement,
+            isSpecProvided = isSpecProvided,
         )
-    }
-
-    // TODO: (b/180389433) Verify automigration schemas before calling the AutoMigrationProcessor
-    private fun getValidatedSchemaFile(version: Int): File? {
-        val schemaFile = File(
-            context.schemaOutFolder,
-            "${element.className.canonicalName()}/$version.json"
-        )
-        if (!schemaFile.exists()) {
-            context.logger.e(
-                ProcessorErrors.autoMigrationSchemasNotFound(
-                    context.schemaOutFolder.toString(),
-                    "${element.className.canonicalName()}/$version.json"
-                ),
-                element
-            )
-            return null
-        }
-        return schemaFile
     }
 }

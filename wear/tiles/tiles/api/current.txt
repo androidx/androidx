@@ -1,12 +1,6 @@
 // Signature format: 4.0
 package androidx.wear.tiles {
 
-  public class SysUiTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
-    ctor public SysUiTileUpdateRequester(android.content.Context);
-    method public void requestUpdate(Class<? extends android.app.Service>);
-    field public static final String ACTION_BIND_UPDATE_REQUESTER = "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER";
-  }
-
   public abstract class TileProviderService extends android.app.Service {
     ctor public TileProviderService();
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
@@ -23,13 +17,7 @@ package androidx.wear.tiles {
   }
 
   public interface TileUpdateRequester {
-    method public void requestUpdate(Class<? extends android.app.Service>);
-  }
-
-  public class ViewerTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
-    ctor public ViewerTileUpdateRequester(android.content.Context);
-    method public void requestUpdate(Class<? extends android.app.Service>);
-    field public static final String ACTION_REQUEST_TILE_UPDATE = "androidx.wear.tiles.action.REQUEST_TILE_UPDATE";
+    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileProviderService>);
   }
 
 }
@@ -37,6 +25,11 @@ package androidx.wear.tiles {
 package androidx.wear.tiles.builders {
 
   public final class ActionBuilders {
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra booleanExtra(boolean);
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra doubleExtra(double);
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra intExtra(int);
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra longExtra(long);
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra stringExtra(String);
   }
 
   public static interface ActionBuilders.Action {
@@ -51,9 +44,63 @@ package androidx.wear.tiles.builders {
   }
 
   public static final class ActionBuilders.AndroidActivity.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.builders.ActionBuilders.AndroidExtra);
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder);
     method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity build();
     method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder setClassName(String);
     method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder setPackageName(String);
+  }
+
+  public static final class ActionBuilders.AndroidBooleanExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra.Builder builder();
+  }
+
+  public static final class ActionBuilders.AndroidBooleanExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra build();
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra.Builder setValue(boolean);
+  }
+
+  public static final class ActionBuilders.AndroidDoubleExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra.Builder builder();
+  }
+
+  public static final class ActionBuilders.AndroidDoubleExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra build();
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra.Builder setValue(double);
+  }
+
+  public static interface ActionBuilders.AndroidExtra {
+  }
+
+  public static interface ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidExtra build();
+  }
+
+  public static final class ActionBuilders.AndroidIntExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra.Builder builder();
+  }
+
+  public static final class ActionBuilders.AndroidIntExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra build();
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra.Builder setValue(int);
+  }
+
+  public static final class ActionBuilders.AndroidLongExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra.Builder builder();
+  }
+
+  public static final class ActionBuilders.AndroidLongExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra build();
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra.Builder setValue(long);
+  }
+
+  public static final class ActionBuilders.AndroidStringExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra.Builder builder();
+  }
+
+  public static final class ActionBuilders.AndroidStringExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra build();
+    method public androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra.Builder setValue(String);
   }
 
   public static final class ActionBuilders.LaunchAction implements androidx.wear.tiles.builders.ActionBuilders.Action {
@@ -190,6 +237,9 @@ package androidx.wear.tiles.builders {
     field public static final int CONTENT_SCALE_MODE_FILL_BOUNDS = 3; // 0x3
     field public static final int CONTENT_SCALE_MODE_FIT = 1; // 0x1
     field public static final int CONTENT_SCALE_MODE_UNDEFINED = 0; // 0x0
+    field public static final int FONT_VARIANT_BODY = 2; // 0x2
+    field public static final int FONT_VARIANT_TITLE = 1; // 0x1
+    field public static final int FONT_VARIANT_UNDEFINED = 0; // 0x0
     field public static final int FONT_WEIGHT_BOLD = 700; // 0x2bc
     field public static final int FONT_WEIGHT_NORMAL = 400; // 0x190
     field public static final int FONT_WEIGHT_UNDEFINED = 0; // 0x0
@@ -199,6 +249,9 @@ package androidx.wear.tiles.builders {
     field public static final int HALIGN_RIGHT = 3; // 0x3
     field public static final int HALIGN_START = 4; // 0x4
     field public static final int HALIGN_UNDEFINED = 0; // 0x0
+    field public static final int SPAN_VALIGN_BOTTOM = 1; // 0x1
+    field public static final int SPAN_VALIGN_TEXT_BASELINE = 2; // 0x2
+    field public static final int SPAN_VALIGN_UNDEFINED = 0; // 0x0
     field public static final int TEXT_ALIGN_CENTER = 2; // 0x2
     field public static final int TEXT_ALIGN_END = 3; // 0x3
     field public static final int TEXT_ALIGN_START = 1; // 0x1
@@ -342,18 +395,29 @@ package androidx.wear.tiles.builders {
   }
 
   public static class LayoutElementBuilders.FontStyles {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body1();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body2();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder button();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption1();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption2();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display1();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display2();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display3();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title1();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title2();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title3();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyles withDeviceParameters(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body1();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body2();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder button();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption1();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption2();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display1();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display2();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display3();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title1();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title2();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title3();
+    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyles withDeviceParameters(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
   }
 
   public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
@@ -433,6 +497,7 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.SpanImage.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.Span.Builder {
     method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage build();
+    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setAlignment(int);
     method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers);
@@ -574,6 +639,8 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Padding.Builder {
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding build();
+    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.builders.DimensionBuilders.DpProp);

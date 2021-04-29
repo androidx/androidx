@@ -18,6 +18,16 @@ package androidx.wear.complications.data
 
 import android.content.res.Resources
 import android.icu.util.TimeZone
+import android.support.wearable.complications.TimeDependentText
+import android.support.wearable.complications.TimeDifferenceText
+import android.text.style.ForegroundColorSpan
+import android.text.style.LocaleSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.SubscriptSpan
+import android.text.style.SuperscriptSpan
+import android.text.style.TypefaceSpan
+import android.text.style.UnderlineSpan
 import androidx.annotation.RestrictTo
 import java.util.concurrent.TimeUnit
 
@@ -66,6 +76,12 @@ public interface ComplicationText {
     public fun isAlwaysEmpty(): Boolean
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    public fun getTimeDependentText(): TimeDependentText
+
+    /**
      * Converts this value to [WireComplicationText] object used for serialization.
      *
      * @hide
@@ -94,7 +110,7 @@ public class PlainComplicationText internal constructor(
     }
 }
 
-/** The styling used for showing a time different by [ComplicationText.timeDifferenceBuilder]. */
+/** The styling used for showing a time different by [ComplicationText#TimeDifferenceBuilder]. */
 public enum class TimeDifferenceStyle(internal var wireStyle: Int) {
 
     /**
@@ -194,6 +210,15 @@ public class TimeDifferenceComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
     /**
+     * Gets the smallest unit that may be shown in the time difference text. If specified, units
+     * smaller than this minimum will not be included.
+     */
+    public fun getMinimumTimeUnit(): TimeUnit? =
+        if (getTimeDependentText() is TimeDifferenceText)
+            (getTimeDependentText() as TimeDifferenceText).minimumUnit
+        else null
+
+    /**
      * Builder for [ComplicationText] representing a time difference.
      *
      * Requires setting a [TimeDifferenceStyle].
@@ -207,11 +232,25 @@ public class TimeDifferenceComplicationText internal constructor(
         private var displayAsNow: Boolean? = null
         private var minimumUnit: TimeUnit? = null
 
+        /**
+         * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
+         * up until [countUpTimeReference].
+         *
+         * @param style The [TimeDifferenceStyle] to use when rendering the time difference.
+         * @param countUpTimeReference The [CountUpTimeReference] to count up until.
+         */
         public constructor(
             style: TimeDifferenceStyle,
             countUpTimeReference: CountUpTimeReference
         ) : this(style, null, countUpTimeReference.dateTimeMillis)
 
+        /**
+         * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
+         * down until [countDownTimeReference].
+         *
+         * @param style The [TimeDifferenceStyle] to use when rendering the time difference.
+         * @param countDownTimeReference The [CountDownTimeReference] to count down until.
+         */
         public constructor(
             style: TimeDifferenceStyle,
             countDownTimeReference: CountDownTimeReference
@@ -257,7 +296,7 @@ public class TimeDifferenceComplicationText internal constructor(
          * [TimeDifferenceStyle.SHORT_SINGLE_UNIT], then a minimum unit of [TimeUnit.SECONDS] will
          * have no effect.
          */
-        public fun setMinimumUnit(minimumUnit: TimeUnit?): Builder =
+        public fun setMinimumTimeUnit(minimumUnit: TimeUnit?): Builder =
             apply { this.minimumUnit = minimumUnit }
 
         /** Builds a [TimeDifferenceComplicationText]. */
@@ -355,6 +394,7 @@ private class DelegatingComplicationText(
         delegate.getNextChangeTime(fromDateTimeMillis)
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
+    override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -383,6 +423,8 @@ private class DelegatingTimeDependentText(
         delegate.getNextChangeTime(fromDateTimeMillis)
 
     override fun isAlwaysEmpty() = false
+
+    override fun getTimeDependentText(): TimeDependentText = delegate
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

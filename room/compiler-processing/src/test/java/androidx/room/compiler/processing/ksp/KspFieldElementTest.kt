@@ -181,8 +181,8 @@ class KspFieldElementTest {
                     )
                 )
 
-            assertThat(t.enclosingTypeElement).isEqualTo(base)
-            assertThat(listOfR.enclosingTypeElement).isEqualTo(base)
+            assertThat(t.enclosingElement).isEqualTo(base)
+            assertThat(listOfR.enclosingElement).isEqualTo(base)
             assertThat(t.asMemberOf(sub.type).typeName).isEqualTo(TypeName.INT.box())
             assertThat(listOfR.asMemberOf(sub.type).typeName)
                 .isEqualTo(
@@ -237,7 +237,7 @@ class KspFieldElementTest {
                     .containsExactlyElementsIn(
                         listOfNotNull(modifier)
                     )
-                assertThat(field.enclosingTypeElement).isEqualTo(element)
+                assertThat(field.enclosingElement).isEqualTo(element)
             }
         }
     }

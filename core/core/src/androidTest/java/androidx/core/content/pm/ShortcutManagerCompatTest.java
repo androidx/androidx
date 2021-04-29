@@ -366,6 +366,9 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 ArgumentCaptor.forClass(ArrayList.class);
         verify(mShortcutInfoCompatSaver).addShortcuts(shortcutInfoCaptor.capture());
         verify(mShortcutInfoChangeListener).onShortcutAdded(shortcutInfoCaptor.capture());
+        verify(mShortcutInfoChangeListener, times(1))
+                .onShortcutUsageReported(Collections.singletonList(shortcutInfo.getId()));
+        verify(mockShortcutManager, times(1)).reportShortcutUsed(shortcutInfo.getId());
         final List<ShortcutInfoCompat> actualShortcutInfos = shortcutInfoCaptor.getValue();
         assertEquals(1, actualShortcutInfos.size());
         assertEquals(shortcutInfo, actualShortcutInfos.get(0));
@@ -401,7 +404,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
     @SmallTest
     @Test
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 23)
     public void testShortcutInfoListenerServiceDiscovery() {
         ShortcutManagerCompat.setShortcutInfoChangeListeners(null);
         // Initialize the listener.
@@ -411,6 +414,21 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 ShortcutManagerCompat.getShortcutInfoChangeListeners();
         assertEquals(1, listeners.size());
         assertTrue(listeners.get(0) instanceof TestShortcutInfoChangeListener);
+    }
+
+    @SmallTest
+    @Test
+    @SdkSuppress(minSdkVersion = 25)
+    public void testReportShortcutUsed() {
+        final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(
+                eq(Context.SHORTCUT_SERVICE));
+
+        ShortcutManagerCompat.reportShortcutUsed(mContext, "id");
+
+        verify(mockShortcutManager, times(1)).reportShortcutUsed("id");
+        verify(mShortcutInfoChangeListener, times(1))
+                .onShortcutUsageReported(Collections.singletonList("id"));
     }
 
     private void verifyLegacyIntent(Intent intent) {

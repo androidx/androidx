@@ -178,6 +178,15 @@ public interface CameraInfo {
     @ImplementationType
     String getImplementationType();
 
+    /**
+     * Returns a {@link CameraSelector} unique to this camera.
+     *
+     * @return {@link CameraSelector} unique to this camera.
+     */
+    @ExperimentalCameraFilter
+    @NonNull
+    CameraSelector getCameraSelector();
+
     /** @hide */
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
             IMPLEMENTATION_TYPE_CAMERA2_LEGACY, IMPLEMENTATION_TYPE_CAMERA2,

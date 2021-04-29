@@ -25,6 +25,6 @@ import androidx.window.WindowManager
  * @return [Point] whose dimensions match the metrics of the window.
  */
 internal fun Activity.calculateWindowSizeExt(): Point {
-    val bounds = WindowManager(this).currentWindowMetrics.bounds
+    val bounds = WindowManager(this).getCurrentWindowMetrics().bounds
     return Point(bounds.width(), bounds.height())
 }

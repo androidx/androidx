@@ -86,7 +86,7 @@ public class NavOptions internal constructor(
     }
 
     /**
-     * Whether the destination set in [.getPopUpTo] should be popped from the back stack.
+     * Whether the destination set in [getPopUpTo] should be popped from the back stack.
      * @see Builder.setPopUpTo
      *
      * @see NavOptions.getPopUpTo

@@ -99,7 +99,9 @@ public interface CanvasComplication {
     /**
      * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
      * ComplicationData. You can choose whether this is done synchronously or asynchronously via
-     * [loadDrawablesAsynchronous].
+     * [loadDrawablesAsynchronous]. When any asynchronous loading has completed
+     * [Complication.invalidate] must be called for the [Complication] instance previously passed
+     * in via [onAttach].
      *
      * @param complicationData The [ComplicationData] to render with
      * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
@@ -152,6 +154,8 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * [UserStyleSetting.ComplicationsUserStyleSetting].
  *
  * @param id The Watch Face's ID for the complication.
+ * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
+ * content description labels.
  * @param boundsType The [ComplicationBoundsType] of the complication.
  * @param bounds The complication's [ComplicationBounds].
  * @param renderer The [CanvasComplication] used to render the complication.
@@ -173,7 +177,8 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * complication.
  */
 public class Complication internal constructor(
-    internal val id: Int,
+    public val id: Int,
+    accessibilityTraversalIndex: Int,
     @ComplicationBoundsType public val boundsType: Int,
     bounds: ComplicationBounds,
     public val renderer: CanvasComplication,
@@ -187,6 +192,13 @@ public class Complication internal constructor(
     public val fixedComplicationProvider: Boolean,
     public val tapFilter: ComplicationTapFilter
 ) {
+    init {
+        require(id >= 0) { "id must be >= 0" }
+        require(accessibilityTraversalIndex >= 0) {
+            "accessibilityTraversalIndex must be >= 0"
+        }
+    }
+
     public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
 
@@ -321,10 +333,27 @@ public class Complication internal constructor(
         private val bounds: ComplicationBounds,
         private val complicationTapFilter: ComplicationTapFilter
     ) {
+        private var accessibilityTraversalIndex = id
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
         private var configExtras: Bundle = Bundle.EMPTY
         private var fixedComplicationProvider = false
+
+        init {
+            require(id >= 0) { "id must be >= 0" }
+        }
+
+        /**
+         * Sets the initial value used to sort Complications when generating accessibility content
+         * description labels. By default this is [id].
+         */
+        public fun setAccessibilityTraversalIndex(accessibilityTraversalIndex: Int): Builder {
+            this.accessibilityTraversalIndex = accessibilityTraversalIndex
+            require(accessibilityTraversalIndex >= 0) {
+                "accessibilityTraversalIndex must be >= 0"
+            }
+            return this
+        }
 
         /**
          * Sets the initial [ComplicationType] to use with the initial complication provider.
@@ -367,6 +396,7 @@ public class Complication internal constructor(
         /** Constructs the [Complication]. */
         public fun build(): Complication = Complication(
             id,
+            accessibilityTraversalIndex,
             boundsType,
             bounds,
             renderer,
@@ -509,6 +539,34 @@ public class Complication internal constructor(
             }
         }
 
+    internal var accessibilityTraversalIndexDirty = true
+
+    /**
+     * This is used to determine the order in which accessibility labels for the watch face are
+     * read to the user. Accessibility labels are automatically generated for the time and
+     * complications.  See also [Renderer.additionalContentDescriptionLabels].
+     */
+    public var accessibilityTraversalIndex: Int = accessibilityTraversalIndex
+        @UiThread
+        get
+        @UiThread
+        internal set(value) {
+            require(value >= 0) {
+                "accessibilityTraversalIndex must be >= 0"
+            }
+            if (field == value) {
+                return
+            }
+            field = value
+            accessibilityTraversalIndexDirty = true
+
+            // The caller might enable/disable a number of complications. For efficiency we need
+            // to coalesce these into one update task.
+            if (this::complicationsManager.isInitialized) {
+                complicationsManager.scheduleUpdate()
+            }
+        }
+
     internal var dataDirty = true
 
     /**
@@ -530,7 +588,7 @@ public class Complication internal constructor(
             ComplicationType.NO_DATA -> false
             ComplicationType.NO_PERMISSION -> false
             ComplicationType.EMPTY -> false
-            else -> complicationData.value.isActiveAt(dateTimeMillis)
+            else -> complicationData.value.validTimeRange.contains(dateTimeMillis)
         }
     }
 
@@ -642,11 +700,12 @@ public class Complication internal constructor(
                 complicationBounds.perComplicationTypeBounds[it.type]
             } ?: complicationBounds.perComplicationTypeBounds[defaultProviderType]!!
         unitSquareBounds.intersect(unitSquare)
+        // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
-            (unitSquareBounds.left * screen.width()).toInt(),
-            (unitSquareBounds.top * screen.height()).toInt(),
-            (unitSquareBounds.right * screen.width()).toInt(),
-            (unitSquareBounds.bottom * screen.height()).toInt()
+            (0.5f + unitSquareBounds.left * screen.width()).toInt(),
+            (0.5f + unitSquareBounds.top * screen.height()).toInt(),
+            (0.5f + unitSquareBounds.right * screen.width()).toInt(),
+            (0.5f + unitSquareBounds.bottom * screen.height()).toInt()
         )
     }
 

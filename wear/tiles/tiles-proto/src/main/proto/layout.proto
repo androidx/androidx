@@ -70,6 +70,9 @@ enum FontWeight {
   // Normal font weight.
   FONT_WEIGHT_NORMAL = 400;
 
+  // Medium font weight.
+  FONT_WEIGHT_MEDIUM = 500;
+
   // Bold font weight.
   FONT_WEIGHT_BOLD = 700;
 }
@@ -78,6 +81,49 @@ enum FontWeight {
 message FontWeightProp {
   // The value.
   FontWeight value = 1;
+}
+
+// The variant of a font. Some renderers may use different fonts for title and
+// body text, which can be selected using this field.
+enum FontVariant {
+  // Font variant is undefined.
+  FONT_VARIANT_UNDEFINED = 0;
+
+  // Font variant suited for title text.
+  FONT_VARIANT_TITLE = 1;
+
+  // Font variant suited for body text.
+  FONT_VARIANT_BODY = 2;
+}
+
+// An extensible FontVariant property.
+message FontVariantProp {
+  // The value.
+  FontVariant value = 1;
+}
+
+// The alignment of a SpanImage within the line height of the surrounding
+// Spannable.
+enum SpanVerticalAlignment {
+  // Alignment is undefined.
+  SPAN_VALIGN_UNDEFINED = 0;
+
+  // Align to the bottom of the line (descent of the largest text in this line).
+  // If there is no text in the line containing this image, this will align to
+  // the bottom of the line, where the line height is defined as the height of
+  // the largest image in the line.
+  SPAN_VALIGN_BOTTOM = 1;
+
+  // Align to the baseline of the text. Note that if the line in the Spannable
+  // which contains this image does not contain any text, the effects of using
+  // this alignment are undefined.
+  SPAN_VALIGN_TEXT_BASELINE = 2;
+}
+
+// An extensible SpanVerticalAlignment property.
+message SpanVerticalAlignmentProp {
+  // The value.
+  SpanVerticalAlignment value = 1;
 }
 
 // The styling of a font (e.g. font size, and metrics).
@@ -106,6 +152,11 @@ message FontStyle {
   // letters while negative numbers tighten the space. If not specified,
   // defaults to 0.
   EmProp letter_spacing = 6;
+
+  // The variant of a font. Some renderers may use different fonts for title and
+  // body text, which can be selected using this field. If not specified,
+  // defaults to "body".
+  FontVariantProp variant = 7;
 }
 
 // Alignment of a text element.
@@ -133,8 +184,6 @@ message TextAlignmentProp {
 
 // How text that will not fit inside the bounds of a Text element will be
 // handled.
-//
-// TODO(b/175536688): Rename this to align with Spannable
 enum TextOverflow {
   // Overflow behavior is undefined.
   TEXT_OVERFLOW_UNDEFINED = 0;
@@ -362,6 +411,10 @@ message SpanImage {
 
   // Modifiers for this element.
   SpanModifiers modifiers = 4;
+
+  // Alignment of this image within the line height of the surrounding
+  // Spannable. If undefined, defaults to SPAN_VALIGN_BOTTOM.
+  SpanVerticalAlignmentProp alignment = 5;
 }
 
 // A single Span. Each Span forms part of a larger Spannable widget. At the
@@ -490,9 +543,8 @@ message Arc {
   // degrees), and values >360 will be be placed at X mod 360 degrees.
   DegreesProp anchor_angle = 2;
 
-  // How to align the contents of this container relative to anchor_angle. See
-  // the descriptions of options in ArcAnchorType for more information. If not
-  // defined, defaults to ARC_ANCHOR_CENTER.
+  // How to align the contents of this container relative to anchor_angle. If
+  // not defined, defaults to ARC_ANCHOR_CENTER.
   ArcAnchorTypeProp anchor_type = 3;
 
   // Vertical alignment of elements within the arc. If the Arc's thickness is

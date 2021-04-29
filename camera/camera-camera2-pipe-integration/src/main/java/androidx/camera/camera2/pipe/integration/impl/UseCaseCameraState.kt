@@ -154,25 +154,35 @@ class UseCaseCameraState @Inject constructor(
         // Since acquireSession is a suspending function, it's possible that subsequent updates
         // can occur while waiting for the acquireSession call to complete. If this happens,
         // updates to the internal state are aggregated together, and the Request is built
-        // synchronously with the latest values. The setRepeating call happens outside of the
-        // synchronized block to avoid holding a lock while updating the camera state.
+        // synchronously with the latest values. The startRepeating/stopRepeating call happens
+        // outside of the synchronized block to avoid holding a lock while updating the camera
+        // state.
 
         threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
             cameraGraph.acquireSession().use {
-                val request: Request
+                val request: Request?
                 synchronized(lock) {
-                    request = Request(
-                        template = currentTemplate,
-                        streams = currentStreams.toList(),
-                        parameters = currentParameters.toMap(),
-                        extras = currentInternalParameters.toMap()
-                    )
+                    request = if (currentStreams.isEmpty()) {
+                        null
+                    } else {
+                        Request(
+                            template = currentTemplate,
+                            streams = currentStreams.toList(),
+                            parameters = currentParameters.toMap(),
+                            extras = currentInternalParameters.toMap()
+                        )
+                    }
                     result = updateSignal
                     updateSignal = null
                     updating = false
                 }
-                it.startRepeating(request)
+
+                if (request == null) {
+                    it.stopRepeating()
+                } else {
+                    it.startRepeating(request)
+                }
             }
 
             // Complete the result after the session closes to allow other threads to acquire a

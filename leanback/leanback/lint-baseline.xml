@@ -1,5 +1,896 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.widget.BackgroundHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                drawable.setAlpha(view.getBackground().getAlpha());"
+        errorLine2="                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/BackgroundHelper.java"
+            line="35"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.picker.DatePicker is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            yearPattern = android.text.format.DateFormat.getBestDateTimePattern(mConstant.locale,"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
+            line="144"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Rect center = t.getEpicenter();"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="api21/androidx/leanback/transition/FadeAndShortSlide.java"
+            line="114"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Rect center = getEpicenter();"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="api21/androidx/leanback/transition/FadeAndShortSlide.java"
+            line="144"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.widget.ForegroundHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return view.getForeground();"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.widget.ForegroundHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setForeground(drawable);"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"
+            line="25"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.app.FragmentUtil is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return fragment.getContext();"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/FragmentUtil.java"
+            line="25"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    vh.mTitleView.setAutofillHints(action.getAutofillHints());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
+            line="690"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    vh.mTitleView.setAutofillHints((String[]) null);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
+            line="692"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
+            line="696"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    vh.mDescriptionView.setAutofillHints(action.getAutofillHints());"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
+            line="711"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    vh.mDescriptionView.setAutofillHints((String[]) null);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
+            line="713"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
+            line="717"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                ft.addSharedElement(subView, transitionName);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="562"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                setEnterTransition((android.transition.Transition) enterTransition);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="903"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                setSharedElementEnterTransition((android.transition.Transition) sharedElementTransition);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="912"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="925"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="932"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                setSharedElementEnterTransition(null);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="935"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                setEnterTransition(null);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="938"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                setSharedElementEnterTransition(null);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="940"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setExitTransition((android.transition.Transition) exitTransition);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="947"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
+        errorLine2="              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
+            line="40"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        slide.addTarget(R.id.browse_title_group);"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
+            line="42"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
+        errorLine2="              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
+            line="53"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        slide.addTarget(R.id.browse_title_group);"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
+            line="55"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.app.PermissionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            fragment.requestPermissions(permissions, requestCode);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/PermissionHelper.java"
+            line="33"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                        ? !mProgressBar.isAccessibilityFocused() : true);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/PlaybackTransportRowPresenter.java"
+            line="320"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), mRadius);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/RoundedRectHelperApi21.java"
+            line="39"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            outline.setAlpha(1f);"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/RoundedRectHelperApi21.java"
+            line="40"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.system.Settings is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mOutlineClippingDisabled = activityManager.isLowRamDevice();"
+        errorLine2="                                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/system/Settings.java"
+            line="132"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            outline.setRect(0, 0, view.getWidth(), view.getHeight());"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ShadowHelperApi21.java"
+            line="34"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            outline.setAlpha(1.0f);"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ShadowHelperApi21.java"
+            line="35"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.StaticShadowHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            parent.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/StaticShadowHelper.java"
+            line="38"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.StaticShadowHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            shadowContainer.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/StaticShadowHelper.java"
+            line="44"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.picker.TimePicker is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? &quot;Hma&quot;"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
+            line="159"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getSharedElementEnterTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="66"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            window.setSharedElementEnterTransition((Transition) transition);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="73"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getSharedElementReturnTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="79"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            window.setSharedElementReturnTransition((Transition) transition);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="86"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getSharedElementExitTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="92"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getSharedElementReenterTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="99"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getEnterTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="106"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            window.setEnterTransition((Transition) transition);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="113"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getReturnTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="119"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            window.setReturnTransition((Transition) transition);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="126"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getExitTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="132"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return window.getReenterTransition();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="139"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Scene scene = new Scene(sceneRoot);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="146"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            scene.setEnterAction(r);"
+        errorLine2="                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="147"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            changeBounds.setReparent(reparent);"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="156"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ChangeTransform();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="164"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            TransitionSet set = new TransitionSet();"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="196"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            set.setOrdering(sequential ? TransitionSet.ORDERING_SEQUENTIAL"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="197"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new ChangeTransform();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="215"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((TransitionSet) transitionSet).addTransition((Transition) transition);"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="225"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).excludeTarget(targetId, exclude);"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="231"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).excludeTarget(targetView, exclude);"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="237"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).excludeChildren(targetId, exclude);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="243"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).excludeChildren(targetView, exclude);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="249"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).addTarget(targetId);"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="255"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).addTarget(targetView);"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="261"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).setStartDelay(startDelay);"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="267"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).setDuration(duration);"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="273"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new AutoTransition();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="279"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new Fade(fadeMode);"
+        errorLine2="                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="286"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            t.addListener((Transition.TransitionListener) listener.mImpl);"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="323"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            t.removeListener((Transition.TransitionListener) listener.mImpl);"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="339"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            TransitionManager.go((Scene) scene, (Transition) transition);"
+        errorLine2="                              ~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="351"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).setInterpolator((TimeInterpolator) timeInterpolator);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="373"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((Transition) transition).addTarget(view);"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="379"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TransitionInflater.from(context).inflateTransition(resId);"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="393"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TransitionInflater.from(context).inflateTransition(resId);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="393"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            fragment.setEnterTransition((Transition) transition);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="401"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            fragment.setExitTransition((Transition) transition);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="408"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            fragment.setSharedElementEnterTransition((Transition) transition);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="416"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ft.addSharedElement(view, transitionName);"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="424"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            TransitionManager.beginDelayedTransition(sceneRoot, transition);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="447"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            viewGroup.setTransitionGroup(transitionGroup);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="453"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                ((Transition) transition).setEpicenterCallback(null);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="461"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                ((Transition) transition).setEpicenterCallback(new Transition.EpicenterCallback() {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
+            line="463"
+            column="43"/>
+    </issue>
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -10,897 +901,6 @@
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
             line="39"
             column="14"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.widget.BackgroundHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="                drawable.setAlpha(view.getBackground().getAlpha());"
-        errorLine2="                                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BackgroundHelper.java"
-            line="35"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.picker.DatePicker is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            yearPattern = android.text.format.DateFormat.getBestDateTimePattern(mConstant.locale,"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="144"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            Rect center = t.getEpicenter();"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="api21/androidx/leanback/transition/FadeAndShortSlide.java"
-            line="114"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            Rect center = getEpicenter();"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="api21/androidx/leanback/transition/FadeAndShortSlide.java"
-            line="144"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.widget.ForegroundHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            return view.getForeground();"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"
-            line="17"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.widget.ForegroundHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            view.setForeground(drawable);"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"
-            line="25"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.app.FragmentUtil is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            return fragment.getContext();"
-        errorLine2="                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/FragmentUtil.java"
-            line="25"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                    vh.mTitleView.setAutofillHints(action.getAutofillHints());"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="690"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                    vh.mTitleView.setAutofillHints((String[]) null);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="692"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="696"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                    vh.mDescriptionView.setAutofillHints(action.getAutofillHints());"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="711"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                    vh.mDescriptionView.setAutofillHints((String[]) null);"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="713"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="717"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                ft.addSharedElement(subView, transitionName);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="562"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                setEnterTransition((android.transition.Transition) enterTransition);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="903"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                setSharedElementEnterTransition((android.transition.Transition) sharedElementTransition);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="912"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="925"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="932"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                setSharedElementEnterTransition(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="935"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                setEnterTransition(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="938"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                setSharedElementEnterTransition(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="940"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            setExitTransition((android.transition.Transition) exitTransition);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="947"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
-        errorLine2="              ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
-            line="40"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="        slide.addTarget(R.id.browse_title_group);"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
-            line="42"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
-        errorLine2="              ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
-            line="53"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="        slide.addTarget(R.id.browse_title_group);"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"
-            line="55"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.app.PermissionHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            fragment.requestPermissions(permissions, requestCode);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/PermissionHelper.java"
-            line="33"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                                        ? !mProgressBar.isAccessibilityFocused() : true);"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/PlaybackTransportRowPresenter.java"
-            line="320"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), mRadius);"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/RoundedRectHelperApi21.java"
-            line="39"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            outline.setAlpha(1f);"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/RoundedRectHelperApi21.java"
-            line="40"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.system.Settings is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            mOutlineClippingDisabled = activityManager.isLowRamDevice();"
-        errorLine2="                                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/system/Settings.java"
-            line="132"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            outline.setRect(0, 0, view.getWidth(), view.getHeight());"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ShadowHelperApi21.java"
-            line="34"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            outline.setAlpha(1.0f);"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ShadowHelperApi21.java"
-            line="35"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.StaticShadowHelper is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            parent.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/StaticShadowHelper.java"
-            line="38"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.StaticShadowHelper is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            shadowContainer.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
-        errorLine2="                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/StaticShadowHelper.java"
-            line="44"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.picker.TimePicker is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? &quot;Hma&quot;"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="159"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getSharedElementEnterTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="66"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            window.setSharedElementEnterTransition((Transition) transition);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="73"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getSharedElementReturnTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="79"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            window.setSharedElementReturnTransition((Transition) transition);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="86"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getSharedElementExitTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="92"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getSharedElementReenterTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="99"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getEnterTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="106"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            window.setEnterTransition((Transition) transition);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="113"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getReturnTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="119"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            window.setReturnTransition((Transition) transition);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="126"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getExitTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="132"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return window.getReenterTransition();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="139"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            Scene scene = new Scene(sceneRoot);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="146"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            scene.setEnterAction(r);"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="147"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            changeBounds.setReparent(reparent);"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="156"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return new ChangeTransform();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="164"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            TransitionSet set = new TransitionSet();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="196"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            set.setOrdering(sequential ? TransitionSet.ORDERING_SEQUENTIAL"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="197"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return new ChangeTransform();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="215"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((TransitionSet) transitionSet).addTransition((Transition) transition);"
-        errorLine2="                                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="225"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).excludeTarget(targetId, exclude);"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="231"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).excludeTarget(targetView, exclude);"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="237"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).excludeChildren(targetId, exclude);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="243"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).excludeChildren(targetView, exclude);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="249"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).addTarget(targetId);"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="255"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).addTarget(targetView);"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="261"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).setStartDelay(startDelay);"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="267"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).setDuration(duration);"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="273"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            return new AutoTransition();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="279"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            return new Fade(fadeMode);"
-        errorLine2="                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="286"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            t.addListener((Transition.TransitionListener) listener.mImpl);"
-        errorLine2="              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="323"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            t.removeListener((Transition.TransitionListener) listener.mImpl);"
-        errorLine2="              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="339"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            TransitionManager.go((Scene) scene, (Transition) transition);"
-        errorLine2="                              ~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="351"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).setInterpolator((TimeInterpolator) timeInterpolator);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="373"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            ((Transition) transition).addTarget(view);"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="379"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            return TransitionInflater.from(context).inflateTransition(resId);"
-        errorLine2="                                      ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="393"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            return TransitionInflater.from(context).inflateTransition(resId);"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="393"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            fragment.setEnterTransition((Transition) transition);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="401"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            fragment.setExitTransition((Transition) transition);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="408"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            fragment.setSharedElementEnterTransition((Transition) transition);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="416"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            ft.addSharedElement(view, transitionName);"
-        errorLine2="               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="424"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="            TransitionManager.beginDelayedTransition(sceneRoot, transition);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="447"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            viewGroup.setTransitionGroup(transitionGroup);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="453"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                ((Transition) transition).setEpicenterCallback(null);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="461"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                ((Transition) transition).setEpicenterCallback(new Transition.EpicenterCallback() {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
-            line="463"
-            column="43"/>
     </issue>
 
     <issue
@@ -1831,7 +1831,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="546"
+            line="548"
             column="19"/>
     </issue>
 
@@ -1842,7 +1842,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="546"
+            line="548"
             column="49"/>
     </issue>
 
@@ -1853,7 +1853,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="649"
+            line="651"
             column="24"/>
     </issue>
 
@@ -1864,7 +1864,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="665"
+            line="667"
             column="30"/>
     </issue>
 
@@ -1875,7 +1875,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="736"
+            line="738"
             column="29"/>
     </issue>
 
@@ -1886,7 +1886,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="744"
+            line="746"
             column="12"/>
     </issue>
 
@@ -1897,7 +1897,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="753"
+            line="755"
             column="12"/>
     </issue>
 
@@ -1908,7 +1908,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="833"
+            line="835"
             column="29"/>
     </issue>
 
@@ -1919,7 +1919,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="887"
+            line="889"
             column="27"/>
     </issue>
 
@@ -1930,7 +1930,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="962"
+            line="964"
             column="12"/>
     </issue>
 
@@ -2282,7 +2282,7 @@
         errorLine2="                                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="900"
+            line="916"
             column="63"/>
     </issue>
 
@@ -2293,7 +2293,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="916"
+            line="932"
             column="40"/>
     </issue>
 
@@ -2304,7 +2304,7 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="916"
+            line="932"
             column="51"/>
     </issue>
 
@@ -2315,7 +2315,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="930"
+            line="946"
             column="12"/>
     </issue>
 
@@ -2326,7 +2326,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="944"
+            line="960"
             column="69"/>
     </issue>
 
@@ -2337,7 +2337,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1040"
+            line="1056"
             column="45"/>
     </issue>
 
@@ -2348,7 +2348,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1048"
+            line="1064"
             column="46"/>
     </issue>
 
@@ -2359,7 +2359,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1056"
+            line="1072"
             column="43"/>
     </issue>
 
@@ -2370,7 +2370,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1064"
+            line="1080"
             column="43"/>
     </issue>
 
@@ -2381,7 +2381,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1072"
+            line="1088"
             column="12"/>
     </issue>
 
@@ -2392,7 +2392,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1077"
+            line="1093"
             column="37"/>
     </issue>
 
@@ -2403,7 +2403,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1088"
+            line="1104"
             column="39"/>
     </issue>
 
@@ -2414,7 +2414,7 @@
         errorLine2="                                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1098"
+            line="1114"
             column="51"/>
     </issue>
 
@@ -2425,7 +2425,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1348"
+            line="1366"
             column="28"/>
     </issue>
 
@@ -13161,7 +13161,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="70"
+            line="71"
             column="32"/>
     </issue>
 
@@ -13172,7 +13172,7 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="71"
+            line="72"
             column="32"/>
     </issue>
 
@@ -13183,7 +13183,7 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="72"
+            line="73"
             column="32"/>
     </issue>
 
@@ -13194,7 +13194,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="79"
+            line="80"
             column="41"/>
     </issue>
 
@@ -13205,7 +13205,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="106"
+            line="107"
             column="18"/>
     </issue>
 
@@ -13216,7 +13216,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="147"
+            line="148"
             column="12"/>
     </issue>
 
@@ -13227,7 +13227,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="152"
+            line="153"
             column="12"/>
     </issue>
 
@@ -13238,7 +13238,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="168"
+            line="169"
             column="12"/>
     </issue>
 
@@ -20586,7 +20586,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="156"
+            line="148"
             column="26"/>
     </issue>
 
@@ -20597,7 +20597,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="160"
+            line="152"
             column="26"/>
     </issue>
 
@@ -20608,7 +20608,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="160"
+            line="152"
             column="43"/>
     </issue>
 
@@ -20619,7 +20619,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="165"
+            line="157"
             column="26"/>
     </issue>
 
@@ -20630,7 +20630,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="165"
+            line="157"
             column="43"/>
     </issue>
 
@@ -20641,7 +20641,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="230"
+            line="223"
             column="25"/>
     </issue>
 
@@ -20652,7 +20652,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="250"
+            line="243"
             column="69"/>
     </issue>
 
@@ -20663,7 +20663,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="266"
+            line="260"
             column="28"/>
     </issue>
 
@@ -20674,7 +20674,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="275"
+            line="270"
             column="12"/>
     </issue>
 
@@ -20685,7 +20685,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="283"
+            line="279"
             column="41"/>
     </issue>
 
@@ -20696,7 +20696,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="319"
+            line="317"
             column="30"/>
     </issue>
 
@@ -20707,7 +20707,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="333"
+            line="331"
             column="12"/>
     </issue>
 

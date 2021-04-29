@@ -48,12 +48,12 @@ internal class JavacMethodElement(
     override val name: String
         get() = element.simpleName.toString()
 
-    override val enclosingTypeElement: XTypeElement by lazy {
+    override val enclosingElement: XTypeElement by lazy {
         element.requireEnclosingType(env)
     }
 
     override val kotlinMetadata: KmFunction? by lazy {
-        (enclosingTypeElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
     }
 
     override val executableType: JavacMethodType by lazy {

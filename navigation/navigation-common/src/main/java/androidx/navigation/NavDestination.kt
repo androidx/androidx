@@ -34,12 +34,12 @@ import kotlin.reflect.KClass
  * Each destination is associated with a [Navigator] which knows how to navigate to this
  * particular destination.
  *
- * Destinations declare a set of [actions][.putAction] that they
+ * Destinations declare a set of [actions][putAction] that they
  * support. These actions form a navigation API for the destination; the same actions declared
  * on different destinations that fill similar roles allow application code to navigate based
  * on semantic intent.
  *
- * Each destination has a set of [arguments][.getArguments] that will
+ * Each destination has a set of [arguments][getArguments] that will
  * be applied when [navigating][NavController.navigate] to that destination.
  * Any default values for those arguments can be overridden at the time of navigation.
  */
@@ -58,7 +58,7 @@ constructor(
     /**
      * This optional annotation allows tooling to offer auto-complete for the
      * `android:name` attribute. This should match the class type passed to
-     * [.parseClassFromName] when parsing the
+     * [parseClassFromName] when parsing the
      * `android:name` attribute.
      */
     @kotlin.annotation.Retention(AnnotationRetention.BINARY)
@@ -127,7 +127,7 @@ constructor(
      * and nullability of the argument.
      *
      * To add and remove arguments for this NavDestination
-     * use [.addArgument] and [.removeArgument].
+     * use [addArgument] and [removeArgument].
      * @return Read-only map of argument names to arguments.
      */
     public val arguments: Map<String, NavArgument>
@@ -187,7 +187,7 @@ constructor(
 
     /**
      * Checks the given deep link [Uri], and determines whether it matches a Uri pattern added
-     * to the destination by a call to [.addDeepLink] . It returns `true`
+     * to the destination by a call to [addDeepLink] . It returns `true`
      * if the deep link is a valid match, and `false` otherwise.
      *
      * This should be called prior to [NavController.navigate] to ensure the deep link
@@ -206,7 +206,7 @@ constructor(
     /**
      * Checks the given [NavDeepLinkRequest], and determines whether it matches a
      * [NavDeepLink] added to the destination by a call to
-     * [.addDeepLink]. It returns `true` if the request is a valid
+     * [addDeepLink]. It returns `true` if the request is a valid
      * match, and `false` otherwise.
      *
      * This should be called prior to [NavController.navigate] to
@@ -303,7 +303,7 @@ constructor(
     /**
      * Determines if this NavDestination has a deep link matching the given Uri.
      * @param navDeepLinkRequest The request to match against all deep links added in
-     * [.addDeepLink]
+     * [addDeepLink]
      * @return The matching [NavDestination] and the appropriate [Bundle] of arguments
      * extracted from the Uri, or null if no match was found.
      */
@@ -376,7 +376,7 @@ constructor(
 
     /**
      * Returns the [NavAction] for the given action ID. This will recursively check the
-     * [parent][.getParent] of this destination if the action destination is not found in
+     * [parent][getParent] of this destination if the action destination is not found in
      * this destination.
      *
      * @param id action ID to fetch

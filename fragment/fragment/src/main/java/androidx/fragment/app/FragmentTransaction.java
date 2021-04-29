@@ -552,7 +552,7 @@ public abstract class FragmentTransaction {
      * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
-     *  fragmentManager.beingTransaction()
+     *  fragmentManager.beginTransaction()
      *      .setCustomAnimations(enter1, exit1)
      *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
      *      .setCustomAnimations(enter2, exit2)
@@ -582,7 +582,7 @@ public abstract class FragmentTransaction {
      * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
-     *  fragmentManager.beingTransaction()
+     *  fragmentManager.beginTransaction()
      *      .setCustomAnimations(enter1, exit1, popEnter1, popExit1)
      *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
      *      .setCustomAnimations(enter2, exit2, popEnter2, popExit2)

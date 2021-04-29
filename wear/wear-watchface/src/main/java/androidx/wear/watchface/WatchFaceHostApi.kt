@@ -20,10 +20,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
-import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemProviders.Companion.ProviderId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
@@ -59,8 +58,7 @@ public interface WatchFaceHostApi {
      * This is a fairly expensive operation so use it sparingly (e.g. do not call it in
      * `onDraw()`).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
+    public fun updateContentDescriptionLabels()
 
     /**
      * Sets the complications which are active in the watchface. Complication data will be
@@ -91,7 +89,7 @@ public interface WatchFaceHostApi {
      * permission, it will not be able to receive data from the provider unless the provider is
      * from the same app package as the watch face, or the provider lists the watch face as a
      * safe watch face. For system providers that may be used before your watch face has the
-     * permission, use [.setDefaultSystemComplicationProvider] with a safe provider
+     * permission, use [setDefaultSystemComplicationProvider] with a safe provider
      * instead.
      *
      * A provider not satisfying the above conditions may still be set as a default using
@@ -109,7 +107,7 @@ public interface WatchFaceHostApi {
     public fun setDefaultComplicationProviderWithFallbacks(
         watchFaceComplicationId: Int,
         providers: List<ComponentName>?,
-        @SystemProviders.ProviderId fallbackSystemProvider: Int,
+        @ProviderId fallbackSystemProvider: Int,
         type: Int
     )
 

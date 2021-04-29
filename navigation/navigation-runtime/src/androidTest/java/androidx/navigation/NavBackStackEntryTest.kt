@@ -18,11 +18,13 @@ package androidx.navigation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
@@ -219,21 +221,47 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
-        val entry = NavBackStackEntry(
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, null, NavControllerViewModel()
+            NavDestination(TestNavigator()), null, TestLifecycleOwner(), NavControllerViewModel()
         )
+        entry.maxLifecycle = Lifecycle.State.CREATED
 
         assertThat(entry.savedStateHandle).isNotNull()
     }
 
     @UiThreadTest
     @Test
-    fun testGetSavedStateHandleNoViewModelSet() {
-        val entry = NavBackStackEntry(
+    fun testGetSavedStateHandleInitializedLifecycle() {
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, null, null
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
         )
+
+        try {
+            entry.savedStateHandle
+            fail(
+                "Attempting to get SavedStateHandle for back stack entry without " +
+                    "moving the Lifecycle to CREATED set should throw IllegalStateException"
+            )
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "You cannot access the NavBackStackEntry's SavedStateHandle until it is " +
+                        "added to the NavController's back stack (i.e., the Lifecycle of the " +
+                        "NavBackStackEntry reaches the CREATED state)."
+                )
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleNoViewModelSet() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator())
+        )
+        entry.maxLifecycle = Lifecycle.State.CREATED
 
         try {
             entry.savedStateHandle
@@ -352,7 +380,8 @@ class NavBackStackEntryTest {
     }
 
     private fun createNavController(): NavController {
-        val navController = NavController(ApplicationProvider.getApplicationContext())
+        val navController = NavHostController(ApplicationProvider.getApplicationContext())
+        navController.setLifecycleOwner(TestLifecycleOwner())
         val navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         return navController

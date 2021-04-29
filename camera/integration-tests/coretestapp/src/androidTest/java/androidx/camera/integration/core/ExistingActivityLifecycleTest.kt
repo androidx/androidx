@@ -32,6 +32,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.RepeatRule
 import androidx.testutils.withActivity
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -97,6 +98,7 @@ class ExistingActivityLifecycleTest {
 
     // Check if Preview screen is updated or not, after Destroy-Create lifecycle.
     @Test
+    @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterDestroyRecreate() {
         with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
@@ -111,6 +113,7 @@ class ExistingActivityLifecycleTest {
 
     // Check if Preview screen is updated or not, after Stop-Resume lifecycle.
     @Test
+    @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterStopResume() {
         with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
@@ -140,6 +143,7 @@ class ExistingActivityLifecycleTest {
     // Check if Preview screen is updated or not, after toggling camera,
     // then a Destroy-Create lifecycle.
     @Test
+    @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterToggleCameraAndStopResume() = runBlocking {
         // check have front camera
         Assume.assumeTrue(
@@ -172,6 +176,7 @@ class ExistingActivityLifecycleTest {
 
     // Check if Preview screen is updated or not, after rotate device, and Stop-Resume lifecycle.
     @Test
+    @RepeatRule.Repeat(times = 5)
     fun checkPreviewUpdatedAfterRotateDeviceAndStopResume() {
         with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly

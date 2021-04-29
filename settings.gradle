@@ -63,6 +63,7 @@ private Set<BuildType> createRequestedFilter() {
                 break
             case "MEDIA":
                 filter.add(BuildType.MEDIA)
+                break
             case "WEAR":
                 filter.add(BuildType.WEAR)
                 break
@@ -216,6 +217,7 @@ includeProject(":camera:integration-tests:camera-testapp-view", "camera/integrat
 includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib", [BuildType.MAIN])
 includeProject(":car:app:app", "car/app/app", [BuildType.MAIN])
 includeProject(":car:app:app-activity", "car/app/app-activity", [BuildType.MAIN])
+includeProject(":car:app:app-property", "car/app/app-property", [BuildType.MAIN])
 includeProject(":car:app:app-samples:helloworld-automotive", "car/app/app-samples/helloworld/automotive", [BuildType.MAIN])
 includeProject(":car:app:app-samples:helloworld-common", "car/app/app-samples/helloworld/common", [BuildType.MAIN])
 includeProject(":car:app:app-samples:helloworld-mobile", "car/app/app-samples/helloworld/mobile", [BuildType.MAIN])
@@ -231,6 +233,7 @@ includeProject(":car:app:app-samples:showcase-mobile", "car/app/app-samples/show
 includeProject(":car:app:app-testing", "car/app/app-testing", [BuildType.MAIN])
 includeProject(":cardview:cardview", "cardview/cardview", [BuildType.MAIN])
 includeProject(":collection:collection", "collection/collection", [BuildType.MAIN])
+includeProject(":collection:collection2", "collection/collection2", [BuildType.MAIN])
 includeProject(":collection:collection-benchmark", "collection/collection-benchmark", [BuildType.MAIN])
 includeProject(":collection:collection-ktx", "collection/collection-ktx", [BuildType.MAIN])
 includeProject(":collection:integration-tests:testapp", "collection/integration-tests/testapp", [BuildType.MAIN])
@@ -391,6 +394,7 @@ includeProject(":hilt:hilt-common", "hilt/hilt-common", [BuildType.MAIN])
 includeProject(":hilt:hilt-compiler", "hilt/hilt-compiler", [BuildType.MAIN])
 includeProject(":hilt:hilt-navigation", "hilt/hilt-navigation", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":hilt:hilt-navigation-compose", "hilt/hilt-navigation-compose", [BuildType.COMPOSE])
+includeProject(":hilt:hilt-navigation-compose-samples", "hilt/hilt-navigation-compose/samples", [BuildType.COMPOSE])
 includeProject(":hilt:hilt-navigation-fragment", "hilt/hilt-navigation-fragment", [BuildType.MAIN])
 includeProject(":hilt:hilt-work", "hilt/hilt-work", [BuildType.MAIN])
 includeProject(":hilt:integration-tests:hilt-testapp-viewmodel", "hilt/integration-tests/viewmodelapp", [BuildType.MAIN])
@@ -488,6 +492,7 @@ includeProject(":percentlayout:percentlayout", "percentlayout/percentlayout", [B
 includeProject(":preference:preference", "preference/preference", [BuildType.MAIN])
 includeProject(":preference:preference-ktx", "preference/preference-ktx", [BuildType.MAIN])
 includeProject(":print:print", "print/print", [BuildType.MAIN])
+includeProject(":profileinstaller:profileinstaller", "profileinstaller/profileinstaller", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":recommendation:recommendation", "recommendation/recommendation", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview", "recyclerview/recyclerview", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview-benchmark", "recyclerview/recyclerview-benchmark", [BuildType.MAIN])
@@ -569,6 +574,8 @@ includeProject(":wear:wear", "wear/wear", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-complications-data", "wear/wear-complications-data", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-complications-provider", "wear/wear-complications-provider", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-complications-provider-samples", "wear/wear-complications-provider/samples", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:compose:compose-foundation", "wear/compose/foundation", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:compose:compose-material", "wear/compose/material", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input", "wear/wear-input", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input-testing", "wear/wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, BuildType.WEAR])

@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,6 +87,7 @@ public final class ExtensionDisplayFeatureTest {
         assertNotEquals(original, other);
     }
 
+    @Ignore
     @Test
     public void testHashCode_matchesIfEqual() {
         Rect originalRect = new Rect(1, 0, 1, 10);

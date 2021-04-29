@@ -17,19 +17,16 @@
 package androidx.car.app.activity.renderer.surface;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.car.app.activity.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
 
 /**
  * A listener of {@link SurfaceHolder}.
@@ -38,14 +35,17 @@ import androidx.car.app.serialization.BundlerException;
  */
 @RestrictTo(LIBRARY)
 public class SurfaceHolderListener implements SurfaceHolder.Callback {
+    private final ServiceDispatcher mServiceDispatcher;
     @Nullable
     private ISurfaceListener mSurfaceListener;
     private boolean mIsSurfaceAvailable;
     private final SurfaceWrapperProvider mSurfaceWrapperProvider;
 
-    public SurfaceHolderListener(@NonNull SurfaceWrapperProvider surfaceWrapperProvider) {
+    public SurfaceHolderListener(@NonNull ServiceDispatcher serviceDispatcher,
+            @NonNull SurfaceWrapperProvider surfaceWrapperProvider) {
         super();
         mSurfaceWrapperProvider = surfaceWrapperProvider;
+        mServiceDispatcher = serviceDispatcher;
     }
 
     /**
@@ -81,29 +81,18 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
     }
 
     private void notifySurfaceCreated() {
-        try {
-            if (mSurfaceListener != null) {
-                mSurfaceListener.onSurfaceAvailable(
-                        Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper()));
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
-        } catch (BundlerException e) {
-            Log.e(TAG, "Unable to serialize surface wrapper", e);
+        ISurfaceListener surfaceListener = mSurfaceListener;
+        if (surfaceListener != null) {
+            mServiceDispatcher.dispatch(() -> surfaceListener.onSurfaceAvailable(
+                    Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
         }
-
     }
 
     private void notifySurfaceChanged() {
-        try {
-            if (mSurfaceListener != null) {
-                mSurfaceListener.onSurfaceChanged(
-                        Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper()));
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
-        } catch (BundlerException e) {
-            Log.e(TAG, "Unable to serialize surface wrapper", e);
+        ISurfaceListener surfaceListener = mSurfaceListener;
+        if (surfaceListener != null) {
+            mServiceDispatcher.dispatch(() -> surfaceListener.onSurfaceChanged(
+                    Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
         }
     }
 }

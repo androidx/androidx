@@ -507,19 +507,15 @@ public class DialogFragment extends Fragment
             @Nullable
             @Override
             public View onFindViewById(int id) {
-                View dialogView = DialogFragment.this.onFindViewById(id);
-                if (dialogView != null) {
-                    return dialogView;
-                }
                 if (fragmentContainer.onHasView()) {
                     return fragmentContainer.onFindViewById(id);
                 }
-                return null;
+                return DialogFragment.this.onFindViewById(id);
             }
 
             @Override
             public boolean onHasView() {
-                return DialogFragment.this.onHasView() || fragmentContainer.onHasView();
+                return  fragmentContainer.onHasView() || DialogFragment.this.onHasView();
             }
         };
     }

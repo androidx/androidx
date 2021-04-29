@@ -5,9 +5,9 @@ package androidx.wear.complications {
     ctor public ComplicationProviderService();
     method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType type);
     method public final android.os.IBinder? onBind(android.content.Intent intent);
-    method @UiThread public void onComplicationActivated(int complicationId, int type);
+    method @UiThread public void onComplicationActivated(int complicationId, androidx.wear.complications.data.ComplicationType type);
     method @UiThread public void onComplicationDeactivated(int complicationId);
-    method @UiThread public abstract void onComplicationUpdate(int complicationId, androidx.wear.complications.data.ComplicationType type, androidx.wear.complications.ComplicationProviderService.ComplicationUpdateListener listener);
+    method @UiThread public abstract void onComplicationRequest(androidx.wear.complications.ComplicationRequest request, androidx.wear.complications.ComplicationProviderService.ComplicationRequestListener listener);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
     field public static final String CATEGORY_PROVIDER_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
     field public static final androidx.wear.complications.ComplicationProviderService.Companion Companion;
@@ -23,18 +23,29 @@ package androidx.wear.complications {
   public static final class ComplicationProviderService.Companion {
   }
 
-  public static interface ComplicationProviderService.ComplicationUpdateListener {
-    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onUpdateComplication(androidx.wear.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
+  public static interface ComplicationProviderService.ComplicationRequestListener {
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onComplicationData(androidx.wear.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
   }
 
-  public class ProviderUpdateRequester {
-    ctor public ProviderUpdateRequester(android.content.Context, android.content.ComponentName);
-    method public void requestUpdate(int...);
+  public final class ComplicationRequest {
+    ctor public ComplicationRequest(int complicationId, androidx.wear.complications.data.ComplicationType complicationType);
+    method public int getComplicationId();
+    method public androidx.wear.complications.data.ComplicationType getComplicationType();
+    property public final int complicationId;
+    property public final androidx.wear.complications.data.ComplicationType complicationType;
+  }
+
+  public final class ProviderUpdateRequester {
+    ctor public ProviderUpdateRequester(android.content.Context context, android.content.ComponentName providerComponent);
+    method public void requestUpdate(int... complicationIds);
     method public void requestUpdateAll();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_COMPLICATION_IDS = "android.support.wearable.complications.EXTRA_COMPLICATION_IDS";
+    field public static final androidx.wear.complications.ProviderUpdateRequester.Companion Companion;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_PROVIDER_COMPONENT = "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT";
+  }
+
+  public static final class ProviderUpdateRequester.Companion {
   }
 
 }

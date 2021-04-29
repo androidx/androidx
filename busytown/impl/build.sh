@@ -18,6 +18,12 @@ mkdir -p "$DIST_DIR"
 # record the build start time
 BUILD_START_MARKER="$OUT_DIR/build.sh.start"
 touch $BUILD_START_MARKER
+# record the build number
+echo "$BUILD_NUMBER" >> "$OUT_DIR/build_number.log"
+# only keep the last 10 build numbers
+tail -n 10 "$OUT_DIR/build_number.log" > "$OUT_DIR/build_number.log.tail"
+mv "$OUT_DIR/build_number.log.tail" "$OUT_DIR/build_number.log"
+cp "$OUT_DIR/build_number.log" "$DIST_DIR/build_number.log"
 
 # runs a given command and prints its result if it fails
 function run() {
@@ -47,7 +53,7 @@ fi
 # --no-watch-fs disables file system watch, because it does not work on busytown
 # due to our builders using OS that is too old.
 run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=../../prebuilts/fullsdk-linux \
-    ./gradlew --ci "$@"
+    ./gradlew --ci saveSystemStats "$@"
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
 DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER

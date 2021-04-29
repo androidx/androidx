@@ -17,7 +17,6 @@
 package androidx.media2.session;
 
 import android.net.Uri;
-import android.os.Bundle;
 
 /**
  * Media constants for sharing constants between media provider and consumer apps
@@ -26,14 +25,16 @@ public class MediaConstants {
     /**
      * A {@link android.net.Uri} scheme used in a media Uri.
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * See {@link MediaController#setMediaUri} and
+     * {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
      */
     public static final String MEDIA_URI_SCHEME = "androidx";
 
     /**
      * A {@link android.net.Uri} authority used in a media Uri.
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * See {@link MediaController#setMediaUri} and
+     * {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
      */
     public static final String MEDIA_URI_AUTHORITY = "media2-session";
 
@@ -41,7 +42,8 @@ public class MediaConstants {
      * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
      * .MediaControllerCompat.TransportControls#playFromMediaId}
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * See {@link MediaController#setMediaUri} and
+     * {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
      */
     public static final String MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID = "playFromMediaId";
 
@@ -49,7 +51,8 @@ public class MediaConstants {
      * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
      * .MediaControllerCompat.TransportControls#playFromSearch}
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * See {@link MediaController#setMediaUri} and
+     * {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
      */
     public static final String MEDIA_URI_PATH_PLAY_FROM_SEARCH = "playFromSearch";
 
@@ -57,7 +60,8 @@ public class MediaConstants {
      * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
      * .MediaControllerCompat.TransportControls#prepareFromMediaId}
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * See {@link MediaController#setMediaUri} and
+     * {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
      */
     public static final String MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID = "prepareFromMediaId";
 
@@ -65,15 +69,16 @@ public class MediaConstants {
      * A {@link android.net.Uri} path used by {@link android.support.v4.media.session
      * .MediaControllerCompat.TransportControls#prepareFromSearch}
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * See {@link MediaController#setMediaUri} and
+     * {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
      */
     public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
 
     /**
-     * A {@link android.net.Uri} path used by {@link MediaController#setMediaUri(Uri, Bundle)} to
-     * indicate that the Uri will be specially handled for interoperability.
+     * A {@link android.net.Uri} path for encoding how the Uri will be translated when connected
+     * to {@link android.support.v4.media.session.MediaSessionCompat}.
      *
-     * @see MediaController#setMediaUri
+     * See {@link MediaController#setMediaUri} for more details.
      */
     public static final String MEDIA_URI_PATH_SET_MEDIA_URI = "setMediaUri";
 

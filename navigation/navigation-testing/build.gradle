@@ -29,6 +29,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
+    api("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
     androidTestImplementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"

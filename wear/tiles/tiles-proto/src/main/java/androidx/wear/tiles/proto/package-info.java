@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * @hide
- */
+/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.wear.tiles.proto;
 

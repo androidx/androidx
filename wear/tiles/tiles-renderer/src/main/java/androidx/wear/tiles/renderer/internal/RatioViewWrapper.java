@@ -63,7 +63,9 @@ public class RatioViewWrapper extends ViewGroup {
     }
 
     public RatioViewWrapper(
-            @NonNull Context context, @Nullable AttributeSet attributeSet, int defStyleAttr) {
+            @NonNull Context context,
+            @Nullable AttributeSet attributeSet,
+            @AttrRes int defStyleAttr) {
         this(context, attributeSet, defStyleAttr, 0);
     }
 

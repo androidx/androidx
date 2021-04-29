@@ -95,7 +95,8 @@ public class TilesTimelineCacheTest {
         // 1m before cutover
         expectTimelineEntryEqual(
                 timelineCache.findTimelineEntryForTime(
-                        cutoverMillis - Duration.ofMinutes(1).toMillis()), entry1);
+                        cutoverMillis - Duration.ofMinutes(1).toMillis()),
+                entry1);
 
         // Cutover
         expectTimelineEntryEqual(timelineCache.findTimelineEntryForTime(cutoverMillis), entry2);
@@ -105,7 +106,8 @@ public class TilesTimelineCacheTest {
         // 1m after
         expectTimelineEntryEqual(
                 timelineCache.findTimelineEntryForTime(
-                        cutoverMillis + Duration.ofMinutes(1).toMillis()), entry2);
+                        cutoverMillis + Duration.ofMinutes(1).toMillis()),
+                entry2);
     }
 
     @Test
@@ -492,13 +494,16 @@ public class TilesTimelineCacheTest {
         // And after the end, should pick entry2
         expectTimelineEntryEqual(
                 timelineCache.findTimelineEntryForTime(
-                        entry2EndMillis + Duration.ofMinutes(1).toMillis()), null);
+                        entry2EndMillis + Duration.ofMinutes(1).toMillis()),
+                null);
         expectTimelineEntryEqual(
                 timelineCache.findClosestTimelineEntry(
-                        entry2EndMillis + Duration.ofMinutes(1).toMillis()), entry2);
+                        entry2EndMillis + Duration.ofMinutes(1).toMillis()),
+                entry2);
 
-        expect.that(timelineCache.findCurrentTimelineEntryExpiry(
-                entry1, entry2EndMillis + Duration.ofMinutes(1).toMillis()))
+        expect.that(
+                        timelineCache.findCurrentTimelineEntryExpiry(
+                                entry1, entry2EndMillis + Duration.ofMinutes(1).toMillis()))
                 .isEqualTo(Long.MAX_VALUE);
     }
 

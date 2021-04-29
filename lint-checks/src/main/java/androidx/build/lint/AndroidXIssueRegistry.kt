@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
@@ -49,7 +51,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
                 PrivateConstructorForUtilityClass.ISSUE,
-                UnsafeNewApiCallsDetector.ISSUE
+                ClassVerificationFailureDetector.ISSUE
             )
         }
     }

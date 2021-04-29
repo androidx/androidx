@@ -110,6 +110,9 @@ public final class LifecycleCameraController extends CameraController {
      *
      * @return null if failed to start camera.
      */
+    // ExperimentalUseCaseGroupLifecycle is removed and has to be replaced with
+    // ExperimentalUseCaseGroup when the dependency to camera-lifecycle is updated to alpha
+    // versions.
     @OptIn(markerClass = ExperimentalUseCaseGroupLifecycle.class)
     @RequiresPermission(Manifest.permission.CAMERA)
     @Override

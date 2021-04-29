@@ -18,20 +18,16 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
+    androidTestImplementation(ESPRESSO_CONTRIB, excludes.espresso)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
     })
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     sourceSets {
         main.res.srcDirs = [
                 "src/main/res",

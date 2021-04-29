@@ -82,6 +82,7 @@ public final class CarAppExtenderTest {
         assertThat(carAppExtender.getActions()).isEmpty();
         assertThat(carAppExtender.getImportance())
                 .isEqualTo(NotificationManagerCompat.IMPORTANCE_UNSPECIFIED);
+        assertThat(carAppExtender.getChannelId()).isNull();
     }
 
     @Test
@@ -233,5 +234,19 @@ public final class CarAppExtenderTest {
 
         assertThat(new CarAppExtender(builder.build()).getColor())
                 .isEqualTo(CarColor.BLUE);
+    }
+
+    @Test
+    public void notification_extended_channelId() {
+        String channelId = "foo";
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
+                        .extend(
+                                new CarAppExtender.Builder()
+                                        .setChannelId(channelId)
+                                        .build());
+
+        assertThat(new CarAppExtender(builder.build()).getChannelId())
+                .isEqualTo(channelId);
     }
 }

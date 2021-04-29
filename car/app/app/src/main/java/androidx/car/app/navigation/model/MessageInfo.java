@@ -124,7 +124,7 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the title of the message.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code message} is {@code null}
          * @see CarText
@@ -138,7 +138,7 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets additional text on the message.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code text} is {@code null}
          * @see CarText
@@ -150,9 +150,9 @@ public final class MessageInfo implements NavigationInfo {
         }
 
         /**
-         * Sets additional text on the message.
+         * Sets additional text on the message, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code text} is {@code null}
          * @see CarText
@@ -187,6 +187,8 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Returns a new instance of a {@link Builder}.
          *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
          * @throws NullPointerException if {@code title} is {@code null}
          */
         public Builder(@NonNull CharSequence title) {
@@ -195,6 +197,8 @@ public final class MessageInfo implements NavigationInfo {
 
         /**
          * Returns a new instance of a {@link Builder}.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          */

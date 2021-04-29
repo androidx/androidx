@@ -31,7 +31,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.wearable.complications.ComplicationData;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -43,6 +42,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.complications.ComplicationHelperActivity;
+import androidx.wear.complications.data.ComplicationData;
+import androidx.wear.complications.data.ComplicationType;
+import androidx.wear.complications.data.DataKt;
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -582,7 +584,7 @@ public final class ComplicationDrawable extends Drawable {
 
     /**
      * Sets the text to be rendered when {@link ComplicationData} is of type {@link
-     * ComplicationData#TYPE_NO_DATA}. If {@code noDataText} is null, an empty text will be
+     * ComplicationType#NO_DATA}. If {@code noDataText} is null, an empty text will be
      * rendered.
      */
     public void setNoDataText(@Nullable CharSequence noDataText) {
@@ -598,7 +600,7 @@ public final class ComplicationDrawable extends Drawable {
 
     /**
      * Sets if the ranged value progress should be hidden when {@link ComplicationData} is of type
-     * {@link ComplicationData#TYPE_RANGED_VALUE}.
+     * {@link ComplicationType#RANGED_VALUE}.
      *
      * @param rangedValueProgressHidden {@code true} if progress should be hidden, {@code false}
      *                                  otherwise
@@ -630,7 +632,10 @@ public final class ComplicationDrawable extends Drawable {
             boolean loadDrawablesAsync
     ) {
         assertInitialized();
-        mComplicationRenderer.setComplicationData(complicationData, loadDrawablesAsync);
+        mComplicationRenderer.setComplicationData(
+                complicationData != null ? complicationData.asWireComplicationData() : null,
+                loadDrawablesAsync
+        );
     }
 
     /**
@@ -638,7 +643,8 @@ public final class ComplicationDrawable extends Drawable {
      */
     @Nullable
     public ComplicationData getComplicationData() {
-        return mComplicationRenderer.getComplicationData();
+        return (mComplicationRenderer.getComplicationData() != null)
+                ? DataKt.toApiComplicationData(mComplicationRenderer.getComplicationData()) : null;
     }
 
     /** Sets whether the complication should be rendered in ambient mode. */
@@ -727,7 +733,7 @@ public final class ComplicationDrawable extends Drawable {
      * milliseconds by default but can be modified using the {@link #setHighlightDuration(long)}
      * method.
      *
-     * <p>If {@link ComplicationData} has the type {@link ComplicationData#TYPE_NO_PERMISSION}, this
+     * <p>If {@link ComplicationData} has the type {@link ComplicationType#NO_PERMISSION}, this
      * method will launch an intent to request complication permission for the watch face. This will
      * only work if the context set by {@link #getDrawable} or the constructor is an
      * instance of WatchFaceService.
@@ -743,17 +749,20 @@ public final class ComplicationDrawable extends Drawable {
         if (mComplicationRenderer == null) {
             return false;
         }
-        ComplicationData data = mComplicationRenderer.getComplicationData();
+        android.support.wearable.complications.ComplicationData data =
+                mComplicationRenderer.getComplicationData();
         if (data == null) {
             return false;
         }
-        if (!data.hasTapAction() && data.getType() != ComplicationData.TYPE_NO_PERMISSION) {
+        if (!data.hasTapAction() && data.getType()
+                != android.support.wearable.complications.ComplicationData.TYPE_NO_PERMISSION) {
             return false;
         }
         if (!getBounds().contains(x, y)) {
             return false;
         }
-        if (data.getType() == ComplicationData.TYPE_NO_PERMISSION) {
+        if (data.getType()
+                == android.support.wearable.complications.ComplicationData.TYPE_NO_PERMISSION) {
             // Check if mContext is an instance of WatchFaceService. We can't use the standard
             // instanceof operator because WatchFaceService is defined in library which depends on
             // this one, hence the reflection hack.
@@ -850,7 +859,7 @@ public final class ComplicationDrawable extends Drawable {
 
     /**
      * Returns the text to be rendered when {@link ComplicationData} is of type {@link
-     * ComplicationData#TYPE_NO_DATA}.
+     * ComplicationType#NO_DATA}.
      */
     @Nullable
     public CharSequence getNoDataText() {

@@ -38,19 +38,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Base class to serialize / deserialize {@link OngoingActivityStatus} into / from a Notification
- *
+ * Base class to serialize / deserialize {@link OngoingActivityStatus} into / from a Notification.
+ * <p>
  * A status is composed of Parts, and they are joined together with a template.
- *
+ * <p>
  * Note that for backwards compatibility reasons the code rendering this status message may not
  * have all of the [StatusPart] classes that are available in later versions of the library.
  * Templates that do not have values for all of the named parts will not be used.
  * The template list will be iterated through looking for the first template with all matching named
  * parts available, this will be selected for rendering the status.
- *
+ * <p>
  * To provide for backwards compatibility, you should provide one (or more) fallback templates which
  * use status parts from earlier versions of the API. e.g. TextStatusPart & TimerStatusPart
- *
+ * <p>
  * The status and part classes here use timestamps for updating the displayed representation of the
  * status, in cases when this is needed (chronometers), as returned by
  * {@link android.os.SystemClock#elapsedRealtime()}

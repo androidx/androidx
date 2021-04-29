@@ -35,6 +35,14 @@ public final class ShowcaseService extends CarAppService {
     public static final String SHARED_PREF_KEY = "ShowcasePrefs";
     public static final String PRE_SEED_KEY = "PreSeed";
 
+    // Intent actions for notification actions in car and phone
+    public static final String INTENT_ACTION_NAVIGATE =
+            "androidx.car.app.sample.showcase.INTENT_ACTION_PHONE";
+    public static final String INTENT_ACTION_CALL =
+            "androidx.car.app.sample.showcase.INTENT_ACTION_CANCEL_RESERVATION";
+    public static final String INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP =
+            "androidx.car.app.sample.showcase.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP";
+
     /** Creates a deep link URI with the given deep link action. */
     @NonNull
     public static Uri createDeepLinkUri(@NonNull String deepLinkAction) {

@@ -142,26 +142,39 @@ public class UserStyleData(
  * Describes the list of [UserStyleSetting]s the user can configure.
  *
  * @param userStyleSettings The user configurable style categories associated with this watch face.
- * Empty if the watch face doesn't support user styling.
+ * Empty if the watch face doesn't support user styling. Note we allow at most one
+ * [UserStyleSetting.ComplicationsUserStyleSetting] and one
+ * [UserStyleSetting.CustomValueUserStyleSetting]
+ * in the list.
  */
 public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>
 ) {
     init {
+        var complicationsUserStyleSettingCount = 0
         var customValueUserStyleSettingCount = 0
         for (setting in userStyleSettings) {
-            if (setting is UserStyleSetting.CustomValueUserStyleSetting) {
-                customValueUserStyleSettingCount++
+            when (setting) {
+                is UserStyleSetting.ComplicationsUserStyleSetting ->
+                    complicationsUserStyleSettingCount++
+
+                is UserStyleSetting.CustomValueUserStyleSetting ->
+                    customValueUserStyleSettingCount++
             }
+        }
+
+        // This requirement makes it easier to implement companion editors.
+        require(complicationsUserStyleSettingCount <= 1) {
+            "At most only one ComplicationsUserStyleSetting is allowed"
         }
 
         // There's a hard limit to how big Schema + UserStyle can be and since this data is sent
         // over bluetooth to the companion there will be performance issues well before we hit
         // that the limit. As a result we want the total size of custom data to be kept small and
         // we are initially restricting there to be at most one CustomValueUserStyleSetting.
-        require(
-            customValueUserStyleSettingCount <= 1
-        ) { "At most only one CustomValueUserStyleSetting is allowed" }
+        require(customValueUserStyleSettingCount <= 1) {
+            "At most only one CustomValueUserStyleSetting is allowed"
+        }
     }
 
     /** @hide */

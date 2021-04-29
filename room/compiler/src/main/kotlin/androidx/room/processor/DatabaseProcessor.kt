@@ -22,11 +22,16 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.requireEnclosingTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
+import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
+import androidx.room.processor.ProcessorErrors.autoMigrationSchemasMustBeRoomGenerated
+import androidx.room.processor.ProcessorErrors.invalidAutoMigrationSchema
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
-import androidx.room.vo.AutoMigrationResult
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -36,6 +41,9 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
 import com.squareup.javapoet.TypeName
+import java.io.File
+import java.io.FileInputStream
+import java.io.UnsupportedEncodingException
 import java.util.Locale
 
 class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
@@ -84,7 +92,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            it.enclosingTypeElement.className == RoomTypeNames.ROOM_DB
+            it.requireEnclosingTypeElement().className == RoomTypeNames.ROOM_DB
         }.mapNotNull { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
@@ -125,27 +133,119 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     private fun processAutoMigrations(
         element: XTypeElement,
         latestDbSchema: DatabaseBundle
-    ): List<AutoMigrationResult> {
+    ): List<androidx.room.vo.AutoMigration> {
         val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
+
         val autoMigrationList = dbAnnotation
             .getAsAnnotationBoxArray<AutoMigration>("autoMigrations")
-        context.checker.check(
-            autoMigrationList.isEmpty() || dbAnnotation.value.exportSchema,
-            element,
-            ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
-        )
+
+        if (autoMigrationList.isNotEmpty()) {
+            if (!dbAnnotation.value.exportSchema) {
+                context.logger.e(
+                    element,
+                    AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+                )
+                return emptyList()
+            }
+            if (context.schemaOutFolder == null) {
+                context.logger.e(
+                    element,
+                    AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
+                )
+                return emptyList()
+            }
+        }
 
         return autoMigrationList.mapNotNull {
+            val schemaOutFolderPath = context.schemaOutFolder!!.absolutePath +
+                File.separator + element.className.canonicalName()
             val autoMigration = it.value
-            AutoMigrationProcessor(
-                element = element,
-                context = context,
-                from = autoMigration.from,
-                to = autoMigration.to,
-                spec = it.getAsType("spec")!!,
-                latestDbSchema = latestDbSchema
-            ).process()
+            val validatedFromSchemaFile = getValidatedSchemaFile(
+                autoMigration.from,
+                schemaOutFolderPath
+            )
+
+            fun deserializeSchemaFile(fileInputStream: FileInputStream, versionNumber: Int): Any {
+                return try {
+                    SchemaBundle.deserialize(fileInputStream).database
+                } catch (e: UnsupportedEncodingException) {
+                    invalidAutoMigrationSchema(
+                        "$versionNumber.json",
+                        schemaOutFolderPath
+                    )
+                }
+            }
+
+            if (validatedFromSchemaFile != null) {
+                val fromSchemaBundle = validatedFromSchemaFile.inputStream().use {
+                    deserializeSchemaFile(it, autoMigration.from)
+                }
+                val toSchemaBundle = if (autoMigration.to == latestDbSchema.version) {
+                    latestDbSchema
+                } else {
+                    val validatedToSchemaFile = getValidatedSchemaFile(
+                        autoMigration.to,
+                        schemaOutFolderPath
+                    )
+                    if (validatedToSchemaFile != null) {
+                        validatedToSchemaFile.inputStream().use {
+                            deserializeSchemaFile(it, autoMigration.to)
+                        }
+                    } else {
+                        return@mapNotNull null
+                    }
+                }
+                if (fromSchemaBundle !is DatabaseBundle || toSchemaBundle !is DatabaseBundle) {
+                    context.logger.e(
+                        element,
+                        autoMigrationSchemasMustBeRoomGenerated(
+                            autoMigration.from,
+                            autoMigration.to
+                        )
+                    )
+                    return@mapNotNull null
+                }
+
+                AutoMigrationProcessor(
+                    element = element,
+                    context = context,
+                    spec = it.getAsType("spec")!!,
+                    fromSchemaBundle = fromSchemaBundle,
+                    toSchemaBundle = toSchemaBundle
+                ).process()
+            } else {
+                null
+            }
         }
+    }
+
+    private fun getValidatedSchemaFile(version: Int, schemaOutFolderPath: String): File? {
+        val schemaFile = File(
+            context.schemaOutFolder,
+            element.className.canonicalName() + File.separatorChar + "$version.json"
+        )
+        if (!schemaFile.exists()) {
+            context.logger.e(
+                ProcessorErrors.autoMigrationSchemasNotFound(
+                    "$version.json",
+                    schemaOutFolderPath
+                ),
+                element
+            )
+            return null
+        }
+
+        if (schemaFile.length() <= 0) {
+            context.logger.e(
+                ProcessorErrors.autoMigrationSchemaIsEmpty(
+                    "$version.json",
+                    schemaOutFolderPath
+                ),
+                element
+            )
+            return null
+        }
+        return schemaFile
     }
 
     private fun validateForeignKeys(element: XTypeElement, entities: List<Entity>) {

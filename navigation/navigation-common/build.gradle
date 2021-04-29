@@ -28,6 +28,10 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    api("androidx.savedstate:savedstate:1.0.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.collection:collection-ktx:1.1.0")
 
@@ -42,8 +46,8 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
     androidTestImplementation(KOTLIN_STDLIB)
 }
 

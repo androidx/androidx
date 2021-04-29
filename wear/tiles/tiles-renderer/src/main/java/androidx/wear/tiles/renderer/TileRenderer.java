@@ -93,13 +93,15 @@ public final class TileRenderer {
             @NonNull ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        this.mRenderer = new TileRendererInternal(
-                appContext,
-                layout.toProto(),
-                StandardResourceAccessors.forLocalApp(appContext, resources).build(),
-                tilesTheme,
-                loadActionExecutor,
-                (s) -> loadActionListener.onClick(StateBuilders.State.fromProto(s)));
+        this.mRenderer =
+                new TileRendererInternal(
+                        appContext,
+                        layout.toProto(),
+                        StandardResourceAccessors.forLocalApp(resources.toProto(), appContext)
+                                .build(),
+                        tilesTheme,
+                        loadActionExecutor,
+                        (s) -> loadActionListener.onClick(StateBuilders.State.fromProto(s)));
     }
 
     /**

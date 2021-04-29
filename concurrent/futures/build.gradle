@@ -32,9 +32,6 @@ dependencies {
     testImplementation(TRUTH)
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
 androidx {
     name = "AndroidX Futures"
     publish = Publish.SNAPSHOT_AND_RELEASE

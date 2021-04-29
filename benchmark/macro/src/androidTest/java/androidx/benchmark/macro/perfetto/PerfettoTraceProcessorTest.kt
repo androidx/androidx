@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.device
+import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -31,10 +32,10 @@ import kotlin.test.assertFailsWith
 @SmallTest
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
-class PerfettoTraceProcessorTest {
+public class PerfettoTraceProcessorTest {
     @Test
-    fun shellPath() {
-        assumeTrue(PerfettoTraceProcessor.isAbiSupported())
+    public fun shellPath() {
+        assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
         val device = InstrumentationRegistry.getInstrumentation().device()
         val out = device.executeShellCommand("$shellPath --version")
@@ -45,24 +46,24 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun getJsonMetrics_tracePathWithSpaces() {
-        assumeTrue(PerfettoTraceProcessor.isAbiSupported())
+    public fun getJsonMetrics_tracePathWithSpaces() {
+        assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/a b", "ignored")
         }
     }
 
     @Test
-    fun getJsonMetrics_metricWithSpaces() {
-        assumeTrue(PerfettoTraceProcessor.isAbiSupported())
+    public fun getJsonMetrics_metricWithSpaces() {
+        assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/ignored", "a b")
         }
     }
 
     @Test
-    fun validateAbiNotSupportedBehavior() {
-        assumeFalse(PerfettoTraceProcessor.isAbiSupported())
+    public fun validateAbiNotSupportedBehavior() {
+        assumeFalse(isAbiSupported())
         assertFailsWith<IllegalStateException> {
             PerfettoTraceProcessor.shellPath
         }
@@ -73,7 +74,7 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun validateTraceProcessorBinariesExist() {
+    public fun validateTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()

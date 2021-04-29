@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
 
     <issue
         id="BanSynchronizedMethods"
@@ -57,6 +57,72 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mDelegate.setNotificationUris(cr, uris);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="706"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mDelegate.getNotificationUri();"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="713"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mDelegate.getNotificationUris();"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="721"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mDelegate.setExtras(extras);"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="733"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.room.util.DBUtil is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new CancellationSignal();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.java"
+            line="168"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.room.RoomDatabase.JournalMode is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                return activityManager.isLowRamDevice();"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="782"
+            column="40"/>
+    </issue>
+
+    <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
         errorLine1="public class Room {"
@@ -68,35 +134,13 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.room.util.DBUtil is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return new CancellationSignal();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/util/DBUtil.java"
-            line="168"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.room.RoomDatabase.JournalMode is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="                return activityManager.isLowRamDevice();"
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="673"
-            column="40"/>
-    </issue>
-
-    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="170"
+            line="173"
             column="13"/>
     </issue>
 
@@ -107,7 +151,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="215"
+            line="219"
             column="13"/>
     </issue>
 
@@ -118,7 +162,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="265"
+            line="269"
             column="13"/>
     </issue>
 
@@ -162,7 +206,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="167"
+            line="170"
             column="13"/>
     </issue>
 
@@ -173,7 +217,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="209"
+            line="213"
             column="13"/>
     </issue>
 
@@ -184,7 +228,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="257"
+            line="261"
             column="13"/>
     </issue>
 
@@ -657,7 +701,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="527"
+            line="523"
             column="45"/>
     </issue>
 
@@ -668,7 +712,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="616"
+            line="612"
             column="16"/>
     </issue>
 
@@ -679,7 +723,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="616"
+            line="612"
             column="43"/>
     </issue>
 
@@ -690,7 +734,7 @@
         errorLine2="                                                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="616"
+            line="612"
             column="64"/>
     </issue>
 
@@ -701,7 +745,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="636"
+            line="632"
             column="16"/>
     </issue>
 
@@ -712,7 +756,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="636"
+            line="632"
             column="43"/>
     </issue>
 
@@ -723,7 +767,7 @@
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="637"
+            line="633"
             column="13"/>
     </issue>
 
@@ -734,96 +778,8 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="745"
+            line="741"
             column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="56"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="56"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            boolean inTransaction, String... tables) {"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="57"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="61"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="61"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            boolean inTransaction, String... tables) {"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="62"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected abstract List&lt;T> convertRows(Cursor cursor);"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="106"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected abstract List&lt;T> convertRows(Cursor cursor);"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
-            line="106"
-            column="44"/>
     </issue>
 
     <issue
@@ -844,7 +800,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="86"
+            line="87"
             column="24"/>
     </issue>
 
@@ -855,7 +811,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="298"
+            line="392"
             column="65"/>
     </issue>
 
@@ -866,7 +822,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="456"
+            line="565"
             column="12"/>
     </issue>
 
@@ -877,7 +833,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="574"
+            line="683"
             column="16"/>
     </issue>
 
@@ -888,7 +844,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="1142"
+            line="1269"
             column="62"/>
     </issue>
 
@@ -1306,7 +1262,7 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="390"
+            line="391"
             column="23"/>
     </issue>
 
@@ -1317,7 +1273,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="390"
+            line="391"
             column="36"/>
     </issue>
 
@@ -1328,7 +1284,7 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="395"
+            line="396"
             column="23"/>
     </issue>
 
@@ -1339,7 +1295,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="395"
+            line="396"
             column="36"/>
     </issue>
 
@@ -1350,7 +1306,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="396"
+            line="397"
             column="17"/>
     </issue>
 
@@ -1361,7 +1317,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="618"
+            line="672"
             column="22"/>
     </issue>
 
@@ -1372,7 +1328,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="618"
+            line="672"
             column="51"/>
     </issue>
 

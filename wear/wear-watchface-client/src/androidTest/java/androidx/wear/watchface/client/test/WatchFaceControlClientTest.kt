@@ -32,12 +32,17 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
@@ -54,10 +59,10 @@ import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -66,6 +71,7 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -139,12 +145,16 @@ public class WatchFaceControlClientTest {
 
     private val complications = mapOf(
         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
-                .setTitle(PlainComplicationText.Builder("Left").build())
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("ID").build(),
+                ComplicationText.EMPTY
+            ).setTitle(PlainComplicationText.Builder("Left").build())
                 .build(),
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
-                .setTitle(PlainComplicationText.Builder("Right").build())
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("ID").build(),
+                ComplicationText.EMPTY
+            ).setTitle(PlainComplicationText.Builder("Right").build())
                 .build()
     )
 
@@ -464,11 +474,13 @@ public class WatchFaceControlClientTest {
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build()
+                        PlainComplicationText.Builder("Test").build(),
+                        ComplicationText.EMPTY
                     ).build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     LongTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build()
+                        PlainComplicationText.Builder("Test").build(),
+                        ComplicationText.EMPTY
                     ).build()
             )
         )
@@ -650,6 +662,78 @@ public class WatchFaceControlClientTest {
     }
 
     @Test
+    public fun additionalContentDescriptionLabels(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        async { createEngine() }
+
+        // Wait for the instance to be created.
+        withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
+
+        // Add some additional ContentDescriptionLabels
+        wallpaperService.watchFace.renderer.additionalContentDescriptionLabels = listOf(
+            Pair(
+                0,
+                ContentDescriptionLabel(
+                    PlainComplicationText.Builder("Before").build(),
+                    Rect(10, 10, 20, 20),
+                    null
+                )
+            ),
+            Pair(
+                20000,
+                ContentDescriptionLabel(
+                    PlainComplicationText.Builder("After").build(),
+                    Rect(30, 30, 40, 40),
+                    null
+                )
+            )
+        )
+
+        val sysUiInterface =
+            service.getInteractiveWatchFaceClientInstance("testId")!!
+
+        val contentDescriptionLabels = sysUiInterface.contentDescriptionLabels
+        assertThat(contentDescriptionLabels.size).isEqualTo(5)
+
+        // Central clock element. Note we don't know the timezone this test will be running in
+        // so we can't assert the contents of the clock's test.
+        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
+        assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
+
+        // First additional ContentDescriptionLabel.
+        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(10, 10, 20, 20))
+        assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
+            .isEqualTo("Before")
+
+        // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(80, 160, 160, 240))
+        assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
+            .isEqualTo("ID Left")
+
+        // Right complication.
+        assertThat(contentDescriptionLabels[3].bounds).isEqualTo(Rect(240, 160, 320, 240))
+        assertThat(contentDescriptionLabels[3].getTextAt(context.resources, 0))
+            .isEqualTo("ID Right")
+
+        // Second additional ContentDescriptionLabel.
+        assertThat(contentDescriptionLabels[4].bounds).isEqualTo(Rect(30, 30, 40, 40))
+        assertThat(contentDescriptionLabels[4].getTextAt(context.resources, 0))
+            .isEqualTo("After")
+    }
+
+    @Test
     public fun updateInstance(): Unit = runBlocking {
         val deferredInteractiveInstance = async {
             service.getOrCreateInteractiveWatchFaceClient(
@@ -756,16 +840,76 @@ public class WatchFaceControlClientTest {
         )
         interactiveInstance.close()
     }
+
+    @Test
+    public fun crashingWatchFace(): Unit = runBlocking {
+        val wallpaperService = TestCrashingWatchFaceService(context)
+
+        // Create the engine which triggers the crashing watchface
+        async {
+            handler.post {
+                engine = wallpaperService.onCreateEngine()
+                engine.onSurfaceChanged(
+                    surfaceHolder,
+                    0,
+                    surfaceHolder.surfaceFrame.width(),
+                    surfaceHolder.surfaceFrame.height()
+                )
+            }
+        }
+
+        try {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+            fail("Expected an exception to be thrown because the watchface crashed on init")
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf(
+                WatchFaceControlClient.ServiceStartFailureException::class.java
+            )
+            assertThat(e).hasMessageThat().contains("Watchface crashed during init")
+            assertThat(e).hasMessageThat().contains("exceptionMessage: Deliberately crashing")
+        }
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder
 ) : ExampleCanvasAnalogWatchFaceService() {
+    internal lateinit var watchFace: WatchFace
 
     init {
         attachBaseContext(testContext)
     }
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState
+    ): WatchFace {
+        watchFace = super.createWatchFace(surfaceHolder, watchState)
+        return watchFace
+    }
+}
+
+internal class TestCrashingWatchFaceService(
+    testContext: Context
+) : WatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState
+    ): WatchFace {
+        throw Exception("Deliberately crashing")
+    }
 }

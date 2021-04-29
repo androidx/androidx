@@ -25,7 +25,7 @@ import android.os.SystemClock;
  * suppressed.
  */
 class MediaRouterActiveScanThrottlingHelper {
-    // The constant is package visible for tests can set it to a shorter durationaq.
+    // The constant is package visible for tests can set it to a shorter duration.
     static final long MAX_ACTIVE_SCAN_DURATION_MS = 30000;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());

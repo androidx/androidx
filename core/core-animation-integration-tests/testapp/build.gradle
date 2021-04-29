@@ -27,7 +27,7 @@ dependencies {
     implementation(project(":core:core-animation"))
     implementation(project(":core:core-animation-testing"))
 
-    implementation(ANDROIDX_TEST_EXT_JUNIT, libs.exclude_for_espresso)
-    implementation(ANDROIDX_TEST_CORE, libs.exclude_for_espresso)
-    implementation(ANDROIDX_TEST_RULES, libs.exclude_for_espresso)
+    implementation(ANDROIDX_TEST_EXT_JUNIT, excludes.espresso)
+    implementation(ANDROIDX_TEST_CORE, excludes.espresso)
+    implementation(ANDROIDX_TEST_RULES, excludes.espresso)
 }

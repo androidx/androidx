@@ -67,8 +67,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun isSuspendFunction() = false
 
-    final override val enclosingTypeElement: XTypeElement
-        get() = this.field.enclosingTypeElement
+    final override val enclosingElement: XTypeElement
+        get() = this.field.enclosingElement
 
     final override fun isVarArgs() = false
 

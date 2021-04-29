@@ -17,6 +17,7 @@
 package androidx.wear.watchface.control;
 
 import androidx.wear.watchface.control.IInteractiveWatchFace;
+import androidx.wear.watchface.control.data.CrashInfoParcel;
 
 /**
  * Callback issued when {@link IInteractiveWatchFaceWcs} has been created.
@@ -26,7 +27,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace;
 interface IPendingInteractiveWatchFace {
    // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
    // in the future to remain binary backwards compatible.
-   // Next Id: 8
+   // Next Id: 4
 
    /**
     * API version number. This should be incremented every time a new method is added.
@@ -43,4 +44,7 @@ interface IPendingInteractiveWatchFace {
 
    /** Called by the watchface when {@link IInteractiveWatchFaceWcs} has been created. */
    oneway void onInteractiveWatchFaceCreated(in IInteractiveWatchFace iInteractiveWatchFace) = 2;
+
+   /** Called if the watchface crashed on startup. */
+   oneway void onInteractiveWatchFaceCrashed(in CrashInfoParcel exception) = 3;
 }

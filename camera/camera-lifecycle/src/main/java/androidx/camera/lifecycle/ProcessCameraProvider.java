@@ -292,11 +292,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * the {@link UseCaseGroup} in the latest
      * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      */
-    @ExperimentalUseCaseGroupLifecycle
+    @ExperimentalUseCaseGroup
     @SuppressWarnings({"lambdaLast", "deprecation"})
     @MainThread
     @NonNull
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCaseGroup useCaseGroup) {

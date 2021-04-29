@@ -79,8 +79,11 @@ public abstract class TileProviderService extends Service {
     public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
 
     /**
-     * Called when the system is requesting a new timeline from this Tile Provider. Note that this
-     * may be called from a background thread.
+     * Called when the system is requesting a new timeline from this Tile Provider. The returned
+     * future must complete after at most 10 seconds from the moment this method is called (exact
+     * timeout length subject to change).
+     *
+     * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
      * @param requestParams Parameters about the request. See {@link TileRequest} for more info.
      */
@@ -89,11 +92,14 @@ public abstract class TileProviderService extends Service {
     protected abstract ListenableFuture<Tile> onTileRequest(@NonNull TileRequest requestParams);
 
     /**
-     * Called when the system is requesting a resource bundle from this Tile Provider. Note that
-     * this may be called from a background thread.
+     * Called when the system is requesting a resource bundle from this Tile Provider. The returned
+     * future must complete after at most 10 seconds from the moment this method is called (exact
+     * timeout length subject to change).
+     *
+     * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
      * @param requestParams Parameters about the request. See {@link ResourcesRequest} for more
-     *                      info.
+     *     info.
      */
     @MainThread
     @NonNull
@@ -101,41 +107,41 @@ public abstract class TileProviderService extends Service {
             @NonNull ResourcesRequest requestParams);
 
     /**
-     * Called when a tile provided by this Tile Provider is added to the carousel. Note that this
-     * may be called from a background thread.
+     * Called when a tile provided by this Tile Provider is added to the carousel.
      *
-     * @param requestParams Parameters about the request. See {@link TileAddEvent} for more
-     *     info.
+     * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileAddEvent} for more info.
      */
     @MainThread
     protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {}
 
     /**
-     * Called when a tile provided by this Tile Provider is removed from the carousel. Note that
-     * this may be called from a background thread.
+     * Called when a tile provided by this Tile Provider is removed from the carousel.
      *
-     * @param requestParams Parameters about the request. See {@link TileRemoveEvent} for more
-     *     info.
+     * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileRemoveEvent} for more info.
      */
     @MainThread
     protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {}
 
     /**
-     * Called when a tile provided by this Tile Provider becomes into view, on screen. Note that
-     * this may be called from a background thread.
+     * Called when a tile provided by this Tile Provider becomes into view, on screen.
      *
-     * @param requestParams Parameters about the request. See {@link TileEnterEvent} for more
-     *     info.
+     * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileEnterEvent} for more info.
      */
     @MainThread
     protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {}
 
     /**
-     * Called when a tile provided by this Tile Provider goes out of view, on screen. Note that this
-     * may be called from a background thread.
+     * Called when a tile provided by this Tile Provider goes out of view, on screen.
      *
-     * @param requestParams Parameters about the request. See {@link TileLeaveEvent} for more
-     *     info.
+     * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileLeaveEvent} for more info.
      */
     @MainThread
     protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {}

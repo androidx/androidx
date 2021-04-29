@@ -518,6 +518,29 @@ public final class DimensionBuilders {
         @NonNull
         DimensionProto.ContainerDimension toContainerDimensionProto();
 
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ContainerDimension fromContainerDimensionProto(
+                @NonNull DimensionProto.ContainerDimension proto) {
+            if (proto.hasLinearDimension()) {
+                return DpProp.fromProto(proto.getLinearDimension());
+            }
+            if (proto.hasExpandedDimension()) {
+                return ExpandedDimensionProp.fromProto(proto.getExpandedDimension());
+            }
+            if (proto.hasWrappedDimension()) {
+                return WrappedDimensionProp.fromProto(proto.getWrappedDimension());
+            }
+            throw new IllegalStateException(
+                    "Proto was not a recognised instance of ContainerDimension");
+        }
+
         /** Builder to create {@link ContainerDimension} objects. */
         @SuppressLint("StaticFinalBuilder")
         interface Builder {
@@ -539,6 +562,29 @@ public final class DimensionBuilders {
         @NonNull
         DimensionProto.ImageDimension toImageDimensionProto();
 
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ImageDimension fromImageDimensionProto(
+                @NonNull DimensionProto.ImageDimension proto) {
+            if (proto.hasLinearDimension()) {
+                return DpProp.fromProto(proto.getLinearDimension());
+            }
+            if (proto.hasExpandedDimension()) {
+                return ExpandedDimensionProp.fromProto(proto.getExpandedDimension());
+            }
+            if (proto.hasProportionalDimension()) {
+                return ProportionalDimensionProp.fromProto(proto.getProportionalDimension());
+            }
+            throw new IllegalStateException(
+                    "Proto was not a recognised instance of ImageDimension");
+        }
+
         /** Builder to create {@link ImageDimension} objects. */
         @SuppressLint("StaticFinalBuilder")
         interface Builder {
@@ -559,6 +605,23 @@ public final class DimensionBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.SpacerDimension toSpacerDimensionProto();
+
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static SpacerDimension fromSpacerDimensionProto(
+                @NonNull DimensionProto.SpacerDimension proto) {
+            if (proto.hasLinearDimension()) {
+                return DpProp.fromProto(proto.getLinearDimension());
+            }
+            throw new IllegalStateException(
+                    "Proto was not a recognised instance of SpacerDimension");
+        }
 
         /** Builder to create {@link SpacerDimension} objects. */
         @SuppressLint("StaticFinalBuilder")

@@ -94,7 +94,7 @@ package androidx.wear.watchface.client {
     method public void displayPressedAnimation(int complicationId);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
-    method public java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceClient.ContentDescriptionLabel> getContentDescriptionLabels();
+    method public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -108,7 +108,7 @@ package androidx.wear.watchface.client {
     method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
     method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyleData userStyle);
     property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
-    property public abstract java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceClient.ContentDescriptionLabel> contentDescriptionLabels;
+    property public abstract java.util.List<androidx.wear.watchface.ContentDescriptionLabel> contentDescriptionLabels;
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
@@ -126,15 +126,6 @@ package androidx.wear.watchface.client {
     field public static final int TAP_TYPE_CANCEL = 1; // 0x1
     field public static final int TAP_TYPE_DOWN = 0; // 0x0
     field public static final int TAP_TYPE_UP = 2; // 0x2
-  }
-
-  public static final class InteractiveWatchFaceClient.ContentDescriptionLabel {
-    ctor public InteractiveWatchFaceClient.ContentDescriptionLabel(androidx.wear.complications.data.ComplicationText text, android.graphics.Rect bounds, android.app.PendingIntent? tapAction);
-    method public android.graphics.Rect getBounds();
-    method public android.app.PendingIntent? getTapAction();
-    method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
-    property public final android.graphics.Rect bounds;
-    property public final android.app.PendingIntent? tapAction;
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
@@ -155,7 +146,7 @@ package androidx.wear.watchface.client {
   }
 
   public static final class WatchFaceControlClient.ServiceStartFailureException extends java.lang.Exception {
-    ctor public WatchFaceControlClient.ServiceStartFailureException();
+    ctor public WatchFaceControlClient.ServiceStartFailureException(optional String message);
   }
 
   public final class WatchFaceId {

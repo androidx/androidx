@@ -21,8 +21,6 @@ import static java.util.Objects.requireNonNull;
 import android.app.Activity;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,10 +33,16 @@ import androidx.lifecycle.Lifecycle.Event;
  */
 final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
     public static final String TAG = "ActivityLifecycleListener";
+    @NonNull
+    private ServiceDispatcher mServiceDispatcher;
     @Nullable
     private IRendererCallback mRendererCallback;
     @NonNull
     private Event mLastObservedEvent = Event.ON_ANY;
+
+    ActivityLifecycleDelegate(@NonNull ServiceDispatcher serviceDispatcher) {
+        mServiceDispatcher = serviceDispatcher;
+    }
 
     /**
      * Registers a {@link IRendererCallback} that is notified of lifecycle method invocations.
@@ -83,9 +87,14 @@ final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
     }
 
     @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
+    public void onActivityPreDestroyed(@NonNull Activity activity) {
         requireNonNull(activity);
         notifyEvent(Event.ON_DESTROY);
+    }
+
+    @Override
+    public void onActivityDestroyed(@NonNull Activity activity) {
+        // No-op as the activity is already unbound at this time.
     }
 
     @Override
@@ -96,36 +105,35 @@ final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
     private void notifyEvent(Event event) {
         mLastObservedEvent = event;
 
-        if (mRendererCallback == null) {
+        IRendererCallback callback = mRendererCallback;
+        if (callback == null) {
             return;
         }
 
-        try {
+        mServiceDispatcher.dispatch(() -> {
             switch (event) {
                 case ON_CREATE:
-                    mRendererCallback.onCreate();
+                    callback.onCreate();
                     break;
                 case ON_START:
-                    mRendererCallback.onStart();
+                    callback.onStart();
                     break;
                 case ON_RESUME:
-                    mRendererCallback.onResume();
+                    callback.onResume();
                     break;
                 case ON_PAUSE:
-                    mRendererCallback.onPause();
+                    callback.onPause();
                     break;
                 case ON_STOP:
-                    mRendererCallback.onStop();
+                    callback.onStop();
                     break;
                 case ON_DESTROY:
-                    mRendererCallback.onDestroyed();
+                    callback.onDestroyed();
                     break;
                 case ON_ANY:
                     break;
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
-        }
+        });
     }
 }
 

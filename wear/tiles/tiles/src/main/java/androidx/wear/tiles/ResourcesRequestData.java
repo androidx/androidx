@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Holder for ProtoTiles' ResourceRequest class, to be parceled and transferred to Wear.
+ * Holder for Tiles' ResourceRequest class, to be parceled and transferred to a Tile Provider.
  *
  * <p>All this does is to serialize ResourceRequest as a protobuf and transmit it.
  *

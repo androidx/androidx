@@ -16,10 +16,8 @@
 
 package androidx.navigation.testing
 
-import android.os.Bundle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraphNavigator
-import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import java.lang.IllegalStateException
@@ -35,23 +33,11 @@ internal class TestNavigatorProvider : NavigatorProvider() {
      */
     private val navigator = object : Navigator<NavDestination>() {
         override fun createDestination() = NavDestination("test")
-
-        override fun navigate(
-            destination: NavDestination,
-            args: Bundle?,
-            navOptions: NavOptions?,
-            navigatorExtras: Extras?
-        ): NavDestination? {
-            return destination
-        }
-
-        override fun popBackStack(): Boolean {
-            return true
-        }
     }
 
     init {
         addNavigator(NavGraphNavigator(this))
+        addNavigator("test", navigator)
     }
 
     override fun <T : Navigator<out NavDestination>> getNavigator(name: String): T {
