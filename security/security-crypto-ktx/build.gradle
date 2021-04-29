@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":security:security-crypto"))
+    api("androidx.security:security-crypto:1.1.0-alpha03")
 
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
