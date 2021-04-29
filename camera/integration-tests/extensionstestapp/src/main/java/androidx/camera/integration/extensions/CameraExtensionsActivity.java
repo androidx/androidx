@@ -184,14 +184,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
         // Check that extension can be enabled and if so enable it
         @Extensions.ExtensionMode
         int extensionMode = extensionModeFrom(imageCaptureType);
-        boolean extensionAvailable = mExtensions.isExtensionAvailable(mCamera, extensionMode);
-        if (extensionAvailable) {
-            Log.d(TAG, "Enabling extension mode: " + imageCaptureType.name());
-            mExtensions.setExtension(mCamera, extensionMode);
-        } else {
-            Log.d(TAG, "Unable to enable extension mode, skipping: " + imageCaptureType.name());
+
+        if (!mExtensions.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
+                extensionMode)) {
             return false;
         }
+
+        CameraSelector cameraSelector = mExtensions.getExtensionCameraSelector(
+                mCurrentCameraSelector, extensionMode);
+
+        mCameraProvider.unbindAll();
+
+        mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
 
         // Update the UI and save location for ImageCapture
         Button toggleButton = findViewById(R.id.PhotoToggle);

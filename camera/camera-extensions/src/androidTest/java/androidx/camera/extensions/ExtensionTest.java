@@ -38,13 +38,10 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -55,8 +52,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -99,7 +98,10 @@ public class ExtensionTest {
     @CameraSelector.LensFacing
     private final int mLensFacing;
 
-    private CameraUseCaseAdapter mCamera;
+    private ProcessCameraProvider mProcessCameraProvider = null;
+    private FakeLifecycleOwner mFakeLifecycleOwner;
+    private CameraSelector mBaseCameraSelector;
+    private CameraSelector mExtensionsCameraSelector;
 
     public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
@@ -110,30 +112,39 @@ public class ExtensionTest {
     @Before
     public void setUp() throws Exception {
         assumeTrue(CameraUtil.deviceHasCamera());
-
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(mContext, cameraXConfig).get();
-
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+
+        mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
+                TimeUnit.MILLISECONDS);
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
+        mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         Extensions extensions = ExtensionsManager.getExtensions(mContext);
-        assumeTrue(extensions.isExtensionAvailable(mCamera, mExtensionMode));
+        assumeTrue(extensions.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
+                mExtensionMode));
+
+        mExtensionsCameraSelector = extensions.getExtensionCameraSelector(mBaseCameraSelector,
+                mExtensionMode);
+
+        mFakeLifecycleOwner = new FakeLifecycleOwner();
+        mFakeLifecycleOwner.startAndResume();
     }
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
-        ExtensionsManager.deinit().get();
+        if (mProcessCameraProvider != null) {
+            mProcessCameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS);
+            ExtensionsManager.deinit().get(10000, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Test
-    public void testCanBindToLifeCycleAndTakePicture() {
+    public void testCanBindToLifeCycleAndTakePicture_ByExtenderAPI() {
         ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
+
+        CameraUseCaseAdapter camera = CameraUtil.createCameraUseCaseAdapter(mContext,
+                mBaseCameraSelector);
 
         // To test bind/unbind and take picture.
         ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
@@ -161,7 +172,7 @@ public class ExtensionTest {
                             }));
 
                     try {
-                        mCamera.addUseCases(Arrays.asList(preview, imageCapture));
+                        camera.addUseCases(Arrays.asList(preview, imageCapture));
                     } catch (CameraUseCaseAdapter.CameraException e) {
                         throw new IllegalArgumentException("Unable to bind preview and image "
                                 + "capture");
@@ -183,7 +194,7 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testEventCallbackInConfig() {
+    public void testEventCallbackInConfig_ByExtenderAPI() {
         // Verify Preview config should have related callback.
         PreviewConfig previewConfig = ExtensionsTestUtil.createPreviewConfigWithEffect(mEffectMode,
                 mLensFacing);
@@ -198,6 +209,83 @@ public class ExtensionTest {
         // Verify ImageCapture config should have related callback.
         ImageCaptureConfig imageCaptureConfig =
                 ExtensionsTestUtil.createImageCaptureConfigWithEffect(mEffectMode, mLensFacing);
+        assertNotNull(imageCaptureConfig.getUseCaseEventCallback());
+        assertNotNull(imageCaptureConfig.getCaptureBundle());
+        CameraEventCallbacks callback2 = new Camera2ImplConfig(
+                imageCaptureConfig).getCameraEventCallback(null);
+        assertNotNull(callback2);
+        assertEquals(callback2.getAllItems().size(), 1);
+        assertThat(callback2.getAllItems().get(0)).isInstanceOf(CameraEventCallback.class);
+    }
+
+    @Test
+    public void testCanBindToLifeCycleAndTakePicture() {
+        ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
+                ImageCapture.OnImageCapturedCallback.class);
+
+        // To test bind/unbind and take picture.
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        Preview preview = new Preview.Builder().build();
+
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    // To set the update listener and Preview will change to active state.
+                    preview.setSurfaceProvider(createSurfaceTextureProvider(
+                            new SurfaceTextureProvider.SurfaceTextureCallback() {
+                                @Override
+                                public void onSurfaceTextureReady(
+                                        @NonNull SurfaceTexture surfaceTexture,
+                                        @NonNull Size resolution) {
+                                    // No-op.
+                                }
+
+                                @Override
+                                public void onSafeToRelease(
+                                        @NonNull SurfaceTexture surfaceTexture) {
+                                    // No-op.
+                                }
+                            }));
+
+                    mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                            mExtensionsCameraSelector, preview, imageCapture);
+
+                    imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
+                            mockOnImageCapturedCallback);
+                });
+
+        // Verify the image captured.
+        ArgumentCaptor<ImageProxy> imageProxy = ArgumentCaptor.forClass(ImageProxy.class);
+        verify(mockOnImageCapturedCallback, timeout(10000)).onCaptureSuccess(
+                imageProxy.capture());
+        assertNotNull(imageProxy.getValue());
+        imageProxy.getValue().close(); // Close the image after verification.
+
+        // Verify the take picture should not have any error happen.
+        verify(mockOnImageCapturedCallback, never()).onError(any(ImageCaptureException.class));
+    }
+
+    @Test
+    public void testEventCallbackInConfig() {
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        mInstrumentation.runOnMainSync(
+                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                        mExtensionsCameraSelector, preview, imageCapture));
+
+        // Verify Preview config should have related callback.
+        PreviewConfig previewConfig = (PreviewConfig) preview.getCurrentConfig();
+        assertNotNull(previewConfig.getUseCaseEventCallback());
+        CameraEventCallbacks callback1 = new Camera2ImplConfig(
+                previewConfig).getCameraEventCallback(
+                null);
+        assertNotNull(callback1);
+        assertEquals(callback1.getAllItems().size(), 1);
+        assertThat(callback1.getAllItems().get(0)).isInstanceOf(CameraEventCallback.class);
+
+        // Verify ImageCapture config should have related callback.
+        ImageCaptureConfig imageCaptureConfig =
+                (ImageCaptureConfig) imageCapture.getCurrentConfig();
         assertNotNull(imageCaptureConfig.getUseCaseEventCallback());
         assertNotNull(imageCaptureConfig.getCaptureBundle());
         CameraEventCallbacks callback2 = new Camera2ImplConfig(
