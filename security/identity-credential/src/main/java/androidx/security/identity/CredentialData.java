@@ -372,10 +372,10 @@ class CredentialData {
             dtsEncoder.encode(signedDataBuilder.build().get(0));
             byte[] dataToSign = dtsBaos.toByteArray();
 
-            signatureBytes = Util.coseSign1Sign(key,
+            signatureBytes = Util.cborEncode(Util.coseSign1Sign(key,
                     dataToSign,
                     null,
-                    null);
+                    null));
         } catch (NoSuchAlgorithmException
                 | InvalidKeyException
                 | CertificateEncodingException
@@ -404,10 +404,10 @@ class CredentialData {
             dtsEncoder.encode(signedDataBuilder.build().get(0));
             byte[] dataToSign = dtsBaos.toByteArray();
 
-            signatureBytes = Util.coseSign1Sign(key,
+            signatureBytes = Util.cborEncode(Util.coseSign1Sign(key,
                     dataToSign,
                     null,
-                    null);
+                    null));
         } catch (NoSuchAlgorithmException
                 | InvalidKeyException
                 | CertificateEncodingException

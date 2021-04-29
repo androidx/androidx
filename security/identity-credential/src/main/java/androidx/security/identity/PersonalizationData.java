@@ -207,7 +207,7 @@ public class PersonalizationData {
         public @NonNull Builder putEntryInteger(@NonNull String namespace, @NonNull String name,
                 @NonNull Collection<AccessControlProfileId> accessControlProfileIds,
                 long value) {
-            return putEntry(namespace, name, accessControlProfileIds, Util.cborEncodeLong(value));
+            return putEntry(namespace, name, accessControlProfileIds, Util.cborEncodeNumber(value));
         }
 
         /**
@@ -255,7 +255,7 @@ public class PersonalizationData {
                 @NonNull Collection<AccessControlProfileId> accessControlProfileIds,
                 @NonNull Calendar value) {
             return putEntry(namespace, name, accessControlProfileIds,
-                    Util.cborEncodeCalendar(value));
+                    Util.cborEncode(Util.cborBuildDateTime(value)));
         }
 
         /**

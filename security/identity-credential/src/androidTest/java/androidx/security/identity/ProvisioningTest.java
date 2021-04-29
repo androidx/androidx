@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static androidx.security.identity.ResultData.STATUS_NOT_IN_REQUEST_MESSAGE;
 import static androidx.security.identity.ResultData.STATUS_NOT_REQUESTED;
@@ -33,15 +33,6 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.biometric.BiometricPrompt;
-import androidx.security.identity.AccessControlProfile;
-import androidx.security.identity.AccessControlProfileId;
-import androidx.security.identity.AlreadyPersonalizedException;
-import androidx.security.identity.IdentityCredential;
-import androidx.security.identity.IdentityCredentialException;
-import androidx.security.identity.IdentityCredentialStore;
-import androidx.security.identity.PersonalizationData;
-import androidx.security.identity.ResultData;
-import androidx.security.identity.WritableIdentityCredential;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -150,27 +141,24 @@ public class ProvisioningTest {
                         .putEntry(mdlNs, "Cryptanalyst", idsNoAuth, Util.cborEncodeBoolean(true))
                         .putEntry(mdlNs, "Portrait image", idsNoAuth, Util.cborEncodeBytestring(
                             new byte[]{0x01, 0x02}))
-                        .putEntry(mdlNs, "Height", idsNoAuth, Util.cborEncodeInt(180))
-                        .putEntry(mdlNs, "Neg Item", idsNoAuth, Util.cborEncodeInt(-42))
-                        .putEntry(mdlNs, "Int Two Bytes", idsNoAuth, Util.cborEncodeInt(0x101))
-                        .putEntry(mdlNs, "Int Four Bytes", idsNoAuth, Util.cborEncodeInt(0x10001))
+                        .putEntry(mdlNs, "Height", idsNoAuth, Util.cborEncodeNumber(180))
+                        .putEntry(mdlNs, "Neg Item", idsNoAuth, Util.cborEncodeNumber(-42))
+                        .putEntry(mdlNs, "Int Two Bytes", idsNoAuth, Util.cborEncodeNumber(0x101))
+                        .putEntry(mdlNs, "Int Four Bytes", idsNoAuth,
+                                Util.cborEncodeNumber(0x10001))
                         .putEntry(mdlNs, "Int Eight Bytes", idsNoAuth,
-                                Util.cborEncodeInt(0x100000001L))
+                                Util.cborEncodeNumber(0x100000001L))
                         .putEntry(mdlNs, "driving_privileges", idsNoAuth, drivingPrivileges)
                         .putEntry(mdlNs, "No Access", idsNoAcp,
                                 Util.cborEncodeString("Cannot be retrieved"))
                         .build();
 
         byte[] proofOfProvisioningSignature = wc.personalize(personalizationData);
-        byte[] proofOfProvisioning = Util.coseSign1GetData(proofOfProvisioningSignature);
+        byte[] proofOfProvisioning =
+                Util.coseSign1GetData(Util.cborDecode(proofOfProvisioningSignature));
 
         String pretty = "";
-        try {
-            pretty = Util.cborPrettyPrint(proofOfProvisioning);
-        } catch (CborException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        pretty = Util.cborPrettyPrint(proofOfProvisioning);
         Log.e(TAG, "pretty: " + pretty);
         // Checks that order of elements is the order it was added, using the API.
         assertEquals("[\n"
@@ -258,15 +246,10 @@ public class ProvisioningTest {
                 + "  false\n"
                 + "]", pretty);
 
-        try {
-            assertTrue(Util.coseSign1CheckSignature(
-                    proofOfProvisioningSignature,
-                    new byte[0], // Additional data
-                    certificateChain.iterator().next().getPublicKey()));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        assertTrue(Util.coseSign1CheckSignature(
+                Util.cborDecode(proofOfProvisioningSignature),
+                new byte[0], // Additional data
+                certificateChain.iterator().next().getPublicKey()));
 
         // TODO: Check challenge is in certificatechain
 
@@ -309,52 +292,47 @@ public class ProvisioningTest {
                                 Util.cborEncodeString("Foo"))
                         .build();
 
-        try {
-            byte[] proofOfProvisioningSignature = wc.personalize(personalizationData);
-            byte[] proofOfProvisioning = Util.coseSign1GetData(proofOfProvisioningSignature);
-            String pretty = Util.cborPrettyPrint(proofOfProvisioning);
-            // Checks that order of elements is the order it was added, using the API.
-            assertEquals("[\n"
-                    + "  'ProofOfProvisioning',\n"
-                    + "  'org.iso.18013-5.2019.mdl',\n"
-                    + "  [\n"
-                    + "    {\n"
-                    + "      'id' : 0\n"
-                    + "    }\n"
-                    + "  ],\n"
-                    + "  {\n"
-                    + "    'org.example.barfoo' : [\n"
-                    + "      {\n"
-                    + "        'name' : 'Bar',\n"
-                    + "        'value' : 'Foo',\n"
-                    + "        'accessControlProfiles' : [0]\n"
-                    + "      },\n"
-                    + "      {\n"
-                    + "        'name' : 'Foo',\n"
-                    + "        'value' : 'Bar',\n"
-                    + "        'accessControlProfiles' : [0]\n"
-                    + "      }\n"
-                    + "    ],\n"
-                    + "    'org.example.foobar' : [\n"
-                    + "      {\n"
-                    + "        'name' : 'Foo',\n"
-                    + "        'value' : 'Bar',\n"
-                    + "        'accessControlProfiles' : [0]\n"
-                    + "      },\n"
-                    + "      {\n"
-                    + "        'name' : 'Bar',\n"
-                    + "        'value' : 'Foo',\n"
-                    + "        'accessControlProfiles' : [0]\n"
-                    + "      }\n"
-                    + "    ]\n"
-                    + "  },\n"
-                    + "  false\n"
-                    + "]", pretty);
-
-        } catch (CborException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        byte[] proofOfProvisioningSignature = wc.personalize(personalizationData);
+        byte[] proofOfProvisioning =
+                Util.coseSign1GetData(Util.cborDecode(proofOfProvisioningSignature));
+        String pretty = Util.cborPrettyPrint(proofOfProvisioning);
+        // Checks that order of elements is the order it was added, using the API.
+        assertEquals("[\n"
+                + "  'ProofOfProvisioning',\n"
+                + "  'org.iso.18013-5.2019.mdl',\n"
+                + "  [\n"
+                + "    {\n"
+                + "      'id' : 0\n"
+                + "    }\n"
+                + "  ],\n"
+                + "  {\n"
+                + "    'org.example.barfoo' : [\n"
+                + "      {\n"
+                + "        'name' : 'Bar',\n"
+                + "        'value' : 'Foo',\n"
+                + "        'accessControlProfiles' : [0]\n"
+                + "      },\n"
+                + "      {\n"
+                + "        'name' : 'Foo',\n"
+                + "        'value' : 'Bar',\n"
+                + "        'accessControlProfiles' : [0]\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    'org.example.foobar' : [\n"
+                + "      {\n"
+                + "        'name' : 'Foo',\n"
+                + "        'value' : 'Bar',\n"
+                + "        'accessControlProfiles' : [0]\n"
+                + "      },\n"
+                + "      {\n"
+                + "        'name' : 'Bar',\n"
+                + "        'value' : 'Foo',\n"
+                + "        'accessControlProfiles' : [0]\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  },\n"
+                + "  false\n"
+                + "]", pretty);
 
         return certificateChain;
     }
@@ -411,22 +389,17 @@ public class ProvisioningTest {
         PublicKey credentialKeyPublic = certificateChain.iterator().next().getPublicKey();
 
         byte[] proofOfDeletionSignature = store.deleteCredentialByName("test");
-        byte[] proofOfDeletion = Util.coseSign1GetData(proofOfDeletionSignature);
+        byte[] proofOfDeletion = Util.coseSign1GetData(Util.cborDecode(proofOfDeletionSignature));
 
         // Check the returned CBOR is what is expected. Specifically note the challenge
         // is _not_ included because we're using the old method.
         String pretty = Util.cborPrettyPrint(proofOfDeletion);
         assertEquals("['ProofOfDeletion', 'org.iso.18013-5.2019.mdl', false]", pretty);
 
-        try {
-            assertTrue(Util.coseSign1CheckSignature(
-                    proofOfDeletionSignature,
-                    new byte[0], // Additional data
-                    credentialKeyPublic));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        assertTrue(Util.coseSign1CheckSignature(
+                Util.cborDecode(proofOfDeletionSignature),
+                new byte[0], // Additional data
+                credentialKeyPublic));
 
         // Finally, check the credential is gone.
         assertNull(store.getCredentialByName("test",
@@ -453,7 +426,7 @@ public class ProvisioningTest {
                 IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
         assertNotNull(credential);
         byte[] proofOfDeletionSignature = credential.delete(new byte[] {0x01, 0x02});
-        byte[] proofOfDeletion = Util.coseSign1GetData(proofOfDeletionSignature);
+        byte[] proofOfDeletion = Util.coseSign1GetData(Util.cborDecode(proofOfDeletionSignature));
 
         // Check the returned CBOR is what is expected. Specifically note the challenge
         // _is_ included because we're using the new delete() method.
@@ -461,15 +434,10 @@ public class ProvisioningTest {
         assertEquals("['ProofOfDeletion', 'org.iso.18013-5.2019.mdl', [0x01, 0x02], false]",
                 pretty);
 
-        try {
-            assertTrue(Util.coseSign1CheckSignature(
-                    proofOfDeletionSignature,
-                    new byte[0], // Additional data
-                    credentialKeyPublic));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        assertTrue(Util.coseSign1CheckSignature(
+                Util.cborDecode(proofOfDeletionSignature),
+                new byte[0], // Additional data
+                credentialKeyPublic));
 
         // Finally, check the credential is gone.
         assertNull(store.getCredentialByName("test",
@@ -495,21 +463,16 @@ public class ProvisioningTest {
 
         byte[] challenge = new byte[]{0x12, 0x22};
         byte[] proofOfOwnershipSignature = credential.proveOwnership(challenge);
-        byte[] proofOfOwnership = Util.coseSign1GetData(proofOfOwnershipSignature);
+        byte[] proofOfOwnership = Util.coseSign1GetData(Util.cborDecode(proofOfOwnershipSignature));
 
         // Check the returned CBOR is what is expected.
         String pretty = Util.cborPrettyPrint(proofOfOwnership);
         assertEquals("['ProofOfOwnership', 'org.iso.18013-5.2019.mdl', [0x12, 0x22], false]",
                 pretty);
-        try {
-            assertTrue(Util.coseSign1CheckSignature(
-                    proofOfOwnershipSignature,
-                    new byte[0], // Additional data
-                    certificateChain.iterator().next().getPublicKey()));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        assertTrue(Util.coseSign1CheckSignature(
+                Util.cborDecode(proofOfOwnershipSignature),
+                new byte[0], // Additional data
+                certificateChain.iterator().next().getPublicKey()));
 
         // Finally, check the credential is still there
         assertNotNull(store.deleteCredentialByName("test"));
@@ -564,18 +527,18 @@ public class ProvisioningTest {
         assertEquals(12, rd.getEntryNames("org.iso.18013-5.2019").size());
 
         String ns = "org.iso.18013-5.2019";
-        assertEquals("Alan", Util.getStringEntry(rd, ns, "First name"));
-        assertEquals("Turing", Util.getStringEntry(rd, ns, "Last name"));
-        assertEquals("Maida Vale, London, England", Util.getStringEntry(rd, ns, "Home address"));
-        assertEquals("19120623", Util.getStringEntry(rd, ns, "Birth date"));
-        assertEquals(true, Util.getBooleanEntry(rd, ns, "Cryptanalyst"));
+        assertEquals("Alan", rd.getEntryString(ns, "First name"));
+        assertEquals("Turing", rd.getEntryString(ns, "Last name"));
+        assertEquals("Maida Vale, London, England", rd.getEntryString(ns, "Home address"));
+        assertEquals("19120623", rd.getEntryString(ns, "Birth date"));
+        assertEquals(true, rd.getEntryBoolean(ns, "Cryptanalyst"));
         assertArrayEquals(new byte[]{0x01, 0x02},
-                Util.getBytestringEntry(rd, ns, "Portrait image"));
-        assertEquals(180, Util.getIntegerEntry(rd, ns, "Height"));
-        assertEquals(-42, Util.getIntegerEntry(rd, ns, "Neg Item"));
-        assertEquals(0x101, Util.getIntegerEntry(rd, ns, "Int Two Bytes"));
-        assertEquals(0x10001, Util.getIntegerEntry(rd, ns, "Int Four Bytes"));
-        assertEquals(0x100000001L, Util.getIntegerEntry(rd, ns, "Int Eight Bytes"));
+                rd.getEntryBytestring(ns, "Portrait image"));
+        assertEquals(180, rd.getEntryInteger(ns, "Height"));
+        assertEquals(-42, rd.getEntryInteger(ns, "Neg Item"));
+        assertEquals(0x101, rd.getEntryInteger(ns, "Int Two Bytes"));
+        assertEquals(0x10001, rd.getEntryInteger(ns, "Int Four Bytes"));
+        assertEquals(0x100000001L, rd.getEntryInteger(ns, "Int Eight Bytes"));
         byte[] drivingPrivileges = getExampleDrivingPrivilegesCbor();
         assertArrayEquals(drivingPrivileges, rd.getEntry(ns, "driving_privileges"));
 
@@ -640,8 +603,8 @@ public class ProvisioningTest {
                     Util.createItemsRequest(entriesToRequest, null),
                     entriesToRequest,
                     null);
-            assertEquals("Alan", Util.getStringEntry(rd, "org.iso.18013-5.2019", "First name"));
-            assertEquals("Turing", Util.getStringEntry(rd, "org.iso.18013-5.2019", "Last name"));
+            assertEquals("Alan", rd.getEntryString("org.iso.18013-5.2019", "First name"));
+            assertEquals("Turing", rd.getEntryString("org.iso.18013-5.2019", "Last name"));
             assertTrue(rd.getMessageAuthenticationCode() != null || rd.getEcdsaSignature() != null);
         }
 
@@ -701,13 +664,13 @@ public class ProvisioningTest {
         assertEquals(6, rd.getEntryNames("org.iso.18013-5.2019").size());
 
         String ns = "org.iso.18013-5.2019";
-        assertEquals("Alan", Util.getStringEntry(rd, ns, "First name"));
-        assertEquals("Turing", Util.getStringEntry(rd, ns, "Last name"));
-        assertEquals("19120623", Util.getStringEntry(rd, ns, "Birth date"));
-        assertEquals(true, Util.getBooleanEntry(rd, ns, "Cryptanalyst"));
+        assertEquals("Alan", rd.getEntryString(ns, "First name"));
+        assertEquals("Turing", rd.getEntryString(ns, "Last name"));
+        assertEquals("19120623", rd.getEntryString(ns, "Birth date"));
+        assertEquals(true, rd.getEntryBoolean(ns, "Cryptanalyst"));
         assertArrayEquals(new byte[]{0x01, 0x02},
-                Util.getBytestringEntry(rd, ns, "Portrait image"));
-        assertEquals(180, Util.getIntegerEntry(rd, ns, "Height"));
+                rd.getEntryBytestring(ns, "Portrait image"));
+        assertEquals(180, rd.getEntryInteger(ns, "Height"));
 
         store.deleteCredentialByName("test");
     }
@@ -792,13 +755,13 @@ public class ProvisioningTest {
         String ns = "org.iso.18013-5.2019";
         assertEquals(STATUS_NOT_IN_REQUEST_MESSAGE, rd.getStatus(ns, "Home address"));
 
-        assertEquals("Alan", Util.getStringEntry(rd, ns, "First name"));
-        assertEquals("Turing", Util.getStringEntry(rd, ns, "Last name"));
-        assertEquals("19120623", Util.getStringEntry(rd, ns, "Birth date"));
-        assertEquals(true, Util.getBooleanEntry(rd, ns, "Cryptanalyst"));
+        assertEquals("Alan", rd.getEntryString(ns, "First name"));
+        assertEquals("Turing", rd.getEntryString(ns, "Last name"));
+        assertEquals("19120623", rd.getEntryString(ns, "Birth date"));
+        assertEquals(true, rd.getEntryBoolean(ns, "Cryptanalyst"));
         assertArrayEquals(new byte[]{0x01, 0x02},
-                Util.getBytestringEntry(rd, ns, "Portrait image"));
-        assertEquals(180, Util.getIntegerEntry(rd, ns, "Height"));
+                rd.getEntryBytestring(ns, "Portrait image"));
+        assertEquals(180, rd.getEntryInteger(ns, "Height"));
 
         store.deleteCredentialByName("test");
     }
@@ -837,8 +800,8 @@ public class ProvisioningTest {
         assertEquals(STATUS_NO_SUCH_ENTRY, rd.getStatus(ns, "Non-existent Entry"));
         assertEquals(STATUS_NOT_REQUESTED, rd.getStatus(ns, "Entry not even requested"));
 
-        assertEquals("Alan", Util.getStringEntry(rd, ns, "First name"));
-        assertEquals("Turing", Util.getStringEntry(rd, ns, "Last name"));
+        assertEquals("Alan", rd.getEntryString(ns, "First name"));
+        assertEquals("Turing", rd.getEntryString(ns, "Last name"));
         assertNull(rd.getEntry(ns, "Non-existent Entry"));
         assertNull(rd.getEntry(ns, "Entry not even requested"));
 
@@ -886,8 +849,8 @@ public class ProvisioningTest {
         assertEquals(STATUS_NO_SUCH_ENTRY, rd.getStatus(ns, "Non-exist"));
         assertEquals(STATUS_NOT_REQUESTED, rd.getStatus(ns, "Entry not even requested"));
 
-        assertEquals("Bar", Util.getStringEntry(rd, ns, "Foo"));
-        assertEquals("Foo", Util.getStringEntry(rd, ns, "Bar"));
+        assertEquals("Bar", rd.getEntryString(ns, "Foo"));
+        assertEquals("Foo", rd.getEntryString(ns, "Bar"));
         assertNull(rd.getEntry(ns, "Non-exist"));
         assertNull(rd.getEntry(ns, "Entry not even requested"));
 
@@ -901,8 +864,8 @@ public class ProvisioningTest {
         assertEquals(STATUS_NO_SUCH_ENTRY, rd.getStatus(ns, "Non-exist"));
         assertEquals(STATUS_NOT_REQUESTED, rd.getStatus(ns, "Entry not even requested"));
 
-        assertEquals("Bar", Util.getStringEntry(rd, ns, "Foo"));
-        assertEquals("Foo", Util.getStringEntry(rd, ns, "Bar"));
+        assertEquals("Bar", rd.getEntryString(ns, "Foo"));
+        assertEquals("Foo", rd.getEntryString(ns, "Bar"));
         assertNull(rd.getEntry(ns, "Non-exist"));
         assertNull(rd.getEntry(ns, "Entry not even requested"));
 
@@ -970,16 +933,11 @@ public class ProvisioningTest {
                                 Util.cborEncodeString("Smith"))
                         .build();
         byte[] proofOfProvisioningSignature = wc.personalize(personalizationData);
-        byte[] proofOfProvisioning = Util.coseSign1GetData(proofOfProvisioningSignature);
+        byte[] proofOfProvisioning =
+                Util.coseSign1GetData(Util.cborDecode(proofOfProvisioningSignature));
         byte[] proofOfProvisioningSha256 = MessageDigest.getInstance("SHA-256").digest(
                 proofOfProvisioning);
-        String pretty = "";
-        try {
-            pretty = Util.cborPrettyPrint(proofOfProvisioning);
-        } catch (CborException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        String pretty = Util.cborPrettyPrint(proofOfProvisioning);
         assertEquals("[\n"
                 + "  'ProofOfProvisioning',\n"
                 + "  '" + exampleDocType + "',\n"
@@ -1004,15 +962,10 @@ public class ProvisioningTest {
                 + "  },\n"
                 + "  false\n"
                 + "]", pretty);
-        try {
-            assertTrue(Util.coseSign1CheckSignature(
-                    proofOfProvisioningSignature,
-                    new byte[0], // Additional data
-                    certChain.iterator().next().getPublicKey()));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        assertTrue(Util.coseSign1CheckSignature(
+                Util.cborDecode(proofOfProvisioningSignature),
+                new byte[0], // Additional data
+                certChain.iterator().next().getPublicKey()));
 
         IdentityCredential credential = store.getCredentialByName("test",
                 IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
@@ -1050,15 +1003,11 @@ public class ProvisioningTest {
         byte[] updProofOfProvisioningSignature = credential.update(updPd);
 
         // Check the ProofOfProvisioning for the updated data (contents _and_ signature)
-        byte[] updProofOfProvisioning = Util.coseSign1GetData(updProofOfProvisioningSignature);
+        byte[] updProofOfProvisioning =
+                Util.coseSign1GetData(Util.cborDecode(updProofOfProvisioningSignature));
         byte[] updProofOfProvisioningSha256 = MessageDigest.getInstance("SHA-256").digest(
                 updProofOfProvisioning);
-        try {
-            pretty = Util.cborPrettyPrint(updProofOfProvisioning);
-        } catch (CborException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        pretty = Util.cborPrettyPrint(updProofOfProvisioning);
         assertEquals("[\n"
                 + "  'ProofOfProvisioning',\n"
                 + "  '" + exampleDocType + "',\n"
@@ -1083,15 +1032,10 @@ public class ProvisioningTest {
                 + "  },\n"
                 + "  false\n"
                 + "]", pretty);
-        try {
-            assertTrue(Util.coseSign1CheckSignature(
-                    updProofOfProvisioningSignature,
-                    new byte[0], // Additional data
-                    certChain.iterator().next().getPublicKey()));
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        assertTrue(Util.coseSign1CheckSignature(
+                Util.cborDecode(updProofOfProvisioningSignature),
+                new byte[0], // Additional data
+                certChain.iterator().next().getPublicKey()));
         // Check the returned CredentialKey cert chain from the now updated
         // IdentityCredential matches the original certificate chain.
         //
@@ -1134,8 +1078,8 @@ public class ProvisioningTest {
         assertEquals(updNs, resultNamespaces.iterator().next());
         assertEquals(2, rd.getEntryNames(updNs).size());
 
-        assertEquals("Lawrence", Util.getStringEntry(rd, updNs, "first_name"));
-        assertEquals("Waterhouse", Util.getStringEntry(rd, updNs, "last_name"));
+        assertEquals("Lawrence", rd.getEntryString(updNs, "first_name"));
+        assertEquals("Waterhouse", rd.getEntryString(updNs, "last_name"));
 
         store.deleteCredentialByName("test");
     }

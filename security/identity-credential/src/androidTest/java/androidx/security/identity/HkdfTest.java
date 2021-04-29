@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -28,11 +28,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Random;
 
-/*
- * This is based on https://github.com/google/tink/blob/master/java/src/test/java/com/google
- * /crypto/tink/subtle/HkdfTest.java
- * which is also Copyright (c) Google and licensed under the Apache 2 license.
- */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class HkdfTest {
