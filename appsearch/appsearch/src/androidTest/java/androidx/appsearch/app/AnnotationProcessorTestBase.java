@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.util.AppSearchEmail;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

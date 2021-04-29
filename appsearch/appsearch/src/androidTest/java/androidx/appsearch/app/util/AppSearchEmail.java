@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
-
+package androidx.appsearch.app.util;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.app.GenericDocument;
 
 /**
  * Encapsulates a {@link GenericDocument} that represent an email.
  *
  * <p>This class is a higher level implement of {@link GenericDocument}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchEmail extends GenericDocument {
     /** The name of the schema type for {@link AppSearchEmail} documents.*/
     public static final String SCHEMA_TYPE = "builtin:Email";
@@ -155,9 +152,9 @@ public class AppSearchEmail extends GenericDocument {
     /**
      * The builder class for {@link AppSearchEmail}.
      */
-    public static class Builder extends GenericDocument.Builder<AppSearchEmail.Builder> {
+    public static class Builder extends GenericDocument.Builder<Builder> {
         /**
-         * Creates a new {@link AppSearchEmail.Builder}
+         * Creates a new {@link Builder}
          *
          * @param namespace The namespace of the Email.
          * @param id The ID of the Email.
@@ -170,7 +167,7 @@ public class AppSearchEmail extends GenericDocument {
          * Sets the from address of {@link AppSearchEmail}
          */
         @NonNull
-        public AppSearchEmail.Builder setFrom(@NonNull String from) {
+        public Builder setFrom(@NonNull String from) {
             setPropertyString(KEY_FROM, from);
             return this;
         }
@@ -179,7 +176,7 @@ public class AppSearchEmail extends GenericDocument {
          * Sets the destination address of {@link AppSearchEmail}
          */
         @NonNull
-        public AppSearchEmail.Builder setTo(@NonNull String... to) {
+        public Builder setTo(@NonNull String... to) {
             setPropertyString(KEY_TO, to);
             return this;
         }
@@ -188,7 +185,7 @@ public class AppSearchEmail extends GenericDocument {
          * Sets the CC list of {@link AppSearchEmail}
          */
         @NonNull
-        public AppSearchEmail.Builder setCc(@NonNull String... cc) {
+        public Builder setCc(@NonNull String... cc) {
             setPropertyString(KEY_CC, cc);
             return this;
         }
@@ -197,7 +194,7 @@ public class AppSearchEmail extends GenericDocument {
          * Sets the BCC list of {@link AppSearchEmail}
          */
         @NonNull
-        public AppSearchEmail.Builder setBcc(@NonNull String... bcc) {
+        public Builder setBcc(@NonNull String... bcc) {
             setPropertyString(KEY_BCC, bcc);
             return this;
         }
@@ -206,7 +203,7 @@ public class AppSearchEmail extends GenericDocument {
          * Sets the subject of {@link AppSearchEmail}
          */
         @NonNull
-        public AppSearchEmail.Builder setSubject(@NonNull String subject) {
+        public Builder setSubject(@NonNull String subject) {
             setPropertyString(KEY_SUBJECT, subject);
             return this;
         }
@@ -215,7 +212,7 @@ public class AppSearchEmail extends GenericDocument {
          * Sets the body of {@link AppSearchEmail}
          */
         @NonNull
-        public AppSearchEmail.Builder setBody(@NonNull String body) {
+        public Builder setBody(@NonNull String body) {
             setPropertyString(KEY_BODY, body);
             return this;
         }

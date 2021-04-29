@@ -26,7 +26,6 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchEmail;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
@@ -39,6 +38,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
 
