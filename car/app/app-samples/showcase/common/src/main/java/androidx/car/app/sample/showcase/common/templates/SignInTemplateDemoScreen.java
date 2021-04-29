@@ -44,8 +44,6 @@ import androidx.car.app.sample.showcase.common.common.Utils;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
-import java.util.UUID;
-
 /** A screen that demonstrates the sign-in template. */
 @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
 public class SignInTemplateDemoScreen extends Screen {
@@ -103,8 +101,6 @@ public class SignInTemplateDemoScreen extends Screen {
         };
         carContext.getOnBackPressedDispatcher().addCallback(this, callback);
     }
-
-
 
     @NonNull
     @Override
@@ -207,7 +203,7 @@ public class SignInTemplateDemoScreen extends Screen {
     }
 
     private Template getPinSignInTemplate() {
-        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder(UUID.randomUUID()
+        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder("123456789abc"
                 .toString().toUpperCase())
                 .build();
 
