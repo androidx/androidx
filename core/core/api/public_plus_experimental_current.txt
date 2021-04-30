@@ -1865,6 +1865,8 @@ package androidx.core.util {
     method public static boolean equals(Object?, Object?);
     method public static int hash(java.lang.Object!...);
     method public static int hashCode(Object?);
+    method public static <T> T requireNonNull(T?);
+    method public static <T> T requireNonNull(T?, String);
     method public static String? toString(Object?, String?);
   }
 
