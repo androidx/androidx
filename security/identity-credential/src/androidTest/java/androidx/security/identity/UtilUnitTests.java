@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
+import android.icu.util.TimeZone;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -34,10 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.LinkedList;
-import java.util.TimeZone;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -47,6 +47,7 @@ import co.nstant.in.cbor.CborEncoder;
 import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.builder.ArrayBuilder;
 import co.nstant.in.cbor.model.ByteString;
+import co.nstant.in.cbor.model.DataItem;
 import co.nstant.in.cbor.model.DoublePrecisionFloat;
 import co.nstant.in.cbor.model.HalfPrecisionFloat;
 import co.nstant.in.cbor.model.NegativeInteger;
@@ -257,8 +258,8 @@ public class UtilUnitTests {
     @Test
     public void cborEncodeDecode() {
         // TODO: add better coverage and check specific encoding etc.
-        assertEquals(42, Util.cborDecodeInt(Util.cborEncodeInt(42)));
-        assertEquals(123456, Util.cborDecodeInt(Util.cborEncodeInt(123456)));
+        assertEquals(42, Util.cborDecodeLong(Util.cborEncodeNumber(42)));
+        assertEquals(123456, Util.cborDecodeLong(Util.cborEncodeNumber(123456)));
         assertFalse(Util.cborDecodeBoolean(Util.cborEncodeBoolean(false)));
         assertTrue(Util.cborDecodeBoolean(Util.cborEncodeBoolean(true)));
     }
@@ -271,38 +272,38 @@ public class UtilUnitTests {
         c = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         c.clear();
         c.set(2019, Calendar.JULY, 8, 11, 51, 42);
-        data = Util.cborEncodeCalendar(c);
+        data = Util.cborEncodeDateTime(c);
         assertEquals("tag 0 '2019-07-08T11:51:42Z'", Util.cborPrettyPrint(data));
         assertEquals("tag 0 '2019-07-08T11:51:42Z'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
-        assertEquals(0, c.compareTo(Util.cborDecodeCalendar(data)));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
+        assertEquals(0, c.compareTo(Util.cborDecodeDateTime(data)));
 
         c = new GregorianCalendar(TimeZone.getTimeZone("GMT-04:00"));
         c.clear();
         c.set(2019, Calendar.JULY, 8, 11, 51, 42);
-        data = Util.cborEncodeCalendar(c);
+        data = Util.cborEncodeDateTime(c);
         assertEquals("tag 0 '2019-07-08T11:51:42-04:00'", Util.cborPrettyPrint(data));
         assertEquals("tag 0 '2019-07-08T11:51:42-04:00'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
-        assertEquals(0, c.compareTo(Util.cborDecodeCalendar(data)));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
+        assertEquals(0, c.compareTo(Util.cborDecodeDateTime(data)));
 
         c = new GregorianCalendar(TimeZone.getTimeZone("GMT-08:00"));
         c.clear();
         c.set(2019, Calendar.JULY, 8, 11, 51, 42);
-        data = Util.cborEncodeCalendar(c);
+        data = Util.cborEncodeDateTime(c);
         assertEquals("tag 0 '2019-07-08T11:51:42-08:00'", Util.cborPrettyPrint(data));
         assertEquals("tag 0 '2019-07-08T11:51:42-08:00'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
-        assertEquals(0, c.compareTo(Util.cborDecodeCalendar(data)));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
+        assertEquals(0, c.compareTo(Util.cborDecodeDateTime(data)));
 
         c = new GregorianCalendar(TimeZone.getTimeZone("GMT+04:30"));
         c.clear();
         c.set(2019, Calendar.JULY, 8, 11, 51, 42);
-        data = Util.cborEncodeCalendar(c);
+        data = Util.cborEncodeDateTime(c);
         assertEquals("tag 0 '2019-07-08T11:51:42+04:30'", Util.cborPrettyPrint(data));
         assertEquals("tag 0 '2019-07-08T11:51:42+04:30'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
-        assertEquals(0, c.compareTo(Util.cborDecodeCalendar(data)));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
+        assertEquals(0, c.compareTo(Util.cborDecodeDateTime(data)));
     }
 
     @Test
@@ -311,11 +312,11 @@ public class UtilUnitTests {
         c.clear();
         c.set(2019, Calendar.JULY, 8, 11, 51, 42);
         c.set(Calendar.MILLISECOND, 123);
-        byte[] data = Util.cborEncodeCalendar(c);
+        byte[] data = Util.cborEncodeDateTime(c);
         assertEquals("tag 0 '2019-07-08T11:51:42.123Z'", Util.cborPrettyPrint(data));
         assertEquals("tag 0 '2019-07-08T11:51:42.123Z'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
-        assertEquals(0, c.compareTo(Util.cborDecodeCalendar(data)));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
+        assertEquals(0, c.compareTo(Util.cborDecodeDateTime(data)));
     }
 
     @Test
@@ -331,7 +332,7 @@ public class UtilUnitTests {
                 .build());
         data = baos.toByteArray();
         assertEquals("tag 0 '2019-07-08T11:51:42.250Z'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
 
         // milliseconds set to 0
         baos = new ByteArrayOutputStream();
@@ -341,7 +342,7 @@ public class UtilUnitTests {
                 .build());
         data = baos.toByteArray();
         assertEquals("tag 0 '2019-07-08T11:51:42Z'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
 
         // we only support millisecond-precision
         baos = new ByteArrayOutputStream();
@@ -351,7 +352,7 @@ public class UtilUnitTests {
                 .build());
         data = baos.toByteArray();
         assertEquals("tag 0 '2019-07-08T11:51:42.987Z'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
 
         // milliseconds and timezone
         baos = new ByteArrayOutputStream();
@@ -361,7 +362,7 @@ public class UtilUnitTests {
                 .build());
         data = baos.toByteArray();
         assertEquals("tag 0 '2019-07-08T11:51:42.260-11:30'",
-                Util.cborPrettyPrint(Util.cborEncodeCalendar(Util.cborDecodeCalendar(data))));
+                Util.cborPrettyPrint(Util.cborEncodeDateTime(Util.cborDecodeDateTime(data))));
     }
 
     private KeyPair coseGenerateKeyPair() throws Exception {
@@ -380,7 +381,7 @@ public class UtilUnitTests {
         KeyPair keyPair = coseGenerateKeyPair();
         byte[] data = new byte[]{0x10, 0x11, 0x12, 0x13};
         byte[] detachedContent = new byte[]{};
-        byte[] sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, null);
+        DataItem sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, null);
         assertTrue(Util.coseSign1CheckSignature(sig, detachedContent, keyPair.getPublic()));
         assertArrayEquals(data, Util.coseSign1GetData(sig));
         assertEquals(0, Util.coseSign1GetX5Chain(sig).size());
@@ -391,7 +392,7 @@ public class UtilUnitTests {
         KeyPair keyPair = coseGenerateKeyPair();
         byte[] data = new byte[]{};
         byte[] detachedContent = new byte[]{0x20, 0x21, 0x22, 0x23, 0x24};
-        byte[] sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, null);
+        DataItem sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, null);
         assertTrue(Util.coseSign1CheckSignature(sig, detachedContent, keyPair.getPublic()));
         assertArrayEquals(data, Util.coseSign1GetData(sig));
         assertEquals(0, Util.coseSign1GetX5Chain(sig).size());
@@ -404,7 +405,7 @@ public class UtilUnitTests {
         byte[] detachedContent = new byte[]{0x20, 0x21, 0x22, 0x23, 0x24};
         LinkedList<X509Certificate> certs = new LinkedList<X509Certificate>();
         certs.add(Util.signPublicKeyWithPrivateKey("coseTestKeyPair", "coseTestKeyPair"));
-        byte[] sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, certs);
+        DataItem sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, certs);
         assertTrue(Util.coseSign1CheckSignature(sig, detachedContent, keyPair.getPublic()));
         assertArrayEquals(data, Util.coseSign1GetData(sig));
         assertEquals(certs, Util.coseSign1GetX5Chain(sig));
@@ -419,7 +420,7 @@ public class UtilUnitTests {
         certs.add(Util.signPublicKeyWithPrivateKey("coseTestKeyPair", "coseTestKeyPair"));
         certs.add(Util.signPublicKeyWithPrivateKey("coseTestKeyPair", "coseTestKeyPair"));
         certs.add(Util.signPublicKeyWithPrivateKey("coseTestKeyPair", "coseTestKeyPair"));
-        byte[] sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, certs);
+        DataItem sig = Util.coseSign1Sign(keyPair.getPrivate(), data, detachedContent, certs);
         assertTrue(Util.coseSign1CheckSignature(sig, detachedContent, keyPair.getPublic()));
         assertArrayEquals(data, Util.coseSign1GetData(sig));
         assertEquals(certs, Util.coseSign1GetX5Chain(sig));
@@ -430,7 +431,7 @@ public class UtilUnitTests {
         SecretKey secretKey = new SecretKeySpec(new byte[32], "");
         byte[] data = new byte[]{0x10, 0x11, 0x12, 0x13};
         byte[] detachedContent = new byte[]{};
-        byte[] mac = Util.coseMac0(secretKey, data, detachedContent);
+        DataItem mac = Util.coseMac0(secretKey, data, detachedContent);
         assertEquals("[\n"
                 + "  [0xa1, 0x01, 0x05],\n"
                 + "  {},\n"
@@ -446,7 +447,7 @@ public class UtilUnitTests {
         SecretKey secretKey = new SecretKeySpec(new byte[32], "");
         byte[] data = new byte[]{};
         byte[] detachedContent = new byte[]{0x10, 0x11, 0x12, 0x13};
-        byte[] mac = Util.coseMac0(secretKey, data, detachedContent);
+        DataItem mac = Util.coseMac0(secretKey, data, detachedContent);
         // Same HMAC as in coseMac0 test, only difference is that payload is null.
         assertEquals("[\n"
                 + "  [0xa1, 0x01, 0x05],\n"
