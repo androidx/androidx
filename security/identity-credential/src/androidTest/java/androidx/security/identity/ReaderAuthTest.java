@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static androidx.security.identity.IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256;
 import static androidx.security.identity.ResultData.STATUS_NOT_IN_REQUEST_MESSAGE;
@@ -29,15 +29,6 @@ import android.content.Context;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
-import androidx.security.identity.AccessControlProfile;
-import androidx.security.identity.AccessControlProfileId;
-import androidx.security.identity.IdentityCredential;
-import androidx.security.identity.IdentityCredentialException;
-import androidx.security.identity.IdentityCredentialStore;
-import androidx.security.identity.InvalidReaderSignatureException;
-import androidx.security.identity.PersonalizationData;
-import androidx.security.identity.ResultData;
-import androidx.security.identity.WritableIdentityCredential;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -62,6 +53,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import co.nstant.in.cbor.CborBuilder;
 import co.nstant.in.cbor.CborException;
 
 @LargeTest
@@ -213,7 +205,8 @@ public class ReaderAuthTest {
                                 Util.cborEncodeString("bat"))
                         .build();
         byte[] proofOfProvisioningSignature = wc.personalize(personalizationData);
-        byte[] proofOfProvisioning = Util.coseSign1GetData(proofOfProvisioningSignature);
+        byte[] proofOfProvisioning =
+                Util.coseSign1GetData(Util.cborDecode(proofOfProvisioningSignature));
 
         String pretty = Util.cborPrettyPrint(proofOfProvisioning);
         pretty = Util.replaceLine(pretty, 6, "      'readerCertificate' : [] // Removed");
@@ -441,15 +434,21 @@ public class ReaderAuthTest {
         byte[] sessionTranscript = Util.buildSessionTranscript(ephemeralKeyPair);
 
         // Finally, create the structure that the reader signs, and sign it.
-        byte[] readerAuthentication = Util.buildReaderAuthenticationCbor(
-                sessionTranscript,
-                requestMessage);
+
+        byte[] readerAuthentication = Util.cborEncode(new CborBuilder()
+                .addArray()
+                .add("ReaderAuthentication")
+                .add(Util.cborDecode(sessionTranscript))
+                .add(Util.cborBuildTaggedByteString(requestMessage))
+                .end()
+                .build().get(0));
         byte[] readerAuthenticationBytes =
-                Util.prependSemanticTagForEncodedCbor(readerAuthentication);
-        byte[] readerSignature = Util.coseSign1Sign(readerKeyToSignWith.getPrivate(),
+                Util.cborEncode(Util.cborBuildTaggedByteString((readerAuthentication)));
+        byte[] readerSignature = Util.cborEncode(
+                Util.coseSign1Sign(readerKeyToSignWith.getPrivate(),
                 null, // payload
                 readerAuthenticationBytes, // detached content
-                readerCertificateChainToPresent); // certificate-chain
+                readerCertificateChainToPresent)); // certificate-chain
 
         // Now issue the request.
         credential.setSessionTranscript(sessionTranscript);

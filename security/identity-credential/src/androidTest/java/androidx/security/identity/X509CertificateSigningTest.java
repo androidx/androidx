@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;

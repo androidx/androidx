@@ -261,7 +261,7 @@ public abstract class ResultData {
         if (value == null) {
             return null;
         }
-        return Util.cborDecodeBytestring(value);
+        return Util.cborDecodeByteString(value);
     }
 
     /**
@@ -317,7 +317,7 @@ public abstract class ResultData {
         if (value == null) {
             return null;
         }
-        return Util.cborDecodeCalendar(value);
+        return Util.cborDecodeDateTime(value);
     }
 
     /**

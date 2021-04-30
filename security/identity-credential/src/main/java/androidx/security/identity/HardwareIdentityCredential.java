@@ -103,7 +103,7 @@ class HardwareIdentityCredential extends IdentityCredential {
             byte[] sharedSecret = ka.generateSecret();
 
             byte[] sessionTranscriptBytes =
-                    Util.prependSemanticTagForEncodedCbor(mSessionTranscript);
+                    Util.cborEncode(Util.cborBuildTaggedByteString(mSessionTranscript));
             byte[] salt = MessageDigest.getInstance("SHA-256").digest(sessionTranscriptBytes);
 
             byte[] info = new byte[] {'S', 'K', 'D', 'e', 'v', 'i', 'c', 'e'};

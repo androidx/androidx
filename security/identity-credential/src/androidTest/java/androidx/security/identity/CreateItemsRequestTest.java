@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.security.identity.cts;
+package androidx.security.identity;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -25,9 +25,6 @@ import static org.junit.Assert.assertNotNull;
 import android.content.Context;
 import android.security.keystore.KeyProperties;
 
-import androidx.security.identity.IdentityCredential;
-import androidx.security.identity.IdentityCredentialException;
-import androidx.security.identity.IdentityCredentialStore;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -162,7 +159,7 @@ public class EphemeralKeyTest {
                 byte[] sharedSecret = ka.generateSecret();
 
                 byte[] sessionTranscriptBytes =
-                        Util.prependSemanticTagForEncodedCbor(sessionTranscript);
+                        Util.cborEncode(Util.cborBuildTaggedByteString(sessionTranscript));
                 byte[] salt = MessageDigest.getInstance("SHA-256").digest(sessionTranscriptBytes);
 
                 byte[] info = new byte[] {'S', 'K', 'D', 'e', 'v', 'i', 'c', 'e'};
