@@ -39,6 +39,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
@@ -86,7 +87,6 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
@@ -657,8 +657,8 @@ public class EditorSessionTest {
         }
     }
 
-    @Ignore // b/186813241
     @Test
+    @SdkSuppress(maxSdkVersion = 28)
     public fun getPreviewData_preRFallback() {
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -696,6 +696,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 30)
     public fun getPreviewData_postRFallback() {
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
