@@ -91,8 +91,8 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
         """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
-                // Only one composable call in the result blocks, so we can just generate 
-                // a single group around the whole expression. 
+                // Only one composable call in the result blocks, so we can just generate
+                // a single group around the whole expression.
                 if (x > 0) {
                     A()
                 }
@@ -520,8 +520,8 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
         """
             @NonRestartableComposable @Composable
             fun Example(x: Int?) {
-                // The composable call is made conditionally, which means it is like an if with 
-                // only one result having a composable call, so we just generate a single group 
+                // The composable call is made conditionally, which means it is like an if with
+                // only one result having a composable call, so we just generate a single group
                 // around the whole expression.
                 x?.A()
             }
@@ -542,8 +542,8 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
         """
             @NonRestartableComposable @Composable
             fun Example(x: Int?) {
-                // The composable call is made conditionally, which means it is like an if, but with 
-                // only one result having a composable call, so we just generate a single group 
+                // The composable call is made conditionally, which means it is like an if, but with
+                // only one result having a composable call, so we just generate a single group
                 // around the whole expression.
                 val y = x ?: R()
             }
@@ -2006,7 +2006,7 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
             @Composable
             fun Example(x: Int, %composer: Composer?, %changed: Int): Int {
               %composer.startReplaceableGroup(<>, "C(Example):Test.kt")
-              val tmp0 = 
+              val tmp0 =
               val tmp4_group = if (x > 0) {
                 val tmp3_group = if (%composer.startReplaceableGroup(<>, "<B()>")
                 val tmp1_group = B(%composer, 0)
