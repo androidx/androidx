@@ -990,8 +990,15 @@ public open class NavController(
         if (_graph!!.id == destinationId) {
             return _graph
         }
-        val currentNode = if (backQueue.isEmpty()) _graph!! else backQueue.last().destination
-        val currentGraph = if (currentNode is NavGraph) currentNode else currentNode.parent!!
+        val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
+        return currentNode.findDestination(destinationId)
+    }
+
+    private fun NavDestination.findDestination(@IdRes destinationId: Int): NavDestination? {
+        if (id == destinationId) {
+            return this
+        }
+        val currentGraph = if (this is NavGraph) this else parent!!
         return currentGraph.findNode(destinationId)
     }
 
@@ -1260,9 +1267,6 @@ public open class NavController(
                 )
             }
         }
-        val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-            node.navigatorName
-        )
         val finalArgs = node.addInDefaultArgs(args)
         val currentBackStackEntry = currentBackStackEntry
         if (navOptions?.shouldLaunchSingleTop() == true &&
@@ -1271,11 +1275,63 @@ public open class NavController(
             // Single top operations don't change the back stack, they just update arguments
             launchSingleTop = true
             currentBackStackEntry.replaceArguments(finalArgs)
+            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                node.navigatorName
+            )
             navigator.onLaunchSingleTop(currentBackStackEntry)
-        } else {
+        }
+        // Now determine what new destinations we need to add to the back stack
+        val backStackState = backStackStates.remove(node.id)
+        if (navOptions?.shouldRestoreState() == true && backStackState != null) {
+            // We're restoring the back stack from its saved state
+            val entries = instantiateBackStack(backStackState)
+            // Split up the entries by Navigator so we can restore them as an atomic operation
+            val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
+            entries.filterNot { entry ->
+                // Skip navigation graphs - they'll be added by addEntryToBackStack()
+                entry.destination is NavGraph
+            }.forEach { entry ->
+                val previousEntryList = entriesGroupedByNavigator.lastOrNull()
+                val previousNavigatorName = previousEntryList?.last()?.destination?.navigatorName
+                if (previousNavigatorName == entry.destination.navigatorName) {
+                    // Group back to back entries associated with the same Navigator together
+                    previousEntryList += entry
+                } else {
+                    // Create a new group for the new Navigator
+                    entriesGroupedByNavigator += mutableListOf(entry)
+                }
+            }
+            // Now actually navigate to each set of entries
+            for (entryList in entriesGroupedByNavigator) {
+                val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                    entryList.first().destination.navigatorName
+                )
+                var lastNavigatedIndex = 0
+                var lastDestination = node
+                navigator.navigateInternal(entryList, navOptions, navigatorExtras) { entry ->
+                    navigated = true
+                    // If this destination is part of the restored back stack,
+                    // pass all destinations between the last navigated entry and this one
+                    // to ensure that any navigation graphs are properly restored as well
+                    val entryIndex = entries.indexOf(entry)
+                    val restoredEntries = if (entryIndex != -1) {
+                        entries.subList(lastNavigatedIndex, entryIndex + 1).also {
+                            lastNavigatedIndex = entryIndex + 1
+                            lastDestination = entry.destination
+                        }
+                    } else {
+                        emptyList()
+                    }
+                    addEntryToBackStack(lastDestination, finalArgs, entry, restoredEntries)
+                }
+            }
+        } else if (!launchSingleTop) {
             // Not a single top operation, so we're looking to add the node to the back stack
             val backStackEntry = NavBackStackEntry.create(
                 context, node, finalArgs, lifecycleOwner, viewModel
+            )
+            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                node.navigatorName
             )
             navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
                 navigated = true
@@ -1288,10 +1344,31 @@ public open class NavController(
         }
     }
 
+    private fun instantiateBackStack(
+        backStackState: ArrayDeque<NavBackStackEntryState>
+    ): List<NavBackStackEntry> {
+        val backStack = mutableListOf<NavBackStackEntry>()
+        var currentDestination = backQueue.lastOrNull()?.destination ?: graph
+        for (state in backStackState) {
+            val node = currentDestination.findDestination(state.destinationId)
+            checkNotNull(node) {
+                val dest = NavDestination.getDisplayName(
+                    context, state.destinationId
+                )
+                "Restore State failed: destination $dest cannot be found from the current " +
+                    "destination $currentDestination"
+            }
+            backStack += state.instantiate(context, node, lifecycleOwner, viewModel)
+            currentDestination = node
+        }
+        return backStack
+    }
+
     private fun addEntryToBackStack(
         node: NavDestination,
         finalArgs: Bundle?,
-        backStackEntry: NavBackStackEntry
+        backStackEntry: NavBackStackEntry,
+        restoredEntries: List<NavBackStackEntry> = emptyList()
     ) {
         val newDest = backStackEntry.destination
         if (newDest !is FloatingWindow) {
@@ -1314,7 +1391,9 @@ public open class NavController(
             do {
                 val parent = destination!!.parent
                 if (parent != null) {
-                    val entry = NavBackStackEntry.create(
+                    val entry = restoredEntries.lastOrNull { restoredEntry ->
+                        restoredEntry.destination == parent
+                    } ?: NavBackStackEntry.create(
                         context, parent,
                         finalArgs, lifecycleOwner, viewModel
                     )
@@ -1334,7 +1413,9 @@ public open class NavController(
         while (destination != null && findDestination(destination.id) == null) {
             val parent = destination.parent
             if (parent != null) {
-                val entry = NavBackStackEntry.create(
+                val entry = restoredEntries.lastOrNull { restoredEntry ->
+                    restoredEntry.destination == parent
+                } ?: NavBackStackEntry.create(
                     context, parent, parent.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
                 )
                 hierarchy.addFirst(entry)
@@ -1367,7 +1448,9 @@ public open class NavController(
         backQueue.addAll(hierarchy)
         // The _graph should always be on the back stack after you navigate()
         if (backQueue.isEmpty() || backQueue.first().destination !== _graph) {
-            val entry = NavBackStackEntry.create(
+            val entry = restoredEntries.lastOrNull { restoredEntry ->
+                restoredEntry.destination == _graph!!
+            } ?: NavBackStackEntry.create(
                 context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
             )
             val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
