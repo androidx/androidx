@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,42 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.window
 
-package androidx.window;
-
-import android.app.Activity;
-
-import androidx.annotation.NonNull;
+import android.app.Activity
 
 /**
  * Base interface for different extension versions that serves as an API compatibility wrapper.
  * @see ExtensionCompat
+ *
  * @see SidecarCompat
  */
-interface ExtensionInterfaceCompat {
-
+internal interface ExtensionInterfaceCompat {
     /**
      * Verifies if the extension interface conforms to the declared version.
      */
-    boolean validateExtensionInterface();
+    fun validateExtensionInterface(): Boolean
 
     /**
      * Sets the callback that is used by the extension to inform about hardware state changes.
      */
-    void setExtensionCallback(@NonNull ExtensionCallbackInterface extensionCallback);
+    fun setExtensionCallback(extensionCallback: ExtensionCallbackInterface)
 
     /**
      * Notifies extension that a listener for display feature layout changes was registered for the
-     * given activity context. Should notify the {@link ExtensionCallbackInterface} of
-     * the initial {@link WindowLayoutInfo} when it is available.
+     * given activity context. Should notify the [ExtensionCallbackInterface] of
+     * the initial [WindowLayoutInfo] when it is available.
      */
-    void onWindowLayoutChangeListenerAdded(@NonNull Activity activity);
+    fun onWindowLayoutChangeListenerAdded(activity: Activity)
 
     /**
      * Notifies extension that a listener for display feature layout changes was removed for the
      * given activity context.
      */
-    void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity);
+    fun onWindowLayoutChangeListenerRemoved(activity: Activity)
 
     /**
      * Callback that will be registered with the WindowManager library, and that the extension
@@ -58,7 +55,6 @@ interface ExtensionInterfaceCompat {
         /**
          * Called by extension when the feature layout inside the window changes.
          */
-        void onWindowLayoutChanged(@NonNull Activity activity,
-                @NonNull WindowLayoutInfo newLayout);
+        fun onWindowLayoutChanged(activity: Activity, newLayout: WindowLayoutInfo)
     }
 }

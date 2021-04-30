@@ -30,6 +30,11 @@ import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.TestActivity.Companion.resetResumeCounter
 import androidx.window.TestActivity.Companion.waitForOnResume
 import androidx.window.extensions.ExtensionFoldingFeature
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -37,10 +42,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.atLeastOnce
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import java.util.HashSet
 
 /** Tests for the extension implementation on the device.  */
@@ -80,16 +81,14 @@ public class ExtensionTest : WindowTestBase() {
     public fun testWindowLayoutCallback() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
         extension!!.setExtensionCallback(callbackInterface)
         val activity = activityTestRule.launchActivity(Intent())
         extension.onWindowLayoutChangeListenerAdded(activity)
         assertTrue("Layout must happen after launch", activity.waitForLayout())
         verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-            ArgumentMatchers.any(),
-            ArgumentMatchers.argThat(WindowLayoutInfoValidator(activity))
+            any(),
+            argThat(WindowLayoutInfoValidator(activity))
         )
     }
 
@@ -106,9 +105,8 @@ public class ExtensionTest : WindowTestBase() {
     public fun testWindowLayoutUpdatesOnConfigChange() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
+
         extension!!.setExtensionCallback(callbackInterface)
         val activity = configHandlingActivityTestRule.launchActivity(Intent())
         extension.onWindowLayoutChangeListenerAdded(activity)
@@ -134,12 +132,12 @@ public class ExtensionTest : WindowTestBase() {
         if (!isSidecar) {
             verify(callbackInterface, atLeastOnce())
                 .onWindowLayoutChanged(
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.argThat(DistinctWindowLayoutInfoMatcher())
+                    any(),
+                    argThat(DistinctWindowLayoutInfoMatcher())
                 )
         } else {
             verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(ArgumentMatchers.any(), ArgumentMatchers.any())
+                .onWindowLayoutChanged(any(), any())
         }
     }
 
@@ -147,9 +145,7 @@ public class ExtensionTest : WindowTestBase() {
     public fun testWindowLayoutUpdatesOnRecreate() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
         extension!!.setExtensionCallback(callbackInterface)
         var activity = activityTestRule.launchActivity(Intent())
         extension.onWindowLayoutChangeListenerAdded(activity)
@@ -177,23 +173,23 @@ public class ExtensionTest : WindowTestBase() {
         if (!isSidecar) {
             verify(callbackInterface, atLeastOnce())
                 .onWindowLayoutChanged(
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.argThat(DistinctWindowLayoutInfoMatcher())
+                    any(),
+                    argThat(DistinctWindowLayoutInfoMatcher())
                 )
         } else {
             verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(ArgumentMatchers.any(), ArgumentMatchers.any())
+                .onWindowLayoutChanged(any(), any())
         }
     }
 
     @Test
     public fun testVersionSupport() {
         // Only versions 1.0 and 0.1 are supported for now
-        var version = SidecarCompat.getSidecarVersion()
+        var version = SidecarCompat.sidecarVersion
         if (version != null) {
             assertEquals(Version.VERSION_0_1, version)
         }
-        version = ExtensionCompat.getExtensionVersion()
+        version = ExtensionCompat.extensionVersion
         if (version != null) {
             assertEquals(Version.VERSION_1_0, version)
         }
@@ -201,13 +197,13 @@ public class ExtensionTest : WindowTestBase() {
 
     private fun assumeExtensionV10_V01() {
         Assume.assumeTrue(
-            Version.VERSION_1_0 == ExtensionCompat.getExtensionVersion() ||
-                Version.VERSION_0_1 == SidecarCompat.getSidecarVersion()
+            Version.VERSION_1_0 == ExtensionCompat.extensionVersion ||
+                Version.VERSION_0_1 == SidecarCompat.sidecarVersion
         )
     }
 
     private val isSidecar: Boolean
-        get() = SidecarCompat.getSidecarVersion() != null
+        get() = SidecarCompat.sidecarVersion != null
 
     /**
      * An argument matcher that ensures the arguments used to call are distinct.  The only exception

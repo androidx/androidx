@@ -21,14 +21,15 @@ import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.extensions.ExtensionDisplayFeature
 import androidx.window.extensions.ExtensionFoldingFeature
 import androidx.window.extensions.ExtensionWindowLayoutInfo
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 public class ExtensionTranslatingCallbackTest {
 
@@ -48,9 +49,7 @@ public class ExtensionTranslatingCallbackTest {
 
     @Test
     public fun testOnWindowLayoutChange_validFeature() {
-        val mockActivity = mock(
-            Activity::class.java
-        )
+        val mockActivity = mock<Activity>()
         val bounds = Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0)
         val foldFeature: ExtensionDisplayFeature = ExtensionFoldingFeature(
             bounds,
@@ -65,18 +64,14 @@ public class ExtensionTranslatingCallbackTest {
             )
         )
         val expected = WindowLayoutInfo(expectedFeatures)
-        val mockCallback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =
             ExtensionTranslatingCallback(mockCallback, ExtensionAdapter())
         extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo)
-        val captor = ArgumentCaptor.forClass(
-            WindowLayoutInfo::class.java
-        )
+        val captor = argumentCaptor<WindowLayoutInfo>()
         verify(mockCallback)
-            .onWindowLayoutChanged(ArgumentMatchers.eq(mockActivity), captor.capture())
-        assertEquals(expected, captor.value)
+            .onWindowLayoutChanged(eq(mockActivity), captor.capture())
+        assertEquals(expected, captor.firstValue)
     }
 
     @Test
@@ -99,19 +94,15 @@ public class ExtensionTranslatingCallbackTest {
                 ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
             )
         )
-        val mockCallback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =
             ExtensionTranslatingCallback(mockCallback, ExtensionAdapter())
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
-        val mockActivity = mock(
-            Activity::class.java
-        )
+        val mockActivity = mock<Activity>()
         extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo)
         verify(mockCallback).onWindowLayoutChanged(
-            ArgumentMatchers.eq(mockActivity),
-            ArgumentMatchers.argThat { layoutInfo -> layoutInfo.displayFeatures.isEmpty() }
+            eq(mockActivity),
+            argThat { layoutInfo -> layoutInfo.displayFeatures.isEmpty() }
         )
     }
 
@@ -135,19 +126,15 @@ public class ExtensionTranslatingCallbackTest {
                 ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
             )
         )
-        val mockCallback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =
             ExtensionTranslatingCallback(mockCallback, ExtensionAdapter())
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
-        val mockActivity = mock(
-            Activity::class.java
-        )
+        val mockActivity = mock<Activity>()
         extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo)
         verify(mockCallback).onWindowLayoutChanged(
-            ArgumentMatchers.eq(mockActivity),
-            ArgumentMatchers.argThat { layoutInfo -> layoutInfo.displayFeatures.isEmpty() }
+            eq(mockActivity),
+            argThat { layoutInfo -> layoutInfo.displayFeatures.isEmpty() }
         )
     }
 

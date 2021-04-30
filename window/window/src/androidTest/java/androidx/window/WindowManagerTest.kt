@@ -23,14 +23,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.util.concurrent.MoreExecutors
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 /** Tests for [WindowManager] class.  */
 @LargeTest
@@ -45,55 +45,49 @@ public class WindowManagerTest : WindowTestBase() {
     @Test
     public fun testConstructor_activity() {
         WindowManager(
-            mock(Activity::class.java),
-            mock(WindowBackend::class.java)
+            mock<Activity>(),
+            mock()
         )
     }
 
     @Test
     public fun testConstructor_wrappedActivity() {
         WindowManager(
-            ContextWrapper(mock(Activity::class.java)),
-            mock(WindowBackend::class.java)
+            ContextWrapper(mock<Activity>()),
+            mock()
         )
     }
 
     @Test
     public fun testConstructor_nullWindowBackend() {
-        WindowManager(mock(Activity::class.java))
+        WindowManager(mock<Activity>())
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testConstructor_applicationContext() {
         WindowManager(
             ApplicationProvider.getApplicationContext(),
-            mock(WindowBackend::class.java)
+            mock()
         )
     }
 
     @Test
     public fun testRegisterLayoutChangeCallback() {
-        val backend = mock(WindowBackend::class.java)
-        val activity = mock(
-            Activity::class.java
-        )
+        val backend = mock<WindowBackend>()
+        val activity = mock<Activity>()
         val wm = WindowManager(activity, backend)
         val executor = MoreExecutors.directExecutor()
-        val consumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
+        val consumer: Consumer<WindowLayoutInfo> = mock<WindowLayoutInfoConsumer>()
         wm.registerLayoutChangeCallback(executor, consumer)
         verify(backend).registerLayoutChangeCallback(activity, executor, consumer)
         wm.unregisterLayoutChangeCallback(consumer)
-        verify(backend).unregisterLayoutChangeCallback(ArgumentMatchers.eq(consumer))
+        verify(backend).unregisterLayoutChangeCallback(eq(consumer))
     }
 
     @Test
     public fun testGetCurrentWindowMetrics() {
-        val backend = mock(WindowBackend::class.java)
-        val activity = mock(
-            Activity::class.java
-        )
+        val backend = mock<WindowBackend>()
+        val activity = mock<Activity>()
         val wm = WindowManager(activity, backend)
         val bounds = Rect(1, 2, 3, 4)
         val mWindowBoundsHelper = TestWindowBoundsHelper()
@@ -106,10 +100,8 @@ public class WindowManagerTest : WindowTestBase() {
 
     @Test
     public fun testGetMaximumWindowMetrics() {
-        val backend = mock(WindowBackend::class.java)
-        val activity = mock(
-            Activity::class.java
-        )
+        val backend = mock<WindowBackend>()
+        val activity = mock<Activity>()
         val wm = WindowManager(activity, backend)
         val bounds = Rect(0, 2, 4, 5)
         val mWindowBoundsHelper = TestWindowBoundsHelper()
