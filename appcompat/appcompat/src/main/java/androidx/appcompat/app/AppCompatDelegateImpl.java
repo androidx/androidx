@@ -595,7 +595,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         if (toolbar != null) {
             final ToolbarActionBar tbab = new ToolbarActionBar(toolbar, getTitle(),
-                    mAppCompatWindowCallback);
+                    mWindow.getCallback());
             mActionBar = tbab;
             mWindow.setCallback(tbab.getWrappedWindowCallback());
         } else {
