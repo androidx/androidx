@@ -15,7 +15,12 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.appcompat.test">
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        tools:overrideLibrary="android_libs.ub_uiautomator" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
