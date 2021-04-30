@@ -36,10 +36,10 @@ readonly kotlinLibraryDirs=(
 
 # Change directory to this script's location and store the directory
 cd "$(dirname $0)"
-readonly scriptDirectory=$(pwd)
+scriptDirectory=$(pwd)
 
 # Working directories for the refdocs
-readonly outDir="$scriptDirectory/out"
+outDir="$scriptDirectory/out"
 readonly newDir="reference-docs"
 readonly dackkaNewDir="reference-docs-dackka"
 
@@ -53,9 +53,9 @@ printf "=================================================================== \n"
 printf "== Download the doc zip files from the build server \n"
 printf "=================================================================== \n"
 
-readonly androidxPublicJavaDocsZip="doclava-public-docs-${FLAGS_buildId}.zip"
-readonly androidxPublicKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
-readonly androidxPublicDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
+androidxPublicJavaDocsZip="doclava-public-docs-${FLAGS_buildId}.zip"
+androidxPublicKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
+androidxPublicDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
 
 /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicJavaDocsZip
 /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicKotlinDocsZip
@@ -132,7 +132,7 @@ printf "=================================================================== \n"
 printf "== Create (if needed) and sync g4 workspace \n"
 printf "=================================================================== \n"
 
-readonly client="$(p4 g4d -f androidx-ref-docs-stage)"
+client="$(p4 g4d -f androidx-ref-docs-stage)"
 cd "$client"
 
 # Revert all local changes to prevent merge conflicts when syncing.
@@ -183,7 +183,7 @@ if [ "$FLAGS_db" != "$defaultdb" ]; then
 fi
 
 # Construct CL description
-readonly clDesc="Androidx $FLAGS_dateStr Ref Docs
+clDesc="Androidx $FLAGS_dateStr Ref Docs
 
 DO NOT SUBMIT
 
@@ -201,7 +201,7 @@ https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:deve
 "
 
 # Grab the CL number generated from running `g4 change`.
-readonly clNum=$(g4 change --desc "$clDesc" | tail -1 | awk '{print $2}')
+clNum=$(g4 change --desc "$clDesc" | tail -1 | awk '{print $2}')
 printf "View pending changes at http://cl/${clNum} \n"
 
 printf "\n"
