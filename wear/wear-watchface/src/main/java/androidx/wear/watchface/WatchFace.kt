@@ -437,7 +437,7 @@ public class WatchFaceImpl(
     private var lastTappedComplicationId: Int? = null
     private var registeredReceivers = false
 
-    // True if NotificationManager.INTERRUPTION_FILTER_NONE.
+    // True if 'Do Not Disturb' mode is on.
     private var muteMode = false
     private var nextDrawTimeMillis: Long = 0
 
@@ -540,7 +540,11 @@ public class WatchFaceImpl(
     }
 
     private val interruptionFilterObserver = Observer<Int> {
-        val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE
+        // We are in mute mode in any of the following modes. The specific mode depends on the
+        // device's implementation of "Do Not Disturb".
+        val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE ||
+            it == NotificationManager.INTERRUPTION_FILTER_PRIORITY ||
+            it == NotificationManager.INTERRUPTION_FILTER_ALARMS
         if (muteMode != inMuteMode) {
             muteMode = inMuteMode
             watchFaceHostApi.invalidate()
