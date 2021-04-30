@@ -22,6 +22,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 
 /**
@@ -55,6 +56,11 @@ public interface AppSearchLogger {
      * Logs {@link SearchStats}
      */
     void logStats(@NonNull SearchStats stats) throws AppSearchException;
+
+    /**
+     * Logs {@link RemoveStats}
+     */
+    void logStats(@NonNull RemoveStats stats) throws AppSearchException;
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }

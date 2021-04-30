@@ -38,6 +38,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.util.SchemaMigrationUtil;
 import androidx.collection.ArrayMap;
@@ -294,11 +295,21 @@ class SearchSessionImpl implements AppSearchSession {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (String id : request.getIds()) {
+                RemoveStats.Builder removeStatsBuilder = null;
+                if (mLogger != null) {
+                    removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
+                }
+
                 try {
-                    mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(), id);
+                    mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(), id,
+                            removeStatsBuilder);
                     resultBuilder.setSuccess(id, /*value=*/null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(id, throwableToFailedResult(t));
+                } finally {
+                    if (mLogger != null) {
+                        mLogger.logStats(removeStatsBuilder.build());
+                    }
                 }
             }
             // Now that the batch has been written. Persist the newly written data.
@@ -318,10 +329,21 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(searchSpec);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         ListenableFuture<Void> future = execute(() -> {
-            mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression, searchSpec);
+            RemoveStats.Builder removeStatsBuilder = null;
+            if (mLogger != null) {
+                removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
+            }
+
+            mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression,
+                    searchSpec, removeStatsBuilder);
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
+
+            if (mLogger != null) {
+                mLogger.logStats(removeStatsBuilder.build());
+            }
+
             return null;
         });
         checkForOptimize();

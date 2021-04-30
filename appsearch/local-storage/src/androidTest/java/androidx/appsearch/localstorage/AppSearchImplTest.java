@@ -364,7 +364,8 @@ public class AppSearchImplTest {
         // Insert a document and then remove it to generate garbage.
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "type").build();
         mAppSearchImpl.putDocument("package", "database", document, /*logger=*/ null);
-        mAppSearchImpl.remove("package", "database", "namespace", "id");
+        mAppSearchImpl.remove("package", "database", "namespace", "id",
+                /*removeStatsBuilder=*/ null);
 
         // Verify there is garbage documents.
         GetOptimizeInfoResultProto optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
@@ -726,16 +727,17 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder().addFilterSchemas("FakeType").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase",
-                "", searchSpec);
+                "", searchSpec, /*statsBuilder=*/ null);
 
         searchSpec =
                 new SearchSpec.Builder().addFilterNamespaces("FakeNamespace").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase",
-                "", searchSpec);
+                "", searchSpec, /*statsBuilder=*/ null);
 
         searchSpec = new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
-        mAppSearchImpl.removeByQuery("package", "EmptyDatabase", "", searchSpec);
+        mAppSearchImpl.removeByQuery("package", "EmptyDatabase", "", searchSpec,
+                /*statsBuilder=*/ null);
     }
 
     @Test
@@ -1391,12 +1393,13 @@ public class AppSearchImplTest {
         });
 
         assertThrows(IllegalStateException.class, () -> {
-            appSearchImpl.remove("package", "database", "namespace", "id");
+            appSearchImpl.remove("package", "database", "namespace", "id", /*statsBuilder=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.removeByQuery("package", "database", "query",
-                    new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build());
+                    new SearchSpec.Builder().setTermMatch(
+                            TermMatchType.Code.PREFIX_VALUE).build(), /*statsBuilder=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {
@@ -1481,7 +1484,7 @@ public class AppSearchImplTest {
         assertThat(getResult).isEqualTo(document2);
 
         // Delete the first document
-        appSearchImpl.remove("package", "database", "namespace1", "id1");
+        appSearchImpl.remove("package", "database", "namespace1", "id1", /*statsBuilder=*/ null);
         appSearchImpl.persistToDisk(PersistType.Code.LITE);
         assertThrows(AppSearchException.class, () -> appSearchImpl.getDocument("package",
                 "database",
@@ -1543,7 +1546,7 @@ public class AppSearchImplTest {
         // Delete the first document
         appSearchImpl.removeByQuery("package", "database", "",
                 new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
-                        SearchSpec.TERM_MATCH_EXACT_ONLY).build());
+                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), /*statsBuilder=*/ null);
         appSearchImpl.persistToDisk(PersistType.Code.LITE);
         assertThrows(AppSearchException.class, () -> appSearchImpl.getDocument("package",
                 "database",
