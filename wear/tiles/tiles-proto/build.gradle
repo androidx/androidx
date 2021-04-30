@@ -90,6 +90,12 @@ protobuf {
     // for more information.
     generateProtoTasks {
         all().each { task ->
+            project.tasks.named("sourceJar").configure {
+                it.dependsOn(task)
+            }
+            project.tasks.named("runErrorProne").configure {
+                it.dependsOn(task)
+            }
             task.builtins {
                 java {
                     option 'lite'
