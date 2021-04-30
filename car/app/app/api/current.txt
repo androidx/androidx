@@ -1045,6 +1045,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class Step.Builder {
+    ctor public Step.Builder();
     ctor public Step.Builder(CharSequence);
     ctor public Step.Builder(androidx.car.app.model.CarText);
     method public androidx.car.app.navigation.model.Step.Builder addLane(androidx.car.app.navigation.model.Lane);
