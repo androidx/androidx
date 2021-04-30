@@ -23,7 +23,6 @@ import android.graphics.Color;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -45,7 +44,6 @@ import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** A screen that demonstrates the sign-in template. */
-@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
 public class SignInTemplateDemoScreen extends Screen {
     private enum State {
         USERNAME,

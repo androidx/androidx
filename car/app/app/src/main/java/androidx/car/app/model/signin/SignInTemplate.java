@@ -25,7 +25,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -58,7 +57,6 @@ import java.util.Objects;
  *
  * @see Screen#onGetTemplate()
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public final class SignInTemplate implements Template {
     /**
@@ -238,7 +236,6 @@ public final class SignInTemplate implements Template {
     }
 
     /** A builder of {@link SignInTemplate}. */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     public static final class Builder {
         boolean mIsLoading;

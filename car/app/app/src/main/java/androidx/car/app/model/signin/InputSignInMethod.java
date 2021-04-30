@@ -28,7 +28,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.OnInputCompletedDelegate;
@@ -45,7 +44,6 @@ import java.util.Objects;
  *
  * <p>For example, this can be used to request a username, a password or an activation code.
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     /**

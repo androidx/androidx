@@ -28,10 +28,8 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext.CarServiceType;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.constraints.IConstraintHost;
 import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.utils.LogTags;
@@ -134,7 +132,6 @@ public final class HostDispatcher {
      */
     @RestrictTo(LIBRARY)
     @Nullable
-    @OptIn(markerClass = ExperimentalCarApi.class)
     IInterface getHost(@CarServiceType String hostType) throws RemoteException {
         if (mCarHost == null) {
             Log.e(LogTags.TAG_DISPATCH, "Host is not bound when attempting to retrieve host "
