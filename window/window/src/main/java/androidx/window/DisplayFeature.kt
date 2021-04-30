@@ -23,8 +23,8 @@ import android.graphics.Rect
  *
  * A display feature is a distinctive physical attribute located within the display panel of
  * the device. It can intrude into the application window space and create a visual distortion,
- * visual or touch discontinuity, make some area invisible or create a logical divider or separation
- * in the screen space.
+ * visual or touch discontinuity, make some area invisible or create a logical divider or
+ * separation in the screen space.
  *
  * @see FoldingFeature that represents a screen fold that intersects the application window.
  */

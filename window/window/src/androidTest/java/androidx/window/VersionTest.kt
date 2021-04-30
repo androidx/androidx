@@ -33,7 +33,7 @@ public class VersionTest {
         // Test valid version string
         var v = Version.parse("1.2.3-test")
         assertNotNull(v)
-        assertEquals(1, v.major.toLong())
+        assertEquals(1, v!!.major.toLong())
         assertEquals(2, v.minor.toLong())
         assertEquals(3, v.patch.toLong())
         assertEquals("test", v.description)
@@ -48,19 +48,19 @@ public class VersionTest {
         // Test diff in major
         var v1 = Version.parse("2.2.3-test")
         var v2 = Version.parse("1.2.3-test")
-        assertThat(v1.compareTo(v2)).isGreaterThan(0)
+        assertThat(v1!!.compareTo(v2!!)).isGreaterThan(0)
         assertThat(v2.compareTo(v1)).isLessThan(0)
 
         // Test diff in minor
         v1 = Version.parse("1.2.3-test")
         v2 = Version.parse("1.1.3-test")
-        assertThat(v1.compareTo(v2)).isGreaterThan(0)
+        assertThat(v1!!.compareTo(v2!!)).isGreaterThan(0)
         assertThat(v2.compareTo(v1)).isLessThan(0)
 
         // Test diff in patch
         v1 = Version.parse("1.2.3-test")
         v2 = Version.parse("1.2.0-test")
-        assertThat(v1.compareTo(v2)).isGreaterThan(0)
+        assertThat(v1!!.compareTo(v2!!)).isGreaterThan(0)
         assertThat(v2.compareTo(v1)).isLessThan(0)
 
         // Test equals. Description is not included in the check.

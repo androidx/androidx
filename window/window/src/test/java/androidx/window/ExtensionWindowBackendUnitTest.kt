@@ -19,15 +19,16 @@ import android.app.Activity
 import android.content.Context
 import androidx.core.util.Consumer
 import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 
 /**
  * Unit tests for [ExtensionWindowBackend] that run on the JVM.
@@ -36,7 +37,7 @@ public class ExtensionWindowBackendUnitTest {
     private lateinit var context: Context
     @Before
     public fun setUp() {
-        context = mock(Context::class.java)
+        context = mock()
         ExtensionWindowBackend.resetInstance()
     }
 
@@ -53,43 +54,33 @@ public class ExtensionWindowBackendUnitTest {
     @Test
     public fun testRegisterLayoutChangeCallback() {
         val backend = ExtensionWindowBackend.getInstance(context)
-        backend.mWindowExtension = mock(
-            ExtensionInterfaceCompat::class.java
-        )
+        backend.windowExtension = mock()
 
         // Check registering the layout change callback
-        val consumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        val activity = mock(
-            Activity::class.java
-        )
+        val consumer = mock<Consumer<WindowLayoutInfo>>()
+        val activity = mock<Activity>()
         backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
-        assertEquals(1, backend.mWindowLayoutChangeCallbacks.size.toLong())
-        verify(backend.mWindowExtension).onWindowLayoutChangeListenerAdded(activity)
+        assertEquals(1, backend.windowLayoutChangeCallbacks.size.toLong())
+        verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
 
         // Check unregistering the layout change callback
         backend.unregisterLayoutChangeCallback(consumer)
-        assertTrue(backend.mWindowLayoutChangeCallbacks.isEmpty())
-        verify(backend.mWindowExtension).onWindowLayoutChangeListenerRemoved(
-            ArgumentMatchers.eq(activity)
+        assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
+        verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(
+            eq(activity)
         )
     }
 
     @Test
     public fun testRegisterLayoutChangeCallback_noExtension() {
         val backend = ExtensionWindowBackend.getInstance(context)
-        backend.mWindowExtension = null
+        backend.windowExtension = null
 
         // Check registering the layout change callback
-        val consumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        val activity = mock(
-            Activity::class.java
-        )
+        val consumer = mock<Consumer<WindowLayoutInfo>>()
+        val activity = mock<Activity>()
         backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
-        verify(consumer).accept(ArgumentMatchers.any())
+        verify(consumer).accept(any())
     }
 
     @Test
@@ -100,12 +91,8 @@ public class ExtensionWindowBackendUnitTest {
         val backend = ExtensionWindowBackend(extensionInterfaceCompat)
 
         // Check registering the layout change callback
-        val consumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        val activity = mock(
-            Activity::class.java
-        )
+        val consumer: Consumer<WindowLayoutInfo> = mock()
+        val activity = mock<Activity>()
         backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
 
         // Check unregistering the layout change callback
@@ -115,51 +102,35 @@ public class ExtensionWindowBackendUnitTest {
     @Test
     public fun testRegisterLayoutChangeCallback_callsExtensionOnce() {
         val backend = ExtensionWindowBackend.getInstance(context)
-        backend.mWindowExtension = mock(
-            ExtensionInterfaceCompat::class.java
-        )
+        backend.windowExtension = mock()
 
         // Check registering the layout change callback
-        val consumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        val activity = mock(
-            Activity::class.java
-        )
+        val consumer: Consumer<WindowLayoutInfo> = mock()
+        val activity = mock<Activity>()
         backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
         backend.registerLayoutChangeCallback(
             activity, { obj: Runnable -> obj.run() },
-            mock(
-                WindowLayoutInfoConsumer::class.java
-            )
+            mock()
         )
-        assertEquals(2, backend.mWindowLayoutChangeCallbacks.size.toLong())
-        verify(backend.mWindowExtension).onWindowLayoutChangeListenerAdded(activity)
+        assertEquals(2, backend.windowLayoutChangeCallbacks.size.toLong())
+        verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
 
         // Check unregistering the layout change callback
         backend.unregisterLayoutChangeCallback(consumer)
-        assertEquals(1, backend.mWindowLayoutChangeCallbacks.size.toLong())
-        verify(backend.mWindowExtension, times(0))
-            .onWindowLayoutChangeListenerRemoved(ArgumentMatchers.eq(activity))
+        assertEquals(1, backend.windowLayoutChangeCallbacks.size.toLong())
+        verify(backend.windowExtension!!, times(0))
+            .onWindowLayoutChangeListenerRemoved(eq(activity))
     }
 
     @Test
     public fun testRegisterLayoutChangeCallback_clearListeners() {
         val backend = ExtensionWindowBackend.getInstance(context)
-        backend.mWindowExtension = mock(
-            ExtensionInterfaceCompat::class.java
-        )
+        backend.windowExtension = mock()
 
         // Check registering the layout change callback
-        val firstConsumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        val secondConsumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        val activity = mock(
-            Activity::class.java
-        )
+        val firstConsumer = mock<Consumer<WindowLayoutInfo>>()
+        val secondConsumer = mock<Consumer<WindowLayoutInfo>>()
+        val activity = mock<Activity>()
         backend.registerLayoutChangeCallback(
             activity,
             { obj: Runnable -> obj.run() },
@@ -174,11 +145,10 @@ public class ExtensionWindowBackendUnitTest {
         // Check unregistering the layout change callback
         backend.unregisterLayoutChangeCallback(firstConsumer)
         backend.unregisterLayoutChangeCallback(secondConsumer)
-        assertTrue(backend.mWindowLayoutChangeCallbacks.isEmpty())
-        verify(backend.mWindowExtension).onWindowLayoutChangeListenerRemoved(activity)
+        assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
+        verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(activity)
     }
 
-    private interface WindowLayoutInfoConsumer : Consumer<WindowLayoutInfo>
     private class SynchronousExtensionInterface(windowLayoutInfo: WindowLayoutInfo) :
         ExtensionInterfaceCompat {
         private var mInterface: ExtensionCallbackInterface
@@ -200,7 +170,12 @@ public class ExtensionWindowBackendUnitTest {
         override fun onWindowLayoutChangeListenerRemoved(activity: Activity) {}
 
         init {
-            mInterface = ExtensionCallbackInterface { _, _ -> }
+            mInterface = object : ExtensionCallbackInterface {
+                override fun onWindowLayoutChanged(
+                    activity: Activity,
+                    newLayout: WindowLayoutInfo
+                ) {}
+            }
             mWindowLayoutInfo = windowLayoutInfo
         }
     }
