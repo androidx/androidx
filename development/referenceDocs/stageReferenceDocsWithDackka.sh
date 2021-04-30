@@ -6,6 +6,7 @@ source gbash.sh || exit
 
 readonly defaultDb=""
 DEFINE_string buildId --required "" "The build ID from the Android build server"
+DEFINE_string dateStr "<insert date here>" "Date string used for CL message. Enclose date in double quotes (ex: \"April 29, 2021\")"
 DEFINE_string db "$defaultDb" "The database used for staging. Omitting this value will stage changes to the staging DB."
 
 gbash::init_google "$@"
@@ -140,10 +141,17 @@ g4 sync
 
 printf "\n"
 printf "=================================================================== \n"
-printf "== Copy refdocs to CitC client \n"
+printf "== Prep directories and copy refdocs to CitC client \n"
 printf "=================================================================== \n"
 
 cd third_party/devsite/android/en/reference
+
+cd kotlin/androidx
+ls | grep -v "package\|class\|book\|toc\|constraint\|test\|index" | xargs -I {} rm -rf {}
+cd ../../androidx
+ls | grep -v "package\|class\|book\|toc\|constraint\|test\|index" | xargs -I {} rm -rf {}
+cd ..
+
 cp -r $outDir/$newDir/reference/* .
 
 printf "\n"
@@ -151,8 +159,35 @@ printf "=================================================================== \n"
 printf "== Create a changelist of pending refdoc changes \n"
 printf "=================================================================== \n"
 
+stagingLinkJava="go/dac-stage/reference/androidx/packages"
+stagingLinkKotlin="go/dac-stage/reference/kotlin/androidx/packages"
+
+# Add the db param to links if the target database is not the default staging DB.
+if [ "$FLAGS_db" != "$defaultdb" ]; then
+  stagingLinkJava+="?db=$FLAGS_db"
+  stagingLinkKotlin+="?db=$FLAGS_db"
+fi
+
+# Construct CL description
+readonly clDesc="Androidx $FLAGS_dateStr Ref Docs
+
+DO NOT SUBMIT
+
+GO LIVE TIME: $FLAGS_dateStr @ 10:00 AM PST
+
+Staged:
+* Java: $stagingLinkJava
+* Kotlin: $stagingLinkKotlin
+
+All docs build id: $FLAGS_buildId
+
+The following scripts were used to create these docs:
+
+https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/referenceDocs/
+"
+
 # Grab the CL number generated from running `g4 change`.
-readonly clNum=$(g4 change --desc "Update AndroidX refdocs from build ${FLAGS_buildId}" | tail -1 | awk '{print $2}')
+readonly clNum=$(g4 change --desc "$clDesc" | tail -1 | awk '{print $2}')
 printf "View pending changes at http://cl/${clNum} \n"
 
 printf "\n"
