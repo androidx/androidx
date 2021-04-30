@@ -69,8 +69,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    releaseBundleInside(project(path: ":icing", configuration: "exportRelease"))
-    debugBundleInside(project(path: ":icing", configuration: "exportDebug"))
+    bundleInside(project(path: ":icing", configuration: "exportRelease"))
 
     api("androidx.annotation:annotation:1.1.0")
 

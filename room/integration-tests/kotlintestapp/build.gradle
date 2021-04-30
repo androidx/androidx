@@ -107,6 +107,7 @@ dependencies {
                 project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
         )
     }
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

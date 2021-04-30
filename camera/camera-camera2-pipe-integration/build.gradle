@@ -39,8 +39,7 @@ BundleInsideHelper.forInsideAar(
 
 dependencies {
     implementation("androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01")
-    releaseBundleInside(project(path: ":camera:camera-camera2-pipe", configuration: "exportRelease"))
-    debugBundleInside(project(path: ":camera:camera-camera2-pipe", configuration: "exportDebug"))
+    bundleInside(project(path: ":camera:camera-camera2-pipe", configuration: "exportRelease"))
 
     // Classes and types that are needed at compile & runtime
     api("androidx.annotation:annotation:1.1.0")
