@@ -25,7 +25,7 @@ import androidx.room.migration.bundle.PrimaryKeyBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors
 import com.google.common.truth.Truth.assertThat
-import com.ibm.icu.impl.Assert.fail
+import org.junit.Assert.fail
 import org.junit.Test
 
 class SchemaDifferTest {
