@@ -391,6 +391,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 currentData.pagingSource.unregisterInvalidatedCallback(callback)
                 val pagingSource = pagingSourceFactory()
                 pagingSource.registerInvalidatedCallback(callback)
+                if (pagingSource is LegacyPagingSource) {
+                    pagingSource.setPageSize(config.pageSize)
+                }
 
                 withContext(notifyDispatcher) {
                     currentData.setInitialLoadState(LoadType.REFRESH, Loading)
