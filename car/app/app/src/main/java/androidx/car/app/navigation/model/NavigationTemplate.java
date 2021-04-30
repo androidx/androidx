@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -110,7 +109,6 @@ public final class NavigationTemplate implements Template {
      *
      * @see Builder#setMapActionStrip(ActionStrip)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     @Nullable
     public ActionStrip getMapActionStrip() {
@@ -118,7 +116,6 @@ public final class NavigationTemplate implements Template {
     }
 
     /** Returns whether this template is in the pan mode. */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     public boolean isInPanMode() {
         return mIsInPanMode;
@@ -298,7 +295,6 @@ public final class NavigationTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @ExperimentalCarApi
         @RequiresCarApi(2)
         @NonNull
         public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
@@ -315,7 +311,6 @@ public final class NavigationTemplate implements Template {
          * <p>If in the pan mode, the host will show the pan interface, and send the appropriate
          * callbacks in {@link SurfaceCallback} when the user interacts with the interface.
          */
-        @ExperimentalCarApi
         @RequiresCarApi(2)
         @NonNull
         public Builder setInPanMode(boolean isInPanMode) {

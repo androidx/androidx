@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -42,7 +41,6 @@ import java.util.Objects;
  * This template's body is only available while the car is parked. While driving the text and the
  * actions will be disabled.
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public final class LongMessageTemplate implements Template {
     @Keep
@@ -157,7 +155,6 @@ public final class LongMessageTemplate implements Template {
     }
 
     /** A builder of {@link LongMessageTemplate}. */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     public static final class Builder {
         @Nullable

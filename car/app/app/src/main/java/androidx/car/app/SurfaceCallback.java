@@ -19,7 +19,6 @@ package androidx.car.app;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /** A callback for changes on the {@link SurfaceContainer} and its attributes. */
@@ -80,7 +79,6 @@ public interface SurfaceCallback {
      * @param distanceY The distance in pixels along the Y axis that has been scrolled since the
      *                  last touch position during the scroll event.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     default void onScroll(float distanceX, float distanceY) {
     }
@@ -91,7 +89,6 @@ public interface SurfaceCallback {
      * @param velocityX The velocity of this fling measured in pixels per second along the x axis.
      * @param velocityY The velocity of this fling measured in pixels per second along the y axis.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     default void onFling(float velocityX, float velocityY) {
     }
@@ -104,7 +101,6 @@ public interface SurfaceCallback {
      * @param scaleFactor The scaling factor from the previous state to the current
      *                    state during the scale event.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     default void onScale(float focusX, float focusY, float scaleFactor) {
     }

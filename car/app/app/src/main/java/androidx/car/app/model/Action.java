@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -305,7 +304,6 @@ public final class Action {
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
