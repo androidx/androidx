@@ -31,7 +31,6 @@ import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
 import androidx.car.app.R;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.LogTags;
 
@@ -45,7 +44,6 @@ import java.lang.annotation.RetentionPolicy;
  * apply, such as the number of items that could be in a list in different templates. An app can
  * use this manager to query for these limits at runtime and react accordingly.
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public class ConstraintManager {
     /**

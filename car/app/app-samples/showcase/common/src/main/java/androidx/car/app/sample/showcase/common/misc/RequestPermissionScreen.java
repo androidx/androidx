@@ -19,11 +19,9 @@ package androidx.car.app.sample.showcase.common.misc;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.MessageTemplate;
@@ -42,7 +40,6 @@ public class RequestPermissionScreen extends Screen {
         super(carContext);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @NonNull
     @Override
     public Template onGetTemplate() {

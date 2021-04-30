@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -320,7 +319,6 @@ public final class Row implements Item {
          *
          * @throws IllegalArgumentException if {@code title} is {@code null} or empty
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             if (requireNonNull(title).isEmpty()) {
@@ -407,7 +405,6 @@ public final class Row implements Item {
          * @throws NullPointerException if {@code text} is {@code null}
          * @see Builder#addText(CharSequence)
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder addText(@NonNull CarText text) {
             mTexts.add(requireNonNull(text));

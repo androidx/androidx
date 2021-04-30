@@ -22,7 +22,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.utils.CollectionUtils;
@@ -205,7 +204,6 @@ public final class Step {
          * @throws NullPointerException if {@code cue} is {@code null}
          * @see Builder#Builder(CharSequence)
          */
-        @ExperimentalCarApi
         public Builder(@NonNull CarText cue) {
             mCue = requireNonNull(cue);
         }

@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
@@ -154,7 +153,6 @@ public final class CarText {
      *
      * @see Builder#addVariant(CharSequence)
      */
-    @ExperimentalCarApi
     @NonNull
     public List<CharSequence> getVariants() {
         if (mTextVariants.isEmpty()) {
@@ -192,8 +190,6 @@ public final class CarText {
         mTextVariants = Collections.emptyList();
         mSpansForVariants = Collections.emptyList();
     }
-
-    @ExperimentalCarApi
     CarText(Builder builder) {
         mText = builder.mText.toString();
         mSpans = getSpans(builder.mText);
@@ -329,7 +325,6 @@ public final class CarText {
     }
 
     /** A builder of {@link CarText}. */
-    @ExperimentalCarApi
     public static final class Builder {
         @Keep
         CharSequence mText;

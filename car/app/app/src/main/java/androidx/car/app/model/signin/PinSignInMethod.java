@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import java.util.Objects;
@@ -30,7 +29,6 @@ import java.util.Objects;
  * A {@link SignInTemplate.SignInMethod} that presents a PIN or activation code that the user can
  * use to sign-in.
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     /** Maximum length, in characters, for a PIN. */
