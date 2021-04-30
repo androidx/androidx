@@ -122,7 +122,7 @@ function runBuild() {
 function backupState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/backup-state.sh "$backupDir" "$workingDir" "$@"
+  ./impl/backup-state.sh "$backupDir" "$workingDir" "$2"
 }
 
 function restoreState() {
