@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +13,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.core.splashscreen">
 
-    <application>
-        <activity android:name=".test.SplashScreenAppCompatTestActivity" />
-    </application>
-</manifest>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportHeight="100"
+    android:viewportWidth="100">
+    <path
+        android:fillColor="#3ddc84"
+        android:pathData="m0 0 L 0 100 100 100 100 0z"
+        android:strokeWidth="1" />
+</vector>

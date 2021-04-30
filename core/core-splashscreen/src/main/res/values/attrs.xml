@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+
+    <!-- Icon to set for the splashscreen. <p>
+     On API31+, this can be an animated icon by overriding it in the [res/drawable-v31/]
+     directory Defaults to @drawable/ic_launcher. -->
+    <attr name="windowSplashScreenAnimatedIcon" format="reference" />
+
+    <!-- Background color of the splash screen. Defaults to the theme's windowBackground-->
+    <attr name="windowSplashScreenBackground" format="color" />
+
+    <!-- Duration of the Animated Icon Animation -->
+    <attr name="windowSplashScreenAnimationDuration" format="integer" />
+
+    <!-- Theme to apply to the Activity once the splash screen is dismissed-->
+    <attr name="postSplashScreenTheme" format="reference" />
+</resources>
