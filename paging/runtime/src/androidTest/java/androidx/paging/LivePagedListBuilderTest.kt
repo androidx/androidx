@@ -27,8 +27,10 @@ import androidx.paging.LoadType.REFRESH
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -258,6 +260,60 @@ class LivePagedListBuilderTest {
             ),
             loadStates
         )
+    }
+
+    @Test
+    fun legacyPagingSourcePageSize() {
+        val dataSources = mutableListOf<DataSource<Int, Int>>()
+        val pagedLists = mutableListOf<PagedList<Int>>()
+        val requestedLoadSizes = mutableListOf<Int>()
+        val livePagedList = LivePagedListBuilder(
+            pagingSourceFactory = object : DataSource.Factory<Int, Int>() {
+                override fun create(): DataSource<Int, Int> {
+                    return object : PositionalDataSource<Int>() {
+                        override fun loadInitial(
+                            params: LoadInitialParams,
+                            callback: LoadInitialCallback<Int>
+                        ) {
+                            requestedLoadSizes.add(params.requestedLoadSize)
+                            callback.onResult(listOf(1, 2, 3), 0)
+                        }
+
+                        override fun loadRange(
+                            params: LoadRangeParams,
+                            callback: LoadRangeCallback<Int>
+                        ) {
+                            requestedLoadSizes.add(params.loadSize)
+                        }
+                    }.also {
+                        dataSources.add(it)
+                    }
+                }
+            }.asPagingSourceFactory(backgroundExecutor.asCoroutineDispatcher()),
+            config = PagedList.Config.Builder()
+                .setPageSize(3)
+                .setInitialLoadSizeHint(3)
+                .setEnablePlaceholders(false)
+                .build()
+        ).setFetchExecutor(backgroundExecutor)
+            .build()
+
+        livePagedList.observeForever { pagedLists.add(it) }
+
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3)
+
+        pagedLists.last().loadAround(2)
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3, 3)
+
+        dataSources[0].invalidate()
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3, 3, 3)
+
+        pagedLists.last().loadAround(2)
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3, 3, 3, 3)
     }
 
     private fun drain() {
