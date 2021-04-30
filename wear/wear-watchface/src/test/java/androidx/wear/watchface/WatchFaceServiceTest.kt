@@ -573,6 +573,22 @@ public class WatchFaceServiceTest {
         watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.MUTE)
 
+        watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_ALL
+        watchFaceImpl.maybeUpdateDrawMode()
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+
+        watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_PRIORITY
+        watchFaceImpl.maybeUpdateDrawMode()
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.MUTE)
+
+        watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_UNKNOWN
+        watchFaceImpl.maybeUpdateDrawMode()
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+
+        watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_ALARMS
+        watchFaceImpl.maybeUpdateDrawMode()
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.MUTE)
+
         // Ambient takes precidence over interruption filter.
         watchState.isAmbient.value = true
         watchFaceImpl.maybeUpdateDrawMode()

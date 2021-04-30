@@ -88,7 +88,9 @@ public class WatchState(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableWatchState {
-    public var interruptionFilter: MutableObservableWatchData<Int> = MutableObservableWatchData()
+    public var interruptionFilter: MutableObservableWatchData<Int> = MutableObservableWatchData(
+        NotificationManager.INTERRUPTION_FILTER_UNKNOWN
+    )
     public val isAmbient: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
     public val isBatteryLowAndNotCharging: MutableObservableWatchData<Boolean> =
         MutableObservableWatchData()
@@ -97,6 +99,7 @@ public class MutableWatchState {
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
+
     @Px
     public var chinHeight: Int = 0
         @Px get
