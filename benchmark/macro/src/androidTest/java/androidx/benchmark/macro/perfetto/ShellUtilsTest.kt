@@ -30,16 +30,16 @@ import org.junit.runner.RunWith
 public class ShellUtilsTest {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     public fun trivial() {
-        // validate piping works
         assertEquals("foo\n", device.executeShellScript("echo foo"))
     }
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
     @Test
     public fun pipe_xargs() {
-        // validate piping works
+        // validate piping works with xargs
         assertEquals("foo\n", device.executeShellScript("echo foo | xargs echo $1"))
     }
 
@@ -64,6 +64,7 @@ public class ShellUtilsTest {
         assertEquals("foo\n", device.executeShellScript("echo $(</dev/stdin)", stdin = "foo"))
     }
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     public fun multilineRedirect() {
         assertEquals(
@@ -107,6 +108,7 @@ public class ShellUtilsTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     public fun createRunnableExecutable_simpleScript() {
         val path = device.createRunnableExecutable(
