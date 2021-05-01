@@ -45,7 +45,8 @@ public class SearchResultToPlatformConverter {
                 platformResult.getGenericDocument());
         SearchResult.Builder builder = new SearchResult.Builder(
                 platformResult.getPackageName(), platformResult.getDatabaseName())
-                .setGenericDocument(document);
+                .setGenericDocument(document)
+                .setRankingSignal(platformResult.getRankingSignal());
         List<android.app.appsearch.SearchResult.MatchInfo> platformMatches =
                 platformResult.getMatches();
         for (int i = 0; i < platformMatches.size(); i++) {
