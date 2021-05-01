@@ -20,6 +20,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 
 @ExperimentalProcessingApi
@@ -29,6 +30,7 @@ class SyntheticKspProcessor private constructor(
     constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
         SyntheticProcessorImpl(handlers)
     )
+
     private lateinit var options: Map<String, String>
     private lateinit var codeGenerator: CodeGenerator
     private lateinit var logger: KSPLogger
@@ -36,9 +38,8 @@ class SyntheticKspProcessor private constructor(
     override fun finish() {
     }
 
-    override fun init(
+    fun internalInit(
         options: Map<String, String>,
-        kotlinVersion: KotlinVersion,
         codeGenerator: CodeGenerator,
         logger: KSPLogger
     ) {
@@ -63,5 +64,25 @@ class SyntheticKspProcessor private constructor(
         )
         impl.runNextRound(testInvocation)
         return emptyList()
+    }
+
+    internal fun asProvider(): SymbolProcessorProvider = Provider(this)
+
+    private class Provider(
+        private val delegate: SyntheticKspProcessor
+    ) : SymbolProcessorProvider {
+        override fun create(
+            options: Map<String, String>,
+            kotlinVersion: KotlinVersion,
+            codeGenerator: CodeGenerator,
+            logger: KSPLogger
+        ): SymbolProcessor {
+            delegate.internalInit(
+                options = options,
+                codeGenerator = codeGenerator,
+                logger = logger
+            )
+            return delegate
+        }
     }
 }
