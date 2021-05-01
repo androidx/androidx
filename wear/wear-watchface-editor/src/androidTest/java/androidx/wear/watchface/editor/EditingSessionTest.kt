@@ -740,18 +740,19 @@ public class EditorSessionTest {
     @Test
     public fun launchComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        val chosenComplicationProviderInfo = ComplicationProviderInfo(
+            "TestProvider3App",
+            "TestProvider3",
+            Icon.createWithBitmap(
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            ),
+            ComplicationType.LONG_TEXT,
+            provider3
+        )
         TestComplicationHelperActivity.resultIntent = Intent().apply {
             putExtra(
                 "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                ComplicationProviderInfo(
-                    "TestProvider3App",
-                    "TestProvider3",
-                    Icon.createWithBitmap(
-                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-                    ),
-                    ComplicationType.LONG_TEXT,
-                    provider3
-                ).toWireComplicationProviderInfo()
+                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
         }
 
@@ -770,7 +771,15 @@ public class EditorSessionTest {
              * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
              * the preview data) for [LEFT_COMPLICATION_ID].
              */
-            assertTrue(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+            val chosenComplicationProvider =
+                editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider).isNotNull()
+            checkNotNull(chosenComplicationProvider)
+            assertThat(chosenComplicationProvider.complicationId).isEqualTo(LEFT_COMPLICATION_ID)
+            assertEquals(
+                chosenComplicationProviderInfo,
+                chosenComplicationProvider.complicationProviderInfo
+            )
 
             // This should update the preview data to point to the updated provider3 data.
             val previewComplication =
@@ -812,7 +821,12 @@ public class EditorSessionTest {
              * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
              * the preview data) for [LEFT_COMPLICATION_ID].
              */
-            assertTrue(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+            val chosenComplicationProvider =
+                editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider).isNotNull()
+            checkNotNull(chosenComplicationProvider)
+            assertThat(chosenComplicationProvider.complicationId).isEqualTo(LEFT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider.complicationProviderInfo).isNull()
             assertThat(editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID])
                 .isInstanceOf(EmptyComplicationData::class.java)
         }
@@ -837,25 +851,26 @@ public class EditorSessionTest {
             /**
              * Invoke [TestComplicationHelperActivity] which will simulate the user canceling.
              */
-            assertFalse(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+            assertThat(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)).isNull()
         }
     }
 
     @Test
     public fun launchComplicationProviderChooser_ComplicationConfigExtras() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        val chosenComplicationProviderInfo = ComplicationProviderInfo(
+            "TestProvider3App",
+            "TestProvider3",
+            Icon.createWithBitmap(
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            ),
+            ComplicationType.LONG_TEXT,
+            provider3
+        )
         TestComplicationHelperActivity.resultIntent = Intent().apply {
             putExtra(
                 "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                ComplicationProviderInfo(
-                    "TestProvider3App",
-                    "TestProvider3",
-                    Icon.createWithBitmap(
-                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-                    ),
-                    ComplicationType.LONG_TEXT,
-                    provider3
-                ).toWireComplicationProviderInfo()
+                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
         }
 
@@ -870,7 +885,15 @@ public class EditorSessionTest {
         }
 
         runBlocking {
-            assertTrue(editorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID))
+            val chosenComplicationProvider =
+                editorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider).isNotNull()
+            checkNotNull(chosenComplicationProvider)
+            assertThat(chosenComplicationProvider.complicationId).isEqualTo(RIGHT_COMPLICATION_ID)
+            assertEquals(
+                chosenComplicationProviderInfo,
+                chosenComplicationProvider.complicationProviderInfo
+            )
 
             assertThat(
                 TestComplicationHelperActivity.lastIntent?.extras?.getString(
@@ -1188,7 +1211,8 @@ public class EditorSessionTest {
                         providerIcon,
                         ComplicationType.SHORT_TEXT,
                         providerComponentName
-                    )
+                    ),
+                    Bundle.EMPTY
                 )
             )
         }
@@ -1334,3 +1358,17 @@ public class EditorSessionTest {
         }
     }
 }
+
+internal fun assertEquals(expected: ComplicationProviderInfo?, actual: ComplicationProviderInfo?) =
+    when (expected) {
+        null -> assertThat(actual).isNull()
+        else -> {
+            assertThat(actual).isNotNull()
+            checkNotNull(actual)
+            assertThat(actual.appName).isEqualTo(expected.appName)
+            assertThat(actual.name).isEqualTo(expected.name)
+            // Check the type as a proxy for it being the same icon.
+            assertThat(actual.icon.type).isEqualTo(expected.icon.type)
+            assertThat(actual.componentName).isEqualTo(expected.componentName)
+        }
+    }

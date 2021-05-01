@@ -69,6 +69,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
+private typealias WireComplicationProviderInfo =
+    android.support.wearable.complications.ComplicationProviderInfo
+
 /**
  * Interface for manipulating watch face state during an editing session for a watch face editing
  * session. The editor should adjust [userStyle] and call [openComplicationProviderChooser] to
@@ -156,12 +159,19 @@ public abstract class EditorSession : AutoCloseable {
     ): Bitmap
 
     /**
-     * Opens the complication provider chooser and returns `true` if the user made a selection or
-     * `false` if the activity was canceled. If the complication provider was changed then the map
-     * returned by [getComplicationsPreviewData] is updated (on the UiThread).
+     * Opens the complication provider chooser and returns the chosen complication provider
+     * for the given splot.
+     *
+     * The result returns `null` if the operation was cancelled and otherwise returned an
+     * instance of [ChosenComplicationProvider] that contains information about the chosen
+     * provider.
+     *
+     * If the complication provider was changed then the map returned by
+     * [getComplicationsPreviewData] is updated (on the UiThread).
      */
     @UiThread
-    public abstract suspend fun openComplicationProviderChooser(complicationId: Int): Boolean
+    public abstract suspend fun openComplicationProviderChooser(complicationId: Int):
+        ChosenComplicationProvider?
 
     public companion object {
         /**
@@ -260,6 +270,22 @@ public abstract class EditorSession : AutoCloseable {
     }
 }
 
+/**
+ * The complication provider that was chosen by the user for a given complication id as a result
+ * to a call to [EditorSession.openComplicationProviderChooser].
+ */
+public class ChosenComplicationProvider(
+    /** The ID of the complication slot that was configured. */
+    public val complicationId: Int,
+    /** The provider that was chosen for this slot, or `null` if the empty provider was chosen. */
+    public val complicationProviderInfo: ComplicationProviderInfo?,
+    /** Any additional extras returned by provider chooser. */
+    public val extras: Bundle,
+) {
+    override fun toString(): String =
+        "$complicationId,$complicationProviderInfo,${extras.asString()}"
+}
+
 // Helps inject mock ProviderInfoRetrievers for testing.
 internal interface ProviderInfoRetrieverProvider {
     fun getProviderInfoRetriever(): ProviderInfoRetriever
@@ -303,7 +329,8 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     /** Pending result for [openComplicationProviderChooser]. */
-    internal var pendingComplicationProviderChooserResult: CompletableDeferred<Boolean>? = null
+    internal var pendingComplicationProviderChooserResult:
+        CompletableDeferred<ChosenComplicationProvider?>? = null
 
     /** The id of the complication being configured due to [openComplicationProviderChooser]. */
     private var pendingComplicationProviderId: Int = -1
@@ -318,7 +345,7 @@ public abstract class BaseEditorSession internal constructor(
     ) {
         // Check if the user cancelled the provider chooser.
         if (complicationProviderChooserResult == null) {
-            pendingComplicationProviderChooserResult!!.complete(false)
+            pendingComplicationProviderChooserResult!!.complete(null)
             pendingComplicationProviderChooserResult = null
             return
         }
@@ -337,7 +364,13 @@ public abstract class BaseEditorSession internal constructor(
                 } else {
                     complicationPreviewDataMap[pendingComplicationProviderId] = previewData
                 }
-                pendingComplicationProviderChooserResult!!.complete(true)
+                pendingComplicationProviderChooserResult!!.complete(
+                    ChosenComplicationProvider(
+                        pendingComplicationProviderId,
+                        complicationProviderChooserResult.providerInfo,
+                        complicationProviderChooserResult.extras,
+                    )
+                )
                 pendingComplicationProviderChooserResult = null
             } finally {
                 // This gets called after the above coroutine has finished.
@@ -348,14 +381,14 @@ public abstract class BaseEditorSession internal constructor(
 
     override suspend fun openComplicationProviderChooser(
         complicationId: Int
-    ): Boolean = TraceEvent(
+    ): ChosenComplicationProvider? = TraceEvent(
         "BaseEditorSession.launchComplicationProviderChooser $complicationId"
     ).use {
         requireNotClosed()
         require(!complicationsState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
         }
-        pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
+        pendingComplicationProviderChooserResult = CompletableDeferred()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
             ComplicationProviderChooserRequest(
@@ -661,7 +694,9 @@ internal class ComplicationProviderChooserRequest(
 
 internal class ComplicationProviderChooserResult(
     /** The updated [ComplicationProviderInfo] or `null` if the empty provider was chosen. */
-    internal val providerInfo: ComplicationProviderInfo?
+    internal val providerInfo: ComplicationProviderInfo?,
+    /** Any additional extras returned by provider chooser. */
+    internal val extras: Bundle,
 )
 
 /**
@@ -698,10 +733,16 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?) = intent?.let {
+        val extras = intent.extras?.let {
+            Bundle(it).apply { remove(EXTRA_PROVIDER_INFO) }
+        } ?: Bundle.EMPTY
         ComplicationProviderChooserResult(
             it.getParcelableExtra<android.support.wearable.complications.ComplicationProviderInfo>(
                 EXTRA_PROVIDER_INFO
-            )?.toApiComplicationProviderInfo()
+            )?.toApiComplicationProviderInfo(),
+            extras
         )
     }
 }
+
+internal fun Bundle.asString() = keySet().map { "$it: ${get(it)}" }

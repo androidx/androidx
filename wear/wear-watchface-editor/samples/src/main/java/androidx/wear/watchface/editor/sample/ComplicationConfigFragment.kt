@@ -21,6 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -78,6 +79,10 @@ internal class ConfigView(
     private val watchFaceConfigActivity: WatchFaceConfigActivity
 ) : SwipeDismissFrameLayout(context) {
 
+    companion object {
+        private const val TAG = "ConfigView"
+    }
+
     private lateinit var previewComplicationData: Map<Int, ComplicationData>
     private val drawRect = Rect()
 
@@ -133,7 +138,9 @@ internal class ConfigView(
 
     private fun onComplicationButtonClicked(complicationId: Int) {
         watchFaceConfigActivity.coroutineScope.launch {
-            watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
+            val chosenComplicationProvider =
+                watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
+            Log.d(TAG, "showComplicationConfig: $chosenComplicationProvider")
             // Redraw after the complication provider chooser has run.
             invalidate()
         }
