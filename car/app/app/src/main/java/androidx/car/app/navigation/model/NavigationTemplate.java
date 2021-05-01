@@ -22,6 +22,8 @@ import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAIN
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +35,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
+import androidx.car.app.model.Toggle;
 
 import java.util.Objects;
 
@@ -92,7 +95,9 @@ public final class NavigationTemplate implements Template {
     @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
-    private final boolean mIsInPanMode;
+    @Keep
+    @Nullable
+    private final Toggle mPanModeToggle;
 
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
@@ -117,8 +122,9 @@ public final class NavigationTemplate implements Template {
 
     /** Returns whether this template is in the pan mode. */
     @RequiresCarApi(2)
-    public boolean isInPanMode() {
-        return mIsInPanMode;
+    @Nullable
+    public Toggle getPanModeToggle() {
+        return mPanModeToggle;
     }
 
     /**
@@ -157,7 +163,7 @@ public final class NavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mNavigationInfo, mBackgroundColor, mDestinationTravelEstimate,
-                mActionStrip, mMapActionStrip, mIsInPanMode);
+                mActionStrip, mMapActionStrip, mPanModeToggle);
     }
 
     @Override
@@ -176,7 +182,7 @@ public final class NavigationTemplate implements Template {
                 otherTemplate.mDestinationTravelEstimate)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
-                && mIsInPanMode == otherTemplate.mIsInPanMode;
+                && Objects.equals(mPanModeToggle, otherTemplate.mPanModeToggle);
     }
 
     NavigationTemplate(Builder builder) {
@@ -185,7 +191,7 @@ public final class NavigationTemplate implements Template {
         mDestinationTravelEstimate = builder.mDestinationTravelEstimate;
         mActionStrip = builder.mActionStrip;
         mMapActionStrip = builder.mMapActionStrip;
-        mIsInPanMode = builder.mIsInPanMode;
+        mPanModeToggle = builder.mPanModeToggle;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -195,7 +201,7 @@ public final class NavigationTemplate implements Template {
         mDestinationTravelEstimate = null;
         mActionStrip = null;
         mMapActionStrip = null;
-        mIsInPanMode = false;
+        mPanModeToggle = null;
     }
 
     /** A builder of {@link NavigationTemplate}. */
@@ -210,7 +216,8 @@ public final class NavigationTemplate implements Template {
         ActionStrip mActionStrip;
         @Nullable
         ActionStrip mMapActionStrip;
-        boolean mIsInPanMode;
+        @Nullable
+        Toggle mPanModeToggle;
 
         /**
          * Sets the navigation information to display on the template.
@@ -304,17 +311,20 @@ public final class NavigationTemplate implements Template {
             return this;
         }
 
-
         /**
-         * Sets whether this template is in the pan mode.
+         * Sets a {@link PanModeListener} that notifies when the user enters and exits
+         * the pan mode.
          *
-         * <p>If in the pan mode, the host will show the pan interface, and send the appropriate
-         * callbacks in {@link SurfaceCallback} when the user interacts with the interface.
+         * @throws NullPointerException if {@code panModeListener} is {@code null}
          */
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         @RequiresCarApi(2)
         @NonNull
-        public Builder setInPanMode(boolean isInPanMode) {
-            mIsInPanMode = isInPanMode;
+        public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
+            requireNonNull(panModeListener);
+            mPanModeToggle =
+                    new Toggle.Builder(
+                            (isInPanMode) -> panModeListener.onPanModeChanged(isInPanMode)).build();
             return this;
         }
 

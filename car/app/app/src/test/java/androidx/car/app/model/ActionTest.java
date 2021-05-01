@@ -134,6 +134,27 @@ public class ActionTest {
     }
 
     @Test
+    public void create_panMode() {
+        Action action = new Action.Builder(Action.PAN)
+                .setIcon(TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                        "ic_test_1"))
+                .build();
+        assertThat(action.getTitle()).isNull();
+    }
+
+    @Test
+    public void create_panMode_hasOnClickListener_throws() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        assertThrows(IllegalStateException.class,
+                () -> new Action.Builder(Action.PAN)
+                        .setIcon(TestUtils.getTestCarIcon(
+                                ApplicationProvider.getApplicationContext(),
+                                "ic_test_1"))
+                        .setOnClickListener(onClickListener)
+                        .build());
+    }
+
+    @Test
     public void equals() {
         String title = "foo";
         CarIcon icon = CarIcon.ALERT;
