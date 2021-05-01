@@ -22,16 +22,21 @@ import javax.lang.model.SourceVersion
 @Suppress("VisibleForTests")
 @ExperimentalProcessingApi
 class SyntheticJavacProcessor private constructor(
-    private val impl: SyntheticProcessorImpl
+    private val impl: SyntheticProcessorImpl,
+    private val targetLanguage: XProcessingEnv.Language
 ) : JavacTestProcessor(), SyntheticProcessor by impl {
-    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
-        SyntheticProcessorImpl(handlers)
+    constructor(
+        handlers: List<(XTestInvocation) -> Unit>,
+        targetLanguage: XProcessingEnv.Language
+    ) : this(
+        SyntheticProcessorImpl(handlers),
+        targetLanguage
     )
     override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
         if (!impl.canRunAnotherRound()) {
             return true
         }
-        val xEnv = XProcessingEnv.create(processingEnv)
+        val xEnv = XProcessingEnv.create(processingEnv, targetLanguage)
         val testInvocation = XTestInvocation(
             processingEnv = xEnv,
             roundEnv = roundEnv

@@ -34,7 +34,10 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
     }
 
     override fun compile(params: TestCompilationParameters): CompilationResult {
-        val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
+        val syntheticJavacProcessor = SyntheticJavacProcessor(
+            params.handlers,
+            params.targetLanguage
+        )
         val outputStream = ByteArrayOutputStream()
         val compilation = KotlinCompilationUtil.prepareCompilation(
             sources = params.sources,

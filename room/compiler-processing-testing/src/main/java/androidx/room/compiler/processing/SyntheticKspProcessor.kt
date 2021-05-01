@@ -25,10 +25,15 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 
 @ExperimentalProcessingApi
 class SyntheticKspProcessor private constructor(
-    private val impl: SyntheticProcessorImpl
+    private val impl: SyntheticProcessorImpl,
+    private val targetLanguage: XProcessingEnv.Language
 ) : SymbolProcessor, SyntheticProcessor by impl {
-    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
-        SyntheticProcessorImpl(handlers)
+    constructor(
+        handlers: List<(XTestInvocation) -> Unit>,
+        targetLanguage: XProcessingEnv.Language
+    ) : this(
+        SyntheticProcessorImpl(handlers),
+        targetLanguage
     )
 
     private lateinit var options: Map<String, String>
@@ -57,7 +62,7 @@ class SyntheticKspProcessor private constructor(
             resolver,
             codeGenerator,
             logger,
-            XProcessingEnv.Language.JAVA
+            targetLanguage
         )
         val testInvocation = XTestInvocation(
             processingEnv = xEnv,

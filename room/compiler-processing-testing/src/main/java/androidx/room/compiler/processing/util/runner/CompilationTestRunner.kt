@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util.runner
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -40,5 +41,6 @@ internal data class TestCompilationParameters(
     val sources: List<Source> = emptyList(),
     val classpath: List<File> = emptyList(),
     val options: Map<String, String> = emptyMap(),
+    val targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     val handlers: List<(XTestInvocation) -> Unit>
 )

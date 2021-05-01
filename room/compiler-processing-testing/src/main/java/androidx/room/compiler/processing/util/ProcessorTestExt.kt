@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
@@ -81,6 +82,7 @@ fun runProcessorTestWithoutKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handler: (XTestInvocation) -> Unit
 ) {
     runTests(
@@ -88,6 +90,7 @@ fun runProcessorTestWithoutKsp(
             sources = sources,
             classpath = classpath,
             options = options,
+            targetLanguage = targetLanguage,
             handlers = listOf(handler)
         ),
         JavacCompilationTestRunner,
@@ -115,11 +118,13 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handler: (XTestInvocation) -> Unit
 ) = runProcessorTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    targetLanguage = targetLanguage,
     handlers = listOf(handler)
 )
 
@@ -141,13 +146,15 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     createProcessingStep: () -> XProcessingStep,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
     runProcessorTest(
         sources = sources,
         classpath = classpath,
-        options = options
+        options = options,
+        targetLanguage = targetLanguage
     ) { invocation ->
         val step = createProcessingStep()
         val elements =
@@ -173,6 +180,7 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
@@ -185,6 +193,7 @@ fun runProcessorTest(
             sources = sources,
             classpath = classpath,
             options = options,
+            targetLanguage = targetLanguage,
             handlers = handlers
         ),
         javaApRunner,
@@ -202,11 +211,13 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handler: (XTestInvocation) -> Unit
 ) = runJavaProcessorTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    targetLanguage = targetLanguage,
     handlers = listOf(handler)
 )
 
@@ -218,6 +229,7 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -225,6 +237,7 @@ fun runJavaProcessorTest(
             sources = sources,
             classpath = classpath,
             options = options,
+            targetLanguage = targetLanguage,
             handlers = handlers
         ),
         JavacCompilationTestRunner
@@ -239,11 +252,13 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handler: (XTestInvocation) -> Unit
 ) = runKaptTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    targetLanguage = targetLanguage,
     handlers = listOf(handler)
 )
 
@@ -255,6 +270,7 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -262,6 +278,7 @@ fun runKaptTest(
             sources = sources,
             classpath = classpath,
             options = options,
+            targetLanguage = targetLanguage,
             handlers = handlers
         ),
         KaptCompilationTestRunner
@@ -276,11 +293,13 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handler: (XTestInvocation) -> Unit
 ) = runKspTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    targetLanguage = targetLanguage,
     handlers = listOf(handler)
 )
 
@@ -292,6 +311,7 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -299,6 +319,7 @@ fun runKspTest(
             sources = sources,
             classpath = classpath,
             options = options,
+            targetLanguage = targetLanguage,
             handlers = handlers
         ),
         KspCompilationTestRunner

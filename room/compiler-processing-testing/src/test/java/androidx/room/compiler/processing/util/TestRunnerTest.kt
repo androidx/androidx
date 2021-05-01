@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XProcessingEnv
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
@@ -190,5 +191,111 @@ class TestRunnerTest {
             assertThat(kspResult.exceptionOrNull()).hasMessageThat()
                 .contains(errorMessage)
         }
+    }
+
+    @Test
+    fun targetLanguageIsPassedDown() {
+        val src = Source.java(
+            "test.Foo",
+            """
+            package test;
+            public class Foo { }
+            """.trimIndent()
+        )
+        val handler: (XTestInvocation) -> Unit = { invocation ->
+            assertThat(invocation.processingEnv.targetLanguage)
+                .isEqualTo(XProcessingEnv.Language.JAVA)
+        }
+
+        runProcessorTest(
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handler = handler
+        )
+        runProcessorTest(
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handlers = listOf(handler)
+        )
+        runProcessorTestWithoutKsp(
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handler = handler
+        )
+        runJavaProcessorTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handler = handler
+        )
+        runJavaProcessorTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handlers = listOf(handler)
+        )
+        runKaptTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handler = handler
+        )
+        runKaptTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handlers = listOf(handler)
+        )
+        runKspTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handler = handler
+        )
+        runKspTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.JAVA,
+            handlers = listOf(handler)
+        )
+    }
+
+    @Test
+    fun targetLanguageIsPassedDown_kotlin() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo
+            class Foo { }
+            """.trimIndent()
+        )
+        val handler: (XTestInvocation) -> Unit = { invocation ->
+            assertThat(invocation.processingEnv.targetLanguage)
+                .isEqualTo(XProcessingEnv.Language.KOTLIN)
+        }
+
+        runProcessorTest(
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handler = handler
+        )
+        runProcessorTest(
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handlers = listOf(handler)
+        )
+        runProcessorTestWithoutKsp(
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handler = handler
+        )
+        runKaptTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handler = handler
+        )
+        runKaptTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handlers = listOf(handler)
+        )
+        runKspTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handler = handler
+        )
+        runKspTest(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handlers = listOf(handler)
+        )
     }
 }
