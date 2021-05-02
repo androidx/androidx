@@ -278,6 +278,18 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun setTargetRotation_rotationIsChanged() {
+        // Arrange.
+        val videoCapture = VideoCapture.withOutput(createVideoOutput())
+
+        // Act.
+        videoCapture.targetRotation = Surface.ROTATION_180
+
+        // Assert.
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
     fun addUseCases_transformationInfoUpdated() {
         // Arrange.
         val listener = mock(SurfaceRequest.TransformationInfoListener::class.java)
@@ -299,6 +311,38 @@ class VideoCaptureTest {
 
         // Assert.
         verify(listener).onTransformationInfoUpdate(any())
+    }
+
+    @Test
+    fun setTargetRotation_transformationInfoUpdated() {
+        // Arrange.
+        var transformationInfo: SurfaceRequest.TransformationInfo? = null
+        val videoOutput = createVideoOutput(
+            surfaceRequestListener = { surfaceRequest ->
+                surfaceRequest.setTransformationInfoListener(
+                    CameraXExecutors.directExecutor(),
+                    {
+                        transformationInfo = it
+                    }
+                )
+            }
+        )
+        val videoCapture = VideoCapture.Builder(videoOutput)
+            .setTargetRotation(Surface.ROTATION_90)
+            .setSessionOptionUnpacker { _, _ -> }
+            .build()
+
+        // Act.
+        cameraUseCaseAdapter0.addUseCases(listOf(videoCapture))
+
+        // Assert.
+        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_90)
+
+        // Act.
+        videoCapture.targetRotation = Surface.ROTATION_180
+
+        // Assert.
+        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
     }
 
     private fun createVideoOutput(
