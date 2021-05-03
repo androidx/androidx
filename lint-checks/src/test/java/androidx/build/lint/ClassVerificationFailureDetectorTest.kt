@@ -93,38 +93,38 @@ Fix for src/androidx/core/widget/ListViewCompat.java line 39: Extract to static 
 +             Api19Impl.scrollListBy(listView, y);
 @@ -91 +91
 - }
-@@ -92 +91
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @androidx.annotation.DoNotInline
 +     static void scrollListBy(AbsListView absListView, int y) {
 +         absListView.scrollListBy(y);
 +     }
-+
+@@ -93 +102
 + }}
++
 Fix for src/androidx/core/widget/ListViewCompat.java line 69: Extract to static inner class:
 @@ -69 +69
 -             return listView.canScrollList(direction);
 +             return Api19Impl.canScrollList(listView, direction);
 @@ -91 +91
 - }
-@@ -92 +91
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @androidx.annotation.DoNotInline
 +     static boolean canScrollList(AbsListView absListView, int direction) {
 +         return absListView.canScrollList(direction);
 +     }
-+
+@@ -93 +102
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -145,19 +145,19 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -37 +37
 - }
-@@ -38 +37
 + @annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
-+
+@@ -39 +48
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -178,19 +178,19 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 +             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
 @@ -38 +38
 - }
-@@ -39 +38
 + @annotation.RequiresApi(30)
 + static class Api30Impl {
 +     private Api30Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
 +         return new AccessibilityNodeInfo(root, virtualDescendantId);
 +     }
-+
+@@ -40 +49
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -211,19 +211,19 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 +             return Api17Impl.generateViewId();
 @@ -37 +37
 - }
-@@ -38 +37
 + @annotation.RequiresApi(17)
 + static class Api17Impl {
 +     private Api17Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static int generateViewId() {
 +         return View.generateViewId();
 +     }
-+
+@@ -39 +48
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -244,19 +244,19 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 +             return Api23Impl.getSystemService(context, serviceClass);
 @@ -38 +38
 - }
-@@ -39 +38
 + @annotation.RequiresApi(23)
 + static class Api23Impl {
 +     private Api23Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static <T> T getSystemService(Context context, Class<T> serviceClass) {
 +         return context.getSystemService(serviceClass);
 +     }
-+
+@@ -40 +49
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -277,19 +277,19 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -46 +46
 - }
-@@ -47 +46
 + @RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @DoNotInline
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
-+
+@@ -48 +57
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
