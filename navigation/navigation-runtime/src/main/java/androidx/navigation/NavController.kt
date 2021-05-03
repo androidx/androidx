@@ -41,6 +41,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import java.util.UUID
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -107,7 +108,8 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
-    private val backStackStates = mutableMapOf<Int, ArrayDeque<NavBackStackEntryState>>()
+    private val backStackMap = mutableMapOf<Int, UUID?>()
+    private val backStackStates = mutableMapOf<UUID, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners =
@@ -411,7 +413,7 @@ public open class NavController(
         }
         val popOperations = mutableListOf<Navigator<*>>()
         val iterator = backQueue.reversed().iterator()
-        var foundDestination = false
+        var foundDestination: NavDestination? = null
         while (iterator.hasNext()) {
             val destination = iterator.next().destination
             val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
@@ -421,11 +423,11 @@ public open class NavController(
                 popOperations.add(navigator)
             }
             if (destination.id == destinationId) {
-                foundDestination = true
+                foundDestination = destination
                 break
             }
         }
-        if (!foundDestination) {
+        if (foundDestination == null) {
             // We were passed a destinationId that doesn't exist on our back stack.
             // Better to ignore the popBackStack than accidentally popping the entire stack
             val destinationName = NavDestination.getDisplayName(
@@ -452,8 +454,45 @@ public open class NavController(
                 break
             }
         }
-        if (popped && saveState) {
-            backStackStates[destinationId] = savedState
+        if (saveState) {
+            if (!inclusive) {
+                // If this isn't an inclusive pop, we need to explicitly map the
+                // saved state to the destination you've actually passed to popUpTo
+                // as well as its parents (if it is the start destination)
+                generateSequence(foundDestination) { destination ->
+                    if (destination.parent?.startDestination == destination.id) {
+                        destination.parent
+                    } else {
+                        null
+                    }
+                }.takeWhile { destination ->
+                    // Only add the state if it doesn't already exist
+                    !backStackMap.containsKey(destination.id)
+                }.forEach { destination ->
+                    backStackMap[destination.id] = savedState.firstOrNull()?.uuid
+                }
+            }
+            if (savedState.isNotEmpty()) {
+                val firstState = savedState.first()
+                // Whether is is inclusive or not, we need to map the
+                // saved state to the destination that was popped
+                // as well as its parents (if it is the start destination)
+                val firstStateDestination = findDestination(firstState.destinationId)
+                generateSequence(firstStateDestination) { destination ->
+                    if (destination.parent?.startDestination == destination.id) {
+                        destination.parent
+                    } else {
+                        null
+                    }
+                }.takeWhile { destination ->
+                    // Only add the state if it doesn't already exist
+                    !backStackMap.containsKey(destination.id)
+                }.forEach { destination ->
+                    backStackMap[destination.id] = firstState.uuid
+                }
+                // And finally, store the actual state itself
+                backStackStates[firstState.uuid] = savedState
+            }
         }
         updateOnBackPressedCallbackEnabled()
         return popped
@@ -1281,9 +1320,12 @@ public open class NavController(
             navigator.onLaunchSingleTop(currentBackStackEntry)
         }
         // Now determine what new destinations we need to add to the back stack
-        val backStackState = backStackStates.remove(node.id)
-        if (navOptions?.shouldRestoreState() == true && backStackState != null) {
-            // We're restoring the back stack from its saved state
+        if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
+            val backStackUUID = backStackMap[node.id]
+            // Clear out the state we're going to restore so that it isn't restored a second time
+            backStackMap.values.removeAll { it == backStackUUID }
+            val backStackState = backStackStates.remove(backStackUUID)
+            // Now restore the back stack from its saved state
             val entries = instantiateBackStack(backStackState)
             // Split up the entries by Navigator so we can restore them as an atomic operation
             val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
@@ -1345,11 +1387,11 @@ public open class NavController(
     }
 
     private fun instantiateBackStack(
-        backStackState: ArrayDeque<NavBackStackEntryState>
+        backStackState: ArrayDeque<NavBackStackEntryState>?
     ): List<NavBackStackEntry> {
         val backStack = mutableListOf<NavBackStackEntry>()
         var currentDestination = backQueue.lastOrNull()?.destination ?: graph
-        for (state in backStackState) {
+        backStackState?.forEach { state ->
             val node = currentDestination.findDestination(state.destinationId)
             checkNotNull(node) {
                 val dest = NavDestination.getDisplayName(
@@ -1541,21 +1583,34 @@ public open class NavController(
             }
             b.putParcelableArray(KEY_BACK_STACK, backStack)
         }
+        if (backStackMap.isNotEmpty()) {
+            if (b == null) {
+                b = Bundle()
+            }
+            val backStackIds = IntArray(backStackMap.size)
+            val backStackUUIDs = ArrayList<String>()
+            var index = 0
+            for ((id, uuid) in backStackMap) {
+                backStackIds[index++] = id
+                backStackUUIDs += uuid.toString()
+            }
+            b.putIntArray(KEY_BACK_STACK_IDS, backStackIds)
+            b.putStringArrayList(KEY_BACK_STACK_UUIDS, backStackUUIDs)
+        }
         if (backStackStates.isNotEmpty()) {
             if (b == null) {
                 b = Bundle()
             }
-            val backStackStateIds = IntArray(backStackStates.size)
-            var index = 0
-            for ((id, backStackStates) in backStackStates) {
-                backStackStateIds[index++] = id
+            val backStackStateUUIDs = ArrayList<String>()
+            for ((uuid, backStackStates) in backStackStates) {
+                backStackStateUUIDs += uuid.toString()
                 val states = arrayOfNulls<Parcelable>(backStackStates.size)
                 backStackStates.forEachIndexed { stateIndex, backStackState ->
                     states[stateIndex] = backStackState
                 }
-                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id, states)
+                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + uuid, states)
             }
-            b.putIntArray(KEY_BACK_STACK_STATES_IDS, backStackStateIds)
+            b.putStringArrayList(KEY_BACK_STACK_STATES_UUIDS, backStackStateUUIDs)
         }
         if (deepLinkHandled) {
             if (b == null) {
@@ -1584,11 +1639,18 @@ public open class NavController(
         navigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE)
         backStackToRestore = navState.getParcelableArray(KEY_BACK_STACK)
         backStackStates.clear()
-        val backStackStateIds = navState.getIntArray(KEY_BACK_STACK_STATES_IDS)
-        backStackStateIds?.forEach { id ->
-            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id)
+        val backStackIds = navState.getIntArray(KEY_BACK_STACK_IDS)
+        val backStackUUIDs = navState.getStringArrayList(KEY_BACK_STACK_UUIDS)
+        if (backStackIds != null && backStackUUIDs != null) {
+            backStackIds.forEachIndexed { index, id ->
+                backStackMap[id] = UUID.fromString(backStackUUIDs[index])
+            }
+        }
+        val backStackStateIds = navState.getStringArrayList(KEY_BACK_STACK_STATES_UUIDS)
+        backStackStateIds?.map { UUID.fromString(it) }?.forEach { uuid ->
+            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + uuid)
             if (backStackState != null) {
-                backStackStates[id] = ArrayDeque<NavBackStackEntryState>(
+                backStackStates[uuid] = ArrayDeque<NavBackStackEntryState>(
                     backStackState.size
                 ).apply {
                     for (parcelable in backStackState) {
@@ -1736,7 +1798,11 @@ public open class NavController(
         private const val KEY_NAVIGATOR_STATE_NAMES =
             "android-support-nav:controller:navigatorState:names"
         private const val KEY_BACK_STACK = "android-support-nav:controller:backStack"
-        private const val KEY_BACK_STACK_STATES_IDS =
+        private const val KEY_BACK_STACK_IDS =
+            "android-support-nav:controller:backStackIds"
+        private const val KEY_BACK_STACK_UUIDS =
+            "android-support-nav:controller:backStackUUIDs"
+        private const val KEY_BACK_STACK_STATES_UUIDS =
             "android-support-nav:controller:backStackStates"
         private const val KEY_BACK_STACK_STATES_PREFIX =
             "android-support-nav:controller:backStackStates:"
