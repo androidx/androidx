@@ -33,6 +33,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -56,6 +57,7 @@ public class DocumentListModel extends ViewModel {
             new MutableLiveData<>();
     final MutableLiveData<SearchResults> mDocumentsSearchResultsLiveData =
             new MutableLiveData<>();
+    volatile boolean mHasAdditionalPages = true;
 
     public DocumentListModel(@NonNull ExecutorService executor,
             @NonNull DebugAppSearchManager debugAppSearchManager) {
@@ -69,6 +71,8 @@ public class DocumentListModel extends ViewModel {
      *
      * <p>Call {@link #addAdditionalResultsPage} to get the next page of documents from the
      * {@link SearchResults} instance.
+     *
+     * <p>This should only be called once per fragment.
      */
     @NonNull
     public LiveData<SearchResults> getAllDocumentsSearchResults() {
@@ -76,7 +80,11 @@ public class DocumentListModel extends ViewModel {
                 new FutureCallback<SearchResults>() {
                     @Override
                     public void onSuccess(SearchResults result) {
-                        mDocumentsSearchResultsLiveData.postValue(result);
+                        // There should only be one active observer to post this value to as its
+                        // called only once per fragment, ensuring a safe null check.
+                        if (mDocumentsSearchResultsLiveData.getValue() == null) {
+                            mDocumentsSearchResultsLiveData.postValue(result);
+                        }
                     }
 
                     @Override
@@ -106,6 +114,9 @@ public class DocumentListModel extends ViewModel {
                         if (mDocumentsLiveData.getValue() == null) {
                             mDocumentsLiveData.postValue(result);
                         } else {
+                            if (result.isEmpty()) {
+                                mHasAdditionalPages = false;
+                            }
                             mDocumentsLiveData.getValue().addAll(result);
                             mDocumentsLiveData.postValue(mDocumentsLiveData.getValue());
                         }
@@ -118,6 +129,27 @@ public class DocumentListModel extends ViewModel {
                 }, mExecutor);
 
         return mDocumentsLiveData;
+    }
+
+    /**
+     * Returns whether there are additional pages to load to the document list.
+     */
+    public boolean hasAdditionalPages() {
+        return mHasAdditionalPages;
+    }
+
+    /**
+     * Gets all {@link GenericDocument} objects that have been loaded.
+     *
+     * <p>If the underlying list of the Documents LiveData is {@code null}, this returns an
+     * empty list as a placeholder.
+     */
+    @NonNull
+    public List<GenericDocument> getAllLoadedDocuments() {
+        if (mDocumentsLiveData.getValue() == null) {
+            return Collections.emptyList();
+        }
+        return mDocumentsLiveData.getValue();
     }
 
     /**

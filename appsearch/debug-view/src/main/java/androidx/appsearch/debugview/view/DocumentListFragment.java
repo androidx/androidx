@@ -44,7 +44,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * A fragment for displaying a list of {@link GenericDocument} objects.
@@ -58,13 +58,13 @@ public class DocumentListFragment extends Fragment {
     private TextView mLoadingView;
     private TextView mEmptyDocumentsView;
     private RecyclerView mDocumentListRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private DocumentListItemAdapter mDocumentListItemAdapter;
     private ListeningExecutorService mExecutor;
     private ListenableFuture<DebugAppSearchManager> mDebugAppSearchManager;
     private AppSearchDebugActivity mAppSearchDebugActivity;
 
-    protected int mPrevDocsSize = 0;
     protected boolean mLoadingPage = false;
-    protected boolean mAdditionalPages = true;
 
     @Nullable
     protected DocumentListModel mDocumentListModel;
@@ -80,8 +80,8 @@ public class DocumentListFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         mLoadingView = getView().findViewById(R.id.loading_text_view);
         mEmptyDocumentsView = getView().findViewById(R.id.empty_documents_text_view);
@@ -90,6 +90,8 @@ public class DocumentListFragment extends Fragment {
         mAppSearchDebugActivity = (AppSearchDebugActivity) getActivity();
         mExecutor = mAppSearchDebugActivity.getBackgroundExecutor();
         mDebugAppSearchManager = mAppSearchDebugActivity.getDebugAppSearchManager();
+
+        initDocumentListRecyclerView();
 
         Futures.addCallback(mDebugAppSearchManager,
                 new FutureCallback<DebugAppSearchManager>() {
@@ -121,42 +123,29 @@ public class DocumentListFragment extends Fragment {
                         new DocumentListModel.DocumentListModelFactory(mExecutor,
                                 debugAppSearchManager)).get(DocumentListModel.class);
 
-        mDocumentListModel.getAllDocumentsSearchResults().observe(this, results -> {
+        if (mDocumentListModel.hasAdditionalPages()) {
+            mDocumentListModel.getAllDocumentsSearchResults().observe(this, results -> {
+                mLoadingView.setVisibility(View.GONE);
+                displayNextSearchResultsPage(results);
+            });
+        } else {
             mLoadingView.setVisibility(View.GONE);
-            initDocumentListRecyclerView(results);
-        });
+            mDocumentListItemAdapter.setDocuments(mDocumentListModel.getAllLoadedDocuments());
+        }
     }
 
-    private void initDocumentListRecyclerView(@NonNull SearchResults searchResults) {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mAppSearchDebugActivity);
-        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
-
-        DocumentListItemAdapter documentListItemAdapter = new DocumentListItemAdapter(
-                new ArrayList<>());
-        mDocumentListRecyclerView.setAdapter(documentListItemAdapter);
-
-        mDocumentListRecyclerView.setLayoutManager(linearLayoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                mAppSearchDebugActivity, linearLayoutManager.getOrientation());
-        mDocumentListRecyclerView.addItemDecoration(dividerItemDecoration);
-
+    private void displayNextSearchResultsPage(@NonNull SearchResults searchResults) {
         mDocumentListModel.addAdditionalResultsPage(searchResults).observe(this, docs -> {
+            mDocumentListItemAdapter.setDocuments(docs);
             if (docs.size() == 0) {
                 mEmptyDocumentsView.setVisibility(View.VISIBLE);
                 mDocumentListRecyclerView.setVisibility(View.GONE);
             }
-            // Check if there are additional documents still being added.
-            if (docs.size() - mPrevDocsSize == 0) {
-                mAdditionalPages = false;
-                return;
-            }
-            documentListItemAdapter.setDocuments(docs);
-            mPrevDocsSize = docs.size();
             mLoadingPage = false;
         });
 
         mDocumentListRecyclerView.addOnScrollListener(
-                new ScrollListener(linearLayoutManager) {
+                new ScrollListener(mLinearLayoutManager) {
                     @Override
                     public void loadNextPage() {
                         mLoadingPage = true;
@@ -170,8 +159,21 @@ public class DocumentListFragment extends Fragment {
 
                     @Override
                     public boolean hasAdditionalPages() {
-                        return mAdditionalPages;
+                        return mDocumentListModel.hasAdditionalPages();
                     }
                 });
+    }
+
+    private void initDocumentListRecyclerView() {
+        mLinearLayoutManager = new LinearLayoutManager(mAppSearchDebugActivity);
+        mLinearLayoutManager.setOrientation(RecyclerView.VERTICAL);
+
+        mDocumentListItemAdapter = new DocumentListItemAdapter(Collections.emptyList(), this);
+
+        mDocumentListRecyclerView.setAdapter(mDocumentListItemAdapter);
+        mDocumentListRecyclerView.setLayoutManager(mLinearLayoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
+                mAppSearchDebugActivity, mLinearLayoutManager.getOrientation());
+        mDocumentListRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 }

@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -120,6 +121,22 @@ public class DebugAppSearchManager implements Closeable {
 
         return Futures.transform(results.getNextPage(),
                 DebugAppSearchManager::convertResultsToGenericDocuments, mExecutor);
+    }
+
+    /**
+     * Gets a document from the AppSearch database by namespace and ID.
+     */
+    @NonNull
+    public ListenableFuture<GenericDocument> getDocument(@NonNull String namespace,
+            @NonNull String id) {
+        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(namespace);
+        GetByDocumentIdRequest request =
+                new GetByDocumentIdRequest.Builder(namespace).addIds(id).build();
+
+        return Futures.transformAsync(mAppSearchSessionFuture,
+                session -> Futures.transform(session.getByDocumentId(request),
+                        response -> response.getSuccesses().get(id), mExecutor), mExecutor);
     }
 
     /**

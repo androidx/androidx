@@ -43,9 +43,12 @@ import java.util.List;
 public class DocumentListItemAdapter extends
         RecyclerView.Adapter<DocumentListItemAdapter.ViewHolder> {
     private List<GenericDocument> mDocuments;
+    private DocumentListFragment mDocumentListFragment;
 
-    DocumentListItemAdapter(@NonNull List<GenericDocument> documents) {
+    DocumentListItemAdapter(@NonNull List<GenericDocument> documents,
+            @NonNull DocumentListFragment documentListFragment) {
         mDocuments = Preconditions.checkNotNull(documents);
+        mDocumentListFragment = Preconditions.checkNotNull(documentListFragment);
     }
 
     /**
@@ -63,15 +66,27 @@ public class DocumentListItemAdapter extends
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_document_list_item, parent, /*attachToRoot=*/false);
-
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        String namespace = mDocuments.get(position).getNamespace();
+        String id = mDocuments.get(position).getId();
         holder.getNamespaceLabel().setText(
-                "Namespace: " + "\"" + mDocuments.get(position).getNamespace() + "\"");
-        holder.getIdLabel().setText("ID: " + "\"" + mDocuments.get(position).getId() + "\"");
+                "Namespace: \"" + namespace + "\"");
+        holder.getIdLabel().setText("ID: \"" + id + "\"");
+
+        holder.itemView.setOnClickListener(unusedView -> {
+                    DocumentFragment documentFragment =
+                            DocumentFragment.createDocumentFragment(namespace, id);
+                    mDocumentListFragment.getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, documentFragment)
+                            .addToBackStack(/*name=*/null)
+                            .commit();
+                }
+        );
     }
 
     @Override
@@ -91,8 +106,8 @@ public class DocumentListItemAdapter extends
 
             Preconditions.checkNotNull(view);
 
-            mNamespaceLabel = (TextView) view.findViewById(R.id.doc_item_namespace);
-            mIdLabel = (TextView) view.findViewById(R.id.doc_item_id);
+            mNamespaceLabel = view.findViewById(R.id.doc_item_namespace);
+            mIdLabel = view.findViewById(R.id.doc_item_id);
         }
 
         @NonNull
