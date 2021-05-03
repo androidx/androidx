@@ -627,9 +627,11 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public androidx.core.text.PrecomputedTextCompat.Params getTextMetricsParamsCompat();
+    method public boolean isEmojiCompatEnabled();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public void setEmojiCompatEnabled(boolean);
     method public void setPrecomputedText(androidx.core.text.PrecomputedTextCompat);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);

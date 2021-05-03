@@ -13,6 +13,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     api(project(":core:core"))
+    implementation(project(":emoji2:emoji2-views-helper"))
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
     api("androidx.activity:activity:1.2.3")
@@ -38,6 +39,7 @@ dependencies {
         exclude group: "androidx.core", module: "core"
     })
     androidTestImplementation(MULTIDEX)
+    androidTestImplementation(project(":emoji2:emoji2"))
 
     testImplementation(KOTLIN_STDLIB)
     testImplementation(ANDROIDX_TEST_CORE)

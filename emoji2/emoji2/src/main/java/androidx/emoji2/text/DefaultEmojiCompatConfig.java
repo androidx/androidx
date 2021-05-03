@@ -322,14 +322,20 @@ public final class DefaultEmojiCompatConfig {
     @RequiresApi(28)
     public static class DefaultEmojiCompatConfigHelper_API28
             extends DefaultEmojiCompatConfigHelper_API19 {
+        @SuppressWarnings("deprecation") // using deprecated API to match exact behavior in core
         @Override
         @NonNull
         public Signature[] getSigningSignatures(@NonNull PackageManager packageManager,
                 @NonNull String providerPackage)
                 throws PackageManager.NameNotFoundException {
+            // This uses the deprecated GET_SIGNATURES currently to match the behavior in Core.
+            // When that behavior changes, we will need to update this method.
+
+            // Alternatively, you may at that time introduce a new config option that allows
+            // skipping signature validations to avoid this code sync.
             PackageInfo packageInfoForSignatures = packageManager.getPackageInfo(providerPackage,
-                    PackageManager.GET_SIGNING_CERTIFICATES);
-            return packageInfoForSignatures.signingInfo.getSigningCertificateHistory();
+                    PackageManager.GET_SIGNATURES);
+            return packageInfoForSignatures.signatures;
         }
     }
 }
