@@ -153,8 +153,12 @@ constructor(
     @CallSuper
     public open fun onInflate(context: Context, attrs: AttributeSet) {
         context.resources.obtainAttributes(attrs, R.styleable.Navigator).use { array ->
-            id = array.getResourceId(R.styleable.Navigator_android_id, 0)
-            idName = getDisplayName(context, id)
+            route = array.getString(R.styleable.Navigator_route)
+
+            if (array.hasValue(R.styleable.Navigator_android_id)) {
+                id = array.getResourceId(R.styleable.Navigator_android_id, 0)
+                idName = getDisplayName(context, id)
+            }
             label = array.getText(R.styleable.Navigator_android_label)
         }
     }
@@ -176,6 +180,34 @@ constructor(
         set(id) {
             field = id
             idName = null
+        }
+
+    /**
+     * Returns the destination's unique route.
+     *
+     * @return this destination's route, or null if no route is set
+     */
+    public var route: String? = null
+        /**
+         * Sets the destination's unique route. This will also update the [id] of the destination.
+         * Custom destination ids should only be set after setting the route.
+         *
+         * Setting the route to `null` means there is no route for this destination.
+         *
+         * @param route this destination's new route
+         * @throws IllegalArgumentException is the given route is empty
+         */
+        set(route) {
+            if (route == null) {
+                id = 0
+            } else {
+                require(route.isNotBlank()) { "Cannot have an empty route" }
+                val internalRoute = createRoute(route)
+                id = internalRoute.hashCode()
+                addDeepLink(internalRoute)
+            }
+            deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == createRoute(field) })
+            field = route
         }
 
     /**
@@ -484,6 +516,10 @@ constructor(
             sb.append(idName)
         }
         sb.append(")")
+        if (!route.isNullOrBlank()) {
+            sb.append(" route=")
+            sb.append(route)
+        }
         if (label != null) {
             sb.append(" label=")
             sb.append(label)
@@ -570,5 +606,12 @@ constructor(
                 id.toString()
             }
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createRoute(route: String?): String =
+            if (route != null) "android-app://androidx.navigation/$route" else ""
     }
 }

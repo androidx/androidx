@@ -29,6 +29,7 @@
     <public type="attr" name="popEnterAnim"/>
     <public type="attr" name="popExitAnim"/>
     <public type="attr" name="restoreState"/>
+    <public type="attr" name="route"/>
     <public type="attr" name="startDestination"/>
     <public type="attr" name="uri"/>
 </resources>
