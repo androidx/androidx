@@ -509,7 +509,7 @@ public object NavigationUI {
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun matchDestinations(destination: NavDestination, destinationIds: Set<Int?>): Boolean =
-        generateSequence(destination) { it.parent }.all { destinationIds.contains(it.id) }
+        generateSequence(destination) { it.parent }.any { destinationIds.contains(it.id) }
 
     /**
      * Finds the actual start destination of the graph, handling cases where the graph's starting
