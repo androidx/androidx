@@ -21,15 +21,17 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <androidx.emoji.widget.EmojiAppCompatTextView
+    <!-- manually set color so theme alpha is not applied -->
+    <androidx.appcompat.widget.AppCompatTextView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:lineSpacingMultiplier="1.2"
+        android:textColor="#ff000000"
         android:textSize="24sp"/>
 
-    <androidx.emoji.widget.EmojiAppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/text"
         android:layout_width="match_parent"

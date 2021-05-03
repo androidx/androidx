@@ -419,7 +419,6 @@ public class EmojiCompat {
      *
      * @hide
      */
-    @RestrictTo(TESTS)
     @NonNull
     public static EmojiCompat reset(@NonNull final Config config) {
         synchronized (INSTANCE_LOCK) {
