@@ -26,7 +26,6 @@ import static androidx.profileinstaller.Encoding.readUInt16;
 import static androidx.profileinstaller.Encoding.readUInt32;
 import static androidx.profileinstaller.Encoding.readUInt8;
 import static androidx.profileinstaller.Encoding.utf8Length;
-import static androidx.profileinstaller.Encoding.writeAll;
 import static androidx.profileinstaller.Encoding.writeString;
 import static androidx.profileinstaller.Encoding.writeUInt16;
 import static androidx.profileinstaller.Encoding.writeUInt32;
@@ -42,7 +41,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -60,61 +58,42 @@ class ProfileTranscoder {
 
     static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
 
-    /**
-     * Transcode (or convert) a binary profile from one format version to another.
-     *
-     * @param is The input stream for the binary ART profile. It is expected to be found encoded
-     *           with version 0.1.0 (P+) via the profgen utility. Starting from other versions is
-     *           not currently supported
-     * @param os The destination output stream for the binary ART profile to be written to. This
-     *           profile will be encoded in the [desiredVersion] format.
-     * @param desiredVersion The desired version of the ART Profile to be written to [os]
-     * @return A boolean indicating whether or not the profile was successfully written to the
-     * output stream in the desired format.
-     */
-    static boolean transcode(
-            @NonNull InputStream is,
-            @NonNull OutputStream os,
-            @NonNull byte[] desiredVersion
-    ) throws IOException {
+    static byte[] readHeader(@NonNull InputStream is) throws IOException {
         byte[] fileMagic = read(is, MAGIC.length);
         if (!Arrays.equals(MAGIC, fileMagic)) {
             // If we find a file that doesn't claim to be a profile, something really unexpected
             // has happened. Fail.
             throw error("Invalid magic");
         }
+        return read(is, ProfileVersion.V010_P.length);
+    }
+
+    static void writeHeader(@NonNull OutputStream os, byte[] version) throws IOException {
         os.write(MAGIC);
+        os.write(version);
+    }
 
-        byte[] version = read(is, ProfileVersion.V010_P.length);
-        if (!Arrays.equals(ProfileVersion.V010_P, version)) {
-            // Right now, we only ever expect these profiles to be in the P+ format. If we ever
-            // see anything else, we fail as we don't know how to interpret it.
-
-            // TODO: We could decide to optimistically write this profile to the location
-            //  and assume that whatever format it is in, it is possible that the version of ART
-            //  we are running on will understand it.
-            throw error("Can only read P profiles");
-        }
-
-        if (Arrays.equals(desiredVersion, ProfileVersion.V010_P)) {
-            // no transcoding necessary, we can just stream the bytes directly from the input
-            // stream to the output stream. This is more efficient than loading the profile into
-            // memory and then rewriting it to the outputstream, especially because the bulk of
-            // the profile is compressed and we can skip the decompression in this case.
-            os.write(version);
-            writeAll(is, os);
-            return true;
-        }
-
+    /**
+     * Transcode (or convert) a binary profile from one format version to another.
+     *
+     * @param os The destination output stream for the binary ART profile to be written to. This
+     *           profile will be encoded in the [desiredVersion] format.
+     * @param desiredVersion The desired version of the ART Profile to be written to [os]
+     * @return A boolean indicating whether or not the profile was successfully written to the
+     * output stream in the desired format.
+     */
+    static boolean transcodeAndWriteBody(
+            @NonNull OutputStream os,
+            @NonNull byte[] desiredVersion,
+            @NonNull Map<String, DexProfileData> data
+    ) throws IOException {
         if (Arrays.equals(desiredVersion, ProfileVersion.V005_O)) {
-            os.write(ProfileVersion.V005_O);
-            writeProfileForO(os, readProfile(is));
+            writeProfileForO(os, data);
             return true;
         }
 
         if (Arrays.equals(desiredVersion, ProfileVersion.V001_N)) {
-            os.write(ProfileVersion.V001_N);
-            writeProfileForN(os, readProfile(is));
+            writeProfileForN(os, data);
             return true;
         }
 
@@ -256,8 +235,12 @@ class ProfileTranscoder {
      * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
      */
     static @NonNull Map<String, DexProfileData> readProfile(
-            @NonNull InputStream is
+            @NonNull InputStream is,
+            @NonNull byte[] version
     ) throws IOException {
+        if (!Arrays.equals(version, ProfileVersion.V010_P)) {
+            throw error("Unsupported version");
+        }
         int numberOfDexFiles = readUInt8(is);
         long uncompressedDataSize = readUInt32(is);
         long compressedDataSize = readUInt32(is);
@@ -449,34 +432,6 @@ class ProfileTranscoder {
                 return methodIndex + numMethodIds;
             default:
                 throw error("Unexpected flag: " + flag);
-        }
-    }
-
-    static class DexProfileData {
-        final @NonNull String key;
-        final long dexChecksum;
-        final int classSetSize;
-        final int hotMethodRegionSize;
-        final int numMethodIds;
-        final @NonNull HashSet<Integer> classes;
-        final @NonNull HashMap<Integer, Integer> methods;
-
-        DexProfileData(
-                @NonNull String key,
-                long dexChecksum,
-                int classSetSize,
-                int hotMethodRegionSize,
-                int numMethodIds,
-                @NonNull HashSet<Integer> classes,
-                @NonNull HashMap<Integer, Integer> methods
-        ) {
-            this.key = key;
-            this.dexChecksum = dexChecksum;
-            this.classSetSize = classSetSize;
-            this.hotMethodRegionSize = hotMethodRegionSize;
-            this.numMethodIds = numMethodIds;
-            this.classes = classes;
-            this.methods = methods;
         }
     }
 }

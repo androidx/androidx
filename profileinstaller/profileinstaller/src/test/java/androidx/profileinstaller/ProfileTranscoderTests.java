@@ -33,19 +33,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Map;
 
 @RunWith(JUnit4.class)
 public class ProfileTranscoderTests {
     @Test
     public void testReadProfile() throws IOException {
+        byte[] version = ProfileVersion.V010_P;
         File pprof = testFile("baseline-p.prof");
         try (InputStream is = new FileInputStream(pprof)) {
             expectBytes(is, MAGIC);
-            expectBytes(is, ProfileVersion.V010_P);
-            Map<String, ProfileTranscoder.DexProfileData> data = ProfileTranscoder.readProfile(is);
+            expectBytes(is, version);
+            Map<String, DexProfileData> data = ProfileTranscoder.readProfile(is, version);
             Truth.assertThat(data).hasSize(1);
-            ProfileTranscoder.DexProfileData item = data.values().iterator().next();
+            DexProfileData item = data.values().iterator().next();
             Truth.assertThat(item.dexChecksum).isEqualTo(147004379);
             Truth.assertThat(item.numMethodIds).isEqualTo(18487);
             Truth.assertThat(item.hotMethodRegionSize).isEqualTo(140);
@@ -88,13 +90,25 @@ public class ProfileTranscoderTests {
             @NonNull File golden,
             @NonNull byte[] desiredVersion
     ) throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (InputStream is = new FileInputStream(input)) {
-            ProfileTranscoder.transcode(is, os, desiredVersion);
+        try (
+                InputStream is = new FileInputStream(input);
+                ByteArrayOutputStream os = new ByteArrayOutputStream()
+        ) {
+            byte[] version = ProfileTranscoder.readHeader(is);
+            ProfileTranscoder.writeHeader(os, desiredVersion);
+            if (!Arrays.equals(desiredVersion, ProfileVersion.V010_P)) {
+                Map<String, DexProfileData> data = ProfileTranscoder.readProfile(
+                        is,
+                        version
+                );
+                ProfileTranscoder.transcodeAndWriteBody(os, desiredVersion, data);
+            } else {
+                Encoding.writeAll(is, os);
+            }
+            byte[] goldenBytes = Files.readAllBytes(golden.toPath());
+            byte[] actualBytes = os.toByteArray();
+            Truth.assertThat(actualBytes).isEqualTo(goldenBytes);
         }
-        byte[] goldenBytes = Files.readAllBytes(golden.toPath());
-        byte[] actualBytes = os.toByteArray();
-        Truth.assertThat(actualBytes).isEqualTo(goldenBytes);
     }
 
     private static void expectBytes(@NonNull InputStream is, @NonNull byte[] bytes)
