@@ -27,7 +27,11 @@ open class OngoingActivityTest {
     private val StaticIconResourceId = 456
     private val LocusIdValue = LocusIdCompat("TestLocusId")
     private val OaId = 123456
-    private val Status = androidx.wear.ongoing.Status.forPart(TextStatusPart("Basic Status"))
+    private val BasicStatus = androidx.wear.ongoing.Status.forPart(
+        Status.TextPart(
+            "Basic Status"
+        )
+    )
     private val NotificationId = 4321
     private val ChannelId = "ChannelId"
 
@@ -72,7 +76,7 @@ open class OngoingActivityTest {
             .setStaticIcon(StaticIconResourceId)
             .setLocusId(LocusIdValue)
             .setOngoingActivityId(OaId)
-            .setStatus(Status)
+            .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .build()
         oa.apply(context)
@@ -97,14 +101,18 @@ open class OngoingActivityTest {
             .setStaticIcon(StaticIconResourceId)
             .setLocusId(LocusIdValue)
             .setOngoingActivityId(OaId)
-            .setStatus(Status)
+            .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .build()
         oa.apply(context)
         notificationManager.notify(NotificationId, builder.build())
 
         // After posting, send an update.
-        val newStatus = androidx.wear.ongoing.Status.forPart(TimerStatusPart(12345))
+        val newStatus = androidx.wear.ongoing.Status.forPart(
+            Status.StopwatchPart(
+                12345
+            )
+        )
         oa.update(context, newStatus)
 
         // Get the notification and check that the status, and only the status has been updated.
@@ -143,7 +151,7 @@ open class OngoingActivityTest {
         for (i in 1..n) {
             val builder = NotificationCompat.Builder(context, ChannelId)
             OngoingActivity.Builder(context, NotificationId + i, builder)
-                .setStatus(androidx.wear.ongoing.Status.forPart(TextStatusPart("Ongoing Activity")))
+                .setStatus(Status.forPart(Status.TextPart("Ongoing Activity")))
                 .setOngoingActivityId(i)
                 .setStaticIcon(StaticIconResourceId)
                 .setTouchIntent(PendingIntentValue)
@@ -159,7 +167,7 @@ open class OngoingActivityTest {
             val status = "New Status $i"
             statuses.add(status)
             OngoingActivity.recoverOngoingActivity(context, i)!!
-                .update(context, androidx.wear.ongoing.Status.forPart(TextStatusPart(status)))
+                .update(context, Status.forPart(Status.TextPart(status)))
         }
         assertEquals(n, statuses.size) // Just in case.
 
@@ -183,7 +191,7 @@ open class OngoingActivityTest {
             .setStaticIcon(StaticIconResourceId)
             .setLocusId(LocusIdValue)
             .setOngoingActivityId(OaId)
-            .setStatus(Status)
+            .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .build()
         oa.apply(context)
@@ -211,14 +219,18 @@ open class OngoingActivityTest {
             .setStaticIcon(StaticIconResourceId)
             .setLocusId(LocusIdValue)
             .setOngoingActivityId(OaId)
-            .setStatus(Status)
+            .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .build()
         oa.apply(context)
         notificationManager.notify(NotificationId, builder.build())
 
         // After posting, send an update.
-        val newStatus = androidx.wear.ongoing.Status.forPart(TimerStatusPart(12345))
+        val newStatus = androidx.wear.ongoing.Status.forPart(
+            Status.StopwatchPart(
+                12345
+            )
+        )
         OngoingActivity.recoverOngoingActivity(context)!!.update(context, newStatus)
 
         // Get the notification and check that the status, and only the status has been updated.
@@ -278,7 +290,7 @@ open class OngoingActivityTest {
         val oa = OngoingActivity.Builder(context, NotificationId, builder)
             .setAnimatedIcon(newAnimatedIconResourceId)
             .setStaticIcon(newStaticIconResourceId)
-            .setStatus(Status)
+            .setStatus(BasicStatus)
             .setTouchIntent(newPendingIntentValue)
             .build()
         oa.apply(context)
@@ -320,7 +332,7 @@ open class OngoingActivityTest {
         val builder1 = NotificationCompat.Builder(context, ChannelId)
         val oa1 = OngoingActivity.Builder(context, NotificationId, builder1)
             .setStaticIcon(StaticIconResourceId)
-            .setStatus(androidx.wear.ongoing.Status.forPart(TextStatusPart("status1")))
+            .setStatus(Status.forPart(Status.TextPart("status1")))
             .setOngoingActivityId(1)
             .setTouchIntent(PendingIntentValue)
             .build()
@@ -330,7 +342,7 @@ open class OngoingActivityTest {
         val builder2 = NotificationCompat.Builder(context, ChannelId)
         val oa2 = OngoingActivity.Builder(context, tag, NotificationId, builder2)
             .setStaticIcon(StaticIconResourceId)
-            .setStatus(androidx.wear.ongoing.Status.forPart(TextStatusPart("status2")))
+            .setStatus(Status.forPart(Status.TextPart("status2")))
             .setOngoingActivityId(2)
             .setTouchIntent(PendingIntentValue)
             .build()
@@ -340,13 +352,21 @@ open class OngoingActivityTest {
         assertEquals(2, notificationManager.activeNotifications.size)
 
         // After posting, send an update to the second OA and check the statuses.
-        val newStatus2 = androidx.wear.ongoing.Status.forPart(TextStatusPart("update2"))
+        val newStatus2 = androidx.wear.ongoing.Status.forPart(
+            Status.TextPart(
+                "update2"
+            )
+        )
         OngoingActivity.recoverOngoingActivity(context, 2)?.update(context, newStatus2)
 
         assertEquals("status1, update2", getStatuses())
 
         // Update the first OA, and check the statuses.
-        val newStatus1 = androidx.wear.ongoing.Status.forPart(TextStatusPart("updated-one"))
+        val newStatus1 = androidx.wear.ongoing.Status.forPart(
+            Status.TextPart(
+                "updated-one"
+            )
+        )
         oa1.update(context, newStatus1)
 
         assertEquals("updated-one, update2", getStatuses())

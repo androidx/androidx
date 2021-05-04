@@ -26,8 +26,8 @@ open class OngoingActivityStatusTest {
     @Test
     fun testTextOngoingActivityStatusText() {
         val status = Status.Builder()
-            .addPart("1", TextStatusPart("First Text"))
-            .addPart("2", TextStatusPart("Second Text"))
+            .addPart("1", Status.TextPart("First Text"))
+            .addPart("2", Status.TextPart("Second Text"))
             .build()
 
         assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
@@ -38,8 +38,8 @@ open class OngoingActivityStatusTest {
     @Test
     fun testTextOngoingActivityStatusTextAndTemplate() {
         val status = Status.Builder()
-            .addPart("one", TextStatusPart("First Text"))
-            .addPart("two", TextStatusPart("Second Text"))
+            .addPart("one", Status.TextPart("First Text"))
+            .addPart("two", Status.TextPart("Second Text"))
             .addTemplate("#one# | #two#").build()
 
         assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
@@ -53,8 +53,8 @@ open class OngoingActivityStatusTest {
     @Test
     fun testTextOngoingActivityStatusTextAndTemplate2() {
         val status = Status.Builder()
-            .addPart("a", TextStatusPart("A"))
-            .addPart("b", TextStatusPart("B"))
+            .addPart("a", Status.TextPart("A"))
+            .addPart("b", Status.TextPart("B"))
             .addTemplate("#a##b#").build()
 
         assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
@@ -69,8 +69,8 @@ open class OngoingActivityStatusTest {
     fun testTextOngoingActivityStatusMixed() {
         val t0 = 123456L
         val status = Status.Builder()
-            .addPart("type", TextStatusPart("Workout"))
-            .addPart("time", TimerStatusPart(t0, /* countDown = */ false))
+            .addPart("type", Status.TextPart("Workout"))
+            .addPart("time", Status.StopwatchPart(t0))
             .addTemplate("The time on your #type# is #time#")
             .build()
 
@@ -144,7 +144,7 @@ open class OngoingActivityStatusTest {
         Status.Builder()
             .addTemplate("#1#")
             .addTemplate("#2#")
-            .addPart("1", TextStatusPart("text"))
+            .addPart("1", Status.TextPart("text"))
             .addPart("2", SampleStatusPart())
             .build()
     }
@@ -154,13 +154,23 @@ open class OngoingActivityStatusTest {
         // We verify on build() that all parts used on templates are present
         Status.Builder()
             .addTemplate("#1##2##3#")
-            .addPart("1", TextStatusPart("text"))
-            .addPart("2", TimerStatusPart(12345L))
+            .addPart("1", Status.TextPart("text"))
+            .addPart("2", Status.StopwatchPart(12345L))
             .build()
     }
 
-    private class SampleStatusPart : StatusPart() {
+    private class SampleStatusPartImpl : StatusPart() {
         override fun getText(context: Context, timeNowMillis: Long) = "Sample"
         override fun getNextChangeTimeMillis(fromTimeMillis: Long) = Long.MAX_VALUE
+    }
+
+    private class SampleStatusPart : Status.Part() {
+        val mPart = SampleStatusPartImpl()
+
+        override fun getText(context: Context, timeNowMillis: Long) =
+            mPart.getText(context, timeNowMillis)
+        override fun getNextChangeTimeMillis(fromTimeMillis: Long) =
+            mPart.getNextChangeTimeMillis(fromTimeMillis)
+        override fun toVersionedParcelable(): StatusPart = mPart
     }
 }

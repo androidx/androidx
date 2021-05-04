@@ -41,10 +41,10 @@ package androidx.wear.ongoing {
     method public static boolean hasOngoingActivity(android.app.Notification);
   }
 
-  public class Status implements androidx.wear.ongoing.TimeDependentText {
-    method public static androidx.wear.ongoing.Status forPart(androidx.wear.ongoing.StatusPart);
+  public final class Status implements androidx.wear.ongoing.TimeDependentText {
+    method public static androidx.wear.ongoing.Status forPart(androidx.wear.ongoing.Status.Part);
     method public long getNextChangeTimeMillis(long);
-    method public androidx.wear.ongoing.StatusPart? getPart(String);
+    method public androidx.wear.ongoing.Status.Part? getPart(String);
     method public java.util.Set<java.lang.String!> getPartNames();
     method public java.util.List<java.lang.CharSequence!> getTemplates();
     method public CharSequence getText(android.content.Context, long);
@@ -52,31 +52,27 @@ package androidx.wear.ongoing {
 
   public static final class Status.Builder {
     ctor public Status.Builder();
-    method public androidx.wear.ongoing.Status.Builder addPart(String, androidx.wear.ongoing.StatusPart);
+    method public androidx.wear.ongoing.Status.Builder addPart(String, androidx.wear.ongoing.Status.Part);
     method public androidx.wear.ongoing.Status.Builder addTemplate(CharSequence);
     method public androidx.wear.ongoing.Status build();
   }
 
-  public abstract class StatusPart implements androidx.wear.ongoing.TimeDependentText androidx.versionedparcelable.VersionedParcelable {
-    ctor public StatusPart();
+  public abstract static class Status.Part implements androidx.wear.ongoing.TimeDependentText {
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public class TextStatusPart extends androidx.wear.ongoing.StatusPart {
-    ctor public TextStatusPart(String);
+  public static final class Status.StopwatchPart extends androidx.wear.ongoing.Status.TimerOrStopwatchPart {
+    ctor public Status.StopwatchPart(long, long, long);
+    ctor public Status.StopwatchPart(long, long);
+    ctor public Status.StopwatchPart(long);
+  }
+
+  public static final class Status.TextPart extends androidx.wear.ongoing.Status.Part {
+    ctor public Status.TextPart(String);
     method public long getNextChangeTimeMillis(long);
     method public CharSequence getText(android.content.Context, long);
   }
 
-  public interface TimeDependentText {
-    method public long getNextChangeTimeMillis(long);
-    method public CharSequence getText(android.content.Context, long);
-  }
-
-  @androidx.versionedparcelable.VersionedParcelize public class TimerStatusPart extends androidx.wear.ongoing.StatusPart {
-    ctor public TimerStatusPart(long, boolean, long, long);
-    ctor public TimerStatusPart(long, boolean, long);
-    ctor public TimerStatusPart(long, boolean);
-    ctor public TimerStatusPart(long);
+  public abstract static class Status.TimerOrStopwatchPart extends androidx.wear.ongoing.Status.Part {
     method public long getNextChangeTimeMillis(long);
     method public long getPausedAtMillis();
     method public CharSequence getText(android.content.Context, long);
@@ -85,6 +81,17 @@ package androidx.wear.ongoing {
     method public boolean hasTotalDuration();
     method public boolean isCountDown();
     method public boolean isPaused();
+  }
+
+  public static final class Status.TimerPart extends androidx.wear.ongoing.Status.TimerOrStopwatchPart {
+    ctor public Status.TimerPart(long, long, long);
+    ctor public Status.TimerPart(long, long);
+    ctor public Status.TimerPart(long);
+  }
+
+  public interface TimeDependentText {
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
   }
 
 }

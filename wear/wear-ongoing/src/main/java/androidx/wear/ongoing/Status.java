@@ -36,24 +36,315 @@ import java.util.Set;
  * A status is composed of Parts, and they are joined together with a template.
  * <p>
  * Note that for backwards compatibility reasons the code rendering this status message may not
- * have all of the [StatusPart] classes that are available in later versions of the library.
+ * have all of the [Part] classes that are available in later versions of the library.
  * Templates that do not have values for all of the named parts will not be used.
  * The template list will be iterated through looking for the first template with all matching named
  * parts available, this will be selected for rendering the status.
  * <p>
  * To provide for backwards compatibility, you should provide one (or more) fallback templates which
- * use status parts from earlier versions of the API. e.g. TextStatusPart & TimerStatusPart
+ * use status parts from earlier versions of the API. e.g. TextPart, TimerPart & StopwatchPart
  * <p>
  * The status and part classes here use timestamps for updating the displayed representation of the
  * status, in cases when this is needed (chronometers), as returned by
  * {@link android.os.SystemClock#elapsedRealtime()}
  */
-public class Status implements TimeDependentText {
+public final class Status implements TimeDependentText {
     @NonNull
     final List<CharSequence> mTemplates;
 
     @NonNull
     private final Map<String, StatusPart> mParts;
+
+    /**
+     * Abstract class to represent An Ongoing activity status or part of it.
+     * <p>
+     * Parts are used to create complex statuses, that may contain several timers, placeholders for
+     * text, etc. They may also be used to convey information to the system about this Ongoing
+     * Activity.
+     */
+    public abstract static class Part implements TimeDependentText {
+        // Hide constructor.
+        Part() {
+        }
+
+        @Nullable
+        StatusPart toVersionedParcelable() {
+            return null;
+        }
+
+        @Nullable
+        static Part fromVersionedParcelable(@Nullable StatusPart vp) {
+            if (vp == null) {
+                return null;
+            }
+            if (vp instanceof TextStatusPart) {
+                return new TextPart((TextStatusPart) vp);
+            } else if (vp instanceof TimerStatusPart) {
+                TimerStatusPart tsp = (TimerStatusPart) vp;
+                return tsp.mCountDown ? new TimerPart(tsp) : new StopwatchPart(tsp);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * An Ongoing activity status (or part of it) representing a plain, static text.
+     * <p>
+     * Available since wear-ongoing:1.0.0
+     */
+    public static final class TextPart extends Part {
+        @NonNull
+        private final TextStatusPart mPart;
+
+        TextPart(@NonNull TextStatusPart part) {
+            mPart = part;
+        }
+
+        /**
+         * Create a Part representing a static text.
+         */
+        public TextPart(@NonNull String str) {
+            mPart = new TextStatusPart(str);
+        }
+
+        @Override
+        @NonNull
+        StatusPart toVersionedParcelable() {
+            return mPart;
+        }
+
+        /**
+         * See {@link TimeDependentText#getText(Context, long)}
+         */
+        @NonNull
+        @Override
+        public CharSequence getText(@NonNull Context context, long timeNowMillis) {
+            return mPart.getText(context, timeNowMillis);
+        }
+
+        /**
+         * See {@link TimeDependentText#getNextChangeTimeMillis(long)}
+         */
+        @Override
+        public long getNextChangeTimeMillis(long fromTimeMillis) {
+            return mPart.getNextChangeTimeMillis(fromTimeMillis);
+        }
+
+        @Override
+        public int hashCode() {
+            return mPart.hashCode();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (!(obj instanceof TextPart)) return false;
+            return mPart.equals(((TextPart) obj).mPart);
+        }
+    }
+
+    /**
+     * Base class for {@link TimerPart} and {@link StopwatchPart}, defines the getters but can't
+     * be created directly, create one of those instead.
+     */
+    public abstract static class TimerOrStopwatchPart extends Part {
+        @NonNull
+        private final TimerStatusPart mPart;
+
+        TimerOrStopwatchPart(@NonNull TimerStatusPart part) {
+            mPart = part;
+        }
+
+        /**
+         * @return the time at which this Timer or Stopwatch will display 0, will usually be in the
+         * past for a stopwatch and in the future for timers.
+         */
+        public long getTimeZeroMillis() {
+            return mPart.mTimeZeroMillis;
+        }
+
+        /**
+         * @return {@code false} if this is a stopwatch or {@code true} if this is a timer.
+         */
+        public boolean isCountDown() {
+            return mPart.mCountDown;
+        }
+
+        /**
+         * Determines if this Timer or Stopwatch is paused. i.e. the display representation will
+         * not change over time.
+         *
+         * @return {@code true} if this is paused, {@code false} if it's running.
+         */
+        public boolean isPaused() {
+            return mPart.isPaused();
+        }
+
+        /**
+         * @return the timestamp of the time when this was paused. Use
+         * {@link #isPaused()} to determine if this is paused or not.
+         */
+        public long getPausedAtMillis() {
+            return mPart.mPausedAtMillis;
+        }
+
+        /**
+         * Determines if this has a total duration set.
+         *
+         * @return {@code true} if this the total duration was set, {@code false} if not.
+         */
+        public boolean hasTotalDuration() {
+            return mPart.mTotalDurationMillis >= 0L;
+        }
+
+        /**
+         * @return the total duration of this timer/stopwatch, if set. Use
+         * {@link #hasTotalDuration()} to determine if this has a duration set.
+         */
+        public long getTotalDurationMillis() {
+            return mPart.mTotalDurationMillis;
+        }
+
+        @Override
+        @NonNull
+        StatusPart toVersionedParcelable() {
+            return mPart;
+        }
+
+        @Override
+        public int hashCode() {
+            return mPart.hashCode();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (!(obj instanceof TimerOrStopwatchPart)) return false;
+            return mPart.equals(((TimerOrStopwatchPart) obj).mPart);
+        }
+
+        /**
+         * See {@link TimeDependentText#getText(Context, long)}
+         */
+        @NonNull
+        @Override
+        public CharSequence getText(@NonNull Context context, long timeNowMillis) {
+            return mPart.getText(context, timeNowMillis);
+        }
+
+        /**
+         * See {@link TimeDependentText#getNextChangeTimeMillis(long)}
+         */
+        @Override
+        public long getNextChangeTimeMillis(long fromTimeMillis) {
+            return mPart.getNextChangeTimeMillis(fromTimeMillis);
+        }
+    }
+
+    /**
+     * An Ongoing activity status (or part of it) representing a timer.
+     * <p>
+     * Available since wear-ongoing:1.0.0
+     */
+    public static final class TimerPart extends TimerOrStopwatchPart {
+        TimerPart(@NonNull TimerStatusPart part) {
+            super(part);
+        }
+
+        /**
+         * Create a Part representing a timer.
+         *
+         * @param timeZeroMillis      timestamp of the time at the future in which this Timer
+         *                            should display 0.
+         * @param pausedAtMillis      timestamp of the time when this timer was paused. Or
+         *                            {@code -1L} if this timer is running.
+         * @param totalDurationMillis total duration of this timer, useful to display as a
+         *                            progress bar or similar.
+         */
+        public TimerPart(long timeZeroMillis, long pausedAtMillis,
+                long totalDurationMillis) {
+            super(new TimerStatusPart(
+                    timeZeroMillis,
+                    /* countDown = */ true,
+                    pausedAtMillis,
+                    totalDurationMillis
+            ));
+        }
+
+        /**
+         * Create a Part representing a timer.
+         *
+         * @param timeZeroMillis timestamp of the time at the future in which this Timer
+         *                       should display 0.
+         * @param pausedAtMillis timestamp of the time when this timer was paused. Or
+         *                       {@code -1L} if this timer is running.
+         */
+        public TimerPart(long timeZeroMillis, long pausedAtMillis) {
+            this(timeZeroMillis, pausedAtMillis, TimerStatusPart.LONG_DEFAULT);
+        }
+
+        /**
+         * Create a Part representing a timer.
+         *
+         * @param timeZeroMillis timestamp of the time at the future in which this Timer
+         *                       should display 0.
+         */
+        public TimerPart(long timeZeroMillis) {
+            this(timeZeroMillis, TimerStatusPart.LONG_DEFAULT);
+        }
+    }
+
+    /**
+     * An Ongoing activity status (or part of it) representing a stopwatch
+     * <p>
+     * Available since wear-ongoing:1.0.0
+     */
+    public static final class StopwatchPart extends TimerOrStopwatchPart {
+        StopwatchPart(@NonNull TimerStatusPart part) {
+            super(part);
+        }
+
+        /**
+         * Create a Part representing a stopwatch.
+         *
+         * @param timeZeroMillis      timestamp of the time at which this stopwatch started
+         *                            running.
+         * @param pausedAtMillis      timestamp of the time when this stopwatch was paused. Or
+         *                            {@code -1L} if this stopwatch is running.
+         * @param totalDurationMillis total duration of this stopwatch, useful to display as a
+         *                            progress bar or similar.
+         */
+        public StopwatchPart(long timeZeroMillis, long pausedAtMillis, long totalDurationMillis) {
+            super(new TimerStatusPart(
+                    timeZeroMillis,
+                    /* countDown = */ false,
+                    pausedAtMillis,
+                    totalDurationMillis
+            ));
+        }
+
+        /**
+         * Create a Part representing a stopwatch.
+         *
+         * @param timeZeroMillis timestamp of the time at which this stopwatch started
+         *                       running.
+         * @param pausedAtMillis timestamp of the time when this stopwatch was paused. Or
+         *                       {@code -1L} if this stopwatch is running.
+         */
+        public StopwatchPart(long timeZeroMillis, long pausedAtMillis) {
+            this(timeZeroMillis, pausedAtMillis, TimerStatusPart.LONG_DEFAULT);
+        }
+
+
+        /**
+         * Create a Part representing a stopwatch.
+         *
+         * @param timeZeroMillis timestamp of the time at which this stopwatch started
+         *                       running.
+         */
+        public StopwatchPart(long timeZeroMillis) {
+            this(timeZeroMillis, TimerStatusPart.LONG_DEFAULT);
+        }
+    }
 
     // Name of the {@link StatusPart} created when using {@link OngoingActivityStatus.forPart()}
     private static final String DEFAULT_STATUS_PART_NAME = "defaultStatusPartName";
@@ -83,10 +374,9 @@ public class Status implements TimeDependentText {
      * @return A new {@link Status} with just one Part.
      */
     @NonNull
-    public static Status forPart(@NonNull StatusPart part) {
+    public static Status forPart(@NonNull Part part) {
         // Create an OngoingActivityStatus using only this part and the default template.
-        return new Status.Builder().addPart(DEFAULT_STATUS_PART_NAME,
-                part).build();
+        return new Status.Builder().addPart(DEFAULT_STATUS_PART_NAME, part).build();
     }
 
     /**
@@ -133,14 +423,15 @@ public class Status implements TimeDependentText {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // We don't want a getter getParts()
-        public Builder addPart(@NonNull String name, @NonNull StatusPart part) {
-            mParts.put(name, part);
+        public Builder addPart(@NonNull String name, @NonNull Part part) {
+            mParts.put(name, part.toVersionedParcelable());
             mDefaultTemplate += (mDefaultTemplate.length() > 0 ? " " : "") + "#" + name + "#";
             return this;
         }
 
         /**
          * Build an OngoingActivityStatus with the given parameters.
+         *
          * @return the built OngoingActivityStatus
          */
         @NonNull
@@ -163,7 +454,7 @@ public class Status implements TimeDependentText {
                 throw new IllegalStateException("For backwards compatibility reasons the last "
                         + "templateThe should only use TextStatusPart & TimerStatusPart");
             }
-            for (CharSequence template: templates) {
+            for (CharSequence template : templates) {
                 if (processTemplate(template, all) == null) {
                     throw new IllegalStateException("The template \"" + template + "\" is missing"
                             + " some parts for rendering.");
@@ -192,12 +483,13 @@ public class Status implements TimeDependentText {
 
     /**
      * Returns the value of the part with the given name.
+     *
      * @param name the name to lookup.
      * @return the part with the given name, can be null.
      */
     @Nullable
-    public StatusPart getPart(@NonNull String name) {
-        return mParts.get(name);
+    public Part getPart(@NonNull String name) {
+        return Part.fromVersionedParcelable(mParts.get(name));
     }
 
     /**
@@ -206,7 +498,7 @@ public class Status implements TimeDependentText {
      * To produce a '#' in the output, use '##' in the template.
      *
      * @param template The template to use as base.
-     * @param values The values to replace the placeholders in the template with.
+     * @param values   The values to replace the placeholders in the template with.
      * @return The template with the placeholders replaced, or null if the template references a
      * value that it's not present (or null).
      */
@@ -223,7 +515,7 @@ public class Status implements TimeDependentText {
                     // Replace '#varName#' with the value from the map.
                     CharSequence replaceWith =
                             opening == i - 1 ? "#" :
-                            values.get(ssb.subSequence(opening + 1, i).toString());
+                                    values.get(ssb.subSequence(opening + 1, i).toString());
                     if (replaceWith == null) {
                         return null;
                     }
@@ -289,3 +581,4 @@ public class Status implements TimeDependentText {
         return ret;
     }
 }
+

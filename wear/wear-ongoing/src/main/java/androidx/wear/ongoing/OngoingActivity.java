@@ -264,7 +264,7 @@ public final class OngoingActivity {
             if (status == null) {
                 String text = notification.extras.getString(Notification.EXTRA_TEXT);
                 if (text != null) {
-                    status = Status.forPart(new TextStatusPart(text))
+                    status = Status.forPart(new Status.TextPart(text))
                         .toVersionedParcelable();
                 }
             }
