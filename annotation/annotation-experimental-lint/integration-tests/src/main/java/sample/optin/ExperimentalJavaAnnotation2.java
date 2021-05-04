@@ -20,5 +20,9 @@ import static androidx.annotation.RequiresOptIn.Level.ERROR;
 
 import androidx.annotation.RequiresOptIn;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 @RequiresOptIn(level = ERROR)
+@Retention(RetentionPolicy.CLASS)
 public @interface ExperimentalJavaAnnotation2 {}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.annotation.experimental.lint
+package sample.optin;
 
-import com.android.tools.lint.client.api.IssueRegistry
-import com.android.tools.lint.detector.api.CURRENT_API
+import static androidx.annotation.RequiresOptIn.Level.ERROR;
 
-class ExperimentalIssueRegistry : IssueRegistry() {
-    override val minApi = CURRENT_API
-    override val api = 8
-    override val issues get() = ExperimentalDetector.ISSUES + AnnotationRetentionDetector.ISSUE
-}
+import androidx.annotation.RequiresOptIn;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@RequiresOptIn(level = ERROR)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ExperimentalJavaAnnotationWrongRetention {}
