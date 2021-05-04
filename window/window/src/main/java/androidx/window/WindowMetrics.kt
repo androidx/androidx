@@ -27,9 +27,9 @@ import android.graphics.Rect
  * @see WindowManager#getCurrentWindowMetrics
  * @see WindowManager#getMaximumWindowMetrics
  */
-public class WindowMetrics(bounds: Rect) {
+public class WindowMetrics internal constructor(private val _bounds: Bounds) {
 
-    private val _bounds: Rect = Rect(bounds)
+    public constructor(bounds: Rect) : this(Bounds(bounds))
 
     /**
      * Returns a new [Rect] describing the bounds of the area the window occupies.
@@ -43,7 +43,7 @@ public class WindowMetrics(bounds: Rect) {
      * @return window bounds in pixels.
      */
     public val bounds: Rect
-        get() = Rect(_bounds)
+        get() = _bounds.toRect()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
