@@ -49,7 +49,7 @@ constructor(private val navigatorProvider: NavigatorProvider) : Navigator<NavGra
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ): NavDestination? {
-        val startId = destination.startDestination
+        val startId = destination.startDestinationId
         check(startId != 0) {
             ("no start destination defined via app:startDestination for ${destination.displayName}")
         }

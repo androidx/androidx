@@ -73,6 +73,6 @@ public open class NavGraphBuilder(
         if (startDestination == 0) {
             throw IllegalStateException("You must set a startDestination")
         }
-        navGraph.startDestination = startDestination
+        navGraph.setStartDestination(startDestination)
     }
 }

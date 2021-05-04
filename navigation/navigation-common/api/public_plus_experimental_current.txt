@@ -299,13 +299,14 @@ package androidx.navigation {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.navigation.NavDestination? findNode(@IdRes int resid, boolean searchParents);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> getNodes();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String getStartDestDisplayName();
-    method @IdRes public final int getStartDestination();
+    method @Deprecated @IdRes public final int getStartDestination();
+    method @IdRes public final int getStartDestinationId();
     method public final java.util.Iterator<androidx.navigation.NavDestination> iterator();
     method public final void remove(androidx.navigation.NavDestination node);
     method public final void setStartDestination(int startDestId);
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> nodes;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String startDestDisplayName;
-    property @IdRes public final int startDestination;
+    property @IdRes public final int startDestinationId;
   }
 
   @androidx.navigation.NavDestinationDsl public class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {

@@ -63,7 +63,7 @@ class NavGraphNavigatorTest {
         startId: Int = destination.id
     ) = navGraphNavigator.createDestination().apply {
         addDestination(destination)
-        startDestination = startId
+        setStartDestination(startId)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -72,7 +72,7 @@ class NavGraphNavigatorTest {
         val graph = navGraphNavigator.createDestination().apply {
             addDestination(destination)
             id = 2 // can't match id of first destination or the start destination
-            startDestination = 0
+            setStartDestination(0)
         }
         navGraphNavigator.navigate(graph, null, null, null)
     }

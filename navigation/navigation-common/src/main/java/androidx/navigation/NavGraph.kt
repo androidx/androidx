@@ -55,7 +55,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
             attrs,
             R.styleable.NavGraphNavigator
         ).use {
-            startDestination = it.getResourceId(R.styleable.NavGraphNavigator_startDestination, 0)
+            startDestinationId = it.getResourceId(R.styleable.NavGraphNavigator_startDestination, 0)
             startDestIdName = getDisplayName(context, startDestId)
         }
     }
@@ -239,8 +239,18 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
          */
         get() = if (id != 0) super.displayName else "the root navigation"
 
+    /**
+     * Returns the starting destination for this NavGraph. When navigating to the NavGraph, this
+     * destination is the one the user will initially see.
+     *
+     * @return the start destination
+     */
+    @IdRes
+    @Deprecated("Use getStartDestinationId instead.", ReplaceWith("startDestinationId"))
+    public fun getStartDestination(): Int = startDestinationId
+
     @get:IdRes
-    public var startDestination: Int
+    public var startDestinationId: Int
         /**
          * Returns the starting destination for this NavGraph. When navigating to the NavGraph, this
          * destination is the one the user will initially see.
@@ -254,13 +264,23 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
          * @param startDestId The id of the destination to be shown when navigating to this
          *                    NavGraph.
          */
-        set(startDestId) {
+        private set(startDestId) {
             require(startDestId != id) {
                 "Start destination $startDestId cannot use the same id as the graph $this"
             }
             this.startDestId = startDestId
             startDestIdName = null
         }
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * @param startDestId The id of the destination to be shown when navigating to this
+     *                    NavGraph.
+     */
+    public fun setStartDestination(startDestId: Int) {
+        startDestinationId = startDestId
+    }
 
     public val startDestDisplayName: String
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -275,7 +295,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
         val sb = StringBuilder()
         sb.append(super.toString())
         sb.append(" startDestination=")
-        val startDestination = findNode(startDestination)
+        val startDestination = findNode(startDestinationId)
         if (startDestination == null) {
             if (startDestIdName == null) {
                 sb.append("0x")
