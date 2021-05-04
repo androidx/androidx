@@ -17,8 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
+import static androidx.build.dependencies.DependenciesKt.GUAVA
 
 plugins {
     id("AndroidXPlugin")
@@ -27,11 +26,11 @@ plugins {
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-common"))
-    implementation(KOTLIN_STDLIB)
-    implementation(AUTO_COMMON)
-    implementation(JAVAPOET)
-    testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(JSR250)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.autoCommon)
+    implementation(libs.javapoet)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.jsr250)
 }
 
 // The following tasks are used to regenerate src/test/test-data/lib/src/test-library.jar

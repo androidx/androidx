@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
@@ -66,6 +65,6 @@ android {
 
 dependencies {
     implementation "${LibraryGroups.NAVIGATION}:navigation-runtime:${LibraryVersions.NAVIGATION}"
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
 }
