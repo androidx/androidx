@@ -71,7 +71,7 @@ dependencies {
     implementation(project(":benchmark:benchmark-common"))
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
-    implementation(WIRE_RUNTIME)
+    implementation(libs.wireRuntime)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))

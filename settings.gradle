@@ -10,6 +10,8 @@ pluginManagement {
 
 rootProject.name = "androidx"
 
+enableFeaturePreview("VERSION_CATALOGS")
+
 boolean isMultiplatformEnabled() {
     def mppParameter = properties.get("androidx.compose.multiplatformEnabled")
     if (mppParameter == null) return false

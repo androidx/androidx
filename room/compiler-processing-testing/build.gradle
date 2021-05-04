@@ -30,9 +30,9 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     api(project(":room:room-compiler-processing"))
     implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_KSP_API)
+    implementation(libs.kspApi)
     implementation(KOTLIN_STDLIB_JDK8) // KSP defines older version as dependency, force update.
-    implementation(KOTLIN_KSP)
+    implementation(libs.ksp)
     implementation(GOOGLE_COMPILE_TESTING)
     implementation(KOTLIN_COMPILE_TESTING)
     // specify these to match the kotlin compiler version in AndroidX rather than what KSP or KCT
