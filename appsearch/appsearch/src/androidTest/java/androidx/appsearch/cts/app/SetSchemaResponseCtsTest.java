@@ -114,4 +114,16 @@ public class SetSchemaResponseCtsTest {
         assertThat(multiEntries.getMigrationFailures()).containsExactly(failure1, failure2);
     }
 
+    @Test
+    public void testMigrationFailure() {
+        AppSearchResult<Void> expectedResult = AppSearchResult.newFailedResult(
+                AppSearchResult.RESULT_INTERNAL_ERROR, "errorMessage");
+        SetSchemaResponse.MigrationFailure migrationFailure =
+                new SetSchemaResponse.MigrationFailure("namespace", "id",
+                        "schemaType", expectedResult);
+        assertThat(migrationFailure.getNamespace()).isEqualTo("namespace");
+        assertThat(migrationFailure.getSchemaType()).isEqualTo("schemaType");
+        assertThat(migrationFailure.getDocumentId()).isEqualTo("id");
+        assertThat(migrationFailure.getAppSearchResult()).isEqualTo(expectedResult);
+    }
 }
