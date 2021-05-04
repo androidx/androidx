@@ -65,13 +65,17 @@ class UseCaseCameraState @Inject constructor(
     private val currentStreams = mutableSetOf<StreamId>()
 
     @GuardedBy("lock")
+    private val currentListeners = mutableSetOf<Request.Listener>()
+
+    @GuardedBy("lock")
     private var currentTemplate: RequestTemplate? = null
 
     fun updateAsync(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null
     ): Deferred<Unit> {
         val result: Deferred<Unit>
         synchronized(lock) {
@@ -89,7 +93,7 @@ class UseCaseCameraState @Inject constructor(
             //    exit the locked section.
             // 5) If updating, invoke submit without holding the lock.
 
-            updateState(parameters, internalParameters, streams, template)
+            updateState(parameters, internalParameters, streams, template, listeners)
 
             if (updateSignal == null) {
                 updateSignal = CompletableDeferred()
@@ -111,11 +115,12 @@ class UseCaseCameraState @Inject constructor(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null
     ) {
         synchronized(lock) {
             // See updateAsync for details.
-            updateState(parameters, internalParameters, streams, template)
+            updateState(parameters, internalParameters, streams, template, listeners)
             if (updating) {
                 return
             }
@@ -137,7 +142,8 @@ class UseCaseCameraState @Inject constructor(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null
     ) {
         // TODO: Consider if this should detect changes and only invoke an update if state has
         //  actually changed.
@@ -153,6 +159,10 @@ class UseCaseCameraState @Inject constructor(
         }
         if (template != null) {
             currentTemplate = template
+        }
+        if (listeners != null) {
+            currentListeners.clear()
+            currentListeners.addAll(listeners)
         }
     }
 
@@ -178,7 +188,8 @@ class UseCaseCameraState @Inject constructor(
                             template = currentTemplate,
                             streams = currentStreams.toList(),
                             parameters = currentParameters.toMap(),
-                            extras = currentInternalParameters.toMap()
+                            extras = currentInternalParameters.toMap(),
+                            listeners = currentListeners.toList()
                         )
                     }
                     result = updateSignal

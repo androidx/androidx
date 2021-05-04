@@ -77,6 +77,7 @@ class UseCaseCameraImpl(
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
     private val state: UseCaseCameraState,
     private val configAdapter: CaptureConfigAdapter,
+    private val threads: UseCaseThreads,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val currentParameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
@@ -153,6 +154,8 @@ class UseCaseCameraImpl(
 
     private fun updateUseCases() {
         val repeatingStreamIds = mutableSetOf<StreamId>()
+        val repeatingListeners = CameraCallbackMap()
+
         for (useCase in activeUseCases) {
             val repeatingCapture = useCase.sessionConfig?.repeatingCaptureConfig
             if (repeatingCapture != null) {
@@ -163,9 +166,14 @@ class UseCaseCameraImpl(
                     }
                 }
             }
+
+            val repeatingCallbacks = useCase.sessionConfig?.repeatingCameraCaptureCallbacks
+            repeatingCallbacks?.forEach {
+                repeatingListeners.addCaptureCallback(it, threads.backgroundExecutor)
+            }
         }
 
-        state.update(streams = repeatingStreamIds)
+        state.update(streams = repeatingStreamIds, listeners = setOf(repeatingListeners))
     }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
@@ -242,7 +250,14 @@ class UseCaseCameraImpl(
                     CaptureConfigAdapter(surfaceToStreamMap, threads.backgroundExecutor)
 
                 graph.start()
-                return UseCaseCameraImpl(graph, useCases, surfaceToStreamMap, state, configAdapter)
+                return UseCaseCameraImpl(
+                    graph,
+                    useCases,
+                    surfaceToStreamMap,
+                    state,
+                    configAdapter,
+                    threads
+                )
             }
         }
     }
