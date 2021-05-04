@@ -741,6 +741,33 @@ public final class AppSearchSchema {
             }
 
             /**
+             * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+             * @hide
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Deprecated
+            /*@exportToFramework:UnsupportedAppUsage*/
+            public Builder(@NonNull String propertyName) {
+                mBundle.putString(NAME_FIELD, propertyName);
+                mBundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_DOCUMENT);
+                mBundle.putInt(CARDINALITY_FIELD, CARDINALITY_OPTIONAL);
+                mBundle.putBoolean(INDEX_NESTED_PROPERTIES_FIELD, false);
+            }
+
+            /**
+             * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+             * @hide
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Deprecated
+            /*@exportToFramework:UnsupportedAppUsage*/
+            @NonNull
+            public Builder setSchemaType(@NonNull String schemaType) {
+                mBundle.putString(SCHEMA_TYPE_FIELD, schemaType);
+                return this;
+            }
+
+            /**
              * The cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is
@@ -769,6 +796,19 @@ public final class AppSearchSchema {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
                 mBundle.putBoolean(INDEX_NESTED_PROPERTIES_FIELD, indexNestedProperties);
                 return this;
+            }
+
+            /**
+             * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+             * @hide
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Deprecated
+            /*@exportToFramework:UnsupportedAppUsage*/
+            @NonNull
+            public DocumentPropertyConfig.Builder setIndexNestedProperties(
+                    boolean indexNestedProperties) {
+                return setShouldIndexNestedProperties(indexNestedProperties);
             }
 
             /**

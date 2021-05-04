@@ -174,6 +174,18 @@ public class GenericDocument {
         return mBundle;
     }
 
+    /**
+     * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Deprecated
+    /*@exportToFramework:UnsupportedAppUsage*/
+    @NonNull
+    public String getUri() {
+        return getId();
+    }
+
     /** Returns the unique identifier of the {@link GenericDocument}. */
     @NonNull
     public String getId() {
