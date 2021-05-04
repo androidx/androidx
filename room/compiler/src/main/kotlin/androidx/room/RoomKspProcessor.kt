@@ -21,30 +21,17 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 
 /**
  * Entry point for processing using KSP.
  */
-class RoomKspProcessor : SymbolProcessor {
-    private lateinit var options: Map<String, String>
-    private lateinit var codeGenerator: CodeGenerator
-    private lateinit var logger: KSPLogger
-
-    override fun finish() {
-    }
-
-    override fun init(
-        options: Map<String, String>,
-        kotlinVersion: KotlinVersion,
-        codeGenerator: CodeGenerator,
-        logger: KSPLogger
-    ) {
-        this.options = options
-        this.codeGenerator = codeGenerator
-        this.logger = logger
-    }
-
+class RoomKspProcessor(
+    private val options: Map<String, String>,
+    private val codeGenerator: CodeGenerator,
+    private val logger: KSPLogger
+) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val processingEnv = XProcessingEnv.create(
             options,
@@ -56,5 +43,20 @@ class RoomKspProcessor : SymbolProcessor {
         return DatabaseProcessingStep().executeInKsp(
             processingEnv
         )
+    }
+
+    class Provider : SymbolProcessorProvider {
+        override fun create(
+            options: Map<String, String>,
+            kotlinVersion: KotlinVersion,
+            codeGenerator: CodeGenerator,
+            logger: KSPLogger
+        ): SymbolProcessor {
+            return RoomKspProcessor(
+                options = options,
+                codeGenerator = codeGenerator,
+                logger = logger
+            )
+        }
     }
 }

@@ -27,7 +27,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspArgs
 import com.tschuchort.compiletesting.kspSourcesDir
-import com.tschuchort.compiletesting.symbolProcessors
+import com.tschuchort.compiletesting.symbolProcessorProviders
 import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.tools.Diagnostic
@@ -59,7 +59,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             classpaths = params.classpath
         )
         kspCompilation.kspArgs.putAll(params.options)
-        kspCompilation.symbolProcessors = listOf(syntheticKspProcessor)
+        kspCompilation.symbolProcessorProviders = listOf(syntheticKspProcessor.asProvider())
         kspCompilation.compile()
         // ignore KSP result for now because KSP stops compilation, which might create false
         // negatives when java code accesses kotlin code.

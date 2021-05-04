@@ -25,6 +25,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -37,7 +38,7 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.symbolProcessors
+import com.tschuchort.compiletesting.symbolProcessorProviders
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -309,29 +310,25 @@ class XProcessingStepTest {
             }
         }
         var returned: List<KSAnnotated>? = null
-        val processor = object : SymbolProcessor {
-            private lateinit var codeGenerator: CodeGenerator
-            private lateinit var logger: KSPLogger
-
-            override fun init(
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(
                 options: Map<String, String>,
                 kotlinVersion: KotlinVersion,
                 codeGenerator: CodeGenerator,
                 logger: KSPLogger
-            ) {
-                this.codeGenerator = codeGenerator
-                this.logger = logger
-            }
-
-            override fun process(resolver: Resolver): List<KSAnnotated> {
-                val env = XProcessingEnv.create(
-                    emptyMap(),
-                    resolver,
-                    codeGenerator,
-                    logger
-                )
-                return processingStep.executeInKsp(env)
-                    .also { returned = it }
+            ): SymbolProcessor {
+                return object : SymbolProcessor {
+                    override fun process(resolver: Resolver): List<KSAnnotated> {
+                        val env = XProcessingEnv.create(
+                            emptyMap(),
+                            resolver,
+                            codeGenerator,
+                            logger
+                        )
+                        return processingStep.executeInKsp(env)
+                            .also { returned = it }
+                    }
+                }
             }
         }
         val main = SourceFile.kotlin(
@@ -348,7 +345,7 @@ class XProcessingStepTest {
         KotlinCompilation().apply {
             workingDir = temporaryFolder.root
             inheritClassPath = true
-            symbolProcessors = listOf(processor)
+            symbolProcessorProviders = listOf(processorProvider)
             sources = listOf(main)
             verbose = false
         }.compile()
