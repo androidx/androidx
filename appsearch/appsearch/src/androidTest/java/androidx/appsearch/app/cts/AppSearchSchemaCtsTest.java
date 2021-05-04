@@ -24,9 +24,12 @@ import static org.junit.Assert.assertThrows;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 
 import org.junit.Test;
+
+import java.util.List;
 
 public class AppSearchSchemaCtsTest {
     @Test
@@ -150,5 +153,73 @@ public class AppSearchSchemaCtsTest {
                 ).build();
         assertThat(schema1).isNotEqualTo(schema2);
         assertThat(schema1.hashCode()).isNotEqualTo(schema2.hashCode());
+    }
+
+    @Test
+    public void testPropertyConfig() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("string")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("long")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .build())
+                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("boolean")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "document", AppSearchEmail.SCHEMA_TYPE)
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+
+        assertThat(schema.getSchemaType()).isEqualTo("Test");
+        List<PropertyConfig> properties = schema.getProperties();
+        assertThat(properties).hasSize(6);
+
+        assertThat(properties.get(0).getName()).isEqualTo("string");
+        assertThat(properties.get(0).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
+        assertThat(((StringPropertyConfig) properties.get(0)).getIndexingType())
+                .isEqualTo(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
+        assertThat(((StringPropertyConfig) properties.get(0)).getTokenizerType())
+                .isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_PLAIN);
+
+        assertThat(properties.get(1).getName()).isEqualTo("long");
+        assertThat(properties.get(1).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(properties.get(1)).isInstanceOf(AppSearchSchema.Int64PropertyConfig.class);
+
+        assertThat(properties.get(2).getName()).isEqualTo("double");
+        assertThat(properties.get(2).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
+        assertThat(properties.get(2)).isInstanceOf(AppSearchSchema.DoublePropertyConfig.class);
+
+        assertThat(properties.get(3).getName()).isEqualTo("boolean");
+        assertThat(properties.get(3).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
+        assertThat(properties.get(3)).isInstanceOf(AppSearchSchema.BooleanPropertyConfig.class);
+
+        assertThat(properties.get(4).getName()).isEqualTo("bytes");
+        assertThat(properties.get(4).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
+        assertThat(properties.get(4)).isInstanceOf(AppSearchSchema.BytesPropertyConfig.class);
+
+        assertThat(properties.get(5).getName()).isEqualTo("document");
+        assertThat(properties.get(5).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(5)).getSchemaType())
+                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(5))
+                .shouldIndexNestedProperties()).isEqualTo(true);
     }
 }
