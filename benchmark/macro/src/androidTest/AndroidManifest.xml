@@ -36,5 +36,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="androidx.benchmark.macro.ConfigurableActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.macro.CONFIGURABLE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
