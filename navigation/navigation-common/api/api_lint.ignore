@@ -77,6 +77,8 @@ GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getLabel():
     Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getLabel()
 GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getNavigator():
     Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getNavigator()
+GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getRoute():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getRoute()
 GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getLaunchSingleTop():
     Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getLaunchSingleTop()
 GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getPopUpTo():

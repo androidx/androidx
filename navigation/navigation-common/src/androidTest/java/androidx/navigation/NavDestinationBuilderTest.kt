@@ -40,6 +40,14 @@ class NavDestinationTest {
     }
 
     @Test
+    fun navDestinationRoute() {
+        val destination = provider.navDestination(DESTINATION_ROUTE) { }
+        assertWithMessage("NavDestination should have route set")
+            .that(destination.route)
+            .isEqualTo(DESTINATION_ROUTE)
+    }
+
+    @Test
     fun navDestinationLabel() {
         val destination = provider.navDestination(DESTINATION_ID) {
             label = LABEL
@@ -105,6 +113,7 @@ class NavDestinationTest {
 }
 
 private const val DESTINATION_ID = 1
+private const val DESTINATION_ROUTE = "route"
 private const val LABEL = "TEST"
 private const val ACTION_ID = 1
 private const val ACTION_ARGUMENT_KEY = "KEY"
@@ -119,3 +128,14 @@ fun NavigatorProvider.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
 ): NavDestination = NavDestinationBuilder(this[NoOpNavigator::class], id).apply(builder).build()
+
+/**
+ * Instead of constructing a NavGraph from the NavigatorProvider, construct
+ * a NavDestination directly to allow for testing NavDestinationBuilder in
+ * isolation.
+ */
+fun NavigatorProvider.navDestination(
+    route: String,
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+): NavDestination =
+    NavDestinationBuilder(this[NoOpNavigator::class], route = route).apply(builder).build()
