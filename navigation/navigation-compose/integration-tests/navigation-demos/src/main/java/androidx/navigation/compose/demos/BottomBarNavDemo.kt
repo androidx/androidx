@@ -60,8 +60,10 @@ fun BottomBarNavDemo() {
                         selected = entryRoute == route,
                         onClick = {
                             navController.navigate(route) {
-                                launchSingleTop = true
-                                popUpTo = navController.graph.startDestination
+                                restoreState = true
+                                popUpTo(navController.graph.startDestination) {
+                                    saveState = true
+                                }
                             }
                         }
                     )
