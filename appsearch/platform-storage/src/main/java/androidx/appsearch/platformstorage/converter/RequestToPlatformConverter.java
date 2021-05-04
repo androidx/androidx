@@ -21,20 +21,15 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
-import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
-import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.SetSchemaResponse;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Translates between Platform and Jetpack versions of requests.
@@ -44,63 +39,6 @@ import java.util.Set;
 @RequiresApi(Build.VERSION_CODES.S)
 public final class RequestToPlatformConverter {
     private RequestToPlatformConverter() {}
-
-    /**
-     * Translates a jetpack {@link androidx.appsearch.app.SetSchemaRequest} into a platform
-     * {@link android.app.appsearch.SetSchemaRequest}.
-     */
-    @NonNull
-    public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
-            @NonNull SetSchemaRequest jetpackRequest) {
-        Preconditions.checkNotNull(jetpackRequest);
-        android.app.appsearch.SetSchemaRequest.Builder platformBuilder =
-                new android.app.appsearch.SetSchemaRequest.Builder();
-        for (AppSearchSchema jetpackSchema : jetpackRequest.getSchemas()) {
-            platformBuilder.addSchemas(SchemaToPlatformConverter.toPlatformSchema(jetpackSchema));
-        }
-        for (String schemaNotDisplayedBySystem : jetpackRequest.getSchemasNotDisplayedBySystem()) {
-            platformBuilder.setSchemaTypeDisplayedBySystem(
-                    schemaNotDisplayedBySystem, /*displayed=*/ false);
-        }
-        for (Map.Entry<String, Set<PackageIdentifier>> jetpackSchemaVisibleToPackage :
-                jetpackRequest.getSchemasVisibleToPackagesInternal().entrySet()) {
-            for (PackageIdentifier jetpackPackageIdentifier :
-                    jetpackSchemaVisibleToPackage.getValue()) {
-                platformBuilder.setSchemaTypeVisibilityForPackage(
-                        jetpackSchemaVisibleToPackage.getKey(),
-                        /*visible=*/ true,
-                        new android.app.appsearch.PackageIdentifier(
-                                jetpackPackageIdentifier.getPackageName(),
-                                jetpackPackageIdentifier.getSha256Certificate()));
-            }
-        }
-        platformBuilder.setForceOverride(jetpackRequest.isForceOverride());
-        return platformBuilder.build();
-    }
-
-    /**
-     * Translates a platform {@link android.app.appsearch.SetSchemaResponse} into a jetpack
-     * {@link androidx.appsearch.app.SetSchemaResponse}.
-     */
-    @NonNull
-    public static SetSchemaResponse toJetpackSetSchemaResponse(
-            @NonNull android.app.appsearch.SetSchemaResponse platformResponse) {
-        Preconditions.checkNotNull(platformResponse);
-        SetSchemaResponse.Builder jetpackBuilder = new SetSchemaResponse.Builder()
-                .addDeletedTypes(platformResponse.getDeletedTypes())
-                .addIncompatibleTypes(platformResponse.getIncompatibleTypes())
-                .addMigratedTypes(platformResponse.getMigratedTypes());
-        for (android.app.appsearch.SetSchemaResponse.MigrationFailure migrationFailure :
-                platformResponse.getMigrationFailures()) {
-            jetpackBuilder.addMigrationFailure(new SetSchemaResponse.MigrationFailure(
-                    migrationFailure.getNamespace(),
-                    migrationFailure.getUri(),
-                    migrationFailure.getSchemaType(),
-                    AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
-                            migrationFailure.getAppSearchResult())));
-        }
-        return jetpackBuilder.build();
-    }
 
     /**
      * Translates a jetpack {@link PutDocumentsRequest} into a platform

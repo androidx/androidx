@@ -37,8 +37,10 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.ResponseToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SchemaToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
@@ -72,13 +74,13 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.setSchema(
-                RequestToPlatformConverter.toPlatformSetSchemaRequest(request),
+                SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(request),
                 mExecutor,
                 mExecutor,
                 result -> {
                     if (result.isSuccess()) {
                         SetSchemaResponse jetpackResponse =
-                                RequestToPlatformConverter.toJetpackSetSchemaResponse(
+                                SetSchemaRequestToPlatformConverter.toJetpackSetSchemaResponse(
                                         result.getResultValue());
                         future.set(jetpackResponse);
                     } else {
@@ -117,8 +119,17 @@ class SearchSessionImpl implements AppSearchSession {
     @NonNull
     @Override
     public ListenableFuture<Set<String>> getNamespaces() {
-        // TODO(b/183042276): Implement this once getNamespaces() is exposed in the platform SDK
-        throw new UnsupportedOperationException();
+        ResolvableFuture<Set<String>> future = ResolvableFuture.create();
+        mPlatformSession.getNamespaces(
+                mExecutor,
+                result -> {
+                    if (result.isSuccess()) {
+                        future.set(result.getResultValue());
+                    } else {
+                        handleFailedPlatformResult(result, future);
+                    }
+                });
+        return future;
     }
 
     @Override
@@ -209,8 +220,18 @@ class SearchSessionImpl implements AppSearchSession {
     @NonNull
     public ListenableFuture<StorageInfo> getStorageInfo() {
         ResolvableFuture<StorageInfo> future = ResolvableFuture.create();
-        // TODO(b/182909475): Implement this if we decide to expose an API on platform.
-        future.set(new StorageInfo.Builder().build());
+        mPlatformSession.getStorageInfo(
+                mExecutor,
+                result -> {
+                    if (result.isSuccess()) {
+                        StorageInfo jetpackStorageInfo =
+                                ResponseToPlatformConverter.toJetpackStorageInfo(
+                                        result.getResultValue());
+                        future.set(jetpackStorageInfo);
+                    } else {
+                        handleFailedPlatformResult(result, future);
+                    }
+                });
         return future;
     }
 
