@@ -22,7 +22,6 @@ import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_O
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -136,7 +135,6 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
         return Futures.immediateFuture(null);
     }
