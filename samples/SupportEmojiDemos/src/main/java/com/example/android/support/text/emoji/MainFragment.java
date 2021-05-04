@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.fragment.app.Fragment;
 
@@ -46,6 +47,7 @@ public class MainFragment extends Fragment {
     private TextView mAppcompatButton;
     private TextView mRegularTextView;
     private TextView mCustomTextView;
+    private AppCompatToggleButton mAppCompatToggleButton;
 
     final Config.Listener mConfigListener = new Config.Listener() {
         @Override
@@ -81,6 +83,8 @@ public class MainFragment extends Fragment {
         // Custom TextView
         mCustomTextView = view.findViewById(R.id.emoji_custom_text_view);
 
+        mAppCompatToggleButton = view.findViewById(R.id.appcompat_toggle_button);
+
         final TextView emojiListButton = view.findViewById(R.id.emoji_list_button);
         emojiListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +118,8 @@ public class MainFragment extends Fragment {
         mEmojiButton.setText(getString(R.string.emoji_button, EMOJI));
         mAppcompatButton.setText(getString(R.string.appcompat_button, EMOJI));
         mRegularTextView.setText(getString(R.string.regular_text_view, EMOJI));
+        mAppCompatToggleButton.setTextOn(getString(R.string.toggle_on, EMOJI));
+        mAppCompatToggleButton.setTextOff(getString(R.string.toggle_off, EMOJI));
         EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
             @Override
             public void onInitialized() {

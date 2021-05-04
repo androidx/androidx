@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.widget.ToggleButton;
 
@@ -29,7 +30,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 
@@ -39,8 +39,9 @@ import androidx.core.view.ViewCompat;
  * <ul>
  *     <li>Allows dynamic tint of its background via the background tint methods in
  *     {@link androidx.core.view.ViewCompat}.</li>
- *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
- *     {@link R.attr#backgroundTintMode}.</li>
+ *     <li>Allows setting of the background tint using
+ *     {@link androidx.appcompat.R.attr#backgroundTint} and
+ *     {@link androidx.appcompat.R.attr#backgroundTintMode}.</li>
  *     <li>Allows setting of the font family using {@link android.R.attr#fontFamily}</li>
  * </ul>
  *
@@ -51,6 +52,7 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
 
     public AppCompatToggleButton(@NonNull Context context) {
         this(context, null);
@@ -71,6 +73,9 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
 
         mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        AppCompatEmojiTextHelper emojiTextViewHelper = getEmojiTextViewHelper();
+        emojiTextViewHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
     @Override
@@ -154,5 +159,58 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
         if (mTextHelper != null) {
             mTextHelper.applyCompoundDrawablesTints();
         }
+    }
+
+    @Override
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+        super.setFilters(getEmojiTextViewHelper().getFilters(filters));
+    }
+
+
+    /**
+     * This may be called from super constructors.
+     */
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+        //noinspection ConstantConditions
+        if (mAppCompatEmojiTextHelper == null) {
+            mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);
+        }
+        return mAppCompatEmojiTextHelper;
+    }
+
+    @Override
+    public void setAllCaps(boolean allCaps) {
+        super.setAllCaps(allCaps);
+        getEmojiTextViewHelper().setAllCaps(allCaps);
+    }
+
+    /**
+     * Configure emoji fallback behavior using EmojiCompat.
+     *
+     * When enabled, this ToggleButton will attempt to use EmojiCompat to enabled missing emojis.
+     * When disabled, this ToggleButton will not display missing emojis using EmojiCompat.
+     *
+     * EmojiCompat must be correctly configured on a device for this to have an effect, which
+     * will happen by default if a correct downloadable fonts provider is installed on the device.
+     *
+     * If you manually configure EmojiCompat by calling EmojiCompat init after this ToggleButton is
+     * constructed, you may call this method again to enable EmojiCompat on this text view.
+     *
+     * For more information about EmojiCompat configuration see the emoji2 module.
+     *
+     * @param enabled if true, display missing emoji using EmojiCompat, otherwise display
+     *                missing emoji using a fallback glyph "□" (known as tofu)
+     */
+    public void setEmojiCompatEnabled(boolean enabled) {
+        getEmojiTextViewHelper().setEnabled(enabled);
+    }
+
+    /**
+     * @return the current enabled state, set via
+     * {@link AppCompatTextView#setEmojiCompatEnabled(boolean)}
+     */
+    public boolean isEmojiCompatEnabled() {
+        return getEmojiTextViewHelper().isEnabled();
     }
 }

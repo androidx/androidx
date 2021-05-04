@@ -24,4 +24,6 @@
     <string name="appcompat_text_view">AppCompatTextView %s</string>
     <string name="appcompat_edit_text">AppCompatEditText %s</string>
     <string name="appcompat_button">AppCompatButton %s</string>
+    <string name="toggle_on">On %s</string>
+    <string name="toggle_off">Off %s</string>
 </resources>
