@@ -26,10 +26,53 @@ public annotation class NavDestinationDsl
  * DSL for constructing a new [NavDestination]
  */
 @NavDestinationDsl
-public open class NavDestinationBuilder<out D : NavDestination>(
+public open class NavDestinationBuilder<out D : NavDestination> internal constructor(
+    /**
+     * Returns the navigator the destination was created from
+     *
+     * @return this destination's navigator
+     */
     protected val navigator: Navigator<out D>,
-    @IdRes public val id: Int
+    /**
+     * Returns the destination's unique ID.
+     *
+     * @return this destination's ID
+     */
+    @IdRes public val id: Int,
+    /**
+     * Returns the destination's unique route.
+     *
+     * @return this destination's route
+     */
+    public val route: String?
 ) {
+
+    /**
+     * DSL for constructing a new [NavDestination] with a unique id.
+     *
+     * This sets the destination's [route] to `null`.
+     *
+     * @param navigator navigator used to create the destination
+     * @param id the destination's unique id
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    public constructor(navigator: Navigator<out D>, @IdRes id: Int) :
+        this(navigator, id, null)
+
+    /**
+     * DSL for constructing a new [NavDestination] with a unique route.
+     *
+     * This will also update the [id] of the destination based on route.
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    public constructor(navigator: Navigator<out D>, route: String) :
+        this(navigator, -1, route)
+
     /**
      * The descriptive label of the destination
      */
@@ -103,7 +146,12 @@ public open class NavDestinationBuilder<out D : NavDestination>(
      */
     public open fun build(): D {
         return navigator.createDestination().also { destination ->
-            destination.id = id
+            if (route != null) {
+                destination.route = route
+            }
+            if (id != -1) {
+                destination.id = id
+            }
             destination.label = label
             arguments.forEach { (name, argument) ->
                 destination.addArgument(name, argument)
