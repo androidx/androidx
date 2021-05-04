@@ -17,6 +17,7 @@
 package androidx.appsearch.app.cts;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
+import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.app.util.AppSearchTestUtils.doGet;
@@ -2489,18 +2490,42 @@ public abstract class AppSearchSessionCtsTestBase {
         // Email 1 has three usages and email 2 has two usages.
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(email1);
-        assertThat(results.get(0).getRankingSignal()).isEqualTo(3);
         assertThat(results.get(1).getGenericDocument()).isEqualTo(email2);
+        assertThat(results.get(0).getRankingSignal()).isEqualTo(3);
         assertThat(results.get(1).getRankingSignal()).isEqualTo(2);
 
-        // Query by most recent usag.
-        List<GenericDocument> documents = convertSearchResultsToDocuments(
+        // Query by most recent usage.
+        results = retrieveAllSearchResults(
                 mDb1.search("", new SearchSpec.Builder()
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP)
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build()));
-        // TODO(b/182958600) Check the score for usage timestamp once b/182958600 is fixed.
-        assertThat(documents).containsExactly(email2, email1).inOrder();
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(email2);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(email1);
+        assertThat(results.get(0).getRankingSignal()).isEqualTo(20000);
+        assertThat(results.get(1).getRankingSignal()).isEqualTo(3000);
+    }
+
+    @Test
+    public void testReportUsage_invalidNamespace() throws Exception {
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace", "id1").build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
+
+        // Use the correct namespace; it works
+        mDb1.reportUsage(new ReportUsageRequest.Builder("namespace", "id1").build()).get();
+
+        // Use an incorrect namespace; it fails
+        ExecutionException e = assertThrows(
+                ExecutionException.class,
+                () -> mDb1.reportUsage(
+                        new ReportUsageRequest.Builder("namespace2", "id1").build()).get());
+        assertThat(e).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException cause = (AppSearchException) e.getCause();
+        assertThat(cause.getResultCode()).isEqualTo(RESULT_NOT_FOUND);
     }
 
     @Test
