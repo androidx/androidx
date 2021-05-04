@@ -179,9 +179,21 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
         return mBounds.equals(other.mBounds);
     }
 
+    /**
+     * Manually computes the hashCode for the {@link Rect} since it is not implemented
+     * on API 15
+     */
+    private static int hashBounds(Rect bounds) {
+        int result = bounds.left;
+        result = 31 * result + bounds.top;
+        result = 31 * result + bounds.right;
+        result = 31 * result + bounds.bottom;
+        return result;
+    }
+
     @Override
     public int hashCode() {
-        int result = mBounds.hashCode();
+        int result = hashBounds(mBounds);
         result = 31 * result + mType;
         result = 31 * result + mState;
         return result;
