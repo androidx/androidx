@@ -238,7 +238,7 @@ public final class SearchResult {
         }
 
         /**
-         * @deprecated this method exists only for dogfooder transition and must be removed
+         * @deprecated This method exists only for dogfooder transition and must be removed.
          * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

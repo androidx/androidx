@@ -123,6 +123,8 @@ class ExportToFramework:
         imports_to_add = []
         if '@exportToFramework:CurrentTimeMillisLong' in contents:
             imports_to_add.append('android.annotation.CurrentTimeMillisLong')
+        if '@exportToFramework:UnsupportedAppUsage' in contents:
+            imports_to_add.append('android.compat.annotation.UnsupportedAppUsage')
         for import_to_add in imports_to_add:
             contents = re.sub(
                     r'^(\s*package [^;]+;\s*)$', r'\1\nimport %s;\n' % import_to_add, contents,
@@ -158,6 +160,7 @@ class ExportToFramework:
             .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
             .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
+            .replace('/*@exportToFramework:UnsupportedAppUsage*/', '@UnsupportedAppUsage')
             .replace('<!--@exportToFramework:hide-->', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
