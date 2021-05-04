@@ -1513,6 +1513,7 @@ public open class NavController(
      *
      * @param directions directions that describe this navigation operation
      */
+    @MainThread
     public open fun navigate(directions: NavDirections) {
         navigate(directions.actionId, directions.arguments, null)
     }
@@ -1523,6 +1524,7 @@ public open class NavController(
      * @param directions directions that describe this navigation operation
      * @param navOptions special options for this navigation operation
      */
+    @MainThread
     public open fun navigate(directions: NavDirections, navOptions: NavOptions?) {
         navigate(directions.actionId, directions.arguments, navOptions)
     }
@@ -1533,6 +1535,7 @@ public open class NavController(
      * @param directions directions that describe this navigation operation
      * @param navigatorExtras extras to pass to the [Navigator]
      */
+    @MainThread
     public open fun navigate(directions: NavDirections, navigatorExtras: Navigator.Extras) {
         navigate(directions.actionId, directions.arguments, null, navigatorExtras)
     }
