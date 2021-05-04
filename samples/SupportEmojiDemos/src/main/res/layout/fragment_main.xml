@@ -93,7 +93,13 @@
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/appcompat_toggle_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_compat"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
 

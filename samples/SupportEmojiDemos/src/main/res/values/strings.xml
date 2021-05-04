@@ -26,4 +26,5 @@
     <string name="appcompat_button">AppCompatButton %s</string>
     <string name="toggle_on">On %s</string>
     <string name="toggle_off">Off %s</string>
+    <string name="switch_compat">SwitchCompat %s</string>
 </resources>

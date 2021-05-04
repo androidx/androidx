@@ -19,6 +19,7 @@ package androidx.appcompat.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.InputFilter;
+import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -106,5 +107,18 @@ class AppCompatEmojiTextHelper {
      */
     void setAllCaps(boolean allCaps) {
         mEmojiTextViewHelper.setAllCaps(allCaps);
+    }
+
+    /**
+     * Wrap an existing transformation method, or null, to display emoji using EmojiCompat.
+     *
+     * @param transformationMethod if not null, call this transformation method before emoji
+     *                             transform
+     * @return the correct transformation based on isEnabled, may be null
+     */
+    @Nullable
+    public TransformationMethod wrapTransformationMethod(
+            @Nullable TransformationMethod transformationMethod) {
+        return mEmojiTextViewHelper.wrapTransformationMethod(transformationMethod);
     }
 }
