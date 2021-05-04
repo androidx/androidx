@@ -399,4 +399,19 @@ public final class FragmentContainerView extends FrameLayout {
             mDisappearingFragmentChildren.add(v);
         }
     }
+
+    /**
+     * This method grabs the {@link Fragment} whose view was most recently
+     * added to the container. This may used as an alternative to calling
+     * {@link FragmentManager#findFragmentById(int)} and passing in the
+     * {@link FragmentContainerView}'s id.
+     *
+     * @return The fragment if any exist, null otherwise.
+     */
+    @Nullable
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"}) // a ClassCastException is
+    // automatically thrown if the given type of F is wrong
+    public <F extends Fragment> F getFragment() {
+        return (F) FragmentManager.findFragmentManager(this).findFragmentById(this.getId());
+    }
 }
