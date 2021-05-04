@@ -186,7 +186,9 @@ class CameraControlAdapter @Inject constructor(
         }.asListenableFuture()
     }
 
-    override fun submitCaptureRequests(captureConfigs: MutableList<CaptureConfig>) {
-        warn { "TODO: submitCaptureRequests is not yet supported" }
+    override fun submitCaptureRequests(captureConfigs: List<CaptureConfig>) {
+        val camera = useCaseManager.camera
+        checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
+        camera.capture(captureConfigs)
     }
 }

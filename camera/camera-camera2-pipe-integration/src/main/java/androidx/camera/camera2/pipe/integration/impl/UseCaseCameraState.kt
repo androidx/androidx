@@ -124,6 +124,14 @@ class UseCaseCameraState @Inject constructor(
         submitLatest()
     }
 
+    fun capture(requests: List<Request>) {
+        threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            cameraGraph.acquireSession().use {
+                it.submit(requests)
+            }
+        }
+    }
+
     @GuardedBy("lock")
     private inline fun updateState(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
