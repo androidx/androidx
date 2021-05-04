@@ -2,6 +2,28 @@
 <issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
 
     <issue
+        id="ExperimentalAnnotationRetention"
+        message="Experimental annotation has `RUNTIME` retention, should use default (`CLASS`)"
+        errorLine1="public @interface ExperimentalJavaAnnotationWrongRetention {}"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/ExperimentalJavaAnnotationWrongRetention.java"
+            line="28"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ExperimentalAnnotationRetention"
+        message="Experimental annotation has default (`RUNTIME`) retention, should use `BINARY`"
+        errorLine1="annotation class ExperimentalKotlinAnnotationWrongRetention"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt"
+            line="21"
+            column="18"/>
+    </issue>
+
+    <issue
         id="UnsafeOptInUsageError"
         message="Failed to extract attribute &quot;level&quot; from annotation"
         errorLine1="@Experimental"
