@@ -803,6 +803,46 @@ public class EditorSessionTest {
     }
 
     @Test
+    public fun launchComplicationProviderChooserTwiceBackToBack() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                ComplicationProviderInfo(
+                    "TestProvider3App",
+                    "TestProvider3",
+                    Icon.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                    ),
+                    ComplicationType.LONG_TEXT,
+                    provider3
+                ).toWireComplicationProviderInfo()
+            )
+        }
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            val pendingResult = async {
+                editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
+            }
+
+            // This shouldn't crash.
+            assertThat(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+                .isNotNull()
+            assertThat(pendingResult).isNotNull()
+        }
+    }
+
+    @Test
     public fun launchComplicationProviderChooser_chooseEmpty() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
         TestComplicationHelperActivity.resultIntent = Intent().apply {}

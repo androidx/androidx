@@ -388,6 +388,10 @@ public abstract class BaseEditorSession internal constructor(
         require(!complicationsState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
         }
+        // If there's a previous openComplicationProviderChooser invocation in flight then wait for
+        // it to complete.
+        pendingComplicationProviderChooserResult?.await()
+
         pendingComplicationProviderChooserResult = CompletableDeferred()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
