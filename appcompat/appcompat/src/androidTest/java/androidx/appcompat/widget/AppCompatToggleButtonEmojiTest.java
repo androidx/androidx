@@ -23,20 +23,20 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class AppCompatTextViewEmojiTest
-        extends AppCompatBaseTextViewEmojiTest<AppCompatTextViewEmojiActivity, AppCompatTextView> {
+public class AppCompatToggleButtonEmojiTest extends
+        AppCompatBaseTextViewEmojiTest<AppCompatToggleButtonEmojiActivity, AppCompatToggleButton> {
 
-    public AppCompatTextViewEmojiTest() {
-        super(AppCompatTextViewEmojiActivity.class);
+    public AppCompatToggleButtonEmojiTest() {
+        super(AppCompatToggleButtonEmojiActivity.class);
     }
 
     @Override
-    boolean isEmojiCompatEnabled(AppCompatTextView view) {
+    boolean isEmojiCompatEnabled(AppCompatToggleButton view) {
         return view.isEmojiCompatEnabled();
     }
 
     @Override
-    void setEmojiCompatEnabled(AppCompatTextView view, boolean isEnabled) {
+    void setEmojiCompatEnabled(AppCompatToggleButton view, boolean isEnabled) {
         view.setEmojiCompatEnabled(isEnabled);
     }
 }
