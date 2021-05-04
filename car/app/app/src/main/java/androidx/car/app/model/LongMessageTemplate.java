@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.Screen;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -38,8 +39,10 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * This template's body is only available while the car is parked. While driving the text and the
- * actions will be disabled.
+ * This template's body is only available to the user while the car is parked and does not count
+ * against the template quota.
+ *
+ * @see Screen#onGetTemplate()
  */
 @RequiresCarApi(2)
 public final class LongMessageTemplate implements Template {
@@ -234,14 +237,20 @@ public final class LongMessageTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Any actions above the maximum limit of 2 will be ignored. These {@link Action}s will
-         * only be available while the car is parked.
+         * The action must use a {@link androidx.car.app.model.ParkedOnlyOnClickListener}, and any
+         * actions above the maximum limit of 2 will be ignored.
          *
-         * @throws NullPointerException if {@code action} is {@code null}
+         * @throws IllegalArgumentException if {@code action} does not meet the requirements
+         * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
             requireNonNull(action);
+            if (!requireNonNull(action.getOnClickDelegate()).isParkedOnly()) {
+                throw new IllegalArgumentException("The action must use a "
+                        + "ParkedOnlyOnClickListener");
+            }
+
             mActionList.add(action);
             return this;
         }
