@@ -16,7 +16,6 @@
 package androidx.window
 
 import android.app.Activity
-import android.content.Intent
 import android.graphics.Rect
 import androidx.core.util.Consumer
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -41,13 +40,14 @@ public class WindowBackendTest : WindowTestBase() {
     public fun testFakeWindowBackend() {
         val windowLayoutInfo = newTestWindowLayout()
         val windowBackend: WindowBackend = FakeWindowBackend(windowLayoutInfo)
-        val activity = activityTestRule.launchActivity(Intent())
-        val wm = WindowManager(activity, windowBackend)
-        val layoutInfoConsumer: Consumer<WindowLayoutInfo> = mock(
-            WindowLayoutInfoConsumer::class.java
-        )
-        wm.registerLayoutChangeCallback(MoreExecutors.directExecutor(), layoutInfoConsumer)
-        verify(layoutInfoConsumer).accept(windowLayoutInfo)
+        activityTestRule.scenario.onActivity { activity ->
+            val wm = WindowManager(activity, windowBackend)
+            val layoutInfoConsumer: Consumer<WindowLayoutInfo> = mock(
+                WindowLayoutInfoConsumer::class.java
+            )
+            wm.registerLayoutChangeCallback(MoreExecutors.directExecutor(), layoutInfoConsumer)
+            verify(layoutInfoConsumer).accept(windowLayoutInfo)
+        }
     }
 
     private fun newTestWindowLayout(): WindowLayoutInfo {

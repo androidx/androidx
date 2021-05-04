@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION") // TODO(b/185594766) Need to migrate to ActivityScenario
 
 package androidx.window
 
 import android.app.Activity
 import android.os.IBinder
-import androidx.test.rule.ActivityTestRule
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import org.junit.Rule
 
 /**
  * Base class for all tests in the module.
  */
 public open class WindowTestBase {
-    @JvmField
-    public val activityTestRule: ActivityTestRule<TestActivity> =
-        ActivityTestRule(TestActivity::class.java, false, true)
+    @get:Rule
+    public val activityTestRule: ActivityScenarioRule<TestActivity> =
+        ActivityScenarioRule(TestActivity::class.java)
 
     public companion object {
         @JvmStatic
