@@ -28,6 +28,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -169,8 +170,20 @@ internal class KspProcessingEnv(
      * decision.
      */
     fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
-        val qName = ksType.declaration.qualifiedName?.asString()
         val declaration = ksType.declaration
+        if (declaration is KSTypeAlias) {
+            val actual = wrap(
+                ksType = declaration.type.resolve(),
+                allowPrimitives = allowPrimitives && ksType.nullability == Nullability.NOT_NULL
+            )
+            // if this type is nullable, carry it over
+            return if (ksType.nullability == Nullability.NULLABLE) {
+                actual.makeNullable()
+            } else {
+                actual
+            }
+        }
+        val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
             return KspTypeArgumentType(
                 env = this,
