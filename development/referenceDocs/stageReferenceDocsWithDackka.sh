@@ -22,15 +22,15 @@ gbash::init_google "$@"
 # This list should match, or be a subset of, the list of libraries defined in
 # https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/docs/AndroidXDocsPlugin.kt;l=568
 readonly javaLibraryDirs=(
-  "benchmark"
-  "collection"
+#  "benchmark"
+#  "collection"
   "paging"
 )
 readonly kotlinLibraryDirs=(
-  "benchmark"
+#  "benchmark"
   "compose"
-  "collection"
-  "paging"
+#  "collection"
+#  "paging"
 )
 
 
@@ -229,5 +229,10 @@ printf "$devsiteCmd\n"
 
 $devsiteCmd
 
-# Print CL link again in case it scrolled off the screen or scrollback buffer
+# Print devsite command and CL link again in case they scrolled off the screen or
+# scrollback buffer
+printf "\n"
+printf "Ran devsite command:\n"
+printf "$devsiteCmd\n"
+printf "\n"
 printf "View pending changes at http://cl/${clNum} \n"
