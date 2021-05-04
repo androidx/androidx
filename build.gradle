@@ -22,7 +22,6 @@ buildscript {
     SdkHelperKt.setSupportRootFolder(project, project.projectDir)
 
     apply from: "buildSrc/repos.gradle"
-    apply from: "buildSrc/build_dependencies.gradle"
     repos.addMavenRepositories(repositories)
 
     SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)

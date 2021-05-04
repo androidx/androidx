@@ -147,6 +147,7 @@ Daemon will be stopped at the end of the build
 # > Task :buildSrc:build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Type\-safe dependency accessors is an incubating feature\.
 # > Configure project :
 updated local\.properties
 # > Configure project :compose:test\-utils
