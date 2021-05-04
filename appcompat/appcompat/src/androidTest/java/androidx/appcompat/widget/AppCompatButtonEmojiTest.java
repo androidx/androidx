@@ -23,10 +23,10 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class AppCompatTextViewEmojiTest
-        extends AppCompatBaseTextViewEmojiTest<AppCompatTextViewEmojiActivity, AppCompatTextView> {
+public class AppCompatButtonEmojiTest extends
+        AppCompatBaseTextViewEmojiTest<AppCompatButtonEmojiActivity, AppCompatButton> {
 
-    public AppCompatTextViewEmojiTest() {
-        super(AppCompatTextViewEmojiActivity.class);
+    public AppCompatButtonEmojiTest() {
+        super(AppCompatButtonEmojiActivity.class);
     }
 }

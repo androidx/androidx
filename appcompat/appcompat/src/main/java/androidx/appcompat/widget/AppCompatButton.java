@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.accessibility.AccessibilityEvent;
@@ -57,10 +58,12 @@ import androidx.core.widget.TintableCompoundDrawablesView;
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatButton extends Button implements TintableBackgroundView,
-        AutoSizeableTextView, TintableCompoundDrawablesView {
+        AutoSizeableTextView, TintableCompoundDrawablesView, EmojiCompatConfigurationView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+    @NonNull
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
 
     public AppCompatButton(@NonNull Context context) {
         this(context, null);
@@ -82,6 +85,9 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
         mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
         mTextHelper.applyCompoundDrawablesTints();
+
+        AppCompatEmojiTextHelper emojiTextViewHelper = getEmojiTextViewHelper();
+        emojiTextViewHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
     @Override
@@ -427,5 +433,41 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
+    }
+
+
+    @Override
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+        super.setFilters(getEmojiTextViewHelper().getFilters(filters));
+    }
+
+
+    /**
+     * This may be called from super constructors.
+     */
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+        //noinspection ConstantConditions
+        if (mAppCompatEmojiTextHelper == null) {
+            mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);
+        }
+        return mAppCompatEmojiTextHelper;
+    }
+
+    @Override
+    public void setAllCaps(boolean allCaps) {
+        super.setAllCaps(allCaps);
+        getEmojiTextViewHelper().setAllCaps(allCaps);
+    }
+
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        getEmojiTextViewHelper().setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return getEmojiTextViewHelper().isEnabled();
     }
 }

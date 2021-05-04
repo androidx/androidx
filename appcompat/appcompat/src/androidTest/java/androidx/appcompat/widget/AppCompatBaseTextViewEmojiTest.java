@@ -43,7 +43,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTestActivity,
-        ViewType extends TextView> {
+        ViewType extends TextView & EmojiCompatConfigurationView> {
 
     @Rule
     public final ActivityTestRule<ActivityType> mActivityTestRule;
@@ -53,9 +53,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
     public AppCompatBaseTextViewEmojiTest(Class<ActivityType> clazz) {
         mActivityTestRule = new ActivityTestRule<>(clazz, false, false);
     }
-
-    abstract boolean isEmojiCompatEnabled(ViewType view);
-    abstract void setEmojiCompatEnabled(ViewType view, boolean isEnabled);
 
     @Before
     public void ensureEmojiInitialized() {
@@ -119,7 +116,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
             subject.setText(expected);
             verifyNoMoreInteractions(mEmojiCompatMock);
 
-            setEmojiCompatEnabled(subject, true);
+            subject.setEmojiCompatEnabled(true);
         });
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
@@ -139,8 +136,8 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
                 activity.findViewById(androidx.appcompat.test.R.id.emoji_default);
 
         mInstrumentation.runOnMainSync(() -> {
-            setEmojiCompatEnabled(enabledInAdvance, false);
-            setEmojiCompatEnabled(defaultEmoji, false);
+            enabledInAdvance.setEmojiCompatEnabled(false);
+            defaultEmoji.setEmojiCompatEnabled(false);
         });
         // now: confirm no interactions with EmojiCompat with all text views disabled
         resetEmojiCompatToNewMock();
@@ -167,7 +164,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
 
         resetEmojiCompatToNewMock();
         mInstrumentation.runOnMainSync(() -> {
-            setEmojiCompatEnabled(enabledInAdvance, true);
+            enabledInAdvance.setEmojiCompatEnabled(true);
             enabledInAdvance.setText("Some text");
         });
 
@@ -184,14 +181,14 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         ViewType defaultEmoji =
                 activity.findViewById(androidx.appcompat.test.R.id.emoji_default);
 
-        assertFalse(isEmojiCompatEnabled(disabledInAdvance));
-        assertTrue(isEmojiCompatEnabled(enabledInAdvance));
-        assertTrue(isEmojiCompatEnabled(defaultEmoji));
+        assertFalse(disabledInAdvance.isEmojiCompatEnabled());
+        assertTrue(enabledInAdvance.isEmojiCompatEnabled());
+        assertTrue(defaultEmoji.isEmojiCompatEnabled());
 
         mInstrumentation.runOnMainSync(() -> {
-            setEmojiCompatEnabled(defaultEmoji, false);
+            defaultEmoji.setEmojiCompatEnabled(false);
         });
-        assertFalse(isEmojiCompatEnabled(defaultEmoji));
+        assertFalse(defaultEmoji.isEmojiCompatEnabled());
     }
 
 }
