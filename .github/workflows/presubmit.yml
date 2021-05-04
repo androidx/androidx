@@ -84,12 +84,6 @@ jobs:
         id: changed-files
         uses: androidx/changed-files-action@main
 
-      - name: Check invalid suppressions
-        run: |
-          set -x
-          echo ${{ steps.changed-files.outputs.files }}
-          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.files }}
-
       - name: "Warn on missing updateApi"
         run: |
           set -x
