@@ -793,7 +793,7 @@ Fix for src/com/example/MyClass2.kt line 30: Change `LiveData` type to nullable:
                 ) {
                 
                     fun foo(value: T) {
-                        target.value = value
+                        target.value = null
                     }
                 }
             """
