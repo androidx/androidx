@@ -28,6 +28,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.LongMessageTemplate;
 import androidx.car.app.model.MessageTemplate;
+import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Template;
 import androidx.car.app.versioning.CarAppApiLevels;
 
@@ -93,12 +94,14 @@ public class LongMessageTemplateDemoScreen extends Screen {
                 .setTitle("Long Message Template Demo")
                 .setHeaderAction(BACK)
                 .addAction(new Action.Builder()
-                        .setOnClickListener(() -> getScreenManager().pop())
+                        .setOnClickListener(
+                                ParkedOnlyOnClickListener.create(() -> getScreenManager().pop()))
                         .setTitle("Accept")
                         .build())
                 .addAction(new Action.Builder()
                         .setBackgroundColor(CarColor.RED)
-                        .setOnClickListener(() -> getScreenManager().pop())
+                        .setOnClickListener(
+                                ParkedOnlyOnClickListener.create(() -> getScreenManager().pop()))
                         .setTitle("Reject")
                         .build())
                 .setActionStrip(new ActionStrip.Builder()

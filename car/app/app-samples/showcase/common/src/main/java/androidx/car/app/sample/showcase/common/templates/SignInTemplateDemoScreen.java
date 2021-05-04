@@ -67,18 +67,18 @@ public class SignInTemplateDemoScreen extends Screen {
 
     private final Action mProviderSignInAction = new Action.Builder()
             .setTitle("Google Sign-In")
-            .setOnClickListener(() -> {
+            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PROVIDER;
                 invalidate();
-            })
+            }))
             .build();
 
     private final Action mPinSignInAction = new Action.Builder()
             .setTitle("Use PIN")
-            .setOnClickListener(() -> {
+            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PIN;
                 invalidate();
-            })
+            }))
             .build();
 
     public SignInTemplateDemoScreen(@NonNull CarContext carContext) {

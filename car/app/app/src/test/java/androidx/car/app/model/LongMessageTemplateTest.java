@@ -16,8 +16,6 @@
 
 package androidx.car.app.model;
 
-import static androidx.car.app.model.CarIcon.BACK;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -34,7 +32,10 @@ public class LongMessageTemplateTest {
 
     private final String mTitle = "header";
     private final String mMessage = "foo";
-    private final Action mAction = Action.BACK;
+    private final Action mAction =
+            new Action.Builder().setTitle("Action").setOnClickListener(
+                    ParkedOnlyOnClickListener.create(() -> {
+                    })).build();
     private final ActionStrip mActionStrip = new ActionStrip.Builder().addAction(mAction).build();
 
     @Test
@@ -52,7 +53,7 @@ public class LongMessageTemplateTest {
 
         // Positive cases.
         new LongMessageTemplate.Builder(mMessage).setTitle(mTitle).build();
-        new LongMessageTemplate.Builder(mMessage).setHeaderAction(mAction).build();
+        new LongMessageTemplate.Builder(mMessage).setHeaderAction(Action.APP_ICON).build();
     }
 
     @Test
@@ -83,25 +84,33 @@ public class LongMessageTemplateTest {
 
     @Test
     public void createWithContents_hasProperValuesSet() {
-        Throwable exception = new IllegalStateException();
-        CarIcon icon = BACK;
-        Action action = new Action.Builder().setOnClickListener(() -> { }).setTitle("foo").build();
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         LongMessageTemplate template = new LongMessageTemplate.Builder(mMessage)
                 .setTitle(mTitle)
                 .setHeaderAction(Action.BACK)
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
 
         assertThat(template.getMessage().toString()).isEqualTo(mMessage);
         assertThat(template.getTitle().toString()).isEqualTo(mTitle);
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
-        assertThat(template.getActions()).containsExactly(action);
+        assertThat(template.getActions()).containsExactly(mAction);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
     }
 
+    @Test
+    public void createInstance_notParkedOnlyAction_throws() {
+        Action action = new Action.Builder()
+                .setOnClickListener(() -> { })
+                .setTitle("foo").build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LongMessageTemplate.Builder(mMessage)
+                        .setTitle("Title")
+                        .addAction(action));
+    }
 
     @Test
     public void equals() {
