@@ -26,8 +26,8 @@
     <string name="colors_style_blue" msgid="8619157586474982343">"Koʻk"</string>
     <string name="watchface_pips_setting" msgid="486515623723087644">"Soat belgisi"</string>
     <string name="watchface_pips_setting_description" msgid="651887190185401130">"Belgilanishi"</string>
-    <string name="watchface_hand_length_setting" msgid="7998526424509601034">"Strelka uzunligi"</string>
-    <string name="watchface_hand_length_setting_description" msgid="9060532706860425059">"Strelka oʻlchamlari"</string>
+    <string name="watchface_hand_length_setting" msgid="7998526424509601034">"Mil uzunligi"</string>
+    <string name="watchface_hand_length_setting_description" msgid="9060532706860425059">"Mil oʻlchamlari"</string>
     <string name="watchface_complications_setting" msgid="7605635862096204587">"Kengaytmalar"</string>
     <string name="watchface_complications_setting_description" msgid="3565604049641117847">"Raqam va joylashuv"</string>
     <string name="watchface_complications_setting_both" msgid="1869848592349112126">"Ikkalasi"</string>

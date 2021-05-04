@@ -27,8 +27,8 @@
     <string name="watchface_pips_setting" msgid="486515623723087644">"小時刻度"</string>
     <string name="watchface_pips_setting_description" msgid="651887190185401130">"是否顯示小時刻度"</string>
     <string name="watchface_hand_length_setting" msgid="7998526424509601034">"指針長度"</string>
-    <string name="watchface_hand_length_setting_description" msgid="9060532706860425059">"手錶指針的長度"</string>
-    <string name="watchface_complications_setting" msgid="7605635862096204587">"資料顯示區"</string>
+    <string name="watchface_hand_length_setting_description" msgid="9060532706860425059">"手錶指針長度"</string>
+    <string name="watchface_complications_setting" msgid="7605635862096204587">"進階功能"</string>
     <string name="watchface_complications_setting_description" msgid="3565604049641117847">"數字和位置"</string>
     <string name="watchface_complications_setting_both" msgid="1869848592349112126">"左右兩邊"</string>
     <string name="watchface_complications_setting_none" msgid="722694346696596744">"無"</string>
