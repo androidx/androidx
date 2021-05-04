@@ -61,7 +61,7 @@ public class SafeBrowsingActivity extends AppCompatActivity {
         Uri safeBrowsingRequirementsUri = new Uri.Builder()
                 .scheme("https")
                 .authority("chromium.googlesource.com")
-                .path("/chromium/src/+/master/android_webview/browser/safe_browsing/README.md")
+                .path("/chromium/src/+/main/android_webview/browser/safe_browsing/README.md")
                 .encodedFragment("opt_in_consent_requirements")
                 .build();
 
