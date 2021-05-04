@@ -1376,7 +1376,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView {
+  public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView {
     ctor public AppCompatCheckedTextView(android.content.Context);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -1384,7 +1384,9 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCheckMarkTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCheckMarkTintMode();
+    method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCheckMarkTintList(android.content.res.ColorStateList?);
