@@ -68,7 +68,7 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
                 override fun onCancel(dialog: DialogInterface) {
                     super.onCancel(dialog)
                 }
-                
+
                 override fun onDismiss(dialog: DialogInterface) {
                     super.onDismiss(dialog)
                 }

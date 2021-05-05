@@ -53,7 +53,7 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
             explanation = """When using a `DialogFragment`, the `setOnCancelListener` and \
                 `setOnDismissListener` callback functions within the `onCreateDialog` function \
                  __must not be used__ because the `DialogFragment` owns these callbacks. \
-                 Instead the respective `onCancel` and `onDismiss` functions can be used to \ 
+                 Instead the respective `onCancel` and `onDismiss` functions can be used to \
                  achieve the desired effect.""",
             category = Category.CORRECTNESS,
             severity = Severity.WARNING,
