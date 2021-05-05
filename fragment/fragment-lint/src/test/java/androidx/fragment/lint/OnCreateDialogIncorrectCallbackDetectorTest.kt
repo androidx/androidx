@@ -25,12 +25,12 @@ import org.junit.runners.JUnit4
 
 /* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
-class DialogFragmentCallbacksDetectorTest : LintDetectorTest() {
+class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
 
-    override fun getDetector(): Detector = DialogFragmentCallbacksDetector()
+    override fun getDetector(): Detector = OnCreateDialogIncorrectCallbackDetector()
 
     override fun getIssues(): MutableList<Issue> {
-        return mutableListOf(DialogFragmentCallbacksDetector.ISSUE)
+        return mutableListOf(OnCreateDialogIncorrectCallbackDetector.ISSUE)
     }
 
     private val dialogFragmentCorrectImplementationStubJava = java(
@@ -76,7 +76,7 @@ class DialogFragmentCallbacksDetectorTest : LintDetectorTest() {
             """
     ).indented()
 
-    private val dialogFragmentStubJava = java(
+    private val dialogFragmentStubJavaWithCancelListener = java(
         """
             package foo;
             import android.app.Dialog;
@@ -89,19 +89,32 @@ class DialogFragmentCallbacksDetectorTest : LintDetectorTest() {
                 public Dialog onCreateDialog(Bundle savedInstanceState) {
                     Dialog dialog = AlertDialog.Builder(requireActivity());
                     dialog.setOnCancelListener({ });
-                    dialog.setOnDismissListener({ });
                     return dialog.create();
-                }
-                
-                @Override
-                public onDismiss(DialogInterface dialog) {
-                    super.onDismiss(dialog);
                 }
             }
             """
     ).indented()
 
-    private val dialogFragmentStubKotlin = kotlin(
+    private val dialogFragmentStubJavaWithDismissListener = java(
+        """
+            package foo;
+            import android.app.Dialog;
+            import android.content.DialogInterface;
+            import android.os.Bundle;
+            import androidx.appcompat.app.AlertDialog;
+            import androidx.fragment.app.DialogFragment;
+            public class TestFragment extends DialogFragment {
+                @Override
+                public Dialog onCreateDialog(Bundle savedInstanceState) {
+                    Dialog dialog = AlertDialog.Builder(requireActivity());
+                    dialog.setOnDismissListener({ });
+                    return dialog.create();
+                }
+            }
+            """
+    ).indented()
+
+    private val dialogFragmentStubKotlinWithCancelListener = kotlin(
         """
             package foo
             import android.app.Dialog
@@ -113,7 +126,6 @@ class DialogFragmentCallbacksDetectorTest : LintDetectorTest() {
                 override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
                     val dialog = AlertDialog.Builder(requireActivity())
                     dialog.setOnCancelListener { }
-                    dialog.setOnDismissListener { }
                     return dialog.create()
                 }
 
@@ -124,22 +136,75 @@ class DialogFragmentCallbacksDetectorTest : LintDetectorTest() {
             """
     ).indented()
 
+    private val dialogFragmentStubKotlinWithDismissListener = kotlin(
+        """
+            package foo
+            import android.app.Dialog
+            import android.content.DialogInterface
+            import android.os.Bundle
+            import androidx.appcompat.app.AlertDialog
+            import androidx.fragment.app.DialogFragment
+            class TestDialog : DialogFragment() {
+                override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+                    val dialog = AlertDialog.Builder(requireActivity())
+                    dialog.setOnDismissListener { }
+                    return dialog.create()
+                }
+
+                override fun onCancel(dialog: DialogInterface) {
+                    super.onCancel(dialog)
+                }
+            }
+            """
+    ).indented()
+
+    private val dialogFragmentStubKotlinWithDismissAndCancelListeners = kotlin(
+        """
+            package foo
+            import android.app.Dialog
+            import android.content.DialogInterface
+            import android.os.Bundle
+            import androidx.appcompat.app.AlertDialog
+            import androidx.fragment.app.DialogFragment
+            class TestDialog : DialogFragment() {
+                override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+                    val dialog = AlertDialog.Builder(requireActivity())
+                    dialog.setOnDismissListener { }
+                    dialog.setOnCancelListener { }
+                    return dialog.create()
+                }
+            }
+            """
+    ).indented()
+
     @Test
-    fun `java expect fail dialog fragment`() {
-        lint().files(dialogFragmentStubJava)
+    fun `java expect fail dialog fragment with cancel listener`() {
+        lint().files(dialogFragmentStubJavaWithCancelListener)
             .run()
             .expect(
                 """
-src/foo/TestFragment.java:11: Warning: Use onCancel() and onDismiss() callbacks to get the instead of calling setOnCancelListener() and setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
+src/foo/TestFragment.java:11: Warning: Use onCancel() instead of calling setOnCancelListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
         dialog.setOnCancelListener({ });
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/foo/TestFragment.java:12: Warning: Use onCancel() and onDismiss() callbacks to get the instead of calling setOnCancelListener() and setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
-        dialog.setOnDismissListener({ });
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 2 warnings
+0 errors, 1 warnings
             """
             )
-            .expectWarningCount(2)
+            .expectWarningCount(1)
+    }
+
+    @Test
+    fun `java expect fail dialog fragment with dismiss listener`() {
+        lint().files(dialogFragmentStubJavaWithDismissListener)
+            .run()
+            .expect(
+                """
+src/foo/TestFragment.java:11: Warning: Use onDismiss() instead of calling setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
+        dialog.setOnDismissListener({ });
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0 errors, 1 warnings
+            """
+            )
+            .expectWarningCount(1)
     }
 
     @Test
@@ -150,17 +215,47 @@ src/foo/TestFragment.java:12: Warning: Use onCancel() and onDismiss() callbacks 
     }
 
     @Test
-    fun `kotlin expect fail dialog fragment`() {
-        lint().files(dialogFragmentStubKotlin)
+    fun `kotlin expect fail dialog fragment with cancel listener`() {
+        lint().files(dialogFragmentStubKotlinWithCancelListener)
             .run()
             .expect(
                 """
-src/foo/TestDialog.kt:10: Warning: Use onCancel() and onDismiss() callbacks to get the instead of calling setOnCancelListener() and setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
+src/foo/TestDialog.kt:10: Warning: Use onCancel() instead of calling setOnCancelListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
         dialog.setOnCancelListener { }
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/foo/TestDialog.kt:11: Warning: Use onCancel() and onDismiss() callbacks to get the instead of calling setOnCancelListener() and setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
+0 errors, 1 warnings
+            """
+            )
+            .expectWarningCount(1)
+    }
+
+    @Test
+    fun `kotlin expect fail dialog fragment with dismiss listener`() {
+        lint().files(dialogFragmentStubKotlinWithDismissListener)
+            .run()
+            .expect(
+                """
+src/foo/TestDialog.kt:10: Warning: Use onDismiss() instead of calling setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
         dialog.setOnDismissListener { }
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0 errors, 1 warnings
+            """
+            )
+            .expectWarningCount(1)
+    }
+
+    @Test
+    fun `kotlin expect fail dialog fragment with dismiss and cancel listeners`() {
+        lint().files(dialogFragmentStubKotlinWithDismissAndCancelListeners)
+            .run()
+            .expect(
+                """
+src/foo/TestDialog.kt:10: Warning: Use onDismiss() instead of calling setOnDismissListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
+        dialog.setOnDismissListener { }
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancelListener() from onCreateDialog() [DialogFragmentCallbacksDetector]
+        dialog.setOnCancelListener { }
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
             """
             )

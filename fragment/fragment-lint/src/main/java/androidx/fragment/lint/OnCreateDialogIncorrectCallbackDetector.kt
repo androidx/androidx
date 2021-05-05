@@ -24,6 +24,7 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -42,23 +43,22 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
  * because the `DialogFragment` owns these callbacks. Instead the respective `onCancel` and
  * `onDismiss` functions can be used to achieve the desired effect.
  */
-class DialogFragmentCallbacksDetector : Detector(), SourceCodeScanner {
+class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
 
     companion object Issues {
         val ISSUE = Issue.create(
             id = "DialogFragmentCallbacksDetector",
-            briefDescription = "Use onCancel() and onDismiss() callbacks to get the instead of " +
-                "calling setOnCancelListener() and setOnDismissListener() from onCreateDialog()",
+            briefDescription = "Use onCancel() and onDismiss() instead of calling " +
+                "setOnCancelListener() and setOnDismissListener() from onCreateDialog()",
             explanation = """When using a `DialogFragment`, the `setOnCancelListener` and \
                 `setOnDismissListener` callback functions within the `onCreateDialog` function \
                  __must not be used__ because the `DialogFragment` owns these callbacks. \
                  Instead the respective `onCancel` and `onDismiss` functions can be used to \ 
                  achieve the desired effect.""",
             category = Category.CORRECTNESS,
-            priority = 9,
             severity = Severity.WARNING,
             implementation = Implementation(
-                DialogFragmentCallbacksDetector::class.java,
+                OnCreateDialogIncorrectCallbackDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             ),
             androidSpecific = true
@@ -117,23 +117,42 @@ class DialogFragmentCallbacksDetector : Detector(), SourceCodeScanner {
 
             val methodName = node.methodIdentifier?.name ?: return super.visitCallExpression(node)
 
-            if (callbacks.contains(methodName)) {
-                context.report(
-                    issue = ISSUE,
-                    location = context.getLocation(node),
-                    message = "Use onCancel() and onDismiss() callbacks to get the instead of " +
-                        "calling setOnCancelListener() and setOnDismissListener() " +
-                        "from onCreateDialog()",
-                    quickfixData = null
-                )
-
-                visitedMethods.add(node)
+            when (methodName) {
+                SET_ON_CANCEL_LISTENER -> {
+                    report(
+                        context = context,
+                        node = node,
+                        message = "Use onCancel() instead of calling setOnCancelListener() " +
+                            "from onCreateDialog()"
+                    )
+                    visitedMethods.add(node)
+                }
+                SET_ON_DISMISS_LISTENER -> {
+                    report(
+                        context = context,
+                        node = node,
+                        message = "Use onDismiss() instead of calling setOnDismissListener() " +
+                            "from onCreateDialog()"
+                    )
+                    visitedMethods.add(node)
+                }
             }
             return super.visitCallExpression(node)
+        }
+
+        private fun report(context: JavaContext, node: UCallExpression, message: String) {
+            context.report(
+                issue = ISSUE,
+                location = context.getLocation(node),
+                message = message,
+                quickfixData = null
+            )
         }
     }
 }
 
 private const val ENTRY_METHOD = "onCreateDialog"
 private const val DIALOG_FRAGMENT_CLASS = "DialogFragment"
-private val callbacks = setOf("setOnCancelListener", "setOnDismissListener")
+private const val SET_ON_CANCEL_LISTENER = "setOnCancelListener"
+private const val SET_ON_DISMISS_LISTENER = "setOnDismissListener"
+
