@@ -257,11 +257,12 @@ package androidx.navigation {
     method public final void addDestinations(androidx.navigation.NavDestination... nodes);
     method public final void clear();
     method public final androidx.navigation.NavDestination? findNode(@IdRes int resid);
-    method @IdRes public final int getStartDestination();
+    method @Deprecated @IdRes public final int getStartDestination();
+    method @IdRes public final int getStartDestinationId();
     method public final java.util.Iterator<androidx.navigation.NavDestination> iterator();
     method public final void remove(androidx.navigation.NavDestination node);
     method public final void setStartDestination(int startDestId);
-    property @IdRes public final int startDestination;
+    property @IdRes public final int startDestinationId;
   }
 
   @androidx.navigation.NavDestinationDsl public class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {

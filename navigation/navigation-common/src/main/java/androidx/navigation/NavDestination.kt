@@ -389,7 +389,7 @@ constructor(
                 hierarchy.addFirst(current)
                 break
             }
-            if (parent == null || parent.startDestination != current.id) {
+            if (parent == null || parent.startDestinationId != current.id) {
                 hierarchy.addFirst(current)
             }
             current = parent

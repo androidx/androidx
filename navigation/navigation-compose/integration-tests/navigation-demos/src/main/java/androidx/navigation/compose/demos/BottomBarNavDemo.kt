@@ -61,7 +61,7 @@ fun BottomBarNavDemo() {
                         onClick = {
                             navController.navigate(route) {
                                 restoreState = true
-                                popUpTo(navController.graph.startDestination) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                             }
