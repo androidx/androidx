@@ -64,7 +64,8 @@ message Resources {
   // to separately fetch the resources.
   //
   // This value must match the version of the resources required by the tile
-  // for the tile to render successfully.
+  // for the tile to render successfully, and must match the resource version
+  // specified in ResourcesRequest which triggered this request.
   string version = 1;
 
   // A map of resource_ids to images, which can be used by layouts.
