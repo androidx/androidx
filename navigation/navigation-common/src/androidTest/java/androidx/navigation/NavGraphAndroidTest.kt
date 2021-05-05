@@ -240,7 +240,7 @@ class NavGraphAndroidTest {
             .createDestination().apply {
                 id = GRAPH_ID
                 label = GRAPH_LABEL
-                startDestination = DESTINATION_ID
+                setStartDestination(DESTINATION_ID)
             }
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
             "startDestination=0x${DESTINATION_ID.toString(16)}"
@@ -262,7 +262,7 @@ class NavGraphAndroidTest {
             .createDestination().apply {
                 id = GRAPH_ID
                 label = GRAPH_LABEL
-                startDestination = DESTINATION_ID
+                setStartDestination(DESTINATION_ID)
                 addDestination(destination)
             }
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +

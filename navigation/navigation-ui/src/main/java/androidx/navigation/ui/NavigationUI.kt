@@ -518,9 +518,9 @@ public object NavigationUI {
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findStartDestination(graph: NavGraph): NavDestination =
-        generateSequence(graph.findNode(graph.startDestination)) {
+        generateSequence(graph.findNode(graph.startDestinationId)) {
             if (it is NavGraph) {
-                it.findNode(it.startDestination)
+                it.findNode(it.startDestinationId)
             } else {
                 null
             }

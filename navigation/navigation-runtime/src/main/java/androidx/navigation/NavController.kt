@@ -460,7 +460,7 @@ public open class NavController(
                 // saved state to the destination you've actually passed to popUpTo
                 // as well as its parents (if it is the start destination)
                 generateSequence(foundDestination) { destination ->
-                    if (destination.parent?.startDestination == destination.id) {
+                    if (destination.parent?.startDestinationId == destination.id) {
                         destination.parent
                     } else {
                         null
@@ -479,7 +479,7 @@ public open class NavController(
                 // as well as its parents (if it is the start destination)
                 val firstStateDestination = findDestination(firstState.destinationId)
                 generateSequence(firstStateDestination) { destination ->
-                    if (destination.parent?.startDestination == destination.id) {
+                    if (destination.parent?.startDestinationId == destination.id) {
                         destination.parent
                     } else {
                         null
@@ -546,7 +546,7 @@ public open class NavController(
             var destId = currentDestination!!.id
             var parent = currentDestination.parent
             while (parent != null) {
-                if (parent.startDestination != destId) {
+                if (parent.startDestinationId != destId) {
                     val args = Bundle()
                     if (activity != null && activity!!.intent != null) {
                         val data = activity!!.intent.data
@@ -955,8 +955,8 @@ public open class NavController(
                     graph = node
                     // Automatically go down the navigation graph when
                     // the start destination is also a NavGraph
-                    while (graph!!.findNode(graph.startDestination) is NavGraph) {
-                        graph = graph.findNode(graph.startDestination) as NavGraph?
+                    while (graph!!.findNode(graph.startDestinationId) is NavGraph) {
+                        graph = graph.findNode(graph.startDestinationId) as NavGraph?
                     }
                 }
             } else {
@@ -1003,8 +1003,8 @@ public open class NavController(
                     graph = node
                     // Automatically go down the navigation graph when
                     // the start destination is also a NavGraph
-                    while (graph!!.findNode(graph.startDestination) is NavGraph) {
-                        graph = graph.findNode(graph.startDestination) as NavGraph?
+                    while (graph!!.findNode(graph.startDestinationId) is NavGraph) {
+                        graph = graph.findNode(graph.startDestinationId) as NavGraph?
                     }
                 }
             }
