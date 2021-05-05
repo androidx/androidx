@@ -16,9 +16,8 @@
 
 package androidx.wear.tiles.builders;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.builders.TimelineBuilders.Timeline;
@@ -38,6 +37,46 @@ public final class TileBuilders {
 
         private Tile(TileProto.Tile impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the resource version required for these tiles. This can be any user-defined string;
+         * it is only used to cache resources, and is passed in ResourcesRequest if the system does
+         * not have a copy of the specified resource version. Intended for testing purposes only.
+         */
+        @NonNull
+        public String getResourcesVersion() {
+            return mImpl.getResourcesVersion();
+        }
+
+        /**
+         * Gets the tiles to show in the carousel, along with their validity periods. Intended for
+         * testing purposes only.
+         */
+        @Nullable
+        public Timeline getTimeline() {
+            if (mImpl.hasTimeline()) {
+                return Timeline.fromProto(mImpl.getTimeline());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets how many milliseconds of elapsed time (**not** wall clock time) this tile can be
+         * considered to be "fresh". The platform will attempt to refresh your tile at some point in
+         * the future after this interval has lapsed. A value of 0 here signifies that
+         * auto-refreshes should not be used (i.e. you will manually request updates via
+         * TileProviderService#getRequester).
+         *
+         * <p>This mechanism should not be used to update your tile more frequently than once a
+         * minute, and the system may throttle your updates if you request updates faster than this
+         * interval. This interval is also inexact; the system will generally update your tile if it
+         * is on-screen, or about to be on-screen, although this is not guaranteed due to
+         * system-level optimizations. Intended for testing purposes only.
+         */
+        public long getFreshnessIntervalMillis() {
+            return mImpl.getFreshnessIntervalMillis();
         }
 
         /** Returns a new {@link Builder}. */
@@ -66,7 +105,6 @@ public final class TileBuilders {
 
             Builder() {}
 
-            @SuppressLint("MissingGetterMatchingBuilder")
             /**
              * Sets the resource version required for these tiles. This can be any developer-defined
              * string; it is only used to cache resources, and is passed in ResourcesRequest if the
@@ -79,7 +117,6 @@ public final class TileBuilders {
             }
 
             /** Sets the tiles to show in the carousel, along with their validity periods. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setTimeline(@NonNull Timeline timeline) {
                 mImpl.setTimeline(timeline.toProto());
@@ -87,7 +124,6 @@ public final class TileBuilders {
             }
 
             /** Sets the tiles to show in the carousel, along with their validity periods. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setTimeline(@NonNull Timeline.Builder timelineBuilder) {
                 mImpl.setTimeline(timelineBuilder.build().toProto());
@@ -107,7 +143,6 @@ public final class TileBuilders {
              * tile if it is on-screen, or about to be on-screen, although this is not guaranteed
              * due to system-level optimizations.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setFreshnessIntervalMillis(long freshnessIntervalMillis) {
                 mImpl.setFreshnessIntervalMillis(freshnessIntervalMillis);

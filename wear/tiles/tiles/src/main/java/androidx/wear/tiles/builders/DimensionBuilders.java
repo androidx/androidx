@@ -86,6 +86,12 @@ public final class DimensionBuilders {
             this.mImpl = impl;
         }
 
+        /** Gets the value, in dp. Intended for testing purposes only. */
+        @Dimension(unit = DP)
+        public float getValue() {
+            return mImpl.getValue();
+        }
+
         /** Returns a new {@link Builder}. */
         @NonNull
         public static Builder builder() {
@@ -140,7 +146,6 @@ public final class DimensionBuilders {
             Builder() {}
 
             /** Sets the value, in dp. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(@Dimension(unit = DP) float value) {
                 mImpl.setValue(value);
@@ -161,6 +166,12 @@ public final class DimensionBuilders {
 
         private SpProp(DimensionProto.SpProp impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value, in sp. Intended for testing purposes only. */
+        @Dimension(unit = SP)
+        public float getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -190,7 +201,6 @@ public final class DimensionBuilders {
             Builder() {}
 
             /** Sets the value, in sp. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(@Dimension(unit = SP) float value) {
                 mImpl.setValue(value);
@@ -211,6 +221,11 @@ public final class DimensionBuilders {
 
         private EmProp(DimensionProto.EmProp impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value, in em. Intended for testing purposes only. */
+        public float getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -240,7 +255,6 @@ public final class DimensionBuilders {
             Builder() {}
 
             /** Sets the value, in em. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(float value) {
                 mImpl.setValue(value);
@@ -261,6 +275,11 @@ public final class DimensionBuilders {
 
         private DegreesProp(DimensionProto.DegreesProp impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value, in degrees. Intended for testing purposes only. */
+        public float getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -291,7 +310,6 @@ public final class DimensionBuilders {
             Builder() {}
 
             /** Sets the value, in degrees. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(float value) {
                 mImpl.setValue(value);
@@ -445,6 +463,24 @@ public final class DimensionBuilders {
             this.mImpl = impl;
         }
 
+        /**
+         * Gets the width to be used when calculating the aspect ratio to preserve. Intended for
+         * testing purposes only.
+         */
+        @IntRange(from = 0)
+        public int getAspectRatioWidth() {
+            return mImpl.getAspectRatioWidth();
+        }
+
+        /**
+         * Gets the height to be used when calculating the aspect ratio ratio to preserve. Intended
+         * for testing purposes only.
+         */
+        @IntRange(from = 0)
+        public int getAspectRatioHeight() {
+            return mImpl.getAspectRatioHeight();
+        }
+
         /** Returns a new {@link Builder}. */
         @NonNull
         public static Builder builder() {
@@ -484,7 +520,6 @@ public final class DimensionBuilders {
             Builder() {}
 
             /** Sets the width to be used when calculating the aspect ratio to preserve. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setAspectRatioWidth(@IntRange(from = 0) int aspectRatioWidth) {
                 mImpl.setAspectRatioWidth(aspectRatioWidth);
@@ -492,7 +527,6 @@ public final class DimensionBuilders {
             }
 
             /** Sets the height to be used when calculating the aspect ratio ratio to preserve. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setAspectRatioHeight(@IntRange(from = 0) int aspectRatioHeight) {
                 mImpl.setAspectRatioHeight(aspectRatioHeight);
