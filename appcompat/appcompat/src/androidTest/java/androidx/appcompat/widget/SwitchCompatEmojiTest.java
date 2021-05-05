@@ -40,16 +40,6 @@ public class SwitchCompatEmojiTest extends
         super(SwitchCompatEmojiActivity.class);
     }
 
-    @Override
-    boolean isEmojiCompatEnabled(SwitchCompat view) {
-        return view.isEmojiCompatEnabled();
-    }
-
-    @Override
-    void setEmojiCompatEnabled(SwitchCompat view, boolean isEnabled) {
-        view.setEmojiCompatEnabled(isEnabled);
-    }
-
     @Test
     public void setupCallbacks_whenLoading() throws Throwable {
         SwitchCompat emojiEnabled = mActivityTestRule.getActivity()

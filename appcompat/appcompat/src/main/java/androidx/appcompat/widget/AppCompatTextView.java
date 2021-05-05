@@ -79,7 +79,7 @@ import java.util.concurrent.Future;
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatTextView extends TextView implements TintableBackgroundView,
-        TintableCompoundDrawablesView, AutoSizeableTextView {
+        TintableCompoundDrawablesView, AutoSizeableTextView, EmojiCompatConfigurationView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
@@ -223,31 +223,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         getEmojiTextViewHelper().setAllCaps(allCaps);
     }
 
-    /**
-     * Configure emoji fallback behavior using EmojiCompat.
-     *
-     * When enabled, this TextView will attempt to use EmojiCompat to enabled missing emojis.
-     * When disabled, this TextView will not display missing emojis using EmojiCompat.
-     *
-     * EmojiCompat must be correctly configured on a device for this to have an effect, which
-     * will happen by default if a correct downloadable fonts provider is installed on the device.
-     *
-     * If you manually configure EmojiCompat by calling EmojiCompat init after this TextView is
-     * constructed, you may call this method again to enable EmojiCompat on this text view.
-     *
-     * For more information about EmojiCompat configuration see the emoji2 module.
-     *
-     * @param enabled if true, display missing emoji using EmojiCompat, otherwise display
-     *                missing emoji using a fallback glyph "□" (known as tofu)
-     */
+    @Override
     public void setEmojiCompatEnabled(boolean enabled) {
         getEmojiTextViewHelper().setEnabled(enabled);
     }
 
-    /**
-     * @return the current enabled state, set via
-     * {@link AppCompatTextView#setEmojiCompatEnabled(boolean)}
-     */
+    @Override
     public boolean isEmojiCompatEnabled() {
         return getEmojiTextViewHelper().isEnabled();
     }
