@@ -16,11 +16,9 @@
 
 package androidx.benchmark.macro.perfetto
 
-import android.util.Log
-import androidx.benchmark.macro.TAG
-import perfetto.protos.UiState
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
+import perfetto.protos.UiState
 import java.io.File
 
 /**
@@ -40,10 +38,7 @@ internal fun UiState(
 )
 
 internal fun File.appendUiState(state: UiState) {
-    val origBytes = readBytes()
-    val trace = Trace.ADAPTER.decode(origBytes)
+    val trace = Trace.ADAPTER.decode(inputStream())
     val appendedTrace = Trace(packet = trace.packet + listOf(TracePacket(ui_state = state)))
-    val modifiedBytes = Trace.ADAPTER.encode(appendedTrace)
-    writeBytes(modifiedBytes)
-    Log.d(TAG, "Appended UiState $this, from ${origBytes.size} -> ${modifiedBytes.size} bytes")
+    Trace.ADAPTER.encode(outputStream(), appendedTrace)
 }
