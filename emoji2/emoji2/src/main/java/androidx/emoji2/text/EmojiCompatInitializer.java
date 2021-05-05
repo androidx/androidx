@@ -63,7 +63,8 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     @Override
     public Boolean create(@NonNull Context context) {
         // note: super create requires this be non-null, share if the configuration was successful
-        return EmojiCompat.init(context) != null;
+        // TODO(b/187328685): re-enable this after investigating startup performance
+        return false;
     }
 
     /**
