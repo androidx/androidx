@@ -24,7 +24,6 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -155,4 +154,3 @@ private const val ENTRY_METHOD = "onCreateDialog"
 private const val DIALOG_FRAGMENT_CLASS = "DialogFragment"
 private const val SET_ON_CANCEL_LISTENER = "setOnCancelListener"
 private const val SET_ON_DISMISS_LISTENER = "setOnDismissListener"
-
