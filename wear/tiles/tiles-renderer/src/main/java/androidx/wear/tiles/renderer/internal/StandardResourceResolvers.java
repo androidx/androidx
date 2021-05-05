@@ -22,32 +22,34 @@ import android.content.res.Resources;
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.proto.ResourceProto;
 
-/** Utility class to get ResourceAccessors populated with standard options. */
-public class StandardResourceAccessors {
-    private StandardResourceAccessors() {}
+/** Utility class to get {@link ResourceResolvers} populated with standard options. */
+public class StandardResourceResolvers {
+    private StandardResourceResolvers() {}
 
     /**
-     * Get a builder pre-populated with accessors for the resources of the app hosting the renderer.
+     * Get a builder pre-populated with resolvers for the resources of the app hosting the renderer.
      *
-     * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
+     * <p>Use {@code setFooResolver} calls to change the pre-populated ones or add others.
      *
      * @param protoResources ProtoLayout resources for the current layout.
      * @param appContext Context for the app that both owns the resources and displays the layout.
      */
     @NonNull
-    public static ResourceAccessors.Builder forLocalApp(
+    public static ResourceResolvers.Builder forLocalApp(
             @NonNull ResourceProto.Resources protoResources, @NonNull Context appContext) {
-        AndroidResourceAccessor androidResourceAccessor =
-                new AndroidResourceAccessor(appContext.getResources());
+        DefaultAndroidImageResourceByResIdResolver androidResourceResolver =
+                new DefaultAndroidImageResourceByResIdResolver(appContext.getResources());
 
-        InlineResourceAccessor inlineResourceAccessor = new InlineResourceAccessor(appContext);
-        return ResourceAccessors.builder(protoResources)
-                .setAndroidImageResourceByResIdAccessor(androidResourceAccessor)
-                .setInlineImageResourceAccessor(inlineResourceAccessor);
+        DefaultInlineImageResourceResolver inlineResourceResolver =
+                new DefaultInlineImageResourceResolver(appContext);
+        return ResourceResolvers.builder(protoResources)
+                .setAndroidImageResourceByResIdResolver(androidResourceResolver)
+                .setInlineImageResourceResolver(inlineResourceResolver);
     }
 
     /**
-     * Get a builder pre-populated with accessors for the resources of a tile provider service.
+     * Get a builder pre-populated with resolvers for the resources of a {@link
+     * androidx.wear.tiles.TileProviderService}, hosted within another app on the device.
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *
@@ -57,17 +59,18 @@ public class StandardResourceAccessors {
      * @param hostAppContext Context for the app hosting the renderer displaying the layout.
      */
     @NonNull
-    public static ResourceAccessors.Builder forRemoteService(
+    public static ResourceResolvers.Builder forRemoteService(
             @NonNull ResourceProto.Resources protoResources,
             @NonNull String servicePackageName,
             @NonNull Resources serviceAndroidResources,
             @NonNull Context hostAppContext) {
-        AndroidResourceAccessor androidResourceAccessor =
-                new AndroidResourceAccessor(serviceAndroidResources);
+        DefaultAndroidImageResourceByResIdResolver androidResourceResolver =
+                new DefaultAndroidImageResourceByResIdResolver(serviceAndroidResources);
 
-        InlineResourceAccessor inlineResourceAccessor = new InlineResourceAccessor(hostAppContext);
-        return ResourceAccessors.builder(protoResources)
-                .setAndroidImageResourceByResIdAccessor(androidResourceAccessor)
-                .setInlineImageResourceAccessor(inlineResourceAccessor);
+        DefaultInlineImageResourceResolver inlineResourceResolver =
+                new DefaultInlineImageResourceResolver(hostAppContext);
+        return ResourceResolvers.builder(protoResources)
+                .setAndroidImageResourceByResIdResolver(androidResourceResolver)
+                .setInlineImageResourceResolver(inlineResourceResolver);
     }
 }

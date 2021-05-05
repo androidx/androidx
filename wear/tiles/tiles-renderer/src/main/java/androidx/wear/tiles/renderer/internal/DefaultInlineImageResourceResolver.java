@@ -27,52 +27,54 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.proto.ResourceProto.ImageFormat;
 import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
-import androidx.wear.tiles.renderer.internal.ResourceAccessors.InlineImageResourceAccessor;
-import androidx.wear.tiles.renderer.internal.ResourceAccessors.ResourceAccessException;
+import androidx.wear.tiles.renderer.internal.ResourceResolvers.InlineImageResourceResolver;
+import androidx.wear.tiles.renderer.internal.ResourceResolvers.ResourceAccessException;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
 
-/** Resource accessor for inline resources. */
-public class InlineResourceAccessor implements InlineImageResourceAccessor {
+/** Resource resolver for inline resources. */
+public class DefaultInlineImageResourceResolver implements InlineImageResourceResolver {
     private static final int RGB565_BYTES_PER_PX = 2;
 
     private final Context mAppContext;
 
     /** Constructor. */
-    public InlineResourceAccessor(@NonNull Context appContext) {
+    public DefaultInlineImageResourceResolver(@NonNull Context appContext) {
         this.mAppContext = appContext;
+    }
+
+    @NonNull
+    @Override
+    public Drawable getDrawableOrThrow(@NonNull InlineImageResource inlineImage)
+            throws ResourceAccessException {
+        @Nullable Bitmap bitmap = null;
+
+        if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_RGB_565) {
+            bitmap = loadRawBitmap(inlineImage);
+        } else if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_UNDEFINED) {
+            bitmap = loadStructuredBitmap(inlineImage);
+        }
+
+        if (bitmap == null) {
+            throw new ResourceAccessException("Unsupported image format in image resource.");
+        }
+
+        // The app Context is correct here, as it's just used for display density, so it doesn't
+        // depend
+        // on anything from the provider app.
+        return new BitmapDrawable(mAppContext.getResources(), bitmap);
     }
 
     @Override
     @NonNull
     public ListenableFuture<Drawable> getDrawable(@NonNull InlineImageResource inlineImage) {
-        @Nullable Bitmap bitmap = null;
-
-        if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_RGB_565) {
-            try {
-                bitmap = loadRawBitmap(inlineImage);
-            } catch (ResourceAccessException ex) {
-                return ResourceAccessors.createFailedFuture(ex);
-            }
-        } else if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_UNDEFINED) {
-            try {
-                bitmap = loadStructuredBitmap(inlineImage);
-            } catch (RuntimeException ex) {
-                return ResourceAccessors.createFailedFuture(ex);
-            }
+        try {
+            return ResourceResolvers.createImmediateFuture(getDrawableOrThrow(inlineImage));
+        } catch (ResourceAccessException | RuntimeException ex) {
+            return ResourceResolvers.createFailedFuture(ex);
         }
-
-        if (bitmap == null) {
-            return ResourceAccessors.createFailedFuture(
-                    new ResourceAccessException("Unknown image format in image resource."));
-        }
-
-        // The app Context is correct here, as it's just used for display density, so it doesn't
-        // depend on anything from the provider app.
-        return ResourceAccessors.createImmediateFuture(
-                new BitmapDrawable(mAppContext.getResources(), bitmap));
     }
 
     @Nullable
