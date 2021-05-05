@@ -169,7 +169,7 @@ public class AccessibilityDelegateCompatTest extends
 
     @Test
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
-    @FlakyTest
+    @FlakyTest(bugId = 187190911)
     public void testAccessibilityPaneTitle_isntTrackedAsPaneWithoutTitle() {
         // This test isn't to test the propagation up, just that the event is sent correctly
         ViewCompat.setAccessibilityLiveRegion(mView,
