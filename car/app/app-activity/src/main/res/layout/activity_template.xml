@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_container">
 
     <androidx.car.app.activity.renderer.surface.TemplateSurfaceView
@@ -11,6 +10,7 @@
         android:focusableInTouchMode="true" />
 
     <LinearLayout
+        android:background="#000000"
         android:id="@+id/error_message_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
