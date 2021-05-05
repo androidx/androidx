@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatCheckedTextView;
 import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.emoji2.text.EmojiCompat;
@@ -50,6 +51,7 @@ public class MainFragment extends Fragment {
     private TextView mCustomTextView;
     private AppCompatToggleButton mAppCompatToggleButton;
     private SwitchCompat mSwitchCompat;
+    private AppCompatCheckedTextView mAppCompatCheckedTextView;
 
     final Config.Listener mConfigListener = new Config.Listener() {
         @Override
@@ -87,6 +89,7 @@ public class MainFragment extends Fragment {
 
         mAppCompatToggleButton = view.findViewById(R.id.appcompat_toggle_button);
         mSwitchCompat = view.findViewById(R.id.switch_compat);
+        mAppCompatCheckedTextView = view.findViewById(R.id.appcompat_checked_text_view);
 
         final TextView emojiListButton = view.findViewById(R.id.emoji_list_button);
         emojiListButton.setOnClickListener(new View.OnClickListener() {
@@ -128,6 +131,7 @@ public class MainFragment extends Fragment {
         mSwitchCompat.setTextOff("⛔");
         mSwitchCompat.setShowText(true);
         mSwitchCompat.setEmojiCompatEnabled(true);
+        mAppCompatCheckedTextView.setText(getString(R.string.checked_text_view, EMOJI));
         EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
             @Override
             public void onInitialized() {
