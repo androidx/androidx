@@ -1581,7 +1581,7 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
 
         val navOptions = navOptions {
-            popUpTo = R.id.start_test
+            popUpTo(R.id.start_test)
         }
         // the same as to call .navigate(R.id.finish)
         navController.navigate(0, null, navOptions)

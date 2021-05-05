@@ -81,8 +81,8 @@ GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getRoute():
     Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getRoute()
 GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getLaunchSingleTop():
     Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getLaunchSingleTop()
-GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getPopUpTo():
-    Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getPopUpTo()
+GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getPopUpToId():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getPopUpToId()
 GetterOnBuilder: androidx.navigation.PopUpToBuilder#getInclusive():
     Getter should be on the built object, not the builder: method androidx.navigation.PopUpToBuilder.getInclusive()
 
@@ -113,6 +113,10 @@ MissingGetterMatchingBuilder: androidx.navigation.NavDestinationBuilder#setLabel
     D does not declare a `getLabel()` method matching method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
 MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSingleTop(boolean):
     androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
+
+
+MissingJvmstatic: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 
 
 NullableCollection: androidx.navigation.NavAction#getDefaultArguments():
@@ -149,8 +153,6 @@ SetterReturnsThis: androidx.navigation.NavDestinationBuilder#setLabel(CharSequen
     Methods must return the builder object (return type androidx.navigation.NavDestinationBuilder<D> instead of void): method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
 SetterReturnsThis: androidx.navigation.NavOptionsBuilder#setLaunchSingleTop(boolean):
     Methods must return the builder object (return type androidx.navigation.NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setLaunchSingleTop(boolean)
-SetterReturnsThis: androidx.navigation.NavOptionsBuilder#setPopUpTo(int):
-    Methods must return the builder object (return type androidx.navigation.NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setPopUpTo(int)
 SetterReturnsThis: androidx.navigation.PopUpToBuilder#setInclusive(boolean):
     Methods must return the builder object (return type androidx.navigation.PopUpToBuilder instead of void): method androidx.navigation.PopUpToBuilder.setInclusive(boolean)
 

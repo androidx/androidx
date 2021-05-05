@@ -55,14 +55,25 @@ public class NavOptionsBuilder {
     public var restoreState: Boolean = false
 
     /**
+     * Returns the current destination that the builder will pop up to.
+     */
+    @IdRes
+    public var popUpToId: Int = -1
+        internal set(value) {
+            field = value
+            inclusive = false
+        }
+
+    /**
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
-    @IdRes
-    public var popUpTo: Int = -1
+    @Deprecated("Use the popUpToId property.")
+    public var popUpTo: Int
+        get() = popUpToId
+        @Deprecated("Use the popUpTo function and passing in the id.")
         set(value) {
-            field = value
-            inclusive = false
+            popUpTo(value)
         }
     private var inclusive = false
     private var saveState = false
@@ -71,8 +82,8 @@ public class NavOptionsBuilder {
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
-    public fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit) {
-        popUpTo = id
+    public fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+        popUpToId = id
         val builder = PopUpToBuilder().apply(popUpToBuilder)
         inclusive = builder.inclusive
         saveState = builder.saveState
@@ -95,7 +106,7 @@ public class NavOptionsBuilder {
     internal fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
         setRestoreState(restoreState)
-        setPopUpTo(popUpTo, inclusive, saveState)
+        setPopUpTo(popUpToId, inclusive, saveState)
     }.build()
 }
 

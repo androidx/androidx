@@ -94,7 +94,7 @@ class NavDestinationTest {
             action(ACTION_ID) {
                 destinationId = DESTINATION_ID
                 navOptions {
-                    popUpTo = DESTINATION_ID
+                    popUpTo(DESTINATION_ID)
                 }
                 defaultArguments[ACTION_ARGUMENT_KEY] = ACTION_ARGUMENT_VALUE
             }
@@ -104,7 +104,7 @@ class NavDestinationTest {
             .that(action)
             .isNotNull()
         assertWithMessage("NavAction should have NavOptions set")
-            .that(action?.navOptions?.popUpTo)
+            .that(action?.navOptions?.popUpToId)
             .isEqualTo(DESTINATION_ID)
         assertWithMessage("NavAction should have its default argument set")
             .that(action?.defaultArguments?.getString(ACTION_ARGUMENT_KEY))
