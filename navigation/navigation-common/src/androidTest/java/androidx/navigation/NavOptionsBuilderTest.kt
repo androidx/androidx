@@ -49,10 +49,10 @@ class NavOptionsTest {
     @Test
     fun popUpTo() {
         val navOptions = navOptions {
-            popUpTo = DESTINATION_ID
+            popUpTo(DESTINATION_ID)
         }
         assertWithMessage("NavOptions should have popUpTo destination id set")
-            .that(navOptions.popUpTo)
+            .that(navOptions.popUpToId)
             .isEqualTo(DESTINATION_ID)
         assertWithMessage("NavOptions should have isPopUpToInclusive false by default")
             .that(navOptions.isPopUpToInclusive())
@@ -71,7 +71,7 @@ class NavOptionsTest {
             }
         }
         assertWithMessage("NavOptions should have popUpTo destination id set")
-            .that(navOptions.popUpTo)
+            .that(navOptions.popUpToId)
             .isEqualTo(DESTINATION_ID)
         assertWithMessage("NavOptions should have isPopUpToInclusive set")
             .that(navOptions.isPopUpToInclusive())

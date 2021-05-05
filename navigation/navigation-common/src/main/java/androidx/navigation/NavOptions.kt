@@ -35,7 +35,7 @@ public class NavOptions internal constructor(
      * @see shouldPopUpToSaveState
      */
     @field:IdRes @get:IdRes @param:IdRes
-    public val popUpTo: Int,
+    public val popUpToId: Int,
     private val popUpToInclusive: Boolean,
     private val popUpToSaveState: Boolean,
     /**
@@ -65,6 +65,19 @@ public class NavOptions internal constructor(
     @get:AnimatorRes @get:AnimRes @param:AnimRes @param:AnimatorRes
     public val popExitAnim: Int
 ) {
+    /**
+     * The destination to pop up to before navigating. When set, all non-matching destinations
+     * should be popped from the back stack.
+     * @return the destinationId to pop up to, clearing all intervening destinations
+     * @see Builder.setPopUpTo
+     *
+     * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
+     */
+    @IdRes
+    @Deprecated("Use popUpToId instead.", ReplaceWith("popUpToId"))
+    public fun getPopUpTo(): Int = popUpToId
+
     /**
      * Whether this navigation action should launch as single-top (i.e., there will be at most
      * one copy of a given destination on the top of the back stack).
@@ -97,9 +110,9 @@ public class NavOptions internal constructor(
 
     /**
      * Whether the back stack and the state of all destinations between the
-     * current destination and [popUpTo] should be saved for later restoration via
+     * current destination and [popUpToId] should be saved for later restoration via
      * [Builder.setRestoreState] or the `restoreState` attribute using the same ID
-     * as [popUpTo] (note: this matching ID is true whether [isPopUpToInclusive] is true or
+     * as [popUpToId] (note: this matching ID is true whether [isPopUpToInclusive] is true or
      * false).
      */
     public fun shouldPopUpToSaveState(): Boolean {
@@ -112,7 +125,7 @@ public class NavOptions internal constructor(
         val that = other as NavOptions
         return singleTop == that.singleTop &&
             restoreState == that.restoreState &&
-            popUpTo == that.popUpTo &&
+            popUpToId == that.popUpToId &&
             popUpToInclusive == that.popUpToInclusive &&
             popUpToSaveState == that.popUpToSaveState &&
             enterAnim == that.enterAnim &&
@@ -124,7 +137,7 @@ public class NavOptions internal constructor(
     override fun hashCode(): Int {
         var result = if (shouldLaunchSingleTop()) 1 else 0
         result = 31 * result + if (shouldRestoreState()) 1 else 0
-        result = 31 * result + popUpTo
+        result = 31 * result + popUpToId
         result = 31 * result + if (isPopUpToInclusive()) 1 else 0
         result = 31 * result + if (shouldPopUpToSaveState()) 1 else 0
         result = 31 * result + enterAnim
@@ -142,7 +155,7 @@ public class NavOptions internal constructor(
         private var restoreState = false
 
         @IdRes
-        private var popUpTo = -1
+        private var popUpToId = -1
         private var popUpToInclusive = false
         private var popUpToSaveState = false
 
@@ -194,11 +207,11 @@ public class NavOptions internal constructor(
          * @param saveState true if the back stack and the state of all destinations between the
          * current destination and [destinationId] should be saved for later restoration via
          * [setRestoreState] or the `restoreState` attribute using the same ID
-         * as [popUpTo] (note: this matching ID is true whether [inclusive] is true or
+         * as [popUpToId] (note: this matching ID is true whether [inclusive] is true or
          * false).
          * @return this Builder
          *
-         * @see NavOptions.popUpTo
+         * @see NavOptions.popUpToId
          * @see NavOptions.isPopUpToInclusive
          */
         @JvmOverloads
@@ -207,7 +220,7 @@ public class NavOptions internal constructor(
             inclusive: Boolean,
             saveState: Boolean = false
         ): Builder {
-            popUpTo = destinationId
+            popUpToId = destinationId
             popUpToInclusive = inclusive
             popUpToSaveState = saveState
             return this
@@ -277,7 +290,7 @@ public class NavOptions internal constructor(
         public fun build(): NavOptions {
             return NavOptions(
                 singleTop, restoreState,
-                popUpTo, popUpToInclusive, popUpToSaveState,
+                popUpToId, popUpToInclusive, popUpToSaveState,
                 enterAnim, exitAnim, popEnterAnim, popExitAnim
             )
         }
