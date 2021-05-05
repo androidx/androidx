@@ -633,7 +633,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Restores the back stack previously saved via {@link #saveBackStack(String)}. This
      * will result in all of the transactions that made up that back stack to be re-executed,
      * thus re-adding any fragments that were added through those transactions. All state of
-     * those fragments will be restored as part of this process.
+     * those fragments will be restored as part of this process. If no state was previously
+     * saved with the given name, this operation does nothing.
      * <p>
      * This function is asynchronous -- it enqueues the
      * request to restore, but the action will not be performed until the application
