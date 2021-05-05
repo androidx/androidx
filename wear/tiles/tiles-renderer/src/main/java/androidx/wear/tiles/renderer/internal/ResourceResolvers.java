@@ -29,25 +29,25 @@ import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Class for accessing resources. Delegates the actual work to different types of accessor classes,
- * and allows each type of accessor to be configured individually, as well as instantiation from
- * common accessor implementations.
+ * Class for resolving resources. Delegates the actual work to different types of resolver classes,
+ * and allows each type of resolver to be configured individually, as well as instantiation from
+ * common resolver implementations.
  */
-public class ResourceAccessors {
+public class ResourceResolvers {
     private final ResourceProto.Resources mProtoResources;
 
     @Nullable
-    private final AndroidImageResourceByResIdAccessor mAndroidImageResourceByResIdAccessor;
+    private final AndroidImageResourceByResIdResolver mAndroidImageResourceByResIdResolver;
 
-    @Nullable private final InlineImageResourceAccessor mInlineImageResourceAccessor;
+    @Nullable private final InlineImageResourceResolver mInlineImageResourceResolver;
 
-    ResourceAccessors(
+    ResourceResolvers(
             @NonNull ResourceProto.Resources protoResources,
-            @Nullable AndroidImageResourceByResIdAccessor androidImageResourceByResIdAccessor,
-            @Nullable InlineImageResourceAccessor inlineImageResourceAccessor) {
+            @Nullable AndroidImageResourceByResIdResolver androidImageResourceByResIdResolver,
+            @Nullable InlineImageResourceResolver inlineImageResourceResolver) {
         this.mProtoResources = protoResources;
-        this.mAndroidImageResourceByResIdAccessor = androidImageResourceByResIdAccessor;
-        this.mInlineImageResourceAccessor = inlineImageResourceAccessor;
+        this.mAndroidImageResourceByResIdResolver = androidImageResourceByResIdResolver;
+        this.mInlineImageResourceResolver = inlineImageResourceResolver;
     }
 
     /** Exception thrown when accessing resources. */
@@ -62,20 +62,40 @@ public class ResourceAccessors {
     }
 
     /** Interface that can provide a Drawable for an AndroidImageResourceByResId */
-    public interface AndroidImageResourceByResIdAccessor {
+    public interface AndroidImageResourceByResIdResolver {
+        /**
+         * Should immediately return the drawable specified by {@code resource}.
+         *
+         * @throws ResourceAccessException If the drawable cannot be found, or has to be loaded
+         *     asynchronously.
+         */
+        @NonNull
+        Drawable getDrawableOrThrow(@NonNull AndroidImageResourceByResId resource)
+                throws ResourceAccessException;
+
         /** Get the drawable as specified by {@code resource}. */
         @NonNull
         ListenableFuture<Drawable> getDrawable(@NonNull AndroidImageResourceByResId resource);
     }
 
     /** Interface that can provide a Drawable for an InlineImageResource */
-    public interface InlineImageResourceAccessor {
+    public interface InlineImageResourceResolver {
+        /**
+         * Should immediately return the drawable specified by {@code resource}.
+         *
+         * @throws ResourceAccessException If the drawable cannot be found, or has to be loaded
+         *     asynchronously.
+         */
+        @NonNull
+        Drawable getDrawableOrThrow(@NonNull InlineImageResource resource)
+                throws ResourceAccessException;
+
         /** Get the drawable as specified by {@code resource}. */
         @NonNull
         ListenableFuture<Drawable> getDrawable(@NonNull InlineImageResource resource);
     }
 
-    /** Get an empty builder to build {@link ResourceAccessors} with. */
+    /** Get an empty builder to build {@link ResourceResolvers} with. */
     @NonNull
     public static Builder builder(@NonNull ResourceProto.Resources protoResources) {
         return new Builder(protoResources);
@@ -94,19 +114,19 @@ public class ResourceAccessors {
         }
 
         if (imageResource.hasAndroidResourceByResid()
-                && mAndroidImageResourceByResIdAccessor != null) {
-            AndroidImageResourceByResIdAccessor accessor = mAndroidImageResourceByResIdAccessor;
-            return accessor.getDrawable(imageResource.getAndroidResourceByResid());
+                && mAndroidImageResourceByResIdResolver != null) {
+            AndroidImageResourceByResIdResolver resolver = mAndroidImageResourceByResIdResolver;
+            return resolver.getDrawable(imageResource.getAndroidResourceByResid());
         }
 
-        if (imageResource.hasInlineResource() && mInlineImageResourceAccessor != null) {
-            InlineImageResourceAccessor accessor = mInlineImageResourceAccessor;
-            return accessor.getDrawable(imageResource.getInlineResource());
+        if (imageResource.hasInlineResource() && mInlineImageResourceResolver != null) {
+            InlineImageResourceResolver resolver = mInlineImageResourceResolver;
+            return resolver.getDrawable(imageResource.getInlineResource());
         }
 
         return createFailedFuture(
                 new ResourceAccessException(
-                        "Can't find accessor for image resource " + protoResourceId));
+                        "Can't find resolver for image resource " + protoResourceId));
     }
 
     @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
@@ -126,38 +146,38 @@ public class ResourceAccessors {
     /** Builder for ResourceProviders */
     public static final class Builder {
         @NonNull private final ResourceProto.Resources mProtoResources;
-        @Nullable private AndroidImageResourceByResIdAccessor mAndroidImageResourceByResIdAccessor;
-        @Nullable private InlineImageResourceAccessor mInlineImageResourceAccessor;
+        @Nullable private AndroidImageResourceByResIdResolver mAndroidImageResourceByResIdResolver;
+        @Nullable private InlineImageResourceResolver mInlineImageResourceResolver;
 
         Builder(@NonNull ResourceProto.Resources protoResources) {
             this.mProtoResources = protoResources;
         }
 
-        /** Set the resource loader for {@link AndroidImageResourceByResIdAccessor} resources. */
+        /** Set the resource loader for {@link AndroidImageResourceByResIdResolver} resources. */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder setAndroidImageResourceByResIdAccessor(
-                @NonNull AndroidImageResourceByResIdAccessor accessor) {
-            mAndroidImageResourceByResIdAccessor = accessor;
+        public Builder setAndroidImageResourceByResIdResolver(
+                @NonNull AndroidImageResourceByResIdResolver resolver) {
+            mAndroidImageResourceByResIdResolver = resolver;
             return this;
         }
 
-        /** Set the resource loader for {@link InlineImageResourceAccessor} resources. */
+        /** Set the resource loader for {@link InlineImageResourceResolver} resources. */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder setInlineImageResourceAccessor(
-                @NonNull InlineImageResourceAccessor accessor) {
-            mInlineImageResourceAccessor = accessor;
+        public Builder setInlineImageResourceResolver(
+                @NonNull InlineImageResourceResolver resolver) {
+            mInlineImageResourceResolver = resolver;
             return this;
         }
 
-        /** Build a {@link ResourceAccessors} instance. */
+        /** Build a {@link ResourceResolvers} instance. */
         @NonNull
-        public ResourceAccessors build() {
-            return new ResourceAccessors(
+        public ResourceResolvers build() {
+            return new ResourceResolvers(
                     mProtoResources,
-                    mAndroidImageResourceByResIdAccessor,
-                    mInlineImageResourceAccessor);
+                    mAndroidImageResourceByResIdResolver,
+                    mInlineImageResourceResolver);
         }
     }
 }
