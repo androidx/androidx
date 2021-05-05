@@ -33,9 +33,9 @@ public fun navArgument(
  * Construct a named [NavArgument] by using the [navArgument] method.
  */
 public class NamedNavArgument internal constructor(
-    private val name: String,
-    private val argument: NavArgument
+    public val name: String,
+    public val argument: NavArgument
 ) {
-    internal operator fun component1(): String = name
-    internal operator fun component2(): NavArgument = argument
+    public operator fun component1(): String = name
+    public operator fun component2(): NavArgument = argument
 }
