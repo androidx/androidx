@@ -18,6 +18,7 @@
 <resources>
     <!-- Definitions of attributes to be exposed as public -->
     <public type="attr" name="alpha"/>
+    <public type="attr" name="lStar" />
     <public type="attr" name="fontProviderAuthority"/>
     <public type="attr" name="fontProviderPackage"/>
     <public type="attr" name="fontProviderQuery"/>

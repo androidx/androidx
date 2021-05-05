@@ -29,9 +29,11 @@ import android.view.ContextThemeWrapper;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -91,6 +93,46 @@ public class ColorStateListInflaterCompatTest {
         final int expectedTextColorSecondary = Color.argb(138, Color.red(textColorPrimary),
                 Color.green(textColorPrimary), Color.blue(textColorPrimary));
         assertEquals(expectedTextColorSecondary, result.getDefaultColor());
+    }
+
+    @Test
+    public void testCreateFromXmlWithAppLStar() {
+        final double lStarInXml = 50.0;
+        final int alphaInXml = 128;
+
+        final Resources res = mContext.getResources();
+        final ColorStateList c = ColorStateListInflaterCompat.inflate(
+                res, R.color.color_state_list_lstar, mContext.getTheme());
+        final int defaultColor = c.getDefaultColor();
+
+        final double[] labColor = new double[3];
+        ColorUtils.colorToLAB(defaultColor, labColor);
+
+        // There's precision loss when converting to @ColorInt. We need a small delta.
+        assertEquals(lStarInXml, labColor[0], 1.0 /* delta */);
+        assertEquals(alphaInXml, Color.alpha(defaultColor));
+    }
+
+    /**
+     * Tests using android:lStar which is added in Android S
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = 31, codeName = "S")
+    public void testCreateFromXmlWithAndroidLStar() {
+        final double lStarInXml = 50.0;
+        final int alphaInXml = 128;
+
+        final Resources res = mContext.getResources();
+        final ColorStateList c = ColorStateListInflaterCompat.inflate(
+                res, R.color.color_state_list_android_lstar, mContext.getTheme());
+        final int defaultColor = c.getDefaultColor();
+
+        final double[] labColor = new double[3];
+        ColorUtils.colorToLAB(defaultColor, labColor);
+
+        // There's precision loss when converting to @ColorInt. We need a small delta.
+        assertEquals(lStarInXml, labColor[0], 1.0 /* delta */);
+        assertEquals(alphaInXml, Color.alpha(defaultColor));
     }
 
     @ColorInt

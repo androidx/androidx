@@ -110,6 +110,9 @@
         <!-- Alpha multiplier applied to the base color. -->
         <attr name="alpha" format="float" />
         <attr name="android:alpha"/>
+        <!-- Perceptual luminance applied to the base color. From 0 to 100. -->
+        <attr name="lStar" format="float" />
+        <attr name="android:lStar" />
     </declare-styleable>
 
     <!-- Used to describe the gradient for fill or stroke in a path of VectorDrawable. -->
