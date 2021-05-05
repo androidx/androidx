@@ -132,11 +132,13 @@ interface XProcessingEnv {
         /**
          * Creates a new [XProcessingEnv] implementation derived from the given Java [env].
          */
+        @JvmStatic
         fun create(env: ProcessingEnvironment): XProcessingEnv = JavacProcessingEnv(env)
 
         /**
          * Creates a new [XProcessingEnv] implementation derived from the given KSP environment.
          */
+        @JvmStatic
         fun create(
             options: Map<String, String>,
             resolver: Resolver,
