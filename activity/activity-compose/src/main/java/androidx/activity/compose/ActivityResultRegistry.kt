@@ -150,7 +150,7 @@ public fun <I, O> rememberLauncherForActivityResult(
  * This launcher does not support the [unregister] function. Attempting to use [unregister] will
  * result in an [IllegalStateException].
  *
- * @param <I> type of the input required to launch
+ * @param I type of the input required to launch
  */
 public class ManagedActivityResultLauncher<I, O> internal constructor(
     private val launcher: ActivityResultLauncherHolder<I>,
