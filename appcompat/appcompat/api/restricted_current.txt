@@ -1942,7 +1942,9 @@ package androidx.appcompat.widget {
     method public android.graphics.drawable.Drawable! getTrackDrawable();
     method public android.content.res.ColorStateList? getTrackTintList();
     method public android.graphics.PorterDuff.Mode? getTrackTintMode();
+    method public boolean isEmojiCompatEnabled();
     method public void onMeasure(int, int);
+    method public void setEmojiCompatEnabled(boolean);
     method public void setShowText(boolean);
     method public void setSplitTrack(boolean);
     method public void setSwitchMinWidth(int);
