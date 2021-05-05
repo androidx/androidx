@@ -37,6 +37,11 @@ public class GenericDocumentCtsTest {
             .build();
 
     @Test
+    public void testMaxIndexedProperties() {
+        assertThat(GenericDocument.getMaxIndexedProperties()).isEqualTo(16);
+    }
+
+    @Test
     public void testDocumentEquals_identical() {
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
@@ -153,6 +158,24 @@ public class GenericDocumentCtsTest {
         assertThat(document.getPropertyBytes("byteKey1"))
                 .asList().containsExactly((byte) 1, (byte) 2, (byte) 3).inOrder();
         assertThat(document.getPropertyDocument("documentKey1")).isEqualTo(sDocumentProperties1);
+
+        assertThat(document.getProperty("longKey1")).isInstanceOf(long[].class);
+        assertThat((long[]) document.getProperty("longKey1")).asList().containsExactly(1L);
+        assertThat(document.getProperty("doubleKey1")).isInstanceOf(double[].class);
+        assertThat((double[]) document.getProperty("doubleKey1")).usingTolerance(
+                0.05).containsExactly(1.0);
+        assertThat(document.getProperty("booleanKey1")).isInstanceOf(boolean[].class);
+        assertThat((boolean[]) document.getProperty("booleanKey1")).asList().containsExactly(true);
+        assertThat(document.getProperty("stringKey1")).isInstanceOf(String[].class);
+        assertThat((String[]) document.getProperty("stringKey1")).asList().containsExactly(
+                "test-value1");
+        assertThat(document.getProperty("byteKey1")).isInstanceOf(byte[][].class);
+        assertThat((byte[][]) document.getProperty("byteKey1")).asList().containsExactly(
+                sByteArray1).inOrder();
+        assertThat(document.getProperty("documentKey1")).isInstanceOf(GenericDocument[].class);
+        assertThat(
+                (GenericDocument[]) document.getProperty("documentKey1")).asList().containsExactly(
+                sDocumentProperties1);
     }
 
     @Test
@@ -777,5 +800,50 @@ public class GenericDocumentCtsTest {
         assertThat(doc.getPropertyBoolean("propDocument[1].propBools[0]")).isTrue();
         assertThat(doc.getPropertyBytes("propDocument[0].propBytes[0]"))
                 .isEqualTo(new byte[]{3, 4});
+    }
+
+    @Test
+    public void testDocumentGetPropertyNamesSingleLevel() {
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setScore(1)
+                .setTtlMillis(1L)
+                .setPropertyLong("longKey1", 1L)
+                .setPropertyDouble("doubleKey1", 1.0)
+                .setPropertyBoolean("booleanKey1", true)
+                .setPropertyString("stringKey1", "test-value1")
+                .setPropertyBytes("byteKey1", sByteArray1)
+                .build();
+        assertThat(document.getPropertyNames()).containsExactly("longKey1", "doubleKey1",
+                "booleanKey1", "stringKey1", "byteKey1");
+    }
+
+    @Test
+    public void testDocumentGetPropertyNamesMultiLevel() {
+        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "id2", "schema2")
+                .setPropertyString("propString", "Goodbye", "Hello")
+                .setPropertyString("propStringTwo", "Fee", "Fi")
+                .setPropertyLong("propInts", 3, 1, 4)
+                .build();
+        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "id3", "schema2")
+                .setPropertyString("propString", "Aloha")
+                .setPropertyLong("propInts", 7, 5, 6)
+                .setPropertyLong("propIntsTwo", 8, 6)
+                .build();
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setScore(1)
+                .setTtlMillis(1L)
+                .setPropertyString("stringKey1", "test-value1")
+                .setPropertyDocument("docKey1", innerDoc0, innerDoc1)
+                .build();
+        assertThat(document.getPropertyNames()).containsExactly("stringKey1", "docKey1");
+
+        GenericDocument[] documents = document.getPropertyDocumentArray("docKey1");
+        assertThat(documents).asList().containsExactly(innerDoc0, innerDoc1).inOrder();
+        assertThat(documents[0].getPropertyNames()).containsExactly("propString", "propStringTwo",
+                "propInts");
+        assertThat(documents[1].getPropertyNames()).containsExactly("propString", "propInts",
+                "propIntsTwo");
     }
 }
