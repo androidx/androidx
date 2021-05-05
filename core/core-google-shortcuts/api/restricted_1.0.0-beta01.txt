@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) androidx.core.google.shortcuts {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ShortcutInfoChangeListenerImpl extends androidx.core.content.pm.ShortcutInfoChangeListener {
+    method public static androidx.core.google.shortcuts.ShortcutInfoChangeListenerImpl getInstance(android.content.Context);
+  }
+
+}
+
