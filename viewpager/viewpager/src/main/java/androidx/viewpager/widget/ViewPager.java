@@ -49,6 +49,8 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -232,8 +234,16 @@ public class ViewPager extends ViewGroup {
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
 
-    private EdgeEffect mLeftEdge;
-    private EdgeEffect mRightEdge;
+    /** @hide */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public EdgeEffect mLeftEdge;
+    /** @hide */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public EdgeEffect mRightEdge;
 
     private boolean mFirstLayout = true;
     private boolean mCalledSuper;
@@ -2279,6 +2289,13 @@ public class ViewPager extends ViewGroup {
                     setCurrentItemInternal(nextPage, true, true, initialVelocity);
 
                     needsInvalidate = resetTouch();
+                    if (nextPage == currentPage && needsInvalidate) {
+                        if (!mRightEdge.isFinished()) {
+                            mRightEdge.onAbsorb(-initialVelocity);
+                        } else if (!mLeftEdge.isFinished()) {
+                            mLeftEdge.onAbsorb(initialVelocity);
+                        }
+                    }
                 }
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -2311,7 +2328,7 @@ public class ViewPager extends ViewGroup {
         endDrag();
         mLeftEdge.onRelease();
         mRightEdge.onRelease();
-        needsInvalidate = mLeftEdge.isFinished() || mRightEdge.isFinished();
+        needsInvalidate = !mLeftEdge.isFinished() || !mRightEdge.isFinished();
         return needsInvalidate;
     }
 
