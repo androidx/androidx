@@ -33,9 +33,24 @@ public fun navArgument(
  * Construct a named [NavArgument] by using the [navArgument] method.
  */
 public class NamedNavArgument internal constructor(
+
+    /**
+     * The name the argument is associated with
+     */
     public val name: String,
+
+    /**
+     * The [NavArgument] associated with the name
+     */
     public val argument: NavArgument
 ) {
+    /**
+     * Provides destructuring access to this [NamedNavArgument]'s [name]
+     */
     public operator fun component1(): String = name
+
+    /**
+     * Provides destructuring access to this [NamedNavArgument]'s [argument]
+     */
     public operator fun component2(): NavArgument = argument
 }
