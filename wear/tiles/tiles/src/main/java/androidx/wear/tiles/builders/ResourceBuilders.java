@@ -241,18 +241,18 @@ public final class ResourceBuilders {
             /** Sets an image resource that maps to an Android drawable by resource ID. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setAndroidResourceByResid(
-                    @NonNull AndroidImageResourceByResId androidResourceByResid) {
-                mImpl.setAndroidResourceByResid(androidResourceByResid.toProto());
+            public Builder setAndroidResourceByResId(
+                    @NonNull AndroidImageResourceByResId androidResourceByResId) {
+                mImpl.setAndroidResourceByResId(androidResourceByResId.toProto());
                 return this;
             }
 
             /** Sets an image resource that maps to an Android drawable by resource ID. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setAndroidResourceByResid(
-                    @NonNull AndroidImageResourceByResId.Builder androidResourceByResidBuilder) {
-                mImpl.setAndroidResourceByResid(androidResourceByResidBuilder.build().toProto());
+            public Builder setAndroidResourceByResId(
+                    @NonNull AndroidImageResourceByResId.Builder androidResourceByResIdBuilder) {
+                mImpl.setAndroidResourceByResId(androidResourceByResIdBuilder.build().toProto());
                 return this;
             }
 

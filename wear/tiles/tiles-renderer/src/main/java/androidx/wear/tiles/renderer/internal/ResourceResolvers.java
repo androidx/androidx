@@ -113,10 +113,10 @@ public class ResourceResolvers {
                             "Resource " + protoResourceId + " is not defined in resources bundle"));
         }
 
-        if (imageResource.hasAndroidResourceByResid()
+        if (imageResource.hasAndroidResourceByResId()
                 && mAndroidImageResourceByResIdResolver != null) {
             AndroidImageResourceByResIdResolver resolver = mAndroidImageResourceByResIdResolver;
-            return resolver.getDrawable(imageResource.getAndroidResourceByResid());
+            return resolver.getDrawable(imageResource.getAndroidResourceByResId());
         }
 
         if (imageResource.hasInlineResource() && mInlineImageResourceResolver != null) {
