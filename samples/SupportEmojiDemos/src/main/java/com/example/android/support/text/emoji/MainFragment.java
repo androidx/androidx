@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatToggleButton;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.fragment.app.Fragment;
 
@@ -48,6 +49,7 @@ public class MainFragment extends Fragment {
     private TextView mRegularTextView;
     private TextView mCustomTextView;
     private AppCompatToggleButton mAppCompatToggleButton;
+    private SwitchCompat mSwitchCompat;
 
     final Config.Listener mConfigListener = new Config.Listener() {
         @Override
@@ -84,6 +86,7 @@ public class MainFragment extends Fragment {
         mCustomTextView = view.findViewById(R.id.emoji_custom_text_view);
 
         mAppCompatToggleButton = view.findViewById(R.id.appcompat_toggle_button);
+        mSwitchCompat = view.findViewById(R.id.switch_compat);
 
         final TextView emojiListButton = view.findViewById(R.id.emoji_list_button);
         emojiListButton.setOnClickListener(new View.OnClickListener() {
@@ -120,12 +123,19 @@ public class MainFragment extends Fragment {
         mRegularTextView.setText(getString(R.string.regular_text_view, EMOJI));
         mAppCompatToggleButton.setTextOn(getString(R.string.toggle_on, EMOJI));
         mAppCompatToggleButton.setTextOff(getString(R.string.toggle_off, EMOJI));
+        mSwitchCompat.setText(getString(R.string.switch_compat, EMOJI));
+        mSwitchCompat.setTextOn("\uD83C\uDF89");
+        mSwitchCompat.setTextOff("⛔");
+        mSwitchCompat.setShowText(true);
+        mSwitchCompat.setEmojiCompatEnabled(true);
         EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
             @Override
             public void onInitialized() {
                 final EmojiCompat compat = EmojiCompat.get();
-                mRegularTextView.setText(
-                        compat.process(getString(R.string.regular_text_view, EMOJI)));
+                if (compat.getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED) {
+                    mRegularTextView.setText(
+                            compat.process(getString(R.string.regular_text_view, EMOJI)));
+                }
             }
         });
         mCustomTextView.setText(getString(R.string.custom_text_view, EMOJI));

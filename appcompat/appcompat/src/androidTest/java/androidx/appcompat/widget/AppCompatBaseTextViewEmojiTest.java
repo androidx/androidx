@@ -24,23 +24,31 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.Instrumentation;
 import android.widget.TextView;
 
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.emoji2.text.EmojiCompat;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
+@MediumTest
 public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTestActivity,
         ViewType extends TextView> {
 
     @Rule
     public final ActivityTestRule<ActivityType> mActivityTestRule;
     public EmojiCompat mEmojiCompatMock;
+    public Instrumentation mInstrumentation;
 
     public AppCompatBaseTextViewEmojiTest(Class<ActivityType> clazz) {
         mActivityTestRule = new ActivityTestRule<>(clazz, false, false);
@@ -53,6 +61,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
     public void ensureEmojiInitialized() {
         resetEmojiCompatToNewMock();
         mActivityTestRule.launchActivity(null);
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
     }
 
     @After
@@ -60,7 +69,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         EmojiCompat.reset((EmojiCompat) null);
     }
 
-    private void resetEmojiCompatToNewMock() {
+    public void resetEmojiCompatToNewMock() {
         mEmojiCompatMock = mock(EmojiCompat.class);
         when(mEmojiCompatMock.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_FAILED);
         EmojiCompat.reset(mEmojiCompatMock);
@@ -71,8 +80,10 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
                 .findViewById(androidx.appcompat.test.R.id.emoji_default);
-        subject.setText("Test text");
-        verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
+        mInstrumentation.runOnMainSync(() -> {
+            subject.setText("Test text");
+            verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
+        });
     }
 
     @Test
@@ -80,9 +91,11 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
                 .findViewById(androidx.appcompat.test.R.id.emoji_enabled);
-        String expected = "Test text";
-        subject.setText(expected);
-        verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
+        mInstrumentation.runOnMainSync(() -> {
+            String expected = "Test text";
+            subject.setText(expected);
+            verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
+        });
     }
 
     @Test
@@ -97,21 +110,22 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
     }
 
     @Test
-    public void whenReEnabled_callsProcess() {
+    public void whenReEnabled_callsProcess() throws Throwable {
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
                 .findViewById(androidx.appcompat.test.R.id.emoji_disabled);
         String expected = "Some text";
-        subject.setText(expected);
+        mInstrumentation.runOnMainSync(() -> {
+            subject.setText(expected);
+            verifyNoMoreInteractions(mEmojiCompatMock);
 
-        verifyNoMoreInteractions(mEmojiCompatMock);
-
-        setEmojiCompatEnabled(subject, true);
+            setEmojiCompatEnabled(subject, true);
+        });
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
 
     @Test
-    public void whenNotConfigured_andDisabled_doesNotEnable_whenConfigured() {
+    public void whenNotConfigured_andDisabled_doesNotEnable_whenConfigured() throws Throwable {
         EmojiCompat.reset((EmojiCompat) null);
         mActivityTestRule.finishActivity();
         mActivityTestRule.launchActivity(null);
@@ -124,8 +138,10 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         ViewType defaultEmoji =
                 activity.findViewById(androidx.appcompat.test.R.id.emoji_default);
 
-        setEmojiCompatEnabled(enabledInAdvance, false);
-        setEmojiCompatEnabled(defaultEmoji, false);
+        mInstrumentation.runOnMainSync(() -> {
+            setEmojiCompatEnabled(enabledInAdvance, false);
+            setEmojiCompatEnabled(defaultEmoji, false);
+        });
         // now: confirm no interactions with EmojiCompat with all text views disabled
         resetEmojiCompatToNewMock();
         // set the filters without calling enabled to avoid allowing re-set of disabled to update
@@ -140,7 +156,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
     }
 
     @Test
-    public void whenNotConfigured_callingEnabled_afterConfigure_enablesEmoji() {
+    public void whenNotConfigured_callingEnabled_afterConfigure_enablesEmoji() throws Throwable {
         EmojiCompat.reset((EmojiCompat) null);
         mActivityTestRule.finishActivity();
         mActivityTestRule.launchActivity(null);
@@ -150,14 +166,16 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
                 activity.findViewById(androidx.appcompat.test.R.id.emoji_enabled);
 
         resetEmojiCompatToNewMock();
-        setEmojiCompatEnabled(enabledInAdvance, true);
-        enabledInAdvance.setText("Some text");
+        mInstrumentation.runOnMainSync(() -> {
+            setEmojiCompatEnabled(enabledInAdvance, true);
+            enabledInAdvance.setText("Some text");
+        });
 
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
 
     @Test
-    public void getEnabled() {
+    public void getEnabled() throws Throwable {
         ActivityType activity = mActivityTestRule.getActivity();
         ViewType disabledInAdvance =
                 activity.findViewById(androidx.appcompat.test.R.id.emoji_disabled);
@@ -170,7 +188,9 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         assertTrue(isEmojiCompatEnabled(enabledInAdvance));
         assertTrue(isEmojiCompatEnabled(defaultEmoji));
 
-        setEmojiCompatEnabled(defaultEmoji, false);
+        mInstrumentation.runOnMainSync(() -> {
+            setEmojiCompatEnabled(defaultEmoji, false);
+        });
         assertFalse(isEmojiCompatEnabled(defaultEmoji));
     }
 
