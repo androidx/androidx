@@ -16,6 +16,7 @@
 
 package androidx.room.migration.bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.gson.Gson;
@@ -80,12 +81,17 @@ public class SchemaBundle implements SchemaEquality<SchemaBundle> {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static SchemaBundle deserialize(InputStream fis)
             throws UnsupportedEncodingException {
         InputStreamReader is = new InputStreamReader(fis, CHARSET);
         try {
-            return GSON.fromJson(is, SchemaBundle.class);
+            SchemaBundle result = GSON.fromJson(is, SchemaBundle.class);
+            if (result == null || result.getDatabase() == null) {
+                throw new IllegalStateException("Invalid schema file");
+            }
+            return result;
         } finally {
             safeClose(is);
             safeClose(fis);
