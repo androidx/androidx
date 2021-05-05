@@ -754,7 +754,11 @@ public class WatchFaceImpl(
         unregisterReceivers()
     }
 
+    @UiThread
     private fun registerReceivers() {
+        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+            "registerReceivers must be called the UiThread"
+        }
         if (registeredReceivers) {
             return
         }
@@ -765,7 +769,11 @@ public class WatchFaceImpl(
         )
     }
 
+    @UiThread
     private fun unregisterReceivers() {
+        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+            "unregisterReceivers must be called the UiThread"
+        }
         if (!registeredReceivers) {
             return
         }

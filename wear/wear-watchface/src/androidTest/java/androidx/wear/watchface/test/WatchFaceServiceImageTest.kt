@@ -175,9 +175,14 @@ public class WatchFaceServiceImageTest {
 
     @After
     public fun shutDown() {
-        if (this::interactiveWatchFaceInstance.isInitialized) {
-            interactiveWatchFaceInstance.release()
+        val latch = CountDownLatch(1)
+        handler.post {
+            if (this::interactiveWatchFaceInstance.isInitialized) {
+                interactiveWatchFaceInstance.release()
+            }
+            latch.countDown()
         }
+        latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
     }
 
     private fun initCanvasWatchFace() {
@@ -602,7 +607,12 @@ public class WatchFaceServiceImageTest {
         try {
             bitmap.assertAgainstGolden(screenshotRule, "direct_boot")
         } finally {
-            engineWrapper.onDestroy()
+            val latch = CountDownLatch(1)
+            handler.post {
+                engineWrapper.onDestroy()
+                latch.countDown()
+            }
+            latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         }
     }
 
