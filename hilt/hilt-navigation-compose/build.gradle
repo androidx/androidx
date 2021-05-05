@@ -41,7 +41,7 @@ dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
     implementation(KOTLIN_STDLIB)
-    api(project(":hilt:hilt-navigation"))
+    api("androidx.hilt:hilt-navigation:1.0.0")
     api(projectOrArtifact(":compose:runtime:runtime"))
     api(projectOrArtifact(":compose:ui:ui"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
