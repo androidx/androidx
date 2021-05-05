@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.core.graphics.drawable.IconCompat;
@@ -115,6 +116,7 @@ public final class CarIcon {
                     TYPE_ALERT,
                     TYPE_APP_ICON,
                     TYPE_ERROR,
+                    TYPE_PAN,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarIconType {
@@ -154,6 +156,13 @@ public final class CarIcon {
     public static final int TYPE_ERROR = 6;
 
     /**
+     * A pan icon.
+     *
+     * @see #PAN
+     */
+    public static final int TYPE_PAN = 7;
+
+    /**
      * Represents the app's icon, as defined in the app's manifest by the {@code android:icon}
      * attribute of the {@code application} element.
      */
@@ -177,6 +186,13 @@ public final class CarIcon {
      */
     @NonNull
     public static final CarIcon ERROR = CarIcon.forStandardType(TYPE_ERROR);
+
+    /**
+     * An icon representing a pan action (for example, in a map surface).
+     */
+    @RequiresCarApi(2)
+    @NonNull
+    public static final CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
 
     @Keep
     @CarIconType
@@ -306,6 +322,8 @@ public final class CarIcon {
                 return "ERROR";
             case TYPE_BACK:
                 return "BACK";
+            case TYPE_PAN:
+                return "PAN";
             case TYPE_CUSTOM:
                 return "CUSTOM";
             default:
