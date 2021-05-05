@@ -2693,6 +2693,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    @FlakyTest(bugId = 187331322)
     @Test
     public void smoothScrollBy_durationOf1_completesAsynchronously() throws Throwable {
         smoothScrollBy_completesAsynchronously(1);
