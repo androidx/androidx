@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #
 # Copyright 2019, The Android Open Source Project
@@ -41,14 +41,14 @@ def main():
   if not os_specific_files:
     sys.exit(0)
 
-  print "The following operating system specific files were found in your commit:\n\033[91m"
+  print("The following operating system specific files were found in your commit:\n\033[91m")
   for filename in os_specific_files.values():
-    print filename
-  print """\033[0m\nPlease make sure to import the corresponding prebuilts for missing platforms.
+    print(filename)
+  print ("""\033[0m\nPlease make sure to import the corresponding prebuilts for missing platforms.
 If you imported a prebuilt similar to foo:bar:linux, try foo:bar:osx and vice versa.
 If there is no corresponding prebuilt, or only adding a prebuilt for one platform is intended, run:
 \033[92mrepo upload --no-verify\033[0m
-to skip this warning."""
+to skip this warning.""")
   sys.exit(1)
 
 
