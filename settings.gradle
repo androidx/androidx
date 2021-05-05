@@ -359,6 +359,7 @@ includeProject(":core:core-google-shortcuts", "core/core-google-shortcuts", [Bui
 includeProject(":core:core-ktx", "core/core-ktx", [BuildType.MAIN])
 includeProject(":core:core-remoteviews", "core/core-remoteviews", [BuildType.MAIN])
 includeProject(":core:core-splashscreen", "core/core-splashscreen", [BuildType.MAIN])
+includeProject(":core:core-splashscreen:core-splashscreen-sample", "core/core-splashscreen/core-splashscreen-sample", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", "cursoradapter/cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", "customview/customview", [BuildType.MAIN])
 includeProject(":datastore:datastore", "datastore/datastore", [BuildType.MAIN])
