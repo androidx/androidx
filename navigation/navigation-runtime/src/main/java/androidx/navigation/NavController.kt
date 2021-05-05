@@ -1141,8 +1141,8 @@ public open class NavController(
             }
             combinedArgs.putAll(args)
         }
-        if (destId == 0 && finalNavOptions != null && finalNavOptions.popUpTo != -1) {
-            popBackStack(finalNavOptions.popUpTo, finalNavOptions.isPopUpToInclusive())
+        if (destId == 0 && finalNavOptions != null && finalNavOptions.popUpToId != -1) {
+            popBackStack(finalNavOptions.popUpToId, finalNavOptions.isPopUpToInclusive())
             return
         }
         require(destId != 0) {
@@ -1298,9 +1298,9 @@ public open class NavController(
         var launchSingleTop = false
         var navigated = false
         if (navOptions != null) {
-            if (navOptions.popUpTo != -1) {
+            if (navOptions.popUpToId != -1) {
                 popped = popBackStackInternal(
-                    navOptions.popUpTo,
+                    navOptions.popUpToId,
                     navOptions.isPopUpToInclusive(),
                     navOptions.shouldPopUpToSaveState()
                 )

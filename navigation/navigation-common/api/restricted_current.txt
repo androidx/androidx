@@ -299,7 +299,8 @@ package androidx.navigation {
     method @AnimRes @AnimatorRes public int getExitAnim();
     method @AnimRes @AnimatorRes public int getPopEnterAnim();
     method @AnimRes @AnimatorRes public int getPopExitAnim();
-    method @IdRes public int getPopUpTo();
+    method @Deprecated @IdRes public int getPopUpTo();
+    method @IdRes public int getPopUpToId();
     method public boolean isPopUpToInclusive();
     method public boolean shouldLaunchSingleTop();
     method public boolean shouldPopUpToSaveState();
@@ -308,7 +309,7 @@ package androidx.navigation {
     property @AnimRes @AnimatorRes public final int exitAnim;
     property @AnimRes @AnimatorRes public final int popEnterAnim;
     property @AnimRes @AnimatorRes public final int popExitAnim;
-    property @IdRes public final int popUpTo;
+    property @IdRes public final int popUpToId;
   }
 
   public static final class NavOptions.Builder {
@@ -328,14 +329,16 @@ package androidx.navigation {
     ctor public NavOptionsBuilder();
     method public void anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit> animBuilder);
     method public boolean getLaunchSingleTop();
-    method public int getPopUpTo();
+    method @Deprecated public int getPopUpTo();
+    method public int getPopUpToId();
     method public boolean getRestoreState();
-    method public void popUpTo(@IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method public void popUpTo(@IdRes int id, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void setLaunchSingleTop(boolean p);
-    method public void setPopUpTo(int value);
+    method @Deprecated public void setPopUpTo(int value);
     method public void setRestoreState(boolean p);
     property public final boolean launchSingleTop;
-    property public final int popUpTo;
+    property @Deprecated public final int popUpTo;
+    property public final int popUpToId;
     property public final boolean restoreState;
   }
 
