@@ -32,7 +32,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     implementation(JAVAPOET)
-    implementation("com.squareup:kotlinpoet:1.7.2")
+    implementation(KOTLINPOET)
 
     testImplementation(JUNIT)
     testImplementation(GOOGLE_COMPILE_TESTING)
