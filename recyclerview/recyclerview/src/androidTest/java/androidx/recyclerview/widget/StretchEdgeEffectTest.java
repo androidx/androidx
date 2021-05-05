@@ -16,7 +16,6 @@
 
 package androidx.recyclerview.widget;
 
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -157,6 +156,154 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
+    /**
+     * A fling should be allowed during pull.
+     */
+    @Test
+    public void testFlingAfterStretchLeft() throws Throwable {
+        if (isSOrHigher()) {
+            mActivityRule.runOnUiThread(
+                    () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+            CaptureOnAbsorbFactory factory = new CaptureOnAbsorbFactory();
+            mRecyclerView.setEdgeEffectFactory(factory);
+            scrollToPosition(0);
+            waitForIdleScroll(mRecyclerView);
+            scrollHorizontalBy(-3);
+
+            // test flinging right
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mLeft);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(-1000, 0));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mLeft), 0.01f);
+                assertEquals(1000, factory.mLeft.mAbsorbVelocity);
+                // reset the edge effect
+                factory.mLeft.finish();
+            });
+
+            scrollHorizontalBy(-3);
+
+            // test flinging left
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mLeft);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(1000, 0));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mLeft), 0.01f);
+                assertEquals(-1000, factory.mLeft.mAbsorbVelocity);
+            });
+        }
+    }
+
+    /**
+     * A fling should be allowed during pull.
+     */
+    @Test
+    public void testFlingAfterStretchTop() throws Throwable {
+        if (isSOrHigher()) {
+            CaptureOnAbsorbFactory factory = new CaptureOnAbsorbFactory();
+            mRecyclerView.setEdgeEffectFactory(factory);
+            scrollToPosition(0);
+            waitForIdleScroll(mRecyclerView);
+            scrollVerticalBy(3);
+
+            // test flinging down
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mTop);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(0, -1000));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mTop), 0.01f);
+                assertEquals(1000, factory.mTop.mAbsorbVelocity);
+                // reset the edge effect
+                factory.mTop.finish();
+            });
+
+            scrollVerticalBy(3);
+
+            // test flinging up
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mTop);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(0, 1000));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mTop), 0.01f);
+                assertEquals(-1000, factory.mTop.mAbsorbVelocity);
+            });
+        }
+    }
+
+    /**
+     * A fling should be allowed during pull.
+     */
+    @Test
+    public void testFlingAfterStretchRight() throws Throwable {
+        if (isSOrHigher()) {
+            mActivityRule.runOnUiThread(
+                    () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+            CaptureOnAbsorbFactory factory = new CaptureOnAbsorbFactory();
+            mRecyclerView.setEdgeEffectFactory(factory);
+            scrollToPosition(NUM_ITEMS - 1);
+            waitForIdleScroll(mRecyclerView);
+            scrollHorizontalBy(3);
+
+            // test flinging left
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mRight);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(1000, 0));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mRight), 0.01f);
+                assertEquals(1000, factory.mRight.mAbsorbVelocity);
+                // reset the edge effect
+                factory.mRight.finish();
+            });
+
+            scrollHorizontalBy(3);
+
+            // test flinging right
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mRight);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(-1000, 0));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mRight), 0.01f);
+                assertEquals(-1000, factory.mRight.mAbsorbVelocity);
+            });
+        }
+    }
+
+    /**
+     * A fling should be allowed during pull.
+     */
+    @Test
+    public void testFlingAfterStretchBottom() throws Throwable {
+        if (isSOrHigher()) {
+            CaptureOnAbsorbFactory factory = new CaptureOnAbsorbFactory();
+            mRecyclerView.setEdgeEffectFactory(factory);
+            scrollToPosition(NUM_ITEMS - 1);
+            waitForIdleScroll(mRecyclerView);
+            scrollVerticalBy(-3);
+
+            // test flinging up
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mBottom);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(0, 1000));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mBottom), 0.01f);
+                assertEquals(1000, factory.mBottom.mAbsorbVelocity);
+                // reset the edge effect
+                factory.mBottom.finish();
+            });
+
+            scrollVerticalBy(-3);
+
+            // test flinging down
+            mActivityRule.runOnUiThread(() -> {
+                float pullDistance = EdgeEffectCompat.getDistance(factory.mBottom);
+                assertTrue(pullDistance > 0);
+                assertTrue(mRecyclerView.fling(0, -1000));
+                assertEquals(pullDistance, EdgeEffectCompat.getDistance(factory.mBottom), 0.01f);
+                assertEquals(-1000, factory.mBottom.mAbsorbVelocity);
+            });
+        }
+    }
+
     private static boolean isSOrHigher() {
         // TODO(b/181171227): Simplify this
         int sdk = Build.VERSION.SDK_INT;
@@ -228,5 +375,45 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         public float getDistance() {
             return mDistance;
         }
+    }
+
+    private class CaptureOnAbsorbFactory extends RecyclerView.EdgeEffectFactory {
+        CaptureOnAbsorb mTop, mBottom, mLeft, mRight;
+
+        @NonNull
+        @Override
+        protected EdgeEffect createEdgeEffect(RecyclerView view, int direction) {
+            CaptureOnAbsorb effect = new CaptureOnAbsorb(view.getContext());
+            switch (direction) {
+                case DIRECTION_LEFT:
+                    mLeft = effect;
+                    break;
+                case DIRECTION_TOP:
+                    mTop = effect;
+                    break;
+                case DIRECTION_RIGHT:
+                    mRight = effect;
+                    break;
+                case DIRECTION_BOTTOM:
+                    mBottom = effect;
+                    break;
+            }
+            return effect;
+        }
+    }
+
+    private static class CaptureOnAbsorb extends EdgeEffect {
+        public int mAbsorbVelocity;
+
+        CaptureOnAbsorb(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onAbsorb(int velocity) {
+            super.onAbsorb(velocity);
+            mAbsorbVelocity = velocity;
+        }
+
     }
 }

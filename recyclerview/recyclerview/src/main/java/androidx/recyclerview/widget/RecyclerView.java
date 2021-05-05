@@ -2668,6 +2668,35 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return false;
         }
 
+        // Flinging while the edge effect is active should affect the edge effect,
+        // not scrolling.
+        boolean flung = false;
+        if (velocityX != 0) {
+            if (mLeftGlow != null && !mLeftGlow.isFinished()) {
+                mLeftGlow.onAbsorb(-velocityX);
+                velocityX = 0;
+                flung = true;
+            } else if (mRightGlow != null && !mRightGlow.isFinished()) {
+                mRightGlow.onAbsorb(velocityX);
+                velocityX = 0;
+                flung = true;
+            }
+        }
+        if (velocityY != 0) {
+            if (mTopGlow != null && !mTopGlow.isFinished()) {
+                mTopGlow.onAbsorb(-velocityY);
+                velocityY = 0;
+                flung = true;
+            } else if (mBottomGlow != null && !mBottomGlow.isFinished()) {
+                mBottomGlow.onAbsorb(velocityY);
+                velocityY = 0;
+                flung = true;
+            }
+        }
+        if (velocityX == 0 && velocityY == 0) {
+            return true; // consumed all the velocity in the overscroll fling
+        }
+
         if (!dispatchNestedPreFling(velocityX, velocityY)) {
             final boolean canScroll = canScrollHorizontal || canScrollVertical;
             dispatchNestedFling(velocityX, velocityY, canScroll);
@@ -2692,7 +2721,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 return true;
             }
         }
-        return false;
+        return flung;
     }
 
     /**
@@ -2814,26 +2843,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     void absorbGlows(int velocityX, int velocityY) {
         if (velocityX < 0) {
             ensureLeftGlow();
-            if (mLeftGlow.isFinished()) {
-                mLeftGlow.onAbsorb(-velocityX);
-            }
+            mLeftGlow.onAbsorb(-velocityX);
         } else if (velocityX > 0) {
             ensureRightGlow();
-            if (mRightGlow.isFinished()) {
-                mRightGlow.onAbsorb(velocityX);
-            }
+            mRightGlow.onAbsorb(velocityX);
         }
 
         if (velocityY < 0) {
             ensureTopGlow();
-            if (mTopGlow.isFinished()) {
-                mTopGlow.onAbsorb(-velocityY);
-            }
+            mTopGlow.onAbsorb(-velocityY);
         } else if (velocityY > 0) {
             ensureBottomGlow();
-            if (mBottomGlow.isFinished()) {
-                mBottomGlow.onAbsorb(velocityY);
-            }
+            mBottomGlow.onAbsorb(velocityY);
         }
 
         if (velocityX != 0 || velocityY != 0) {
