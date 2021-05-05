@@ -199,7 +199,7 @@ src/com/example/test.kt:8: Error: Cannot set non-nullable LiveData value to null
                 import androidx.lifecycle.MutableLiveData
 
                 val liveDataField = MutableLiveData<Boolean>()
-                val secondLiveDataField: MutableLiveData<String> = MutableLiveData() 
+                val secondLiveDataField: MutableLiveData<String> = MutableLiveData()
                 val thirdLiveDataField: MutableLiveData<String> = MutableLiveData<String>("Value")
 
                 fun foo() {
@@ -791,7 +791,7 @@ Fix for src/com/example/MyClass2.kt line 30: Change `LiveData` type to nullable:
                 class Foo<T>(
                     var target: MutableLiveData<T>
                 ) {
-                
+
                     fun foo(value: T) {
                         target.value = null
                     }
