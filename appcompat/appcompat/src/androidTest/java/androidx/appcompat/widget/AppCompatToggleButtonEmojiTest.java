@@ -29,14 +29,4 @@ public class AppCompatToggleButtonEmojiTest extends
     public AppCompatToggleButtonEmojiTest() {
         super(AppCompatToggleButtonEmojiActivity.class);
     }
-
-    @Override
-    boolean isEmojiCompatEnabled(AppCompatToggleButton view) {
-        return view.isEmojiCompatEnabled();
-    }
-
-    @Override
-    void setEmojiCompatEnabled(AppCompatToggleButton view, boolean isEnabled) {
-        view.setEmojiCompatEnabled(isEnabled);
-    }
 }

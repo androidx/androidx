@@ -102,7 +102,7 @@ import java.lang.ref.WeakReference;
  * {@link androidx.appcompat.R.attr#trackTint}
  * {@link androidx.appcompat.R.attr#trackTintMode}
  */
-public class SwitchCompat extends CompoundButton {
+public class SwitchCompat extends CompoundButton implements EmojiCompatConfigurationView {
     private static final int THUMB_ANIMATION_DURATION = 250;
 
     private static final int TOUCH_MODE_IDLE = 0;
@@ -1571,23 +1571,7 @@ public class SwitchCompat extends CompoundButton {
         return mAppCompatEmojiTextHelper;
     }
 
-    /**
-     * Configure emoji fallback behavior using EmojiCompat.
-     *
-     * When enabled, this SwitchCompat will attempt to use EmojiCompat to enabled missing emojis.
-     * When disabled, this SwitchCompat will not display missing emojis using EmojiCompat.
-     *
-     * EmojiCompat must be correctly configured on a device for this to have an effect, which
-     * will happen by default if a correct downloadable fonts provider is installed on the device.
-     *
-     * If you manually configure EmojiCompat by calling EmojiCompat init after this SwitchCompat is
-     * constructed, you may call this method again to enable EmojiCompat on this text view.
-     *
-     * For more information about EmojiCompat configuration see the emoji2 module.
-     *
-     * @param enabled if true, display missing emoji using EmojiCompat, otherwise display
-     *                missing emoji using a fallback glyph "□" (known as tofu)
-     */
+    @Override
     public void setEmojiCompatEnabled(boolean enabled) {
         getEmojiTextViewHelper().setEnabled(enabled);
         // the transformation method may have changed for on/off text so call again
@@ -1596,10 +1580,7 @@ public class SwitchCompat extends CompoundButton {
         requestLayout();
     }
 
-    /**
-     * @return the current enabled state, set via
-     * {@link AppCompatTextView#setEmojiCompatEnabled(boolean)}
-     */
+    @Override
     public boolean isEmojiCompatEnabled() {
         return getEmojiTextViewHelper().isEnabled();
     }
