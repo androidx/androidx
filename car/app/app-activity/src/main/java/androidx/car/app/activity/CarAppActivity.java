@@ -22,15 +22,10 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 
@@ -49,8 +44,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.fragment.app.FragmentActivity;
-
-import java.util.List;
+import androidx.lifecycle.ViewModelProvider;
 
 /**
  * The class representing a car app activity.
@@ -96,20 +90,16 @@ import java.util.List;
 public final class CarAppActivity extends FragmentActivity {
     @VisibleForTesting
     static final String SERVICE_METADATA_KEY = "androidx.car.app.CAR_APP_SERVICE";
-    private static final String TAG = "CarAppActivity";
 
     @SuppressLint({"ActionValue"})
     @VisibleForTesting
     static final String ACTION_RENDER = "android.car.template.host.RendererService";
 
-    @Nullable
-    private ComponentName mServiceComponentName;
     TemplateSurfaceView mSurfaceView;
-    SurfaceHolderListener mSurfaceHolderListener;
-    ActivityLifecycleDelegate mActivityLifecycleDelegate;
-    @Nullable
-    OnBackPressedListener mOnBackPressedListener;
-    ServiceDispatcher mServiceDispatcher;
+    @Nullable SurfaceHolderListener mSurfaceHolderListener;
+    @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
+    @Nullable OnBackPressedListener mOnBackPressedListener;
+    @Nullable CarAppViewModel mViewModel;
     private int mDisplayId;
 
     /**
@@ -121,7 +111,7 @@ public final class CarAppActivity extends FragmentActivity {
 
         Log.e(LogTags.TAG, "Service error: " + errorType, exception);
 
-        unbindService();
+        requireNonNull(mViewModel).unbind();
 
         ThreadUtils.runOnMain(() -> {
             Log.d(LogTags.TAG, "Showing error fragment");
@@ -162,14 +152,16 @@ public final class CarAppActivity extends FragmentActivity {
                     ThreadUtils.runOnMain(
                             () -> {
                                 mSurfaceView.setOnCreateInputConnectionListener(editorInfo ->
-                                        mServiceDispatcher.fetch(null, () ->
+                                        getServiceDispatcher().fetch(null, () ->
                                                 callback.onCreateInputConnection(
                                                         editorInfo)));
 
                                 mOnBackPressedListener = () ->
-                                        mServiceDispatcher.dispatch(callback::onBackPressed);
+                                        getServiceDispatcher().dispatch(callback::onBackPressed);
 
-                                mActivityLifecycleDelegate.registerRendererCallback(callback);
+                                requireNonNull(mActivityLifecycleDelegate)
+                                        .registerRendererCallback(callback);
+                                requireNonNull(mViewModel).setRendererCallback(callback);
                             });
                 }
 
@@ -177,7 +169,8 @@ public final class CarAppActivity extends FragmentActivity {
                 public void setSurfaceListener(@NonNull ISurfaceListener listener) {
                     requireNonNull(listener);
                     ThreadUtils.runOnMain(
-                            () -> mSurfaceHolderListener.setSurfaceListener(listener));
+                            () -> requireNonNull(mSurfaceHolderListener)
+                                    .setSurfaceListener(listener));
                 }
 
                 @Override
@@ -201,87 +194,41 @@ public final class CarAppActivity extends FragmentActivity {
                 }
             };
 
-    /** The service connection for the renderer service. */
-    private ServiceConnection mServiceConnectionImpl =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(
-                        @NonNull ComponentName name, @NonNull IBinder service) {
-                    requireNonNull(name);
-                    requireNonNull(service);
-                    Log.i(LogTags.TAG, String.format("Host service %s is connected",
-                            name.flattenToShortString()));
-                    IRendererService rendererService = IRendererService.Stub.asInterface(service);
-                    if (rendererService == null) {
-                        mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                                new Exception("Failed to get IRenderService binder from host: "
-                                        + name));
-                        return;
-                    }
-
-                    mServiceDispatcher.setRendererService(rendererService);
-                    verifyServiceVersion(rendererService);
-                    initializeService(rendererService);
-                    updateIntent(getIntent());
-                }
-
-                @Override
-                public void onServiceDisconnected(@NonNull ComponentName name) {
-                    requireNonNull(name);
-
-                    // Connection lost, but it might reconnect.
-                    Log.w(LogTags.TAG, String.format("Host service %s is disconnected",
-                            name.flattenToShortString()));
-                }
-
-                @Override
-                public void onBindingDied(@NonNull ComponentName name) {
-                    requireNonNull(name);
-
-                    // Connection permanently lost
-                    mErrorHandler.onError(ErrorHandler.ErrorType.HOST_CONNECTION_LOST,
-                            new Exception("Host service " + name + " is permanently disconnected"));
-                }
-
-                @Override
-                public void onNullBinding(@NonNull ComponentName name) {
-                    requireNonNull(name);
-
-                    // Host rejected the binding.
-                    mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                            new Exception("Host service " + name + " rejected the binding "
-                                    + "request"));
-                }
-            };
-
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mServiceDispatcher = new ServiceDispatcher(mErrorHandler);
         setContentView(R.layout.activity_template);
         mSurfaceView = requireViewById(R.id.template_view_surface);
-        mActivityLifecycleDelegate = new ActivityLifecycleDelegate(mServiceDispatcher);
-        mSurfaceHolderListener = new SurfaceHolderListener(mServiceDispatcher,
-                new SurfaceWrapperProvider(mSurfaceView));
 
-        mServiceComponentName = retrieveServiceComponentName();
-        if (mServiceComponentName == null) {
-            Log.e(TAG, "Unspecified service class name");
+        ComponentName serviceComponentName = retrieveServiceComponentName();
+        if (serviceComponentName == null) {
+            Log.e(LogTags.TAG, "Unspecified service class name");
             finish();
             return;
         }
+        mDisplayId = getWindowManager().getDefaultDisplay().getDisplayId();
 
-        registerActivityLifecycleCallbacks(mActivityLifecycleDelegate);
+        CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(getApplication(),
+                serviceComponentName);
+        mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
+        mViewModel.getErrorEvent().observe(this,
+                errorEvent -> mErrorHandler.onError(errorEvent.getErrorType(),
+                        errorEvent.getException()));
+
+        mActivityLifecycleDelegate = new ActivityLifecycleDelegate(getServiceDispatcher());
+        mSurfaceHolderListener = new SurfaceHolderListener(getServiceDispatcher(),
+                new SurfaceWrapperProvider(mSurfaceView));
+
+        registerActivityLifecycleCallbacks(requireNonNull(mActivityLifecycleDelegate));
 
         // Set the z-order to receive the UI events on the surface.
         mSurfaceView.setZOrderOnTop(true);
-        mSurfaceView.setServiceDispatcher(mServiceDispatcher);
+        mSurfaceView.setServiceDispatcher(getServiceDispatcher());
         mSurfaceView.setErrorHandler(mErrorHandler);
         mSurfaceView.getHolder().addCallback(mSurfaceHolderListener);
-        mDisplayId = getWindowManager().getDefaultDisplay().getDisplayId();
-        bindService();
+
+        mViewModel.bind(getIntent(), mCarActivity, mDisplayId);
     }
 
     @Override
@@ -300,13 +247,6 @@ public final class CarAppActivity extends FragmentActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        if (isFinishing()) {
-            unbindService();
-        }
-        super.onDestroy();
-    }
 
     @Override
     public void onBackPressed() {
@@ -318,26 +258,17 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        if (!mServiceDispatcher.isBound()) {
-            bindService();
-        } else {
-            updateIntent(intent);
-        }
-    }
-
-    @VisibleForTesting
-    ServiceConnection getServiceConnection() {
-        return mServiceConnectionImpl;
-    }
-
-    @VisibleForTesting
-    void setServiceConnection(ServiceConnection serviceConnection) {
-        mServiceConnectionImpl = serviceConnection;
+        requireNonNull(mViewModel).bind(intent, mCarActivity, mDisplayId);
     }
 
     @VisibleForTesting
     int getDisplayId() {
         return mDisplayId;
+    }
+
+    @VisibleForTesting
+    ServiceDispatcher getServiceDispatcher() {
+        return requireNonNull(mViewModel).getServiceDispatcher();
     }
 
     @Nullable
@@ -348,7 +279,7 @@ public final class CarAppActivity extends FragmentActivity {
                     getPackageManager()
                             .getActivityInfo(getComponentName(), PackageManager.GET_META_DATA);
         } catch (NameNotFoundException e) {
-            Log.e(TAG, "Unable to find component: " + getComponentName(), e);
+            Log.e(LogTags.TAG, "Unable to find component: " + getComponentName(), e);
         }
 
         if (activityInfo == null) {
@@ -358,7 +289,7 @@ public final class CarAppActivity extends FragmentActivity {
         String serviceName = activityInfo.metaData.getString(SERVICE_METADATA_KEY);
         if (serviceName == null) {
             Log.e(
-                    TAG,
+                    LogTags.TAG,
                     "Unable to find required metadata tag with name "
                             + SERVICE_METADATA_KEY
                             + ". App manifest must include metadata tag with name "
@@ -368,114 +299,5 @@ public final class CarAppActivity extends FragmentActivity {
         }
 
         return new ComponentName(this, serviceName);
-    }
-
-    /** Binds to the renderer service. */
-    private void bindService() {
-        Intent rendererIntent = new Intent(ACTION_RENDER);
-        List<ResolveInfo> resolveInfoList =
-                getPackageManager()
-                        .queryIntentServices(rendererIntent, PackageManager.GET_META_DATA);
-        if (resolveInfoList.size() == 1) {
-            rendererIntent.setPackage(resolveInfoList.get(0).serviceInfo.packageName);
-            if (!bindService(
-                    rendererIntent,
-                    mServiceConnectionImpl,
-                    Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES)) {
-                mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                        new Exception("Cannot bind to the renderer host with intent: "
-                                + rendererIntent));
-            }
-        } else if (resolveInfoList.isEmpty()) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_NOT_FOUND, new Exception("No "
-                    + "handlers found for intent: " + rendererIntent));
-        } else {
-            StringBuilder logMessage =
-                    new StringBuilder("Multiple hosts found, only one is allowed");
-            for (ResolveInfo resolveInfo : resolveInfoList) {
-                logMessage.append(
-                        String.format("\nFound host %s", resolveInfo.serviceInfo.packageName));
-            }
-            mErrorHandler.onError(ErrorHandler.ErrorType.MULTIPLE_HOSTS,
-                    new Exception(logMessage.toString()));
-        }
-    }
-
-    /**
-     * Verifies that the renderer service supports the current version.
-     *
-     * @param rendererService the renderer service which should verify the version
-     */
-    void verifyServiceVersion(IRendererService rendererService) {
-        // TODO(169604451) Add version support logic
-        boolean isCompatible = true;
-
-        if (!isCompatible) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                    new Exception("Renderer service unsupported"));
-        }
-    }
-
-    /**
-     * Initializes the {@code rendererService} for the current activity with {@code carActivity},
-     * {@code serviceComponentName} and {@code displayId}.
-     *
-     * @param rendererService the renderer service that needs to be initialized
-     */
-    void initializeService(@NonNull IRendererService rendererService) {
-        requireNonNull(rendererService);
-        requireNonNull(mServiceComponentName);
-        ComponentName serviceComponentName = mServiceComponentName;
-        Boolean success = mServiceDispatcher.fetch(false,
-                () -> rendererService.initialize(mCarActivity,
-                        serviceComponentName, mDisplayId));
-        if (success == null || !success) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR,
-                    new Exception("Cannot create renderer for" + mServiceComponentName));
-        }
-    }
-
-    /** Closes the connection to the connected {@code rendererService} if any. */
-    void unbindService() {
-        // Remove the renderer callback since there is no need to communicate the state with
-        // the host.
-        mActivityLifecycleDelegate.registerRendererCallback(null);
-        // Stop sending SurfaceView updates
-        mSurfaceView.getHolder().removeCallback(mSurfaceHolderListener);
-        // If host has already disconnected, there is no need for an unbind.
-        IRendererService rendererService = mServiceDispatcher.getRendererService();
-        if (rendererService == null) {
-            return;
-        }
-        try {
-            rendererService.terminate(requireNonNull(mServiceComponentName));
-        } catch (RemoteException e) {
-            // We are already unbinding (maybe because the host has already cut the connection)
-            // Let's not log more errors unnecessarily.
-        }
-
-        Log.i(LogTags.TAG, "Unbinding from " + mServiceComponentName);
-        unbindService(mServiceConnectionImpl);
-        mServiceDispatcher.setRendererService(null);
-    }
-
-    /**
-     * Updates the activity intent for the {@code rendererService}.
-     */
-    void updateIntent(Intent intent) {
-        requireNonNull(mServiceComponentName);
-        IRendererService service = mServiceDispatcher.getRendererService();
-        if (service == null) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.CLIENT_SIDE_ERROR,
-                    new Exception("Service dispatcher is not connected"));
-            return;
-        }
-        ComponentName serviceComponentName = mServiceComponentName;
-        Boolean success = mServiceDispatcher.fetch(false, () ->
-                service.onNewIntent(intent, serviceComponentName, mDisplayId));
-        if (success == null || !success) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR, new Exception("Renderer "
-                    + "cannot handle the intent: " + intent));
-        }
     }
 }
