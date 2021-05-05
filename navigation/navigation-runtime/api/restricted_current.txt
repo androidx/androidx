@@ -110,9 +110,9 @@ package androidx.navigation {
     method @MainThread public void navigate(androidx.navigation.NavDeepLinkRequest request);
     method @MainThread public void navigate(androidx.navigation.NavDeepLinkRequest request, androidx.navigation.NavOptions? navOptions);
     method @MainThread public void navigate(androidx.navigation.NavDeepLinkRequest request, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public void navigate(androidx.navigation.NavDirections directions);
-    method public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.NavOptions? navOptions);
-    method public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.Navigator.Extras navigatorExtras);
+    method @MainThread public void navigate(androidx.navigation.NavDirections directions);
+    method @MainThread public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.NavOptions? navOptions);
+    method @MainThread public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.Navigator.Extras navigatorExtras);
     method @MainThread public boolean navigateUp();
     method @MainThread public boolean popBackStack();
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive);
