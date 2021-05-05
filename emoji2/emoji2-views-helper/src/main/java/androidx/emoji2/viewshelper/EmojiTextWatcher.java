@@ -38,13 +38,17 @@ import java.lang.ref.WeakReference;
 @RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
     private final EditText mEditText;
+    private final boolean mExpectInitializedEmojiCompat;
     private InitCallback mInitCallback;
     private int mMaxEmojiCount = EmojiDefaults.MAX_EMOJI_COUNT;
     @EmojiCompat.ReplaceStrategy
     private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
+    private boolean mEnabled;
 
-    EmojiTextWatcher(EditText editText) {
+    EmojiTextWatcher(EditText editText, boolean expectInitializedEmojiCompat) {
         mEditText = editText;
+        mExpectInitializedEmojiCompat = expectInitializedEmojiCompat;
+        mEnabled = true;
     }
 
     void setMaxEmojiCount(int maxEmojiCount) {
@@ -66,7 +70,7 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, final int start, final int before,
             final int after) {
-        if (mEditText.isInEditMode()) {
+        if (mEditText.isInEditMode() || shouldSkipForDisabledOrNotConfigured()) {
             return;
         }
 
@@ -89,6 +93,10 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         }
     }
 
+    private boolean shouldSkipForDisabledOrNotConfigured() {
+        return !mEnabled || (!mExpectInitializedEmojiCompat && !EmojiCompat.isConfigured());
+    }
+
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         // do nothing
@@ -104,6 +112,19 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
             mInitCallback = new InitCallbackImpl(mEditText);
         }
         return mInitCallback;
+    }
+
+    public boolean isEnabled() {
+        return mEnabled;
+    }
+
+    public void setEnabled(boolean isEnabled) {
+        if (mEnabled != isEnabled) {
+            if (mInitCallback != null) {
+                EmojiCompat.get().unregisterInitCallback(mInitCallback);
+            }
+            mEnabled = isEnabled;
+        }
     }
 
     @RequiresApi(19)
