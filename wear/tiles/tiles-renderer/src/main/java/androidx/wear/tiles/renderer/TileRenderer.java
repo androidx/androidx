@@ -26,7 +26,7 @@ import androidx.annotation.StyleRes;
 import androidx.wear.tiles.builders.LayoutElementBuilders;
 import androidx.wear.tiles.builders.ResourceBuilders;
 import androidx.wear.tiles.builders.StateBuilders;
-import androidx.wear.tiles.renderer.internal.StandardResourceAccessors;
+import androidx.wear.tiles.renderer.internal.StandardResourceResolvers;
 import androidx.wear.tiles.renderer.internal.TileRendererInternal;
 
 import java.util.concurrent.Executor;
@@ -97,7 +97,7 @@ public final class TileRenderer {
                 new TileRendererInternal(
                         appContext,
                         layout.toProto(),
-                        StandardResourceAccessors.forLocalApp(resources.toProto(), appContext)
+                        StandardResourceResolvers.forLocalApp(resources.toProto(), appContext)
                                 .build(),
                         tilesTheme,
                         loadActionExecutor,

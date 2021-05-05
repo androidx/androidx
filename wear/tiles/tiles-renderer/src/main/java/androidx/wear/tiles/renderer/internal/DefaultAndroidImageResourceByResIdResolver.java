@@ -22,12 +22,13 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
-import androidx.wear.tiles.renderer.internal.ResourceAccessors.AndroidImageResourceByResIdAccessor;
+import androidx.wear.tiles.renderer.internal.ResourceResolvers.AndroidImageResourceByResIdResolver;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-/** Resource accessor for Android resources. */
-public class AndroidResourceAccessor implements AndroidImageResourceByResIdAccessor {
+/** Resource resolver for Android resources. */
+public class DefaultAndroidImageResourceByResIdResolver
+        implements AndroidImageResourceByResIdResolver {
     private final Resources mAndroidResources;
 
     /**
@@ -36,18 +37,23 @@ public class AndroidResourceAccessor implements AndroidImageResourceByResIdAcces
      * @param androidResources An Android Resources instance for the tile provider's package. This
      *     is normally obtained from {@code PackageManager#getResourcesForApplication}.
      */
-    public AndroidResourceAccessor(@NonNull Resources androidResources) {
+    public DefaultAndroidImageResourceByResIdResolver(@NonNull Resources androidResources) {
         this.mAndroidResources = androidResources;
+    }
+
+    @NonNull
+    @Override
+    public Drawable getDrawableOrThrow(@NonNull AndroidImageResourceByResId resource) {
+        return mAndroidResources.getDrawable(resource.getResourceId(), /* theme= */ null);
     }
 
     @Override
     @NonNull
     public ListenableFuture<Drawable> getDrawable(@NonNull AndroidImageResourceByResId resource) {
         try {
-            return ResourceAccessors.createImmediateFuture(
-                    mAndroidResources.getDrawable(resource.getResourceId(), null));
-        } catch (NotFoundException e) {
-            return ResourceAccessors.createFailedFuture(e);
+            return ResourceResolvers.createImmediateFuture(getDrawableOrThrow(resource));
+        } catch (NotFoundException ex) {
+            return ResourceResolvers.createFailedFuture(ex);
         }
     }
 }
