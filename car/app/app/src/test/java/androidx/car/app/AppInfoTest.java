@@ -55,18 +55,16 @@ public class AppInfoTest {
                 .thenReturn(mApplicationInfo);
     }
 
-    @Test
-    public void create_minApiLevel_nullMetadata_defaultsToCurrent() {
+    @Test(expected = IllegalArgumentException.class)
+    public void create_minApiLevel_mustNotUseNullMetadata() {
         mApplicationInfo.metaData = null;
-        AppInfo appInfo = AppInfo.create(mContext);
-        assertThat(appInfo.getMinCarAppApiLevel()).isEqualTo(CarAppApiLevels.getLatest());
+        AppInfo.create(mContext);
     }
 
-    @Test
-    public void create_minApiLevel_noMetadataKey_defaultsToCurrent() {
+    @Test(expected = IllegalArgumentException.class)
+    public void create_minApiLevel_mustNotMissMetadataKeyMinApiLevelManifestKey() {
         mApplicationInfo.metaData = new Bundle();
-        AppInfo appInfo = AppInfo.create(mContext);
-        assertThat(appInfo.getMinCarAppApiLevel()).isEqualTo(CarAppApiLevels.getLatest());
+        AppInfo.create(mContext);
     }
 
     @Test(expected = IllegalArgumentException.class)
