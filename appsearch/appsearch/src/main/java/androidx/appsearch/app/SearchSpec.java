@@ -325,21 +325,21 @@ public final class SearchSpec {
 
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
-
-        private final Bundle mBundle;
         private final ArrayList<String> mSchemas = new ArrayList<>();
         private final ArrayList<String> mNamespaces = new ArrayList<>();
         private final ArrayList<String> mPackageNames = new ArrayList<>();
-        private final Bundle mProjectionTypePropertyMasks = new Bundle();
-        private boolean mBuilt = false;
+        private final ArrayMap<String, ArrayList<String>> mProjectionTypePropertyMasks =
+                new ArrayMap<>();
 
-        /** Creates a new {@link SearchSpec.Builder}. */
-        public Builder() {
-            mBundle = new Bundle();
-            mBundle.putInt(NUM_PER_PAGE_FIELD, DEFAULT_NUM_PER_PAGE);
-            mBundle.putInt(TERM_MATCH_TYPE_FIELD, TERM_MATCH_PREFIX);
-            mBundle.putInt(SNIPPET_COUNT_PER_PROPERTY_FIELD, MAX_SNIPPET_PER_PROPERTY_COUNT);
-        }
+        private int mResultCountPerPage = DEFAULT_NUM_PER_PAGE;
+        private @TermMatch int mTermMatchType = TERM_MATCH_PREFIX;
+        private int mSnippetCount = 0;
+        private int mSnippetCountPerProperty = MAX_SNIPPET_PER_PROPERTY_COUNT;
+        private int mMaxSnippetSize = 0;
+        private @RankingStrategy int mRankingStrategy = RANKING_STRATEGY_NONE;
+        private @Order int mOrder = ORDER_DESCENDING;
+        private @GroupingType int mGroupingTypeFlags = 0;
+        private int mGroupingLimit = 0;
 
         /**
          * Indicates how the query terms should match {@code TermMatchCode} in the index.
@@ -348,11 +348,10 @@ public final class SearchSpec {
          * {@link SearchSpec#TERM_MATCH_PREFIX}.
          */
         @NonNull
-        public Builder setTermMatch(@TermMatch int termMatchTypeCode) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkArgumentInRange(termMatchTypeCode, TERM_MATCH_EXACT_ONLY,
+        public Builder setTermMatch(@TermMatch int termMatchType) {
+            Preconditions.checkArgumentInRange(termMatchType, TERM_MATCH_EXACT_ONLY,
                     TERM_MATCH_PREFIX, "Term match type");
-            mBundle.putInt(TERM_MATCH_TYPE_FIELD, termMatchTypeCode);
+            mTermMatchType = termMatchType;
             return this;
         }
 
@@ -365,7 +364,6 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemas) {
             Preconditions.checkNotNull(schemas);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             return addFilterSchemas(Arrays.asList(schemas));
         }
 
@@ -378,7 +376,6 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemas) {
             Preconditions.checkNotNull(schemas);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mSchemas.addAll(schemas);
             return this;
         }
@@ -399,7 +396,6 @@ public final class SearchSpec {
         public Builder addFilterDocumentClasses(
                 @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             List<String> schemas = new ArrayList<>(documentClasses.size());
             DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
             for (Class<?> documentClass : documentClasses) {
@@ -439,7 +435,6 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterNamespaces(@NonNull String... namespaces) {
             Preconditions.checkNotNull(namespaces);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             return addFilterNamespaces(Arrays.asList(namespaces));
         }
 
@@ -451,7 +446,6 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterNamespaces(@NonNull Collection<String> namespaces) {
             Preconditions.checkNotNull(namespaces);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mNamespaces.addAll(namespaces);
             return this;
         }
@@ -467,7 +461,6 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterPackageNames(@NonNull String... packageNames) {
             Preconditions.checkNotNull(packageNames);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             return addFilterPackageNames(Arrays.asList(packageNames));
         }
 
@@ -482,7 +475,6 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterPackageNames(@NonNull Collection<String> packageNames) {
             Preconditions.checkNotNull(packageNames);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mPackageNames.addAll(packageNames);
             return this;
         }
@@ -494,20 +486,19 @@ public final class SearchSpec {
          */
         @NonNull
         public SearchSpec.Builder setResultCountPerPage(
-                @IntRange(from = 0, to = MAX_NUM_PER_PAGE) int numPerPage) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkArgumentInRange(numPerPage, 0, MAX_NUM_PER_PAGE, "NumPerPage");
-            mBundle.putInt(NUM_PER_PAGE_FIELD, numPerPage);
+                @IntRange(from = 0, to = MAX_NUM_PER_PAGE) int resultCountPerPage) {
+            Preconditions.checkArgumentInRange(
+                    resultCountPerPage, 0, MAX_NUM_PER_PAGE, "resultCountPerPage");
+            mResultCountPerPage = resultCountPerPage;
             return this;
         }
 
         /** Sets ranking strategy for AppSearch results. */
         @NonNull
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
                     RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP, "Result ranking strategy");
-            mBundle.putInt(RANKING_STRATEGY_FIELD, rankingStrategy);
+            mRankingStrategy = rankingStrategy;
             return this;
         }
 
@@ -519,10 +510,9 @@ public final class SearchSpec {
          */
         @NonNull
         public Builder setOrder(@Order int order) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(order, ORDER_DESCENDING, ORDER_ASCENDING,
                     "Result ranking order");
-            mBundle.putInt(ORDER_FIELD, order);
+            mOrder = order;
             return this;
         }
 
@@ -539,9 +529,8 @@ public final class SearchSpec {
         @NonNull
         public SearchSpec.Builder setSnippetCount(
                 @IntRange(from = 0, to = MAX_SNIPPET_COUNT) int snippetCount) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(snippetCount, 0, MAX_SNIPPET_COUNT, "snippetCount");
-            mBundle.putInt(SNIPPET_COUNT_FIELD, snippetCount);
+            mSnippetCount = snippetCount;
             return this;
         }
 
@@ -560,10 +549,9 @@ public final class SearchSpec {
         public SearchSpec.Builder setSnippetCountPerProperty(
                 @IntRange(from = 0, to = MAX_SNIPPET_PER_PROPERTY_COUNT)
                         int snippetCountPerProperty) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(snippetCountPerProperty,
                     0, MAX_SNIPPET_PER_PROPERTY_COUNT, "snippetCountPerProperty");
-            mBundle.putInt(SNIPPET_COUNT_PER_PROPERTY_FIELD, snippetCountPerProperty);
+            mSnippetCountPerProperty = snippetCountPerProperty;
             return this;
         }
 
@@ -582,10 +570,9 @@ public final class SearchSpec {
         @NonNull
         public SearchSpec.Builder setMaxSnippetSize(
                 @IntRange(from = 0, to = MAX_SNIPPET_SIZE_LIMIT) int maxSnippetSize) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(
                     maxSnippetSize, 0, MAX_SNIPPET_SIZE_LIMIT, "maxSnippetSize");
-            mBundle.putInt(MAX_SNIPPET_FIELD, maxSnippetSize);
+            mMaxSnippetSize = maxSnippetSize;
             return this;
         }
 
@@ -652,7 +639,6 @@ public final class SearchSpec {
         @NonNull
         public SearchSpec.Builder addProjection(
                 @NonNull String schema, @NonNull Collection<String> propertyPaths) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(schema);
             Preconditions.checkNotNull(propertyPaths);
             ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
@@ -660,7 +646,7 @@ public final class SearchSpec {
                 Preconditions.checkNotNull(propertyPath);
                 propertyPathsArrayList.add(propertyPath);
             }
-            mProjectionTypePropertyMasks.putStringArrayList(schema, propertyPathsArrayList);
+            mProjectionTypePropertyMasks.put(schema, propertyPathsArrayList);
             return this;
         }
 
@@ -685,27 +671,38 @@ public final class SearchSpec {
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setResultGrouping(@GroupingType int groupingTypeFlags, int limit) {
-            Preconditions.checkState(groupingTypeFlags != 0,
-                    "Result grouping type cannot be zero.");
-            mBundle.putInt(RESULT_GROUPING_TYPE_FLAGS, groupingTypeFlags);
-            mBundle.putInt(RESULT_GROUPING_LIMIT, limit);
+            Preconditions.checkState(
+                    groupingTypeFlags != 0, "Result grouping type cannot be zero.");
+            mGroupingTypeFlags = groupingTypeFlags;
+            mGroupingLimit = limit;
             return this;
         }
 
-        /**
-         * Constructs a new {@link SearchSpec} from the contents of this builder.
-         *
-         * <p>After calling this method, the builder must no longer be used.
-         */
+        /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
         public SearchSpec build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
-            mBundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
-            mBundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);
-            mBundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, mProjectionTypePropertyMasks);
-            mBuilt = true;
-            return new SearchSpec(mBundle);
+            Bundle projectionTypePropertyMasks = new Bundle();
+            for (Map.Entry<String, ArrayList<String>> entry
+                    : mProjectionTypePropertyMasks.entrySet()) {
+                projectionTypePropertyMasks.putStringArrayList(
+                        entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+
+            Bundle bundle = new Bundle();
+            bundle.putStringArrayList(SCHEMA_FIELD, new ArrayList<>(mSchemas));
+            bundle.putStringArrayList(NAMESPACE_FIELD, new ArrayList<>(mNamespaces));
+            bundle.putStringArrayList(PACKAGE_NAME_FIELD, new ArrayList<>(mPackageNames));
+            bundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, projectionTypePropertyMasks);
+            bundle.putInt(NUM_PER_PAGE_FIELD, mResultCountPerPage);
+            bundle.putInt(TERM_MATCH_TYPE_FIELD, mTermMatchType);
+            bundle.putInt(SNIPPET_COUNT_FIELD, mSnippetCount);
+            bundle.putInt(SNIPPET_COUNT_PER_PROPERTY_FIELD, mSnippetCountPerProperty);
+            bundle.putInt(MAX_SNIPPET_FIELD, mMaxSnippetSize);
+            bundle.putInt(RANKING_STRATEGY_FIELD, mRankingStrategy);
+            bundle.putInt(ORDER_FIELD, mOrder);
+            bundle.putInt(RESULT_GROUPING_TYPE_FLAGS, mGroupingTypeFlags);
+            bundle.putInt(RESULT_GROUPING_LIMIT, mGroupingLimit);
+            return new SearchSpec(bundle);
         }
     }
 }
