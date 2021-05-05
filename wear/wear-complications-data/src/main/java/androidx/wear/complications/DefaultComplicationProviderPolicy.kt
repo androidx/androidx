@@ -18,7 +18,7 @@ package androidx.wear.complications
 
 import android.content.ComponentName
 import androidx.annotation.RestrictTo
-import androidx.wear.complications.SystemProviders.Companion.ProviderId
+import androidx.wear.complications.SystemProviders.ProviderId
 import java.util.ArrayList
 
 /**
