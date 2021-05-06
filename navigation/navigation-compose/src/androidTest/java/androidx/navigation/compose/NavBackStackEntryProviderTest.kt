@@ -121,6 +121,33 @@ class NavBackStackEntryProviderTest {
         assertThat(array).isEqualTo(intArrayOf(1))
     }
 
+    @Test
+    fun testNonSaveableValueInContentIsNotSaved() {
+        val backStackEntry = createBackStackEntry()
+        val restorationTester = StateRestorationTester(composeTestRule)
+        var nonSaveable: IntArray? = null
+        val initialValue = intArrayOf(10)
+
+        restorationTester.setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+            backStackEntry.provideToCompositionLocals(saveableStateHolder) {
+                nonSaveable = remember { initialValue }
+            }
+        }
+
+        assertThat(nonSaveable).isEqualTo(initialValue)
+
+        composeTestRule.runOnUiThread {
+            nonSaveable!![0] = 1
+            // we null it to ensure recomposition happened
+            nonSaveable = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        assertThat(nonSaveable).isEqualTo(initialValue)
+    }
+
     private fun createBackStackEntry(): NavBackStackEntry {
         val testNavigator = TestNavigator()
         val testNavigatorState = TestNavigatorState()
