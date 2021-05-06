@@ -17,6 +17,7 @@
 
 package androidx.core.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -48,6 +49,7 @@ import android.widget.ScrollView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.InputDeviceCompat;
@@ -102,8 +104,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private final Rect mTempRect = new Rect();
     private OverScroller mScroller;
-    private final EdgeEffect mEdgeGlowTop;
-    private final EdgeEffect mEdgeGlowBottom;
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
+    @NonNull
+    public EdgeEffect mEdgeGlowTop;
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
+    @NonNull
+    public EdgeEffect mEdgeGlowBottom;
 
     /**
      * Position of the last motion event.
@@ -908,11 +920,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                     // Calling overScrollByCompat will call onOverScrolled, which
                     // calls onScrollChanged if applicable.
-                    if (overScrollByCompat(0, deltaY, 0, getScrollY(), 0, range, 0,
-                            0, true) && !hasNestedScrollingParent(ViewCompat.TYPE_TOUCH)) {
-                        // Break our velocity if we hit a scroll barrier.
-                        mVelocityTracker.clear();
-                    }
+                    boolean clearVelocityTracker =
+                            overScrollByCompat(0, deltaY, 0, getScrollY(), 0, range, 0,
+                                    0, true) && !hasNestedScrollingParent(ViewCompat.TYPE_TOUCH);
 
                     final int scrolledDeltaY = getScrollY() - oldY;
                     final int unconsumedY = deltaY - scrolledDeltaY;
@@ -945,7 +955,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         }
                         if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
                             ViewCompat.postInvalidateOnAnimation(this);
+                            clearVelocityTracker = false;
                         }
+                    }
+                    if (clearVelocityTracker) {
+                        // Break our velocity if we hit a scroll barrier.
+                        mVelocityTracker.clear();
                     }
                 }
                 break;
@@ -954,7 +969,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
                 if ((Math.abs(initialVelocity) >= mMinimumVelocity)) {
-                    if (!dispatchNestedPreFling(0, -initialVelocity)) {
+                    if (!edgeEffectFling(initialVelocity)
+                            && !dispatchNestedPreFling(0, -initialVelocity)) {
                         dispatchNestedFling(0, -initialVelocity, true);
                         fling(-initialVelocity);
                     }
@@ -993,6 +1009,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         vtev.recycle();
 
         return true;
+    }
+
+    private boolean edgeEffectFling(int velocityY) {
+        boolean consumed = true;
+        if (!mEdgeGlowTop.isFinished()) {
+            mEdgeGlowTop.onAbsorb(velocityY);
+        } else if (!mEdgeGlowBottom.isFinished()) {
+            mEdgeGlowBottom.onAbsorb(-velocityY);
+        } else {
+            consumed = false;
+        }
+        return consumed;
     }
 
     /**
