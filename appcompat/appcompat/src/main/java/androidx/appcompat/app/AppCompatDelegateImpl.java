@@ -592,16 +592,17 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (ab != null) {
             ab.onDestroy();
         }
+        mActionBar = null;
 
         if (toolbar != null) {
             final ToolbarActionBar tbab = new ToolbarActionBar(toolbar, getTitle(),
-                    mWindow.getCallback());
+                    mAppCompatWindowCallback);
             mActionBar = tbab;
-            mWindow.setCallback(tbab.getWrappedWindowCallback());
+            // Set the nested action bar window callback so that it receive menu events
+            mAppCompatWindowCallback.setActionBarCallback(tbab.mMenuCallback);
         } else {
-            mActionBar = null;
-            // Re-set the original window callback since we may have already set a Toolbar wrapper
-            mWindow.setCallback(mAppCompatWindowCallback);
+            // Clear the nested action bar window callback
+            mAppCompatWindowCallback.setActionBarCallback(null);
         }
 
         invalidateOptionsMenu();
@@ -3069,10 +3070,26 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
     }
 
+    /**
+     * Interface which allows ToolbarActionBar to receive menu events without
+     * needing to wrap the Window.Callback
+     */
+    interface ActionBarMenuCallback {
+        boolean onPreparePanel(int featureId);
+
+        @Nullable
+        View onCreatePanelView(int featureId);
+    }
 
     class AppCompatWindowCallback extends WindowCallbackWrapper {
+        private ActionBarMenuCallback mActionBarCallback;
+
         AppCompatWindowCallback(Window.Callback callback) {
             super(callback);
+        }
+
+        void setActionBarCallback(@Nullable ActionBarMenuCallback callback) {
+            mActionBarCallback = callback;
         }
 
         @Override
@@ -3095,6 +3112,17 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 return false;
             }
             return super.onCreatePanelMenu(featureId, menu);
+        }
+
+        @Override
+        public View onCreatePanelView(int featureId) {
+            if (mActionBarCallback != null) {
+                View created = mActionBarCallback.onCreatePanelView(featureId);
+                if (created != null) {
+                    return created;
+                }
+            }
+            return super.onCreatePanelView(featureId);
         }
 
         @Override
@@ -3121,7 +3149,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 mb.setOverrideVisibleItems(true);
             }
 
-            final boolean handled = super.onPreparePanel(featureId, view, menu);
+            boolean handled = false;
+            if (mActionBarCallback != null && mActionBarCallback.onPreparePanel(featureId)) {
+                handled = true;
+            }
+            if (!handled) {
+                handled = super.onPreparePanel(featureId, view, menu);
+            }
 
             if (mb != null) {
                 mb.setOverrideVisibleItems(false);
