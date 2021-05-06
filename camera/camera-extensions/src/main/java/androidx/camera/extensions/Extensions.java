@@ -24,12 +24,12 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalCameraFilter;
-import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraConfigProvider;
 import androidx.camera.core.impl.CameraFilters;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
@@ -44,28 +44,25 @@ import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.LinkedHashSet;
-import java.util.List;
 
 /**
- * A class for querying and controlling the extensions that are enable for individual
- * {@link Camera} instances.
+ * A class for querying extensions related information.
  *
- * <p> The typical usages is to check whether or not a Camera and/or the {@link UseCase}
- * combinations support the extension by using {@link #isExtensionAvailable(Camera, int)} and
- * {@link #checkUseCases(Camera, List, int)}. Then after it has been determined that the
- * extension can be enable then a {@link #setExtension(Camera, int)} call can be used to set the
- * specified extension on the camera.
+ * <p>The typical usages include checking whether or not a camera exists that supports an extension
+ * by using {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}. Then after it has
+ * been determined that the extension can be enabled, a
+ * {@link #getExtensionCameraSelector(CameraSelector, int)} call can be used to get the
+ * specified {@link CameraSelector} to bind use cases and enable the extension mode on the camera.
  *
- * <p> When the Camera has been set to a particular extension it might require the camera to
- * restart which can cause the preview to temporarily stop. Once the extension has been enable
+ * <p>When the Camera has been set to a particular extension it might require the camera to
+ * restart which can cause the preview to momentarily stop. Once the extension has been enabled
  * for a Camera instance then it will stay in that extension mode until the extension has been
- * disabled. Setting extension modes is separate for each camera instance.
+ * disabled.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Extensions {
+public final class Extensions {
     private static final String TAG = "Extensions";
 
     /** Normal mode without any specific effect applied. */
@@ -93,14 +90,14 @@ public class Extensions {
      */
     public static final int EXTENSION_MODE_AUTO = 5;
 
-    private final Context mContext;
-
+    private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
+            + "-extensions-";
     /**
      * The different extension modes that a {@link Camera} can be configured for.
      *
-     * <p>Not all devices and camera support the different extension modes. To query whether or
+     * <p>Not all devices and cameras support the different extension modes. To query whether or
      * not a specific Camera supports an extension mode use
-     * {@link Extensions#isExtensionAvailable(Camera, int)}.
+     * {@link Extensions#isExtensionAvailable(CameraProvider, CameraSelector, int)}.
      *
      * @hide
      */
@@ -112,63 +109,52 @@ public class Extensions {
     }
 
     Extensions(@NonNull Context context) {
-        mContext = context;
     }
 
     /**
-     * Sets the specified extension mode for the Camera.
+     * Returns a {@link CameraSelector} for the specific extension mode.
      *
-     * To return to a non-extensions mode Camera set the extension mode as NONE.
-     * For full list of extensions see Extension Modes
-     *
-     * @param camera The camera that the UseCases are attached to
-     * @param mode   The extension mode to set. Setting this to EXTENSION_NONE will
-     *               remove the current extension and will always succeed.
-     * @throws IllegalArgumentException if the specified extension mode can not be set on the
-     *                                  Camera. This can happen if the extension is not supported
-     *                                  on this camera. This might also
-     *                                  because the combination of UseCases attached to the
-     *                                  Camera. Use {@link
-     *                                  #checkUseCases(Camera, List, int)} to verify that the
-     *                                  Camera can support the list of
-     *                                  UseCases for the extension.
+     * @param baseCameraSelector The base {@link CameraSelector} to be applied the extension
+     *                           related configuration on.
+     *                         {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}
+     *                          can be used to check whether any camera can support the specified
+     *                          extension mode for the base camera selector.
+     * @param mode The target extension mode.
+     * @return a {@link CameraSelector} for the specific Extensions mode.
+     * @throws IllegalArgumentException if the base {@link CameraSelector} has contained
+     * extension related configuration in it.
      */
     @OptIn(markerClass = ExperimentalCameraFilter.class)
-    public void setExtension(@NonNull Camera camera, @ExtensionMode int mode) {
-        if (!isExtensionAvailable(camera, mode)) {
-            throw new IllegalArgumentException("Extension mode not supported on camera: " + mode);
+    @NonNull
+    public CameraSelector getExtensionCameraSelector(@NonNull CameraSelector baseCameraSelector,
+            @ExtensionMode int mode) {
+        // Checks whether there has been Extensions related CameraConfig set in the base
+        // CameraSelector.
+        for (CameraFilter cameraFilter : baseCameraSelector.getCameraFilterSet()) {
+            if (cameraFilter instanceof ExtensionCameraFilter) {
+                throw new IllegalArgumentException(
+                        "An extension is already applied to the base CameraSelector.");
+            }
         }
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().addCameraFilter(getFilter(mode)).build();
-        Camera extensionCamera =
-                cameraSelector.select(new LinkedHashSet<>(camera.getCameraInternals()));
-        CameraInfo extensionsCameraInfo = extensionCamera.getCameraInfo();
+        // Injects CameraConfigProvider for the extension mode to the
+        // ExtendedCameraConfigProviderStore.
+        injectExtensionCameraConfig(mode);
 
-        ExtensionsUseCaseConfigFactory factory = new ExtensionsUseCaseConfigFactory(mode,
-                extensionsCameraInfo, mContext);
+        CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(baseCameraSelector);
 
-        // Set the Camera
-        ExtensionsConfig extensionsConfig =
-                new ExtensionsConfig.Builder()
-                        .setExtensionMode(mode)
-                        .setCameraFilter(getFilter(mode))
-                        .setUseCaseConfigFactory(factory)
-                        .build();
+        // Adds the CameraFilter that determines which cameras can support the Extensions mode
+        // to the CameraSelector.
+        builder.addCameraFilter(getFilter(mode));
 
-        // Set the config on the camera
-        try {
-            camera.setExtendedConfig(extensionsConfig);
-        } catch (CameraUseCaseAdapter.CameraException e) {
-            throw new IllegalArgumentException("Camera unable to support the extension with the "
-                    + "attached UseCases. " + e);
-        }
+        return builder.build();
     }
 
     /**
      * Returns the extension mode that is currently set on the camera.
      */
-    public @ExtensionMode int getExtension(@NonNull Camera camera) {
+    @ExtensionMode
+    public int getExtension(@NonNull Camera camera) {
         Object extensionsConfigObject = camera.getExtendedConfig();
 
         if (extensionsConfigObject instanceof ExtensionsConfig) {
@@ -180,53 +166,55 @@ public class Extensions {
 
     /**
      * Returns true if the particular extension mode is available for the specified
-     * Camera.
+     * {@link CameraSelector}.
      *
-     * <p> This check is independent of the {@link UseCase} which are currently attached to the
-     * {@link Camera}. To check whether the Camera can support the attached UseCases use {@link
-     * #checkUseCases(Camera, List, int)}.
-     *
-     * @param camera The Camera to check if it supports the extension.
-     * @param mode   The extension mode to check
+     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
+     * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
+     * @param mode The target extension mode to support.
      */
     @OptIn(markerClass = ExperimentalCameraFilter.class)
-    public boolean isExtensionAvailable(@NonNull Camera camera, @ExtensionMode int mode) {
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().addCameraFilter(getFilter(mode)).build();
-
-        // Extension is available for the camera if it contains a CameraInternal which supports
-        // the extension
+    public boolean isExtensionAvailable(
+            @NonNull CameraProvider cameraProvider,
+            @NonNull CameraSelector baseCameraSelector,
+            @ExtensionMode int mode) {
         try {
-            cameraSelector.select(new LinkedHashSet<>(camera.getCameraInternals()));
+            CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(
+                    baseCameraSelector);
+            builder.addCameraFilter(getFilter(mode));
+
+            builder.build().filter(cameraProvider.getAvailableCameraInfos());
         } catch (IllegalArgumentException e) {
             return false;
         }
+
         return true;
     }
 
     @OptIn(markerClass = ExperimentalCameraFilter.class)
     private CameraFilter getFilter(@ExtensionMode int mode) {
         CameraFilter filter;
+        String id = getExtendedCameraConfigProviderId(mode);
+
         try {
             switch (mode) {
                 case EXTENSION_MODE_BOKEH:
-                    filter = new ExtensionCameraFilter(new BokehPreviewExtenderImpl(),
+                    filter = new ExtensionCameraFilter(id, new BokehPreviewExtenderImpl(),
                             new BokehImageCaptureExtenderImpl());
                     break;
                 case EXTENSION_MODE_HDR:
-                    filter = new ExtensionCameraFilter(new HdrPreviewExtenderImpl(),
+                    filter = new ExtensionCameraFilter(id, new HdrPreviewExtenderImpl(),
                             new HdrImageCaptureExtenderImpl());
                     break;
                 case EXTENSION_MODE_NIGHT:
-                    filter = new ExtensionCameraFilter(new NightPreviewExtenderImpl(),
+                    filter = new ExtensionCameraFilter(id, new NightPreviewExtenderImpl(),
                             new NightImageCaptureExtenderImpl());
                     break;
                 case EXTENSION_MODE_BEAUTY:
-                    filter = new ExtensionCameraFilter(new BeautyPreviewExtenderImpl(),
+                    filter = new ExtensionCameraFilter(id, new BeautyPreviewExtenderImpl(),
                             new BeautyImageCaptureExtenderImpl());
                     break;
                 case EXTENSION_MODE_AUTO:
-                    filter = new ExtensionCameraFilter(new AutoPreviewExtenderImpl(),
+                    filter = new ExtensionCameraFilter(id, new AutoPreviewExtenderImpl(),
                             new AutoImageCaptureExtenderImpl());
                     break;
                 case EXTENSION_MODE_NONE:
@@ -241,20 +229,49 @@ public class Extensions {
     }
 
     /**
-     * Checks if the list of UseCases attached to the Camera can support the
-     * extension.
-     *
-     * If the list of UseCases exceeds the capacity of Surfaces for the Camera then
-     * it returns a list of UseCase lists that can be removed in order to allow for
-     * the extension to be enabled. Any of the individual lists can be removed.
-     *
-     * @return null if the Camera supports the extension using the list of UseCases, otherwise a
-     * list of UseCase list to remove.
+     * Injects {@link CameraConfigProvider} for specific extension mode to the
+     * {@link ExtendedCameraConfigProviderStore}.
      */
-    @NonNull
-    public List<List<UseCase>> checkUseCases(@NonNull Camera camera,
-            @NonNull List<UseCase> useCases,
-            @ExtensionMode int mode) {
-        throw new UnsupportedOperationException("not yet implemented");
+    private void injectExtensionCameraConfig(@ExtensionMode int mode) {
+        CameraFilter.Id id = CameraFilter.Id.create(getExtendedCameraConfigProviderId(mode));
+
+        if (ExtendedCameraConfigProviderStore.getConfig(id) == CameraConfigProvider.EMPTY) {
+            ExtendedCameraConfigProviderStore.addConfig(id, (cameraInfo, context) -> {
+                ExtensionsUseCaseConfigFactory factory = new
+                        ExtensionsUseCaseConfigFactory(mode, cameraInfo, context);
+                return new ExtensionsConfig.Builder()
+                        .setExtensionMode(mode)
+                        .setUseCaseConfigFactory(factory)
+                        .build();
+            });
+        }
+    }
+
+    private String getExtendedCameraConfigProviderId(@ExtensionMode int mode) {
+        String id;
+
+        switch (mode) {
+            case EXTENSION_MODE_BOKEH:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_BOKEH";
+                break;
+            case EXTENSION_MODE_HDR:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_HDR";
+                break;
+            case EXTENSION_MODE_NIGHT:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_NIGHT";
+                break;
+            case EXTENSION_MODE_BEAUTY:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_BEAUTY";
+                break;
+            case EXTENSION_MODE_AUTO:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_AUTO";
+                break;
+            case EXTENSION_MODE_NONE:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_NONE";
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid extension mode!");
+        }
+        return id;
     }
 }
