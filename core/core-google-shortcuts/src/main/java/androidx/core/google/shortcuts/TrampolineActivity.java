@@ -69,7 +69,7 @@ public class TrampolineActivity extends Activity {
                     mac.verifyMac(Base64.decode(tag, Base64.DEFAULT),
                             shortcutUrl.getBytes(StandardCharsets.UTF_8));
 
-                    Intent shortcutIntent = Intent.parseUri(shortcutUrl, 0);
+                    Intent shortcutIntent = Intent.parseUri(shortcutUrl, Intent.URI_INTENT_SCHEME);
                     startActivity(shortcutIntent);
                 } catch (GeneralSecurityException | URISyntaxException e) {
                     Log.w(TAG, "failed to open shortcut url", e);

@@ -65,7 +65,7 @@ public class ShortcutUtilsTest {
 
         String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent, null);
 
-        String expectedShortcutUrl = "http://www.google.com";
+        String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
         assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
     }
 
@@ -84,7 +84,7 @@ public class ShortcutUtilsTest {
         assertThat(trampolineIntent.getPackage()).isEqualTo(context.getPackageName());
         assertThat(trampolineIntent.getAction()).isEqualTo(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY)).isNotEmpty();
-        String expectedShortcutUrl = "http://www.google.com";
+        String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY))
                 .isEqualTo(expectedShortcutUrl);
     }

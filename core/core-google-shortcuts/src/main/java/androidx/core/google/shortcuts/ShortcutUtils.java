@@ -38,16 +38,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 /**
- * Utility methods and constants used by the google shortcuts library.
+ * Utility methods and constants used by the Google shortcuts library.
  *
  * @hide
  */
 @RestrictTo(LIBRARY)
 class ShortcutUtils {
-    public static final String SHORTCUT_LABEL_KEY = "shortcutLabel";
-    public static final String SHORTCUT_DESCRIPTION_KEY = "shortcutDescription";
-    public static final String SHORTCUT_URL_KEY = "shortcutUrl";
     public static final String ID_KEY = "id";
+    public static final String SHORTCUT_URL_KEY = "shortcutUrl";
     public static final String CAPABILITY_PARAM_SEPARATOR = "/";
     public static final String SHORTCUT_TAG_KEY = "shortcutTag";
     public static final String SHORTCUT_LISTENER_INTENT_FILTER_ACTION = "androidx.core.content.pm"
@@ -88,7 +86,7 @@ class ShortcutUtils {
      */
     public static String getIndexableShortcutUrl(@NonNull Context context,
             @NonNull Intent shortcutIntent, @Nullable KeysetHandle keysetHandle) {
-        String shortcutUrl = shortcutIntent.toUri(0);
+        String shortcutUrl = shortcutIntent.toUri(Intent.URI_INTENT_SCHEME);
         if (keysetHandle == null) {
             // If keyset handle is null, then create the shortcut without using the Trampoline
             // Activity. This means that only shortcuts with exported intent will work. Those with
