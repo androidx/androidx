@@ -127,6 +127,10 @@ NullableCollection: androidx.navigation.Navigator#onSaveState():
     Return type of method androidx.navigation.Navigator.onSaveState() is a nullable collection (`android.os.Bundle`); must be non-null
 
 
+OptionalBuilderConstructorArgument: androidx.navigation.NavDestinationBuilder#NavDestinationBuilder(androidx.navigation.Navigator<? extends D>, String) parameter #1:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter route in androidx.navigation.NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, String route)
+
+
 SetterReturnsThis: androidx.navigation.AnimBuilder#setEnter(int):
     Methods must return the builder object (return type androidx.navigation.AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setEnter(int)
 SetterReturnsThis: androidx.navigation.AnimBuilder#setExit(int):
