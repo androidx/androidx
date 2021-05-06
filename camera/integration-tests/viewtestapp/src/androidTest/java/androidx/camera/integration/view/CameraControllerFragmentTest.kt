@@ -118,6 +118,14 @@ class CameraControllerFragmentTest {
     }
 
     @Test
+    fun controllerBound_canGetCameraControl() {
+        fragment.assertPreviewIsStreaming()
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.cameraControl).isNotNull()
+        }
+    }
+
+    @Test
     fun controllerBound_canGetCameraInfo() {
         fragment.assertPreviewIsStreaming()
         instrumentation.runOnMainSync {
