@@ -421,8 +421,8 @@ public class ViewPager extends ViewGroup {
         mTouchSlop = configuration.getScaledPagingTouchSlop();
         mMinimumVelocity = (int) (MIN_FLING_VELOCITY * density);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
-        mLeftEdge = EdgeEffectCompat.create(context, attrs);
-        mRightEdge = EdgeEffectCompat.create(context, attrs);
+        mLeftEdge = new EdgeEffect(context);
+        mRightEdge = new EdgeEffect(context);
 
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
         mCloseEnough = (int) (CLOSE_ENOUGH * density);
