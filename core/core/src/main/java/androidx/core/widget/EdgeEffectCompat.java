@@ -21,6 +21,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.EdgeEffect;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -63,7 +64,7 @@ public final class EdgeEffectCompat {
     @NonNull
     public static EdgeEffect create(@NonNull Context context, @Nullable AttributeSet attrs) {
         if (BuildCompat.isAtLeastS()) {
-            return EdgeEffectCompatApi31.create(context, attrs);
+            return Api31Impl.create(context, attrs);
         }
 
         return new EdgeEffect(context);
@@ -84,7 +85,7 @@ public final class EdgeEffectCompat {
      */
     public static float getDistance(@NonNull EdgeEffect edgeEffect) {
         if (BuildCompat.isAtLeastS()) {
-            return EdgeEffectCompatApi31.getDistance(edgeEffect);
+            return Api31Impl.getDistance(edgeEffect);
         }
         return 0;
     }
@@ -236,7 +237,7 @@ public final class EdgeEffectCompat {
             float displacement
     ) {
         if (BuildCompat.isAtLeastS()) {
-            return EdgeEffectCompatApi31.onPullDistance(edgeEffect, deltaDistance, displacement);
+            return Api31Impl.onPullDistance(edgeEffect, deltaDistance, displacement);
         }
         onPull(edgeEffect, deltaDistance, displacement);
         return deltaDistance;
@@ -296,9 +297,10 @@ public final class EdgeEffectCompat {
 
     // TODO(b/181171227): This actually requires S, but we don't have a version for S yet.
     @RequiresApi(Build.VERSION_CODES.R)
-    private static class EdgeEffectCompatApi31 {
-        private EdgeEffectCompatApi31() {}
+    private static class Api31Impl {
+        private Api31Impl() {}
 
+        @DoNotInline
         public static EdgeEffect create(Context context, AttributeSet attrs) {
             try {
                 return new EdgeEffect(context, attrs);
@@ -307,6 +309,7 @@ public final class EdgeEffectCompat {
             }
         }
 
+        @DoNotInline
         public static float onPullDistance(
                 EdgeEffect edgeEffect,
                 float deltaDistance,
@@ -320,6 +323,7 @@ public final class EdgeEffectCompat {
             }
         }
 
+        @DoNotInline
         public static float getDistance(EdgeEffect edgeEffect) {
             try {
                 return edgeEffect.getDistance();
