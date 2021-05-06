@@ -11,6 +11,12 @@ package androidx.navigation.compose {
   }
 
   public final class NamedNavArgument {
+    method public operator String component1();
+    method public operator androidx.navigation.NavArgument component2();
+    method public androidx.navigation.NavArgument getArgument();
+    method public String getName();
+    property public final androidx.navigation.NavArgument argument;
+    property public final String name;
   }
 
   public final class NamedNavArgumentKt {
