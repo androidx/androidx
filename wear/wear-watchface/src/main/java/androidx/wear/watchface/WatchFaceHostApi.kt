@@ -22,7 +22,7 @@ import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.wear.complications.SystemProviders.Companion.ProviderId
+import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**

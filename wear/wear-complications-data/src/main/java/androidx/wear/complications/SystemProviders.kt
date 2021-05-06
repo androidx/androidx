@@ -194,34 +194,34 @@ public class SystemProviders private constructor() {
          * This provider supports only [ComplicationType.SHORT_TEXT].
          */
         public const val PROVIDER_DAY_AND_DATE: Int = 16
-
-        /**
-         * System provider id as defined in [SystemProviders].
-         *
-         * @hide
-         */
-        @IntDef(
-            NO_PROVIDER,
-            PROVIDER_WATCH_BATTERY,
-            PROVIDER_DATE,
-            PROVIDER_TIME_AND_DATE,
-            PROVIDER_STEP_COUNT,
-            PROVIDER_WORLD_CLOCK,
-            PROVIDER_APP_SHORTCUT,
-            PROVIDER_UNREAD_NOTIFICATION_COUNT,
-            PROVIDER_NEXT_EVENT,
-            PROVIDER_RETAIL_STEP_COUNT,
-            PROVIDER_RETAIL_CHAT,
-            PROVIDER_SUNRISE_SUNSET,
-            PROVIDER_DAY_OF_WEEK,
-            PROVIDER_FAVORITE_CONTACT,
-            PROVIDER_MOST_RECENT_APP,
-            PROVIDER_DAY_AND_DATE
-        )
-        @RestrictTo(
-            RestrictTo.Scope.LIBRARY_GROUP
-        )
-        @Retention(AnnotationRetention.SOURCE)
-        public annotation class ProviderId
     }
+
+    /**
+     * System provider id as defined in [SystemProviders].
+     *
+     * @hide
+     */
+    @IntDef(
+        NO_PROVIDER,
+        PROVIDER_WATCH_BATTERY,
+        PROVIDER_DATE,
+        PROVIDER_TIME_AND_DATE,
+        PROVIDER_STEP_COUNT,
+        PROVIDER_WORLD_CLOCK,
+        PROVIDER_APP_SHORTCUT,
+        PROVIDER_UNREAD_NOTIFICATION_COUNT,
+        PROVIDER_NEXT_EVENT,
+        PROVIDER_RETAIL_STEP_COUNT,
+        PROVIDER_RETAIL_CHAT,
+        PROVIDER_SUNRISE_SUNSET,
+        PROVIDER_DAY_OF_WEEK,
+        PROVIDER_FAVORITE_CONTACT,
+        PROVIDER_MOST_RECENT_APP,
+        PROVIDER_DAY_AND_DATE
+    )
+    @RestrictTo(
+        RestrictTo.Scope.LIBRARY_GROUP
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    public annotation class ProviderId
 }
