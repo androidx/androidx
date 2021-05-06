@@ -43,6 +43,17 @@ class TestNavigatorDestinationBuilderTest {
     }
 
     @Test
+    fun testRoute() {
+        val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
+            test(DESTINATION_ROUTE)
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+    }
+
+    @Test
     fun testWithBody() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID) {
@@ -58,7 +69,25 @@ class TestNavigatorDestinationBuilderTest {
             LABEL, graph[DESTINATION_ID].label
         )
     }
+
+    @Test
+    fun testRouteWithBody() {
+        val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
+            test(DESTINATION_ROUTE) {
+                label = LABEL
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Destination should have label set",
+            LABEL, graph[DESTINATION_ROUTE].label
+        )
+    }
 }
 
 private const val DESTINATION_ID = 1
+private const val DESTINATION_ROUTE = "route"
 private const val LABEL = "Test"
