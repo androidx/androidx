@@ -34,6 +34,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -48,6 +49,9 @@ public class ListenableEditorSession(
          * Constructs a [ListenableFuture] for a [ListenableEditorSession] for an on watch face
          * editor. This registers an activity result handler and so it must be called during an
          * Activity or Fragment initialization path.
+         *
+         * If watch face editor takes more than 4s to create a watch face, returned future will be
+         * resolved with [TimeoutCancellationException] exception.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
@@ -69,9 +73,7 @@ public class ListenableEditorSession(
             coroutineScope.launch {
                 try {
                     result.set(
-                        createOnWatchEditingSession(activity, editIntent)?.let {
-                            ListenableEditorSession(it)
-                        }
+                        ListenableEditorSession(createOnWatchEditingSession(activity, editIntent))
                     )
                 } catch (e: Exception) {
                     result.setException(e)
@@ -96,7 +98,7 @@ public class ListenableEditorSession(
             activity,
             editIntent,
             headlessWatchFaceClient
-        )?.let {
+        ).let {
             ListenableEditorSession(it)
         }
     }

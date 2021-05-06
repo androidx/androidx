@@ -68,6 +68,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlin.jvm.Throws
 
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
@@ -183,14 +184,17 @@ public abstract class EditorSession : AutoCloseable {
          * @param editIntent The [Intent] sent by SysUI to launch the editing session.
          * @return Deferred<EditorSession?> which is resolved with either the [EditorSession] or
          * `null` if it can't be constructed.
+         * @throws [TimeoutCancellationException] if it takes more than
+         * [EDITING_SESSION_TIMEOUT_MILLIS] milliseconds to create a watch face editor.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
+        @Throws(TimeoutCancellationException::class)
         public suspend fun createOnWatchEditingSession(
             activity: ComponentActivity,
             editIntent: Intent
-        ): EditorSession? = createOnWatchEditingSessionImpl(
+        ): EditorSession = createOnWatchEditingSessionImpl(
             activity,
             editIntent,
             object : ProviderInfoRetrieverProvider {
@@ -199,16 +203,17 @@ public abstract class EditorSession : AutoCloseable {
         )
 
         // Used by tests.
+        @Throws(TimeoutCancellationException::class)
         internal suspend fun createOnWatchEditingSessionImpl(
             activity: ComponentActivity,
             editIntent: Intent,
             providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-        ): EditorSession? = TraceEvent(
+        ): EditorSession = TraceEvent(
             "EditorSession.createOnWatchEditingSessionAsyncImpl"
         ).use {
             val coroutineScope =
                 CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
-            return EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
+            return EditorRequest.createFromIntent(editIntent).let { editorRequest ->
                 // We need to respect the lifecycle and register the ActivityResultListener now.
                 val session = OnWatchFaceEditorSessionImpl(
                     activity,
@@ -223,14 +228,15 @@ public abstract class EditorSession : AutoCloseable {
                 // [WatchFace.getOrCreateEditorDelegate] is async.
                 // Resolve only after init has been completed.
                 withContext(coroutineScope.coroutineContext) {
-                    session.setEditorDelegate(
-                        WatchFace.getOrCreateEditorDelegate(
-                            editorRequest.watchFaceComponentName
-                        ).await()
-                    )
-
-                    // Resolve only after init has been completed.
-                    session
+                    withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
+                        session.setEditorDelegate(
+                            WatchFace.getOrCreateEditorDelegate(
+                                editorRequest.watchFaceComponentName
+                            ).await()
+                        )
+                        // Resolve only after init has been completed.
+                        session
+                    }
                 }
             }
         }
@@ -250,8 +256,8 @@ public abstract class EditorSession : AutoCloseable {
             activity: ComponentActivity,
             editIntent: Intent,
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): EditorSession? = TraceEvent("EditorSession.createHeadlessEditingSession").use {
-            EditorRequest.createFromIntent(editIntent)?.let {
+        ): EditorSession = TraceEvent("EditorSession.createHeadlessEditingSession").use {
+            EditorRequest.createFromIntent(editIntent).let {
                 HeadlessEditorSession(
                     activity,
                     headlessWatchFaceClient,
@@ -267,6 +273,9 @@ public abstract class EditorSession : AutoCloseable {
                 )
             }
         }
+
+        /** Timeout allowed for waiting for creating the watch face editing session. */
+        public const val EDITING_SESSION_TIMEOUT_MILLIS: Long = 4000L
     }
 }
 
