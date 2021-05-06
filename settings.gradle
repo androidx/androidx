@@ -396,6 +396,7 @@ includeProject(":fragment:fragment-testing-lint", "fragment/fragment-testing-lin
 includeProject(":fragment:fragment-truth", "fragment/fragment-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:integration-tests:testapp", "fragment/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAIN])
+includeProject(":health:health-services-client", "health/health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAIN])
 includeProject(":hilt:hilt-common", "hilt/hilt-common", [BuildType.MAIN])
 includeProject(":hilt:hilt-compiler", "hilt/hilt-compiler", [BuildType.MAIN])
