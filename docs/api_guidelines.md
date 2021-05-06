@@ -41,9 +41,8 @@ Maven artifactId: `<feature-name>-<sub-feature>`
 *   `-core` for a low-level artifact that *may* contain public APIs but is
     primarily intended for use by other libraries in the group
 *   `-ktx` for an Kotlin artifact that exposes idiomatic Kotlin APIs as an
-    extension to a Java-only library
-*   `-java8` for a Java 8 artifact that exposes idiomatic Java 8 APIs as an
-    extension to a Java 7 library
+    extension to a Java-only library (see
+    [additional -ktx guidance](#module-ktx))
 *   `-<third-party>` for an artifact that integrates an optional third-party API
     surface, e.g. `-proto` or `-rxjava2`. Note that a major version is included
     in the sub-feature name for third-party API surfaces where the major version
@@ -176,6 +175,25 @@ annotation to indicate divergence from the overall module's minimum SDK version.
 Note that this pattern is _not recommended_ because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
+
+### Kotlin extension `-ktx` libraries {#module-ktx}
+
+New libraries should prefer Kotlin sources with built-in Java compatibility via
+`@JvmName` and other affordances of the Kotlin language; however, existing Java
+sourced libraries may benefit from extending their API surface with
+Kotlin-friendly APIs in a `-ktx` library.
+
+A Kotlin extension library **may only** provide extensions for a single base
+library's API surface and its name **must** match the base library exactly. For
+example, `work:work-ktx` may only provide extensions for APIs exposed by
+`work:work`.
+
+Additionally, an extension library **must** specify an `api`-type dependency on
+the base library and **must** be versioned and released identically to the base
+library.
+
+Kotlin extension libraries _should not_ expose new functionality; they should
+only provide Kotlin-friendly versions of existing Java-facing functionality.
 
 ## Platform compatibility API patterns {#platform-compatibility-apis}
 
@@ -1767,7 +1785,7 @@ enforced by lint:
 
 For library groups with strongly related samples that want to share code.
 
-Gradle project name: `:foo-library:samples`
+Gradle project name: `:foo-library:foo-library-samples`
 
 ```
 foo-library/
@@ -1780,10 +1798,18 @@ foo-library/
 
 For library groups with complex, relatively independent sub-libraries
 
-Gradle project name: `:foo-library:foo-module:samples`
+Gradle project name: `:foo-library:foo-module:foo-module-samples`
 
 ```
 foo-library/
   foo-module/
     samples/
 ```
+
+**Samples module configuration**
+
+Samples modules are published to GMaven so that they are available to Android
+Studio, which displays code in @Sample annotations as hover-over pop-ups.
+
+To achieve this, samples modules must declare the same MavenGroup and `publish`
+as the library(s) they are samples for.

@@ -13,9 +13,10 @@ constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the `repo` tool, which is used for Git branch and
-commit management. If you want to learn more about `repo`, see the
-[Repo Command Reference](https://source.android.com/setup/develop/repo).
+You will need to install the
+[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
+Git branch and commit management. If you want to learn more about `repo`, see
+the [Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -210,7 +211,10 @@ repo upload --cbr -t .
 ```
 
 The `--cbr` switch automatically picks the current repo branch for upload. The
-`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`.
+`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`. You
+can refer to the
+[Android documentation](https://source.android.com/setup/create/coding-tasks#workflow)
+for a high level overview of this basic workflow.
 
 NOTE If you encounter issues with `repo upload`, consider running upload with
 trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
