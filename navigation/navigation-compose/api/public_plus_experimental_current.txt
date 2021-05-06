@@ -24,7 +24,7 @@ package androidx.navigation.compose {
   }
 
   public final class NavBackStackEntryProviderKt {
-    method @androidx.compose.runtime.Composable public static void provideToCompositionLocals(androidx.navigation.NavBackStackEntry, optional androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.navigation.NavBackStackEntry, optional androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class NavGraphBuilderKt {

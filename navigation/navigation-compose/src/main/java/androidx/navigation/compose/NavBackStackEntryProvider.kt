@@ -16,7 +16,6 @@
 
 package androidx.navigation.compose
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.saveable.SaveableStateHolder
@@ -38,9 +37,8 @@ import java.util.UUID
  * @param saveableStateHolder The [SaveableStateHolder] that holds the saved states
  * @param content The content [Composable]
  */
-@SuppressLint("ComposableNaming")
 @Composable
-public fun NavBackStackEntry.provideToCompositionLocals(
+public fun NavBackStackEntry.CompositionLocalProvider(
     saveableStateHolder: SaveableStateHolder = rememberSaveableStateHolder(),
     content: @Composable () -> Unit
 ) {
@@ -49,9 +47,7 @@ public fun NavBackStackEntry.provideToCompositionLocals(
         LocalLifecycleOwner provides this,
         LocalSavedStateRegistryOwner provides this
     ) {
-        saveableStateHolder.SaveableStateProvider {
-            content()
-        }
+        saveableStateHolder.SaveableStateProvider(content)
     }
 }
 

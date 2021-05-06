@@ -129,7 +129,7 @@ public fun NavHost(
         // while in the scope of the composable, we provide the navBackStackEntry as the
         // ViewModelStoreOwner and LifecycleOwner
         Box(modifier, propagateMinConstraints = true) {
-            backStackEntry.provideToCompositionLocals(saveableStateHolder) {
+            backStackEntry.CompositionLocalProvider(saveableStateHolder) {
                 destination.content(backStackEntry)
             }
         }
