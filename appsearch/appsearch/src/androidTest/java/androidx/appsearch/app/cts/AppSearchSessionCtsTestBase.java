@@ -2785,4 +2785,40 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(matches.get(0).getFullText()).isEqualTo("This is the body");
         assertThat(matches.get(0).getExactMatch()).isEqualTo("body");
     }
+
+    @Test
+    public void testCJKTQuery() throws Exception {
+        // Schema registration
+        mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index a document to instance 1.
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace", "uri1")
+                        .setBody("他是個男孩 is a boy")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
+
+        // Query for "他" (He)
+        SearchResults searchResults = mDb1.search("他", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inEmail1);
+
+        // Query for "男孩" (boy)
+        searchResults = mDb1.search("男孩", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inEmail1);
+
+        // Query for "boy"
+        searchResults = mDb1.search("boy", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inEmail1);
+    }
 }
