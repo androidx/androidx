@@ -41,6 +41,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.ProviderChooserIntent
@@ -110,6 +111,8 @@ private const val TIMEOUT_MILLIS = 500L
 
 private const val PROVIDER_CHOOSER_EXTRA_KEY = "PROVIDER_CHOOSER_EXTRA_KEY"
 private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
+private const val PROVIDER_CHOOSER_RESULT_EXTRA_KEY = "PROVIDER_CHOOSER_RESULT_EXTRA_KEY"
+private const val PROVIDER_CHOOSER_RESULT_EXTRA_VALUE = "PROVIDER_CHOOSER_RESULT_EXTRA_VALUE"
 
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
@@ -219,6 +222,24 @@ public open class TestProviderInfoRetrieverProvider :
 
 /** Fake ComplicationHelperActivity for testing. */
 public class TestComplicationHelperActivity : Activity() {
+
+    public companion object {
+        public var lastIntent: Intent? = null
+        public var resultIntent: Intent? = null
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        lastIntent = intent
+
+        setResult(123, resultIntent)
+        finish()
+    }
+}
+
+/** Fake complication provider choooser for testing. */
+public class TestComplicationProviderChooserActivity : Activity() {
 
     public companion object {
         public var lastIntent: Intent? = null
@@ -409,6 +430,9 @@ public class EditorSessionTest {
 
     @After
     public fun tearDown() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = false
+        ComplicationHelperActivity.useTestComplicationProviderChooserActivity = false
+        ComplicationHelperActivity.skipPermissionCheck = false
         WatchFace.clearAllEditorDelegates()
     }
 
@@ -897,7 +921,7 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun launchComplicationProviderChooser_ComplicationConfigExtras() {
+    public fun launchComplicationProviderChooser_ComplicationConfigExtrasToHelper() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
         val chosenComplicationProviderInfo = ComplicationProviderInfo(
             "TestProvider3App",
@@ -913,6 +937,7 @@ public class EditorSessionTest {
                 "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                 chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
+            putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
         }
 
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -935,9 +960,68 @@ public class EditorSessionTest {
                 chosenComplicationProviderInfo,
                 chosenComplicationProvider.complicationProviderInfo
             )
+            assertThat(
+                chosenComplicationProvider.extras[PROVIDER_CHOOSER_RESULT_EXTRA_KEY]
+            ).isEqualTo(PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
 
             assertThat(
                 TestComplicationHelperActivity.lastIntent?.extras?.getString(
+                    PROVIDER_CHOOSER_EXTRA_KEY
+                )
+            ).isEqualTo(PROVIDER_CHOOSER_EXTRA_VALUE)
+        }
+    }
+
+    @Test
+    public fun launchComplicationProviderChooser_ComplicationConfigExtrasToChooser() {
+        // Invoke the test provider chooser to record the result.
+        ComplicationHelperActivity.useTestComplicationProviderChooserActivity = true
+        // Invoke the provider chooser without checking for permissions first.
+        ComplicationHelperActivity.skipPermissionCheck = true
+
+        val chosenComplicationProviderInfo = ComplicationProviderInfo(
+            "TestProvider3App",
+            "TestProvider3",
+            Icon.createWithBitmap(
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            ),
+            ComplicationType.LONG_TEXT,
+            provider3
+        )
+        TestComplicationProviderChooserActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+            )
+            putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
+        }
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            val chosenComplicationProvider =
+                editorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider).isNotNull()
+            checkNotNull(chosenComplicationProvider)
+            assertThat(chosenComplicationProvider.complicationId).isEqualTo(RIGHT_COMPLICATION_ID)
+            assertEquals(
+                chosenComplicationProviderInfo,
+                chosenComplicationProvider.complicationProviderInfo
+            )
+            assertThat(
+                chosenComplicationProvider.extras[PROVIDER_CHOOSER_RESULT_EXTRA_KEY]
+            ).isEqualTo(PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
+
+            assertThat(
+                TestComplicationProviderChooserActivity.lastIntent?.extras?.getString(
                     PROVIDER_CHOOSER_EXTRA_KEY
                 )
             ).isEqualTo(PROVIDER_CHOOSER_EXTRA_VALUE)
