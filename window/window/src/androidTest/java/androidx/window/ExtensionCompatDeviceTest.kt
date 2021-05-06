@@ -16,7 +16,6 @@
 package androidx.window
 
 import android.content.Context
-import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -48,14 +47,14 @@ public class ExtensionCompatDeviceTest : WindowTestBase(), CompatDeviceTestInter
 
     @Test
     override fun testWindowLayoutCallback() {
-        val activity = activityTestRule.launchActivity(Intent())
-        val windowToken = getActivityWindowToken(activity)
-        assertNotNull(windowToken)
-        val callbackInterface = mock<ExtensionCallbackInterface>()
-        extensionCompat.setExtensionCallback(callbackInterface)
-        extensionCompat.onWindowLayoutChangeListenerAdded(activity)
-        verify(callbackInterface)
-            .onWindowLayoutChanged(any(), any())
+        activityTestRule.scenario.onActivity { activity ->
+            val windowToken = getActivityWindowToken(activity)
+            assertNotNull(windowToken)
+            val callbackInterface = mock<ExtensionCallbackInterface>()
+            extensionCompat.setExtensionCallback(callbackInterface)
+            extensionCompat.onWindowLayoutChangeListenerAdded(activity)
+            verify(callbackInterface).onWindowLayoutChanged(any(), any())
+        }
     }
 
     private fun assumeExtensionV1_0() {

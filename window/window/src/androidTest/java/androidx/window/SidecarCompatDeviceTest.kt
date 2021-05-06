@@ -19,7 +19,6 @@
 package androidx.window
 
 import android.content.Context
-import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -46,27 +45,27 @@ import org.mockito.ArgumentMatcher
 public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterface {
 
     private lateinit var sidecarCompat: SidecarCompat
-    private lateinit var testActivity: TestActivity
 
     @Before
     public fun setUp() {
         assumeExtensionV01()
         sidecarCompat = SidecarCompat(ApplicationProvider.getApplicationContext() as Context)
-        testActivity = activityTestRule.launchActivity(Intent())
     }
 
     @Test
     override fun testWindowLayoutCallback() {
-        val windowToken = getActivityWindowToken(testActivity)
-        assertNotNull(windowToken)
-        val callbackInterface = mock<ExtensionCallbackInterface>()
-        sidecarCompat.setExtensionCallback(callbackInterface)
-        sidecarCompat.onWindowLayoutChangeListenerAdded(testActivity)
-        val sidecarWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
-        verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-            any(),
-            argThat(SidecarMatcher(sidecarWindowLayoutInfo))
-        )
+        activityTestRule.scenario.onActivity { testActivity ->
+            val windowToken = getActivityWindowToken(testActivity)
+            assertNotNull(windowToken)
+            val callbackInterface = mock<ExtensionCallbackInterface>()
+            sidecarCompat.setExtensionCallback(callbackInterface)
+            sidecarCompat.onWindowLayoutChangeListenerAdded(testActivity)
+            val sidecarWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+            verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
+                any(),
+                argThat(SidecarMatcher(sidecarWindowLayoutInfo))
+            )
+        }
     }
 
     private fun assumeExtensionV01() {

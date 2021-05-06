@@ -17,7 +17,6 @@ package androidx.window
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
@@ -82,84 +81,91 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
 
     @Test
     public fun testRegisterLayoutChangeCallback() {
-        val backend = ExtensionWindowBackend.getInstance(context)
-        backend.windowExtension = mock<ExtensionInterfaceCompat>()
+        activityTestRule.scenario.onActivity { activity ->
+            val backend = ExtensionWindowBackend.getInstance(context)
+            backend.windowExtension = mock()
+            // Check registering the layout change callback
+            val consumer = mock<Consumer<WindowLayoutInfo>>()
 
-        // Check registering the layout change callback
-        val consumer = mock<Consumer<WindowLayoutInfo>>()
-        val activity = activityTestRule.launchActivity(Intent())
-        backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
-        assertEquals(1, backend.windowLayoutChangeCallbacks.size.toLong())
-        verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
+            backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
+            assertEquals(1, backend.windowLayoutChangeCallbacks.size.toLong())
+            verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
 
-        // Check unregistering the layout change callback
-        backend.unregisterLayoutChangeCallback(consumer)
-        assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
-        verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(
-            eq(activity)
-        )
+            // Check unregistering the layout change callback
+            backend.unregisterLayoutChangeCallback(consumer)
+            assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
+            verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(
+                eq(activity)
+            )
+        }
     }
 
     @Test
     public fun testRegisterLayoutChangeCallback_callsExtensionOnce() {
-        val backend = ExtensionWindowBackend.getInstance(context)
-        backend.windowExtension = mock()
+        activityTestRule.scenario.onActivity { activity ->
+            val backend = ExtensionWindowBackend.getInstance(context)
+            backend.windowExtension = mock()
 
-        // Check registering the layout change callback
-        val consumer = mock<Consumer<WindowLayoutInfo>>()
-        val activity = activityTestRule.launchActivity(Intent())
-        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
-        backend.registerLayoutChangeCallback(activity, Runnable::run, mock())
-        assertEquals(2, backend.windowLayoutChangeCallbacks.size.toLong())
-        verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
+            // Check registering the layout change callback
+            val consumer = mock<Consumer<WindowLayoutInfo>>()
 
-        // Check unregistering the layout change callback
-        backend.unregisterLayoutChangeCallback(consumer)
-        assertEquals(1, backend.windowLayoutChangeCallbacks.size.toLong())
-        verify(backend.windowExtension!!, times(0))
-            .onWindowLayoutChangeListenerRemoved(eq(activity))
+            backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
+            backend.registerLayoutChangeCallback(activity, Runnable::run, mock())
+            assertEquals(2, backend.windowLayoutChangeCallbacks.size.toLong())
+            verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
+
+            // Check unregistering the layout change callback
+            backend.unregisterLayoutChangeCallback(consumer)
+            assertEquals(1, backend.windowLayoutChangeCallbacks.size.toLong())
+            verify(backend.windowExtension!!, times(0))
+                .onWindowLayoutChangeListenerRemoved(eq(activity))
+        }
     }
 
     @Test
     public fun testRegisterLayoutChangeCallback_clearListeners() {
-        val backend = ExtensionWindowBackend.getInstance(context)
-        backend.windowExtension = mock()
+        activityTestRule.scenario.onActivity { activity ->
+            val backend = ExtensionWindowBackend.getInstance(context)
+            backend.windowExtension = mock()
 
-        // Check registering the layout change callback
-        val firstConsumer = mock<Consumer<WindowLayoutInfo>>()
-        val secondConsumer = mock<Consumer<WindowLayoutInfo>>()
-        val activity = activityTestRule.launchActivity(Intent())
-        backend.registerLayoutChangeCallback(
-            activity,
-            { obj: Runnable -> obj.run() },
-            firstConsumer
-        )
-        backend.registerLayoutChangeCallback(
-            activity,
-            { obj: Runnable -> obj.run() },
-            secondConsumer
-        )
+            // Check registering the layout change callback
+            val firstConsumer = mock<Consumer<WindowLayoutInfo>>()
+            val secondConsumer = mock<Consumer<WindowLayoutInfo>>()
 
-        // Check unregistering the layout change callback
-        backend.unregisterLayoutChangeCallback(firstConsumer)
-        backend.unregisterLayoutChangeCallback(secondConsumer)
-        assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
-        verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(activity)
+            backend.registerLayoutChangeCallback(
+                activity,
+                { obj: Runnable -> obj.run() },
+                firstConsumer
+            )
+            backend.registerLayoutChangeCallback(
+                activity,
+                { obj: Runnable -> obj.run() },
+                secondConsumer
+            )
+
+            // Check unregistering the layout change callback
+            backend.unregisterLayoutChangeCallback(firstConsumer)
+            backend.unregisterLayoutChangeCallback(secondConsumer)
+            assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
+            verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(activity)
+        }
     }
 
     @Test
     public fun testLayoutChangeCallback_emitNewValue() {
-        val backend = ExtensionWindowBackend.getInstance(context)
-        backend.windowExtension = mock<ExtensionInterfaceCompat>()
+        activityTestRule.scenario.onActivity { activity ->
+            val backend = ExtensionWindowBackend.getInstance(context)
+            backend.windowExtension = mock()
 
-        // Check that callbacks from the extension are propagated correctly
-        val consumer = mock<Consumer<WindowLayoutInfo>>()
-        val activity = activityTestRule.launchActivity(Intent())
-        backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
-        val windowLayoutInfo = newTestWindowLayoutInfo()
-        val backendListener = backend.ExtensionListenerImpl()
-        backendListener.onWindowLayoutChanged(activity, windowLayoutInfo)
-        verify(consumer).accept(eq(windowLayoutInfo))
+            // Check that callbacks from the extension are propagated correctly
+            val consumer = mock<Consumer<WindowLayoutInfo>>()
+
+            backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
+            val windowLayoutInfo = newTestWindowLayoutInfo()
+            val backendListener = backend.ExtensionListenerImpl()
+            backendListener.onWindowLayoutChanged(activity, windowLayoutInfo)
+            verify(consumer).accept(eq(windowLayoutInfo))
+        }
     }
 
     @Test
@@ -184,14 +190,6 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
 
         override fun accept(t: T) {
             values.add(t)
-        }
-
-        fun allValues(): List<T> {
-            return values
-        }
-
-        fun lastValue(): T {
-            return values.last()
         }
     }
 
