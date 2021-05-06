@@ -31,7 +31,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 /**
  * An implementation of [NavigatorState] that allows testing a
@@ -57,10 +56,10 @@ public class TestNavigatorState @JvmOverloads constructor(
     )
 
     private val viewModelStoreProvider = object : NavViewModelStoreProvider {
-        private val viewModelStores = mutableMapOf<UUID, ViewModelStore>()
+        private val viewModelStores = mutableMapOf<String, ViewModelStore>()
         override fun getViewModelStore(
-            backStackEntryUUID: UUID
-        ) = viewModelStores.getOrPut(backStackEntryUUID) {
+            backStackEntryId: String
+        ) = viewModelStores.getOrPut(backStackEntryId) {
             ViewModelStore()
         }
     }

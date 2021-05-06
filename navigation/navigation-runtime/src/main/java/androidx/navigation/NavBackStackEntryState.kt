@@ -21,17 +21,16 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.os.Parcel
 import androidx.lifecycle.LifecycleOwner
-import java.util.UUID
 
 @SuppressLint("BanParcelableUsage")
 internal class NavBackStackEntryState : Parcelable {
-    val uuid: UUID
+    val id: String
     val destinationId: Int
     val args: Bundle?
     val savedState: Bundle
 
     constructor(entry: NavBackStackEntry) {
-        uuid = entry.id
+        id = entry.id
         destinationId = entry.destination.id
         args = entry.arguments
         savedState = Bundle()
@@ -39,7 +38,7 @@ internal class NavBackStackEntryState : Parcelable {
     }
 
     constructor(inParcel: Parcel) {
-        uuid = UUID.fromString(inParcel.readString())
+        id = inParcel.readString()!!
         destinationId = inParcel.readInt()
         args = inParcel.readBundle(javaClass.classLoader)
         savedState = inParcel.readBundle(javaClass.classLoader)!!
@@ -57,7 +56,7 @@ internal class NavBackStackEntryState : Parcelable {
         return NavBackStackEntry.create(
             context, destination, args,
             lifecycleOwner, viewModel,
-            uuid, savedState
+            id, savedState
         )
     }
 
@@ -66,7 +65,7 @@ internal class NavBackStackEntryState : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
-        parcel.writeString(uuid.toString())
+        parcel.writeString(id)
         parcel.writeInt(destinationId)
         parcel.writeBundle(args)
         parcel.writeBundle(savedState)

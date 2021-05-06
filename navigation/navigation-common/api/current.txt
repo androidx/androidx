@@ -104,12 +104,14 @@ package androidx.navigation {
     method public android.os.Bundle? getArguments();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.navigation.NavDestination getDestination();
+    method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     property public final android.os.Bundle? arguments;
     property public final androidx.navigation.NavDestination destination;
+    property public final String id;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
   }
 

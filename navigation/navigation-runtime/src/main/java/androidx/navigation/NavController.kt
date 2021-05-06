@@ -41,7 +41,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import java.util.UUID
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -108,8 +107,8 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
-    private val backStackMap = mutableMapOf<Int, UUID?>()
-    private val backStackStates = mutableMapOf<UUID, ArrayDeque<NavBackStackEntryState>>()
+    private val backStackMap = mutableMapOf<Int, String?>()
+    private val backStackStates = mutableMapOf<String, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners =
@@ -469,7 +468,7 @@ public open class NavController(
                     // Only add the state if it doesn't already exist
                     !backStackMap.containsKey(destination.id)
                 }.forEach { destination ->
-                    backStackMap[destination.id] = savedState.firstOrNull()?.uuid
+                    backStackMap[destination.id] = savedState.firstOrNull()?.id
                 }
             }
             if (savedState.isNotEmpty()) {
@@ -488,10 +487,10 @@ public open class NavController(
                     // Only add the state if it doesn't already exist
                     !backStackMap.containsKey(destination.id)
                 }.forEach { destination ->
-                    backStackMap[destination.id] = firstState.uuid
+                    backStackMap[destination.id] = firstState.id
                 }
                 // And finally, store the actual state itself
-                backStackStates[firstState.uuid] = savedState
+                backStackStates[firstState.id] = savedState
             }
         }
         updateOnBackPressedCallbackEnabled()
@@ -1321,10 +1320,10 @@ public open class NavController(
         }
         // Now determine what new destinations we need to add to the back stack
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
-            val backStackUUID = backStackMap[node.id]
+            val backStackId = backStackMap[node.id]
             // Clear out the state we're going to restore so that it isn't restored a second time
-            backStackMap.values.removeAll { it == backStackUUID }
-            val backStackState = backStackStates.remove(backStackUUID)
+            backStackMap.values.removeAll { it == backStackId }
+            val backStackState = backStackStates.remove(backStackId)
             // Now restore the back stack from its saved state
             val entries = instantiateBackStack(backStackState)
             // Split up the entries by Navigator so we can restore them as an atomic operation
@@ -1590,30 +1589,30 @@ public open class NavController(
             if (b == null) {
                 b = Bundle()
             }
-            val backStackIds = IntArray(backStackMap.size)
-            val backStackUUIDs = ArrayList<String>()
+            val backStackDestIds = IntArray(backStackMap.size)
+            val backStackIds = ArrayList<String?>()
             var index = 0
-            for ((id, uuid) in backStackMap) {
-                backStackIds[index++] = id
-                backStackUUIDs += uuid.toString()
+            for ((destId, id) in backStackMap) {
+                backStackDestIds[index++] = destId
+                backStackIds += id
             }
-            b.putIntArray(KEY_BACK_STACK_IDS, backStackIds)
-            b.putStringArrayList(KEY_BACK_STACK_UUIDS, backStackUUIDs)
+            b.putIntArray(KEY_BACK_STACK_DEST_IDS, backStackDestIds)
+            b.putStringArrayList(KEY_BACK_STACK_IDS, backStackIds)
         }
         if (backStackStates.isNotEmpty()) {
             if (b == null) {
                 b = Bundle()
             }
-            val backStackStateUUIDs = ArrayList<String>()
-            for ((uuid, backStackStates) in backStackStates) {
-                backStackStateUUIDs += uuid.toString()
+            val backStackStateIds = ArrayList<String>()
+            for ((id, backStackStates) in backStackStates) {
+                backStackStateIds += id
                 val states = arrayOfNulls<Parcelable>(backStackStates.size)
                 backStackStates.forEachIndexed { stateIndex, backStackState ->
                     states[stateIndex] = backStackState
                 }
-                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + uuid, states)
+                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id, states)
             }
-            b.putStringArrayList(KEY_BACK_STACK_STATES_UUIDS, backStackStateUUIDs)
+            b.putStringArrayList(KEY_BACK_STACK_STATES_IDS, backStackStateIds)
         }
         if (deepLinkHandled) {
             if (b == null) {
@@ -1642,18 +1641,18 @@ public open class NavController(
         navigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE)
         backStackToRestore = navState.getParcelableArray(KEY_BACK_STACK)
         backStackStates.clear()
-        val backStackIds = navState.getIntArray(KEY_BACK_STACK_IDS)
-        val backStackUUIDs = navState.getStringArrayList(KEY_BACK_STACK_UUIDS)
-        if (backStackIds != null && backStackUUIDs != null) {
-            backStackIds.forEachIndexed { index, id ->
-                backStackMap[id] = UUID.fromString(backStackUUIDs[index])
+        val backStackDestIds = navState.getIntArray(KEY_BACK_STACK_DEST_IDS)
+        val backStackIds = navState.getStringArrayList(KEY_BACK_STACK_IDS)
+        if (backStackDestIds != null && backStackIds != null) {
+            backStackDestIds.forEachIndexed { index, id ->
+                backStackMap[id] = backStackIds[index]
             }
         }
-        val backStackStateIds = navState.getStringArrayList(KEY_BACK_STACK_STATES_UUIDS)
-        backStackStateIds?.map { UUID.fromString(it) }?.forEach { uuid ->
-            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + uuid)
+        val backStackStateIds = navState.getStringArrayList(KEY_BACK_STACK_STATES_IDS)
+        backStackStateIds?.forEach { id ->
+            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id)
             if (backStackState != null) {
-                backStackStates[uuid] = ArrayDeque<NavBackStackEntryState>(
+                backStackStates[id] = ArrayDeque<NavBackStackEntryState>(
                     backStackState.size
                 ).apply {
                     for (parcelable in backStackState) {
@@ -1801,11 +1800,11 @@ public open class NavController(
         private const val KEY_NAVIGATOR_STATE_NAMES =
             "android-support-nav:controller:navigatorState:names"
         private const val KEY_BACK_STACK = "android-support-nav:controller:backStack"
+        private const val KEY_BACK_STACK_DEST_IDS =
+            "android-support-nav:controller:backStackDestIds"
         private const val KEY_BACK_STACK_IDS =
             "android-support-nav:controller:backStackIds"
-        private const val KEY_BACK_STACK_UUIDS =
-            "android-support-nav:controller:backStackUUIDs"
-        private const val KEY_BACK_STACK_STATES_UUIDS =
+        private const val KEY_BACK_STACK_STATES_IDS =
             "android-support-nav:controller:backStackStates"
         private const val KEY_BACK_STACK_STATES_PREFIX =
             "android-support-nav:controller:backStackStates:"
