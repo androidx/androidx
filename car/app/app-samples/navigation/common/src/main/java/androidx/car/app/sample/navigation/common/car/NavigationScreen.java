@@ -19,6 +19,7 @@ package androidx.car.app.sample.navigation.common.car;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
+import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -42,6 +43,14 @@ import java.util.List;
 
 /** Simple demo of how to present a trip on the routing screen. */
 public final class NavigationScreen extends Screen {
+    /** Invalid zoom focal point value, used for the zoom buttons. */
+    private static final float INVALID_FOCAL_POINT_VAL = -1f;
+
+    /** Zoom-in scale factor, used for the zoom-in button. */
+    private static final float ZOOM_IN_BUTTON_SCALE_FACTOR = 1.1f;
+
+    /** Zoom-out scale factor, used for the zoom-out button. */
+    private static final float ZOOM_OUT_BUTTON_SCALE_FACTOR = 0.9f;
 
     /** A listener for navigation start and stop signals. */
     public interface Listener {
@@ -79,6 +88,8 @@ public final class NavigationScreen extends Screen {
 
     @Nullable
     CarIcon mJunctionImage;
+
+    private boolean mIsInPanMode;
 
     public NavigationScreen(
             @NonNull CarContext carContext,
@@ -125,6 +136,7 @@ public final class NavigationScreen extends Screen {
         NavigationTemplate.Builder builder = new NavigationTemplate.Builder();
         builder.setBackgroundColor(CarColor.SECONDARY);
 
+        // Set the action strip.
         ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
         actionStripBuilder.addAction(mSettingsAction);
         if (mIsNavigating) {
@@ -151,6 +163,59 @@ public final class NavigationScreen extends Screen {
                             .build());
         }
         builder.setActionStrip(actionStripBuilder.build());
+
+        // Set the map action strip with the pan and zoom buttons.
+        CarIcon.Builder panIconBuilder = new CarIcon.Builder(
+                IconCompat.createWithResource(
+                        getCarContext(),
+                        R.drawable.ic_pan_24));
+        if (mIsInPanMode) {
+            panIconBuilder.setTint(CarColor.BLUE);
+        }
+
+        builder.setMapActionStrip(new ActionStrip.Builder()
+                .addAction(new Action.Builder(Action.PAN)
+                        .setIcon(panIconBuilder.build())
+                        .build())
+                .addAction(
+                        new Action.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        getCarContext(),
+                                                        R.drawable.ic_zoom_out_24))
+                                                .build())
+                                .setOnClickListener(
+                                        () -> mSurfaceRenderer.handleScale(INVALID_FOCAL_POINT_VAL,
+                                                INVALID_FOCAL_POINT_VAL,
+                                                ZOOM_OUT_BUTTON_SCALE_FACTOR))
+                                .build())
+                .addAction(
+                        new Action.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        getCarContext(),
+                                                        R.drawable.ic_zoom_in_24))
+                                                .build())
+                                .setOnClickListener(
+                                        () -> mSurfaceRenderer.handleScale(INVALID_FOCAL_POINT_VAL,
+                                                INVALID_FOCAL_POINT_VAL,
+                                                ZOOM_IN_BUTTON_SCALE_FACTOR))
+                                .build())
+                .build());
+
+        // When the user enters the pan mode, remind the user that they can exit the pan mode by
+        // pressing the select button again.
+        builder.setPanModeListener(isInPanMode -> {
+            if (isInPanMode) {
+                CarToast.makeText(getCarContext(),
+                        "Press Select to exit the pan mode",
+                        CarToast.LENGTH_LONG).show();
+            }
+            mIsInPanMode = isInPanMode;
+            invalidate();
+        });
 
         if (mIsNavigating) {
             if (mDestinationTravelEstimate != null) {
