@@ -30,7 +30,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import java.util.UUID
 
-
 /**
  * Provides [this] [NavBackStackEntry] as [LocalViewModelStoreOwner], [LocalLifecycleOwner] and
  * [LocalSavedStateRegistryOwner] to the [content] and saves the [content]'s saveable states with

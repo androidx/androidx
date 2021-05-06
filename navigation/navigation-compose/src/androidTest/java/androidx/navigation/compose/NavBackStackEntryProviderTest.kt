@@ -16,37 +16,24 @@
 
 package androidx.navigation.compose
 
-import android.os.Bundle
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.NavDestination
-import androidx.navigation.NavigatorState
 import androidx.navigation.testing.TestNavigatorState
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import androidx.testutils.TestNavigator
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryProviderTest {
@@ -58,10 +45,13 @@ class NavBackStackEntryProviderTest {
     fun testViewModelStoreOwnerProvided() {
         val testNavigator = TestNavigator()
         val testNavigatorState = TestNavigatorState()
-        val backStackEntry = testNavigatorState.createActiveBackStackEntry(
+        testNavigator.onAttach(testNavigatorState)
+        val backStackEntry = testNavigatorState.createBackStackEntry(
             testNavigator.createDestination(),
             null
         )
+        testNavigator.navigate(listOf(backStackEntry), null, null)
+
         var viewModelStoreOwner: ViewModelStoreOwner? = null
 
         composeTestRule.setContent {
@@ -78,9 +68,14 @@ class NavBackStackEntryProviderTest {
     @Test
     fun testLifecycleOwnerProvided() {
         val testNavigator = TestNavigator()
-        val navigatorState = TestNavigatorState()
-        val backStackEntry =
-            navigatorState.createActiveBackStackEntry(testNavigator.createDestination())
+        val testNavigatorState = TestNavigatorState()
+        testNavigator.onAttach(testNavigatorState)
+        val backStackEntry = testNavigatorState.createBackStackEntry(
+            testNavigator.createDestination(),
+            null
+        )
+        testNavigator.navigate(listOf(backStackEntry), null, null)
+
         var lifecycleOwner: LifecycleOwner? = null
 
         composeTestRule.setContent {
@@ -97,9 +92,14 @@ class NavBackStackEntryProviderTest {
     @Test
     fun testLocalSavedStateRegistryOwnerProvided() {
         val testNavigator = TestNavigator()
-        val navigatorState = TestNavigatorState()
-        val backStackEntry =
-            navigatorState.createActiveBackStackEntry(testNavigator.createDestination())
+        val testNavigatorState = TestNavigatorState()
+        testNavigator.onAttach(testNavigatorState)
+        val backStackEntry = testNavigatorState.createBackStackEntry(
+            testNavigator.createDestination(),
+            null
+        )
+        testNavigator.navigate(listOf(backStackEntry), null, null)
+
         var localSavedStateRegistryOwner: SavedStateRegistryOwner? = null
 
         composeTestRule.setContent {
@@ -115,13 +115,17 @@ class NavBackStackEntryProviderTest {
 
     @Test
     fun testSaveableValueInContentIsSaved() {
+        val testNavigator = TestNavigator()
+        val testNavigatorState = TestNavigatorState()
+        testNavigator.onAttach(testNavigatorState)
+        val backStackEntry = testNavigatorState.createBackStackEntry(
+            testNavigator.createDestination(),
+            null
+        )
+        testNavigator.navigate(listOf(backStackEntry), null, null)
+
         val restorationTester = StateRestorationTester(composeTestRule)
         var array: IntArray? = null
-
-        val testNavigator = TestNavigator()
-        val navigatorState = TestNavigatorState()
-        val backStackEntry =
-            navigatorState.createActiveBackStackEntry(testNavigator.createDestination())
 
         restorationTester.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
@@ -144,16 +148,4 @@ class NavBackStackEntryProviderTest {
 
         assertThat(array).isEqualTo(intArrayOf(1))
     }
-
-    // By default, NavBackStackEntrys are in the INITIALIZED state and then get moved to the next
-    // appropriate state by the NavController. In case we aren't testing with a NavController,
-    // this sets the entry's lifecycle state to the passed state so that the entry is active.
-    private fun NavigatorState.createActiveBackStackEntry(
-        destination: NavDestination,
-        arguments: Bundle? = null,
-        lifecycleState: Lifecycle.State = Lifecycle.State.RESUMED
-    ) = createBackStackEntry(destination, arguments).apply {
-        runOnUiThread { maxLifecycle = lifecycleState }
-    }
-
 }
