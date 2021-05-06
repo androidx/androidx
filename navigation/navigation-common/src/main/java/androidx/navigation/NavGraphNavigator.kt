@@ -15,9 +15,6 @@
  */
 package androidx.navigation
 
-import android.os.Bundle
-import java.lang.IllegalArgumentException
-
 /**
  * A Navigator built specifically for [NavGraph] elements. Handles navigating to the
  * correct destination when the NavGraph is the target of navigation actions.
@@ -44,11 +41,22 @@ constructor(private val navigatorProvider: NavigatorProvider) : Navigator<NavGra
      * @throws IllegalArgumentException if given destination is not a child of the current navgraph
      */
     override fun navigate(
-        destination: NavGraph,
-        args: Bundle?,
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ): NavDestination? {
+    ) {
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        val destination = entry.destination as NavGraph
+        val args = entry.arguments
         val startId = destination.startDestinationId
         val startRoute = destination.startDestinationRoute
         check(startId != 0 || startRoute != null) {
@@ -68,15 +76,10 @@ constructor(private val navigatorProvider: NavigatorProvider) : Navigator<NavGra
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
             startDestination.navigatorName
         )
-        return navigator.navigate(
+        val startDestinationEntry = state.createBackStackEntry(
             startDestination,
-            startDestination.addInDefaultArgs(args),
-            navOptions,
-            navigatorExtras
+            startDestination.addInDefaultArgs(args)
         )
-    }
-
-    override fun popBackStack(): Boolean {
-        return true
+        navigator.navigate(listOf(startDestinationEntry), navOptions, navigatorExtras)
     }
 }

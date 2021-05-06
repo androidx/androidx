@@ -79,8 +79,9 @@ public open class DynamicInstallManager(
             val dynamicNavGraph = DynamicNavGraph.getOrThrow(destination)
             val navigator: Navigator<*> =
                 dynamicNavGraph.navigatorProvider[dynamicNavGraph.navigatorName]
-            return if (navigator is DynamicGraphNavigator) {
+            if (navigator is DynamicGraphNavigator) {
                 navigator.navigateToProgressDestination(dynamicNavGraph, progressArgs)
+                return null
             } else {
                 throw IllegalStateException(
                     "You must use a DynamicNavGraph to perform a module installation."

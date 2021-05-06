@@ -37,6 +37,8 @@ dependencies {
     api(PLAY_CORE)
     api(KOTLIN_STDLIB)
 
+    testImplementation(project(":navigation:navigation-testing"))
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_RUNNER)
