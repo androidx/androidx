@@ -31,6 +31,7 @@ class FragmentIssueRegistry : IssueRegistry() {
         UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE,
         UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE,
         UseRequireInsteadOfGet.ISSUE,
-        UseGetLayoutInflater.ISSUE
+        UseGetLayoutInflater.ISSUE,
+        OnCreateDialogIncorrectCallbackDetector.ISSUE
     )
 }
