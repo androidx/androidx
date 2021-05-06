@@ -1939,6 +1939,50 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testRemove_multipleIds() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("namespace", "id2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example 2")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, "namespace", "id1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "id2")).hasSize(1);
+
+        // Delete the document
+        checkIsBatchResultSuccess(mDb1.remove(
+                new RemoveByDocumentIdRequest.Builder("namespace").addIds("id1", "id2").build()));
+
+        // Make sure it's really gone
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByDocumentId(
+                new GetByDocumentIdRequest.Builder("namespace").addIds("id1",
+                        "id2").build())
+                .get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("id1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult.getFailures().get("id2").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
     public void testRemoveByQuery() throws Exception {
         // Schema registration
         mDb1.setSchema(
