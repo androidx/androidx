@@ -20,6 +20,12 @@ import androidx.annotation.IdRes
 
 /**
  * Construct a new [NavGraph]
+ *
+ * @param id the destination's unique id
+ * @param startDestination the starting destination for this NavGraph
+ * @param builder the builder used to construct the graph
+ *
+ * @return the newly constructed NavGraph
  */
 public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
@@ -28,7 +34,29 @@ public inline fun NavigatorProvider.navigation(
 ): NavGraph = NavGraphBuilder(this, id, startDestination).apply(builder).build()
 
 /**
+ * Construct a new [NavGraph]
+ *
+ * @param startDestination the starting destination's route for this NavGraph
+ * @param route the destination's unique route
+ * @param builder the builder used to construct the graph
+ *
+ * @return the newly constructed NavGraph
+ */
+public inline fun NavigatorProvider.navigation(
+    startDestination: String,
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = NavGraphBuilder(this, startDestination, route).apply(builder)
+    .build()
+
+/**
  * Construct a nested [NavGraph]
+ *
+ * @param id the destination's unique id
+ * @param startDestination the starting destination for this NavGraph
+ * @param builder the builder used to construct the graph
+ *
+ * @return the newly constructed nested NavGraph
  */
 public inline fun NavGraphBuilder.navigation(
     @IdRes id: Int,
@@ -37,14 +65,70 @@ public inline fun NavGraphBuilder.navigation(
 ): Unit = destination(NavGraphBuilder(provider, id, startDestination).apply(builder))
 
 /**
+ * Construct a nested [NavGraph]
+ *
+ * @param startDestination the starting destination's route for this NavGraph
+ * @param route the destination's unique route
+ * @param builder the builder used to construct the graph
+ *
+ * @return the newly constructed nested NavGraph
+ */
+public inline fun NavGraphBuilder.navigation(
+    startDestination: String,
+    route: String,
+    builder: NavGraphBuilder.() -> Unit
+): Unit = destination(NavGraphBuilder(provider, startDestination, route).apply(builder))
+
+/**
  * DSL for constructing a new [NavGraph]
  */
 @NavDestinationDsl
-public open class NavGraphBuilder(
-    public val provider: NavigatorProvider,
-    @IdRes id: Int,
-    @IdRes private var startDestination: Int
-) : NavDestinationBuilder<NavGraph>(provider[NavGraphNavigator::class], id) {
+public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
+    /**
+     * Retrieve the [NavGraphBuilder]'s [NavigatorProvider].
+     *
+     * @return The [NavigatorProvider] used by this [NavGraphBuilder].
+     */
+    public val provider: NavigatorProvider
+    @IdRes private var startDestinationId: Int = 0
+    private var startDestinationRoute: String? = null
+
+    /**
+     * DSL for constructing a new [NavGraph]
+     *
+     * @param provider navigator used to create the destination
+     * @param id the graph's unique id
+     * @param startDestination the starting destination for this NavGraph
+     *
+     * @return the newly created NavGraph
+     */
+    public constructor(
+        provider: NavigatorProvider,
+        @IdRes id: Int,
+        @IdRes startDestination: Int
+    ) : super(provider[NavGraphNavigator::class], id) {
+        this.provider = provider
+        this.startDestinationId = startDestination
+    }
+
+    /**
+     * DSL for constructing a new [NavGraph]
+     *
+     * @param provider navigator used to create the destination
+     * @param startDestination the starting destination's route for this NavGraph
+     * @param route the graph's unique route
+     *
+     * @return the newly created NavGraph
+     */
+    public constructor(
+        provider: NavigatorProvider,
+        startDestination: String,
+        route: String?
+    ) : super(provider[NavGraphNavigator::class], route) {
+        this.provider = provider
+        this.startDestinationRoute = startDestination
+    }
+
     private val destinations = mutableListOf<NavDestination>()
 
     /**
@@ -70,9 +154,17 @@ public open class NavGraphBuilder(
 
     override fun build(): NavGraph = super.build().also { navGraph ->
         navGraph.addDestinations(destinations)
-        if (startDestination == 0) {
-            throw IllegalStateException("You must set a startDestination")
+        if (startDestinationId == 0 && startDestinationRoute == null) {
+            if (route != null) {
+                throw IllegalStateException("You must set a start destination route")
+            } else {
+                throw IllegalStateException("You must set a start destination id")
+            }
         }
-        navGraph.setStartDestination(startDestination)
+        if (startDestinationRoute != null) {
+            navGraph.setStartDestination(startDestinationRoute!!)
+        } else {
+            navGraph.setStartDestination(startDestinationId)
+        }
     }
 }

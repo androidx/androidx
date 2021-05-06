@@ -70,7 +70,7 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
      *
      * @return the newly constructed [NavDestination]
      */
-    public constructor(navigator: Navigator<out D>, route: String) :
+    public constructor(navigator: Navigator<out D>, route: String?) :
         this(navigator, -1, route)
 
     /**
