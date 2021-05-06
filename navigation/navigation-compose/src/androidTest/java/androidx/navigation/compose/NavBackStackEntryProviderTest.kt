@@ -52,7 +52,7 @@ class NavBackStackEntryProviderTest {
 
         composeTestRule.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
-            backStackEntry.CompositionLocalProvider(saveableStateHolder) {
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
                 viewModelStoreOwner = LocalViewModelStoreOwner.current
             }
         }
@@ -68,7 +68,7 @@ class NavBackStackEntryProviderTest {
 
         composeTestRule.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
-            backStackEntry.CompositionLocalProvider(saveableStateHolder) {
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
                 lifecycleOwner = LocalLifecycleOwner.current
             }
         }
@@ -84,7 +84,7 @@ class NavBackStackEntryProviderTest {
 
         composeTestRule.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
-            backStackEntry.CompositionLocalProvider(saveableStateHolder) {
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
                 localSavedStateRegistryOwner = LocalSavedStateRegistryOwner.current
             }
         }
@@ -101,7 +101,7 @@ class NavBackStackEntryProviderTest {
 
         restorationTester.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
-            backStackEntry.CompositionLocalProvider(saveableStateHolder) {
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
                 array = rememberSaveable {
                     intArrayOf(0)
                 }
@@ -130,7 +130,7 @@ class NavBackStackEntryProviderTest {
 
         restorationTester.setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
-            backStackEntry.CompositionLocalProvider(saveableStateHolder) {
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
                 nonSaveable = remember { initialValue }
             }
         }
