@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose
 
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -25,9 +26,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.testing.TestNavigatorState
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.testutils.TestNavigator
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -35,6 +38,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryProviderTest {
 
@@ -43,15 +47,7 @@ class NavBackStackEntryProviderTest {
 
     @Test
     fun testViewModelStoreOwnerProvided() {
-        val testNavigator = TestNavigator()
-        val testNavigatorState = TestNavigatorState()
-        testNavigator.onAttach(testNavigatorState)
-        val backStackEntry = testNavigatorState.createBackStackEntry(
-            testNavigator.createDestination(),
-            null
-        )
-        testNavigator.navigate(listOf(backStackEntry), null, null)
-
+        val backStackEntry = createBackStackEntry()
         var viewModelStoreOwner: ViewModelStoreOwner? = null
 
         composeTestRule.setContent {
@@ -67,15 +63,7 @@ class NavBackStackEntryProviderTest {
 
     @Test
     fun testLifecycleOwnerProvided() {
-        val testNavigator = TestNavigator()
-        val testNavigatorState = TestNavigatorState()
-        testNavigator.onAttach(testNavigatorState)
-        val backStackEntry = testNavigatorState.createBackStackEntry(
-            testNavigator.createDestination(),
-            null
-        )
-        testNavigator.navigate(listOf(backStackEntry), null, null)
-
+        val backStackEntry = createBackStackEntry()
         var lifecycleOwner: LifecycleOwner? = null
 
         composeTestRule.setContent {
@@ -91,15 +79,7 @@ class NavBackStackEntryProviderTest {
 
     @Test
     fun testLocalSavedStateRegistryOwnerProvided() {
-        val testNavigator = TestNavigator()
-        val testNavigatorState = TestNavigatorState()
-        testNavigator.onAttach(testNavigatorState)
-        val backStackEntry = testNavigatorState.createBackStackEntry(
-            testNavigator.createDestination(),
-            null
-        )
-        testNavigator.navigate(listOf(backStackEntry), null, null)
-
+        val backStackEntry = createBackStackEntry()
         var localSavedStateRegistryOwner: SavedStateRegistryOwner? = null
 
         composeTestRule.setContent {
@@ -115,15 +95,7 @@ class NavBackStackEntryProviderTest {
 
     @Test
     fun testSaveableValueInContentIsSaved() {
-        val testNavigator = TestNavigator()
-        val testNavigatorState = TestNavigatorState()
-        testNavigator.onAttach(testNavigatorState)
-        val backStackEntry = testNavigatorState.createBackStackEntry(
-            testNavigator.createDestination(),
-            null
-        )
-        testNavigator.navigate(listOf(backStackEntry), null, null)
-
+        val backStackEntry = createBackStackEntry()
         val restorationTester = StateRestorationTester(composeTestRule)
         var array: IntArray? = null
 
@@ -147,5 +119,18 @@ class NavBackStackEntryProviderTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         assertThat(array).isEqualTo(intArrayOf(1))
+    }
+
+    private fun createBackStackEntry(): NavBackStackEntry {
+        val testNavigator = TestNavigator()
+        val testNavigatorState = TestNavigatorState()
+        testNavigator.onAttach(testNavigatorState)
+        val backStackEntry = testNavigatorState.createBackStackEntry(
+            testNavigator.createDestination(),
+            null
+        )
+        // We navigate to move the NavBackStackEntry to the correct state
+        testNavigator.navigate(listOf(backStackEntry), null, null)
+        return backStackEntry
     }
 }
