@@ -40,6 +40,7 @@ import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CameraValidator;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
@@ -395,7 +396,7 @@ public final class CameraX {
         } else {
             // Try to retrieve the CameraXConfig.Provider through the application's resources
             try {
-                Resources resources = getApplicationContext(context).getResources();
+                Resources resources = ContextUtil.getApplicationContext(context).getResources();
                 String defaultProviderClassName =
                         resources.getString(
                                 R.string.androidx_camera_default_config_provider);
@@ -430,7 +431,7 @@ public final class CameraX {
     @Nullable
     private static Application getApplicationFromContext(@NonNull Context context) {
         Application application = null;
-        Context appContext = getApplicationContext(context);
+        Context appContext = ContextUtil.getApplicationContext(context);
         while (appContext instanceof ContextWrapper) {
             if (appContext instanceof Application) {
                 application = (Application) appContext;
@@ -440,18 +441,6 @@ public final class CameraX {
             }
         }
         return application;
-    }
-
-    /**
-     * Gets the application context and preserves the attribution tag.
-     */
-    private static Context getApplicationContext(@NonNull Context context) {
-        Context applicationContext = context.getApplicationContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return applicationContext.createAttributionContext(context.getAttributionTag());
-        } else {
-            return applicationContext;
-        }
     }
 
     /**
@@ -574,7 +563,7 @@ public final class CameraX {
                 //  the context within the called method.
                 mAppContext = getApplicationFromContext(context);
                 if (mAppContext == null) {
-                    mAppContext = getApplicationContext(context);
+                    mAppContext = ContextUtil.getApplicationContext(context);
                 }
                 CameraFactory.Provider cameraFactoryProvider =
                         mCameraXConfig.getCameraFactoryProvider(null);

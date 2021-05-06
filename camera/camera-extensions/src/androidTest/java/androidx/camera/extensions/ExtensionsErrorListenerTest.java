@@ -30,11 +30,8 @@ import android.hardware.camera2.CameraAccessException;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -45,7 +42,9 @@ import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -78,6 +77,8 @@ public final class ExtensionsErrorListenerTest {
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
+    private static final int TIMEOUT_MILLISECONDS = 10000;
+
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
     Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
@@ -95,6 +96,9 @@ public final class ExtensionsErrorListenerTest {
     @CameraSelector.LensFacing
     private int mLensFacing;
     private CountDownLatch mLatch;
+    private ProcessCameraProvider mProcessCameraProvider = null;
+    private FakeLifecycleOwner mFakeLifecycleOwner;
+    private CameraSelector mExtensionsCameraSelector;
     private CameraUseCaseAdapter mCamera;
 
     final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
@@ -120,8 +124,8 @@ public final class ExtensionsErrorListenerTest {
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(mContext, cameraXConfig).get();
+        mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(
+                TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
@@ -129,6 +133,11 @@ public final class ExtensionsErrorListenerTest {
 
         mExtensions = ExtensionsManager.getExtensions(mContext);
         mLatch = new CountDownLatch(1);
+
+        mFakeLifecycleOwner = new FakeLifecycleOwner();
+        mFakeLifecycleOwner.startAndResume();
+        mExtensionsCameraSelector =
+                mExtensions.getExtensionCameraSelector(mCameraSelector, mExtensionMode);
     }
 
     @After
@@ -141,8 +150,10 @@ public final class ExtensionsErrorListenerTest {
             );
         }
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
-        ExtensionsManager.deinit().get();
+        if (mProcessCameraProvider != null) {
+            mProcessCameraProvider.shutdown().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+            ExtensionsManager.deinit().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Test
@@ -280,10 +291,9 @@ public final class ExtensionsErrorListenerTest {
 
         mErrorCode.set(null);
 
-        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector,
-                imageCapture);
-
-        mInstrumentation.runOnMainSync(() -> mExtensions.setExtension(mCamera, mExtensionMode));
+        mInstrumentation.runOnMainSync(
+                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                        mExtensionsCameraSelector, imageCapture));
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -298,9 +308,9 @@ public final class ExtensionsErrorListenerTest {
 
         mErrorCode.set(null);
 
-        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
-
-        mInstrumentation.runOnMainSync(() -> mExtensions.setExtension(mCamera, mExtensionMode));
+        mInstrumentation.runOnMainSync(
+                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                        mExtensionsCameraSelector, preview));
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -318,10 +328,9 @@ public final class ExtensionsErrorListenerTest {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         Preview preview = new Preview.Builder().build();
 
-        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageCapture,
-                preview);
-
-        mInstrumentation.runOnMainSync(() -> mExtensions.setExtension(mCamera, mExtensionMode));
+        mInstrumentation.runOnMainSync(
+                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                        mExtensionsCameraSelector, preview, imageCapture));
 
         // Waits for one second to get error code.
         Thread.sleep(1000);
