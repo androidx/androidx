@@ -106,7 +106,7 @@ package androidx.navigation {
     method public android.os.Bundle? getArguments();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.navigation.NavDestination getDestination();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.UUID getId();
+    method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.lifecycle.Lifecycle.State getMaxLifecycle();
     method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
@@ -120,7 +120,7 @@ package androidx.navigation {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void updateState();
     property public final android.os.Bundle? arguments;
     property public final androidx.navigation.NavDestination destination;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.UUID id;
+    property public final String id;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.lifecycle.Lifecycle.State maxLifecycle;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
   }
