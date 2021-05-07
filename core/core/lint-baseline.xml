@@ -6982,7 +6982,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/core/util/ObjectsCompat.java"
-            line="51"
+            line="52"
             column="28"/>
     </issue>
 
@@ -6993,7 +6993,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/core/util/ObjectsCompat.java"
-            line="93"
+            line="94"
             column="28"/>
     </issue>
 
@@ -11542,7 +11542,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public class AppLaunchChecker {"
         errorLine2="             ~~~~~~~~~~~~~~~~">
         <location
@@ -11553,7 +11553,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public class ContextCompat {"
         errorLine2="             ~~~~~~~~~~~~~">
         <location
@@ -11564,7 +11564,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public final class EditorInfoCompat {"
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
@@ -11575,7 +11575,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public final class InputConnectionCompat {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -11586,57 +11586,13 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static class Api29Impl {"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/LocusIdCompat.java"
-            line="148"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public class NotificationCompat {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
             line="82"
             column="14"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static class Api25Impl {"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="875"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static class Impl16 {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowCompat.java"
-            line="143"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static class Impl30 {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowCompat.java"
-            line="159"
-            column="26"/>
     </issue>
 
     <issue

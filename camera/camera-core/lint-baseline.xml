@@ -442,17 +442,6 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static final class Speed {"
-        errorLine2="                               ~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Exif.java"
-            line="627"
-            column="32"/>
-    </issue>
-
-    <issue
         id="KotlinPropertyAccess"
         message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="        boolean isUseRepeatingSurface() {"

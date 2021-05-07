@@ -19,7 +19,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/fragment/app/FragmentContainerView.java"
-            line="231"
+            line="238"
             column="52"/>
     </issue>
 

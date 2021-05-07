@@ -278,7 +278,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="    static class MediaFormatUtil {"
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location

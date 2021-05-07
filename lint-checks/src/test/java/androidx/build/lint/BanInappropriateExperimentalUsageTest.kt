@@ -16,7 +16,6 @@
 
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.ProjectDescription
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestFiles.gradle
@@ -99,22 +98,6 @@ class BanInappropriateExperimentalUsageTest {
                 """.trimIndent()
             )
     }
-
-    private fun project(): ProjectDescription = ProjectDescription()
-
-    /**
-     * Loads a [TestFile] from Java source code included in the JAR resources.
-     */
-    private fun javaSample(className: String): TestFile = TestFiles.java(
-        javaClass.getResource("/java/${className.replace('.', '/')}.java").readText()
-    )
-
-    /**
-     * Loads a [TestFile] from Kotlin source code included in the JAR resources.
-     */
-    private fun ktSample(className: String): TestFile = TestFiles.kotlin(
-        javaClass.getResource("/java/${className.replace('.', '/')}.kt").readText()
-    )
 }
 
 /* ktlint-disable max-line-length */
