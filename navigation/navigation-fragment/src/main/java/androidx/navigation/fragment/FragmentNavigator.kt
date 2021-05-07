@@ -23,6 +23,7 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.core.content.res.use
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavBackStackEntry
@@ -51,6 +52,7 @@ public open class FragmentNavigator(
     private val fragmentManager: FragmentManager,
     private val containerId: Int
 ) : Navigator<Destination>() {
+    private val savedIds = mutableSetOf<String>()
 
     /**
      * {@inheritDoc}
@@ -71,10 +73,33 @@ public open class FragmentNavigator(
             )
             return
         }
-        fragmentManager.popBackStack(
-            popUpTo.id,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
+        if (savedState) {
+            val beforePopList = state.backStack.value
+            val initialEntry = beforePopList.first()
+            // Get the set of entries that are going to be popped
+            val poppedList = beforePopList.subList(
+                beforePopList.indexOf(popUpTo),
+                beforePopList.size
+            )
+            // Now go through the list in reversed order (i.e., started from the most added)
+            // and save the back stack state of each.
+            for (entry in poppedList.reversed()) {
+                if (entry == initialEntry) {
+                    Log.i(
+                        TAG,
+                        "FragmentManager cannot save the state of the initial destination $entry"
+                    )
+                } else {
+                    fragmentManager.saveBackStack(entry.id)
+                    savedIds += entry.id
+                }
+            }
+        } else {
+            fragmentManager.popBackStack(
+                popUpTo.id,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+        }
         state.pop(popUpTo, savedState)
     }
 
@@ -143,6 +168,19 @@ public open class FragmentNavigator(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
+        val backStack = state.backStack.value
+        val initialNavigation = backStack.isEmpty()
+        val restoreState = (
+            navOptions != null && !initialNavigation &&
+                navOptions.shouldRestoreState() &&
+                savedIds.remove(entry.id)
+            )
+        if (restoreState) {
+            // Restore back stack does all the work to restore the entry
+            fragmentManager.restoreBackStack(entry.id)
+            state.add(entry)
+            return
+        }
         val destination = entry.destination as Destination
         val args = entry.arguments
         var className = destination.className
@@ -166,8 +204,6 @@ public open class FragmentNavigator(
         ft.replace(containerId, frag)
         ft.setPrimaryNavigationFragment(frag)
         @IdRes val destId = destination.id
-        val backStack = state.backStack.value
-        val initialNavigation = backStack.isEmpty()
         // TODO Build first class singleTop behavior for fragments
         val isSingleTopReplacement = (
             navOptions != null && !initialNavigation &&
@@ -208,6 +244,21 @@ public open class FragmentNavigator(
         // The commit succeeded, update our view of the world
         if (isAdded) {
             state.add(entry)
+        }
+    }
+
+    public override fun onSaveState(): Bundle? {
+        if (savedIds.isEmpty()) {
+            return null
+        }
+        return bundleOf(KEY_SAVED_IDS to ArrayList(savedIds))
+    }
+
+    public override fun onRestoreState(savedState: Bundle) {
+        val savedIds = savedState.getStringArrayList(KEY_SAVED_IDS)
+        if (savedIds != null) {
+            this.savedIds.clear()
+            this.savedIds += savedIds
         }
     }
 
@@ -351,5 +402,6 @@ public open class FragmentNavigator(
 
     private companion object {
         private const val TAG = "FragmentNavigator"
+        private const val KEY_SAVED_IDS = "androidx-nav-fragment:navigator:savedIds"
     }
 }

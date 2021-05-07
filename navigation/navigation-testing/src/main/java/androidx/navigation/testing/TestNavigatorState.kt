@@ -64,12 +64,31 @@ public class TestNavigatorState @JvmOverloads constructor(
         }
     }
 
+    private val savedStates = mutableMapOf<String, Bundle>()
+
     override fun createBackStackEntry(
         destination: NavDestination,
         arguments: Bundle?
     ): NavBackStackEntry = NavBackStackEntry.create(
         context, destination, arguments, lifecycleOwner, viewModelStoreProvider
     )
+
+    /**
+     * Restore a previously saved [NavBackStackEntry]. You must have previously called
+     * [pop] with [previouslySavedEntry] and `true`.
+     */
+    public fun restoreBackStackEntry(previouslySavedEntry: NavBackStackEntry): NavBackStackEntry {
+        val savedState = checkNotNull(savedStates[previouslySavedEntry.id]) {
+            "restoreBackStackEntry(previouslySavedEntry) must be passed a NavBackStackEntry " +
+                "that was previously popped with popBackStack(previouslySavedEntry, true)"
+        }
+        return NavBackStackEntry.create(
+            context,
+            previouslySavedEntry.destination, previouslySavedEntry.arguments,
+            lifecycleOwner, viewModelStoreProvider,
+            previouslySavedEntry.id, savedState
+        )
+    }
 
     override fun add(backStackEntry: NavBackStackEntry) {
         super.add(backStackEntry)
@@ -80,10 +99,13 @@ public class TestNavigatorState @JvmOverloads constructor(
         val beforePopList = backStack.value
         val poppedList = beforePopList.subList(beforePopList.indexOf(popUpTo), beforePopList.size)
         super.pop(popUpTo, saveState)
-        updateMaxLifecycle(poppedList)
+        updateMaxLifecycle(poppedList, saveState)
     }
 
-    private fun updateMaxLifecycle(poppedList: List<NavBackStackEntry> = emptyList()) {
+    private fun updateMaxLifecycle(
+        poppedList: List<NavBackStackEntry> = emptyList(),
+        saveState: Boolean = false
+    ) {
         runBlocking(coroutineDispatcher) {
             // NavBackStackEntry Lifecycles must be updated on the main thread
             // as per the contract within Lifecycle, so we explicitly swap to the main thread
@@ -91,6 +113,13 @@ public class TestNavigatorState @JvmOverloads constructor(
             withContext(Dispatchers.Main.immediate) {
                 // Mark all removed NavBackStackEntries as DESTROYED
                 for (entry in poppedList.reversed()) {
+                    if (saveState) {
+                        // Move the NavBackStackEntry to the stopped state, then save its state
+                        entry.maxLifecycle = Lifecycle.State.CREATED
+                        val savedState = Bundle()
+                        entry.saveState(savedState)
+                        savedStates[entry.id] = savedState
+                    }
                     entry.maxLifecycle = Lifecycle.State.DESTROYED
                 }
                 // Now go through the current list of destinations, updating their Lifecycle state

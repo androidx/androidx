@@ -15,6 +15,7 @@ package androidx.navigation.testing {
     ctor public TestNavigatorState(optional android.content.Context? context, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
     ctor public TestNavigatorState(optional android.content.Context? context);
     method public androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
+    method public androidx.navigation.NavBackStackEntry restoreBackStackEntry(androidx.navigation.NavBackStackEntry previouslySavedEntry);
   }
 
 }
