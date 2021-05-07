@@ -20,7 +20,7 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
 class FragmentTestingIssueRegistry : IssueRegistry() {
-    override val api = 8
+    override val api = 10
     override val minApi = CURRENT_API
     override val issues get() = listOf(GradleConfigurationDetector.ISSUE)
 }

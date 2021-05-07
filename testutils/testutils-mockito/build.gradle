@@ -27,3 +27,9 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
 }
+
+android {
+    lintOptions {
+        disable "InvalidPackage" // Lint is unhappy about java.lang.instrument package
+    }
+}

@@ -49,6 +49,7 @@ internal interface CaptureSessionFactory {
 
 @Module
 internal object SessionFactoryModule {
+    @SuppressLint("ObsoleteSdkInt")
     @CameraGraphScope
     @Provides
     fun provideSessionFactory(

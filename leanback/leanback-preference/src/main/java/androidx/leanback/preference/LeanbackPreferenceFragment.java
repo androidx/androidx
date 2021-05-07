@@ -16,7 +16,6 @@
 
 package androidx.leanback.preference;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,9 +41,7 @@ import android.widget.TextView;
 public abstract class LeanbackPreferenceFragment extends BaseLeanbackPreferenceFragment {
 
     public LeanbackPreferenceFragment() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
-        }
+        LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
     }
 
     @Override

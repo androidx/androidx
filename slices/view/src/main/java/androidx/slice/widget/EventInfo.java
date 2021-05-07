@@ -248,7 +248,7 @@ public class EventInfo {
         this.rowTemplateType = rowTemplateType;
         this.rowIndex = rowIndex;
 
-        this.actionPosition = -1;
+        this.actionPosition = POSITION_START;
         this.actionIndex = -1;
         this.actionCount = -1;
         this.state = -1;
