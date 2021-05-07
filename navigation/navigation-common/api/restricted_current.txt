@@ -302,7 +302,6 @@ package androidx.navigation {
   @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
     ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider navigatorProvider);
     method public androidx.navigation.NavGraph createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.NavGraph destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
   }
 
   public final class NavOptions {
