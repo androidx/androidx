@@ -65,62 +65,36 @@ public class Note {
         return mText;
     }
 
-    /**
-     * Builder for {@link Note} objects.
-     *
-     * <p>Once {@link #build} is called, the instance can no longer be used.
-     */
+    /** Builder for {@link Note} objects. */
     public static final class Builder {
         private String mNamespace = "";
         private String mId = "";
         private String mText = "";
-        private boolean mBuilt = false;
 
-        /**
-         * Sets the namespace of the {@link Note} object.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Sets the namespace of the {@link Note} object. */
         @NonNull
         public Note.Builder setNamespace(@NonNull String namespace) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mNamespace = Preconditions.checkNotNull(namespace);
             return this;
         }
 
-        /**
-         * Sets the ID of the {@link Note} object.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Sets the ID of the {@link Note} object. */
         @NonNull
         public Note.Builder setId(@NonNull String id) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mId = Preconditions.checkNotNull(id);
             return this;
         }
 
-        /**
-         * Sets the text of the {@link Note} object.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Sets the text of the {@link Note} object. */
         @NonNull
         public Note.Builder setText(@NonNull String text) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mText = Preconditions.checkNotNull(text);
             return this;
         }
 
-        /**
-         * Creates a new {@link Note} object.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Creates a new {@link Note} object. */
         @NonNull
         public Note build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBuilt = true;
             return new Note(mNamespace, mId, mText);
         }
     }
