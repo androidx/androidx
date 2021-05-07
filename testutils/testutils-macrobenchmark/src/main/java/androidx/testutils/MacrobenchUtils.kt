@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.macrobenchmark
+package androidx.testutils
 
 import android.content.Intent
+import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
-const val TARGET_PACKAGE = "androidx.benchmark.integration.macrobenchmark.target"
-
+@RequiresApi(29)
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
     startupMode: StartupMode,
+    packageName: String,
     iterations: Int = 3,
     setupIntent: Intent.() -> Unit = {}
 ) = measureRepeated(
-    packageName = TARGET_PACKAGE,
+    packageName = packageName,
     metrics = listOf(StartupTimingMetric()),
     compilationMode = compilationMode,
     iterations = iterations,
@@ -39,7 +40,7 @@ fun MacrobenchmarkRule.measureStartup(
 ) {
     pressHome()
     val intent = Intent()
-    intent.setPackage(TARGET_PACKAGE)
+    intent.setPackage(packageName)
     setupIntent(intent)
     startActivityAndWait(intent)
 }
