@@ -25,19 +25,19 @@ import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
 import androidx.wear.watchface.style.UserStyleData
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
+import kotlin.coroutines.CoroutineContext
 
 /**
  * [ListenableFuture]-based compatibility wrapper around [WatchFaceControlClient]'s suspending
  * methods. This class is open to allow mocking.
  */
 public open class ListenableWatchFaceControlClient(
-    private val watchFaceControlClient: WatchFaceControlClient,
-    private val executor: Executor
+    private val watchFaceControlClient: WatchFaceControlClient
 ) : WatchFaceControlClient {
     override fun getInteractiveWatchFaceClientInstance(
         instanceId: String
@@ -45,6 +45,13 @@ public open class ListenableWatchFaceControlClient(
         watchFaceControlClient.getInteractiveWatchFaceClientInstance(instanceId)
 
     public companion object {
+        internal fun createImmediateCoroutineScope() = CoroutineScope(
+            object : CoroutineDispatcher() {
+                override fun dispatch(context: CoroutineContext, block: Runnable) {
+                    block.run()
+                }
+            }
+        )
 
         /**
          * Launches a coroutine with a new scope and returns a future that correctly handles
@@ -59,16 +66,16 @@ public open class ListenableWatchFaceControlClient(
             val traceEvent = AsyncTraceEvent(traceTag)
             val future = ResolvableFuture.create<T>()
             val coroutineScope = scopeFactory()
-            // Propagate future cancellation.
-            future.addListener(
-                {
-                    if (future.isCancelled) {
-                        coroutineScope.cancel()
-                    }
-                },
-                { runner -> runner.run() }
-            )
             coroutineScope.launch {
+                // Propagate future cancellation.
+                future.addListener(
+                    {
+                        if (future.isCancelled) {
+                            coroutineScope.cancel()
+                        }
+                    },
+                    { runner -> runner.run() }
+                )
                 try {
                     future.set(block())
                 } catch (e: Exception) {
@@ -85,31 +92,24 @@ public open class ListenableWatchFaceControlClient(
          * connect to a watch face in the android package [watchFacePackageName].
          * Resolves as [ServiceNotBoundException] if the watch face control service can not
          * be bound.
-         *
-         * @param context Calling application's [Context].
-         * @param watchFacePackageName The name of the package containing the watch face control
-         * service to bind to.
-         * @param executor The [Executor] on which any coroutine tasks are to run.
          */
         @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public fun createWatchFaceControlClient(
+            /** Calling application's [Context]. */
             context: Context,
-            watchFacePackageName: String,
-            executor: Executor
+            /** The name of the package containing the watch face control service to bind to. */
+            watchFacePackageName: String
         ): ListenableFuture<ListenableWatchFaceControlClient> =
             launchFutureCoroutine(
                 "ListenableWatchFaceControlClient.createWatchFaceControlClient",
-                {
-                    CoroutineScope(executor.asCoroutineDispatcher())
-                },
+                ::createImmediateCoroutineScope,
             ) {
                 ListenableWatchFaceControlClient(
                     WatchFaceControlClient.createWatchFaceControlClient(
                         context,
                         watchFacePackageName
-                    ),
-                    executor
+                    )
                 )
             }
     }
@@ -141,9 +141,7 @@ public open class ListenableWatchFaceControlClient(
     ): ListenableFuture<InteractiveWatchFaceClient> =
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
-            {
-                CoroutineScope(executor.asCoroutineDispatcher())
-            },
+            ::createImmediateCoroutineScope,
         ) {
             watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
                 id,
