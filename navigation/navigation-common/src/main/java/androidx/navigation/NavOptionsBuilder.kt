@@ -75,6 +75,19 @@ public class NavOptionsBuilder {
         set(value) {
             popUpTo(value)
         }
+
+    /**
+     * Pop up to a given destination before navigating. This pops all non-matching destinations
+     * from the back stack until this destination is found.
+     */
+    public var popUpToRoute: String? = null
+        private set(value) {
+            if (value != null) {
+                require(value.isNotBlank()) { "Cannot pop up to an empty route" }
+                field = value
+                inclusive = false
+            }
+        }
     private var inclusive = false
     private var saveState = false
 
@@ -84,6 +97,22 @@ public class NavOptionsBuilder {
      */
     public fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
         popUpToId = id
+        popUpToRoute = null
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
+    }
+
+    /**
+     * Pop up to a given destination before navigating. This pops all non-matching destination routes
+     * from the back stack until the destination with a matching route is found.
+     *
+     * @param route route for the destination
+     * @param popUpToBuilder builder used to construct a popUpTo operation
+     */
+    public fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+        popUpToRoute = route
+        popUpToId = -1
         val builder = PopUpToBuilder().apply(popUpToBuilder)
         inclusive = builder.inclusive
         saveState = builder.saveState
@@ -106,7 +135,11 @@ public class NavOptionsBuilder {
     internal fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
         setRestoreState(restoreState)
-        setPopUpTo(popUpToId, inclusive, saveState)
+        if (popUpToRoute != null) {
+            setPopUpTo(popUpToRoute, inclusive, saveState)
+        } else {
+            setPopUpTo(popUpToId, inclusive, saveState)
+        }
     }.build()
 }
 

@@ -6,6 +6,8 @@ package androidx.navigation.testing {
     method public java.util.List<androidx.navigation.NavBackStackEntry> getBackStack();
     method public void setCurrentDestination(@IdRes int destId, optional android.os.Bundle args);
     method public void setCurrentDestination(@IdRes int destId);
+    method public void setCurrentDestination(String destRoute, optional android.os.Bundle args);
+    method public void setCurrentDestination(String destRoute);
     property public final java.util.List<androidx.navigation.NavBackStackEntry> backStack;
   }
 
