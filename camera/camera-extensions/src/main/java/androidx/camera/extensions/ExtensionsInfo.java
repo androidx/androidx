@@ -16,11 +16,8 @@
 
 package androidx.camera.extensions;
 
-import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
@@ -45,42 +42,41 @@ import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
  * <p>The typical usages include checking whether or not a camera exists that supports an extension
  * by using {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}. Then after it has
  * been determined that the extension can be enabled, a
- * {@link #getExtensionCameraSelector(CameraSelector, int)} call can be used to get the
+ * {@link #getExtensionCameraSelectorAndInjectCameraConfig(CameraSelector, int)} call can be used to get the
  * specified {@link CameraSelector} to bind use cases and enable the extension mode on the camera.
- *
- * <p>When the Camera has been set to a particular extension it might require the camera to
- * restart which can cause the preview to momentarily stop. Once the extension has been enabled
- * for a Camera instance then it will stay in that extension mode until the extension has been
- * disabled.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ExtensionsInfo {
+final class ExtensionsInfo {
     private static final String TAG = "ExtensionsInfo";
 
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";
 
-    ExtensionsInfo(@NonNull Context context) {
-    }
-
     /**
-     * Returns a {@link CameraSelector} for the specific extension mode.
+     * Returns a {@link CameraSelector} for the specified extension mode.
      *
+     * <p>The corresponding extension camera config provider will be injected to the
+     * {@link ExtendedCameraConfigProviderStore} when the function is called.
+     *
+     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
      * @param baseCameraSelector The base {@link CameraSelector} to be applied the extension
      *                           related configuration on.
-     *                         {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}
-     *                          can be used to check whether any camera can support the specified
-     *                          extension mode for the base camera selector.
      * @param mode The target extension mode.
-     * @return a {@link CameraSelector} for the specific Extensions mode.
-     * @throws IllegalArgumentException if the base {@link CameraSelector} has contained
+     * @return a {@link CameraSelector} for the specified Extensions mode.
+     * @throws IllegalArgumentException If no camera can be found to support the specified
+     * extension mode, or the base {@link CameraSelector} has contained
      * extension related configuration in it.
      */
     @NonNull
-    public CameraSelector getExtensionCameraSelector(@NonNull CameraSelector baseCameraSelector,
+    static CameraSelector getExtensionCameraSelectorAndInjectCameraConfig(
+            @NonNull CameraProvider cameraProvider,
+            @NonNull CameraSelector baseCameraSelector,
             @ExtensionMode.Mode int mode) {
+        if (!isExtensionAvailable(cameraProvider, baseCameraSelector, mode)) {
+            throw new IllegalArgumentException("No camera can be found to support the specified "
+                    + "extensions mode! isExtensionAvailable should be checked first before "
+                    + "calling getExtensionCameraSelector.");
+        }
+
         // Checks whether there has been Extensions related CameraConfig set in the base
         // CameraSelector.
         for (CameraFilter cameraFilter : baseCameraSelector.getCameraFilterSet()) {
@@ -104,20 +100,6 @@ public final class ExtensionsInfo {
     }
 
     /**
-     * Returns the extension mode that is currently set on the camera.
-     */
-    @ExtensionMode.Mode
-    public int getExtension(@NonNull Camera camera) {
-        Object extensionsConfigObject = camera.getExtendedConfig();
-
-        if (extensionsConfigObject instanceof ExtensionsConfig) {
-            ExtensionsConfig extensionsConfig = (ExtensionsConfig) extensionsConfigObject;
-            return extensionsConfig.getExtensionMode();
-        }
-        return ExtensionMode.NONE;
-    }
-
-    /**
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
      *
@@ -125,7 +107,7 @@ public final class ExtensionsInfo {
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode The target extension mode to support.
      */
-    public boolean isExtensionAvailable(
+    static boolean isExtensionAvailable(
             @NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector,
             @ExtensionMode.Mode int mode) {
@@ -142,7 +124,7 @@ public final class ExtensionsInfo {
         return true;
     }
 
-    private CameraFilter getFilter(@ExtensionMode.Mode int mode) {
+    private static CameraFilter getFilter(@ExtensionMode.Mode int mode) {
         CameraFilter filter;
         String id = getExtendedCameraConfigProviderId(mode);
 
@@ -180,10 +162,10 @@ public final class ExtensionsInfo {
     }
 
     /**
-     * Injects {@link CameraConfigProvider} for specific extension mode to the
+     * Injects {@link CameraConfigProvider} for specified extension mode to the
      * {@link ExtendedCameraConfigProviderStore}.
      */
-    private void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
+    private static void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
         CameraFilter.Id id = CameraFilter.Id.create(getExtendedCameraConfigProviderId(mode));
 
         if (ExtendedCameraConfigProviderStore.getConfigProvider(id) == CameraConfigProvider.EMPTY) {
@@ -198,7 +180,7 @@ public final class ExtensionsInfo {
         }
     }
 
-    private String getExtendedCameraConfigProviderId(@ExtensionMode.Mode int mode) {
+    private static String getExtendedCameraConfigProviderId(@ExtensionMode.Mode int mode) {
         String id;
 
         switch (mode) {
@@ -224,5 +206,8 @@ public final class ExtensionsInfo {
                 throw new IllegalArgumentException("Invalid extension mode!");
         }
         return id;
+    }
+
+    private ExtensionsInfo() {
     }
 }

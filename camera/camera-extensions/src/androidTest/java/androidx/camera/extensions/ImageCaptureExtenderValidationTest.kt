@@ -53,8 +53,9 @@ class ImageCaptureExtenderValidationTest(
     private val effectMode: ExtensionsManager.EffectMode =
         ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
 
-    private lateinit var extensionsInfo: ExtensionsInfo
     private lateinit var cameraProvider: ProcessCameraProvider
+
+    private lateinit var extensionsManager: ExtensionsManager
 
     @Before
     @Throws(Exception::class)
@@ -67,12 +68,10 @@ class ImageCaptureExtenderValidationTest(
             )
         )
 
-        Assume.assumeTrue(ExtensionsTestUtil.initExtensions(context))
-        extensionsInfo = ExtensionsManager.getExtensionsInfo(context)
-
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         Assume.assumeTrue(
-            extensionsInfo.isExtensionAvailable(
+            extensionsManager.isExtensionAvailable(
                 cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 extensionMode
@@ -88,9 +87,12 @@ class ImageCaptureExtenderValidationTest(
     )
     fun cleanUp() {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS)
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
-        ExtensionsManager.deinit()[10000, TimeUnit.MILLISECONDS]
+
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
     }
 
     companion object {
