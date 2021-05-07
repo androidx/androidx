@@ -120,11 +120,6 @@ public class ComplicationDrawableTest {
     }
 
     @Test
-    public void callingSetContextWithNullThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> mComplicationDrawable.setContext(null));
-    }
-
-    @Test
     public void callingDrawOnCanvasBeforeSetContextThrowsAnException() {
         assertThrows(IllegalStateException.class, () -> mComplicationDrawable.draw(mMockCanvas));
     }

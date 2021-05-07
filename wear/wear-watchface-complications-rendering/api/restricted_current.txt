@@ -20,15 +20,15 @@ package androidx.wear.watchface.complications.rendering {
 
   public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
     ctor public ComplicationDrawable();
-    ctor public ComplicationDrawable(android.content.Context);
-    ctor public ComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable);
-    method public void draw(android.graphics.Canvas);
+    ctor public ComplicationDrawable(android.content.Context context);
+    ctor public ComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable);
+    method public void draw(android.graphics.Canvas canvas);
     method public androidx.wear.watchface.complications.rendering.ComplicationStyle getActiveStyle();
     method public androidx.wear.watchface.complications.rendering.ComplicationStyle getAmbientStyle();
     method public androidx.wear.complications.data.ComplicationData? getComplicationData();
     method public android.content.Context? getContext();
     method public long getCurrentTimeMillis();
-    method public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context, int);
+    method public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
     method public long getHighlightDuration();
     method public CharSequence? getNoDataText();
     method @Deprecated public int getOpacity();
@@ -37,19 +37,36 @@ package androidx.wear.watchface.complications.rendering {
     method public boolean isInAmbientMode();
     method public boolean isLowBitAmbient();
     method public boolean isRangedValueProgressHidden();
-    method public boolean onTap(@Px int, @Px int);
-    method public void setAlpha(int);
-    method public void setBurnInProtection(boolean);
-    method public void setColorFilter(android.graphics.ColorFilter?);
-    method public void setComplicationData(androidx.wear.complications.data.ComplicationData?, boolean);
-    method public void setContext(android.content.Context);
-    method public void setCurrentTimeMillis(long);
-    method public void setHighlightDuration(@IntRange(from=0) long);
-    method public void setHighlighted(boolean);
-    method public void setInAmbientMode(boolean);
-    method public void setLowBitAmbient(boolean);
-    method public void setNoDataText(CharSequence?);
-    method public void setRangedValueProgressHidden(boolean);
+    method public boolean onTap(@Px int x, @Px int y);
+    method public void setAlpha(@IntRange(from=0, to=255) int alpha);
+    method public void setBurnInProtectionOn(boolean p);
+    method public void setColorFilter(android.graphics.ColorFilter? colorFilter);
+    method public void setComplicationData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsync);
+    method public void setContext(android.content.Context context);
+    method public void setCurrentTimeMillis(long p);
+    method public void setHighlightDuration(@IntRange(from=0) long highlightDurationMillis);
+    method public void setHighlighted(boolean p);
+    method public void setInAmbientMode(boolean p);
+    method public void setLowBitAmbient(boolean p);
+    method public void setNoDataText(CharSequence? noDataText);
+    method public void setRangedValueProgressHidden(boolean rangedValueProgressHidden);
+    property public final androidx.wear.watchface.complications.rendering.ComplicationStyle activeStyle;
+    property public final androidx.wear.watchface.complications.rendering.ComplicationStyle ambientStyle;
+    property public final androidx.wear.complications.data.ComplicationData? complicationData;
+    property public final android.content.Context? context;
+    property public final long currentTimeMillis;
+    property public final long highlightDuration;
+    property public final boolean isBurnInProtectionOn;
+    property public final boolean isHighlighted;
+    property public final boolean isInAmbientMode;
+    property public final boolean isLowBitAmbient;
+    property public final boolean isRangedValueProgressHidden;
+    property public final CharSequence? noDataText;
+    field public static final androidx.wear.watchface.complications.rendering.ComplicationDrawable.Companion Companion;
+  }
+
+  public static final class ComplicationDrawable.Companion {
+    method public androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
   }
 
   public final class ComplicationHighlightRenderer {
