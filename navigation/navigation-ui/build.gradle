@@ -30,6 +30,9 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 dependencies {
@@ -47,6 +50,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(MULTIDEX)
 }
 
 androidx {
