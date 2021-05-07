@@ -20,8 +20,10 @@ import COMMON
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getSystemClasspathFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
+import androidx.room.testing.context
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
@@ -2464,6 +2466,31 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.INVALID_COLUMN_NAME)
             }
+        }
+    }
+
+    @Test
+    fun typeAlias() {
+        val src = Source.kotlin(
+            "Entity.kt",
+            """
+            import androidx.room.*;
+
+            typealias MyLong = Long
+            @Entity(tableName = "par_table")
+            data class Subject(@PrimaryKey @ColumnInfo(name = "my_long") val myLong: MyLong)
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val parser = TableEntityProcessor(
+                invocation.context,
+                invocation.processingEnv.requireTypeElement("Subject")
+            )
+            val parsed = parser.process()
+            val field = parsed.primaryKey.fields.first()
+            assertThat(field.typeName).isEqualTo(TypeName.LONG)
         }
     }
 }
