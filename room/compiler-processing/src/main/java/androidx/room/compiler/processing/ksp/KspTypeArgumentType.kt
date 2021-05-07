@@ -54,7 +54,7 @@ internal class KspTypeArgumentType(
         return this
     }
 
-    override fun extendsBound(): XType? {
+    override fun extendsBound(): XType {
         return _extendsBound
     }
 
