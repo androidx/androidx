@@ -51,7 +51,7 @@ dependencies {
 }
 
 tasks.named("compileKotlin").configure {
-    dependsOn(":hilt:hilt-work:jarDebug")
+    dependsOn(":hilt:hilt-work:jarRelease")
 }
 
 androidx {

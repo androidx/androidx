@@ -19,7 +19,7 @@ function usage() {
   echo "  Replaces the requirement for "'`'"./gradlew <tasks>"'`'" to fail with the requirement that it produces the given message"
   echo
   echo "SAMPLE USAGE"
-  echo "  $0 assembleDebug # or any other arguments you would normally give to ./gradlew"
+  echo "  $0 assembleRelease # or any other arguments you would normally give to ./gradlew"
   echo
   echo "OUTPUT"
   echo "  diagnose-build-failure will conclude one of the following:"

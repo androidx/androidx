@@ -17,7 +17,7 @@ function usage() {
   echo
   echo "For example:"
   echo
-  echo "  $0 assembleDebug # or any other arguments you would normally give to ./gradlew"
+  echo "  $0 assembleRelease # or any other arguments you would normally give to ./gradlew"
   echo
   echo
   echo "-y"
