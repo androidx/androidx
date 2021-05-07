@@ -50,7 +50,6 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -138,7 +137,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
     }
 
     @Test
-    @Ignore("b/185140325")
     public void testSendCommand() throws InterruptedException {
         mMediaControllerCallback.setExpectedCallbackMethodName("onCommand");
         mMediaController.sendCommand("anyCommand", /* extras= */ null, /* cb= */ null);
