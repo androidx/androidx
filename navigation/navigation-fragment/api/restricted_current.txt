@@ -45,7 +45,6 @@ package androidx.navigation.fragment {
     ctor public FragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager, int containerId);
     method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
     method @Deprecated public androidx.fragment.app.Fragment instantiateFragment(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager, String className, android.os.Bundle? args);
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.FragmentNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
   }
 
   @androidx.navigation.NavDestination.ClassType(Fragment::class) public static class FragmentNavigator.Destination extends androidx.navigation.NavDestination {
