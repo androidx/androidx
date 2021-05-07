@@ -32,7 +32,7 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     api(projectOrArtifact(":compose:foundation:foundation"))
-    api(projectOrArtifact(":paging:paging-common"))
+    api("androidx.paging:paging-common:3.0.0")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
