@@ -190,10 +190,12 @@ public final class SearchResult {
 
     /** Builder for {@link SearchResult} objects. */
     public static final class Builder {
-        private final Bundle mBundle = new Bundle();
-        private final ArrayList<Bundle> mMatchInfos = new ArrayList<>();
-
-        private boolean mBuilt;
+        private final String mPackageName;
+        private final String mDatabaseName;
+        private ArrayList<Bundle> mMatchInfoBundles = new ArrayList<>();
+        private GenericDocument mGenericDocument;
+        private double mRankingSignal;
+        private boolean mBuilt = false;
 
         /**
          * Constructs a new builder for {@link SearchResult} objects.
@@ -202,8 +204,8 @@ public final class SearchResult {
          * @param databaseName the database name the matched document belongs to.
          */
         public Builder(@NonNull String packageName, @NonNull String databaseName) {
-            mBundle.putString(PACKAGE_NAME_FIELD, Preconditions.checkNotNull(packageName));
-            mBundle.putString(DATABASE_NAME_FIELD, Preconditions.checkNotNull(databaseName));
+            mPackageName = Preconditions.checkNotNull(packageName);
+            mDatabaseName = Preconditions.checkNotNull(databaseName);
         }
 
 // @exportToFramework:startStrip()
@@ -215,25 +217,21 @@ public final class SearchResult {
          *
          * @throws AppSearchException if an error occurs converting a document class into a
          *                            {@link GenericDocument}.
-         * @throws IllegalStateException if the builder has already been used
          */
         @NonNull
         public Builder setDocument(@NonNull Object document) throws AppSearchException {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(document);
+            resetIfBuilt();
             return setGenericDocument(GenericDocument.fromDocumentClass(document));
         }
 // @exportToFramework:endStrip()
 
-        /**
-         * Sets the document which matched.
-         *
-         * @throws IllegalStateException if the builder has already been used
-         */
+        /** Sets the document which matched. */
         @NonNull
         public Builder setGenericDocument(@NonNull GenericDocument document) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putBundle(DOCUMENT_FIELD, document.getBundle());
+            Preconditions.checkNotNull(document);
+            resetIfBuilt();
+            mGenericDocument = document;
             return this;
         }
 
@@ -251,34 +249,41 @@ public final class SearchResult {
         /** Adds another match to this SearchResult. */
         @NonNull
         public Builder addMatchInfo(@NonNull MatchInfo matchInfo) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkState(
                     matchInfo.mDocument == null,
                     "This MatchInfo is already associated with a SearchResult and can't be "
                             + "reassigned");
-            mMatchInfos.add(matchInfo.mBundle);
+            resetIfBuilt();
+            mMatchInfoBundles.add(matchInfo.mBundle);
             return this;
         }
 
         /** Sets the ranking signal of the matched document in this SearchResult. */
         @NonNull
         public Builder setRankingSignal(double rankingSignal) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putDouble(RANKING_SIGNAL_FIELD, rankingSignal);
+            resetIfBuilt();
+            mRankingSignal = rankingSignal;
             return this;
         }
 
-        /**
-         * Constructs a new {@link SearchResult}.
-         *
-         * @throws IllegalStateException if the builder has already been used
-         */
+        /** Constructs a new {@link SearchResult}. */
         @NonNull
         public SearchResult build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfos);
+            Bundle bundle = new Bundle();
+            bundle.putString(PACKAGE_NAME_FIELD, mPackageName);
+            bundle.putString(DATABASE_NAME_FIELD, mDatabaseName);
+            bundle.putBundle(DOCUMENT_FIELD, mGenericDocument.getBundle());
+            bundle.putDouble(RANKING_SIGNAL_FIELD, mRankingSignal);
+            bundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfoBundles);
             mBuilt = true;
-            return new SearchResult(mBundle);
+            return new SearchResult(bundle);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mMatchInfoBundles = new ArrayList<>(mMatchInfoBundles);
+                mBuilt = false;
+            }
         }
     }
 
@@ -463,8 +468,9 @@ public final class SearchResult {
 
         /** Builder for {@link MatchInfo} objects. */
         public static final class Builder {
-            private final Bundle mBundle = new Bundle();
-            private boolean mBuilt = false;
+            private final String mPropertyPath;
+            private MatchRange mExactMatchRange = new MatchRange(0, 0);
+            private MatchRange mSnippetRange = new MatchRange(0, 0);
 
             /**
              * Creates a new {@link MatchInfo.Builder} reporting a match with the given property
@@ -480,49 +486,33 @@ public final class SearchResult {
              *                     which property in the document these snippets correspond to.
              */
             public Builder(@NonNull String propertyPath) {
-                mBundle.putString(
-                        SearchResult.MatchInfo.PROPERTY_PATH_FIELD,
-                        Preconditions.checkNotNull(propertyPath));
+                mPropertyPath = Preconditions.checkNotNull(propertyPath);
             }
 
-            /**
-             * Sets the exact {@link MatchRange} corresponding to the given entry.
-             *
-             * @throws IllegalStateException if the builder has already been used
-             */
+            /** Sets the exact {@link MatchRange} corresponding to the given entry. */
             @NonNull
             public Builder setExactMatchRange(@NonNull MatchRange matchRange) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(matchRange);
-                mBundle.putInt(MatchInfo.EXACT_MATCH_RANGE_LOWER_FIELD, matchRange.getStart());
-                mBundle.putInt(MatchInfo.EXACT_MATCH_RANGE_UPPER_FIELD, matchRange.getEnd());
+                mExactMatchRange = Preconditions.checkNotNull(matchRange);
                 return this;
             }
 
-            /**
-             * Sets the snippet {@link MatchRange} corresponding to the given entry.
-             *
-             * @throws IllegalStateException if the builder has already been used
-             */
+            /** Sets the snippet {@link MatchRange} corresponding to the given entry. */
             @NonNull
             public Builder setSnippetRange(@NonNull MatchRange matchRange) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(matchRange);
-                mBundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, matchRange.getStart());
-                mBundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, matchRange.getEnd());
+                mSnippetRange = Preconditions.checkNotNull(matchRange);
                 return this;
             }
 
-            /**
-             * Constructs a new {@link MatchInfo}.
-             *
-             * @throws IllegalStateException if the builder has already been used
-             */
+            /** Constructs a new {@link MatchInfo}. */
             @NonNull
             public MatchInfo build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mBuilt = true;
-                return new MatchInfo(mBundle, /*document=*/ null);
+                Bundle bundle = new Bundle();
+                bundle.putString(SearchResult.MatchInfo.PROPERTY_PATH_FIELD, mPropertyPath);
+                bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_LOWER_FIELD, mExactMatchRange.getStart());
+                bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_UPPER_FIELD, mExactMatchRange.getEnd());
+                bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
+                bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
+                return new MatchInfo(bundle, /*document=*/ null);
             }
         }
     }
