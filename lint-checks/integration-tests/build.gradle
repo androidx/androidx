@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXGradlePropertiesKt
-import androidx.build.BuildOnServerKt
-import androidx.build.StudioType
-import androidx.build.dependencyTracker.AffectedModuleDetector
-import androidx.build.uptodatedness.EnableCachingKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
@@ -84,36 +79,3 @@ class CompareFilesTask extends DefaultTask {
         }
     }
 }
-
-def lintOutputFile = project.file("${buildDir}/reports/lint-results-debug.xml")
-def lintOutputFileNormalized = project.file("${buildDir}/lint-results-normalized/lint-results-debug.xml.normalized")
-
-def normalizeLintOutput = tasks.register("normalizeLintOutput", Copy) {
-    def supportRootFolder = project.rootProject.ext.supportRootFolder
-    from(lintOutputFile) {
-        filter { line ->
-            return line.replace(supportRootFolder.getAbsolutePath(), "\$SUPPORT")
-        }
-    }
-    into(lintOutputFileNormalized.parentFile)
-    rename(".*", lintOutputFileNormalized.name)
-    dependsOn("lintDebug")
-}
-
-def validateLint = tasks.register("validateLint", CompareFilesTask) { task ->
-    task.actualFile = lintOutputFileNormalized
-    // Make validateLint a no-op, but still build and run lint itself on playground builds.
-    // Due to b/186918949, expected-lint-results.xml provides the incorrect output for playground
-    // builds, causing lint-checks:integration-tests:validateLint to fail.
-    def studioType = AndroidXGradlePropertiesKt.studioType(project.rootProject)
-    if (studioType == StudioType.PLAYGROUND) {
-        task.expectedFile = lintOutputFileNormalized
-    } else {
-        task.expectedFile = project.file("expected-lint-results.xml")
-    }
-    EnableCachingKt.cacheEvenIfNoOutputs(task)
-    dependsOn(normalizeLintOutput)
-    AffectedModuleDetector.configureTaskGuard(task)
-}
-
-BuildOnServerKt.addToBuildOnServer(project, validateLint)
