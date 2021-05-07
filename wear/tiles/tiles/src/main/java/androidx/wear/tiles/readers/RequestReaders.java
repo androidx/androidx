@@ -36,6 +36,7 @@ public class RequestReaders {
     /** Reader for Tile request parameters. */
     public static class TileRequest {
         private final RequestProto.TileRequest mProto;
+        @SuppressWarnings("UnusedVariable")
         private final int mTileId;
 
         private TileRequest(RequestProto.TileRequest proto, int tileId) {
@@ -53,10 +54,6 @@ public class RequestReaders {
         @NonNull
         public DeviceParameters getDeviceParameters() {
             return new DeviceParameters(mProto.getDeviceParameters());
-        }
-
-        public int getTileId() {
-            return mTileId;
         }
 
         /** @hide */
@@ -78,6 +75,7 @@ public class RequestReaders {
     /** Reader for resource request parameters. */
     public static class ResourcesRequest {
         private final RequestProto.ResourcesRequest mProto;
+        @SuppressWarnings("UnusedVariable")
         private final int mTileId;
 
         private ResourcesRequest(@NonNull RequestProto.ResourcesRequest proto, int tileId) {
@@ -99,10 +97,6 @@ public class RequestReaders {
                 throw new IllegalArgumentException(
                         "Passed ResourcesRequestData did not contain a valid proto payload", ex);
             }
-        }
-
-        public int getTileId() {
-            return mTileId;
         }
 
         /** Get the requested resource version. */
