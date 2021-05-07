@@ -42,8 +42,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 private const val TIMEOUT_MS = 500L
@@ -57,16 +55,12 @@ public class ListenableWatchFaceControlClientTest {
     @Mock
     private lateinit var surface: Surface
 
-    private lateinit var executor: Executor
-
     @Before
     public fun setUp() {
         MockitoAnnotations.initMocks(this)
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
-
-        executor = Executors.newSingleThreadExecutor()
     }
 
     @Test
@@ -74,8 +68,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val headlessInstance = client.createHeadlessWatchFaceClient(
@@ -107,8 +100,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         assertNull(
@@ -132,8 +124,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val interactiveInstanceFuture =
@@ -180,8 +171,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val headlessInstance1 = client.createHeadlessWatchFaceClient(
@@ -231,8 +221,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val interactiveInstanceFuture =
@@ -284,8 +273,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         assertNull(client.getInteractiveWatchFaceClientInstance("I do not exist"))
@@ -296,15 +284,13 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).cancel(true)
 
         // Canceling should not prevent a subsequent createWatchFaceControlClient.
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         assertThat(client).isNotNull()
         client.close()
@@ -315,8 +301,7 @@ public class ListenableWatchFaceControlClientTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val client = ListenableWatchFaceControlClient.createWatchFaceControlClient(
             context,
-            context.packageName,
-            executor
+            context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         client.listenableGetOrCreateInteractiveWatchFaceClient(
