@@ -151,6 +151,47 @@ public abstract class RoutingDemoModels {
                 .build();
     }
 
+    /**
+     * Returns the map action strip that contains pan and zoom buttons.
+     */
+    @NonNull
+    public static ActionStrip getMapActionStrip(
+            @NonNull CarContext carContext) {
+        return new ActionStrip.Builder()
+                .addAction(
+                        new Action.Builder()
+                                .setOnClickListener(
+                                        () -> CarToast.makeText(
+                                                carContext,
+                                                "Zoomed in",
+                                                CarToast.LENGTH_SHORT)
+                                                .show())
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        carContext,
+                                                        R.drawable.ic_zoom_in_24))
+                                                .build())
+                                .build())
+                .addAction(
+                        new Action.Builder()
+                                .setOnClickListener(
+                                        () -> CarToast.makeText(
+                                                carContext,
+                                                "Zoomed out",
+                                                CarToast.LENGTH_SHORT)
+                                                .show())
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        carContext,
+                                                        R.drawable.ic_zoom_out_24))
+                                                .build())
+                                .build())
+                .addAction(Action.PAN)
+                .build();
+    }
+
     /** Returns the {@link TravelEstimate} with time and distance information. */
     @NonNull
     public static TravelEstimate getTravelEstimate() {
