@@ -69,6 +69,7 @@ import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.OutputTransform;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -156,6 +157,7 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
+        @SuppressLint("NewApi")
         @OptIn(markerClass = ExperimentalUseCaseGroup.class)
         @Override
         @AnyThread
@@ -230,10 +232,8 @@ public final class PreviewView extends FrameLayout {
         Threads.checkMainThread();
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
                 R.styleable.PreviewView, defStyleAttr, defStyleRes);
-        if (Build.VERSION.SDK_INT >= 29) {
-            saveAttributeDataForStyleable(context, R.styleable.PreviewView, attrs, attributes,
-                    defStyleAttr, defStyleRes);
-        }
+        ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.PreviewView, attrs,
+                attributes, defStyleAttr, defStyleRes);
 
         try {
             final int scaleTypeId = attributes.getInteger(

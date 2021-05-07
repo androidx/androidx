@@ -16,7 +16,6 @@
 
 package androidx.camera.view;
 
-import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.util.Size;
 import android.view.PixelCopy;
@@ -28,6 +27,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -114,7 +114,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
      * would introduced in API level 24. PreviewView doesn't currently use a SurfaceView on API
      * levels below 24.
      */
-    @TargetApi(24)
+    @RequiresApi(24)
     @Nullable
     @Override
     Bitmap getPreviewBitmap() {
