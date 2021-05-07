@@ -19,12 +19,11 @@ package androidx.camera.extensions
 import android.content.Context
 import android.hardware.camera2.CameraAccessException
 import android.os.Build
-import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.extensions.ExtensionMode.Mode
 import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -52,20 +51,29 @@ class PreviewExtenderValidationTest(
     private val effectMode: ExtensionsManager.EffectMode =
         ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
 
-    private lateinit var extensions: Extensions
+    private lateinit var extensionsInfo: ExtensionsInfo
+    private lateinit var cameraProvider: ProcessCameraProvider
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
         Assume.assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
                 lensFacing
             )
         )
         Assume.assumeTrue(ExtensionsTestUtil.initExtensions(context))
-        extensions = ExtensionsManager.getExtensions(context)
+        extensionsInfo = ExtensionsManager.getExtensionsInfo(context)
+
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        Assume.assumeTrue(
+            extensionsInfo.isExtensionAvailable(
+                cameraProvider,
+                CameraSelector.Builder().requireLensFacing(lensFacing).build(),
+                extensionMode
+            )
+        )
     }
 
     @After
@@ -75,8 +83,8 @@ class PreviewExtenderValidationTest(
         TimeoutException::class
     )
     fun cleanUp() {
-        CameraX.shutdown()[10000, TimeUnit.MILLISECONDS]
-        ExtensionsManager.deinit().get()
+        cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+        ExtensionsManager.deinit()[10000, TimeUnit.MILLISECONDS]
     }
 
     companion object {
@@ -94,7 +102,6 @@ class PreviewExtenderValidationTest(
     fun getSupportedResolutionsImplementationTest() {
         // getSupportedResolutions supported since version 1.1
         Assume.assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0)
-        Assume.assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing))
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
@@ -112,8 +119,6 @@ class PreviewExtenderValidationTest(
         CameraAccessException::class
     )
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
-        Assume.assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing))
-
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
         val impl = ExtensionsTestUtil.createPreviewExtenderImpl(effectMode, lensFacing)

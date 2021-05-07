@@ -119,11 +119,11 @@ public class ExtensionTest {
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        Extensions extensions = ExtensionsManager.getExtensions(mContext);
-        assumeTrue(extensions.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
+        ExtensionsInfo extensionsInfo = ExtensionsManager.getExtensionsInfo(mContext);
+        assumeTrue(extensionsInfo.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
                 mExtensionMode));
 
-        mExtensionsCameraSelector = extensions.getExtensionCameraSelector(mBaseCameraSelector,
+        mExtensionsCameraSelector = extensionsInfo.getExtensionCameraSelector(mBaseCameraSelector,
                 mExtensionMode);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();

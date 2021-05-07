@@ -184,7 +184,7 @@ public final class ExtensionsManager {
      *
      * <p> For the moment only used for testing to deinitialize the extensions. Immediately after
      * this has been called then extensions will be deinitialized and
-     * {@link #getExtensions(Context)} will throw an exception. However, tests should wait until
+     * {@link #getExtensionsInfo(Context)} will throw an exception. However, tests should wait until
      * the returned future is complete.
      *
      * @hide
@@ -254,9 +254,9 @@ public final class ExtensionsManager {
     }
 
     /**
-     * Gets a new {@link Extensions} instance.
+     * Gets a new {@link ExtensionsInfo} instance.
      *
-     * <p> An instance can be retrieved only valid after {@link #init(Context)} has successfully
+     * <p> An instance can be retrieved only after {@link #init(Context)} has successfully
      * returned with {@code ExtensionsAvailability.LIBRARY_AVAILABLE}.
      *
      * @throws IllegalStateException if extensions not initialized
@@ -265,13 +265,13 @@ public final class ExtensionsManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public static Extensions getExtensions(@NonNull Context context) {
+    public static ExtensionsInfo getExtensionsInfo(@NonNull Context context) {
         synchronized (EXTENSIONS_LOCK) {
             if (!sInitialized) {
                 throw new IllegalStateException("Extensions not yet initialized");
             }
 
-            return new Extensions(context);
+            return new ExtensionsInfo(context);
         }
     }
 
