@@ -28,7 +28,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
-import androidx.camera.extensions.Extensions;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
@@ -43,30 +43,30 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private PreviewExtenderImpl mImpl;
     private Context mContext;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    public PreviewConfigProvider(@Extensions.ExtensionMode int mode,
+    public PreviewConfigProvider(@ExtensionMode.Mode int mode,
             @NonNull CameraInfo cameraInfo, @NonNull Context context) {
         try {
             switch (mode) {
-                case Extensions.EXTENSION_MODE_BOKEH:
+                case ExtensionMode.BOKEH:
                     mImpl = new BokehPreviewExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_HDR:
+                case ExtensionMode.HDR:
                     mImpl = new HdrPreviewExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_NIGHT:
+                case ExtensionMode.NIGHT:
                     mImpl = new NightPreviewExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_BEAUTY:
+                case ExtensionMode.BEAUTY:
                     mImpl = new BeautyPreviewExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_AUTO:
+                case ExtensionMode.AUTO:
                     mImpl = new AutoPreviewExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_NONE:
+                case ExtensionMode.NONE:
                 default:
                     return;
             }

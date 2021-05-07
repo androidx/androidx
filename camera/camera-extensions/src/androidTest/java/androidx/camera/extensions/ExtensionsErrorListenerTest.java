@@ -91,7 +91,7 @@ public final class ExtensionsErrorListenerTest {
     private Extensions mExtensions;
     private CameraSelector mCameraSelector;
     private EffectMode mEffectMode;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mExtensionMode;
     @CameraSelector.LensFacing
     private int mLensFacing;

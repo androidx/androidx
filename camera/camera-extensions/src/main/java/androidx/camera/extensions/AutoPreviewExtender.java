@@ -68,7 +68,7 @@ public class AutoPreviewExtender extends PreviewExtender {
 
         VendorAutoPreviewExtender(Preview.Builder builder) {
             mImpl = new AutoPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_AUTO);
+            init(builder, mImpl, ExtensionMode.AUTO);
         }
     }
 

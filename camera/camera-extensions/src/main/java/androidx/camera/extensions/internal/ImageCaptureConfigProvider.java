@@ -28,7 +28,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.OptionsBundle;
-import androidx.camera.extensions.Extensions;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ImageCaptureExtender;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
@@ -43,30 +43,30 @@ import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureConfig> {
     private ImageCaptureExtenderImpl mImpl;
     private Context mContext;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    public ImageCaptureConfigProvider(@Extensions.ExtensionMode int mode,
+    public ImageCaptureConfigProvider(@ExtensionMode.Mode int mode,
             @NonNull CameraInfo cameraInfo, @NonNull Context context) {
         try {
             switch (mode) {
-                case Extensions.EXTENSION_MODE_BOKEH:
+                case ExtensionMode.BOKEH:
                     mImpl = new BokehImageCaptureExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_HDR:
+                case ExtensionMode.HDR:
                     mImpl = new HdrImageCaptureExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_NIGHT:
+                case ExtensionMode.NIGHT:
                     mImpl = new NightImageCaptureExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_BEAUTY:
+                case ExtensionMode.BEAUTY:
                     mImpl = new BeautyImageCaptureExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_AUTO:
+                case ExtensionMode.AUTO:
                     mImpl = new AutoImageCaptureExtenderImpl();
                     break;
-                case Extensions.EXTENSION_MODE_NONE:
+                case ExtensionMode.NONE:
                 default:
                     return;
             }

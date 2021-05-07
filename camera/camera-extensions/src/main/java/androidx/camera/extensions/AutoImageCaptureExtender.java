@@ -68,7 +68,7 @@ public class AutoImageCaptureExtender extends ImageCaptureExtender {
 
         VendorAutoImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new AutoImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_AUTO);
+            init(builder, mImpl, ExtensionMode.AUTO);
         }
     }
 

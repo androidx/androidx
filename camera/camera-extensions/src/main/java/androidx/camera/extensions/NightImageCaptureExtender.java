@@ -68,7 +68,7 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
 
         VendorNightImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new NightImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_NIGHT);
+            init(builder, mImpl, ExtensionMode.NIGHT);
         }
     }
 

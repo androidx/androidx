@@ -68,7 +68,7 @@ public class BeautyPreviewExtender extends PreviewExtender {
 
         VendorBeautyPreviewExtender(Preview.Builder builder) {
             mImpl = new BeautyPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_BEAUTY);
+            init(builder, mImpl, ExtensionMode.BEAUTY);
         }
     }
 

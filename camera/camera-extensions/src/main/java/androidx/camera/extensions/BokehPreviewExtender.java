@@ -68,7 +68,7 @@ public class BokehPreviewExtender extends PreviewExtender {
 
         VendorBokehPreviewExtender(Preview.Builder builder) {
             mImpl = new BokehPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_BOKEH);
+            init(builder, mImpl, ExtensionMode.BOKEH);
         }
     }
 

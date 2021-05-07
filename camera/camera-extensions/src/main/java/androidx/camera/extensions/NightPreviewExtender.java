@@ -68,7 +68,7 @@ public class NightPreviewExtender extends PreviewExtender {
 
         VendorNightPreviewExtender(Preview.Builder builder) {
             mImpl = new NightPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_NIGHT);
+            init(builder, mImpl, ExtensionMode.NIGHT);
         }
     }
 
