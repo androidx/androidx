@@ -33,6 +33,7 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CaptureVideo
@@ -70,13 +71,7 @@ class MainActivity : ComponentActivity() {
         toast("Got image: $uri")
     }
 
-    val openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
-        var docs = ""
-        uris.forEach {
-            docs += "uri: $it \n"
-        }
-        toast("Got documents: $docs")
-    }
+    lateinit var openDocuments: ActivityResultLauncher<Array<String>>
 
     val intentSender = registerForActivityResult(
         ActivityResultContracts
@@ -87,6 +82,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (android.os.Build.VERSION.SDK_INT >= 19) {
+            openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
+                var docs = ""
+                uris.forEach {
+                    docs += "uri: $it \n"
+                }
+                toast("Got documents: $docs")
+            }
+        }
 
         setContentView {
             add(::LinearLayout) {
@@ -111,8 +116,10 @@ class MainActivity : ComponentActivity() {
                 button("Pick an image") {
                     getContent.launch("image/*")
                 }
-                button("Open documents") {
-                    openDocuments.launch(arrayOf("*/*"))
+                if (android.os.Build.VERSION.SDK_INT >= 19) {
+                    button("Open documents") {
+                        openDocuments.launch(arrayOf("*/*"))
+                    }
                 }
                 button("Start IntentSender") {
                     val request = IntentSenderRequest.Builder(
