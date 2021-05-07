@@ -95,7 +95,6 @@ public class LocalStorage {
             private final Context mContext;
             private final String mDatabaseName;
             private Executor mExecutor;
-            private boolean mBuilt = false;
 
             /**
              * Creates a {@link SearchContext.Builder} instance.
@@ -128,7 +127,6 @@ public class LocalStorage {
              */
             @NonNull
             public Builder setWorkerExecutor(@NonNull Executor executor) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 mExecutor = Preconditions.checkNotNull(executor);
                 return this;
             }
@@ -136,11 +134,9 @@ public class LocalStorage {
             /** Builds a {@link SearchContext} instance. */
             @NonNull
             public SearchContext build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 if (mExecutor == null) {
                     mExecutor = EXECUTOR;
                 }
-                mBuilt = true;
                 return new SearchContext(mContext, mDatabaseName, mExecutor);
             }
         }
@@ -179,7 +175,6 @@ public class LocalStorage {
         public static final class Builder {
             private final Context mContext;
             private Executor mExecutor;
-            private boolean mBuilt = false;
 
             public Builder(@NonNull Context context) {
                 mContext = Preconditions.checkNotNull(context);
@@ -194,7 +189,6 @@ public class LocalStorage {
              */
             @NonNull
             public Builder setWorkerExecutor(@NonNull Executor executor) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 Preconditions.checkNotNull(executor);
                 mExecutor = executor;
                 return this;
@@ -203,12 +197,9 @@ public class LocalStorage {
             /** Builds a {@link GlobalSearchContext} instance. */
             @NonNull
             public GlobalSearchContext build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
                 if (mExecutor == null) {
                     mExecutor = EXECUTOR;
                 }
-
-                mBuilt = true;
                 return new GlobalSearchContext(mContext, mExecutor);
             }
         }

@@ -52,36 +52,25 @@ public final class PutDocumentsRequest {
         return Collections.unmodifiableList(mDocuments);
     }
 
-    /**
-    * Builder for {@link PutDocumentsRequest} objects.
-    *
-    * <p>Once {@link #build} is called, the instance can no longer be used.
-    */
+    /** Builder for {@link PutDocumentsRequest} objects. */
     public static final class Builder {
-        private final List<GenericDocument> mDocuments = new ArrayList<>();
+        private ArrayList<GenericDocument> mDocuments = new ArrayList<>();
         private boolean mBuilt = false;
 
-        /**
-         * Adds one or more {@link GenericDocument} objects to the request.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Adds one or more {@link GenericDocument} objects to the request. */
         @NonNull
         public Builder addGenericDocuments(@NonNull GenericDocument... documents) {
             Preconditions.checkNotNull(documents);
+            resetIfBuilt();
             return addGenericDocuments(Arrays.asList(documents));
         }
 
-        /**
-         * Adds a collection of {@link GenericDocument} objects to the request.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Adds a collection of {@link GenericDocument} objects to the request. */
         @NonNull
         public Builder addGenericDocuments(
                 @NonNull Collection<? extends GenericDocument> documents) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(documents);
+            resetIfBuilt();
             mDocuments.addAll(documents);
             return this;
         }
@@ -95,13 +84,13 @@ public final class PutDocumentsRequest {
          *                    {@link androidx.appsearch.annotation.Document} documents.
          * @throws AppSearchException if an error occurs converting a document class into a
          *                            {@link GenericDocument}.
-         * @throws IllegalStateException if the builder has already been used.
          */
         // Merged list available from getGenericDocuments()
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addDocuments(@NonNull Object... documents) throws AppSearchException {
             Preconditions.checkNotNull(documents);
+            resetIfBuilt();
             return addDocuments(Arrays.asList(documents));
         }
 
@@ -113,14 +102,13 @@ public final class PutDocumentsRequest {
          *                    {@link androidx.appsearch.annotation.Document} documents.
          * @throws AppSearchException if an error occurs converting a document into a
          *                            {@link GenericDocument}.
-         * @throws IllegalStateException if the builder has already been used.
          */
         // Merged list available from getGenericDocuments()
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addDocuments(@NonNull Collection<?> documents) throws AppSearchException {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(documents);
+            resetIfBuilt();
             List<GenericDocument> genericDocuments = new ArrayList<>(documents.size());
             for (Object document : documents) {
                 GenericDocument genericDocument = GenericDocument.fromDocumentClass(document);
@@ -130,16 +118,18 @@ public final class PutDocumentsRequest {
         }
 // @exportToFramework:endStrip()
 
-        /**
-         * Creates a new {@link PutDocumentsRequest} object.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
+        /** Creates a new {@link PutDocumentsRequest} object. */
         @NonNull
         public PutDocumentsRequest build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
             return new PutDocumentsRequest(mDocuments);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mDocuments = new ArrayList<>(mDocuments);
+                mBuilt = false;
+            }
         }
     }
 }
