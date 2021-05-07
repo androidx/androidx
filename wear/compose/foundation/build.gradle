@@ -27,7 +27,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
+AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project, false)
 
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
