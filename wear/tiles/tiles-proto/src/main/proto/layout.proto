@@ -312,6 +312,7 @@ enum ContentScaleMode {
 
 // An extensible ContentScaleMode property.
 message ContentScaleModeProp {
+  // The value
   ContentScaleMode value = 1;
 }
 
