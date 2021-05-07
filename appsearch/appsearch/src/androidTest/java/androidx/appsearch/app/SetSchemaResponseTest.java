@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.cts;
+package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.SetSchemaResponse;
-
 import org.junit.Test;
 
-public class SetSchemaResponseCtsTest {
+public class SetSchemaResponseTest {
     @Test
     public void testRebuild() {
         SetSchemaResponse.MigrationFailure failure1 = new SetSchemaResponse.MigrationFailure(
