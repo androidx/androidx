@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.GenericDocument;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class GenericDocumentCtsTest {
@@ -207,7 +206,6 @@ public class GenericDocumentCtsTest {
                 .containsExactly(sDocumentProperties1, sDocumentProperties2).inOrder();
     }
 
-    @Ignore
     @Test
     public void testDocument_toString() {
         GenericDocument nestedDocValue = new GenericDocument.Builder<GenericDocument.Builder<?>>(
@@ -241,10 +239,8 @@ public class GenericDocumentCtsTest {
                 + "  creationTimestampMillis: 1,\n"
                 + "  timeToLiveMillis: 1,\n"
                 + "  properties: {\n"
-                + "    \"longKey1\": [1, 2],\n"
-                + "    \"bytesKey1\": [[1, 2]],\n"
                 + "    \"booleanKey1\": [true, false],\n"
-                + "    \"stringKey1\": [\"val1\", \"val2\"],\n"
+                + "    \"bytesKey1\": [[1, 2]],\n"
                 + "    \"documentKey1\": [\n"
                 + "      {\n"
                 + "        namespace: \"namespace\",\n"
@@ -258,7 +254,9 @@ public class GenericDocumentCtsTest {
                 + "        }\n"
                 + "      }\n"
                 + "    ],\n"
-                + "    \"doubleKey1\": [1.0, 2.0]\n"
+                + "    \"doubleKey1\": [1.0, 2.0],\n"
+                + "    \"longKey1\": [1, 2],\n"
+                + "    \"stringKey1\": [\"val1\", \"val2\"]\n"
                 + "  }\n"
                 + "}";
 
