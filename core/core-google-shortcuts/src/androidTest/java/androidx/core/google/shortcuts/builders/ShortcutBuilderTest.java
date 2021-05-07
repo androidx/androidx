@@ -18,12 +18,17 @@ package androidx.core.google.shortcuts.builders;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.firebase.appindexing.Indexable;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
 public class ShortcutBuilderTest {
 
     @SmallTest

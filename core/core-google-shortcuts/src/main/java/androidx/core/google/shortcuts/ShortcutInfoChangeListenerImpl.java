@@ -21,10 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.google.shortcuts.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.ShortcutInfoChangeListener;
@@ -171,19 +173,21 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         }
 
         // Add capability binding
-        if (shortcut.getCategories() != null) {
-            List<CapabilityBuilder> capabilityList = new ArrayList<>();
-            for (String capability : shortcut.getCategories()) {
-                if (!ShortcutUtils.isAppActionCapability(capability)) {
-                    continue;
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (shortcut.getCategories() != null) {
+                List<CapabilityBuilder> capabilityList = new ArrayList<>();
+                for (String capability : shortcut.getCategories()) {
+                    if (!ShortcutUtils.isAppActionCapability(capability)) {
+                        continue;
+                    }
+
+                    capabilityList.add(Api21Impl.buildCapability(capability, shortcut.getExtras()));
                 }
 
-                capabilityList.add(buildCapability(capability, shortcut.getExtras()));
-            }
-
-            if (!capabilityList.isEmpty()) {
-                shortcutBuilder
-                        .setCapability(capabilityList.toArray(new CapabilityBuilder[0]));
+                if (!capabilityList.isEmpty()) {
+                    shortcutBuilder
+                            .setCapability(capabilityList.toArray(new CapabilityBuilder[0]));
+                }
             }
         }
 
@@ -191,40 +195,45 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         return shortcutBuilder.build();
     }
 
-    @NonNull
-    private CapabilityBuilder buildCapability(@NonNull String capability,
-            @Nullable PersistableBundle shortcutInfoExtras) {
-        CapabilityBuilder capabilityBuilder = new CapabilityBuilder()
-                .setName(capability);
-        if (shortcutInfoExtras == null) {
-            return capabilityBuilder;
-        }
-
-        String[] params = shortcutInfoExtras.getStringArray(capability);
-        if (params == null) {
-            return capabilityBuilder;
-        }
-
-        List<ParameterBuilder> parameterBuilders = new ArrayList<>();
-        for (String param : params) {
-            ParameterBuilder parameterBuilder =
-                    new ParameterBuilder()
-                    .setName(param);
-            String capabilityParamKey = capability + CAPABILITY_PARAM_SEPARATOR + param;
-            String[] values = shortcutInfoExtras.getStringArray(capabilityParamKey);
-            if (values == null || values.length == 0) {
-                // ignore this parameter since no values were given
-                continue;
+    @RequiresApi(21)
+    private static class Api21Impl {
+        @NonNull
+        static CapabilityBuilder buildCapability(@NonNull String capability,
+                @Nullable PersistableBundle shortcutInfoExtras) {
+            CapabilityBuilder capabilityBuilder = new CapabilityBuilder()
+                    .setName(capability);
+            if (shortcutInfoExtras == null) {
+                return capabilityBuilder;
             }
 
-            parameterBuilder.setValue(values);
-            parameterBuilders.add(parameterBuilder);
+            String[] params = shortcutInfoExtras.getStringArray(capability);
+            if (params == null) {
+                return capabilityBuilder;
+            }
+
+            List<ParameterBuilder> parameterBuilders = new ArrayList<>();
+            for (String param : params) {
+                ParameterBuilder parameterBuilder =
+                        new ParameterBuilder()
+                                .setName(param);
+                String capabilityParamKey = capability + CAPABILITY_PARAM_SEPARATOR + param;
+                String[] values = shortcutInfoExtras.getStringArray(capabilityParamKey);
+                if (values == null || values.length == 0) {
+                    // ignore this parameter since no values were given
+                    continue;
+                }
+
+                parameterBuilder.setValue(values);
+                parameterBuilders.add(parameterBuilder);
+            }
+
+            if (parameterBuilders.size() > 0) {
+                capabilityBuilder
+                        .setParameter(parameterBuilders.toArray(new ParameterBuilder[0]));
+            }
+            return capabilityBuilder;
         }
 
-        if (parameterBuilders.size() > 0) {
-            capabilityBuilder
-                    .setParameter(parameterBuilders.toArray(new ParameterBuilder[0]));
-        }
-        return capabilityBuilder;
+        private Api21Impl() {}
     }
 }
