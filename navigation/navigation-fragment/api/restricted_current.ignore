@@ -5,5 +5,7 @@ ChangedType: androidx.navigation.fragment.FragmentNavigator.Extras#getSharedElem
 
 RemovedMethod: androidx.navigation.fragment.DialogFragmentNavigator#popBackStack():
     Removed method androidx.navigation.fragment.DialogFragmentNavigator.popBackStack()
+RemovedMethod: androidx.navigation.fragment.FragmentNavigator#navigate(androidx.navigation.fragment.FragmentNavigator.Destination, android.os.Bundle, androidx.navigation.NavOptions, androidx.navigation.Navigator.Extras):
+    Removed method androidx.navigation.fragment.FragmentNavigator.navigate(androidx.navigation.fragment.FragmentNavigator.Destination,android.os.Bundle,androidx.navigation.NavOptions,androidx.navigation.Navigator.Extras)
 RemovedMethod: androidx.navigation.fragment.FragmentNavigator#popBackStack():
     Removed method androidx.navigation.fragment.FragmentNavigator.popBackStack()

@@ -25,6 +25,7 @@ import androidx.annotation.IdRes
 import androidx.core.content.res.use
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
@@ -50,7 +51,6 @@ public open class FragmentNavigator(
     private val fragmentManager: FragmentManager,
     private val containerId: Int
 ) : Navigator<Destination>() {
-    private val backStack = ArrayDeque<Int>()
 
     /**
      * {@inheritDoc}
@@ -64,22 +64,18 @@ public open class FragmentNavigator(
      * asynchronously, so the newly visible Fragment from the back stack
      * is not instantly available after this call completes.
      */
-    public override fun popBackStack(): Boolean {
-        if (backStack.isEmpty()) {
-            return false
-        }
+    override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG, "Ignoring popBackStack() call: FragmentManager has already saved its state"
             )
-            return false
+            return
         }
         fragmentManager.popBackStack(
-            generateBackStackName(backStack.size, backStack.last()),
+            popUpTo.id,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
-        backStack.removeLast()
-        return true
+        state.pop(popUpTo, savedState)
     }
 
     public override fun createDestination(): Destination {
@@ -126,18 +122,29 @@ public open class FragmentNavigator(
      * asynchronously, so the new Fragment is not instantly available
      * after this call completes.
      */
-    public override fun navigate(
-        destination: Destination,
-        args: Bundle?,
+    override fun navigate(
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
-    ): NavDestination? {
+    ) {
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG, "Ignoring navigate() call: FragmentManager has already saved its state"
             )
-            return null
+            return
         }
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ) {
+        val destination = entry.destination as Destination
+        val args = entry.arguments
         var className = destination.className
         if (className[0] == '.') {
             className = context.packageName + className
@@ -159,15 +166,15 @@ public open class FragmentNavigator(
         ft.replace(containerId, frag)
         ft.setPrimaryNavigationFragment(frag)
         @IdRes val destId = destination.id
+        val backStack = state.backStack.value
         val initialNavigation = backStack.isEmpty()
         // TODO Build first class singleTop behavior for fragments
         val isSingleTopReplacement = (
             navOptions != null && !initialNavigation &&
                 navOptions.shouldLaunchSingleTop() &&
-                backStack.last() == destId
+                backStack.last().destination.id == destId
             )
-        val isAdded: Boolean
-        isAdded = when {
+        val isAdded = when {
             initialNavigation -> {
                 true
             }
@@ -179,15 +186,15 @@ public open class FragmentNavigator(
                     // remove it from the back stack and put our replacement
                     // on the back stack in its place
                     fragmentManager.popBackStack(
-                        generateBackStackName(backStack.size, backStack.last()),
+                        entry.id,
                         FragmentManager.POP_BACK_STACK_INCLUSIVE
                     )
-                    ft.addToBackStack(generateBackStackName(backStack.size, destId))
+                    ft.addToBackStack(entry.id)
                 }
                 false
             }
             else -> {
-                ft.addToBackStack(generateBackStackName(backStack.size + 1, destId))
+                ft.addToBackStack(entry.id)
                 true
             }
         }
@@ -199,33 +206,9 @@ public open class FragmentNavigator(
         ft.setReorderingAllowed(true)
         ft.commit()
         // The commit succeeded, update our view of the world
-        return if (isAdded) {
-            backStack.add(destId)
-            destination
-        } else {
-            null
+        if (isAdded) {
+            state.add(entry)
         }
-    }
-
-    public override fun onSaveState(): Bundle? {
-        val b = Bundle()
-        val backStack = backStack.toIntArray()
-        b.putIntArray(KEY_BACK_STACK_IDS, backStack)
-        return b
-    }
-
-    public override fun onRestoreState(savedState: Bundle) {
-        val backStack = savedState.getIntArray(KEY_BACK_STACK_IDS)
-        if (backStack != null) {
-            this.backStack.clear()
-            for (destId in backStack) {
-                this.backStack.add(destId)
-            }
-        }
-    }
-
-    private fun generateBackStackName(backStackIndex: Int, destId: Int): String {
-        return "$backStackIndex-$destId"
     }
 
     /**
@@ -368,6 +351,5 @@ public open class FragmentNavigator(
 
     private companion object {
         private const val TAG = "FragmentNavigator"
-        private const val KEY_BACK_STACK_IDS = "androidx-nav-fragment:navigator:backStackIds"
     }
 }

@@ -31,6 +31,7 @@ dependencies {
     api(project(":navigation:navigation-runtime"))
 
     api(KOTLIN_STDLIB)
+    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(projectOrArtifact(":fragment:fragment-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
