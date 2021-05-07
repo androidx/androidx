@@ -175,81 +175,88 @@ public class SetSchemaResponse {
 
     /** Builder for {@link SetSchemaResponse} objects. */
     public static final class Builder {
-        private final ArrayList<MigrationFailure> mMigrationFailures = new ArrayList<>();
-        private final ArrayList<String> mDeletedTypes = new ArrayList<>();
-        private final ArrayList<String> mMigratedTypes = new ArrayList<>();
-        private final ArrayList<String> mIncompatibleTypes = new ArrayList<>();
+        private List<MigrationFailure> mMigrationFailures = new ArrayList<>();
+        private ArrayList<String> mDeletedTypes = new ArrayList<>();
+        private ArrayList<String> mMigratedTypes = new ArrayList<>();
+        private ArrayList<String> mIncompatibleTypes = new ArrayList<>();
         private boolean mBuilt = false;
 
         /**  Adds {@link MigrationFailure}s to the list of migration failures. */
         @NonNull
         public Builder addMigrationFailures(
                 @NonNull Collection<MigrationFailure> migrationFailures) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mMigrationFailures.addAll(Preconditions.checkNotNull(migrationFailures));
+            Preconditions.checkNotNull(migrationFailures);
+            resetIfBuilt();
+            mMigrationFailures.addAll(migrationFailures);
             return this;
         }
 
         /**  Adds a {@link MigrationFailure} to the list of migration failures. */
         @NonNull
         public Builder addMigrationFailure(@NonNull MigrationFailure migrationFailure) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mMigrationFailures.add(Preconditions.checkNotNull(migrationFailure));
+            Preconditions.checkNotNull(migrationFailure);
+            resetIfBuilt();
+            mMigrationFailures.add(migrationFailure);
             return this;
         }
 
         /**  Adds deletedTypes to the list of deleted schema types. */
         @NonNull
         public Builder addDeletedTypes(@NonNull Collection<String> deletedTypes) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mDeletedTypes.addAll(Preconditions.checkNotNull(deletedTypes));
+            Preconditions.checkNotNull(deletedTypes);
+            resetIfBuilt();
+            mDeletedTypes.addAll(deletedTypes);
             return this;
         }
 
         /**  Adds one deletedType to the list of deleted schema types. */
         @NonNull
         public Builder addDeletedType(@NonNull String deletedType) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mDeletedTypes.add(Preconditions.checkNotNull(deletedType));
+            Preconditions.checkNotNull(deletedType);
+            resetIfBuilt();
+            mDeletedTypes.add(deletedType);
             return this;
         }
 
         /**  Adds incompatibleTypes to the list of incompatible schema types. */
         @NonNull
         public Builder addIncompatibleTypes(@NonNull Collection<String> incompatibleTypes) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mIncompatibleTypes.addAll(Preconditions.checkNotNull(incompatibleTypes));
+            Preconditions.checkNotNull(incompatibleTypes);
+            resetIfBuilt();
+            mIncompatibleTypes.addAll(incompatibleTypes);
             return this;
         }
 
         /**  Adds one incompatibleType to the list of incompatible schema types. */
         @NonNull
         public Builder addIncompatibleType(@NonNull String incompatibleType) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mIncompatibleTypes.add(Preconditions.checkNotNull(incompatibleType));
+            Preconditions.checkNotNull(incompatibleType);
+            resetIfBuilt();
+            mIncompatibleTypes.add(incompatibleType);
             return this;
         }
 
         /**  Adds migratedTypes to the list of migrated schema types. */
         @NonNull
         public Builder addMigratedTypes(@NonNull Collection<String> migratedTypes) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mMigratedTypes.addAll(Preconditions.checkNotNull(migratedTypes));
+            Preconditions.checkNotNull(migratedTypes);
+            resetIfBuilt();
+            mMigratedTypes.addAll(migratedTypes);
             return this;
         }
 
         /**  Adds one migratedType to the list of migrated schema types. */
         @NonNull
         public Builder addMigratedType(@NonNull String migratedType) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mMigratedTypes.add(Preconditions.checkNotNull(migratedType));
+            Preconditions.checkNotNull(migratedType);
+            resetIfBuilt();
+            mMigratedTypes.add(migratedType);
             return this;
         }
 
         /** Builds a {@link SetSchemaResponse} object. */
         @NonNull
         public SetSchemaResponse build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Bundle bundle = new Bundle();
             bundle.putStringArrayList(INCOMPATIBLE_TYPES_FIELD, mIncompatibleTypes);
             bundle.putStringArrayList(DELETED_TYPES_FIELD, mDeletedTypes);
@@ -259,6 +266,16 @@ public class SetSchemaResponse {
             // back just for put in bundle. In platform, we should set MigrationFailures in
             // AppSearchSession after we pass SetSchemaResponse via binder.
             return new SetSchemaResponse(bundle, mMigrationFailures);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mMigrationFailures = new ArrayList<>(mMigrationFailures);
+                mDeletedTypes = new ArrayList<>(mDeletedTypes);
+                mMigratedTypes = new ArrayList<>(mMigratedTypes);
+                mIncompatibleTypes = new ArrayList<>(mIncompatibleTypes);
+                mBuilt = false;
+            }
         }
     }
 

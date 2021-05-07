@@ -74,13 +74,11 @@ public class GetSchemaResponse {
         return schemas;
     }
 
-    /**
-     * Builder for {@link GetSchemaResponse} objects.
-     */
+    /** Builder for {@link GetSchemaResponse} objects. */
     public static final class Builder {
         private int mVersion = 0;
+        private ArrayList<Bundle> mSchemaBundles = new ArrayList<>();
         private boolean mBuilt = false;
-        private final ArrayList<Bundle> mSchemaBundles = new ArrayList<>();
 
         /**
          * Sets the database overall schema version.
@@ -89,6 +87,7 @@ public class GetSchemaResponse {
          */
         @NonNull
         public Builder setVersion(@IntRange(from = 0) int version) {
+            resetIfBuilt();
             mVersion = version;
             return this;
         }
@@ -96,6 +95,8 @@ public class GetSchemaResponse {
         /**  Adds one {@link AppSearchSchema} to the schema list.  */
         @NonNull
         public Builder addSchema(@NonNull AppSearchSchema schema) {
+            Preconditions.checkNotNull(schema);
+            resetIfBuilt();
             mSchemaBundles.add(schema.getBundle());
             return this;
         }
@@ -103,13 +104,18 @@ public class GetSchemaResponse {
         /** Builds a {@link GetSchemaResponse} object. */
         @NonNull
         public GetSchemaResponse build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Bundle bundle = new Bundle();
             bundle.putInt(VERSION_FIELD, mVersion);
             bundle.putParcelableArrayList(SCHEMAS_FIELD, mSchemaBundles);
             mBuilt = true;
             return new GetSchemaResponse(bundle);
         }
-    }
 
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mSchemaBundles = new ArrayList<>(mSchemaBundles);
+                mBuilt = false;
+            }
+        }
+    }
 }
