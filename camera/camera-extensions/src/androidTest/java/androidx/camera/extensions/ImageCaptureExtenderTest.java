@@ -80,6 +80,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class ImageCaptureExtenderTest {
     private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
 

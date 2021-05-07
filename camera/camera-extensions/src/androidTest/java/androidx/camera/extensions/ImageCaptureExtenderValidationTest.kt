@@ -43,6 +43,7 @@ import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
+@Suppress("DEPRECATION")
 class ImageCaptureExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
