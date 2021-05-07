@@ -15,7 +15,9 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.core.google.shortcuts">
+    <uses-sdk tools:overrideLibrary="com.google.firebase.icing"/>
     <application>
         <activity android:name=".TrampolineActivity"
             android:noHistory="true"

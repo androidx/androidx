@@ -32,6 +32,7 @@ import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.testing.navigation.TestNavigationManager;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -65,6 +66,7 @@ public class TestCarContextTest {
                 .isSameInstanceAs(mCarContext.getCarService(TestScreenManager.class));
     }
 
+    @Ignore("b/187746290")
     @Test
     @SuppressWarnings("PendingIntentMutability")
     public void getStartCarAppIntents() {
