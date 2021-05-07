@@ -19,6 +19,7 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 import androidx.wear.watchface.style.UserStyleSetting.Id.Companion.MAX_LENGTH
@@ -438,7 +439,11 @@ public sealed class UserStyleSetting(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
                 },
-                wireFormat.mPerComplicationTypeBounds?.let { ComplicationBounds(it) },
+                wireFormat.mPerComplicationTypeBounds?.let {
+                    ComplicationBounds(
+                        it.mapKeys { ComplicationType.fromWireType(it.key) }
+                    )
+                },
                 wireFormat.accessibilityTraversalIndex
             )
 
@@ -446,7 +451,9 @@ public sealed class UserStyleSetting(
                 ComplicationOverlayWireFormat(
                     complicationId,
                     enabled,
-                    complicationBounds?.perComplicationTypeBounds,
+                    complicationBounds?.perComplicationTypeBounds?.mapKeys {
+                        it.key.toWireComplicationType()
+                    },
                     accessibilityTraversalIndex
                 )
         }

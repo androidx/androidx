@@ -308,7 +308,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationOverlayWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>?, Integer?);
+    ctor public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<java.lang.Integer!,android.graphics.RectF!>?, Integer?);
     method public int describeContents();
     method public Integer? getAccessibilityTraversalIndex();
     method public void writeToParcel(android.os.Parcel, int);
@@ -319,7 +319,7 @@ package androidx.wear.watchface.style.data {
     field public static final long NULL_ACCESSIBILITY_TRAVERSAL_INDEX = 4294967296L; // 0x100000000L
     field @androidx.versionedparcelable.ParcelField(1) public int mComplicationId;
     field @androidx.versionedparcelable.ParcelField(2) public int mEnabled;
-    field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>? mPerComplicationTypeBounds;
+    field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<java.lang.Integer!,android.graphics.RectF!>? mPerComplicationTypeBounds;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationsOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {

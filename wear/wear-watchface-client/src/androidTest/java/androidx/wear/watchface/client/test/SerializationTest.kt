@@ -56,7 +56,7 @@ public class SerializationTest {
 
     private fun <T> loadGoldenResource(resourceId: Int, readFromParcel: (p: Parcel) -> T): T {
         val resource = context.resources.openRawResource(resourceId)
-        val bytes = Base64.getDecoder().decode(resource.readBytes())
+        val bytes = Base64.getDecoder().decode(String(resource.readBytes()))
         val p = Parcel.obtain()
         p.unmarshall(bytes, 0, bytes.size)
         p.setDataPosition(0)
@@ -235,5 +235,12 @@ public class SerializationTest {
         assertThat(complicationA.title!!.getTextAt(context.resources, 0)).isEqualTo("23rd")
         assertThat(complicationB.text.getTextAt(context.resources, 0)).isEqualTo("Example")
         assertThat(complicationB.title!!.getTextAt(context.resources, 0)).isEqualTo("complication")
+    }
+
+    @Test
+    public fun userStyleSchema() {
+        // TODO(b/187498135): Implement a golden test. This is harder than it sounds because the raw
+        // bytes of  a serialized Parcel is not portable and can differ between architectures even
+        // on the same API level.  The tests above possibly only pass on current bots by luck.
     }
 }
