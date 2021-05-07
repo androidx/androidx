@@ -60,12 +60,11 @@ public open class ListenableWatchFaceControlClient(
         // TODO(flerda): Move this to a location where it can be shared.
         internal fun <T> launchFutureCoroutine(
             traceTag: String,
-            scopeFactory: () -> CoroutineScope,
             block: suspend CoroutineScope.() -> T
         ): ListenableFuture<T> {
             val traceEvent = AsyncTraceEvent(traceTag)
             val future = ResolvableFuture.create<T>()
-            val coroutineScope = scopeFactory()
+            val coroutineScope = createImmediateCoroutineScope()
             coroutineScope.launch {
                 // Propagate future cancellation.
                 future.addListener(
@@ -111,7 +110,6 @@ public open class ListenableWatchFaceControlClient(
         ): ListenableFuture<ListenableWatchFaceControlClient> =
             launchFutureCoroutine(
                 "ListenableWatchFaceControlClient.createWatchFaceControlClient",
-                ::createImmediateCoroutineScope,
             ) {
                 ListenableWatchFaceControlClient(
                     WatchFaceControlClient.createWatchFaceControlClient(
@@ -149,7 +147,6 @@ public open class ListenableWatchFaceControlClient(
     ): ListenableFuture<InteractiveWatchFaceClient> =
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
-            ::createImmediateCoroutineScope,
         ) {
             watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
                 id,
