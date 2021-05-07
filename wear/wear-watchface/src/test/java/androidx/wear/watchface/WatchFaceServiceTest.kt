@@ -2535,6 +2535,16 @@ public class WatchFaceServiceTest {
         verify(observer).onChanged(true)
     }
 
+    @Test
+    public fun double_BroadcastReceivers_removeBroadcastEventObserver() {
+        val observer = mock<BroadcastReceivers.BroadcastEventObserver>()
+        BroadcastReceivers.addBroadcastEventObserver(context, observer)
+        BroadcastReceivers.removeBroadcastEventObserver(observer)
+
+        // This shouldn't throw an exception.
+        BroadcastReceivers.removeBroadcastEventObserver(observer)
+    }
+
     @Suppress("DEPRECATION")
     private fun getChinWindowInsetsApi25(@Px chinHeight: Int): WindowInsets =
         WindowInsets.Builder().setSystemWindowInsets(
