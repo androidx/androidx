@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
@@ -325,11 +326,10 @@ public final class SearchSpec {
 
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
-        private final ArrayList<String> mSchemas = new ArrayList<>();
-        private final ArrayList<String> mNamespaces = new ArrayList<>();
-        private final ArrayList<String> mPackageNames = new ArrayList<>();
-        private final ArrayMap<String, ArrayList<String>> mProjectionTypePropertyMasks =
-                new ArrayMap<>();
+        private ArrayList<String> mSchemas = new ArrayList<>();
+        private ArrayList<String> mNamespaces = new ArrayList<>();
+        private ArrayList<String> mPackageNames = new ArrayList<>();
+        private Bundle mProjectionTypePropertyMasks = new Bundle();
 
         private int mResultCountPerPage = DEFAULT_NUM_PER_PAGE;
         private @TermMatch int mTermMatchType = TERM_MATCH_PREFIX;
@@ -340,6 +340,7 @@ public final class SearchSpec {
         private @Order int mOrder = ORDER_DESCENDING;
         private @GroupingType int mGroupingTypeFlags = 0;
         private int mGroupingLimit = 0;
+        private boolean mBuilt = false;
 
         /**
          * Indicates how the query terms should match {@code TermMatchCode} in the index.
@@ -351,6 +352,7 @@ public final class SearchSpec {
         public Builder setTermMatch(@TermMatch int termMatchType) {
             Preconditions.checkArgumentInRange(termMatchType, TERM_MATCH_EXACT_ONLY,
                     TERM_MATCH_PREFIX, "Term match type");
+            resetIfBuilt();
             mTermMatchType = termMatchType;
             return this;
         }
@@ -364,6 +366,7 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemas) {
             Preconditions.checkNotNull(schemas);
+            resetIfBuilt();
             return addFilterSchemas(Arrays.asList(schemas));
         }
 
@@ -376,6 +379,7 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemas) {
             Preconditions.checkNotNull(schemas);
+            resetIfBuilt();
             mSchemas.addAll(schemas);
             return this;
         }
@@ -396,6 +400,7 @@ public final class SearchSpec {
         public Builder addFilterDocumentClasses(
                 @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
+            resetIfBuilt();
             List<String> schemas = new ArrayList<>(documentClasses.size());
             DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
             for (Class<?> documentClass : documentClasses) {
@@ -423,6 +428,7 @@ public final class SearchSpec {
         public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
+            resetIfBuilt();
             return addFilterDocumentClasses(Arrays.asList(documentClasses));
         }
 // @exportToFramework:endStrip()
@@ -435,6 +441,7 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterNamespaces(@NonNull String... namespaces) {
             Preconditions.checkNotNull(namespaces);
+            resetIfBuilt();
             return addFilterNamespaces(Arrays.asList(namespaces));
         }
 
@@ -446,6 +453,7 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterNamespaces(@NonNull Collection<String> namespaces) {
             Preconditions.checkNotNull(namespaces);
+            resetIfBuilt();
             mNamespaces.addAll(namespaces);
             return this;
         }
@@ -461,6 +469,7 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterPackageNames(@NonNull String... packageNames) {
             Preconditions.checkNotNull(packageNames);
+            resetIfBuilt();
             return addFilterPackageNames(Arrays.asList(packageNames));
         }
 
@@ -475,6 +484,7 @@ public final class SearchSpec {
         @NonNull
         public Builder addFilterPackageNames(@NonNull Collection<String> packageNames) {
             Preconditions.checkNotNull(packageNames);
+            resetIfBuilt();
             mPackageNames.addAll(packageNames);
             return this;
         }
@@ -489,6 +499,7 @@ public final class SearchSpec {
                 @IntRange(from = 0, to = MAX_NUM_PER_PAGE) int resultCountPerPage) {
             Preconditions.checkArgumentInRange(
                     resultCountPerPage, 0, MAX_NUM_PER_PAGE, "resultCountPerPage");
+            resetIfBuilt();
             mResultCountPerPage = resultCountPerPage;
             return this;
         }
@@ -498,6 +509,7 @@ public final class SearchSpec {
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
                     RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP, "Result ranking strategy");
+            resetIfBuilt();
             mRankingStrategy = rankingStrategy;
             return this;
         }
@@ -512,6 +524,7 @@ public final class SearchSpec {
         public Builder setOrder(@Order int order) {
             Preconditions.checkArgumentInRange(order, ORDER_DESCENDING, ORDER_ASCENDING,
                     "Result ranking order");
+            resetIfBuilt();
             mOrder = order;
             return this;
         }
@@ -530,6 +543,7 @@ public final class SearchSpec {
         public SearchSpec.Builder setSnippetCount(
                 @IntRange(from = 0, to = MAX_SNIPPET_COUNT) int snippetCount) {
             Preconditions.checkArgumentInRange(snippetCount, 0, MAX_SNIPPET_COUNT, "snippetCount");
+            resetIfBuilt();
             mSnippetCount = snippetCount;
             return this;
         }
@@ -551,6 +565,7 @@ public final class SearchSpec {
                         int snippetCountPerProperty) {
             Preconditions.checkArgumentInRange(snippetCountPerProperty,
                     0, MAX_SNIPPET_PER_PROPERTY_COUNT, "snippetCountPerProperty");
+            resetIfBuilt();
             mSnippetCountPerProperty = snippetCountPerProperty;
             return this;
         }
@@ -572,6 +587,7 @@ public final class SearchSpec {
                 @IntRange(from = 0, to = MAX_SNIPPET_SIZE_LIMIT) int maxSnippetSize) {
             Preconditions.checkArgumentInRange(
                     maxSnippetSize, 0, MAX_SNIPPET_SIZE_LIMIT, "maxSnippetSize");
+            resetIfBuilt();
             mMaxSnippetSize = maxSnippetSize;
             return this;
         }
@@ -641,12 +657,13 @@ public final class SearchSpec {
                 @NonNull String schema, @NonNull Collection<String> propertyPaths) {
             Preconditions.checkNotNull(schema);
             Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
             ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
             for (String propertyPath : propertyPaths) {
                 Preconditions.checkNotNull(propertyPath);
                 propertyPathsArrayList.add(propertyPath);
             }
-            mProjectionTypePropertyMasks.put(schema, propertyPathsArrayList);
+            mProjectionTypePropertyMasks.putStringArrayList(schema, propertyPathsArrayList);
             return this;
         }
 
@@ -673,6 +690,7 @@ public final class SearchSpec {
         public Builder setResultGrouping(@GroupingType int groupingTypeFlags, int limit) {
             Preconditions.checkState(
                     groupingTypeFlags != 0, "Result grouping type cannot be zero.");
+            resetIfBuilt();
             mGroupingTypeFlags = groupingTypeFlags;
             mGroupingLimit = limit;
             return this;
@@ -681,18 +699,11 @@ public final class SearchSpec {
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
         public SearchSpec build() {
-            Bundle projectionTypePropertyMasks = new Bundle();
-            for (Map.Entry<String, ArrayList<String>> entry
-                    : mProjectionTypePropertyMasks.entrySet()) {
-                projectionTypePropertyMasks.putStringArrayList(
-                        entry.getKey(), new ArrayList<>(entry.getValue()));
-            }
-
             Bundle bundle = new Bundle();
-            bundle.putStringArrayList(SCHEMA_FIELD, new ArrayList<>(mSchemas));
-            bundle.putStringArrayList(NAMESPACE_FIELD, new ArrayList<>(mNamespaces));
-            bundle.putStringArrayList(PACKAGE_NAME_FIELD, new ArrayList<>(mPackageNames));
-            bundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, projectionTypePropertyMasks);
+            bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
+            bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
+            bundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);
+            bundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, mProjectionTypePropertyMasks);
             bundle.putInt(NUM_PER_PAGE_FIELD, mResultCountPerPage);
             bundle.putInt(TERM_MATCH_TYPE_FIELD, mTermMatchType);
             bundle.putInt(SNIPPET_COUNT_FIELD, mSnippetCount);
@@ -702,7 +713,18 @@ public final class SearchSpec {
             bundle.putInt(ORDER_FIELD, mOrder);
             bundle.putInt(RESULT_GROUPING_TYPE_FLAGS, mGroupingTypeFlags);
             bundle.putInt(RESULT_GROUPING_LIMIT, mGroupingLimit);
+            mBuilt = true;
             return new SearchSpec(bundle);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mSchemas = new ArrayList<>(mSchemas);
+                mNamespaces = new ArrayList<>(mNamespaces);
+                mPackageNames = new ArrayList<>(mPackageNames);
+                mProjectionTypePropertyMasks = BundleUtil.deepCopy(mProjectionTypePropertyMasks);
+                mBuilt = false;
+            }
         }
     }
 }
