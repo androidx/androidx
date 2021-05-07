@@ -40,6 +40,12 @@ package androidx.window {
     method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
   }
 
+  public interface WindowInfoRepo {
+    method public androidx.window.WindowMetrics currentWindowMetrics();
+    method public androidx.window.WindowMetrics maximumWindowMetrics();
+    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo();
+  }
+
   public final class WindowLayoutInfo {
     method public java.util.List<androidx.window.DisplayFeature> getDisplayFeatures();
     property public final java.util.List<androidx.window.DisplayFeature> displayFeatures;
@@ -64,6 +70,9 @@ package androidx.window {
     ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
     property public final android.graphics.Rect bounds;
+  }
+
+  public final class WindowServices {
   }
 
 }
