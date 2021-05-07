@@ -20,7 +20,6 @@ import static androidx.activity.result.contract.ActivityResultContracts.RequestM
 
 import static java.util.Collections.emptyMap;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
@@ -40,6 +39,7 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
@@ -494,7 +494,7 @@ public final class ActivityResultContracts {
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
      */
-    @TargetApi(18)
+    @RequiresApi(18)
     public static class GetMultipleContents extends ActivityResultContract<String, List<Uri>> {
 
         @CallSuper
@@ -558,7 +558,7 @@ public final class ActivityResultContracts {
      *
      * @see DocumentsContract
      */
-    @TargetApi(19)
+    @RequiresApi(19)
     public static class OpenDocument extends ActivityResultContract<String[], Uri> {
 
         @CallSuper
@@ -596,7 +596,7 @@ public final class ActivityResultContracts {
      *
      * @see DocumentsContract
      */
-    @TargetApi(19)
+    @RequiresApi(19)
     public static class OpenMultipleDocuments extends ActivityResultContract<String[], List<Uri>> {
 
         @CallSuper
@@ -638,7 +638,7 @@ public final class ActivityResultContracts {
      * @see DocumentsContract#buildDocumentUriUsingTree
      * @see DocumentsContract#buildChildDocumentsUriUsingTree
      */
-    @TargetApi(21)
+    @RequiresApi(21)
     public static class OpenDocumentTree extends ActivityResultContract<Uri, Uri> {
 
         @CallSuper
@@ -677,7 +677,7 @@ public final class ActivityResultContracts {
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
      */
-    @TargetApi(19)
+    @RequiresApi(19)
     public static class CreateDocument extends ActivityResultContract<String, Uri> {
 
         @CallSuper

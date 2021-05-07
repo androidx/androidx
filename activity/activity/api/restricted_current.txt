@@ -159,7 +159,7 @@ package androidx.activity.result.contract {
     method public final Boolean parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+  @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
     ctor public ActivityResultContracts.CreateDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri!>? getSynchronousResult(android.content.Context, String);
@@ -173,28 +173,28 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.GetMultipleContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
+  @RequiresApi(18) public static class ActivityResultContracts.GetMultipleContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.GetMultipleContents();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String);
     method public final java.util.List<android.net.Uri!> parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
+  @RequiresApi(19) public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
     ctor public ActivityResultContracts.OpenDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String![]);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri!>? getSynchronousResult(android.content.Context, String![]);
     method public final android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.OpenDocumentTree extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.net.Uri> {
+  @RequiresApi(21) public static class ActivityResultContracts.OpenDocumentTree extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.net.Uri> {
     ctor public ActivityResultContracts.OpenDocumentTree();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, android.net.Uri?);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri!>? getSynchronousResult(android.content.Context, android.net.Uri?);
     method public final android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
+  @RequiresApi(19) public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.OpenMultipleDocuments();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String![]);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String![]);
