@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 // @exportToFramework:skipFile()
-package androidx.appsearch.localstorage;
+package androidx.appsearch.platformstorage;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -27,21 +27,11 @@ import org.junit.Test;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class LocalStorageTest {
-    @Test
-    public void testSameInstance() throws Exception {
-        Executor executor = Executors.newCachedThreadPool();
-        LocalStorage b1 = LocalStorage.getOrCreateInstance(
-                ApplicationProvider.getApplicationContext(), executor);
-        LocalStorage b2 = LocalStorage.getOrCreateInstance(
-                ApplicationProvider.getApplicationContext(), executor);
-        assertThat(b1).isSameInstanceAs(b2);
-    }
-
+public class PlatformStorageTest {
     @Test
     public void testSearchContext_databaseName() {
-        LocalStorage.SearchContext searchContext =
-                new LocalStorage.SearchContext.Builder(
+        PlatformStorage.SearchContext searchContext =
+                new PlatformStorage.SearchContext.Builder(
                         ApplicationProvider.getApplicationContext(),
                         /*databaseName=*/"dbName").build();
 
@@ -51,7 +41,7 @@ public class LocalStorageTest {
     @Test
     public void testSearchContext_withClientExecutor() {
         Executor executor = Executors.newSingleThreadExecutor();
-        LocalStorage.SearchContext searchContext = new LocalStorage.SearchContext.Builder(
+        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder(
                 ApplicationProvider.getApplicationContext(),
                 /*databaseName=*/"dbName")
                 .setWorkerExecutor(executor)
@@ -63,7 +53,7 @@ public class LocalStorageTest {
 
     @Test
     public void testSearchContext_withDefaultExecutor() {
-        LocalStorage.SearchContext searchContext = new LocalStorage.SearchContext.Builder(
+        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder(
                 ApplicationProvider.getApplicationContext(),
                 /*databaseName=*/"dbName")
                 .build();
@@ -78,12 +68,12 @@ public class LocalStorageTest {
         // in database name, add checker in SearchContext.Builder and reflect it in java doc.
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new LocalStorage.SearchContext.Builder(
+                () -> new PlatformStorage.SearchContext.Builder(
                         ApplicationProvider.getApplicationContext(),
                         "testDatabaseNameEndWith/").build());
         assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
         e = assertThrows(IllegalArgumentException.class,
-                () -> new LocalStorage.SearchContext.Builder(
+                () -> new PlatformStorage.SearchContext.Builder(
                         ApplicationProvider.getApplicationContext(),
                         "/testDatabaseNameStartWith").build());
         assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
