@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
  * <p>This handles the dispatching of single Tiles layouts from a full timeline. It will set the
  * correct alarms to detect when a layout should be updated, and dispatch it to its listener.
  */
-public class TilesTimelineManagerInternal {
+public class TilesTimelineManagerInternal implements AutoCloseable {
     // 1 minute min delay between tiles.
     public static final long MIN_TILE_UPDATE_DELAY_MILLIS = MINUTES.toMillis(1);
 
@@ -102,7 +102,8 @@ public class TilesTimelineManagerInternal {
     }
 
     /** Tears down this Timeline Manager. This will ensure any set alarms are cleared up. */
-    public void deInit() {
+    @Override
+    public void close() {
         if (mAlarmListener != null) {
             mAlarmManager.cancel(mAlarmListener);
             mAlarmListener = null;

@@ -98,6 +98,6 @@ public class TilesTimelineManager implements AutoCloseable {
     /** Tears down this Timeline Manager. This will ensure any set alarms are cleared up. */
     @Override
     public void close() {
-        mManager.deInit();
+        mManager.close();
     }
 }

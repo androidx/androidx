@@ -146,6 +146,7 @@ public final class TilesTimelineCacheInternal {
      * @return The time in millis that {@code entry} should be considered to be expired. This value
      *     will be {@link Long#MAX_VALUE} if {@code entry} does not expire.
      */
+    @MainThread
     public long findCurrentTimelineEntryExpiry(@NonNull TimelineEntry entry, long fromTimeMillis) {
         long currentSmallestExpiry = Long.MAX_VALUE;
         long entryValidityLength = Long.MAX_VALUE;
