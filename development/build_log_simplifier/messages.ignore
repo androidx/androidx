@@ -633,6 +633,8 @@ Creating pages\: *[0-9]+
 Transforming pages\: *[0-9]+
 Rendering\: *[0-9]+
 WARNING\: unable to find what is referred to by
+@param maxSlotsToRetainForReuse
+in DClass SubcomposeLayoutState
 @param initVal
 in DClass AnimationVector[0-9]+D
 @param a,
