@@ -80,8 +80,7 @@ internal class BroadcastReceivers private constructor(private val context: Conte
 
         @UiThread
         fun removeBroadcastEventObserver(observer: BroadcastEventObserver) {
-            broadcastEventObservers.remove(observer)
-            if (broadcastEventObservers.isEmpty()) {
+            if (broadcastEventObservers.remove(observer) && broadcastEventObservers.isEmpty()) {
                 broadcastReceivers!!.onDestroy()
                 broadcastReceivers = null
             }
