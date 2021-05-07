@@ -553,7 +553,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
      * bold and italic bits in the Paint if the Typeface that you provided does not have all the
      * bits in the style that you specified.
      */
-    private void setTypeface(@Nullable Typeface tf, int style) {
+    public void setTypeface(@Nullable Typeface tf, int style) {
         if (style > 0) {
             if (tf == null) {
                 tf = Typeface.defaultFromStyle(style);
@@ -578,6 +578,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
                 mTypeface = tf;
             }
         }
+        doUpdate();
     }
 
     /**

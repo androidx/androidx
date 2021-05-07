@@ -19,6 +19,7 @@ package androidx.wear.widget
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Typeface
 import android.text.TextUtils
 import android.view.View
 import android.view.View.MeasureSpec
@@ -273,6 +274,36 @@ class CurvedTextViewTest {
                         anchorType = ArcLayout.ANCHOR_START
                         setBackgroundColor(Color.rgb(0, 100, 100))
                     }
+            )
+        )
+    }
+
+    @Test
+    fun testStyles() {
+        doOneTest(
+            "styles_test",
+            listOf(
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "Bold"
+                        anchorAngleDegrees = 0.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setTypeface(null, Typeface.BOLD)
+                    },
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "Italic"
+                        anchorAngleDegrees = 60.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setTypeface(null, Typeface.ITALIC)
+                    },
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "ItalicBold"
+                        anchorAngleDegrees = 120.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setTypeface(null, Typeface.BOLD_ITALIC)
+                    },
             )
         )
     }

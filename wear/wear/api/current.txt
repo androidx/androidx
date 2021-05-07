@@ -263,6 +263,7 @@ package androidx.wear.widget {
     method public void setText(String?);
     method public void setTextColor(@ColorInt int);
     method public void setTextSize(float);
+    method public void setTypeface(android.graphics.Typeface?, int);
     method public void setTypeface(android.graphics.Typeface?);
   }
 
