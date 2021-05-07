@@ -121,20 +121,37 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          * Associates the {@code key} with the provided successful return value.
          *
          * <p>Any previous mapping for a key, whether success or failure, is deleted.
+         *
+         * <p>This is a convenience function which is equivalent to
+         * {@code setResult(key, AppSearchResult.newSuccessfulResult(value))}.
+         *
+         * @param key   The key to associate the result with; usually corresponds to some
+         *              identifier from the input like an ID or name.
+         * @param value An optional value to associate with the successful result of the operation
+         *              being performed.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getSuccesses
         @NonNull
         public Builder<KeyType, ValueType> setSuccess(
-                @NonNull KeyType key, @Nullable ValueType result) {
+                @NonNull KeyType key, @Nullable ValueType value) {
             Preconditions.checkNotNull(key);
             resetIfBuilt();
-            return setResult(key, AppSearchResult.newSuccessfulResult(result));
+            return setResult(key, AppSearchResult.newSuccessfulResult(value));
         }
 
         /**
          * Associates the {@code key} with the provided failure code and error message.
          *
          * <p>Any previous mapping for a key, whether success or failure, is deleted.
+         *
+         * <p>This is a convenience function which is equivalent to
+         * {@code setResult(key, AppSearchResult.newFailedResult(resultCode, errorMessage))}.
+         *
+         * @param key          The key to associate the result with; usually corresponds to some
+         *                     identifier from the input like an ID or name.
+         * @param resultCode   One of the constants documented in
+         *                     {@link AppSearchResult#getResultCode}.
+         * @param errorMessage An optional string describing the reason or nature of the failure.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getFailures
         @NonNull
@@ -151,6 +168,10 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          * Associates the {@code key} with the provided {@code result}.
          *
          * <p>Any previous mapping for a key, whether success or failure, is deleted.
+         *
+         * @param key    The key to associate the result with; usually corresponds to some
+         *               identifier from the input like an ID or name.
+         * @param result The result to associate with the key.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")  // See getAll
         @NonNull

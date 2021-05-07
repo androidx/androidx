@@ -177,6 +177,9 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new successful {@link AppSearchResult}.
+     *
+     * @param value An optional value to associate with the successful result of the operation
+     *              being performed.
      */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newSuccessfulResult(
@@ -186,6 +189,9 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new failed {@link AppSearchResult}.
+     *
+     * @param resultCode One of the constants documented in {@link AppSearchResult#getResultCode}.
+     * @param errorMessage An optional string describing the reason or nature of the failure.
      */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newFailedResult(

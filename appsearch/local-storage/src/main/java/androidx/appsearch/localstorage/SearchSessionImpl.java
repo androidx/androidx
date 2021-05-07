@@ -207,7 +207,7 @@ class SearchSessionImpl implements AppSearchSession {
                 GenericDocument document = request.getGenericDocuments().get(i);
                 try {
                     mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document, mLogger);
-                    resultBuilder.setSuccess(document.getId(), /*result=*/ null);
+                    resultBuilder.setSuccess(document.getId(), /*value=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
                 }
@@ -296,7 +296,7 @@ class SearchSessionImpl implements AppSearchSession {
             for (String id : request.getIds()) {
                 try {
                     mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(), id);
-                    resultBuilder.setSuccess(id, /*result=*/null);
+                    resultBuilder.setSuccess(id, /*value=*/null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(id, throwableToFailedResult(t));
                 }
