@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.GenericDocument;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class GenericDocumentCtsTest {
@@ -206,6 +207,7 @@ public class GenericDocumentCtsTest {
                 .containsExactly(sDocumentProperties1, sDocumentProperties2).inOrder();
     }
 
+    @Ignore
     @Test
     public void testDocument_toString() {
         GenericDocument nestedDocValue = new GenericDocument.Builder<GenericDocument.Builder<?>>(
