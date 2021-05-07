@@ -445,7 +445,9 @@ public class Complication internal constructor(
 
             // The caller might modify a number of complications. For efficiency we need to coalesce
             // these into one update task.
-            complicationsManager.scheduleUpdate()
+            if (this::complicationsManager.isInitialized) {
+                complicationsManager.scheduleUpdate()
+            }
         }
 
     internal var enabledDirty = true

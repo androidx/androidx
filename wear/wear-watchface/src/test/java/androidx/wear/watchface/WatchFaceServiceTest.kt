@@ -2545,6 +2545,38 @@ public class WatchFaceServiceTest {
         BroadcastReceivers.removeBroadcastEventObserver(observer)
     }
 
+    @Test
+    public fun complicationsUserStyleSetting_with_setComplicationBounds() {
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting"),
+            "AllComplications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationsOption(
+                    Option.Id(RIGHT_COMPLICATION),
+                    "Right",
+                    null,
+                    listOf(
+                        ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+                            .setComplicationBounds(
+                                ComplicationBounds(RectF(10f, 10f, 20f, 20f))
+                            ).build()
+                    )
+                )
+            ),
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        // This should not crash.
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
+            apiVersion = 4
+        )
+    }
+
     @Suppress("DEPRECATION")
     private fun getChinWindowInsetsApi25(@Px chinHeight: Int): WindowInsets =
         WindowInsets.Builder().setSystemWindowInsets(
