@@ -103,6 +103,9 @@ public open class NavigatorProvider {
     ): Navigator<out NavDestination>? {
         require(validateName(name)) { "navigator name cannot be an empty string" }
         val previousNavigator = _navigators[name]
+        if (previousNavigator == navigator) {
+            return navigator
+        }
         check(previousNavigator?.isAttached != true) {
             "Navigator $navigator is replacing an already attached $previousNavigator"
         }

@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import android.os.Bundle
+import androidx.navigation.testing.TestNavigatorState
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -98,6 +99,50 @@ class NavigatorProviderTest {
         provider.addNavigator(navigator)
         assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
             .isEqualTo(navigator)
+    }
+
+    @Test
+    fun addExistingNavigatorDoesntReplace() {
+        val navigatorState = TestNavigatorState()
+        val provider = NavigatorProvider()
+        val navigator = EmptyNavigator()
+
+        provider.addNavigator(navigator)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
+            .isEqualTo(navigator)
+
+        navigator.onAttach(navigatorState)
+        assertWithMessage("Navigator should be attached")
+            .that(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME).isAttached)
+            .isTrue()
+
+        // addNavigator should throw when trying to replace an existing, attached navigator, but
+        // we should have returned before that
+        try {
+            provider.addNavigator(navigator)
+        } catch (navigatorAlreadyAttached: IllegalStateException) {
+            fail(
+                "addNavigator with an existing navigator should return early and not " +
+                    "attempt to replace"
+            )
+        }
+    }
+
+    @Test
+    fun addWithSameNameButUnequalNavigatorDoesReplace() {
+        val provider = NavigatorProvider()
+        val navigatorA = EmptyNavigator()
+        val navigatorB = EmptyNavigator()
+
+        assertThat(navigatorA).isNotEqualTo(navigatorB)
+
+        provider.addNavigator(navigatorA)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
+            .isEqualTo(navigatorA)
+
+        provider.addNavigator(navigatorB)
+        assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
+            .isEqualTo(navigatorB)
     }
 
     private val provider = NavigatorProvider()
