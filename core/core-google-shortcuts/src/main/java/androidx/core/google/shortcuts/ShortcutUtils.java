@@ -34,7 +34,7 @@ import com.google.crypto.tink.mac.HmacKeyManager;
 import com.google.crypto.tink.mac.MacConfig;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 
 /**
@@ -102,7 +102,7 @@ class ShortcutUtils {
             // 2. only the shortcut that was indexed using this library can be opened. You cannot
             // use the Trampoline Activity to open arbitrary shortcuts.
             Mac mac = keysetHandle.getPrimitive(Mac.class);
-            byte[] tag = mac.computeMac(shortcutUrl.getBytes(StandardCharsets.UTF_8));
+            byte[] tag = mac.computeMac(shortcutUrl.getBytes(Charset.forName("UTF-8")));
             String tagString = Base64.encodeToString(tag, Base64.DEFAULT);
 
             Intent trampolineIntent = new Intent(context, TrampolineActivity.class);
