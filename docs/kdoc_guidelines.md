@@ -179,6 +179,27 @@ Do this:
  */
 ```
 
+### Don't use angle brackets for `@param`
+
+Instead of:
+
+```kotlin {.bad}
+/**
+ * @param <T> my cool param
+ */
+```
+
+Do this:
+
+```kotlin {.good}
+/**
+ * * @param T my cool param
+ */
+```
+
+This syntax is correct is Javadoc, but angle brackets aren't used in KDoc
+([@param reference guide](https://kotlinlang.org/docs/kotlin-doc.html#param-name)).
+
 ## Javadoc - KDoc differences
 
 Some tags are shared between Javadoc and KDoc, such as `@param`, but there are
