@@ -132,6 +132,16 @@ public abstract class EditorSession : AutoCloseable {
     @UiThread
     public abstract suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData>
 
+    /**
+     * Returns a map of complication ids to [ComplicationProviderInfo] that represent the
+     * information available about the provider for each complication.
+     *
+     * A `null` [ComplicationProviderInfo] will be associated with a complication id if the
+     * complication is configured to show the empty complication provider.
+     */
+    @UiThread
+    public abstract suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?>
+
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
     public abstract val backgroundComplicationId: Int?
@@ -319,14 +329,24 @@ public abstract class BaseEditorSession internal constructor(
         EditorService.globalEditorService.addCloseCallback(closeCallback)
     }
 
-    // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
-    // each complication and each of those have been completed.
+    /**
+     * This is completed when [fetchComplicationsData] has called [getPreviewData] for each
+     * complication and each of those have been completed.
+     */
     private val deferredComplicationPreviewDataMap =
         CompletableDeferred<MutableMap<Int, ComplicationData>>()
 
     override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> {
         return deferredComplicationPreviewDataMap.await()
     }
+
+    // This is completed when [fetchProviderInfo] has called [getProviderInfo] for each
+    // complication and each of those have been completed.
+    private val deferredComplicationsProviderInfoMap =
+        CompletableDeferred<MutableMap<Int, ComplicationProviderInfo?>>()
+
+    override suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?> =
+        deferredComplicationsProviderInfoMap.await()
 
     /** Pending result for [openComplicationProviderChooser]. */
     internal var pendingComplicationProviderChooserResult:
@@ -337,10 +357,10 @@ public abstract class BaseEditorSession internal constructor(
 
     private val chooseComplicationProvider =
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
-            updatePreviewData(it)
+            onComplicationProviderChooserResult(it)
         }
 
-    internal fun updatePreviewData(
+    internal fun onComplicationProviderChooserResult(
         complicationProviderChooserResult: ComplicationProviderChooserResult?
     ) {
         // Check if the user cancelled the provider chooser.
@@ -351,8 +371,13 @@ public abstract class BaseEditorSession internal constructor(
         }
         val providerInfoRetriever =
             providerInfoRetrieverProvider.getProviderInfoRetriever()
-        coroutineScope.launchWithTracing("BaseEditorSession.updatePreviewData") {
+        coroutineScope.launchWithTracing(
+            "BaseEditorSession.onComplicationProviderChooserResult"
+        ) {
             try {
+                val complicationsProviderInfoMap = deferredComplicationsProviderInfoMap.await()
+                complicationsProviderInfoMap[pendingComplicationProviderId] =
+                    complicationProviderChooserResult.providerInfo
                 val previewData = getPreviewData(
                     providerInfoRetriever,
                     complicationProviderChooserResult.providerInfo
@@ -463,9 +488,9 @@ public abstract class BaseEditorSession internal constructor(
             MonochromaticImage.Builder(providerInfo.icon).build()
         ).build()
 
-    protected fun fetchComplicationPreviewData() {
+    protected fun fetchComplicationsData() {
         val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
-        coroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationPreviewData") {
+        coroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationsData") {
             try {
                 // Unlikely but WCS could conceivably crash during this call. We could retry but it's
                 // not obvious if that'd succeed or if WCS session state is recoverable, it's probably
@@ -473,6 +498,10 @@ public abstract class BaseEditorSession internal constructor(
                 val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
                     watchFaceComponentName,
                     complicationsState.keys.toIntArray()
+                )
+                deferredComplicationsProviderInfoMap.complete(
+                    extractComplicationsProviderInfoMap(providerInfoArray)?.toMutableMap()
+                        ?: mutableMapOf()
                 )
                 deferredComplicationPreviewDataMap.complete(
                     // Parallel fetch preview ComplicationData.
@@ -645,7 +674,7 @@ internal class OnWatchFaceEditorSessionImpl(
                 UserStyle(initialEditorUserStyle, editorDelegate.userStyleSchema)
         }
 
-        fetchComplicationPreviewData()
+        fetchComplicationsData()
     }
 }
 
@@ -686,7 +715,7 @@ internal class HeadlessEditorSession(
     }
 
     init {
-        fetchComplicationPreviewData()
+        fetchComplicationsData()
     }
 }
 
@@ -712,6 +741,7 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
 
     internal companion object {
         const val EXTRA_PROVIDER_INFO = "android.support.wearable.complications.EXTRA_PROVIDER_INFO"
+
         /**
          * Whether to invoke a test activity instead of the [ComplicationHelperActivity].
          *
@@ -753,5 +783,17 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
         )
     }
 }
+
+/**
+ * Extracts a map from complication ID to the corresponding [ComplicationProviderInfo] from the
+ * given array of [ProviderInfoRetriever.ProviderInfo].
+ */
+internal fun extractComplicationsProviderInfoMap(
+    providerInfoArray: Array<ProviderInfoRetriever.ProviderInfo>?
+): Map<Int, ComplicationProviderInfo?>? =
+    providerInfoArray?.associateBy(
+        { it.watchFaceComplicationId },
+        { it.info }
+    )
 
 internal fun Bundle.asString() = keySet().map { "$it: ${get(it)}" }

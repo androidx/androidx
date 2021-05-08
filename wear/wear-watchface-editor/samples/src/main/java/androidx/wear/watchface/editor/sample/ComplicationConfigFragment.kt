@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -27,8 +28,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -110,6 +113,14 @@ internal class ConfigView(
                         }.resourceId
                     )
                     setOnClickListener { onComplicationButtonClicked(stateEntry.key) }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        setOnLongClickListener {
+                            TooltipApi26.updateTooltip(it, watchFaceConfigActivity, stateEntry.key)
+                            // Do not consume the long click so that the tooltip is shown by the
+                            // default handler.
+                            false
+                        }
+                    }
                     addView(this)
                 }
             }
@@ -144,6 +155,25 @@ internal class ConfigView(
             // Redraw after the complication provider chooser has run.
             invalidate()
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private object TooltipApi26 {
+        fun updateTooltip(
+            button: View,
+            watchFaceConfigActivity: WatchFaceConfigActivity,
+            complicationId: Int
+        ) {
+            watchFaceConfigActivity.coroutineScope.launch {
+                val providerInfo =
+                    watchFaceConfigActivity.editorSession
+                        .getComplicationsProviderInfo()[complicationId]
+                button.tooltipText = getProviderInfoToast(providerInfo)
+            }
+        }
+
+        private fun getProviderInfoToast(providerInfo: ComplicationProviderInfo?): String =
+            providerInfo?.name ?: "Empty complication provider"
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
