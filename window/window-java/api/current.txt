@@ -1,0 +1,14 @@
+// Signature format: 4.0
+package androidx.window.java {
+
+  public final class WindowInfoRepoJavaAdapter implements androidx.window.WindowInfoRepo {
+    ctor public WindowInfoRepoJavaAdapter(androidx.window.WindowInfoRepo repo);
+    method public void addWindowLayoutInfoListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> consumer);
+    method public androidx.window.WindowMetrics currentWindowMetrics();
+    method public androidx.window.WindowMetrics maximumWindowMetrics();
+    method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> consumer);
+    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo();
+  }
+
+}
+
