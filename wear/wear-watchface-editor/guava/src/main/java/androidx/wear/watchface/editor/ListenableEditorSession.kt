@@ -24,6 +24,7 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.ComplicationState
@@ -138,8 +139,25 @@ public class ListenableEditorSession(
             return future
         }
 
+    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsProviderInfo]. */
+    public fun getListenableComplicationsProviderInfo():
+        ListenableFuture<Map<Int, ComplicationProviderInfo?>> {
+            val future = ResolvableFuture.create<Map<Int, ComplicationProviderInfo?>>()
+            getCoroutineScope().launch {
+                try {
+                    future.set(wrappedEditorSession.getComplicationsProviderInfo())
+                } catch (e: Exception) {
+                    future.setException(e)
+                }
+            }
+            return future
+        }
+
     override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> =
         wrappedEditorSession.getComplicationsPreviewData()
+
+    override suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?> =
+        wrappedEditorSession.getComplicationsProviderInfo()
 
     @get:SuppressWarnings("AutoBoxing")
     override val backgroundComplicationId: Int?

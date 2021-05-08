@@ -8,8 +8,10 @@ package androidx.wear.watchface.editor {
     method public Integer? getBackgroundComplicationId();
     method public Integer? getComplicationIdAt(int x, int y);
     method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
+    method public suspend Object? getComplicationsProviderInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> p);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> getListenableComplicationPreviewData();
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> getListenableComplicationsProviderInfo();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyle getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
