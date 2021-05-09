@@ -98,6 +98,18 @@ public abstract class FragmentTransaction {
             this.mOldMaxState = fragment.mMaxState;
             this.mCurrentMaxState = state;
         }
+
+        Op(Op op) {
+            this.mCmd = op.mCmd;
+            this.mFragment = op.mFragment;
+            this.mFromExpandedOp = op.mFromExpandedOp;
+            this.mEnterAnim = op.mEnterAnim;
+            this.mExitAnim = op.mExitAnim;
+            this.mPopEnterAnim = op.mPopEnterAnim;
+            this.mPopExitAnim = op.mPopExitAnim;
+            this.mOldMaxState = op.mOldMaxState;
+            this.mCurrentMaxState = op.mCurrentMaxState;
+        }
     }
 
     private final FragmentFactory mFragmentFactory;
@@ -122,7 +134,6 @@ public abstract class FragmentTransaction {
     ArrayList<String> mSharedElementTargetNames;
     boolean mReorderingAllowed = false;
 
-    ArrayList<Runnable> mExecuteRunnables;
     ArrayList<Runnable> mCommitRunnables;
 
     /**
@@ -139,6 +150,35 @@ public abstract class FragmentTransaction {
             @Nullable ClassLoader classLoader) {
         mFragmentFactory = fragmentFactory;
         mClassLoader = classLoader;
+    }
+
+    FragmentTransaction(@NonNull FragmentFactory fragmentFactory,
+            @Nullable ClassLoader classLoader, @NonNull FragmentTransaction ft) {
+        this(fragmentFactory, classLoader);
+        for (Op op : ft.mOps) {
+            mOps.add(new Op(op));
+        }
+        mEnterAnim = ft.mEnterAnim;
+        mExitAnim = ft.mExitAnim;
+        mPopEnterAnim = ft.mPopEnterAnim;
+        mPopExitAnim = ft.mPopExitAnim;
+        mTransition = ft.mTransition;
+        mAddToBackStack = ft.mAddToBackStack;
+        mAllowAddToBackStack = ft.mAllowAddToBackStack;
+        mName = ft.mName;
+        mBreadCrumbShortTitleRes = ft.mBreadCrumbShortTitleRes;
+        mBreadCrumbShortTitleText = ft.mBreadCrumbShortTitleText;
+        mBreadCrumbTitleRes = ft.mBreadCrumbTitleRes;
+        mBreadCrumbTitleText = ft.mBreadCrumbTitleText;
+        if (ft.mSharedElementSourceNames != null) {
+            mSharedElementSourceNames = new ArrayList<>();
+            mSharedElementSourceNames.addAll(ft.mSharedElementSourceNames);
+        }
+        if (ft.mSharedElementTargetNames != null) {
+            mSharedElementTargetNames = new ArrayList<>();
+            mSharedElementTargetNames.addAll(ft.mSharedElementTargetNames);
+        }
+        mReorderingAllowed = ft.mReorderingAllowed;
     }
 
     void addOp(Op op) {
@@ -823,18 +863,6 @@ public abstract class FragmentTransaction {
     @NonNull
     public FragmentTransaction setAllowOptimization(boolean allowOptimization) {
         return setReorderingAllowed(allowOptimization);
-    }
-
-    /**
-     * Add a runnable that is run immediately after the transaction is executed.
-     * This differs from the commit runnables in that it happens before any
-     * fragments move to their expected state.
-     */
-    void addOnExecuteRunnable(@NonNull Runnable runnable) {
-        if (mExecuteRunnables == null) {
-            mExecuteRunnables = new ArrayList<>();
-        }
-        mExecuteRunnables.add(runnable);
     }
 
     /**
