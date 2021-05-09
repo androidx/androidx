@@ -62,7 +62,7 @@ public object NavigationUI {
      */
     @JvmStatic
     public fun onNavDestinationSelected(item: MenuItem, navController: NavController): Boolean {
-        val builder = NavOptions.Builder().setLaunchSingleTop(true)
+        val builder = NavOptions.Builder().setLaunchSingleTop(true).setRestoreState(true)
         if (
             navController.currentDestination!!.parent!!.findNode(item.itemId)
             is ActivityNavigator.Destination
@@ -78,7 +78,11 @@ public object NavigationUI {
                 .setPopExitAnim(R.animator.nav_default_pop_exit_anim)
         }
         if (item.order and Menu.CATEGORY_SECONDARY == 0) {
-            builder.setPopUpTo(findStartDestination(navController.graph).id, false)
+            builder.setPopUpTo(
+                findStartDestination(navController.graph).id,
+                inclusive = false,
+                saveState = true
+            )
         }
         val options = builder.build()
         return try {
