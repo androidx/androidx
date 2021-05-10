@@ -36,7 +36,7 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.core:core:1.3.2")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation("androidx.appcompat:appcompat:1.1.0")
