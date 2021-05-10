@@ -13,21 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("WindowServices")
 
-package androidx.window
+package androidx.window.test
 
 import android.app.Activity
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
- * Provide an instance of [WindowInfoRepo] that is associated to the given [Activity]
+ * A test [Activity] for testing purposes.
  */
-@ExperimentalCoroutinesApi
-public fun Activity.windowInfoRepository(): WindowInfoRepo {
-    return WindowInfoRepoImp(
-        this,
-        WindowBoundsHelper.instance,
-        ExtensionWindowBackend.getInstance(this)
-    )
-}
+public class TestActivity : Activity()

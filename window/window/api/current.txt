@@ -41,9 +41,16 @@ package androidx.window {
   }
 
   public interface WindowInfoRepo {
-    method public androidx.window.WindowMetrics currentWindowMetrics();
-    method public androidx.window.WindowMetrics maximumWindowMetrics();
-    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo();
+    method public androidx.window.WindowMetrics getCurrentWindowMetrics();
+    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
+    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
+    property public abstract androidx.window.WindowMetrics currentWindowMetrics;
+    property public abstract androidx.window.WindowMetrics maximumWindowMetrics;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo;
+    field public static final androidx.window.WindowInfoRepo.Companion Companion;
+  }
+
+  public static final class WindowInfoRepo.Companion {
   }
 
   public final class WindowLayoutInfo {
@@ -70,9 +77,6 @@ package androidx.window {
     ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
     property public final android.graphics.Rect bounds;
-  }
-
-  public final class WindowServices {
   }
 
 }

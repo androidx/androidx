@@ -27,18 +27,18 @@ import kotlinx.coroutines.rx2.asObservable
 
 /**
  * Return an [Observable] stream of [WindowLayoutInfo].
- * @see WindowInfoRepo.windowLayoutInfo
+ * @see WindowInfoRepo.getWindowLayoutInfo
  */
 @ExperimentalCoroutinesApi
 public fun WindowInfoRepo.windowLayoutInfoObservable(): Observable<WindowLayoutInfo> {
-    return windowLayoutInfo().asObservable()
+    return windowLayoutInfo.asObservable()
 }
 
 /**
  * Return a [Flowable] stream of [WindowLayoutInfo].
- * @see WindowInfoRepo.windowLayoutInfo
+ * @see WindowInfoRepo.getWindowLayoutInfo
  */
 @ExperimentalCoroutinesApi
 public fun WindowInfoRepo.windowLayoutInfoFlowable(): Flowable<WindowLayoutInfo> {
-    return windowLayoutInfo().asFlowable()
+    return windowLayoutInfo.asFlowable()
 }

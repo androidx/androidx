@@ -49,7 +49,7 @@ public class WindowInfoRepoImpTest {
             )
             val expectedBounds = windowBoundsHelper.computeCurrentWindowBounds(testActivity)
             val expected = WindowMetrics(expectedBounds)
-            val actual = repo.currentWindowMetrics()
+            val actual = repo.currentWindowMetrics
             assertEquals(expected, actual)
         }
     }
@@ -65,7 +65,7 @@ public class WindowInfoRepoImpTest {
             )
             val expectedBounds = windowBoundsHelper.computeMaximumWindowBounds(testActivity)
             val expected = WindowMetrics(expectedBounds)
-            val actual = repo.maximumWindowMetrics()
+            val actual = repo.maximumWindowMetrics
             assertEquals(expected, actual)
         }
     }
@@ -82,7 +82,7 @@ public class WindowInfoRepoImpTest {
             )
             val collector = TestConsumer<WindowLayoutInfo>()
             testScope.launch {
-                repo.windowLayoutInfo().collect(collector::accept)
+                repo.windowLayoutInfo.collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
             collector.assertValue(WindowLayoutInfo(emptyList()))
