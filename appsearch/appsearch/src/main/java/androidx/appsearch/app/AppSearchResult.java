@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
 import android.util.Log;
