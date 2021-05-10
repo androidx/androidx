@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateListener(androidx.health.services.client.ExerciseUpdateListener):
+    Registration methods should have overload that accepts delivery Executor: `clearUpdateListener`
+ExecutorRegistration: androidx.health.services.client.PassiveMonitoringClient#registerDataCallback(java.util.Set<androidx.health.services.client.data.DataType>, android.app.PendingIntent, androidx.health.services.client.PassiveMonitoringCallback):
+    Registration methods should have overload that accepts delivery Executor: `registerDataCallback`
+
+
+MissingGetterMatchingBuilder: androidx.health.services.client.data.ExerciseConfig.Builder#setAutoPauseAndResume(boolean):
+    androidx.health.services.client.data.ExerciseConfig does not declare a `isAutoPauseAndResume()` method matching method androidx.health.services.client.data.ExerciseConfig.Builder.setAutoPauseAndResume(boolean)

@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-/**
- * Insert package level documentation here
- */
-package androidx.health.services.client;
+package androidx.health.services.client.data
 
+/** Exercise goal types. */
+public enum class ExerciseGoalType(public val id: Int) {
+    ONE_TIME_GOAL(1),
+    MILESTONE(2);
+
+    public companion object {
+        @JvmStatic
+        public fun fromId(id: Int): ExerciseGoalType? = values().firstOrNull { it.id == id }
+    }
+}
