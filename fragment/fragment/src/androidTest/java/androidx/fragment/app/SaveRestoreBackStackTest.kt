@@ -272,6 +272,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("ViewModel should not be cleared after commit()")
                 .that(originalViewModel.cleared)
                 .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
 
             fm.saveBackStack("replacement")
             executePendingTransactions()
@@ -279,6 +280,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("Saved Fragments should have their state saved")
                 .that(fragmentReplacement.calledOnSaveInstanceState)
                 .isTrue()
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
 
             // Saved Fragments should be destroyed
             assertWithMessage("Saved Fragments should be destroyed")
@@ -303,6 +305,7 @@ class SaveRestoreBackStackTest {
             assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
             assertThat(stateSavedReplacement.unsavedState).isNull()
             assertThat(stateSavedReplacement.viewModel).isSameInstanceAs(originalViewModel)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
         }
     }
 
@@ -331,6 +334,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("ViewModel should not be cleared after commit()")
                 .that(originalViewModel.cleared)
                 .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
 
             fm.saveBackStack("replacement")
             executePendingTransactions()
@@ -338,6 +342,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("Saved Fragments should have their state saved")
                 .that(fragmentReplacement.calledOnSaveInstanceState)
                 .isTrue()
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
 
             // Saved Fragments should be destroyed
             assertWithMessage("Saved Fragments should be destroyed")
@@ -369,6 +374,7 @@ class SaveRestoreBackStackTest {
             assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
             assertThat(stateSavedReplacement.unsavedState).isNull()
             assertThat(stateSavedReplacement.viewModel).isSameInstanceAs(originalViewModel)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
         }
     }
 
