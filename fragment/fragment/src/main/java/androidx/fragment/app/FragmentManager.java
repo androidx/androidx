@@ -2373,7 +2373,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
         ArrayList<String> savedResultKeys = fms.mResultKeys;
         if (savedResultKeys != null) {
             for (int i = 0; i < savedResultKeys.size(); i++) {
-                mResults.put(savedResultKeys.get(i), fms.mResults.get(i));
+                Bundle savedResult = fms.mResults.get(i);
+                savedResult.setClassLoader(mHost.getContext().getClassLoader());
+                mResults.put(savedResultKeys.get(i), savedResult);
             }
         }
         mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
