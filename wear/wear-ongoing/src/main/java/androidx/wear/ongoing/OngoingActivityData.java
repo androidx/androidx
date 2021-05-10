@@ -15,26 +15,26 @@
  */
 package androidx.wear.ongoing;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
-import android.os.Bundle;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
+import androidx.annotation.RestrictTo;
 import androidx.core.content.LocusIdCompat;
 import androidx.versionedparcelable.ParcelField;
-import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * This class is used internally by the library to represent the data of an OngoingActivity.
+ * This class is used internally by the library to represent the data of an OngoingActivity and
+ * serialize/deserialize using VersionedParcelable.
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize
-public class OngoingActivityData implements VersionedParcelable {
+class OngoingActivityData implements VersionedParcelable {
     @Nullable
     @ParcelField(value = 1, defaultValue = "null")
     Icon mAnimatedIcon;
@@ -87,67 +87,6 @@ public class OngoingActivityData implements VersionedParcelable {
         mOngoingActivityId = ongoingActivityId;
         mCategory = category;
         mTimestamp = timestamp;
-    }
-
-    @NonNull
-    NotificationCompat.Builder extend(@NonNull NotificationCompat.Builder builder) {
-        ParcelUtils.putVersionedParcelable(builder.getExtras(), EXTRA_ONGOING_ACTIVITY,
-                this);
-        return builder;
-    }
-
-    @NonNull Notification extendAndBuild(@NonNull NotificationCompat.Builder builder) {
-        Notification notification = extend(builder).build();
-        // TODO(http://b/169394642): Undo this if/when the bug is fixed.
-        notification.extras.putBundle(
-                EXTRA_ONGOING_ACTIVITY,
-                builder.getExtras().getBundle(EXTRA_ONGOING_ACTIVITY)
-        );
-        return notification;
-    }
-
-    /**
-     * Checks if the given notification represents an ongoing activity.
-     */
-    public static boolean hasOngoingActivity(@NonNull Notification notification) {
-        return notification.extras.getBundle(EXTRA_ONGOING_ACTIVITY) != null;
-    }
-
-    /**
-     * Deserializes the {@link OngoingActivityData} from a notification.
-     *
-     * @param notification the notification that may contain information about a Ongoing
-     *                     Activity.
-     * @return the data, or null of the notification doesn't contain Ongoing Activity data.
-     */
-    @Nullable
-    public static OngoingActivityData create(@NonNull Notification notification) {
-        return create(notification.extras);
-    }
-
-    /**
-     * Deserializes the {@link OngoingActivityData} from a Bundle.
-     *
-     * @param bundle the bundle that may contain information about a Ongoing Activity.
-     * @return the data, or null of the Bundle doesn't contain Ongoing Activity data.
-     */
-    @Nullable
-    public static OngoingActivityData create(@NonNull Bundle bundle) {
-        return ParcelUtils.getVersionedParcelable(bundle, EXTRA_ONGOING_ACTIVITY);
-    }
-
-
-    /**
-     * Copies an Ongoing Activity information from a bundle to another, without deserializing
-     * and serializing (Note that Bundle instance is shared, not copied and deserializing the
-     * Ongoing activity information somewhere else negates the advantages of using this)
-     *
-     * @param sourceBundle The bundle to get the Ongoing Activity data from
-     * @param destinationBundle The bundle to put the Ongoing Activity data into.
-     */
-    public static void copy(@NonNull Bundle sourceBundle, @NonNull Bundle destinationBundle) {
-        destinationBundle.putBundle(EXTRA_ONGOING_ACTIVITY,
-                sourceBundle.getBundle(EXTRA_ONGOING_ACTIVITY));
     }
 
     /**
@@ -227,11 +166,5 @@ public class OngoingActivityData implements VersionedParcelable {
     void setStatus(@NonNull OngoingActivityStatus status) {
         mStatus = status;
     }
-
-    /** Notification action extra which contains ongoing activity extensions */
-    private static final String EXTRA_ONGOING_ACTIVITY =
-            "android.wearable.ongoingactivities.EXTENSIONS";
-
-    static final int DEFAULT_ID = -1;
 }
 
