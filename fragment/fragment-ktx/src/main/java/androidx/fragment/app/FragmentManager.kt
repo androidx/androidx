@@ -26,10 +26,10 @@ package androidx.fragment.app
 public inline fun FragmentManager.commit(
     allowStateLoss: Boolean = false,
     body: FragmentTransaction.() -> Unit
-) {
+): Int {
     val transaction = beginTransaction()
     transaction.body()
-    if (allowStateLoss) {
+    return if (allowStateLoss) {
         transaction.commitAllowingStateLoss()
     } else {
         transaction.commit()

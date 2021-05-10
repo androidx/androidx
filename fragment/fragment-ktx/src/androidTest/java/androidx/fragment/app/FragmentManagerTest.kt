@@ -68,6 +68,19 @@ class FragmentManagerTest {
     }
 
     @UiThreadTest
+    @Test fun commitWithBackStackId() {
+        val fragment = TestFragment()
+        val backStackId = fragmentManager.commit {
+            add(fragment, null)
+            addToBackStack("test")
+        }
+        assertThat(fragmentManager.fragments).doesNotContain(fragment)
+        fragmentManager.executePendingTransactions()
+        assertThat(fragmentManager.fragments).contains(fragment)
+        assertThat(backStackId).isGreaterThan(-1)
+    }
+
+    @UiThreadTest
     @Test fun commitAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
         val fragmentManager = FragmentManagerImpl()
@@ -76,6 +89,19 @@ class FragmentManagerTest {
             add(TestFragment(), null)
         }
         assertThat(fragmentManager.fragments).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test fun commitAllowingStateLossWithBackStackId() {
+        // Use a detached FragmentManager to ensure state loss.
+        val fragmentManager = FragmentManagerImpl()
+
+        val backStackId = fragmentManager.commit(allowStateLoss = true) {
+            add(TestFragment(), null)
+            addToBackStack("test")
+        }
+        assertThat(fragmentManager.fragments).isEmpty()
+        assertThat(backStackId).isGreaterThan(-1)
     }
 
     @UiThreadTest
