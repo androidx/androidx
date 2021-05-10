@@ -24,4 +24,7 @@
             android:exported="false"/>
         <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
     </application>
+    <queries>
+        <provider android:authorities="androidx.car.app.connection" />
+    </queries>
 </manifest>
