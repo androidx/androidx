@@ -1997,11 +1997,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
 
         List<BackStackRecord> backStackRecords = backStackState.instantiate(this);
+        boolean added = false;
         for (BackStackRecord record : backStackRecords) {
-            records.add(record);
-            isRecordPop.add(false);
+            added = record.generateOps(records, isRecordPop) || added;
         }
-        return true;
+        return added;
     }
 
     boolean saveBackStackState(@NonNull ArrayList<BackStackRecord> records,
