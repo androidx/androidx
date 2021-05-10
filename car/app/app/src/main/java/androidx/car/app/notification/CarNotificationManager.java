@@ -16,8 +16,6 @@
 
 package androidx.car.app.notification;
 
-import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
-
 import static androidx.car.app.model.CarColor.TYPE_BLUE;
 import static androidx.car.app.model.CarColor.TYPE_CUSTOM;
 import static androidx.car.app.model.CarColor.TYPE_DEFAULT;
@@ -26,6 +24,7 @@ import static androidx.car.app.model.CarColor.TYPE_PRIMARY;
 import static androidx.car.app.model.CarColor.TYPE_RED;
 import static androidx.car.app.model.CarColor.TYPE_SECONDARY;
 import static androidx.car.app.model.CarColor.TYPE_YELLOW;
+import static androidx.car.app.utils.CommonUtils.isAutomotiveOS;
 
 import static java.util.Objects.requireNonNull;
 
@@ -69,7 +68,6 @@ public final class CarNotificationManager {
     private final Context mContext;
     @NonNull
     private final NotificationManagerCompat mNotificationManagerCompat;
-    private final boolean mIsAutomotive;
     @ColorInt
     @Nullable
     private final Integer mPrimaryColor;
@@ -333,7 +331,7 @@ public final class CarNotificationManager {
     @VisibleForTesting
     @NonNull
     Notification updateForCar(@NonNull NotificationCompat.Builder notification) {
-        if (mIsAutomotive) {
+        if (isAutomotiveOS(mContext)) {
             return upddateForAutomotive(notification);
         } else if (!CarAppExtender.isExtended(notification.build())) {
             notification.extend(new CarAppExtender.Builder().build());
@@ -478,7 +476,6 @@ public final class CarNotificationManager {
     private CarNotificationManager(@NonNull Context context) {
         mContext = requireNonNull(context);
         mNotificationManagerCompat = NotificationManagerCompat.from(context);
-        mIsAutomotive = context.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE);
 
         Context themeableContext = mContext.createConfigurationContext(
                 context.getResources().getConfiguration());

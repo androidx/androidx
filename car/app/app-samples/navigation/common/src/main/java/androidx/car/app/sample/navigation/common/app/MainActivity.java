@@ -17,7 +17,6 @@
 package androidx.car.app.sample.navigation.common.app;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,17 +26,21 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.activity.ComponentActivity;
+import androidx.annotation.Nullable;
+import androidx.car.app.connection.ConnectionToCar;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
 
 /**
  * The main app activity.
  *
- * <p>See {@link NavigationCarAppService} for the app's entry point to Android Auto.
+ * <p>See {@link androidx.car.app.sample.navigation.common.car.NavigationCarAppService} for the
+ * app's entry point to Android Auto.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends ComponentActivity {
     static final String TAG = MainActivity.class.getSimpleName();
 
     // A reference to the navigation service used to get location updates and routing.
@@ -45,9 +48,6 @@ public class MainActivity extends Activity {
 
     // Tracks the bound state of the navigation service.
     boolean mIsBound = false;
-
-    private Button mStartNavButton;
-    private Button mStopNavButton;
 
     // Monitors the state of the connection to the navigation service.
     private final ServiceConnection mServiceConnection =
@@ -70,17 +70,20 @@ public class MainActivity extends Activity {
             };
 
     @Override
-    protected void onCreate(@NonNull Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "In onCreate()");
 
         setContentView(R.layout.activity_main);
 
         // Hook up some manual navigation controls.
-        mStartNavButton = findViewById(R.id.start_nav);
-        mStartNavButton.setOnClickListener(this::startNavigation);
-        mStopNavButton = findViewById(R.id.stop_nav);
-        mStopNavButton.setOnClickListener(this::stopNavigation);
+        Button startNavButton = findViewById(R.id.start_nav);
+        startNavButton.setOnClickListener(this::startNavigation);
+        Button stopNavButton = findViewById(R.id.stop_nav);
+        stopNavButton.setOnClickListener(this::stopNavigation);
+
+        new ConnectionToCar(this).getType().observe(this,
+                this::onConnectionStateUpdate);
     }
 
     @Override
@@ -106,6 +109,13 @@ public class MainActivity extends Activity {
             mService = null;
         }
         super.onStop();
+    }
+
+    private void onConnectionStateUpdate(Integer connectionState) {
+        String message = connectionState > ConnectionToCar.NOT_CONNECTED
+                ? "Connected to a car head unit"
+                : "Not Connected to a car head unit";
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void startNavigation(View view) {
