@@ -59,7 +59,7 @@ dexMemberList = { module = "com.jakewharton.dex:dex-member-list", version = "4.1
 dokkaGradlePlugin = { module = "org.jetbrains.dokka:dokka-android-gradle-plugin", version = "0.9.17-g014" }
 espressoContrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
-espressoIdlingNet = { module = "androidx.test.espresso:espresso-idling-net", version.ref = "espresso" }
+espressoIdlingNet = { module = "androidx.test.espresso.idling:idling-net", version.ref = "espresso" }
 espressoIdlingResource = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "espresso" }
 espressoIntents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
 espressoWeb = { module = "androidx.test.espresso:espresso-web", version.ref = "espresso" }
