@@ -75,8 +75,6 @@ class FoldTest {
                 rule.overrideWindowLayoutInfo(info)
                 testFeature.bounds
             }
-            assertThat(findViewById(R.id.list_pane).width)
-                .isEqualTo(findViewById(R.id.detail_pane).width)
             Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
                 .check(ViewAssertions.matches(isTwoPane()))
         }
@@ -92,8 +90,8 @@ class FoldTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            assertThat(findViewById(R.id.list_pane).width)
-                .isLessThan(findViewById(R.id.detail_pane).width)
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
+                .check(ViewAssertions.matches(isTwoPane()))
             assertThat(findViewX(R.id.list_pane)).isLessThan(findViewX(R.id.detail_pane))
         }
     }
@@ -111,9 +109,6 @@ class FoldTest {
                 .computeCurrentWindowMetrics(activity)
                 .bounds
                 .width() / 2 + detailViewExtraWidth
-            val window = WindowMetricsCalculator.getOrCreate()
-                .computeCurrentWindowMetrics(activity).bounds
-            detailView.minimumWidth = window.width() / 2 + detailViewExtraWidth
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {

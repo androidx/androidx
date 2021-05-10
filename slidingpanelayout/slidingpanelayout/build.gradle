@@ -12,6 +12,7 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     api("androidx.customview:customview:1.1.0")
     implementation(project(":window:window"))
+    implementation ("androidx.transition:transition:1.4.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

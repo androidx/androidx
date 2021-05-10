@@ -50,9 +50,13 @@ import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.animation.PathInterpolatorCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
+import androidx.transition.ChangeBounds;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 import androidx.window.layout.FoldingFeature;
 import androidx.window.layout.WindowInfoRepository;
 
@@ -240,7 +244,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     /**
      * Get the lock mode used to control over the swipe behavior.
      *
-     * @return
      * @see #setLockMode(int)
      */
     @LockMode
@@ -296,9 +299,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     private FoldingFeatureObserver.OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener =
             new FoldingFeatureObserver.OnFoldingFeatureChangeListener() {
                 @Override
-                public void onFoldingFeatureChange(
-                        @NonNull FoldingFeature foldingFeature) {
+                public void onFoldingFeatureChange(@NonNull FoldingFeature foldingFeature) {
                     mFoldingFeature = foldingFeature;
+                    // Start transition animation when folding feature changed
+                    Transition changeBounds = new ChangeBounds();
+                    changeBounds.setDuration(300L);
+                    changeBounds.setInterpolator(PathInterpolatorCompat.create(0.2f, 0, 0, 1));
+                    TransitionManager.beginDelayedTransition(SlidingPaneLayout.this, changeBounds);
                     requestLayout();
                 }
             };
@@ -381,7 +388,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * @return The ARGB-packed color value used to fade the sliding pane
-     *
      * @deprecated This field is no longer populated by SlidingPaneLayout.
      */
     @Deprecated
@@ -404,7 +410,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * @return The ARGB-packed color value used to fade the fixed pane
-     *
      * @deprecated This field is no longer populated by SlidingPaneLayout
      */
     @Deprecated
@@ -419,10 +424,10 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * {@link #removePanelSlideListener(PanelSlideListener)} to remove a registered listener.
      *
      * @param listener Listener to notify when drawer events occur
-     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
      * @see PanelSlideListener
      * @see #addPanelSlideListener(PanelSlideListener)
      * @see #removePanelSlideListener(PanelSlideListener)
+     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
      */
     @Deprecated
     public void setPanelSlideListener(@Nullable PanelSlideListener listener) {
@@ -1691,7 +1696,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     static class SavedState extends AbsSavedState {
         boolean isOpen;
-        @LockMode int mLockMode;
+        @LockMode
+        int mLockMode;
 
         SavedState(Parcelable superState) {
             super(superState);
