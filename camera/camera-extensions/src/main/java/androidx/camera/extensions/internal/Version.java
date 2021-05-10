@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
@@ -31,9 +32,9 @@ import java.util.regex.Pattern;
  * Class encapsulating a version with major, minor, patch and description values.
  */
 @AutoValue
-abstract class Version implements Comparable<Version> {
-    static final Version VERSION_1_0 = Version.create(1, 0, 0, "");
-    static final Version VERSION_1_1 = Version.create(1, 1, 0, "");
+public abstract class Version implements Comparable<Version> {
+    public static final Version VERSION_1_0 = Version.create(1, 0, 0, "");
+    public static final Version VERSION_1_1 = Version.create(1, 1, 0, "");
 
     private static final Pattern VERSION_STRING_PATTERN =
             Pattern.compile("(\\d+)(?:\\.(\\d+))(?:\\.(\\d+))(?:\\-(.+))?");
@@ -45,7 +46,8 @@ abstract class Version implements Comparable<Version> {
      *                      (major.minor.patch[-description])
      * @return the parsed Version object or <tt>null</tt> if the versionString format is invalid.
      */
-    public static Version parse(String versionString) {
+    @Nullable
+    public static Version parse(@NonNull String versionString) {
         if (TextUtils.isEmpty(versionString)) {
             return null;
         }
@@ -65,7 +67,8 @@ abstract class Version implements Comparable<Version> {
     /**
      * Creates a new instance of the Version object with the given parameters.
      */
-    public static Version create(int major, int minor, int patch, String description) {
+    @NonNull
+    public static Version create(int major, int minor, int patch, @NonNull String description) {
         return new AutoValue_Version(major, minor, patch, description);
     }
 
@@ -73,7 +76,10 @@ abstract class Version implements Comparable<Version> {
     Version() {
     }
 
-    abstract int getMajor();
+    /**
+     * Gets the major version number.
+     */
+    public abstract int getMajor();
 
     abstract int getMinor();
 
@@ -100,14 +106,20 @@ abstract class Version implements Comparable<Version> {
      * <var>other</var>.
      */
     @Override
-    public int compareTo(Version other) {
+    public int compareTo(@NonNull Version other) {
         return createBigInteger(this).compareTo(createBigInteger(other));
     }
 
+    /**
+     * To compare the major number with the input value.
+     */
     public int compareTo(int majorVersion) {
         return compareTo(majorVersion, 0);
     }
 
+    /**
+     * To compare the major and minor numbers with the input values.
+     */
     public int compareTo(int majorVersion, int minorVersion) {
         if (getMajor() == majorVersion) {
             return Integer.compare(getMinor(), minorVersion);

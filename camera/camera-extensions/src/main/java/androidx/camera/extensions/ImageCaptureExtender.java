@@ -48,6 +48,8 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureProcessor;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Consumer;
 
 import java.util.ArrayList;

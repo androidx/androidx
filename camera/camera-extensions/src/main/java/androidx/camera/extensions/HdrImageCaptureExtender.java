@@ -21,6 +21,8 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+
 /**
  * Load the OEM extension implementation for HDR effect type.
  */
