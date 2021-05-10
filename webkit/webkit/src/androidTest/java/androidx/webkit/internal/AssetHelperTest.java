@@ -61,21 +61,21 @@ public class AssetHelperTest {
     @SmallTest
     public void testOpenExistingResourceWithExtension() throws Throwable {
         InputStream stream = mAssetHelper.openResource("raw/test.txt");
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test
     @SmallTest
     public void testOpenExistingResourceWithLeadingSlash() throws Throwable {
         InputStream stream = mAssetHelper.openResource("/raw/test");
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test
     @SmallTest
     public void testOpenExistingResourceWithNoExtension() throws Throwable {
         InputStream stream = mAssetHelper.openResource("raw/test");
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test(expected = Resources.NotFoundException.class)
@@ -106,14 +106,14 @@ public class AssetHelperTest {
     @SmallTest
     public void testOpenExistingAsset() throws Throwable {
         InputStream stream = mAssetHelper.openAsset("text/test.txt");
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test
     @SmallTest
     public void testOpenExistingAssetWithLeadingSlash() throws Throwable {
         InputStream stream = mAssetHelper.openAsset("/text/test.txt");
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test(expected = IOException.class)
@@ -140,7 +140,7 @@ public class AssetHelperTest {
         WebkitUtils.writeToFile(testFile, TEST_STRING);
 
         InputStream stream = AssetHelper.openFile(testFile);
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class AssetHelperTest {
         WebkitUtils.writeToFile(testFile, TEST_STRING);
 
         InputStream stream = AssetHelper.openFile(testFile);
-        Assert.assertEquals(readAsString(stream), TEST_STRING);
+        Assert.assertEquals(TEST_STRING, readAsString(stream));
     }
 
     @Test(expected = IOException.class)

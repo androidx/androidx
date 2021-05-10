@@ -84,17 +84,21 @@ public class WebSettingsCompatTest {
     public void testDisabledActionModeMenuItems() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
 
-        assertEquals(WebSettings.MENU_ITEM_NONE,
+        assertEquals("Disabled action mode items should default to MENU_ITEM_NONE",
+                WebSettings.MENU_ITEM_NONE,
                 WebSettingsCompat.getDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings()));
 
         WebSettingsCompat.setDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings(),
                 WebSettings.MENU_ITEM_SHARE);
-        assertEquals(WebSettings.MENU_ITEM_SHARE,
+        assertEquals("Disabled action mode items should have been set to MENU_ITEM_SHARE",
+                WebSettings.MENU_ITEM_SHARE,
                 WebSettingsCompat.getDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings()));
 
         WebSettingsCompat.setDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings(),
                 WebSettings.MENU_ITEM_PROCESS_TEXT | WebSettings.MENU_ITEM_WEB_SEARCH);
-        assertEquals(WebSettings.MENU_ITEM_PROCESS_TEXT | WebSettings.MENU_ITEM_WEB_SEARCH,
+        assertEquals("Disabled action mode items should have been set to (MENU_ITEM_PROCESS_TEXT "
+                + "| MENU_ITEM_WEB_SEARCH)",
+                WebSettings.MENU_ITEM_PROCESS_TEXT | WebSettings.MENU_ITEM_WEB_SEARCH,
                 WebSettingsCompat.getDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings()));
     }
 
