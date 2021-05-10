@@ -142,6 +142,17 @@ final class BackStackRecord extends FragmentTransaction implements
         mManager = manager;
     }
 
+    BackStackRecord(@NonNull BackStackRecord bse) {
+        super(bse.mManager.getFragmentFactory(), bse.mManager.getHost() != null
+                ? bse.mManager.getHost().getContext().getClassLoader()
+                : null, bse);
+        mManager = bse.mManager;
+        mCommitted = bse.mCommitted;
+        mIndex = bse.mIndex;
+        mBeingSaved = bse.mBeingSaved;
+    }
+
+
     @Override
     public int getId() {
         return mIndex;
@@ -278,15 +289,6 @@ final class BackStackRecord extends FragmentTransaction implements
                             + op.mFragment + " to " + op.mFragment.mBackStackNesting);
                 }
             }
-        }
-    }
-
-    void runOnExecuteRunnables() {
-        if (mExecuteRunnables != null) {
-            for (int i = 0; i < mExecuteRunnables.size(); i++) {
-                mExecuteRunnables.get(i).run();
-            }
-            mExecuteRunnables = null;
         }
     }
 

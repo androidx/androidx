@@ -1758,11 +1758,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         executeOps(records, isRecordPop, startIndex, endIndex);
 
-        for (int recordNum = startIndex; recordNum < endIndex; recordNum++) {
-            final BackStackRecord record = records.get(recordNum);
-            record.runOnExecuteRunnables();
-        }
-
         // The last operation determines the overall direction, this ensures that operations
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
@@ -2095,20 +2090,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
         final BackStackState backStackState = new BackStackState(
                 fragments, backStackRecordStates);
         for (int i = mBackStack.size() - 1; i >= index; i--) {
-            final BackStackRecord record = mBackStack.remove(i);
+            BackStackRecord record = mBackStack.remove(i);
+
+            // Create a copy of the record to save
+            BackStackRecord copy = new BackStackRecord(record);
+            copy.collapseOps();
+            BackStackRecordState state = new BackStackRecordState(copy);
+            backStackRecordStates.set(i - index, state);
+
+            // And now mark the record as being saved to ensure that each
+            // fragment saves its state properly
             record.mBeingSaved = true;
-            // Get a callback when the BackStackRecord is actually finished
-            final int currentIndex = i;
-            record.addOnExecuteRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    // First collapse the record to remove expanded ops and get it ready to save
-                    record.collapseOps();
-                    // Then save the state
-                    BackStackRecordState state = new BackStackRecordState(record);
-                    backStackRecordStates.set(currentIndex - index, state);
-                }
-            });
             records.add(record);
             isRecordPop.add(true);
         }
