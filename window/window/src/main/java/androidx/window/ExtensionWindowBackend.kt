@@ -141,7 +141,7 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
     }
 
     /**
-     * Wrapper around [<] that also includes the [Executor]
+     * Wrapper around [Consumer<WindowLayoutInfo>] that also includes the [Executor]
      * on which the callback should run and the [Activity].
      */
     internal class WindowLayoutChangeCallbackWrapper(
