@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.cts.customer;
+package androidx.appsearch.cts.app.customer;
 
 import static com.google.common.truth.Truth.assertThat;
 

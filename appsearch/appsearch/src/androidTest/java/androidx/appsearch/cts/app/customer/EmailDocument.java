@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 // @exportToFramework:skipFile()
-package androidx.appsearch.app.cts.customer;
+package androidx.appsearch.cts.app.customer;
 
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;

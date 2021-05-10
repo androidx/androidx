@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.cts;
+package androidx.appsearch.cts.app;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
@@ -47,8 +47,8 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.cts.customer.EmailDocument;
 import androidx.appsearch.app.util.AppSearchEmail;
+import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
 

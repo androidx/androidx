@@ -206,7 +206,7 @@ class ExportToFramework:
         api_test_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_API_TEST_ROOT)
 
         # CTS tests
-        cts_test_source_dir = os.path.join(api_test_source_dir, 'app/cts')
+        cts_test_source_dir = os.path.join(api_test_source_dir, 'cts')
         cts_test_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_CTS_TEST_ROOT)
 
         # Test utils

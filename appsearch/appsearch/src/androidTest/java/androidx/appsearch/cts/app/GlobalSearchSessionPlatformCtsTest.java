@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 // @exportToFramework:skipFile()
-package androidx.appsearch.app.cts;
+package androidx.appsearch.cts.app;
 
 import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.ExecutorService;
-
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase {
+public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTestBase {
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
@@ -39,11 +38,9 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     }
 
     @Override
-    protected ListenableFuture<AppSearchSession> createSearchSession(
-            @NonNull String dbName, @NonNull ExecutorService executor) {
+    protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createSearchSession(
-                new PlatformStorage.SearchContext.Builder(context, dbName)
-                        .setWorkerExecutor(executor).build());
+        return PlatformStorage.createGlobalSearchSession(
+                new PlatformStorage.GlobalSearchContext.Builder(context).build());
     }
 }

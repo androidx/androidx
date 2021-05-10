@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.cts;
+package androidx.appsearch.cts.app;
 
 import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;

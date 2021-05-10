@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.exceptions.cts;
+package androidx.appsearch.cts.exceptions;
 
 import static com.google.common.truth.Truth.assertThat;
 
