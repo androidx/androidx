@@ -90,7 +90,7 @@ public class WindowManager @JvmOverloads constructor(
      * current bounds that the user has selected for the [Activity][android.app.Activity]'s
      * window.
      *
-     * @see .getMaximumWindowMetrics
+     * @see getMaximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
     public fun getCurrentWindowMetrics(): WindowMetrics {
@@ -121,7 +121,7 @@ public class WindowManager @JvmOverloads constructor(
      * the region describing the side of the device the associated [context&#39;s][Context]
      * window is placed.
      *
-     * @see .getCurrentWindowMetrics
+     * @see getCurrentWindowMetrics
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
     public fun getMaximumWindowMetrics(): WindowMetrics {
