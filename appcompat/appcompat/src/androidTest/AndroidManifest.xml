@@ -123,6 +123,11 @@
             android:theme="@style/Theme.TextColors"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatEditTextEmojiActivity"
+            android:label="@string/app_compat_edit_text_activity"
+            android:theme="@style/Theme.TextColors"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatEditTextReceiveContentActivity"
             android:label="@string/app_compat_edit_text_receive_content_activity"
             android:theme="@style/Theme.AppCompat.Light"/>

@@ -20,6 +20,7 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.widget.EditText;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
@@ -38,13 +39,17 @@ import java.lang.ref.WeakReference;
 @RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
     private final EditText mEditText;
+    private final boolean mExpectInitializedEmojiCompat;
     private InitCallback mInitCallback;
     private int mMaxEmojiCount = EmojiDefaults.MAX_EMOJI_COUNT;
     @EmojiCompat.ReplaceStrategy
     private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
+    private boolean mEnabled;
 
-    EmojiTextWatcher(EditText editText) {
+    EmojiTextWatcher(EditText editText, boolean expectInitializedEmojiCompat) {
         mEditText = editText;
+        mExpectInitializedEmojiCompat = expectInitializedEmojiCompat;
+        mEnabled = true;
     }
 
     void setMaxEmojiCount(int maxEmojiCount) {
@@ -66,7 +71,7 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, final int start, final int before,
             final int after) {
-        if (mEditText.isInEditMode()) {
+        if (mEditText.isInEditMode() || shouldSkipForDisabledOrNotConfigured()) {
             return;
         }
 
@@ -89,6 +94,10 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         }
     }
 
+    private boolean shouldSkipForDisabledOrNotConfigured() {
+        return !mEnabled || (!mExpectInitializedEmojiCompat && !EmojiCompat.isConfigured());
+    }
+
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         // do nothing
@@ -106,6 +115,22 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         return mInitCallback;
     }
 
+    public boolean isEnabled() {
+        return mEnabled;
+    }
+
+    public void setEnabled(boolean isEnabled) {
+        if (mEnabled != isEnabled) {
+            if (mInitCallback != null) {
+                EmojiCompat.get().unregisterInitCallback(mInitCallback);
+            }
+            mEnabled = isEnabled;
+            if (mEnabled) {
+                processTextOnEnablingEvent(mEditText, EmojiCompat.get().getLoadState());
+            }
+        }
+    }
+
     @RequiresApi(19)
     private static class InitCallbackImpl extends InitCallback {
         private final Reference<EditText> mViewRef;
@@ -118,16 +143,21 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         public void onInitialized() {
             super.onInitialized();
             final EditText editText = mViewRef.get();
-            if (editText != null && editText.isAttachedToWindow()) {
-                final Editable text = editText.getEditableText();
+            processTextOnEnablingEvent(editText, EmojiCompat.LOAD_STATE_SUCCEEDED);
+        }
+    }
 
-                final int selectionStart = Selection.getSelectionStart(text);
-                final int selectionEnd = Selection.getSelectionEnd(text);
+    static void processTextOnEnablingEvent(@Nullable EditText editText, int currentLoadState) {
+        if (currentLoadState == EmojiCompat.LOAD_STATE_SUCCEEDED && editText != null
+                && editText.isAttachedToWindow()) {
+            final Editable text = editText.getEditableText();
 
-                EmojiCompat.get().process(text);
+            final int selectionStart = Selection.getSelectionStart(text);
+            final int selectionEnd = Selection.getSelectionEnd(text);
 
-                EmojiInputFilter.updateSelection(text, selectionStart, selectionEnd);
-            }
+            EmojiCompat.get().process(text);
+
+            EmojiInputFilter.updateSelection(text, selectionStart, selectionEnd);
         }
     }
 }

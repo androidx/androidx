@@ -17,7 +17,6 @@
 package androidx.emoji2.viewshelper;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextUtils;
 import android.widget.EditText;
 
 import androidx.emoji2.text.EmojiCompat;
@@ -45,7 +43,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19) // class is not instantiated prior to API19
-public class EmojiTextWatcherTest {
+public class EmojiTextWatcherDisabledTest {
 
     private EmojiTextWatcher mTextWatcher;
     private EmojiCompat mEmojiCompat;
@@ -56,6 +54,7 @@ public class EmojiTextWatcherTest {
         mEmojiCompat = mock(EmojiCompat.class);
         EmojiCompat.reset(mEmojiCompat);
         mTextWatcher = new EmojiTextWatcher(editText, /* expectInitializedEmojiCompat */ true);
+        mTextWatcher.setEnabled(/* isEnabled */ false);
     }
 
     @Test
@@ -64,14 +63,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
-
-        verify(mEmojiCompat, times(1)).process(
-                EmojiMatcher.sameCharSequence(testString),
-                eq(0),
-                eq(1),
-                eq(Integer.MAX_VALUE),
-                anyInt());
-        verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+        verifyNoMoreInteractions(mEmojiCompat);
     }
 
     @Test
@@ -80,10 +72,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_LOADING);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
-
-        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
-                anyInt());
-        verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+        verifyNoMoreInteractions(mEmojiCompat);
     }
 
     @Test
@@ -93,9 +82,7 @@ public class EmojiTextWatcherTest {
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
-        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
-                anyInt());
-        verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+        verifyNoMoreInteractions(mEmojiCompat);
     }
 
     @Test
@@ -107,15 +94,7 @@ public class EmojiTextWatcherTest {
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
-        verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
-                eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT));
-
-        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);
-
-        mTextWatcher.onTextChanged(testString, 0, 0, 1);
-
-        verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
-                eq(EmojiCompat.REPLACE_STRATEGY_ALL));
+        verifyNoMoreInteractions(mEmojiCompat);
     }
 
     @Test
@@ -125,28 +104,23 @@ public class EmojiTextWatcherTest {
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
-        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
-        verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
-    }
-
-    @Test
-    public void afterDisable_noFurtherInteractions() {
-        final Spannable testString = new SpannableString("abc");
-        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
-
-        mTextWatcher.setEnabled(/* isEnabled */ false);
-        mTextWatcher.onTextChanged(testString, 0, 0, 1);
-
         verifyNoMoreInteractions(mEmojiCompat);
     }
 
     @Test
-    public void whenNotConfigured_andNotExpectInitialized_noCalls() {
-        EditText editText = mock(EditText.class);
-        EmojiCompat.reset((EmojiCompat) null);
-        mTextWatcher = new EmojiTextWatcher(editText, /* expectInitializedEmojiCompat */ false);
-        SpannableString expected = new SpannableString("abc");
-        mTextWatcher.onTextChanged(expected, 0, 0, 1);
-        assertTrue(TextUtils.equals(expected, "abc"));
+    public void afterEnable_expectFurtherInteractions() {
+        final Spannable testString = new SpannableString("abc");
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+
+        mTextWatcher.setEnabled(/* isEnabled */ true);
+        mTextWatcher.onTextChanged(testString, 0, 0, 1);
+
+        verify(mEmojiCompat, times(1)).process(
+                EmojiMatcher.sameCharSequence(testString),
+                eq(0),
+                eq(1),
+                eq(Integer.MAX_VALUE),
+                anyInt());
+        verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 }

@@ -233,7 +233,6 @@ public final class EmojiTextViewHelper {
             mHelperDelegate = new HelperInternal19(textView);
         }
 
-
         private boolean skipBecauseEmojiCompatNotInitialized() {
             return !EmojiCompat.isConfigured();
         }
