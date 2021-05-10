@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     private boolean mCheckedPermissions = false;
-    private Mode mMode = Mode.CAMERA_VIEW;
+    private Mode mMode = Mode.CAMERA_CONTROLLER;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,9 +114,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.camera_view:
-                mMode = Mode.CAMERA_VIEW;
-                break;
             case R.id.preview_view:
                 mMode = Mode.PREVIEW_VIEW;
                 break;
@@ -143,9 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void startFragment() {
         switch (mMode) {
-            case CAMERA_VIEW:
-                startFragment(R.string.camera_view, new CameraViewFragment());
-                break;
             case PREVIEW_VIEW:
                 startFragment(R.string.preview_view, new PreviewViewFragment());
                 break;
@@ -175,6 +169,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum Mode {
-        CAMERA_VIEW, PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM
     }
 }
