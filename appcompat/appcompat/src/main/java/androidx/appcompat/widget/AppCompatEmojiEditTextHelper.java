@@ -75,6 +75,13 @@ class AppCompatEmojiEditTextHelper {
     }
 
     /**
+     * Call from constructor to initialize key listener correctly.
+     */
+    void initKeyListener() {
+        mView.setKeyListener(mView.getKeyListener());
+    }
+
+    /**
      * When set to false, this helper will do no further emoji processing.
      *
      * Disabling emoji on an EditText does not trigger any further processing, and previously

@@ -20,6 +20,7 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.widget.EditText;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
@@ -124,6 +125,9 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
                 EmojiCompat.get().unregisterInitCallback(mInitCallback);
             }
             mEnabled = isEnabled;
+            if (mEnabled) {
+                processTextOnEnablingEvent(mEditText, EmojiCompat.get().getLoadState());
+            }
         }
     }
 
@@ -139,16 +143,21 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         public void onInitialized() {
             super.onInitialized();
             final EditText editText = mViewRef.get();
-            if (editText != null && editText.isAttachedToWindow()) {
-                final Editable text = editText.getEditableText();
+            processTextOnEnablingEvent(editText, EmojiCompat.LOAD_STATE_SUCCEEDED);
+        }
+    }
 
-                final int selectionStart = Selection.getSelectionStart(text);
-                final int selectionEnd = Selection.getSelectionEnd(text);
+    static void processTextOnEnablingEvent(@Nullable EditText editText, int currentLoadState) {
+        if (currentLoadState == EmojiCompat.LOAD_STATE_SUCCEEDED && editText != null
+                && editText.isAttachedToWindow()) {
+            final Editable text = editText.getEditableText();
 
-                EmojiCompat.get().process(text);
+            final int selectionStart = Selection.getSelectionStart(text);
+            final int selectionEnd = Selection.getSelectionEnd(text);
 
-                EmojiInputFilter.updateSelection(text, selectionStart, selectionEnd);
-            }
+            EmojiCompat.get().process(text);
+
+            EmojiInputFilter.updateSelection(text, selectionStart, selectionEnd);
         }
     }
 }

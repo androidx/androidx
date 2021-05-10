@@ -35,6 +35,7 @@ import android.widget.EditText;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.util.EmojiMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -43,6 +44,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19) // class is not instantiated prior to API19
 public class EmojiTextWatcherTest {
 
     private EmojiTextWatcher mTextWatcher;

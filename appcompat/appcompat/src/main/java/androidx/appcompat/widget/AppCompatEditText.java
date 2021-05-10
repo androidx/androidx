@@ -27,6 +27,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Editable;
+import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.DragEvent;
@@ -73,12 +74,14 @@ import androidx.core.widget.TextViewOnReceiveContentListener;
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatEditText extends EditText implements TintableBackgroundView,
-        OnReceiveContentViewBehavior {
+        OnReceiveContentViewBehavior, EmojiCompatConfigurationView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
     private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
+    @NonNull
+    private final AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -104,6 +107,9 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextClassifierHelper = new AppCompatTextClassifierHelper(this);
 
         mDefaultOnReceiveContentListener = new TextViewOnReceiveContentListener();
+        mAppCompatEmojiEditTextHelper = new AppCompatEmojiEditTextHelper(this);
+        mAppCompatEmojiEditTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mAppCompatEmojiEditTextHelper.initKeyListener();
     }
 
     /**
@@ -219,7 +225,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @Nullable
     @Override
-    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
         InputConnection ic = super.onCreateInputConnection(outAttrs);
         mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
         ic = AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
@@ -230,7 +236,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
             OnCommitContentListener onCommitContentListener = createOnCommitContentListener(this);
             ic = InputConnectionCompat.createWrapper(ic, outAttrs, onCommitContentListener);
         }
-        return ic;
+        return mAppCompatEmojiEditTextHelper.onCreateInputConnection(ic, outAttrs);
     }
 
     /**
@@ -323,5 +329,26 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     @Override
     public ContentInfoCompat onReceiveContent(@NonNull ContentInfoCompat payload) {
         return mDefaultOnReceiveContentListener.onReceiveContent(this, payload);
+    }
+
+    /**
+     * Adds EmojiCompat KeyListener to correctly edit multi-codepoint emoji when they've been
+     * converted to spans.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public void setKeyListener(@NonNull KeyListener keyListener) {
+        super.setKeyListener(mAppCompatEmojiEditTextHelper.getKeyListener(keyListener));
+    }
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        mAppCompatEmojiEditTextHelper.setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return mAppCompatEmojiEditTextHelper.isEnabled();
     }
 }
