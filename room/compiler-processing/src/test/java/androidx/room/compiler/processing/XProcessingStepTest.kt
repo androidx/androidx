@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.XProcessingStep.Companion.asAutoCommonProcessor
+import androidx.room.compiler.processing.XProcessingStep.Companion.executeInKsp
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
