@@ -20,7 +20,8 @@ import android.os.Parcel
 import android.os.Parcelable
 
 /**
- * A place holder class that represents the capabilities of the WHS measuring client on the device.
+ * A place holder class that represents the capabilities of the
+ * [androidx.health.services.client.MeasureClient] on the device.
  */
 public data class MeasureCapabilities(
     /**

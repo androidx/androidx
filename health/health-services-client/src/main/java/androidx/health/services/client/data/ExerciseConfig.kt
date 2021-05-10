@@ -21,7 +21,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import java.util.Objects
 
-/** Defines configuration for an exercise tracked using WHS. */
+/** Defines configuration for an exercise tracked using HealthServices. */
 @Suppress("DataClassPrivateConstructor")
 public data class ExerciseConfig
 protected constructor(

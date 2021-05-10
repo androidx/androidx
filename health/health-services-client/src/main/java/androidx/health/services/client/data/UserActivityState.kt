@@ -21,7 +21,8 @@ public enum class UserActivityState(public val id: Int) {
     USER_ACTIVITY_UNKNOWN(0),
     USER_ACTIVITY_EXERCISE(1),
     USER_ACTIVITY_PASSIVE(2),
-    USER_ACTIVITY_INACTIVE(3);
+    USER_ACTIVITY_INACTIVE(3),
+    USER_ACTIVITY_ASLEEP(4);
 
     public companion object {
         @JvmStatic

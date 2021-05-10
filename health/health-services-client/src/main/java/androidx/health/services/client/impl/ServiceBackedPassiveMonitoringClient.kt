@@ -25,8 +25,8 @@ import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.PassiveMonitoringCapabilities
 import androidx.health.services.client.data.event.Event
 import androidx.health.services.client.impl.PassiveMonitoringIpcClient.Companion.getServiceInterface
+import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.internal.StatusCallback
-import androidx.health.services.client.impl.internal.WhsConnectionManager
 import androidx.health.services.client.impl.ipc.ServiceOperation
 import androidx.health.services.client.impl.request.BackgroundRegistrationRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
@@ -36,7 +36,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Passive monitoring client that interacts with WHS via IPC.
+ * [PassiveMonitoringClient] implementation that is backed by Health Services.
  *
  * @hide
  */
@@ -44,7 +44,7 @@ internal class ServiceBackedPassiveMonitoringClient(private val applicationConte
     PassiveMonitoringClient {
 
     private val ipcClient: PassiveMonitoringIpcClient =
-        PassiveMonitoringIpcClient(WhsConnectionManager.getInstance(applicationContext))
+        PassiveMonitoringIpcClient(HsConnectionManager.getInstance(applicationContext))
 
     override fun registerDataCallback(
         dataTypes: Set<DataType>,
