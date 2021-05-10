@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.navigation.ui"
-          android:name="androidx.multidex.MultiDexApplication">
+          package="androidx.navigation.ui">
 
 </manifest>
