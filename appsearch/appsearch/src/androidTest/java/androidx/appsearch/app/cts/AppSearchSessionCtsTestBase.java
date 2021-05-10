@@ -1840,7 +1840,6 @@ public abstract class AppSearchSessionCtsTestBase {
     @Test
     public void testSnippet() throws Exception {
         // Schema registration
-        // TODO(tytytyww) add property for long and  double.
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
                 .addProperty(new StringPropertyConfig.Builder("subject")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
@@ -1884,6 +1883,53 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(matchInfo.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
+    }
+
+    @Test
+    public void testCJKSnippet() throws Exception {
+        // Schema registration
+        AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
+                .addProperty(new StringPropertyConfig.Builder("subject")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                ).build();
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(genericSchema).build()).get();
+
+        String japanese =
+                "差し出されたのが今日ランドセルでした普通の子であれば満面の笑みで俺を言うでしょうしかし私は赤いランド"
+                + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
+                + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
+                + "ンポンと叩きピンクが良かったんだもん";
+        // Index a document
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace", "id", "Generic")
+                        .setPropertyString("subject", japanese)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(document).build()));
+
+        // Query for the document
+        SearchResults searchResults = mDb1.search("は",
+                new SearchSpec.Builder()
+                        .addFilterSchemas("Generic")
+                        .setSnippetCount(1)
+                        .setSnippetCountPerProperty(1)
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .build());
+        List<SearchResult> results = searchResults.getNextPage().get();
+        assertThat(results).hasSize(1);
+
+        List<SearchResult.MatchInfo> matchInfos = results.get(0).getMatchInfos();
+        assertThat(matchInfos).isNotNull();
+        assertThat(matchInfos).hasSize(1);
+        SearchResult.MatchInfo matchInfo = matchInfos.get(0);
+        assertThat(matchInfo.getFullText()).isEqualTo(japanese);
+        assertThat(matchInfo.getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
+        assertThat(matchInfo.getExactMatch()).isEqualTo("は");
     }
 
     @Test
