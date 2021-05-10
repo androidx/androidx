@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.TypefaceCompatUtil;
+import androidx.core.os.TraceCompat;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
@@ -165,6 +166,10 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      * given FontRequest.
      */
     private static class FontRequestMetadataLoader implements EmojiCompat.MetadataRepoLoader {
+        private static final String S_TRACE_BUILD_TYPEFACE =
+                "EmojiCompat.FontRequestEmojiCompatConfig.buildTypeface";
+        private static final String S_TRACE_THREAD_CREATION =
+                "EmojiCompat.FontRequestEmojiCompatConfig.threadCreation";
         private final @NonNull Context mContext;
         private final @NonNull FontRequest mRequest;
         private final @NonNull FontProviderHelper mFontProviderHelper;
@@ -209,11 +214,17 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             synchronized (mLock) {
-                if (mHandler == null) {
-                    // Developer didn't give a thread for fetching. Create our own one.
-                    mThread = new HandlerThread("emojiCompat", Process.THREAD_PRIORITY_BACKGROUND);
-                    mThread.start();
-                    mHandler = new Handler(mThread.getLooper());
+                try {
+                    TraceCompat.beginSection(S_TRACE_THREAD_CREATION);
+                    if (mHandler == null) {
+                        // Developer didn't give a thread for fetching. Create our own one.
+                        mThread = new HandlerThread("emojiCompat",
+                                Process.THREAD_PRIORITY_BACKGROUND);
+                        mThread.start();
+                        mHandler = new Handler(mThread.getLooper());
+                    }
+                } finally {
+                    TraceCompat.endSection();
                 }
                 mHandler.post(new Runnable() {
                     @Override
@@ -312,13 +323,21 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                     throw new RuntimeException("fetchFonts result is not OK. (" + resultCode + ")");
                 }
 
-                // TODO: Good to add new API to create Typeface from FD not to open FD twice.
-                final Typeface typeface = mFontProviderHelper.buildTypeface(mContext, font);
-                final ByteBuffer buffer = TypefaceCompatUtil.mmap(mContext, null, font.getUri());
-                if (buffer == null) {
-                    throw new RuntimeException("Unable to open file.");
+                final MetadataRepo metadataRepo;
+                try {
+                    TraceCompat.beginSection(S_TRACE_BUILD_TYPEFACE);
+                    // TODO: Good to add new API to create Typeface from FD not to open FD twice.
+                    final Typeface typeface = mFontProviderHelper.buildTypeface(mContext, font);
+                    final ByteBuffer buffer = TypefaceCompatUtil.mmap(mContext, null,
+                            font.getUri());
+                    if (buffer == null) {
+                        throw new RuntimeException("Unable to open file.");
+                    }
+                    metadataRepo = MetadataRepo.create(typeface, buffer);
+                } finally {
+                    TraceCompat.endSection();
                 }
-                mCallback.onLoaded(MetadataRepo.create(typeface, buffer));
+                mCallback.onLoaded(metadataRepo);
                 cleanUp();
             } catch (Throwable t) {
                 mCallback.onFailed(t);

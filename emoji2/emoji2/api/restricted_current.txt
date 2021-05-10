@@ -2,7 +2,7 @@
 package androidx.emoji2.text {
 
   public final class DefaultEmojiCompatConfig {
-    method public static androidx.emoji2.text.EmojiCompat.Config? create(android.content.Context);
+    method public static androidx.emoji2.text.FontRequestEmojiCompatConfig? create(android.content.Context);
   }
 
   @AnyThread public class EmojiCompat {

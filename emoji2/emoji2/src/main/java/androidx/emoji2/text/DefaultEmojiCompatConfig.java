@@ -93,8 +93,9 @@ public final class DefaultEmojiCompatConfig {
      * could be found.
      */
     @Nullable
-    public static EmojiCompat.Config create(@NonNull Context context) {
-        return new DefaultEmojiCompatConfigFactory(null).create(context);
+    public static FontRequestEmojiCompatConfig create(@NonNull Context context) {
+        return (FontRequestEmojiCompatConfig) new DefaultEmojiCompatConfigFactory(null)
+                .create(context);
     }
 
     /**
