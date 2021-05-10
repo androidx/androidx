@@ -174,17 +174,6 @@ public class SystemProviders private constructor() {
         public const val PROVIDER_FAVORITE_CONTACT: Int = 14
 
         /**
-         * Id for the 'most recent app' complication provider.
-         *
-         * This is a safe provider, so if a watch face uses this as a default it will be able to
-         * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been
-         * granted.
-         *
-         * This provider supports [ComplicationType.SMALL_IMAGE], [ComplicationType.LONG_TEXT].
-         */
-        public const val PROVIDER_MOST_RECENT_APP: Int = 15
-
-        /**
          * Id for the 'day and date' complication provider.
          *
          * This is a safe provider, so if a watch face uses this as a default it will be able to
@@ -216,7 +205,6 @@ public class SystemProviders private constructor() {
         PROVIDER_SUNRISE_SUNSET,
         PROVIDER_DAY_OF_WEEK,
         PROVIDER_FAVORITE_CONTACT,
-        PROVIDER_MOST_RECENT_APP,
         PROVIDER_DAY_AND_DATE
     )
     @RestrictTo(
