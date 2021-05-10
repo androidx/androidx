@@ -79,9 +79,35 @@ public final class EmojiEditTextHelper {
      * @param editText EditText instance
      */
     public EmojiEditTextHelper(@NonNull final EditText editText) {
+        this(editText, /* expectInitializedEmojiCompat */true);
+    }
+
+    /**
+     * Allows skipping of all processing until EmojiCompat.init is called.
+     *
+     * This is useful when integrating EmojiTextViewHelper into libraries that subclass TextView
+     * that do not have control over EmojiCompat initialization by the app that uses the TextView
+     * subclass.
+     *
+     * If this helper is initialized prior to EmojiCompat.init, the TextView it's configuring
+     * will not display emoji using EmojiCompat after init is called until the transformation
+     * method and filter are updated. The easiest way to do that is call
+     * {@link EmojiEditTextHelper#setEnabled(boolean)}.
+     *
+     * @param editText EditText instance
+     * @param expectInitializedEmojiCompat if true, this helper will assume init has been called
+     *                                     and throw if it has not. If false, the methods on this
+     *                                     helper will have no effect until EmojiCompat.init is
+     *                                     called.
+     */
+    public EmojiEditTextHelper(@NonNull EditText editText,
+            boolean expectInitializedEmojiCompat) {
         Preconditions.checkNotNull(editText, "editText cannot be null");
-        mHelper = Build.VERSION.SDK_INT >= 19 ? new HelperInternal19(editText)
-                : new HelperInternal();
+        if (Build.VERSION.SDK_INT < 19) {
+            mHelper = new HelperInternal();
+        } else {
+            mHelper = new HelperInternal19(editText, expectInitializedEmojiCompat);
+        }
     }
 
     /**
@@ -178,6 +204,29 @@ public final class EmojiEditTextHelper {
         return mEmojiReplaceStrategy;
     }
 
+    /**
+     * If this helper should add new EmojiSpans to display emoji using the emoji font when text
+     * changes.
+     *
+     * @return true if the helper will process emoji spans.
+     */
+    public boolean isEnabled() {
+        return mHelper.isEnabled();
+    }
+
+    /**
+     * When helper is enabled, it will process text changes to add appropriate EmojiSpans for
+     * display.
+     *
+     * When helper is disabled, it will not process text changes, but existing spans will not be
+     * removed by disabling.
+     *
+     * @param isEnabled if this helper should process spans
+     */
+    public void setEnabled(boolean isEnabled) {
+        mHelper.setEnabled(isEnabled);
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static class HelperInternal {
 
@@ -197,6 +246,14 @@ public final class EmojiEditTextHelper {
         void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
             // do nothing
         }
+
+        void setEnabled(boolean isEnabled) {
+            // do nothing
+        }
+
+        boolean isEnabled() {
+            return false;
+        }
     }
 
     @RequiresApi(19)
@@ -204,9 +261,9 @@ public final class EmojiEditTextHelper {
         private final EditText mEditText;
         private final EmojiTextWatcher mTextWatcher;
 
-        HelperInternal19(@NonNull EditText editText) {
+        HelperInternal19(@NonNull EditText editText, boolean expectInitializedEmojiCompat) {
             mEditText = editText;
-            mTextWatcher = new EmojiTextWatcher(mEditText);
+            mTextWatcher = new EmojiTextWatcher(mEditText, expectInitializedEmojiCompat);
             mEditText.addTextChangedListener(mTextWatcher);
             mEditText.setEditableFactory(EmojiEditableFactory.getInstance());
         }
@@ -226,6 +283,7 @@ public final class EmojiEditTextHelper {
             if (keyListener instanceof EmojiKeyListener) {
                 return keyListener;
             }
+            // make a KeyListener as it's always correct even if disabled
             return new EmojiKeyListener(keyListener);
         }
 
@@ -235,7 +293,23 @@ public final class EmojiEditTextHelper {
             if (inputConnection instanceof EmojiInputConnection) {
                 return inputConnection;
             }
+            // make an EmojiInputConnection even when disabled, as we may become enabled before
+            // input connection is closed and it incurs little overhead
             return new EmojiInputConnection(mEditText, inputConnection, outAttrs);
+        }
+
+        @Override
+        void setEnabled(boolean isEnabled) {
+            mTextWatcher.setEnabled(isEnabled);
+            // EmojiKeyListener and EmojiInputConnection are just for processing existing spans,
+            // and should be left enabled
+
+            // EmojiEditableFactory is just an optimization and should be left enabled
+        }
+
+        @Override
+        boolean isEnabled() {
+            return mTextWatcher.isEnabled();
         }
     }
 }
