@@ -107,7 +107,8 @@ public class NavigationTemplateTest {
                         .setDestinationTravelEstimate(travelEstimate)
                         .setActionStrip(mActionStrip)
                         .setMapActionStrip(mMapActionStrip)
-                        .setInPanMode(true)
+                        .setPanModeListener((isInPanMode) -> {
+                        })
                         .build();
         RoutingInfo routingInfo = (RoutingInfo) template.getNavigationInfo();
         assertThat(routingInfo.getCurrentStep()).isEqualTo(mCurrentStep);
@@ -117,7 +118,6 @@ public class NavigationTemplateTest {
         assertThat(template.getDestinationTravelEstimate()).isEqualTo(travelEstimate);
         assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
         assertThat(template.getMapActionStrip()).isEqualTo(mMapActionStrip);
-        assertThat(template.isInPanMode()).isEqualTo(true);
     }
 
     @Test
@@ -144,6 +144,8 @@ public class NavigationTemplateTest {
                 new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setMapActionStrip(mMapActionStrip)
+                        .setPanModeListener((isInPanMode) -> {
+                        })
                         .setDestinationTravelEstimate(travelEstimate)
                         .setNavigationInfo(
                                 new RoutingInfo.Builder()
@@ -152,7 +154,6 @@ public class NavigationTemplateTest {
                                         .setNextStep(currentStep)
                                         .build())
                         .setBackgroundColor(CarColor.BLUE)
-                        .setInPanMode(true)
                         .build();
 
         assertThat(template)
@@ -160,6 +161,8 @@ public class NavigationTemplateTest {
                         new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setMapActionStrip(mMapActionStrip)
+                                .setPanModeListener((isInPanMode) -> {
+                                })
                                 .setDestinationTravelEstimate(travelEstimate)
                                 .setNavigationInfo(
                                         new RoutingInfo.Builder()
@@ -168,7 +171,6 @@ public class NavigationTemplateTest {
                                                 .setNextStep(currentStep)
                                                 .build())
                                 .setBackgroundColor(CarColor.BLUE)
-                                .setInPanMode(true)
                                 .build());
     }
 
@@ -199,6 +201,18 @@ public class NavigationTemplateTest {
                                         TestUtils.createAction(null, TestUtils.getTestCarIcon(
                                                 ApplicationProvider.getApplicationContext(),
                                                 "ic_test_2"))).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_panModeListenerChange() {
+        NavigationTemplate template = new NavigationTemplate.Builder().setActionStrip(
+                mActionStrip).setPanModeListener((isInPanMode) -> {}).build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new NavigationTemplate.Builder()
+                                .setActionStrip(mActionStrip)
                                 .build());
     }
 

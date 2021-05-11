@@ -16,11 +16,6 @@
 
 package androidx.core.google.shortcuts;
 
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_DESCRIPTION_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LABEL_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -30,17 +25,18 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Base64;
 
 import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.google.shortcuts.builders.CapabilityBuilder;
+import androidx.core.google.shortcuts.builders.ParameterBuilder;
+import androidx.core.google.shortcuts.builders.ShortcutBuilder;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.Mac;
 import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
@@ -51,13 +47,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
 public class ShortcutInfoChangeListenerImplTest {
     private FirebaseAppIndex mFirebaseAppIndex;
     private FirebaseUserActions mFirebaseUserActions;
@@ -78,7 +74,7 @@ public class ShortcutInfoChangeListenerImplTest {
     public void onShortcutUpdated_publicIntent_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
 
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
+        Intent intent = Intent.parseUri("app://shortcut", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
                 .setShortLabel("short label")
                 .setLongLabel("long label")
@@ -90,15 +86,12 @@ public class ShortcutInfoChangeListenerImplTest {
 
         verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
         List<Indexable> allValues = indexableCaptor.getAllValues();
-        Indexable expected = new Indexable.Builder()
-                .setName("short label")
+        Indexable expected = new ShortcutBuilder()
                 .setId("publicIntent")
+                .setShortcutLabel("short label")
+                .setShortcutDescription("long label")
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
-                .put(SHORTCUT_LABEL_KEY, "short label")
-                .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
-                        null))
-                .setImage("content://abc")
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
                 .build();
         assertThat(allValues).containsExactly(expected);
     }
@@ -108,7 +101,7 @@ public class ShortcutInfoChangeListenerImplTest {
     public void onShortcutUpdated_withCapabilityBinding_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
 
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
+        Intent intent = Intent.parseUri("app://shortcut", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
                 .setShortLabel("short label")
                 .setLongLabel("long label")
@@ -123,38 +116,40 @@ public class ShortcutInfoChangeListenerImplTest {
 
         verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
         List<Indexable> allValues = indexableCaptor.getAllValues();
-        Indexable.Builder expectedBuilder = new Indexable.Builder()
-                .setName("short label")
+        ShortcutBuilder expectedBuilder = new ShortcutBuilder()
                 .setId("publicIntent")
+                .setShortcutLabel("short label")
+                .setShortcutDescription("long label")
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
-                .put(SHORTCUT_LABEL_KEY, "short label")
-                .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
-                        null));
-        // The order of isPartOf field matters during comparison. However since the order is not
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null));
+        // The order of capability field matters during comparison. However since the order is not
         // deterministic because the data is stored in maps and sets in ShortcutInfoCompat, we
         // check for all possible orderings to make the test more reliable.
         Indexable expected1 = expectedBuilder
-                .setIsPartOf(
-                        new Indexable.Builder()
-                                .setId("actions.intent.STOP_EXERCISE/exercise.name")
-                                .setName("stop running")
-                                .setAlternateName("stop jogging"),
-                        new Indexable.Builder()
-                                .setId("actions.intent.START_EXERCISE/exercise.name")
-                                .setName("start running")
-                                .setAlternateName("start jogging"))
+                .setCapability(
+                        new CapabilityBuilder()
+                                .setName("actions.intent.STOP_EXERCISE")
+                                .setParameter(new ParameterBuilder()
+                                        .setName("exercise.name")
+                                        .setValue("stop running", "stop jogging")),
+                        new CapabilityBuilder()
+                                .setName("actions.intent.START_EXERCISE")
+                                .setParameter(new ParameterBuilder()
+                                        .setName("exercise.name")
+                                        .setValue("start running", "start jogging")))
                 .build();
         Indexable expected2 = expectedBuilder
-                .setIsPartOf(
-                        new Indexable.Builder()
-                                .setId("actions.intent.START_EXERCISE/exercise.name")
-                                .setName("start running")
-                                .setAlternateName("start jogging"),
-                        new Indexable.Builder()
-                                .setId("actions.intent.STOP_EXERCISE/exercise.name")
-                                .setName("stop running")
-                                .setAlternateName("stop jogging"))
+                .setCapability(
+                        new CapabilityBuilder()
+                                .setName("actions.intent.START_EXERCISE")
+                                .setParameter(new ParameterBuilder()
+                                        .setName("exercise.name")
+                                        .setValue("start running", "start jogging")),
+                        new CapabilityBuilder()
+                                .setName("actions.intent.STOP_EXERCISE")
+                                .setParameter(new ParameterBuilder()
+                                        .setName("exercise.name")
+                                        .setValue("stop running", "stop jogging")))
                 .build();
         assertThat(allValues).hasSize(1);
         assertThat(allValues).containsAnyOf(expected1, expected2);
@@ -165,7 +160,7 @@ public class ShortcutInfoChangeListenerImplTest {
     public void onShortcutUpdated_withCapabilityBindingNoParams_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
 
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
+        Intent intent = Intent.parseUri("app://shortcut", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
                 .setShortLabel("short label")
                 .setLongLabel("long label")
@@ -177,15 +172,13 @@ public class ShortcutInfoChangeListenerImplTest {
 
         verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
         List<Indexable> allValues = indexableCaptor.getAllValues();
-        Indexable expected = new Indexable.Builder()
-                .setName("short label")
+        Indexable expected = new ShortcutBuilder()
                 .setId("publicIntent")
+                .setShortcutLabel("short label")
+                .setShortcutDescription("long label")
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
-                .put(SHORTCUT_LABEL_KEY, "short label")
-                .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
-                        null))
-                .setIsPartOf(new Indexable.Builder().setId("actions.intent.TWEET"))
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
+                .setCapability(new CapabilityBuilder().setName("actions.intent.TWEET"))
                 .build();
         assertThat(allValues).containsExactly(expected);
     }
@@ -208,13 +201,12 @@ public class ShortcutInfoChangeListenerImplTest {
 
         verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
         List<Indexable> allValues = indexableCaptor.getAllValues();
-        Indexable expected = new Indexable.Builder()
+        Indexable expected = new ShortcutBuilder()
                 .setName("short label")
-                .setUrl(ShortcutUtils.getIndexableUrl(mContext, "privateIntent"))
                 .setId("privateIntent")
-                .put("shortcutLabel", "short label")
-                .put("shortcutUrl", ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
-                        null))
+                .setShortcutLabel("short label")
+                .setUrl(ShortcutUtils.getIndexableUrl(mContext, "privateIntent"))
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
                 .build();
         assertThat(allValues).containsExactly(expected);
     }
@@ -224,7 +216,7 @@ public class ShortcutInfoChangeListenerImplTest {
     public void onShortcutAdded_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
 
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
+        Intent intent = Intent.parseUri("app://shortcut", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "intent")
                 .setShortLabel("short label")
                 .setLongLabel("long label")
@@ -236,53 +228,16 @@ public class ShortcutInfoChangeListenerImplTest {
 
         verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
         List<Indexable> allValues = indexableCaptor.getAllValues();
-        Indexable expected = new Indexable.Builder()
+        Indexable expected = new ShortcutBuilder()
                 .setName("short label")
                 .setId("intent")
+                .setShortcutLabel("short label")
+                .setDescription("long label")
+                .setShortcutDescription("long label")
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "intent"))
-                .put(SHORTCUT_LABEL_KEY, "short label")
-                .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
-                        null))
-                .setImage("content://abc")
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
                 .build();
         assertThat(allValues).containsExactly(expected);
-    }
-
-    @SmallTest
-    @Test
-    public void onShortcutAdded_withMacSignature_canVerifySignature() throws Exception {
-        ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-
-        KeysetHandle keysetHandle = ShortcutUtils.getOrCreateShortcutKeysetHandle(mContext);
-        // Make sure keyset can be created.
-        assertThat(keysetHandle).isNotNull();
-
-        mShortcutInfoChangeListener = new ShortcutInfoChangeListenerImpl(
-                mContext, mFirebaseAppIndex, mFirebaseUserActions, keysetHandle);
-
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
-        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "intent")
-                .setShortLabel("short label")
-                .setIntent(intent)
-                .build();
-        mShortcutInfoChangeListener.onShortcutAdded(Collections.singletonList(shortcut));
-
-        verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
-        String trampolineIntentString = ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
-                keysetHandle);
-
-        Intent trampolineIntent = Intent.parseUri(trampolineIntentString, 0);
-        // Make sure the trampoline activity is package restricted.
-        assertThat(trampolineIntent.getPackage()).isEqualTo(mContext.getPackageName());
-
-        String tag = trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY);
-        String shortcutUrl = trampolineIntent.getStringExtra(SHORTCUT_URL_KEY);
-        Mac mac = keysetHandle.getPrimitive(Mac.class);
-
-        // Will throw exception if verification fails.
-        mac.verifyMac(Base64.decode(tag, Base64.DEFAULT),
-                shortcutUrl.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test

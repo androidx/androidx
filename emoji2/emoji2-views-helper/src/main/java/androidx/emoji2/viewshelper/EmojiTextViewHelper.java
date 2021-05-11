@@ -78,15 +78,21 @@ public final class EmojiTextViewHelper {
     /**
      * Allows skipping of all processing until EmojiCompat.init is called.
      *
+     * This is useful when integrating EmojiTextViewHelper into libraries that subclass TextView
+     * that do not have control over EmojiCompat initialization by the app that uses the TextView
+     * subclass.
+     *
+     * If this helper is initialized prior to EmojiCompat.init, the TextView it's configuring
+     * will not display emoji using EmojiCompat after init is called until the transformation
+     * method and filter are updated. The easiest way to do that is call
+     * {@link EmojiTextViewHelper#setEnabled(boolean)}.
+     *
      * @param textView TextView instance
      * @param expectInitializedEmojiCompat if true, this helper will assume init has been called
      *                                     and throw if it has not. If false, the methods on this
      *                                     helper will have no effect until EmojiCompat.init is
      *                                     called.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EmojiTextViewHelper(@NonNull TextView textView, boolean expectInitializedEmojiCompat) {
         Preconditions.checkNotNull(textView, "textView cannot be null");
         if (Build.VERSION.SDK_INT < 19) {
@@ -167,6 +173,13 @@ public final class EmojiTextViewHelper {
         mHelper.setAllCaps(allCaps);
     }
 
+    /**
+     * @return current enabled state for this helper
+     */
+    public boolean isEnabled() {
+        return mHelper.isEnabled();
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static class HelperInternal {
 
@@ -192,6 +205,10 @@ public final class EmojiTextViewHelper {
         void setEnabled(boolean processEmoji) {
             // do nothing
         }
+
+        public boolean isEnabled() {
+            return false;
+        }
     }
 
     /**
@@ -210,12 +227,11 @@ public final class EmojiTextViewHelper {
      */
     @RequiresApi(19)
     private static class SkippingHelper19 extends HelperInternal {
-        private HelperInternal19 mHelperDelegate;
+        private final HelperInternal19 mHelperDelegate;
 
         SkippingHelper19(TextView textView) {
             mHelperDelegate = new HelperInternal19(textView);
         }
-
 
         private boolean skipBecauseEmojiCompatNotInitialized() {
             return !EmojiCompat.isConfigured();
@@ -289,6 +305,11 @@ public final class EmojiTextViewHelper {
             } else {
                 mHelperDelegate.setEnabled(processEmoji);
             }
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return mHelperDelegate.isEnabled();
         }
     }
 
@@ -448,12 +469,14 @@ public final class EmojiTextViewHelper {
 
         @Override
         void setEnabled(boolean enabled) {
-            boolean oldValue = mEnabled;
             mEnabled = enabled;
-            if (oldValue != enabled) {
-                updateTransformationMethod();
-                updateFilters();
-            }
+            updateTransformationMethod();
+            updateFilters();
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return mEnabled;
         }
 
         /**

@@ -17,4 +17,5 @@
 package sample.optin
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalKotlinAnnotation2

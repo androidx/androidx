@@ -24,7 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -32,7 +32,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class SaveRestoreBackStackTest {
 
@@ -272,6 +272,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("ViewModel should not be cleared after commit()")
                 .that(originalViewModel.cleared)
                 .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
 
             fm.saveBackStack("replacement")
             executePendingTransactions()
@@ -279,6 +280,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("Saved Fragments should have their state saved")
                 .that(fragmentReplacement.calledOnSaveInstanceState)
                 .isTrue()
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
 
             // Saved Fragments should be destroyed
             assertWithMessage("Saved Fragments should be destroyed")
@@ -303,6 +305,7 @@ class SaveRestoreBackStackTest {
             assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
             assertThat(stateSavedReplacement.unsavedState).isNull()
             assertThat(stateSavedReplacement.viewModel).isSameInstanceAs(originalViewModel)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
         }
     }
 
@@ -331,6 +334,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("ViewModel should not be cleared after commit()")
                 .that(originalViewModel.cleared)
                 .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
 
             fm.saveBackStack("replacement")
             executePendingTransactions()
@@ -338,6 +342,7 @@ class SaveRestoreBackStackTest {
             assertWithMessage("Saved Fragments should have their state saved")
                 .that(fragmentReplacement.calledOnSaveInstanceState)
                 .isTrue()
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
 
             // Saved Fragments should be destroyed
             assertWithMessage("Saved Fragments should be destroyed")
@@ -369,6 +374,63 @@ class SaveRestoreBackStackTest {
             assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
             assertThat(stateSavedReplacement.unsavedState).isNull()
             assertThat(stateSavedReplacement.viewModel).isSameInstanceAs(originalViewModel)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun restoreBackStackWithoutExecutePendingTransactions() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+
+            withActivity {
+                fm.saveBackStack("replacement")
+                // Immediately restore the back stack without calling executePendingTransactions
+                fm.restoreBackStack("replacement")
+            }
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should not go through onSaveInstanceState")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isFalse()
+            assertWithMessage("Saved Fragments should not have been destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isFalse()
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            assertWithMessage("Fragment should still be returned by FragmentManager")
+                .that(fm.findFragmentById(R.id.content))
+                .isSameInstanceAs(fragmentReplacement)
+
+            // Assert that restored fragment has its saved state restored
+            assertThat(fragmentReplacement.savedState).isEqualTo("saved")
+            assertThat(fragmentReplacement.unsavedState).isEqualTo("unsaved")
+            assertThat(fragmentReplacement.viewModel).isSameInstanceAs(originalViewModel)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
         }
     }
 

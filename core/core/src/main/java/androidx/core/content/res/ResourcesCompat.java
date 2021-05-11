@@ -328,9 +328,11 @@ public final class ResourcesCompat {
      *         not exist or is not a floating-point value.
      */
     public static float getFloat(@NonNull Resources res, @DimenRes int id) {
-        // TODO call into platform on Q+
+        if (SDK_INT >= 29) {
+            return ImplApi29.getFloat(res, id);
+        }
 
-        TypedValue value = new TypedValue();
+        TypedValue value = getTypedValue();
         res.getValue(id, value, true);
         if (value.type == TypedValue.TYPE_FLOAT) {
             return value.getFloat();
@@ -616,6 +618,14 @@ public final class ResourcesCompat {
                     FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR, handler);
         }
         return null;
+    }
+
+    @RequiresApi(29)
+    static class ImplApi29 {
+        private ImplApi29() {}
+        static float getFloat(@NonNull Resources res, @DimenRes int id) {
+            return res.getFloat(id);
+        }
     }
 
     private ResourcesCompat() {}

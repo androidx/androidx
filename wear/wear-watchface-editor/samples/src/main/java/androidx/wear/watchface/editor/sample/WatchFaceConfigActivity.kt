@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RestrictTo
@@ -28,6 +29,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.watchface.editor.ChosenComplicationProvider
 import androidx.wear.watchface.editor.EditorSession
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -55,7 +57,7 @@ internal interface FragmentController {
     )
 
     /** Lets the user configure the complication provider for a single complication slot. */
-    suspend fun showComplicationConfig(complicationId: Int): Boolean
+    suspend fun showComplicationConfig(complicationId: Int): ChosenComplicationProvider?
 }
 
 // Reference time for editor screenshots for analog watch faces.
@@ -71,6 +73,10 @@ private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
  * as userStyle configuration.
  */
 class WatchFaceConfigActivity : FragmentActivity() {
+    companion object {
+        private const val TAG = "WatchFaceConfigActivity"
+    }
+
     internal val complicationData = HashMap<Int, ComplicationData>()
 
     internal lateinit var editorSession: EditorSession
@@ -190,7 +196,9 @@ class WatchFaceConfigActivity : FragmentActivity() {
             numComplications == 1 -> {
                 val onlyComplication = editorSession.complicationsState.entries.first()
                 coroutineScope.launch {
-                    fragmentController.showComplicationConfig(onlyComplication.key)
+                    val chosenComplicationProvider =
+                        fragmentController.showComplicationConfig(onlyComplication.key)
+                    Log.d(TAG, "showComplicationConfig: $chosenComplicationProvider")
                 }
             }
 

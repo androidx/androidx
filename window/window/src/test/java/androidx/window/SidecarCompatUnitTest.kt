@@ -32,20 +32,18 @@ import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
 import androidx.window.sidecar.SidecarInterface.SidecarCallback
 import androidx.window.sidecar.SidecarWindowLayoutInfo
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.any
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.invocation.InvocationOnMock
 
 /**
  * Unit tests for [SidecarCompat] that run on the JVM.
@@ -60,19 +58,17 @@ public class SidecarCompatUnitTest {
         val windowBoundsHelper = TestWindowBoundsHelper()
         windowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
         WindowBoundsHelper.setForTesting(windowBoundsHelper)
-        activity = mock(Activity::class.java)
+        activity = mock()
         val window: Window = spy(TestWindow(activity))
         val params = WindowManager.LayoutParams()
-        params.token = mock(IBinder::class.java)
-        doReturn(params).`when`(window).attributes
-        `when`(activity.getWindow()).thenReturn(window)
-        val mockSidecarInterface = mock(
-            SidecarInterface::class.java
-        )
-        `when`(mockSidecarInterface.deviceState).thenReturn(
+        params.token = mock()
+        doReturn(params).whenever(window).attributes
+        whenever(activity.getWindow()).thenReturn(window)
+        val mockSidecarInterface = mock<SidecarInterface>()
+        whenever(mockSidecarInterface.deviceState).thenReturn(
             newDeviceState(SidecarDeviceState.POSTURE_FLIPPED)
         )
-        `when`(mockSidecarInterface.getWindowLayoutInfo(any())).thenReturn(
+        whenever(mockSidecarInterface.getWindowLayoutInfo(any())).thenReturn(
             newWindowLayoutInfo(emptyList())
         )
         sidecarCompat = SidecarCompat(mockSidecarInterface, SidecarAdapter())
@@ -86,7 +82,7 @@ public class SidecarCompatUnitTest {
     @Test
     public fun testGetWindowLayout_featureWithEmptyBounds() {
         // Add a feature with an empty bounds to the reported list
-        val originalWindowLayoutInfo = sidecarCompat.mSidecar.getWindowLayoutInfo(
+        val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(
             getActivityWindowToken(activity)!!
         )
         val sidecarDisplayFeatures = originalWindowLayoutInfo.displayFeatures ?: emptyList()
@@ -105,10 +101,8 @@ public class SidecarCompatUnitTest {
 
     @Test
     public fun testGetWindowLayout_foldWithNonZeroArea() {
-        val originalWindowLayoutInfo = sidecarCompat.mSidecar.getWindowLayoutInfo(
-            mock(
-                IBinder::class.java
-            )
+        val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(
+            mock()
         )
         val sidecarDisplayFeatures = originalWindowLayoutInfo.displayFeatures ?: emptyList()
         val additionalFeatures = listOf(
@@ -136,10 +130,8 @@ public class SidecarCompatUnitTest {
 
     @Test
     public fun testGetWindowLayout_hingeNotSpanningEntireWindow() {
-        val originalWindowLayoutInfo = sidecarCompat.mSidecar.getWindowLayoutInfo(
-            mock(
-                IBinder::class.java
-            )
+        val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(
+            mock()
         )
         val sidecarDisplayFeatures = originalWindowLayoutInfo.displayFeatures ?: emptyList()
         val additionalFeatures = listOf(
@@ -167,10 +159,8 @@ public class SidecarCompatUnitTest {
 
     @Test
     public fun testGetWindowLayout_foldNotSpanningEntireWindow() {
-        val originalWindowLayoutInfo = sidecarCompat.mSidecar.getWindowLayoutInfo(
-            mock(
-                IBinder::class.java
-            )
+        val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(
+            mock()
         )
         val sidecarDisplayFeatures = originalWindowLayoutInfo.displayFeatures ?: emptyList()
         val additionalFeatures = listOf(
@@ -198,77 +188,71 @@ public class SidecarCompatUnitTest {
 
     @Test
     public fun testOnWindowLayoutChangeListenerAdded() {
-        val expectedToken = mock(IBinder::class.java)
+        val expectedToken = mock<IBinder>()
         activity.window.attributes.token = expectedToken
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
-        verify(sidecarCompat.mSidecar).onWindowLayoutChangeListenerAdded(expectedToken)
-        verify(sidecarCompat.mSidecar).onDeviceStateListenersChanged(false)
+        verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerAdded(expectedToken)
+        verify(sidecarCompat.sidecar!!).onDeviceStateListenersChanged(false)
     }
 
     @Test
     public fun testOnWindowLayoutChangeListenerAdded_emitInitialValueDelayed() {
         val layoutInfo = SidecarWindowLayoutInfo()
         val expectedLayoutInfo = WindowLayoutInfo(emptyList())
-        val listener = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val listener = mock<ExtensionCallbackInterface>()
         sidecarCompat.setExtensionCallback(listener)
-        `when`(sidecarCompat.mSidecar.getWindowLayoutInfo(any()))
+        whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
             .thenReturn(layoutInfo)
-        val fakeView = mock(View::class.java)
-        val mockWindow = mock(
-            Window::class.java
-        )
-        `when`(mockWindow.attributes).thenReturn(WindowManager.LayoutParams())
-        doAnswer { invocation: InvocationOnMock ->
+        val fakeView = mock<View>()
+        val mockWindow = mock<Window>()
+        whenever(mockWindow.attributes).thenReturn(WindowManager.LayoutParams())
+        doAnswer { invocation ->
             val stateChangeListener = invocation.getArgument<View.OnAttachStateChangeListener>(0)
-            mockWindow.attributes.token = mock(IBinder::class.java)
+            mockWindow.attributes.token = mock()
             stateChangeListener.onViewAttachedToWindow(fakeView)
             null
-        }.`when`(fakeView).addOnAttachStateChangeListener(ArgumentMatchers.any())
-        `when`(mockWindow.decorView).thenReturn(fakeView)
-        `when`(activity.window).thenReturn(mockWindow)
+        }.whenever(fakeView).addOnAttachStateChangeListener(any())
+        whenever(mockWindow.decorView).thenReturn(fakeView)
+        whenever(activity.window).thenReturn(mockWindow)
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         verify(listener).onWindowLayoutChanged(
             activity, expectedLayoutInfo
         )
-        verify(sidecarCompat.mSidecar).onWindowLayoutChangeListenerAdded(
+        verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerAdded(
             getActivityWindowToken(activity)!!
         )
-        verify(fakeView).addOnAttachStateChangeListener(ArgumentMatchers.any())
+        verify(fakeView).addOnAttachStateChangeListener(any())
     }
 
     @Test
     public fun testOnWindowLayoutChangeListenerRemoved() {
-        val expectedToken = mock(IBinder::class.java)
+        val expectedToken = mock<IBinder>()
         activity.window.attributes.token = expectedToken
         sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
         sidecarCompat.onWindowLayoutChangeListenerRemoved(activity)
-        verify(sidecarCompat.mSidecar).onWindowLayoutChangeListenerRemoved(expectedToken)
-        verify(sidecarCompat.mSidecar).onDeviceStateListenersChanged(true)
+        verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerRemoved(expectedToken)
+        verify(sidecarCompat.sidecar!!).onDeviceStateListenersChanged(true)
     }
 
     @Test
     public fun testExtensionCallback_deduplicateValues() {
-        val callback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callback = mock<ExtensionCallbackInterface>()
         val fakeExtensionImp = FakeExtensionImp()
         val compat = SidecarCompat(fakeExtensionImp, SidecarAdapter())
         compat.setExtensionCallback(callback)
-        activity.window.attributes.token = mock(IBinder::class.java)
+        activity.window.attributes.token = mock()
         compat.onWindowLayoutChangeListenerAdded(activity)
         fakeExtensionImp.triggerDeviceState(fakeExtensionImp.deviceState)
         fakeExtensionImp.triggerDeviceState(fakeExtensionImp.deviceState)
         verify(callback, times(1))
-            .onWindowLayoutChanged(ArgumentMatchers.any(), ArgumentMatchers.any())
+            .onWindowLayoutChanged(any(), any())
     }
 
     private class FakeExtensionImp() : SidecarInterface {
-        private var mCallback: SidecarCallback
-        private val mTokens: List<IBinder> = ArrayList()
+        private var callback: SidecarCallback? = null
+        private val tokens = mutableListOf<IBinder>()
         override fun setSidecarCallback(callback: SidecarCallback) {
-            mCallback = callback
+            this.callback = callback
         }
 
         override fun getWindowLayoutInfo(windowToken: IBinder): SidecarWindowLayoutInfo {
@@ -291,17 +275,17 @@ public class SidecarCompatUnitTest {
         }
 
         fun triggerSignal(info: SidecarWindowLayoutInfo?) {
-            for (token in mTokens) {
+            for (token in tokens) {
                 triggerSignal(token, info)
             }
         }
 
         fun triggerSignal(token: IBinder?, info: SidecarWindowLayoutInfo?) {
-            mCallback.onWindowLayoutChanged(token!!, info!!)
+            callback?.onWindowLayoutChanged(token!!, info!!)
         }
 
         fun triggerDeviceState(state: SidecarDeviceState?) {
-            mCallback.onDeviceStateChanged(state!!)
+            callback?.onDeviceStateChanged(state!!)
         }
 
         private fun malformedWindowLayoutInfo(): SidecarWindowLayoutInfo {
@@ -333,17 +317,6 @@ public class SidecarCompatUnitTest {
                 )
             )
             return newWindowLayoutInfo(goodFeatures)
-        }
-
-        init {
-            mCallback = object : SidecarCallback {
-                override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {}
-                override fun onWindowLayoutChanged(
-                    windowToken: IBinder,
-                    newLayout: SidecarWindowLayoutInfo
-                ) {
-                }
-            }
         }
     }
 

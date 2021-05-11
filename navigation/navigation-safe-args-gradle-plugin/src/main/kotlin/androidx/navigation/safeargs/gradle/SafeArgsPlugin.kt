@@ -20,7 +20,6 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
-import groovy.util.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -104,7 +103,8 @@ abstract class SafeArgsPlugin protected constructor(
         val mainSourceSet = sourceSets.find { it.name == "main" }
         val sourceSet = mainSourceSet ?: sourceSets[0]
         val manifest = sourceSet.manifestFile
-        val parsed = XmlSlurper(false, false).parse(manifest)
+        @Suppress("DEPRECATION") // b/181913965
+        val parsed = groovy.util.XmlSlurper(false, false).parse(manifest)
         parsed.getProperty("@package").toString()
     }
 

@@ -27,17 +27,15 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        multiDexEnabled = true
     }
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
-    api("androidx.core:core:1.6.0-alpha02")
+    api(project(":core:core"))
 
     implementation("com.google.firebase:firebase-appindexing:19.2.0")
     implementation("com.google.crypto.tink:tink-android:1.5.0")
-    implementation("androidx.security:security-crypto:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -48,6 +46,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(MULTIDEX)
 }
 
 androidx {

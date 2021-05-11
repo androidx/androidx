@@ -40,23 +40,57 @@ import java.util.List;
  */
 @OptIn(markerClass = ExperimentalCameraFilter.class)
 public final class ExtensionCameraFilter implements CameraFilter {
+    private final Id mId;
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
+    // TODO(b/183075483): These three constructors will be removed after new Extensions APIs are
+    //  public and the old extender APIs are removed.
     ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl) {
+        mId = Id.DEFAULT;
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = null;
     }
 
     ExtensionCameraFilter(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+        mId = Id.DEFAULT;
         mPreviewExtenderImpl = null;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
     ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl,
             @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+        mId = Id.DEFAULT;
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
+    }
+
+    ExtensionCameraFilter(@NonNull String filterId,
+            @Nullable PreviewExtenderImpl previewExtenderImpl) {
+        mId = Id.create(filterId);
+        mPreviewExtenderImpl = previewExtenderImpl;
+        mImageCaptureExtenderImpl = null;
+    }
+
+    ExtensionCameraFilter(@NonNull String filterId,
+            @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+        mId = Id.create(filterId);
+        mPreviewExtenderImpl = null;
+        mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
+    }
+
+    ExtensionCameraFilter(@NonNull String filterId,
+            @Nullable PreviewExtenderImpl previewExtenderImpl,
+            @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+        mId = Id.create(filterId);
+        mPreviewExtenderImpl = previewExtenderImpl;
+        mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
+    }
+
+    @NonNull
+    @Override
+    public Id getId() {
+        return mId;
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)

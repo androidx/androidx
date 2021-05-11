@@ -27,7 +27,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -357,7 +356,6 @@ public final class MessageTemplate implements Template {
          * @param message the text message to display in the template
          * @throws NullPointerException if the {@code message} is {@code null}
          */
-        @ExperimentalCarApi
         public Builder(@NonNull CarText message) {
             mMessage = requireNonNull(message);
         }

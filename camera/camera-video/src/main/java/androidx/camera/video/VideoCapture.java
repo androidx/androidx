@@ -53,7 +53,9 @@ import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
@@ -110,6 +112,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     private DeferrableSurface mDeferrableSurface;
     private SurfaceRequest mSurfaceRequest;
+    // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
+    // createPipeline().
+    @Nullable
+    private Size mSurfaceSize;
 
     /**
      * Create a VideoCapture builder with a {@link VideoOutput}.
@@ -141,15 +147,38 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
+     * Returns the desired rotation of the output video.
+     *
+     * <p>The rotation can be set by calling {@link VideoCapture#setTargetRotation(int)}. If not
+     * set, the target rotation defaults to the value of {@link Display#getRotation()} of the
+     * default display at the time the use case is created. The use case is fully created once it
+     * has been attached to a camera.
+     *
+     * @return The rotation of the intended target.
+     */
+    @RotationValue
+    public int getTargetRotation() {
+        return getTargetRotationInternal();
+    }
+
+    /**
      * Sets the desired rotation of the output video.
      *
-     * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}.
+     * <p>This is one of four valid values: {@link Surface#ROTATION_0},
+     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+     * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
+     *
+     * <p>If not set, the target rotation will default to the value of
+     * {@link Display#getRotation()} of the default display at the time the use case is
+     * created. The use case is fully created once it has been attached to a camera.
      *
      * @param rotation Desired rotation of the output video.
      */
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public void setTargetRotation(@RotationValue int rotation) {
-        setTargetRotationInternal(rotation);
+        if (setTargetRotationInternal(rotation)) {
+            sendTransformationInfoIfReady();
+        }
     }
 
     @Override
@@ -168,6 +197,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        mSurfaceSize = suggestedResolution;
         String cameraId = getCameraId();
         VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
 
@@ -187,7 +217,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
-
+        mSurfaceSize = null;
         getOutput().getStreamState().removeObserver(mStreamStateObserver);
     }
 
@@ -245,6 +275,34 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return Builder.fromConfig(config);
     }
 
+    @ExperimentalUseCaseGroup
+    private void sendTransformationInfoIfReady() {
+        CameraInternal cameraInternal = getCamera();
+        SurfaceRequest surfaceRequest = mSurfaceRequest;
+        Rect cropRect = getCropRect(mSurfaceSize);
+        if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
+            surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
+                    getRelativeRotation(cameraInternal), getTargetRotationInternal()));
+        }
+    }
+
+    /**
+     * Gets the crop rect for {@link VideoCapture}.
+     *
+     * <p>Fall back to the full {@link Surface} rect if {@link ViewPort} crop rect is not
+     * available. Returns null if no valid crop rect. This could happen if the
+     * {@link VideoCapture} is not attached to a camera.
+     */
+    @Nullable
+    private Rect getCropRect(@Nullable Size surfaceResolution) {
+        if (getViewPortCropRect() != null) {
+            return getViewPortCropRect();
+        } else if (surfaceResolution != null) {
+            return new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
+        }
+        return null;
+    }
+
     @UiThread
     @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     @NonNull
@@ -255,10 +313,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         mSurfaceRequest = new SurfaceRequest(resolution, getCamera(), false);
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
-        Rect cropRect = getViewPortCropRect() != null ? getViewPortCropRect() : new Rect(0, 0,
-                resolution.getWidth(), resolution.getHeight());
-        mSurfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                getRelativeRotation(getCamera()), getTargetRotationInternal()));
+        sendTransformationInfoIfReady();
         mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);

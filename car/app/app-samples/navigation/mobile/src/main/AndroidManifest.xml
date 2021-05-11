@@ -30,7 +30,8 @@
 
   <application
       android:label="@string/app_name"
-      android:icon="@drawable/ic_launcher">
+      android:icon="@drawable/ic_launcher"
+      android:extractNativeLibs="false">
 
     <activity
         android:name="androidx.car.app.sample.navigation.common.app.MainActivity"

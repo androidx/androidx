@@ -33,6 +33,7 @@ public class EventReaders {
 
     /** Reader for Tile add event parameters. */
     public static class TileAddEvent {
+        @SuppressWarnings("UnusedVariable")
         private final EventProto.TileAddEvent mProto;
 
         private TileAddEvent(@NonNull EventProto.TileAddEvent proto) {
@@ -57,15 +58,11 @@ public class EventReaders {
                         "Passed TileAddEventData did not contain a valid proto payload", ex);
             }
         }
-
-        /** Get the tile ID of the tile added to the carousel. */
-        public int getTileId() {
-            return mProto.getTileId();
-        }
     }
 
     /** Reader for Tile remove event parameters. */
     public static class TileRemoveEvent {
+        @SuppressWarnings("UnusedVariable")
         private final EventProto.TileRemoveEvent mProto;
 
         private TileRemoveEvent(@NonNull EventProto.TileRemoveEvent proto) {
@@ -90,15 +87,11 @@ public class EventReaders {
                         "Passed TileRemoveEventData did not contain a valid proto payload", ex);
             }
         }
-
-        /** Get the tile ID of the tile removed from the carousel. */
-        public int getTileId() {
-            return mProto.getTileId();
-        }
     }
 
     /** Reader for Tile enter event parameters. */
     public static class TileEnterEvent {
+        @SuppressWarnings("UnusedVariable")
         private final EventProto.TileEnterEvent mProto;
 
         private TileEnterEvent(@NonNull EventProto.TileEnterEvent proto) {
@@ -123,15 +116,11 @@ public class EventReaders {
                         "Passed TileEnterEventData did not contain a valid proto payload", ex);
             }
         }
-
-        /** Get the tile ID of the tile that was entered. */
-        public int getTileId() {
-            return mProto.getTileId();
-        }
     }
 
     /** Reader for a Tile leave event parameters. */
     public static class TileLeaveEvent {
+        @SuppressWarnings("UnusedVariable")
         private final EventProto.TileLeaveEvent mProto;
 
         private TileLeaveEvent(@NonNull EventProto.TileLeaveEvent proto) {
@@ -155,11 +144,6 @@ public class EventReaders {
                 throw new IllegalArgumentException(
                         "Passed TileLeaveEventData did not contain a valid proto payload", ex);
             }
-        }
-
-        /** Get the tile ID of the tile that was left. */
-        public int getTileId() {
-            return mProto.getTileId();
         }
     }
 }

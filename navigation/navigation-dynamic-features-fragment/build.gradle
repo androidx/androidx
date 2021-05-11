@@ -26,6 +26,12 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     api(project(":navigation:navigation-dynamic-features-runtime"))
     api(project(":navigation:navigation-fragment"))
@@ -46,6 +52,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(MULTIDEX)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })

@@ -46,10 +46,12 @@ import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteO
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
+import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.EnumColumnTypeAdapter
+import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
 import com.google.common.truth.Truth.assertThat
@@ -874,6 +876,93 @@ class TypeAdapterStoreTest {
                 assertThat(adapter).isNotNull()
                 assertThat(adapter).isInstanceOf(CollectionQueryParameterAdapter::class.java)
             }
+        }
+    }
+
+    @Test
+    fun typeAliases() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            typealias MyLongAlias = Long
+            typealias MyNullableLongAlias = Long?
+
+            data class MyClass(val foo:String)
+            typealias MyClassAlias = MyClass
+            typealias MyClassNullableAlias = MyClass?
+
+            object MyConverters {
+                @TypeConverter
+                fun myClassToString(myClass : MyClass): String = TODO()
+                @TypeConverter
+                fun nullableMyClassToString(myClass : MyClass?): String? = TODO()
+            }
+            class Subject {
+                val myLongAlias : MyLongAlias = TODO()
+                val myLongAlias_nullable : MyLongAlias? = TODO()
+                val myNullableLongAlias : MyNullableLongAlias = TODO()
+                val myNullableLongAlias_nullable : MyNullableLongAlias? = TODO()
+                val myClass : MyClass = TODO()
+                val myClassAlias : MyClassAlias = TODO()
+                val myClassAlias_nullable : MyClassAlias? = TODO()
+                val myClassNullableAlias : MyClassNullableAlias = TODO()
+                val myClassNullableAlias_nullable : MyClassNullableAlias = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val converters = CustomConverterProcessor(
+                context = invocation.context,
+                element = invocation.processingEnv.requireTypeElement("MyConverters")
+            ).process().map(::CustomTypeConverterWrapper)
+            val typeAdapterStore = TypeAdapterStore.create(
+                context = invocation.context,
+                extras = converters.toTypedArray()
+            )
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+            val results = subject.getAllFieldsIncludingPrivateSupers().associate { field ->
+                val binder = typeAdapterStore.findStatementValueBinder(
+                    input = field.type,
+                    affinity = null
+                )
+
+                val signature = when (binder) {
+                    null -> null
+                    is PrimitiveColumnTypeAdapter -> "primitive"
+                    is BoxedPrimitiveColumnTypeAdapter -> "boxed"
+                    is CompositeAdapter -> {
+                        when (val converter = binder.intoStatementConverter) {
+                            null -> "composite null"
+                            is CustomTypeConverterWrapper -> converter.custom.methodName
+                            else -> "composite unknown"
+                        }
+                    }
+                    else -> "unknown"
+                }
+                field.name to signature
+            }
+            // see: 187359339. We use nullability for assignments only in KSP
+            val nullableClassAdapter = if (invocation.isKsp) {
+                "nullableMyClassToString"
+            } else {
+                "myClassToString"
+            }
+            assertThat(results).containsExactlyEntriesIn(
+                mapOf(
+                    "myLongAlias" to "primitive",
+                    "myLongAlias_nullable" to "boxed",
+                    "myNullableLongAlias" to "boxed",
+                    "myNullableLongAlias_nullable" to "boxed",
+                    "myClass" to "myClassToString",
+                    "myClassAlias" to "myClassToString",
+                    "myClassAlias_nullable" to nullableClassAdapter,
+                    "myClassNullableAlias" to nullableClassAdapter,
+                    "myClassNullableAlias_nullable" to nullableClassAdapter,
+                )
+            )
         }
     }
 

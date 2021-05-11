@@ -493,9 +493,11 @@ public abstract class PagedList<T : Any> internal constructor(
                 LegacyPagingSource(
                     fetchDispatcher = fetchDispatcher,
                     dataSource = dataSource
-                ).also {
-                    it.setPageSize(config.pageSize)
-                }
+                )
+            }
+
+            if (pagingSource is LegacyPagingSource) {
+                pagingSource.setPageSize(config.pageSize)
             }
 
             check(pagingSource != null) {

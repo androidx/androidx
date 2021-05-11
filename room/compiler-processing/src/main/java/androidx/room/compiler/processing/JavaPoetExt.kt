@@ -96,6 +96,7 @@ object MethodSpecHelper {
      * * [Override] annotation is added and other annotations are dropped
      * * thrown types are copied if the backing element is from java
      */
+    @JvmStatic
     fun overridingWithFinalParams(
         elm: XMethodElement,
         owner: XType

@@ -48,10 +48,12 @@ import kotlinx.coroutines.flow.collectLatest
  * This instance can be used by the [items] and [itemsIndexed] methods inside [LazyListScope] to
  * display data received from the [Flow] of [PagingData].
  *
- * @param flow the [Flow] object which contains a stream of [PagingData] elements.
  * @param T the type of value used by [PagingData].
  */
 public class LazyPagingItems<T : Any> internal constructor(
+    /**
+     * the [Flow] object which contains a stream of [PagingData] elements.
+     */
     private val flow: Flow<PagingData<T>>
 ) {
     private val mainDispatcher = Dispatchers.Main

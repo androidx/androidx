@@ -17,21 +17,25 @@
 package androidx.emoji2.viewshelper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.widget.EditText;
 
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.util.EmojiMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -40,6 +44,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19) // class is not instantiated prior to API19
 public class EmojiTextWatcherTest {
 
     private EmojiTextWatcher mTextWatcher;
@@ -47,10 +52,10 @@ public class EmojiTextWatcherTest {
 
     @Before
     public void setup() {
-        final EditText editText = mock(EditText.class);
+        EditText editText = mock(EditText.class);
         mEmojiCompat = mock(EmojiCompat.class);
         EmojiCompat.reset(mEmojiCompat);
-        mTextWatcher = new EmojiTextWatcher(editText);
+        mTextWatcher = new EmojiTextWatcher(editText, /* expectInitializedEmojiCompat */ true);
     }
 
     @Test
@@ -122,5 +127,26 @@ public class EmojiTextWatcherTest {
 
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
         verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
+
+    @Test
+    public void afterDisable_noFurtherInteractions() {
+        final Spannable testString = new SpannableString("abc");
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+
+        mTextWatcher.setEnabled(/* isEnabled */ false);
+        mTextWatcher.onTextChanged(testString, 0, 0, 1);
+
+        verifyNoMoreInteractions(mEmojiCompat);
+    }
+
+    @Test
+    public void whenNotConfigured_andNotExpectInitialized_noCalls() {
+        EditText editText = mock(EditText.class);
+        EmojiCompat.reset((EmojiCompat) null);
+        mTextWatcher = new EmojiTextWatcher(editText, /* expectInitializedEmojiCompat */ false);
+        SpannableString expected = new SpannableString("abc");
+        mTextWatcher.onTextChanged(expected, 0, 0, 1);
+        assertTrue(TextUtils.equals(expected, "abc"));
     }
 }

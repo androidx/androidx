@@ -21,7 +21,6 @@ import android.content.ComponentName;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
 
@@ -130,11 +129,7 @@ import java.lang.annotation.RetentionPolicy;
  * the camera state moves to the {@link Type#CLOSED} state.
  *
  * <p>Whenever the camera encounters an error, it reports it through {@link #getError()}.
- *
- * @hide
  */
-// TODO(b/150921286): Unhide once the camera state implementation is done
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class CameraState {
 

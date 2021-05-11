@@ -691,8 +691,8 @@ package androidx.wear.tiles.builders {
 
   public static final class ResourceBuilders.ImageResource.Builder {
     method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource build();
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setAndroidResourceByResid(androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId);
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setAndroidResourceByResid(androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId.Builder);
+    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId);
+    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId.Builder);
     method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource);
     method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder);
   }
@@ -807,19 +807,15 @@ package androidx.wear.tiles.readers {
   }
 
   public static class EventReaders.TileAddEvent {
-    method public int getTileId();
   }
 
   public static class EventReaders.TileEnterEvent {
-    method public int getTileId();
   }
 
   public static class EventReaders.TileLeaveEvent {
-    method public int getTileId();
   }
 
   public static class EventReaders.TileRemoveEvent {
-    method public int getTileId();
   }
 
   public class RequestReaders {
@@ -828,14 +824,12 @@ package androidx.wear.tiles.readers {
   public static class RequestReaders.ResourcesRequest {
     method public androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters getDeviceParameters();
     method public java.util.List<java.lang.String!> getResourceIds();
-    method public int getTileId();
     method public String getVersion();
   }
 
   public static class RequestReaders.TileRequest {
     method public androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters getDeviceParameters();
     method public androidx.wear.tiles.builders.StateBuilders.State getState();
-    method public int getTileId();
   }
 
 }

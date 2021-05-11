@@ -27,15 +27,19 @@ import androidx.window.extensions.ExtensionFoldingFeature
 import androidx.window.extensions.ExtensionInterface
 import androidx.window.extensions.ExtensionInterface.ExtensionCallback
 import androidx.window.extensions.ExtensionWindowLayoutInfo
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 /**
  * Tests for [ExtensionCompat] implementation of [ExtensionInterfaceCompat]. This
@@ -53,13 +57,8 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
 
     @Before
     public fun setUp() {
-        extensionCompat = ExtensionCompat(
-            mock(
-                ExtensionInterface::class.java
-            ),
-            ExtensionAdapter()
-        )
-        activity = mock(Activity::class.java)
+        extensionCompat = ExtensionCompat(mock(), ExtensionAdapter())
+        activity = mock()
         val mWindowBoundsHelper = TestWindowBoundsHelper()
         mWindowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
         WindowBoundsHelper.setForTesting(mWindowBoundsHelper)
@@ -74,19 +73,13 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
     override fun testGetWindowLayout() {
         val fakeExtensionImp = FakeExtensionImp()
         val compat = ExtensionCompat(fakeExtensionImp, ExtensionAdapter())
-        val mockCallback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
-        compat.onWindowLayoutChangeListenerAdded(
-            mock(
-                Activity::class.java
-            )
-        )
+        compat.onWindowLayoutChangeListenerAdded(mock())
         fakeExtensionImp.triggerValidSignal()
         verify(mockCallback).onWindowLayoutChanged(
-            ArgumentMatchers.any(),
-            ArgumentMatchers.argThat { windowLayoutInfo: WindowLayoutInfo ->
+            any(),
+            argThat { windowLayoutInfo: WindowLayoutInfo ->
                 windowLayoutInfo.displayFeatures.isNotEmpty()
             }
         )
@@ -94,16 +87,12 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
 
     @Test
     override fun testSetExtensionCallback() {
-        val extensionCallbackCaptor = ArgumentCaptor.forClass(
-            ExtensionCallback::class.java
-        )
+        val extensionCallbackCaptor = argumentCaptor<ExtensionCallback>()
 
         // Verify that the extension got the callback set
-        val callback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callback = mock<ExtensionCallbackInterface>()
         extensionCompat.setExtensionCallback(callback)
-        verify(extensionCompat.mWindowExtension).setExtensionCallback(
+        verify(extensionCompat.windowExtension!!).setExtensionCallback(
             extensionCallbackCaptor.capture()
         )
 
@@ -117,39 +106,31 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
         )
         val displayFeatures = listOf(extensionDisplayFeature)
         val extensionWindowLayoutInfo = ExtensionWindowLayoutInfo(displayFeatures)
-        extensionCallbackCaptor.value.onWindowLayoutChanged(
+        extensionCallbackCaptor.firstValue.onWindowLayoutChanged(
             activity,
             extensionWindowLayoutInfo
         )
-        val windowLayoutInfoCaptor = ArgumentCaptor.forClass(
-            WindowLayoutInfo::class.java
-        )
+        val windowLayoutInfoCaptor = argumentCaptor<WindowLayoutInfo>()
         verify(callback)
-            .onWindowLayoutChanged(ArgumentMatchers.eq(activity), windowLayoutInfoCaptor.capture())
-        val capturedLayout = windowLayoutInfoCaptor.value
-        Assert.assertEquals(1, capturedLayout.displayFeatures.size.toLong())
+            .onWindowLayoutChanged(eq(activity), windowLayoutInfoCaptor.capture())
+        val capturedLayout = windowLayoutInfoCaptor.firstValue
+        assertEquals(1, capturedLayout.displayFeatures.size.toLong())
         val capturedDisplayFeature = capturedLayout.displayFeatures[0]
         val foldingFeature = capturedDisplayFeature as FoldingFeature
-        Assert.assertNotNull(foldingFeature)
-        Assert.assertEquals(bounds, capturedDisplayFeature.bounds)
+        assertNotNull(foldingFeature)
+        assertEquals(bounds, capturedDisplayFeature.bounds)
     }
 
     override fun testExtensionCallback_filterRemovesInvalidValues() {
         val fakeExtensionImp = FakeExtensionImp()
         val compat = ExtensionCompat(fakeExtensionImp, ExtensionAdapter())
-        val mockCallback = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
-        compat.onWindowLayoutChangeListenerAdded(
-            mock(
-                Activity::class.java
-            )
-        )
+        compat.onWindowLayoutChangeListenerAdded(mock())
         fakeExtensionImp.triggerMalformedSignal()
         verify(mockCallback).onWindowLayoutChanged(
-            ArgumentMatchers.any(),
-            ArgumentMatchers.argThat { windowLayoutInfo: WindowLayoutInfo ->
+            any(),
+            argThat { windowLayoutInfo: WindowLayoutInfo ->
                 windowLayoutInfo.displayFeatures.isEmpty()
             }
         )
@@ -158,21 +139,21 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
     @Test
     override fun testOnWindowLayoutChangeListenerAdded() {
         extensionCompat.onWindowLayoutChangeListenerAdded(activity)
-        verify(extensionCompat.mWindowExtension).onWindowLayoutChangeListenerAdded(
-            ArgumentMatchers.eq(activity)
+        verify(extensionCompat.windowExtension!!).onWindowLayoutChangeListenerAdded(
+            eq(activity)
         )
     }
 
     @Test
     override fun testOnWindowLayoutChangeListenerRemoved() {
         extensionCompat.onWindowLayoutChangeListenerRemoved(activity)
-        verify(extensionCompat.mWindowExtension)
-            .onWindowLayoutChangeListenerRemoved(ArgumentMatchers.eq(activity))
+        verify(extensionCompat.windowExtension!!)
+            .onWindowLayoutChangeListenerRemoved(eq(activity))
     }
 
     @Test
     public fun testValidateExtensionInterface() {
-        Assert.assertTrue(extensionCompat.validateExtensionInterface())
+        assertTrue(extensionCompat.validateExtensionInterface())
     }
 
     private class FakeExtensionImp : ExtensionInterface {

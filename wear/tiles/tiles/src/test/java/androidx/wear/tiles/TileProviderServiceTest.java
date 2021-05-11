@@ -139,78 +139,74 @@ public class TileProviderServiceTest {
     @Test
     public void tileProvider_onTileAdd() throws Exception {
         EventProto.TileAddEvent addRequest =
-                EventProto.TileAddEvent.newBuilder().setTileId(TILE_ID).build();
+                EventProto.TileAddEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileAddEvent(
                 new TileAddEventData(addRequest.toByteArray(), TileAddEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileAddId)
-                .isEqualTo(TILE_ID);
+        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileAddCalled).isTrue();
     }
 
     @Test
     public void tileProvider_onTileRemove() throws Exception {
         EventProto.TileRemoveEvent removeRequest =
-                EventProto.TileRemoveEvent.newBuilder().setTileId(TILE_ID).build();
+                EventProto.TileRemoveEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileRemoveEvent(
                 new TileRemoveEventData(
                         removeRequest.toByteArray(), TileRemoveEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileRemoveId)
-                .isEqualTo(TILE_ID);
+        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileRemoveCalled).isTrue();
     }
 
     @Test
     public void tileProvider_onTileEnter() throws Exception {
         EventProto.TileEnterEvent enterRequest =
-                EventProto.TileEnterEvent.newBuilder().setTileId(TILE_ID).build();
+                EventProto.TileEnterEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileEnterEvent(
                 new TileEnterEventData(
                         enterRequest.toByteArray(), TileEnterEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileEnterId)
-                .isEqualTo(TILE_ID);
+        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileEnterCalled).isTrue();
     }
 
     @Test
     public void tileProvider_onTileLeave() throws Exception {
         EventProto.TileLeaveEvent leaveRequest =
-                EventProto.TileLeaveEvent.newBuilder().setTileId(TILE_ID).build();
+                EventProto.TileLeaveEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileLeaveEvent(
                 new TileLeaveEventData(
                         leaveRequest.toByteArray(), TileLeaveEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileLeaveId)
-                .isEqualTo(TILE_ID);
+        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileLeaveCalled).isTrue();
     }
 
     public static class DummyTileProviderService extends TileProviderService {
-        int mLastOnTileAddId = -1;
-        int mLastOnTileRemoveId = -1;
-        int mLastOnTileEnterId = -1;
-        int mLastOnTileLeaveId = -1;
+        boolean mOnTileAddCalled = false;
+        boolean mOnTileRemoveCalled = false;
+        boolean mOnTileEnterCalled = false;
+        boolean mOnTileLeaveCalled = false;
 
         @Override
         protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {
-            this.mLastOnTileAddId = requestParams.getTileId();
+            mOnTileAddCalled = true;
         }
 
         @Override
         protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {
-            this.mLastOnTileRemoveId = requestParams.getTileId();
+            mOnTileRemoveCalled = true;
         }
 
         @Override
         protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {
-            this.mLastOnTileEnterId = requestParams.getTileId();
+            mOnTileEnterCalled = true;
         }
 
         @Override
         protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {
-            this.mLastOnTileLeaveId = requestParams.getTileId();
+            mOnTileLeaveCalled = true;
         }
 
         @Override

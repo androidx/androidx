@@ -150,7 +150,7 @@ class NavDestinationTest {
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
         val parent = navGraphNavigator.createDestination().apply {
             id = parentId
-            startDestination = DESTINATION_ID
+            setStartDestination(DESTINATION_ID)
         }
         destination.parent = parent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -181,13 +181,13 @@ class NavDestinationTest {
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
         val parent = navGraphNavigator.createDestination().apply {
             id = parentId
-            startDestination = DESTINATION_ID
+            setStartDestination(DESTINATION_ID)
         }
         destination.parent = parent
         val grandparentId = 3
         val grandparent = navGraphNavigator.createDestination().apply {
             id = grandparentId
-            startDestination = parentId
+            setStartDestination(parentId)
         }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -208,7 +208,7 @@ class NavDestinationTest {
         val grandparentId = 3
         val grandparent = navGraphNavigator.createDestination().apply {
             id = grandparentId
-            startDestination = parentId
+            setStartDestination(parentId)
         }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -229,7 +229,7 @@ class NavDestinationTest {
         val grandparentId = 3
         val grandparent = navGraphNavigator.createDestination().apply {
             id = grandparentId
-            startDestination = parentId
+            setStartDestination(parentId)
         }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()

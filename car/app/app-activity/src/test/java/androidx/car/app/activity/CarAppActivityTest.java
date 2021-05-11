@@ -239,8 +239,11 @@ public class CarAppActivityTest {
                 CarAppActivity.class)) {
             scenario.onActivity(activity -> {
                 try {
-                    ServiceConnection serviceConnection = spy(activity.getServiceConnection());
-                    activity.setServiceConnection(serviceConnection);
+                    ServiceConnectionManager serviceConnectionManager =
+                            activity.mViewModel.getServiceConnectionManager();
+                    ServiceConnection serviceConnection =
+                            spy(serviceConnectionManager.getServiceConnection());
+                    serviceConnectionManager.setServiceConnection(serviceConnection);
 
                     // Destroy activity to force unbind.
                     scenario.moveToState(Lifecycle.State.DESTROYED);
@@ -251,7 +254,7 @@ public class CarAppActivityTest {
                     // Verify service connection is closed.
                     verify(serviceConnection, times(1)).onServiceDisconnected(
                             mRendererComponent);
-                    assertThat(activity.mServiceDispatcher.isBound()).isFalse();
+                    assertThat(serviceConnectionManager.isBound()).isFalse();
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }

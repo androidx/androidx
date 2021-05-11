@@ -57,9 +57,11 @@ public class NavBackStackEntry private constructor(
     public var arguments: Bundle? = null,
     navControllerLifecycleOwner: LifecycleOwner? = null,
     private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
-    // Internal unique name for this navBackStackEntry;
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val id: UUID = UUID.randomUUID(),
+    /**
+     * Gets the unique ID that serves as the identity of this entry
+     * @return the unique ID of this entry
+     */
+    public val id: String = UUID.randomUUID().toString(),
     private val savedState: Bundle? = null
 ) : LifecycleOwner,
     ViewModelStoreOwner,
@@ -81,7 +83,7 @@ public class NavBackStackEntry private constructor(
             arguments: Bundle? = null,
             navControllerLifecycleOwner: LifecycleOwner? = null,
             viewModelStoreProvider: NavViewModelStoreProvider? = null,
-            id: UUID = UUID.randomUUID(),
+            id: String = UUID.randomUUID().toString(),
             savedState: Bundle? = null
         ): NavBackStackEntry = NavBackStackEntry(
             context, destination, arguments,

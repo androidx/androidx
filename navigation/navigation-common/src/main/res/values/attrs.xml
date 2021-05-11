@@ -14,6 +14,7 @@
 <resources>
     <declare-styleable name="Navigator">
         <attr name="android:id"/>
+        <attr name="route" format="string"/>
         <attr name="android:label" />
     </declare-styleable>
 

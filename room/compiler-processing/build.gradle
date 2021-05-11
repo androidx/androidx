@@ -36,14 +36,14 @@ dependencies {
 
     implementation(KOTLIN_METADATA_JVM)
     implementation(INTELLIJ_ANNOTATIONS)
-    implementation(KOTLIN_KSP_API)
+    implementation(libs.kspApi)
     implementation(KOTLIN_STDLIB_JDK8) // KSP defines older version as dependency, force update.
 
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(JUNIT)
     testImplementation(JSR250)
-    testImplementation(KOTLIN_COMPILE_TESTING_KSP)
-    testImplementation(KOTLIN_KSP)
+    testImplementation(KOTLIN_COMPILE_TESTING)
+    testImplementation(libs.ksp)
     testImplementation(project(":room:room-compiler-processing-testing"))
 }
 

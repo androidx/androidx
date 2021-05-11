@@ -17,7 +17,7 @@
 package androidx.navigation.compose
 
 import android.annotation.SuppressLint
-import android.net.Uri
+import android.content.Context
 import android.os.Bundle
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,17 +35,19 @@ import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.NavGraph
+import androidx.navigation.contains
 import androidx.navigation.NavHostController
+import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavHostController
 import androidx.savedstate.SavedStateRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -62,7 +64,7 @@ class NavHostTest {
     fun testSingleDestinationSet() {
         lateinit var navController: NavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = createNavController(LocalContext.current)
 
             NavHost(navController, startDestination = "first") {
                 test("first")
@@ -78,7 +80,7 @@ class NavHostTest {
     fun testNavigate() {
         lateinit var navController: NavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = createNavController(LocalContext.current)
 
             NavHost(navController, startDestination = "first") {
                 test("first")
@@ -95,9 +97,7 @@ class NavHostTest {
         }
 
         assertWithMessage("second destination should be current")
-            .that(
-                navController.currentDestination?.hasDeepLink(Uri.parse(createRoute("second")))
-            ).isTrue()
+            .that(navController.currentDestination?.route).isEqualTo("second")
     }
 
     @Test
@@ -134,9 +134,7 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             assertWithMessage("second destination should be current")
-                .that(
-                    navController.currentDestination?.hasDeepLink(Uri.parse(createRoute("second")))
-                ).isTrue()
+                .that(navController.currentDestination?.route).isEqualTo("second")
         }
 
         composeTestRule.onNodeWithText(text)
@@ -146,9 +144,7 @@ class NavHostTest {
             // ensure our click listener was fired
             assertThat(counter).isEqualTo(1)
             assertWithMessage("second destination should be current")
-                .that(
-                    navController.currentDestination?.hasDeepLink(Uri.parse(createRoute("second")))
-                ).isTrue()
+                .that(navController.currentDestination?.route).isEqualTo("second")
         }
     }
 
@@ -156,7 +152,7 @@ class NavHostTest {
     fun testPop() {
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = createNavController(LocalContext.current)
 
             NavHost(navController, startDestination = "first") {
                 test("first")
@@ -170,10 +166,7 @@ class NavHostTest {
         }
 
         assertWithMessage("First destination should be current")
-            .that(
-                navController.currentDestination?.hasDeepLink(createRoute("first").toUri())
-            )
-            .isTrue()
+            .that(navController.currentDestination?.route).isEqualTo("first")
     }
 
     @Test
@@ -185,7 +178,7 @@ class NavHostTest {
             val context = LocalContext.current
             // added to avoid lint error b/184349025
             @SuppressLint("RememberReturnType")
-            navController = remember { TestNavHostController(context) }
+            navController = remember { createNavController(context) }
 
             NavHost(navController, startDestination = state.value) {
                 test("first")
@@ -199,9 +192,7 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
-                .that(
-                    navController.currentDestination?.hasDeepLink(createRoute("first").toUri())
-                ).isTrue()
+                .that(navController.currentDestination?.route).isEqualTo("first")
         }
     }
 
@@ -214,7 +205,7 @@ class NavHostTest {
             state = remember { mutableStateOf(0) }
             // added to avoid lint error b/184349025
             @SuppressLint("RememberReturnType")
-            navController = remember { TestNavHostController(context) }
+            navController = remember { createNavController(context) }
             if (state.value == 0) {
                 NavHost(navController, startDestination = "first") {
                     test("first")
@@ -234,9 +225,7 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
-                .that(
-                    navController.currentDestination?.hasDeepLink(createRoute("first").toUri())
-                ).isTrue()
+                .that(navController.currentDestination?.route).isEqualTo("first")
         }
     }
 
@@ -283,9 +272,7 @@ class NavHostTest {
 
         composeTestRule.runOnIdle {
             assertWithMessage("First destination should be current")
-                .that(
-                    navController.currentDestination?.hasDeepLink(createRoute("first").toUri())
-                ).isTrue()
+                .that(navController.currentDestination?.route).isEqualTo("first")
             assertThat(savedViewModel.value).isEqualTo(viewModel.value)
         }
     }
@@ -393,11 +380,14 @@ class NavHostTest {
                 .isNotEqualTo(registry2)
         }
     }
-}
 
-operator fun NavGraph.contains(
-    route: String
-): Boolean = findNode(createRoute(route).hashCode()) != null
+    private fun createNavController(context: Context): TestNavHostController {
+        val navController = TestNavHostController(context)
+        val navigator = TestNavigator()
+        navController.navigatorProvider += navigator
+        return navController
+    }
+}
 
 class TestViewModel : ViewModel() {
     var value: String = "nothing"

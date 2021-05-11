@@ -33,7 +33,7 @@ import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Mac;
 
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 
 
@@ -67,9 +67,9 @@ public class TrampolineActivity extends Activity {
                     Mac mac = sKeysetHandle.getPrimitive(Mac.class);
                     // Will throw GeneralSecurityException when verifyMac fails.
                     mac.verifyMac(Base64.decode(tag, Base64.DEFAULT),
-                            shortcutUrl.getBytes(StandardCharsets.UTF_8));
+                            shortcutUrl.getBytes(Charset.forName("UTF-8")));
 
-                    Intent shortcutIntent = Intent.parseUri(shortcutUrl, 0);
+                    Intent shortcutIntent = Intent.parseUri(shortcutUrl, Intent.URI_INTENT_SCHEME);
                     startActivity(shortcutIntent);
                 } catch (GeneralSecurityException | URISyntaxException e) {
                     Log.w(TAG, "failed to open shortcut url", e);

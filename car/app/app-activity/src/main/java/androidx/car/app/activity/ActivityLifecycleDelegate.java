@@ -32,7 +32,6 @@ import androidx.lifecycle.Lifecycle.Event;
  * IRendererCallback}.
  */
 final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
-    public static final String TAG = "ActivityLifecycleListener";
     @NonNull
     private ServiceDispatcher mServiceDispatcher;
     @Nullable
@@ -88,8 +87,7 @@ final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
 
     @Override
     public void onActivityPreDestroyed(@NonNull Activity activity) {
-        requireNonNull(activity);
-        notifyEvent(Event.ON_DESTROY);
+        // No-op as the view model will call terminate on the service when needed.
     }
 
     @Override

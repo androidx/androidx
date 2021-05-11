@@ -66,8 +66,12 @@ public final class TileBuilders {
 
             Builder() {}
 
-            /** Sets the resource version required for these tiles. */
             @SuppressLint("MissingGetterMatchingBuilder")
+            /**
+             * Sets the resource version required for these tiles. This can be any developer-defined
+             * string; it is only used to cache resources, and is passed in ResourcesRequest if the
+             * system does not have a copy of the specified resource version.
+             */
             @NonNull
             public Builder setResourcesVersion(@NonNull String resourcesVersion) {
                 mImpl.setResourcesVersion(resourcesVersion);
@@ -96,6 +100,12 @@ public final class TileBuilders {
              * point in the future after this interval has lapsed. A value of 0 here signifies that
              * auto-refreshes should not be used (i.e. you will manually request updates via
              * TileProviderService#getRequester).
+             *
+             * <p>This mechanism should not be used to update your tile more frequently than once a
+             * minute, and the system may throttle your updates if you request updates faster than
+             * this interval. This interval is also inexact; the system will generally update your
+             * tile if it is on-screen, or about to be on-screen, although this is not guaranteed
+             * due to system-level optimizations.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull

@@ -9,39 +9,39 @@ package androidx.wear.input {
 
   @RequiresApi(android.os.Build.VERSION_CODES.N) public final class RemoteInputIntentHelper {
     method public static android.content.Intent createActionRemoteInputIntent();
-    method public static String? getCancelLabelExtra(android.content.Intent intent);
-    method public static String? getConfirmLabelExtra(android.content.Intent intent);
-    method public static String? getInProgressLabelExtra(android.content.Intent intent);
+    method public static CharSequence? getCancelLabelExtra(android.content.Intent intent);
+    method public static CharSequence? getConfirmLabelExtra(android.content.Intent intent);
+    method public static CharSequence? getInProgressLabelExtra(android.content.Intent intent);
     method public static java.util.List<android.app.RemoteInput>? getRemoteInputsExtra(android.content.Intent intent);
     method public static java.util.List<java.lang.CharSequence>? getSmartReplyContextExtra(android.content.Intent intent);
-    method public static String? getTitleExtra(android.content.Intent intent);
+    method public static CharSequence? getTitleExtra(android.content.Intent intent);
     method public static boolean hasRemoteInputsExtra(android.content.Intent intent);
     method public static boolean isActionRemoteInput(android.content.Intent intent);
-    method public static android.content.Intent putCancelLabelExtra(android.content.Intent intent, String label);
-    method public static android.content.Intent putConfirmLabelExtra(android.content.Intent intent, String label);
-    method public static android.content.Intent putInProgressLabelExtra(android.content.Intent intent, String label);
+    method public static android.content.Intent putCancelLabelExtra(android.content.Intent intent, CharSequence label);
+    method public static android.content.Intent putConfirmLabelExtra(android.content.Intent intent, CharSequence label);
+    method public static android.content.Intent putInProgressLabelExtra(android.content.Intent intent, CharSequence label);
     method public static android.content.Intent putRemoteInputsExtra(android.content.Intent intent, java.util.List<android.app.RemoteInput> remoteInputs);
     method public static android.content.Intent putSmartReplyContextExtra(android.content.Intent intent, java.util.List<? extends java.lang.CharSequence> smartReplyContext);
-    method public static android.content.Intent putTitleExtra(android.content.Intent intent, String title);
+    method public static android.content.Intent putTitleExtra(android.content.Intent intent, CharSequence title);
     field public static final androidx.wear.input.RemoteInputIntentHelper.Companion Companion;
   }
 
   public static final class RemoteInputIntentHelper.Companion {
     method public android.content.Intent createActionRemoteInputIntent();
-    method public String? getCancelLabelExtra(android.content.Intent intent);
-    method public String? getConfirmLabelExtra(android.content.Intent intent);
-    method public String? getInProgressLabelExtra(android.content.Intent intent);
+    method public CharSequence? getCancelLabelExtra(android.content.Intent intent);
+    method public CharSequence? getConfirmLabelExtra(android.content.Intent intent);
+    method public CharSequence? getInProgressLabelExtra(android.content.Intent intent);
     method public java.util.List<android.app.RemoteInput>? getRemoteInputsExtra(android.content.Intent intent);
     method public java.util.List<java.lang.CharSequence>? getSmartReplyContextExtra(android.content.Intent intent);
-    method public String? getTitleExtra(android.content.Intent intent);
+    method public CharSequence? getTitleExtra(android.content.Intent intent);
     method public boolean hasRemoteInputsExtra(android.content.Intent intent);
     method public boolean isActionRemoteInput(android.content.Intent intent);
-    method public android.content.Intent putCancelLabelExtra(android.content.Intent intent, String label);
-    method public android.content.Intent putConfirmLabelExtra(android.content.Intent intent, String label);
-    method public android.content.Intent putInProgressLabelExtra(android.content.Intent intent, String label);
+    method public android.content.Intent putCancelLabelExtra(android.content.Intent intent, CharSequence label);
+    method public android.content.Intent putConfirmLabelExtra(android.content.Intent intent, CharSequence label);
+    method public android.content.Intent putInProgressLabelExtra(android.content.Intent intent, CharSequence label);
     method public android.content.Intent putRemoteInputsExtra(android.content.Intent intent, java.util.List<android.app.RemoteInput> remoteInputs);
     method public android.content.Intent putSmartReplyContextExtra(android.content.Intent intent, java.util.List<? extends java.lang.CharSequence> smartReplyContext);
-    method public android.content.Intent putTitleExtra(android.content.Intent intent, String title);
+    method public android.content.Intent putTitleExtra(android.content.Intent intent, CharSequence title);
   }
 
   public final class WearableButtons {

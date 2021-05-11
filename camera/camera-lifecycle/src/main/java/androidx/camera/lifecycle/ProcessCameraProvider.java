@@ -42,7 +42,11 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -83,6 +87,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     private final LifecycleCameraRepository
             mLifecycleCameraRepository = new LifecycleCameraRepository();
     private CameraX mCameraX;
+    private Context mContext;
 
     /**
      * Retrieves the {@link ProcessCameraProvider} associated with the current process.
@@ -152,6 +157,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         Preconditions.checkNotNull(context);
         return Futures.transform(CameraX.getOrCreateInstance(context), cameraX ->  {
             sAppInstance.setCameraX(cameraX);
+            sAppInstance.setContext(ContextUtil.getApplicationContext(context));
             return sAppInstance;
         }, CameraXExecutors.directExecutor());
     }
@@ -211,6 +217,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
     private void setCameraX(CameraX cameraX) {
         mCameraX = cameraX;
+    }
+
+    private void setContext(Context context) {
+        mContext = context;
     }
 
     /**
@@ -419,6 +429,33 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                             new CameraUseCaseAdapter(cameraInternals,
                                     mCameraX.getCameraDeviceSurfaceManager(),
                                     mCameraX.getDefaultConfigFactory()));
+        }
+
+        CameraConfig cameraConfig = CameraConfigs.emptyConfig();
+
+        // Retrieves extended camera configs from ExtendedCameraConfigProviderStore
+        for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
+            if (cameraFilter.getId() != CameraFilter.Id.DEFAULT) {
+                CameraConfig extendedCameraConfig = ExtendedCameraConfigProviderStore.getConfig(
+                        cameraFilter.getId()).getConfig(lifecycleCameraToBind.getCameraInfo(),
+                        mContext);
+
+                // Only allows one camera config now.
+                if (extendedCameraConfig != CameraConfigs.emptyConfig()
+                        && cameraConfig != CameraConfigs.emptyConfig()) {
+                    throw new IllegalArgumentException(
+                            "Cannot apply multiple extended camera configs at the same time.");
+                } else {
+                    cameraConfig = extendedCameraConfig;
+                }
+            }
+        }
+
+        // Applies extended camera configs to the camera
+        try {
+            lifecycleCameraToBind.setExtendedConfig(cameraConfig);
+        } catch (CameraUseCaseAdapter.CameraException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
 
         if (useCases.length == 0) {

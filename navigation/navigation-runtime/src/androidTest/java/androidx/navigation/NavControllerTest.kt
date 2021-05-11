@@ -28,7 +28,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
@@ -1271,6 +1273,290 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateOptionSaveRestoreState() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val originalBackStackEntry = navigator.backStack[0]
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+        navController.navigate(
+            R.id.second_test,
+            null,
+            navOptions {
+                popUpTo(R.id.start_test) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(
+            R.id.start_test,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.second_test) {
+                    inclusive = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val newBackStackEntry = navigator.backStack[0]
+        val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
+        assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
+        assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSaveStackRestoreState() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val originalBackStackEntry = navController.getBackStackEntry(R.id.nav_root)
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+        navController.navigate(
+            R.id.second_test,
+            null,
+            navOptions {
+                popUpTo(R.id.nav_root) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(
+            R.id.nav_root,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.nav_root) {
+                    inclusive = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val newBackStackEntry = navController.getBackStackEntry(R.id.nav_root)
+        val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
+        assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
+        assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionNestedSaveRestoreStateInclusive() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val originalBackStackEntry = navController.getBackStackEntry(R.id.simple_child_start)
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+        navController.navigate(R.id.simple_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        navController.navigate(
+            R.id.deep_link_child_start,
+            null,
+            navOptions {
+                popUpTo(R.id.simple_child_start) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(
+            R.id.simple_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.deep_link_child_start) {
+                    inclusive = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val newBackStackEntry = navController.getBackStackEntry(R.id.simple_child_start)
+        val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
+        assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
+        assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionNestedSaveRestoreStateNonInclusive() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val originalBackStackEntry = navController.getBackStackEntry(R.id.simple_child_start)
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+        navController.navigate(R.id.simple_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // Navigate to the second graph
+        navController.navigate(
+            R.id.deep_link_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.simple_child_start_test) {
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val secondGraphBackStackEntry = navController
+            .getBackStackEntry(R.id.deep_link_child_start_test)
+        val secondGraphViewModel = ViewModelProvider(secondGraphBackStackEntry)
+            .get<TestAndroidViewModel>()
+        assertThat(secondGraphViewModel).isNotSameInstanceAs(originalViewModel)
+        navController.navigate(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        // Navigate back to the first graph
+        navController.navigate(
+            R.id.simple_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.simple_child_start_test) {
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val newBackStackEntry = navController.getBackStackEntry(R.id.simple_child_start)
+        val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
+        assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
+        assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+
+        // Now navigate back to that second graph
+        navController.navigate(
+            R.id.deep_link_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.simple_child_start_test) {
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        val newSecondGraphBackStackEntry = navController
+            .getBackStackEntry(R.id.deep_link_child_start_test)
+        val newSecondGraphViewModel = ViewModelProvider(newSecondGraphBackStackEntry)
+            .get<TestAndroidViewModel>()
+        assertThat(newSecondGraphBackStackEntry.id).isSameInstanceAs(secondGraphBackStackEntry.id)
+        assertThat(newSecondGraphViewModel).isSameInstanceAs(secondGraphViewModel)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionNestedSaveRestoreStateNonInclusiveNoPopUpToState() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val originalBackStackEntry = navController.getBackStackEntry(R.id.simple_child_start)
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+
+        // Navigate to the second graph
+        navController.navigate(
+            R.id.deep_link_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.simple_child_start_test) {
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val secondGraphBackStackEntry = navController
+            .getBackStackEntry(R.id.deep_link_child_start_test)
+        val secondGraphViewModel = ViewModelProvider(secondGraphBackStackEntry)
+            .get<TestAndroidViewModel>()
+        assertThat(secondGraphViewModel).isNotSameInstanceAs(originalViewModel)
+        navController.navigate(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        // Navigate back to the first graph
+        navController.navigate(
+            R.id.simple_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.simple_child_start_test) {
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val newBackStackEntry = navController.getBackStackEntry(R.id.simple_child_start)
+        val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
+        assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
+        assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+
+        // Now navigate back to that second graph
+        navController.navigate(
+            R.id.deep_link_child_start,
+            null,
+            navOptions {
+                restoreState = true
+                popUpTo(R.id.simple_child_start_test) {
+                    saveState = true
+                }
+            }
+        )
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        val newSecondGraphBackStackEntry = navController
+            .getBackStackEntry(R.id.deep_link_child_start_test)
+        val newSecondGraphViewModel = ViewModelProvider(newSecondGraphBackStackEntry)
+            .get<TestAndroidViewModel>()
+        assertThat(newSecondGraphBackStackEntry.id).isSameInstanceAs(secondGraphBackStackEntry.id)
+        assertThat(newSecondGraphViewModel).isSameInstanceAs(secondGraphViewModel)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateOptionPopUpToInAction() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -1295,7 +1581,7 @@ class NavControllerTest {
         assertThat(navigator.backStack.size).isEqualTo(2)
 
         val navOptions = navOptions {
-            popUpTo = R.id.start_test
+            popUpTo(R.id.start_test)
         }
         // the same as to call .navigate(R.id.finish)
         navController.navigate(0, null, navOptions)
@@ -1687,8 +1973,8 @@ class NavControllerTest {
             .collect()
     }
 
-    private fun createNavController(): NavController {
-        val navController = NavController(ApplicationProvider.getApplicationContext())
+    private fun createNavController(): NavHostController {
+        val navController = NavHostController(ApplicationProvider.getApplicationContext())
         val navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         return navController

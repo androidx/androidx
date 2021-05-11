@@ -19,6 +19,7 @@ package androidx.activity.compose
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
@@ -106,6 +107,30 @@ class ActivityResultRegistryTest {
             val contract = launcher?.contract
             assertThat(contract)
                 .isInstanceOf(ActivityResultContracts.StartActivityForResult::class.java)
+        }
+    }
+
+    @Test
+    fun testUnregister() {
+        var launcher: ManagedActivityResultLauncher<Intent, ActivityResult>? by mutableStateOf(null)
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalActivityResultRegistryOwner provides registryOwner
+            ) {
+                launcher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) {}
+            }
+        }
+        composeTestRule.runOnIdle {
+            try {
+                @Suppress("DEPRECATION") // the unregister method is deprecated
+                launcher?.unregister()
+            } catch (e: UnsupportedOperationException) {
+                assertThat(e).hasMessageThat().contains(
+                    "Registration is automatically handled by rememberLauncherForActivityResult"
+                )
+            }
         }
     }
 

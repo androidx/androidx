@@ -45,6 +45,7 @@ interface XRoundEnv {
         /**
          * Creates an [XRoundEnv] from the given Java processing parameters.
          */
+        @JvmStatic
         fun create(
             processingEnv: XProcessingEnv,
             roundEnvironment: RoundEnvironment? = null

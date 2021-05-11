@@ -23,6 +23,7 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -56,6 +57,9 @@ internal fun KSTypeReference?.typeName(resolver: Resolver): TypeName {
  */
 @OptIn(KspExperimental::class)
 internal fun KSDeclaration.typeName(resolver: Resolver): TypeName {
+    if (this is KSTypeAlias) {
+        return this.type.typeName(resolver)
+    }
     // if there is no qualified name, it is a resolution error so just return shared instance
     // KSP may improve that later and if not, we can improve it in Room
     // TODO: https://issuetracker.google.com/issues/168639183

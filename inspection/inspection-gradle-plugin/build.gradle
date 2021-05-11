@@ -36,7 +36,7 @@ dependencies {
     implementation(AGP_LATEST)
     implementation(KOTLIN_STDLIB)
     implementation("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.13")
-    implementation(build_libs.shadow)
+    implementation(libs.shadow)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())

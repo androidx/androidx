@@ -22,7 +22,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -157,7 +156,6 @@ public final class MessageInfo implements NavigationInfo {
          * @throws NullPointerException if {@code text} is {@code null}
          * @see CarText
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
@@ -202,7 +200,6 @@ public final class MessageInfo implements NavigationInfo {
          *
          * @throws NullPointerException if {@code title} is {@code null}
          */
-        @ExperimentalCarApi
         public Builder(@NonNull CarText title) {
             mTitle = requireNonNull(title);
         }

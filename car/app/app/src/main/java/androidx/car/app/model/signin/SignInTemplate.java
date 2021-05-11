@@ -25,7 +25,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -44,21 +43,11 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * This template is considered the start of a new task and thus restarts the template quota when an
- * app reaches this template. If this template is sent consecutively, subsequent
- * {@link SignInTemplate}s will not trigger a quota reset, as they will be considered part of the
- * same sign-in flow. The quota will be reduced for these templates unless they are considered
- * a refresh of a previous one.
- *
- * This template is considered a refresh of a previous one if:
- *
- * <ul>
- *   <li>The template's header, sign-in method, instructions and additional text have not changed.
- * </ul>
+ * This template's body is only available to the user while the car is parked and does not count
+ * against the template quota.
  *
  * @see Screen#onGetTemplate()
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public final class SignInTemplate implements Template {
     /**
@@ -66,8 +55,6 @@ public final class SignInTemplate implements Template {
      */
     public interface SignInMethod {
     }
-
-    private static final int MAX_ACTIONS_ALLOWED = 2;
 
     @Keep
     private final boolean mIsLoading;
@@ -238,7 +225,6 @@ public final class SignInTemplate implements Template {
     }
 
     /** A builder of {@link SignInTemplate}. */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     public static final class Builder {
         boolean mIsLoading;
@@ -321,18 +307,20 @@ public final class SignInTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Action}s.
+         * The action must use a {@link androidx.car.app.model.ParkedOnlyOnClickListener}, and any
+         * actions above the maximum limit of 2 will be ignored.
          *
          * @throws NullPointerException  if {@code action} is {@code null}
-         * @throws IllegalStateException if more than two actions have been added.
+         * @throws IllegalArgumentException if {@code action} does not meet the requirements
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
-            if (mActionList.size() >= MAX_ACTIONS_ALLOWED) {
-                throw new IllegalStateException(
-                        "This template allows only up to " + MAX_ACTIONS_ALLOWED + " actions");
-            }
             requireNonNull(action);
+            if (!requireNonNull(action.getOnClickDelegate()).isParkedOnly()) {
+                throw new IllegalArgumentException("The action must use a "
+                        + "ParkedOnlyOnClickListener");
+            }
+
             mActionList.add(action);
             return this;
         }

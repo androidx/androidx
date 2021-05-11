@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION") // TODO(b/185594766) Migrate from ActivityTestRule
 
 package androidx.window
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.TestActivity.Companion.resetResumeCounter
 import androidx.window.TestActivity.Companion.waitForOnResume
 import androidx.window.extensions.ExtensionFoldingFeature
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -37,10 +41,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.atLeastOnce
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import java.util.HashSet
 
 /** Tests for the extension implementation on the device.  */
@@ -50,9 +50,8 @@ public class ExtensionTest : WindowTestBase() {
 
     private lateinit var context: Context
 
-    private val configHandlingActivityTestRule = ActivityTestRule(
-        TestConfigChangeHandlingActivity::class.java, false, true
-    )
+    private val configHandlingActivityTestRule =
+        ActivityScenarioRule(TestConfigChangeHandlingActivity::class.java)
 
     @Before
     public fun setUp() {
@@ -80,66 +79,66 @@ public class ExtensionTest : WindowTestBase() {
     public fun testWindowLayoutCallback() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
         extension!!.setExtensionCallback(callbackInterface)
-        val activity = activityTestRule.launchActivity(Intent())
-        extension.onWindowLayoutChangeListenerAdded(activity)
-        assertTrue("Layout must happen after launch", activity.waitForLayout())
-        verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-            ArgumentMatchers.any(),
-            ArgumentMatchers.argThat(WindowLayoutInfoValidator(activity))
-        )
+        activityTestRule.scenario.onActivity { activity ->
+            extension.onWindowLayoutChangeListenerAdded(activity)
+            assertTrue("Layout must happen after launch", activity.waitForLayout())
+            verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
+                any(),
+                argThat(WindowLayoutInfoValidator(activity))
+            )
+        }
     }
 
     @Test
     public fun testRegisterWindowLayoutChangeListener() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val activity = activityTestRule.launchActivity(Intent())
-        extension!!.onWindowLayoutChangeListenerAdded(activity)
-        extension.onWindowLayoutChangeListenerRemoved(activity)
+        activityTestRule.scenario.onActivity { activity ->
+            extension!!.onWindowLayoutChangeListenerAdded(activity)
+            extension.onWindowLayoutChangeListenerRemoved(activity)
+        }
     }
 
     @Test
     public fun testWindowLayoutUpdatesOnConfigChange() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
+
         extension!!.setExtensionCallback(callbackInterface)
-        val activity = configHandlingActivityTestRule.launchActivity(Intent())
-        extension.onWindowLayoutChangeListenerAdded(activity)
-        activity.resetLayoutCounter()
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        activity.waitForLayout()
-        if (activity.resources.configuration.orientation
-            != Configuration.ORIENTATION_PORTRAIT
-        ) {
-            // Orientation change did not occur on this device config. Skipping the test.
-            return
-        }
-        activity.resetLayoutCounter()
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        val layoutHappened = activity.waitForLayout()
-        if (activity.resources.configuration.orientation
-            != Configuration.ORIENTATION_LANDSCAPE
-        ) {
-            // Orientation change did not occur on this device config. Skipping the test.
-            return
-        }
-        assertTrue("Layout must happen after orientation change", layoutHappened)
-        if (!isSidecar) {
-            verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.argThat(DistinctWindowLayoutInfoMatcher())
-                )
-        } else {
-            verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(ArgumentMatchers.any(), ArgumentMatchers.any())
+        val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
+        scenario.onActivity { activity ->
+            extension.onWindowLayoutChangeListenerAdded(activity)
+            activity.resetLayoutCounter()
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity.waitForLayout()
+            val activityOrientation = activity.resources.configuration.orientation
+            if (activityOrientation != Configuration.ORIENTATION_PORTRAIT) {
+                // Orientation change did not occur on this device config. Skipping the test.
+                return@onActivity
+            }
+            activity.resetLayoutCounter()
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            val layoutHappened = activity.waitForLayout()
+            if (activity.resources.configuration.orientation
+                != Configuration.ORIENTATION_LANDSCAPE
+            ) {
+                // Orientation change did not occur on this device config. Skipping the test.
+                return@onActivity
+            }
+            assertTrue("Layout must happen after orientation change", layoutHappened)
+            if (!isSidecar) {
+                verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(
+                        any(),
+                        argThat(DistinctWindowLayoutInfoMatcher())
+                    )
+            } else {
+                verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), any())
+            }
         }
     }
 
@@ -147,53 +146,50 @@ public class ExtensionTest : WindowTestBase() {
     public fun testWindowLayoutUpdatesOnRecreate() {
         assumeExtensionV10_V01()
         val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
         extension!!.setExtensionCallback(callbackInterface)
-        var activity = activityTestRule.launchActivity(Intent())
-        extension.onWindowLayoutChangeListenerAdded(activity)
-        activity.resetLayoutCounter()
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        activity = activityTestRule.activity
-        activity.waitForLayout()
-        if (activity.resources.configuration.orientation
-            != Configuration.ORIENTATION_PORTRAIT
-        ) {
-            // Orientation change did not occur on this device config. Skipping the test.
-            return
-        }
-        resetResumeCounter()
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        waitForOnResume()
-        activity = activityTestRule.activity
-        activity.waitForLayout()
-        if (activity.resources.configuration.orientation
-            != Configuration.ORIENTATION_LANDSCAPE
-        ) {
-            // Orientation change did not occur on this device config. Skipping the test.
-            return
-        }
-        if (!isSidecar) {
-            verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.argThat(DistinctWindowLayoutInfoMatcher())
-                )
-        } else {
-            verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(ArgumentMatchers.any(), ArgumentMatchers.any())
+        activityTestRule.scenario.onActivity { activity ->
+            extension.onWindowLayoutChangeListenerAdded(activity)
+            activity.resetLayoutCounter()
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity.waitForLayout()
+            if (activity.resources.configuration.orientation
+                != Configuration.ORIENTATION_PORTRAIT
+            ) {
+                // Orientation change did not occur on this device config. Skipping the test.
+                return@onActivity
+            }
+            resetResumeCounter()
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            waitForOnResume()
+            activity.waitForLayout()
+            if (activity.resources.configuration.orientation
+                != Configuration.ORIENTATION_LANDSCAPE
+            ) {
+                // Orientation change did not occur on this device config. Skipping the test.
+                return@onActivity
+            }
+            if (!isSidecar) {
+                verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(
+                        any(),
+                        argThat(DistinctWindowLayoutInfoMatcher())
+                    )
+            } else {
+                verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), any())
+            }
         }
     }
 
     @Test
     public fun testVersionSupport() {
         // Only versions 1.0 and 0.1 are supported for now
-        var version = SidecarCompat.getSidecarVersion()
+        var version = SidecarCompat.sidecarVersion
         if (version != null) {
             assertEquals(Version.VERSION_0_1, version)
         }
-        version = ExtensionCompat.getExtensionVersion()
+        version = ExtensionCompat.extensionVersion
         if (version != null) {
             assertEquals(Version.VERSION_1_0, version)
         }
@@ -201,13 +197,13 @@ public class ExtensionTest : WindowTestBase() {
 
     private fun assumeExtensionV10_V01() {
         Assume.assumeTrue(
-            Version.VERSION_1_0 == ExtensionCompat.getExtensionVersion() ||
-                Version.VERSION_0_1 == SidecarCompat.getSidecarVersion()
+            Version.VERSION_1_0 == ExtensionCompat.extensionVersion ||
+                Version.VERSION_0_1 == SidecarCompat.sidecarVersion
         )
     }
 
     private val isSidecar: Boolean
-        get() = SidecarCompat.getSidecarVersion() != null
+        get() = SidecarCompat.sidecarVersion != null
 
     /**
      * An argument matcher that ensures the arguments used to call are distinct.  The only exception

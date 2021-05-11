@@ -34,7 +34,6 @@ import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -322,8 +321,6 @@ public final class RemoteUtils {
                         return null;
                     });
         }
-
-        @ExperimentalCarApi
         @RequiresCarApi(2)
         @Override
         public void onScroll(float distanceX, float distanceY) {
@@ -332,8 +329,6 @@ public final class RemoteUtils {
                 return null;
             });
         }
-
-        @ExperimentalCarApi
         @RequiresCarApi(2)
         @Override
         public void onFling(float velocityX, float velocityY) {
@@ -342,8 +337,6 @@ public final class RemoteUtils {
                 return null;
             });
         }
-
-        @ExperimentalCarApi
         @RequiresCarApi(2)
         @Override
         public void onScale(float focusX, float focusY, float scaleFactor) {

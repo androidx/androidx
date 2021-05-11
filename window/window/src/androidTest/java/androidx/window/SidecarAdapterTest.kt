@@ -18,7 +18,6 @@
 
 package androidx.window
 
-import android.app.Activity
 import android.graphics.Rect
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
@@ -28,7 +27,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
 
 public class SidecarAdapterTest : TranslatorTestInterface {
 
@@ -48,9 +46,6 @@ public class SidecarAdapterTest : TranslatorTestInterface {
 
     @Test
     override fun testTranslate_validFeature() {
-        val mockActivity = mock(
-            Activity::class.java
-        )
         val bounds = Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0)
         val foldFeature = sidecarDisplayFeature(
             bounds,
@@ -67,7 +62,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         )
         val expected = WindowLayoutInfo(expectedFeatures)
         val sidecarAdapter = SidecarAdapter()
-        val actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state)
+        val actual = sidecarAdapter.translate(windowLayoutInfo, state)
         assertEquals(expected, actual)
     }
 
@@ -78,11 +73,8 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         )
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
-        val mockActivity = mock(
-            Activity::class.java
-        )
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state)
+        val actual = sidecarAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
     }
 
@@ -102,14 +94,8 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         )
         val sidecarCallbackAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
-        val mockActivity = mock(
-            Activity::class.java
-        )
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val actual = sidecarCallbackAdapter.translate(
-            mockActivity, windowLayoutInfo,
-            state
-        )
+        val actual = sidecarCallbackAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
     }
 
@@ -137,10 +123,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val mockActivity = mock(
-            Activity::class.java
-        )
-        val actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state)
+        val actual = sidecarAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
     }
 
@@ -170,13 +153,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
             extensionDisplayFeatures
         )
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val mockActivity = mock(
-            Activity::class.java
-        )
-        val actual = sidecarCallbackAdapter.translate(
-            mockActivity, windowLayoutInfo,
-            state
-        )
+        val actual = sidecarCallbackAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
     }
 
@@ -188,11 +165,8 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         val sidecarDisplayFeatures = listOf(unknownFeature)
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
-        val mockActivity = mock(
-            Activity::class.java
-        )
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state)
+        val actual = sidecarAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
     }
 
@@ -203,11 +177,8 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         val sidecarDisplayFeatures = listOf(unknownFeature)
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
-        val mockActivity = mock(
-            Activity::class.java
-        )
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state)
+        val actual = sidecarAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
     }
 

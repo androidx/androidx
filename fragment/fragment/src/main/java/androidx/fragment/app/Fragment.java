@@ -289,7 +289,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable FragmentViewLifecycleOwner mViewLifecycleOwner;
     MutableLiveData<LifecycleOwner> mViewLifecycleOwnerLiveData = new MutableLiveData<>();
 
-    private ViewModelProvider.Factory mDefaultFactory;
+    ViewModelProvider.Factory mDefaultFactory;
 
     SavedStateRegistryController mSavedStateRegistryController;
 
@@ -2939,7 +2939,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
         mPerformedCreateView = true;
-        mViewLifecycleOwner = new FragmentViewLifecycleOwner(getViewModelStore());
+        mViewLifecycleOwner = new FragmentViewLifecycleOwner(this, getViewModelStore());
         mView = onCreateView(inflater, container, savedInstanceState);
         if (mView != null) {
             // Initialize the view lifecycle

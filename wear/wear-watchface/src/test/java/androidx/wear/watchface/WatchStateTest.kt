@@ -28,8 +28,10 @@ public class WatchStateTest {
     public fun asWatchState_interruptionFilter_isPropagated() {
         val mutableWatchState = MutableWatchState()
         var watchState = mutableWatchState.asWatchState()
-        // Initially not set.
-        assertThat(watchState.interruptionFilter.hasValue()).isFalse()
+        // Initially set to unknown.
+        assertThat(watchState.interruptionFilter.hasValue()).isTrue()
+        assertThat(watchState.interruptionFilter.value)
+            .isEqualTo(NotificationManager.INTERRUPTION_FILTER_UNKNOWN)
         // Value updated.
         mutableWatchState.interruptionFilter.value =
             NotificationManager.INTERRUPTION_FILTER_PRIORITY

@@ -435,9 +435,9 @@ public class WatchFaceImpl(
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
     private var lastTappedComplicationId: Int? = null
-    private var registeredReceivers = false
+    internal var broadcastsReceiver: BroadcastsReceiver? = null
 
-    // True if NotificationManager.INTERRUPTION_FILTER_NONE.
+    // True if 'Do Not Disturb' mode is on.
     private var muteMode = false
     private var nextDrawTimeMillis: Long = 0
 
@@ -465,7 +465,7 @@ public class WatchFaceImpl(
         legacyWatchFaceStyle.tapEventsAccepted
     )
 
-    private val broadcastEventObserver = object : BroadcastReceivers.BroadcastEventObserver {
+    private val broadcastEventObserver = object : BroadcastsReceiver.BroadcastEventObserver {
         override fun onActionTimeTick() {
             if (!watchState.isAmbient.value) {
                 renderer.invalidate()
@@ -540,7 +540,11 @@ public class WatchFaceImpl(
     }
 
     private val interruptionFilterObserver = Observer<Int> {
-        val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE
+        // We are in mute mode in any of the following modes. The specific mode depends on the
+        // device's implementation of "Do Not Disturb".
+        val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE ||
+            it == NotificationManager.INTERRUPTION_FILTER_PRIORITY ||
+            it == NotificationManager.INTERRUPTION_FILTER_ALARMS
         if (muteMode != inMuteMode) {
             muteMode = inMuteMode
             watchFaceHostApi.invalidate()
@@ -750,23 +754,26 @@ public class WatchFaceImpl(
         unregisterReceivers()
     }
 
+    @UiThread
     private fun registerReceivers() {
-        if (registeredReceivers) {
-            return
+        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+            "registerReceivers must be called the UiThread"
         }
-        registeredReceivers = true
-        BroadcastReceivers.addBroadcastEventObserver(
-            watchFaceHostApi.getContext(),
-            broadcastEventObserver
-        )
+
+        // There's no point registering BroadcastsReceiver for headless instances.
+        if (broadcastsReceiver == null && !watchState.isHeadless) {
+            broadcastsReceiver =
+                BroadcastsReceiver(watchFaceHostApi.getContext(), broadcastEventObserver)
+        }
     }
 
+    @UiThread
     private fun unregisterReceivers() {
-        if (!registeredReceivers) {
-            return
+        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+            "unregisterReceivers must be called the UiThread"
         }
-        registeredReceivers = false
-        BroadcastReceivers.removeBroadcastEventObserver(broadcastEventObserver)
+        broadcastsReceiver?.onDestroy()
+        broadcastsReceiver = null
     }
 
     private fun scheduleDraw() {

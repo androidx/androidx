@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.lang.annotation.Retention;
@@ -255,7 +254,6 @@ public final class GridItem implements Item {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             if (CarText.isNullOrEmpty(title)) {
@@ -296,7 +294,6 @@ public final class GridItem implements Item {
          *
          * @throws NullPointerException if {@code text} is {@code null}
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);

@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.RoomMasterTable
-import androidx.room.migration.bundle.DatabaseBundle
-import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.DatabaseBundle
+import androidx.room.migration.bundle.SchemaBundle
 import com.squareup.javapoet.ClassName
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
@@ -103,8 +103,21 @@ data class Database(
     fun exportSchema(file: File) {
         val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
         if (file.exists()) {
-            val existing = file.inputStream().use {
-                SchemaBundle.deserialize(it)
+            val existing = try {
+                file.inputStream().use {
+                    SchemaBundle.deserialize(it)
+                }
+            } catch (th: Throwable) {
+                throw IllegalStateException(
+                    """
+                    Cannot parse existing schema file: ${file.absolutePath}.
+                    If you've modified the file, you might've broken the JSON format, try
+                    deleting the file and re-running the compiler.
+                    If you've not modified the file, please file a bug at
+                    https://issuetracker.google.com/issues/new?component=413107&template=1096568
+                    with a sample app to reproduce the issue.
+                    """.trimIndent()
+                )
             }
             if (existing.isSchemaEqual(schemaBundle)) {
                 return

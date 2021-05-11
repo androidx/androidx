@@ -28,13 +28,13 @@ package androidx.wear.tiles.timeline {
   public final class TilesTimelineCache {
     ctor public TilesTimelineCache(androidx.wear.tiles.builders.TimelineBuilders.Timeline);
     method @MainThread public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry? findClosestTimelineEntry(long);
-    method public long findCurrentTimelineEntryExpiry(androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry, long);
+    method @MainThread public long findCurrentTimelineEntryExpiry(androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry, long);
     method @MainThread public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry? findTimelineEntryForTime(long);
   }
 
-  public class TilesTimelineManager {
+  public class TilesTimelineManager implements java.lang.AutoCloseable {
     ctor public TilesTimelineManager(android.app.AlarmManager, androidx.wear.tiles.timeline.TilesTimelineManager.Clock, androidx.wear.tiles.builders.TimelineBuilders.Timeline, int, java.util.concurrent.Executor, androidx.wear.tiles.timeline.TilesTimelineManager.Listener);
-    method public void deInit();
+    method public void close();
     method public void init();
   }
 

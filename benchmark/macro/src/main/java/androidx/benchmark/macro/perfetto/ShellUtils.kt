@@ -40,7 +40,7 @@ internal fun UiDevice.executeShellScript(script: String, stdin: String? = null):
     // so we copy to /data/local/tmp
     val externalDir = Outputs.dirUsableByAppAndShell
     val stdinFile = File.createTempFile("temporaryStdin", null, externalDir)
-    val writableScriptFile = File.createTempFile("temporaryScript", "sh", externalDir)
+    val writableScriptFile = File.createTempFile("temporaryScript", ".sh", externalDir)
     val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
 
     try {

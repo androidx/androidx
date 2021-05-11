@@ -330,6 +330,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     }
 
     /**
+     * Returns the time-dependent part of the complication text.
+     *
      * @hide
      */
     @NonNull

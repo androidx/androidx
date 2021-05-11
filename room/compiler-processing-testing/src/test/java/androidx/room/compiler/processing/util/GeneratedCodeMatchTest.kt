@@ -176,11 +176,11 @@ class GeneratedCodeMatchTest internal constructor(
         val mismatch = SourceFileMismatch(
             expected = Line(
                 pos = 6,
-                content = "val foo: Boolean"
+                content = "public val foo: Boolean"
             ),
             actual = Line(
                 pos = 6,
-                content = "val bar: Boolean"
+                content = "public val bar: Boolean"
             )
         )
         assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())

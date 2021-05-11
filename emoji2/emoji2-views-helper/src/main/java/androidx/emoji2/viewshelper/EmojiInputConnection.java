@@ -92,7 +92,9 @@ final class EmojiInputConnection extends InputConnectionWrapper {
         }
 
         public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
-            EmojiCompat.get().updateEditorInfoAttrs(outAttrs);
+            if (EmojiCompat.isConfigured()) {
+                EmojiCompat.get().updateEditorInfoAttrs(outAttrs);
+            }
         }
     }
 }

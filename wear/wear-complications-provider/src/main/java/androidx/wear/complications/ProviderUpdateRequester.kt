@@ -102,7 +102,7 @@ public class ProviderUpdateRequester(
         /** @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        private const val EXTRA_COMPLICATION_IDS =
+        public const val EXTRA_COMPLICATION_IDS: String =
             "android.support.wearable.complications.EXTRA_COMPLICATION_IDS"
     }
 }

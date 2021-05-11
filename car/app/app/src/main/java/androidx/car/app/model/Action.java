@@ -35,7 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -64,7 +64,7 @@ import java.util.Objects;
 @CarProtocol
 public final class Action {
     /**
-     * The type of action represented by the {@link Action } instance.
+     * The type of action represented by the {@link Action} instance.
      *
      * @hide
      */
@@ -74,6 +74,7 @@ public final class Action {
                     TYPE_CUSTOM,
                     TYPE_APP_ICON,
                     TYPE_BACK,
+                    TYPE_PAN,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {
@@ -101,6 +102,11 @@ public final class Action {
     public static final int TYPE_BACK = 3 | FLAG_STANDARD;
 
     /**
+     * An action to toggle the pan mode in a map-based template.
+     */
+    public static final int TYPE_PAN = 4 | FLAG_STANDARD;
+
+    /**
      * A standard action to show the app's icon.
      *
      * <p>This action is non-interactive.
@@ -120,6 +126,20 @@ public final class Action {
      */
     @NonNull
     public static final Action BACK = new Action(TYPE_BACK);
+
+    /**
+     * A standard action to toggle the pan mode in a map-based template.
+     *
+     * <p>If the app does not provide a custom icon, a default pan icon will be used.
+     *
+     * <p>You can set a custom icon in a pan action with the following code:
+     *
+     * <pre>{@code
+     * Action panAction = new Action.Builder(Action.PAN).setIcon(customIcon).build();
+     * }</pre>
+     */
+    @NonNull
+    public static final Action PAN = new Action(TYPE_PAN);
 
     @Keep
     @Nullable
@@ -206,6 +226,8 @@ public final class Action {
                 return "APP_ICON";
             case TYPE_BACK:
                 return "BACK";
+            case TYPE_PAN:
+                return "PAN";
             default:
                 return "<unknown>";
         }
@@ -213,7 +235,7 @@ public final class Action {
 
     /** Convenience constructor for standard action singletons. */
     private Action(@ActionType int type) {
-        if (!isStandardActionType(type)) {
+        if (type == TYPE_CUSTOM) {
             throw new IllegalArgumentException(
                     "Standard action constructor used with non standard type");
         }
@@ -305,7 +327,6 @@ public final class Action {
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
@@ -391,8 +412,8 @@ public final class Action {
             if ((mType == TYPE_APP_ICON || mType == TYPE_BACK)) {
                 if (mOnClickDelegate != null) {
                     throw new IllegalStateException(
-                            "An on-click listener can't be set on the standard back or app-icon "
-                                    + "action");
+                            "An on-click listener can't be set on the standard back or "
+                                    + "app-icon action");
                 }
 
                 if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.toString()))) {
@@ -402,11 +423,35 @@ public final class Action {
                 }
             }
 
+            if (mType == TYPE_PAN) {
+                if (mOnClickDelegate != null) {
+                    throw new IllegalStateException(
+                            "An on-click listener can't be set on the pan mode action");
+                }
+            }
+
             return new Action(this);
         }
 
         /** Creates an empty {@link Builder} instance. */
         public Builder() {
+        }
+
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given
+         * {@link Action} instance.
+         *
+         * @throws NullPointerException if {@code action} is {@code null}
+         */
+        @RequiresCarApi(2)
+        public Builder(@NonNull Action action) {
+            requireNonNull(action);
+            mType = action.getType();
+            mIcon = action.getIcon();
+            mTitle = action.getTitle();
+            mOnClickDelegate = action.getOnClickDelegate();
+            CarColor backgroundColor = action.getBackgroundColor();
+            mBackgroundColor = backgroundColor == null ? DEFAULT : backgroundColor;
         }
     }
 }

@@ -96,7 +96,7 @@ package androidx.room.migration.bundle {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SchemaBundle {
     ctor public SchemaBundle(int, androidx.room.migration.bundle.DatabaseBundle!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.room.migration.bundle.SchemaBundle! deserialize(java.io.InputStream!) throws java.io.UnsupportedEncodingException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.room.migration.bundle.SchemaBundle deserialize(java.io.InputStream!) throws java.io.UnsupportedEncodingException;
     method public androidx.room.migration.bundle.DatabaseBundle! getDatabase();
     method public int getFormatVersion();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.SchemaBundle!);

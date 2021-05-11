@@ -170,14 +170,14 @@ public class TileRendererGoldenTest {
                 .putIdToImage(
                         "android",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResid(
+                                .setAndroidResourceByResId(
                                         AndroidImageResourceByResId.newBuilder()
                                                 .setResourceId(R.drawable.android_24dp))
                                 .build())
                 .putIdToImage(
                         "android_withbg_120dp",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResid(
+                                .setAndroidResourceByResId(
                                         AndroidImageResourceByResId.newBuilder()
                                                 .setResourceId(R.mipmap.android_withbg_120dp))
                                 .build())
@@ -194,14 +194,14 @@ public class TileRendererGoldenTest {
                 .putIdToImage(
                         "broken_image",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResid(
+                                .setAndroidResourceByResId(
                                         AndroidImageResourceByResId.newBuilder()
                                                 .setResourceId(R.drawable.broken_drawable))
                                 .build())
                 .putIdToImage(
                         "missing_image",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResid(
+                                .setAndroidResourceByResId(
                                         AndroidImageResourceByResId.newBuilder().setResourceId(-1))
                                 .build())
                 .build();

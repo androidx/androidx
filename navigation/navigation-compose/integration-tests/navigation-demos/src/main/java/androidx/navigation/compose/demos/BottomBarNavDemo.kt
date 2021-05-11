@@ -27,11 +27,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.compose.KEY_ROUTE
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
 import androidx.navigation.compose.samples.Profile
@@ -52,7 +50,7 @@ fun BottomBarNavDemo() {
         bottomBar = {
             BottomNavigation {
                 val navBackStackEntry = navController.currentBackStackEntryAsState().value
-                val entryRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+                val entryRoute = navBackStackEntry?.destination?.route
                 items.forEach { (name, route) ->
                     BottomNavigationItem(
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
@@ -61,7 +59,10 @@ fun BottomBarNavDemo() {
                         onClick = {
                             navController.navigate(route) {
                                 launchSingleTop = true
-                                popUpTo = navController.graph.startDestination
+                                restoreState = true
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
                             }
                         }
                     )

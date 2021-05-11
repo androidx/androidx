@@ -107,7 +107,7 @@ dependencies {
     implementation(AUTO_COMMON)
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation(JAVAPOET)
-    implementation(KOTLIN_KSP_API)
+    implementation(libs.kspApi)
     shadowed(ANTLR)
     implementation(XERIAL)
     implementation(KOTLIN_METADATA_JVM)
@@ -234,6 +234,7 @@ def checkArtifactContentsTask = tasks.register("checkArtifactTask", CheckArtifac
     def pomTask = (GenerateMavenPom) project.tasks
             .named("generatePomFileForMavenPublication").get()
     it.pomFile = pomTask.destination
+    it.dependsOn("publishMavenPublicationToMavenRepository")
 }
 
 // make sure we validate published artifacts on the build server.
@@ -241,8 +242,8 @@ BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
 tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarRelease")
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

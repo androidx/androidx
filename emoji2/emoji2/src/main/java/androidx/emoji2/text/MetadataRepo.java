@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.emoji2.text.flatbuffer.MetadataList;
 
@@ -41,6 +42,7 @@ public final class MetadataRepo {
      * The default children size of the root node.
      */
     private static final int DEFAULT_ROOT_SIZE = 1024;
+    private static final String S_TRACE_CREATE_REPO = "EmojiCompat.MetadataRepo.create";
 
     /**
      * MetadataList that contains the emoji metadata.
@@ -87,7 +89,12 @@ public final class MetadataRepo {
     @NonNull
     @RestrictTo(RestrictTo.Scope.TESTS)
     public static MetadataRepo create(@NonNull final Typeface typeface) {
-        return new MetadataRepo(typeface, new MetadataList());
+        try {
+            TraceCompat.beginSection(S_TRACE_CREATE_REPO);
+            return new MetadataRepo(typeface, new MetadataList());
+        } finally {
+            TraceCompat.endSection();
+        }
     }
 
     /**
@@ -100,7 +107,12 @@ public final class MetadataRepo {
     @NonNull
     public static MetadataRepo create(@NonNull final Typeface typeface,
             @NonNull final InputStream inputStream) throws IOException {
-        return new MetadataRepo(typeface, MetadataListReader.read(inputStream));
+        try {
+            TraceCompat.beginSection(S_TRACE_CREATE_REPO);
+            return new MetadataRepo(typeface, MetadataListReader.read(inputStream));
+        } finally {
+            TraceCompat.endSection();
+        }
     }
 
     /**
@@ -113,7 +125,12 @@ public final class MetadataRepo {
     @NonNull
     public static MetadataRepo create(@NonNull final Typeface typeface,
             @NonNull final ByteBuffer byteBuffer) throws IOException {
-        return new MetadataRepo(typeface, MetadataListReader.read(byteBuffer));
+        try {
+            TraceCompat.beginSection(S_TRACE_CREATE_REPO);
+            return new MetadataRepo(typeface, MetadataListReader.read(byteBuffer));
+        } finally {
+            TraceCompat.endSection();
+        }
     }
 
     /**
@@ -126,8 +143,14 @@ public final class MetadataRepo {
     @NonNull
     public static MetadataRepo create(@NonNull final AssetManager assetManager,
             @NonNull final String assetPath) throws IOException {
-        final Typeface typeface = Typeface.createFromAsset(assetManager, assetPath);
-        return new MetadataRepo(typeface, MetadataListReader.read(assetManager, assetPath));
+        try {
+            TraceCompat.beginSection(S_TRACE_CREATE_REPO);
+            final Typeface typeface = Typeface.createFromAsset(assetManager, assetPath);
+            return new MetadataRepo(typeface,
+                    MetadataListReader.read(assetManager, assetPath));
+        } finally {
+            TraceCompat.endSection();
+        }
     }
 
     /**

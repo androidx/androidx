@@ -18,10 +18,12 @@ package androidx.emoji2.viewshelper;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -163,4 +165,21 @@ public class EmojiEditTextHelperTest {
                 emojiTextWatcher.getEmojiReplaceStrategy());
     }
 
+    @Test
+    public void setEnabled_passesValue_toTextWatcher() {
+        mEditText = mock(EditText.class);
+        mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
+        // capture TextWatcher
+        final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
+                TextWatcher.class);
+        verify(mEditText, times(1)).addTextChangedListener(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), instanceOf(EmojiTextWatcher.class));
+        final EmojiTextWatcher emojiTextWatcher = (EmojiTextWatcher) argumentCaptor.getValue();
+        assertTrue(emojiTextWatcher.isEnabled());
+
+        mEmojiEditTextHelper.setEnabled(/* isEnabled */ false);
+        assertFalse(emojiTextWatcher.isEnabled());
+        mEmojiEditTextHelper.setEnabled(/* isEnabled */ true);
+        assertTrue(emojiTextWatcher.isEnabled());
+    }
 }
