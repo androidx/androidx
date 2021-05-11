@@ -43,7 +43,6 @@ import androidx.room.vo.findFieldByColumnName
 import com.squareup.javapoet.TypeName
 import java.io.File
 import java.io.FileInputStream
-import java.io.UnsupportedEncodingException
 import java.util.Locale
 
 class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
@@ -168,7 +167,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             fun deserializeSchemaFile(fileInputStream: FileInputStream, versionNumber: Int): Any {
                 return try {
                     SchemaBundle.deserialize(fileInputStream).database
-                } catch (e: UnsupportedEncodingException) {
+                } catch (th: Throwable) {
                     invalidAutoMigrationSchema(
                         "$versionNumber.json",
                         schemaOutFolderPath

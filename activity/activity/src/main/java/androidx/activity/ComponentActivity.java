@@ -61,6 +61,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
@@ -233,7 +234,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                         Window window = getWindow();
                         final View decor = window != null ? window.peekDecorView() : null;
                         if (decor != null) {
-                            decor.cancelPendingInputEvents();
+                            Api19Impl.cancelPendingInputEvents(decor);
                         }
                     }
                 }
@@ -702,5 +703,15 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         } finally {
             Trace.endSection();
         }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() { }
+
+        static void cancelPendingInputEvents(View view) {
+            view.cancelPendingInputEvents();
+        }
+
     }
 }

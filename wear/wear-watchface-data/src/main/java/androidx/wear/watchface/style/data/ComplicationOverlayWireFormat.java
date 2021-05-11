@@ -28,7 +28,6 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
-import androidx.wear.complications.data.ComplicationType;
 
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
 
     @ParcelField(3)
     @Nullable
-    public Map<ComplicationType, RectF> mPerComplicationTypeBounds;
+    public Map<Integer, RectF> mPerComplicationTypeBounds;
 
     /** Ideally this would be Integer but VersionedParcelable doesn't support that. */
     @ParcelField(4)
@@ -66,7 +65,7 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     public ComplicationOverlayWireFormat(
             int complicationId,
             @Nullable Boolean enabled,
-            @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds,
+            @Nullable Map<Integer, RectF> perComplicationTypeBounds,
             @Nullable Integer accessibilityTraversalIndex
     ) {
         mComplicationId = complicationId;

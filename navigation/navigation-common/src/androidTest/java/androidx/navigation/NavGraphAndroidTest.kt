@@ -26,8 +26,10 @@ import org.junit.Test
 class NavGraphAndroidTest {
     companion object {
         const val DESTINATION_ID = 1
+        const val DESTINATION_ROUTE = "destination_route"
         const val DESTINATION_LABEL = "test_label"
         const val GRAPH_ID = 2
+        const val GRAPH_ROUTE = "graph_route"
         const val GRAPH_LABEL = "graph_label"
     }
 
@@ -240,10 +242,28 @@ class NavGraphAndroidTest {
             .createDestination().apply {
                 id = GRAPH_ID
                 label = GRAPH_LABEL
-                startDestination = DESTINATION_ID
+                setStartDestination(DESTINATION_ID)
             }
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
             "startDestination=0x${DESTINATION_ID.toString(16)}"
+        assertThat(graph.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun toStringStartDestRouteOnly() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+            addNavigator(NoOpNavigator())
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination().apply {
+                route = GRAPH_ROUTE
+                id = GRAPH_ID
+                label = GRAPH_LABEL
+                setStartDestination(DESTINATION_ROUTE)
+            }
+        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+            "label=$GRAPH_LABEL startDestination=$DESTINATION_ROUTE"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
@@ -262,12 +282,90 @@ class NavGraphAndroidTest {
             .createDestination().apply {
                 id = GRAPH_ID
                 label = GRAPH_LABEL
-                startDestination = DESTINATION_ID
+                setStartDestination(DESTINATION_ID)
                 addDestination(destination)
             }
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
             "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
             "label=$DESTINATION_LABEL}"
+        assertThat(graph.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun toStringStartDestInNodesRoute() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+            addNavigator(NoOpNavigator())
+        }
+        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
+            .createDestination().apply {
+                route = DESTINATION_ROUTE
+                id = DESTINATION_ID
+                label = DESTINATION_LABEL
+            }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination().apply {
+                route = GRAPH_ROUTE
+                id = GRAPH_ID
+                label = GRAPH_LABEL
+                setStartDestination(DESTINATION_ROUTE)
+                setStartDestination(DESTINATION_ID)
+                addDestination(destination)
+            }
+        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+            "label=$GRAPH_LABEL " +
+            "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
+            "route=$DESTINATION_ROUTE label=$DESTINATION_LABEL}"
+        assertThat(graph.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun toStringStartDestInNodesRouteWithStartDestID() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+            addNavigator(NoOpNavigator())
+        }
+        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
+            .createDestination().apply {
+                route = DESTINATION_ROUTE
+                label = DESTINATION_LABEL
+            }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination().apply {
+                route = GRAPH_ROUTE
+                id = GRAPH_ID
+                label = GRAPH_LABEL
+                setStartDestination(DESTINATION_ROUTE)
+                setStartDestination(DESTINATION_ID)
+                addDestination(destination)
+            }
+        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+            "label=$GRAPH_LABEL startDestination=0x${DESTINATION_ID.toString(16)}"
+        assertThat(graph.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun toStringStartDestInNodesRouteWithID() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+            addNavigator(NoOpNavigator())
+        }
+        val destination = navigatorProvider.getNavigator(NoOpNavigator::class.java)
+            .createDestination().apply {
+                route = DESTINATION_ROUTE
+                id = DESTINATION_ID
+                label = DESTINATION_LABEL
+            }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination().apply {
+                route = GRAPH_ROUTE
+                id = GRAPH_ID
+                label = GRAPH_LABEL
+                setStartDestination(DESTINATION_ROUTE)
+                addDestination(destination)
+            }
+        val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
+            "label=$GRAPH_LABEL startDestination=$DESTINATION_ROUTE"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 }

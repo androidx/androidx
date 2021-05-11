@@ -60,18 +60,17 @@ public open class ListenableWatchFaceControlClient(
         // TODO(flerda): Move this to a location where it can be shared.
         internal fun <T> launchFutureCoroutine(
             traceTag: String,
-            scopeFactory: () -> CoroutineScope,
             block: suspend CoroutineScope.() -> T
         ): ListenableFuture<T> {
             val traceEvent = AsyncTraceEvent(traceTag)
             val future = ResolvableFuture.create<T>()
-            val immediateCoroutineScope = createImmediateCoroutineScope()
-            scopeFactory().launch {
+            val coroutineScope = createImmediateCoroutineScope()
+            coroutineScope.launch {
                 // Propagate future cancellation.
                 future.addListener(
                     {
                         if (future.isCancelled) {
-                            immediateCoroutineScope.cancel()
+                            coroutineScope.cancel()
                         }
                     },
                     { runner -> runner.run() }
@@ -92,18 +91,25 @@ public open class ListenableWatchFaceControlClient(
          * connect to a watch face in the android package [watchFacePackageName].
          * Resolves as [ServiceNotBoundException] if the watch face control service can not
          * be bound.
+         *
+         * Note the returned future may resolve immediately on the calling thread or it may resolve
+         * asynchronously when the service is connected on a background thread.
+         *
+         * @param context Calling application's [Context].
+         * @param watchFacePackageName Name of the package containing the watch face control
+         * service to bind to.
+         * @return [ListenableFuture]<[ListenableWatchFaceControlClient]> which on success resolves
+         * to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
+         * watch face control service can not be bound.
          */
         @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public fun createWatchFaceControlClient(
-            /** Calling application's [Context]. */
             context: Context,
-            /** The name of the package containing the watch face control service to bind to. */
             watchFacePackageName: String
         ): ListenableFuture<ListenableWatchFaceControlClient> =
             launchFutureCoroutine(
                 "ListenableWatchFaceControlClient.createWatchFaceControlClient",
-                ::createImmediateCoroutineScope,
             ) {
                 ListenableWatchFaceControlClient(
                     WatchFaceControlClient.createWatchFaceControlClient(
@@ -141,7 +147,6 @@ public open class ListenableWatchFaceControlClient(
     ): ListenableFuture<InteractiveWatchFaceClient> =
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
-            ::createImmediateCoroutineScope,
         ) {
             watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
                 id,

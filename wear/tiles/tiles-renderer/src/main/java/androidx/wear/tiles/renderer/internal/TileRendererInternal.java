@@ -166,7 +166,7 @@ public final class TileRendererInternal {
 
     final Context mAppContext;
     private final Layout mLayoutProto;
-    private final ResourceAccessors mResourceAccessors;
+    private final ResourceResolvers mResourceResolvers;
 
     private final FontSet mTitleFontSet;
     private final FontSet mBodyFontSet;
@@ -193,20 +193,20 @@ public final class TileRendererInternal {
      *
      * @param appContext The application context.
      * @param layout The portion of the Tile to render.
-     * @param resourceAccessors Accessors for the resources used for rendering this Prototile.
+     * @param resourceResolvers Resolvers for the resources used for rendering this Prototile.
      * @param loadActionExecutor Executor to dispatch loadActionListener on.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      */
     public TileRendererInternal(
             @NonNull Context appContext,
             @NonNull Layout layout,
-            @NonNull ResourceAccessors resourceAccessors,
+            @NonNull ResourceResolvers resourceResolvers,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
         this(
                 appContext,
                 layout,
-                resourceAccessors,
+                resourceResolvers,
                 /* tilesTheme= */ 0,
                 loadActionExecutor,
                 loadActionListener);
@@ -217,7 +217,7 @@ public final class TileRendererInternal {
      *
      * @param appContext The application context.
      * @param layout The portion of the Tile to render.
-     * @param resourceAccessors Accessors for the resources used for rendering this Prototile.
+     * @param resourceResolvers Resolvers for the resources used for rendering this Prototile.
      * @param tilesTheme The theme to use for this Tiles instance. This can be used to customise
      *     things like the default font family. Pass 0 to use the default theme.
      * @param loadActionExecutor Executor to dispatch loadActionListener on.
@@ -226,7 +226,7 @@ public final class TileRendererInternal {
     public TileRendererInternal(
             @NonNull Context appContext,
             @NonNull Layout layout,
-            @NonNull ResourceAccessors resourceAccessors,
+            @NonNull ResourceResolvers resourceResolvers,
             @StyleRes int tilesTheme,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
@@ -244,7 +244,7 @@ public final class TileRendererInternal {
 
         this.mAppContext = new ContextThemeWrapper(appContext, tilesTheme);
         this.mLayoutProto = layout;
-        this.mResourceAccessors = resourceAccessors;
+        this.mResourceResolvers = resourceResolvers;
         this.mLoadActionExecutor = loadActionExecutor;
         this.mLoadActionListener = loadActionListener;
     }
@@ -1184,7 +1184,7 @@ public final class TileRendererInternal {
 
         parent.addView(wrappedView, ratioWrapperLayoutParams);
 
-        ListenableFuture<Drawable> drawableFuture = mResourceAccessors.getDrawable(protoResId);
+        ListenableFuture<Drawable> drawableFuture = mResourceResolvers.getDrawable(protoResId);
         if (drawableFuture.isDone()) {
             // If the future is done, immediately draw.
             setImageDrawable(imageView, drawableFuture, protoResId);
@@ -1340,7 +1340,7 @@ public final class TileRendererInternal {
             return builder;
         }
 
-        ListenableFuture<Drawable> drawableFuture = mResourceAccessors.getDrawable(protoResId);
+        ListenableFuture<Drawable> drawableFuture = mResourceResolvers.getDrawable(protoResId);
         if (drawableFuture.isDone()) {
             // If the future is done, immediately add drawable to builder.
             try {

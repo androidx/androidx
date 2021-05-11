@@ -4567,7 +4567,7 @@ public class GridWidgetTest {
         assertEquals(0, mGridView.getSelectedPosition());
     }
 
-    @FlakyTest
+    @FlakyTest(bugId = 187191618)
     @Test
     public void testExtraLayoutSpace() throws Throwable {
         Intent intent = new Intent();

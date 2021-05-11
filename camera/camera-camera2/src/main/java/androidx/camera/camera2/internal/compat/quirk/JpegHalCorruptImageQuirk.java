@@ -16,13 +16,11 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
-import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
-import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,23 +44,7 @@ public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPrefe
                     "heroqltetmo"
             ));
 
-    // TODO: This quirk is limited to FULL/LEVEL_3 cameras currently since it will use a YUV stream
-    //  for ImageCapture. On LIMITED and LEGACY this would limit the guaranteed surface
-    //  combinations.
-    private static final Set<Integer> SUPPORTED_HARDWARE_LEVELS = new HashSet<>();
-
-    static {
-        SUPPORTED_HARDWARE_LEVELS.add(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
-        if (Build.VERSION.SDK_INT >= 24) {
-            SUPPORTED_HARDWARE_LEVELS.add(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3);
-        }
-    }
-
     static boolean load(@NonNull CameraCharacteristicsCompat characteristicsCompat) {
-
-        int hardwareLevel = Preconditions.checkNotNull(
-                characteristicsCompat.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL));
-        return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase(Locale.US))
-                && SUPPORTED_HARDWARE_LEVELS.contains(hardwareLevel);
+        return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase(Locale.US));
     }
 }

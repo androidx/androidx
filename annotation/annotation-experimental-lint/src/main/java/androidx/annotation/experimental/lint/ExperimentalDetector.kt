@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage", "SyntheticAccessor")
+
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.detector.api.AnnotationUsageType
@@ -41,9 +43,9 @@ import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.getParentOfType
 
-@Suppress("SyntheticAccessor", "UnstableApiUsage")
 class ExperimentalDetector : Detector(), SourceCodeScanner {
-    override fun applicableAnnotations(): List<String>? = listOf(
+
+    override fun applicableAnnotations(): List<String> = listOf(
         JAVA_EXPERIMENTAL_ANNOTATION,
         KOTLIN_EXPERIMENTAL_ANNOTATION,
         JAVA_REQUIRES_OPT_IN_ANNOTATION,
@@ -215,20 +217,20 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             Scope.JAVA_FILE_SCOPE
         )
 
-        private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
-        private const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
+        const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
+        const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
 
-        private const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
-        private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
+        const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
+        const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
 
-        private const val JAVA_EXPERIMENTAL_ANNOTATION =
+        const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"
-        private const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
+        const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.UseExperimental"
 
-        private const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
+        const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
             "androidx.annotation.RequiresOptIn"
-        private const val JAVA_OPT_IN_ANNOTATION =
+        const val JAVA_OPT_IN_ANNOTATION =
             "androidx.annotation.OptIn"
 
         @Suppress("DefaultLocale")

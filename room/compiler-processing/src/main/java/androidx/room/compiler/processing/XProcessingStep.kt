@@ -48,27 +48,32 @@ interface XProcessingStep {
      */
     fun annotations(): Set<String>
 
-    /**
-     * Wraps current [XProcessingStep] into an Auto Common
-     * [BasicAnnotationProcessor.ProcessingStep].
-     */
-    fun asAutoCommonProcessor(
-        env: ProcessingEnvironment
-    ): BasicAnnotationProcessor.Step {
-        return JavacProcessingStepDelegate(
-            env = env,
-            delegate = this
-        )
-    }
+    companion object {
 
-    fun executeInKsp(env: XProcessingEnv): List<KSAnnotated> {
-        check(env is KspProcessingEnv)
-        val round = XRoundEnv.create(env)
-        val args = annotations().associateWith { annotation ->
-            round.getElementsAnnotatedWith(annotation)
+        /**
+         * Wraps current [XProcessingStep] into an Auto Common
+         * [BasicAnnotationProcessor.ProcessingStep].
+         */
+        @JvmStatic
+        fun XProcessingStep.asAutoCommonProcessor(
+            env: ProcessingEnvironment
+        ): BasicAnnotationProcessor.Step {
+            return JavacProcessingStepDelegate(
+                env = env,
+                delegate = this
+            )
         }
-        return process(env, args)
-            .map { (it as KspElement).declaration }
+
+        @JvmStatic
+        fun XProcessingStep.executeInKsp(env: XProcessingEnv): List<KSAnnotated> {
+            check(env is KspProcessingEnv)
+            val round = XRoundEnv.create(env)
+            val args = annotations().associateWith { annotation ->
+                round.getElementsAnnotatedWith(annotation)
+            }
+            return process(env, args)
+                .map { (it as KspElement).declaration }
+        }
     }
 }
 

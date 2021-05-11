@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingStep.Companion.asAutoCommonProcessor
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.util.SimpleJavaVersion

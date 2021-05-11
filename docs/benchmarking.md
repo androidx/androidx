@@ -133,11 +133,11 @@ simplified and improved over time.
 
 #### Device
 
-Get an API 28+ device (Or a rooted API 27 device). The rest of this section is
-about *why* those constraints exist, skip if not interested.
+Get an API 29+ device. The rest of this section is about *why* those constraints
+exist, skip if not interested.
 
 Simpleperf has restrictions about where it can be used - Jetpack Benchmark will
-only support API 28+ for now, due to
+only support API 29+ for now, due to
 [platform/simpleperf constraints](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/android_application_profiling.md#prepare-an-android-application)
 (see last subsection titled "If you want to profile Java code"). Summary is:
 
@@ -148,9 +148,13 @@ only support API 28+ for now, due to
 -   26 (O): Requires compiled Java code, and wrapper script. We haven't
     investigated support.
 
--   27 (P): Can profile all Java code, but requires `userdebug`/rooted device
+-   27 (O.1): Can profile all Java code, but requires `userdebug`/rooted device
 
--   \>=28 (Q): Can profile all Java code, requires profileable (or
+-   28 (P): Can profile all Java code, requires debuggable (or
+    `userdebug`/rooted device, but this appears to not be supported by scripts
+    currently)
+
+-   \>=29 (Q): Can profile all Java code, requires profileable or debuggable (or
     `userdebug`/rooted device)
 
 We aren't planning to support profiling debuggable APK builds, since they're

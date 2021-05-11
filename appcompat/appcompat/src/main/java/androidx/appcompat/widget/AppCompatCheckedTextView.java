@@ -62,11 +62,13 @@ import androidx.core.widget.TintableCheckedTextView;
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatCheckedTextView extends CheckedTextView implements TintableCheckedTextView,
-        TintableBackgroundView {
+        TintableBackgroundView, EmojiCompatConfigurationView {
 
     private final AppCompatCheckedTextViewHelper mCheckedHelper;
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+    @NonNull
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
 
     public AppCompatCheckedTextView(@NonNull Context context) {
         this(context, null);
@@ -91,6 +93,9 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
 
         mCheckedHelper = new AppCompatCheckedTextViewHelper(this);
         mCheckedHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        AppCompatEmojiTextHelper emojiTextViewHelper = getEmojiTextViewHelper();
+        emojiTextViewHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
     @Override
@@ -276,5 +281,34 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
     public ActionMode.Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
+    }
+
+    /**
+     * This may be called from super constructors.
+     */
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+        //noinspection ConstantConditions
+        if (mAppCompatEmojiTextHelper == null) {
+            mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);
+        }
+        return mAppCompatEmojiTextHelper;
+    }
+
+    @Override
+    public void setAllCaps(boolean allCaps) {
+        super.setAllCaps(allCaps);
+        getEmojiTextViewHelper().setAllCaps(allCaps);
+    }
+
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        getEmojiTextViewHelper().setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return getEmojiTextViewHelper().isEnabled();
     }
 }

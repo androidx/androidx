@@ -36,6 +36,8 @@ dependencies {
     implementation("androidx.collection:collection-ktx:1.1.0")
 
     api(KOTLIN_STDLIB)
+    testImplementation(project(":navigation:navigation-testing"))
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)

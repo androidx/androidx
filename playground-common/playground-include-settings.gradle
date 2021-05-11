@@ -63,6 +63,14 @@ def setupPlayground(settings, String relativePathToRoot) {
             jcenter()
         }
     }
+    settings.enableFeaturePreview("VERSION_CATALOGS")
+    settings.dependencyResolutionManagement {
+        versionCatalogs {
+            libs {
+                from(files("$supportRoot/gradle/libs.versions.toml"))
+            }
+        }
+    }
     settings.includeBuild(new File(supportRoot, "androidx-plugin"))
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
     settings.includeProject(":lint-checks:integration-tests",

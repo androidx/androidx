@@ -27,22 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavDeepLinkRequest
-import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.navOptions
-import androidx.navigation.navigation
-
-/**
- * The route linked to the current destination.
- */
-const val KEY_ROUTE = "android-support-nav:controller:route"
 
 /**
  * Gets the current navigation back stack entry as a [MutableState]. When the given navController
@@ -96,56 +83,3 @@ private fun NavControllerSaver(
     save = { it.saveState() },
     restore = { createNavController(context).apply { restoreState(it) } }
 )
-
-/**
- * Navigate to a route in the current NavGraph.
- *
- * @param route route for the destination
- * @param builder DSL for constructing a new [NavOptions]
- */
-public fun NavController.navigate(route: String, builder: NavOptionsBuilder.() -> Unit = {}) {
-    navigate(
-        NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(),
-        navOptions(builder)
-    )
-}
-
-/**
- * Construct a new [NavGraph]
- *
- * @param route the route for the graph
- * @param startDestination the route for the start destination
- * @param builder the builder used to construct the graph
- */
-fun NavController.createGraph(
-    startDestination: String,
-    route: String? = null,
-    builder: NavGraphBuilder.() -> Unit
-): NavGraph = navigatorProvider.navigation(
-    if (route != null) createRoute(route).hashCode() else 0,
-    createRoute(startDestination).hashCode(),
-    builder
-)
-
-/**
- * Gets the topmost {@link NavBackStackEntry} for a route.
- * <p>
- * This is always safe to use with {@link #getCurrentDestination() the current destination} or
- * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
- * destinations are guaranteed to be on the back stack.
- *
- * @param route route of a destination that exists on the back stack
- * @throws IllegalArgumentException if the destination is not on the back stack
- */
-public fun NavController.getBackStackEntry(route: String): NavBackStackEntry {
-    try {
-        return getBackStackEntry(createRoute(route).hashCode())
-    } catch (e: IllegalArgumentException) {
-        throw IllegalArgumentException(
-            "No destination with route $route is on the NavController's back stack. The current " +
-                "destination is $currentDestination"
-        )
-    }
-}
-
-internal fun createRoute(route: String) = "android-app://androidx.navigation.compose/$route"

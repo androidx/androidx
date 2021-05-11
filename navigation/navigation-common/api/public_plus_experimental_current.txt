@@ -106,7 +106,7 @@ package androidx.navigation {
     method public android.os.Bundle? getArguments();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.navigation.NavDestination getDestination();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.UUID getId();
+    method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.lifecycle.Lifecycle.State getMaxLifecycle();
     method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
@@ -120,7 +120,7 @@ package androidx.navigation {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void updateState();
     property public final android.os.Bundle? arguments;
     property public final androidx.navigation.NavDestination destination;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.UUID id;
+    property public final String id;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.lifecycle.Lifecycle.State maxLifecycle;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
   }
@@ -214,6 +214,7 @@ package androidx.navigation {
     method public final CharSequence? getLabel();
     method public final String getNavigatorName();
     method public final androidx.navigation.NavGraph? getParent();
+    method public final String? getRoute();
     method public boolean hasDeepLink(android.net.Uri deepLink);
     method public boolean hasDeepLink(androidx.navigation.NavDeepLinkRequest deepLinkRequest);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.navigation.NavDestination.DeepLinkMatch? matchDeepLink(androidx.navigation.NavDeepLinkRequest navDeepLinkRequest);
@@ -227,6 +228,7 @@ package androidx.navigation {
     method public final void setId(int id);
     method public final void setLabel(CharSequence? p);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void setParent(androidx.navigation.NavGraph? p);
+    method public final void setRoute(String? route);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean supportsActions();
     property public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String displayName;
@@ -234,6 +236,7 @@ package androidx.navigation {
     property public final CharSequence? label;
     property public final String navigatorName;
     property public final androidx.navigation.NavGraph? parent;
+    property public final String? route;
     field public static final androidx.navigation.NavDestination.Companion Companion;
   }
 
@@ -258,6 +261,7 @@ package androidx.navigation {
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
+    ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, String? route);
     method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
     method public final void argument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> argumentBuilder);
     method public D build();
@@ -266,10 +270,12 @@ package androidx.navigation {
     method public final int getId();
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
+    method public final String? getRoute();
     method public final void setLabel(CharSequence? p);
     property public final int id;
     property public final CharSequence? label;
     property protected final androidx.navigation.Navigator<? extends D> navigator;
+    property public final String? route;
   }
 
   @kotlin.DslMarker public @interface NavDestinationDsl {
@@ -290,20 +296,25 @@ package androidx.navigation {
     method public final void addDestinations(androidx.navigation.NavDestination... nodes);
     method public final void clear();
     method public final androidx.navigation.NavDestination? findNode(@IdRes int resid);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.navigation.NavDestination? findNode(@IdRes int resid, boolean searchParents);
+    method public final androidx.navigation.NavDestination? findNode(String? route);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> getNodes();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String getStartDestDisplayName();
-    method @IdRes public final int getStartDestination();
+    method @Deprecated @IdRes public final int getStartDestination();
+    method @IdRes public final int getStartDestinationId();
+    method public final String? getStartDestinationRoute();
     method public final java.util.Iterator<androidx.navigation.NavDestination> iterator();
     method public final void remove(androidx.navigation.NavDestination node);
     method public final void setStartDestination(int startDestId);
+    method public final void setStartDestination(String startDestRoute);
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> nodes;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String startDestDisplayName;
-    property @IdRes public final int startDestination;
+    property @IdRes public final int startDestinationId;
+    property public final String? startDestinationRoute;
   }
 
   @androidx.navigation.NavDestinationDsl public class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {
     ctor public NavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
+    ctor public NavGraphBuilder(androidx.navigation.NavigatorProvider provider, String startDestination, String? route);
     method public final void addDestination(androidx.navigation.NavDestination destination);
     method public androidx.navigation.NavGraph build();
     method public final <D extends androidx.navigation.NavDestination> void destination(androidx.navigation.NavDestinationBuilder<? extends D> navDestination);
@@ -314,12 +325,16 @@ package androidx.navigation {
 
   public final class NavGraphBuilderKt {
     method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline void navigation(androidx.navigation.NavGraphBuilder, String startDestination, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavGraphKt {
     method public static operator boolean contains(androidx.navigation.NavGraph, @IdRes int id);
+    method public static operator boolean contains(androidx.navigation.NavGraph, String route);
     method public static inline operator androidx.navigation.NavDestination get(androidx.navigation.NavGraph, @IdRes int id);
+    method public static inline operator androidx.navigation.NavDestination get(androidx.navigation.NavGraph, String route);
     method public static inline operator void minusAssign(androidx.navigation.NavGraph, androidx.navigation.NavDestination node);
     method public static inline operator void plusAssign(androidx.navigation.NavGraph, androidx.navigation.NavDestination node);
     method public static inline operator void plusAssign(androidx.navigation.NavGraph, androidx.navigation.NavGraph other);
@@ -328,7 +343,6 @@ package androidx.navigation {
   @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
     ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider navigatorProvider);
     method public androidx.navigation.NavGraph createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.NavGraph destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
   }
 
   public final class NavOptions {
@@ -336,7 +350,9 @@ package androidx.navigation {
     method @AnimRes @AnimatorRes public int getExitAnim();
     method @AnimRes @AnimatorRes public int getPopEnterAnim();
     method @AnimRes @AnimatorRes public int getPopExitAnim();
-    method @IdRes public int getPopUpTo();
+    method @Deprecated @IdRes public int getPopUpTo();
+    method @IdRes public int getPopUpToId();
+    method public String? getPopUpToRoute();
     method public boolean isPopUpToInclusive();
     method public boolean shouldLaunchSingleTop();
     method public boolean shouldPopUpToSaveState();
@@ -345,7 +361,8 @@ package androidx.navigation {
     property @AnimRes @AnimatorRes public final int exitAnim;
     property @AnimRes @AnimatorRes public final int popEnterAnim;
     property @AnimRes @AnimatorRes public final int popExitAnim;
-    property @IdRes public final int popUpTo;
+    property @IdRes public final int popUpToId;
+    property public final String? popUpToRoute;
   }
 
   public static final class NavOptions.Builder {
@@ -358,6 +375,8 @@ package androidx.navigation {
     method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive);
+    method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive, optional boolean saveState);
+    method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive);
     method public androidx.navigation.NavOptions.Builder setRestoreState(boolean restoreState);
   }
 
@@ -365,14 +384,19 @@ package androidx.navigation {
     ctor public NavOptionsBuilder();
     method public void anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit> animBuilder);
     method public boolean getLaunchSingleTop();
-    method public int getPopUpTo();
+    method @Deprecated public int getPopUpTo();
+    method public int getPopUpToId();
+    method public String? getPopUpToRoute();
     method public boolean getRestoreState();
-    method public void popUpTo(@IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method public void popUpTo(@IdRes int id, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method public void popUpTo(String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void setLaunchSingleTop(boolean p);
-    method public void setPopUpTo(int value);
+    method @Deprecated public void setPopUpTo(int value);
     method public void setRestoreState(boolean p);
     property public final boolean launchSingleTop;
-    property public final int popUpTo;
+    property @Deprecated public final int popUpTo;
+    property public final int popUpToId;
+    property public final String? popUpToRoute;
     property public final boolean restoreState;
   }
 

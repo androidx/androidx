@@ -23,7 +23,6 @@ import android.graphics.Color;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -44,10 +43,7 @@ import androidx.car.app.sample.showcase.common.common.Utils;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
-import java.util.UUID;
-
 /** A screen that demonstrates the sign-in template. */
-@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
 public class SignInTemplateDemoScreen extends Screen {
     private enum State {
         USERNAME,
@@ -71,18 +67,18 @@ public class SignInTemplateDemoScreen extends Screen {
 
     private final Action mProviderSignInAction = new Action.Builder()
             .setTitle("Google Sign-In")
-            .setOnClickListener(() -> {
+            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PROVIDER;
                 invalidate();
-            })
+            }))
             .build();
 
     private final Action mPinSignInAction = new Action.Builder()
             .setTitle("Use PIN")
-            .setOnClickListener(() -> {
+            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PIN;
                 invalidate();
-            })
+            }))
             .build();
 
     public SignInTemplateDemoScreen(@NonNull CarContext carContext) {
@@ -103,8 +99,6 @@ public class SignInTemplateDemoScreen extends Screen {
         };
         carContext.getOnBackPressedDispatcher().addCallback(this, callback);
     }
-
-
 
     @NonNull
     @Override
@@ -207,7 +201,7 @@ public class SignInTemplateDemoScreen extends Screen {
     }
 
     private Template getPinSignInTemplate() {
-        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder(UUID.randomUUID()
+        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder("123456789abc"
                 .toString().toUpperCase())
                 .build();
 

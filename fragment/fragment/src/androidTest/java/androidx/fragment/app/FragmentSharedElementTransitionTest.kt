@@ -62,4 +62,47 @@ class FragmentSharedElementTransitionTest {
             assertThat(ViewCompat.getTransitionName(blueSquare)).isEqualTo("blueSquare")
         }
     }
+
+    @Test
+    fun testNestedSharedElementViewNonMatching() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = TransitionFragment(R.layout.scene5)
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment)
+                    .commit()
+            }
+
+            val containerBlueSquare = withActivity { findViewById(R.id.containerBlueSquare) }
+            val greenSquare = withActivity { findViewById(R.id.greenSquare) }
+            val redSquare = withActivity { findViewById(R.id.redSquare) }
+            val startBlueBounds = containerBlueSquare.boundsOnScreen
+
+            val fragment2 = TransitionFragment(R.layout.scene4)
+
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addSharedElement(containerBlueSquare, "blueSquare")
+                    .replace(R.id.content, fragment2)
+                    .commit()
+            }
+
+            val blueSquare = withActivity { findViewById(R.id.blueSquare) }
+
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(containerBlueSquare, greenSquare, redSquare)
+            }
+            fragment2.sharedElementEnter.verifyAndClearTransition {
+                enteringViews += listOf(blueSquare)
+                exitingViews += listOf(containerBlueSquare, greenSquare)
+                epicenter = startBlueBounds
+            }
+            verifyNoOtherTransitions(fragment)
+            verifyNoOtherTransitions(fragment2)
+        }
+    }
 }

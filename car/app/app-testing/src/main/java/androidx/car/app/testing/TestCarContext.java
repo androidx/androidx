@@ -26,7 +26,6 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -129,7 +128,6 @@ public class TestCarContext extends CarContext {
     }
 
     @Override
-    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     public void requestPermissions(@NonNull Executor executor, @NonNull List<String> permissions,
             @NonNull OnRequestPermissionsCallback callback) {
         mLastPermissionRequest = new PermissionRequest(requireNonNull(permissions),

@@ -43,7 +43,6 @@ package androidx.car.app.testing {
     method public androidx.car.app.testing.TestCarContext.PermissionRequest? getLastPermissionRequest();
     method public java.util.List<android.content.Intent!> getStartCarAppIntents();
     method public boolean hasCalledFinishCarApp();
-    method public void requestPermissions(java.util.concurrent.Executor, java.util.List<java.lang.String!>, androidx.car.app.OnRequestPermissionsCallback);
     method public void reset();
   }
 

@@ -75,6 +75,28 @@ class NavGraphTest {
             .isFalse()
     }
 
+    @Test
+    fun plusAssignGraphRoute() {
+        val graph = NavGraph(navGraphNavigator)
+        val other = NavGraph(navGraphNavigator)
+        other += navigator.createDestination().apply { route = DESTINATION_ROUTE }
+        other += navigator.createDestination().apply { route = SECOND_DESTINATION_ROUTE }
+        graph += other
+        assertWithMessage("NavGraph should have destination1 from other")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("other nav graph should not have destination1")
+            .that(DESTINATION_ROUTE in other)
+            .isFalse()
+
+        assertWithMessage("NavGraph should have destination2 from other")
+            .that(SECOND_DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("other nav graph should not have destination2")
+            .that(SECOND_DESTINATION_ROUTE in other)
+            .isFalse()
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun getIllegalArgumentException() {
         val graph = NavGraph(navGraphNavigator)
@@ -84,3 +106,5 @@ class NavGraphTest {
 
 private const val DESTINATION_ID = 1
 private const val SECOND_DESTINATION_ID = 2
+private const val DESTINATION_ROUTE = "first"
+private const val SECOND_DESTINATION_ROUTE = "second"

@@ -452,8 +452,9 @@ public sealed class Renderer(
      * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      * default this is empty.
+     * @throws [GlesException] If any GL calls fail during initialization.
      */
-    public abstract class GlesRenderer @JvmOverloads constructor(
+    public abstract class GlesRenderer @Throws(GlesException::class) @JvmOverloads constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
@@ -472,24 +473,27 @@ public sealed class Renderer(
             private const val TAG = "Gles2WatchFace"
         }
 
+        /** Exception thrown if a GL call fails */
+        public class GlesException(message: String) : Exception(message)
+
         /** The GlesRenderer's [EGLDisplay]. */
-        public var eglDisplay: EGLDisplay? = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
+        public var eglDisplay: EGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
             if (this == EGL14.EGL_NO_DISPLAY) {
-                throw RuntimeException("eglGetDisplay returned EGL_NO_DISPLAY")
+                throw GlesException("eglGetDisplay returned EGL_NO_DISPLAY")
             }
             // Initialize the display. The major and minor version numbers are passed back.
             val version = IntArray(2)
             if (!EGL14.eglInitialize(this, version, 0, version, 1)) {
-                throw RuntimeException("eglInitialize failed")
+                throw GlesException("eglInitialize failed")
             }
         }
 
         /** The GlesRenderer's [EGLConfig]. */
-        public var eglConfig: EGLConfig = chooseEglConfig(eglDisplay!!)
+        public var eglConfig: EGLConfig = chooseEglConfig(eglDisplay)
 
         /** The GlesRenderer's [EGLContext]. */
         @SuppressWarnings("SyntheticAccessor")
-        public var eglContext: EGLContext? = EGL14.eglCreateContext(
+        public var eglContext: EGLContext = EGL14.eglCreateContext(
             eglDisplay,
             eglConfig,
             EGL14.EGL_NO_CONTEXT,
@@ -503,7 +507,7 @@ public sealed class Renderer(
             }
         }
 
-        private var eglSurface: EGLSurface? = null
+        private lateinit var eglSurface: EGLSurface
         private var calledOnGlContextCreated = false
         private val renderBufferTexture by lazy {
             RenderBufferTexture(
@@ -515,8 +519,9 @@ public sealed class Renderer(
 
         /**
          * Chooses the EGLConfig to use.
-         * @throws RuntimeException if [EGL14.eglChooseConfig] fails
+         * @throws [GlesException] if [EGL14.eglChooseConfig] fails
          */
+        @Throws(GlesException::class)
         private fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
             val numEglConfigs = IntArray(1)
             val eglConfigs = arrayOfNulls<EGLConfig>(1)
@@ -531,16 +536,17 @@ public sealed class Renderer(
                     0
                 )
             ) {
-                throw RuntimeException("eglChooseConfig failed")
+                throw GlesException("eglChooseConfig failed")
             }
             if (numEglConfigs[0] == 0) {
-                throw RuntimeException("no matching EGL configs")
+                throw GlesException("no matching EGL configs")
             }
             return eglConfigs[0]!!
         }
 
+        @Throws(GlesException::class)
         private fun createWindowSurface(width: Int, height: Int) {
-            if (eglSurface != null) {
+            if (this::eglSurface.isInitialized) {
                 if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
                     Log.w(TAG, "eglDestroySurface failed")
                 }
@@ -563,7 +569,7 @@ public sealed class Renderer(
                 )
             }
             if (eglSurface == EGL14.EGL_NO_SURFACE) {
-                throw RuntimeException("eglCreateWindowSurface failed")
+                throw GlesException("eglCreateWindowSurface failed")
             }
 
             makeContextCurrent()
@@ -577,23 +583,16 @@ public sealed class Renderer(
 
         @CallSuper
         override fun onDestroy() {
-            if (eglSurface != null) {
+            if (this::eglSurface.isInitialized) {
                 if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
                     Log.w(TAG, "eglDestroySurface failed")
                 }
-                eglSurface = null
             }
-            if (eglContext != null) {
-                if (!EGL14.eglDestroyContext(eglDisplay, eglContext)) {
-                    Log.w(TAG, "eglDestroyContext failed")
-                }
-                eglContext = null
+            if (!EGL14.eglDestroyContext(eglDisplay, eglContext)) {
+                Log.w(TAG, "eglDestroyContext failed")
             }
-            if (eglDisplay != null) {
-                if (!EGL14.eglTerminate(eglDisplay)) {
-                    Log.w(TAG, "eglTerminate failed")
-                }
-                eglDisplay = null
+            if (!EGL14.eglTerminate(eglDisplay)) {
+                Log.w(TAG, "eglTerminate failed")
             }
         }
 
@@ -613,8 +612,11 @@ public sealed class Renderer(
         /**
          * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
          * a [WatchFace] before this method has been called.
+         *
+         * @throws [GlesException] If any GL calls fail.
          */
         @UiThread
+        @Throws(GlesException::class)
         public fun initOpenGlContext() {
             surfaceHolder.addCallback(object : SurfaceHolder.Callback {
                 @SuppressLint("SyntheticAccessor")
@@ -629,10 +631,11 @@ public sealed class Renderer(
 
                 @SuppressLint("SyntheticAccessor")
                 override fun surfaceDestroyed(holder: SurfaceHolder) {
-                    if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
-                        Log.w(TAG, "eglDestroySurface failed")
+                    if (this@GlesRenderer::eglSurface.isInitialized) {
+                        if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
+                            Log.w(TAG, "eglDestroySurface failed")
+                        }
                     }
-                    eglSurface = null
                 }
 
                 override fun surfaceCreated(holder: SurfaceHolder) {

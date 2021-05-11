@@ -17,9 +17,11 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.navigation.testing.TestNavigatorState
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -34,8 +36,13 @@ class NavGraphNavigatorTest {
         private const val SECOND_DESTINATION_ID = 2
     }
 
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private lateinit var provider: NavigatorProvider
+    private lateinit var noOpState: TestNavigatorState
     private lateinit var noOpNavigator: NoOpNavigator
+    private lateinit var navGraphState: TestNavigatorState
     private lateinit var navGraphNavigator: NavGraphNavigator
 
     @Before
@@ -48,6 +55,10 @@ class NavGraphNavigatorTest {
                 }
             )
         }
+        noOpState = TestNavigatorState()
+        noOpNavigator.onAttach(noOpState)
+        navGraphState = TestNavigatorState()
+        navGraphNavigator.onAttach(navGraphState)
     }
 
     private fun createFirstDestination() = noOpNavigator.createDestination().apply {
@@ -63,7 +74,7 @@ class NavGraphNavigatorTest {
         startId: Int = destination.id
     ) = navGraphNavigator.createDestination().apply {
         addDestination(destination)
-        startDestination = startId
+        setStartDestination(startId)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -72,94 +83,19 @@ class NavGraphNavigatorTest {
         val graph = navGraphNavigator.createDestination().apply {
             addDestination(destination)
             id = 2 // can't match id of first destination or the start destination
-            startDestination = 0
+            setStartDestination(0)
         }
-        navGraphNavigator.navigate(graph, null, null, null)
+        val entry = navGraphState.createBackStackEntry(graph, null)
+        navGraphNavigator.navigate(listOf(entry), null, null)
     }
 
     @Test
     fun navigate() {
         val destination = createFirstDestination()
         val graph = createGraphWithDestination(destination)
-        assertThat(navGraphNavigator.navigate(graph, null, null, null))
-            .isEqualTo(destination)
-    }
-
-    @Test
-    fun navigateThenPop() {
-        val destination = createFirstDestination()
-        val graph = createGraphWithDestination(destination)
-        assertThat(navGraphNavigator.navigate(graph, null, null, null))
-            .isEqualTo(destination)
-        val success = navGraphNavigator.popBackStack()
-        assertWithMessage("popBackStack should return true")
-            .that(success)
-            .isTrue()
-    }
-
-    @Test
-    fun navigateSingleTopOnEmptyStack() {
-        val destination = createFirstDestination()
-        val graph = createGraphWithDestination(destination)
-        // singleTop should still show as added on an empty stack
-        assertThat(
-            navGraphNavigator.navigate(
-                graph, null,
-                NavOptions.Builder().setLaunchSingleTop(true).build(), null
-            )
-        )
-            .isEqualTo(destination)
-    }
-
-    @Test
-    fun navigateSingleTop() {
-        val destination = createFirstDestination()
-        val graph = createGraphWithDestination(destination)
-        assertThat(navGraphNavigator.navigate(graph, null, null, null))
-            .isEqualTo(destination)
-        assertThat(
-            navGraphNavigator.navigate(
-                graph, null,
-                NavOptions.Builder().setLaunchSingleTop(true).build(), null
-            )
-        )
-            .isEqualTo(destination)
-    }
-
-    @Test
-    fun navigateSingleTopNotTop() {
-        val destination = createFirstDestination()
-        val graph = createGraphWithDestination(destination)
-        val secondDestination = createSecondDestination()
-        val secondGraph = createGraphWithDestination(secondDestination).apply {
-            id = SECOND_DESTINATION_ID
-        }
-        assertThat(navGraphNavigator.navigate(graph, null, null, null))
-            .isEqualTo(destination)
-        assertThat(
-            navGraphNavigator.navigate(
-                secondGraph, null,
-                NavOptions.Builder().setLaunchSingleTop(true).build(), null
-            )
-        )
-            .isEqualTo(secondDestination)
-    }
-
-    @Test
-    fun navigateSingleTopNested() {
-        val destination = createFirstDestination()
-        val nestedGraph = createGraphWithDestination(destination).apply {
-            id = FIRST_DESTINATION_ID
-        }
-        val graph = createGraphWithDestination(nestedGraph)
-        assertThat(navGraphNavigator.navigate(graph, null, null, null))
-            .isEqualTo(destination)
-        assertThat(
-            navGraphNavigator.navigate(
-                graph, null,
-                NavOptions.Builder().setLaunchSingleTop(true).build(), null
-            )
-        )
-            .isEqualTo(destination)
+        val entry = navGraphState.createBackStackEntry(graph, null)
+        navGraphNavigator.navigate(listOf(entry), null, null)
+        assertThat(noOpState.backStack.value.map { it.destination })
+            .containsExactly(destination)
     }
 }

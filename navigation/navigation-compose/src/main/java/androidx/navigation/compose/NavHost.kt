@@ -19,28 +19,22 @@ package androidx.navigation.compose
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.createGraph
 import androidx.navigation.Navigator
 import androidx.navigation.get
-import java.util.UUID
 
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
@@ -136,41 +130,9 @@ public fun NavHost(
         // while in the scope of the composable, we provide the navBackStackEntry as the
         // ViewModelStoreOwner and LifecycleOwner
         Box(modifier, propagateMinConstraints = true) {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner provides backStackEntry,
-                LocalLifecycleOwner provides backStackEntry,
-                LocalSavedStateRegistryOwner provides backStackEntry
-            ) {
-                saveableStateHolder.SaveableStateProvider {
-                    destination.content(backStackEntry)
-                }
+            backStackEntry.LocalOwnersProvider(saveableStateHolder) {
+                destination.content(backStackEntry)
             }
         }
-    }
-}
-
-@Composable
-private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit) {
-    val viewModel = viewModel<BackStackEntryIdViewModel>()
-    viewModel.saveableStateHolder = this
-    SaveableStateProvider(viewModel.id, content)
-}
-
-internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel() {
-
-    private val IdKey = "SaveableStateHolder_BackStackEntryKey"
-
-    // we create our own id for each back stack entry to support multiple entries of the same
-    // destination. this id will be restored by SavedStateHandle
-    val id: UUID = handle.get<UUID>(IdKey) ?: UUID.randomUUID().also { handle.set(IdKey, it) }
-
-    var saveableStateHolder: SaveableStateHolder? = null
-
-    // onCleared will be called on the entries removed from the back stack. here we notify
-    // RestorableStateHolder that we shouldn't save the state for this id, so when we open this
-    // destination again the state will not be restored.
-    override fun onCleared() {
-        super.onCleared()
-        saveableStateHolder?.removeState(id)
     }
 }

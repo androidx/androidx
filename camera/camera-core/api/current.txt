@@ -23,6 +23,7 @@ package androidx.camera.core {
   }
 
   public interface CameraInfo {
+    method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
@@ -44,6 +45,43 @@ package androidx.camera.core {
     ctor public CameraSelector.Builder();
     method public androidx.camera.core.CameraSelector build();
     method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
+  }
+
+  @com.google.auto.value.AutoValue public abstract class CameraState {
+    ctor public CameraState();
+    method public static androidx.camera.core.CameraState create(androidx.camera.core.CameraState.Type);
+    method public static androidx.camera.core.CameraState create(androidx.camera.core.CameraState.Type, androidx.camera.core.CameraState.StateError?);
+    method public abstract androidx.camera.core.CameraState.StateError? getError();
+    method public abstract androidx.camera.core.CameraState.Type getType();
+    field public static final int ERROR_CAMERA_DISABLED = 5; // 0x5
+    field public static final int ERROR_CAMERA_FATAL_ERROR = 6; // 0x6
+    field public static final int ERROR_CAMERA_IN_USE = 2; // 0x2
+    field public static final int ERROR_DO_NOT_DISTURB_MODE_ENABLED = 7; // 0x7
+    field public static final int ERROR_MAX_CAMERAS_IN_USE = 1; // 0x1
+    field public static final int ERROR_OTHER_RECOVERABLE_ERROR = 3; // 0x3
+    field public static final int ERROR_STREAM_CONFIG = 4; // 0x4
+  }
+
+  public enum CameraState.ErrorType {
+    enum_constant public static final androidx.camera.core.CameraState.ErrorType CRITICAL;
+    enum_constant public static final androidx.camera.core.CameraState.ErrorType RECOVERABLE;
+  }
+
+  @com.google.auto.value.AutoValue public abstract static class CameraState.StateError {
+    ctor public CameraState.StateError();
+    method public static androidx.camera.core.CameraState.StateError create(int);
+    method public static androidx.camera.core.CameraState.StateError create(int, Throwable?);
+    method public abstract Throwable? getCause();
+    method public abstract int getCode();
+    method public androidx.camera.core.CameraState.ErrorType getType();
+  }
+
+  public enum CameraState.Type {
+    enum_constant public static final androidx.camera.core.CameraState.Type CLOSED;
+    enum_constant public static final androidx.camera.core.CameraState.Type CLOSING;
+    enum_constant public static final androidx.camera.core.CameraState.Type OPEN;
+    enum_constant public static final androidx.camera.core.CameraState.Type OPENING;
+    enum_constant public static final androidx.camera.core.CameraState.Type PENDING_OPEN;
   }
 
   public class CameraUnavailableException extends java.lang.Exception {

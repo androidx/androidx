@@ -16,7 +16,7 @@
 
 package androidx.car.app.notification;
 
-import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
+import static androidx.car.app.utils.CommonUtils.isAutomotiveOS;
 
 import static java.util.Objects.requireNonNull;
 
@@ -102,7 +102,7 @@ public final class CarPendingIntent {
         flags &= ~PendingIntent.FLAG_IMMUTABLE;
         flags |= FLAG_MUTABLE;
 
-        if (context.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+        if (isAutomotiveOS(context)) {
             return createForAutomotive(context, requestCode, intent, flags);
         } else {
             return createForProjected(context, requestCode, intent, flags);

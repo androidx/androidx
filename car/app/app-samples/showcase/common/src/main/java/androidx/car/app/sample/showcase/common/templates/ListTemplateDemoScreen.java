@@ -20,11 +20,9 @@ import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.Action.BACK;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -47,7 +45,6 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
 
     @NonNull
     @Override
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 

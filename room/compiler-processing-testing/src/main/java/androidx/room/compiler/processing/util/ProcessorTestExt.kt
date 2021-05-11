@@ -26,10 +26,10 @@ import androidx.room.compiler.processing.util.runner.KspCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.TestCompilationParameters
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.kspArgs
-import com.tschuchort.compiletesting.symbolProcessors
+import com.tschuchort.compiletesting.symbolProcessorProviders
 import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.annotation.processing.Processor
@@ -311,14 +311,15 @@ fun runKspTest(
  * @param sources The list of source files to compile
  * @param options The annotation processor arguments
  * @param annotationProcessors The list of Java annotation processors to run with compilation
- * @param symbolProcessors The list of Kotlin symbol processors to run with compilation
+ * @param symbolProcessorProviders The list of Kotlin symbol processor providers to run with
+ * compilation
  * @param javacArguments The command line arguments that will be passed into javac
  */
 fun compileFiles(
     sources: List<Source>,
     options: Map<String, String> = emptyMap(),
     annotationProcessors: List<Processor> = emptyList(),
-    symbolProcessors: List<SymbolProcessor> = emptyList(),
+    symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     javacArguments: List<String> = emptyList()
 ): File {
     val outputStream = ByteArrayOutputStream()
@@ -329,12 +330,12 @@ fun compileFiles(
     if (annotationProcessors.isNotEmpty()) {
         compilation.kaptArgs.putAll(options)
     }
-    if (symbolProcessors.isNotEmpty()) {
+    if (symbolProcessorProviders.isNotEmpty()) {
         compilation.kspArgs.putAll(options)
     }
     compilation.javacArguments.addAll(javacArguments)
     compilation.annotationProcessors = annotationProcessors
-    compilation.symbolProcessors = symbolProcessors
+    compilation.symbolProcessorProviders = symbolProcessorProviders
     val result = compilation.compile()
     check(result.exitCode == KotlinCompilation.ExitCode.OK) {
         "compilation failed: ${outputStream.toString(Charsets.UTF_8)}"

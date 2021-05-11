@@ -3,14 +3,15 @@ package androidx.wear.watchface.editor {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class BaseEditorSession extends androidx.wear.watchface.editor.EditorSession {
     method public void close();
-    method protected final void fetchComplicationPreviewData();
+    method protected final void fetchComplicationsData();
     method public Integer? getBackgroundComplicationId();
     method protected final boolean getClosed();
     method public Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
+    method public suspend Object? getComplicationsProviderInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> $completion);
     method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
     method protected final boolean getForceClosed();
-    method public suspend Object? openComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super java.lang.Boolean> $completion);
+    method public suspend Object? openComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationProvider> $completion);
     method @UiThread protected abstract void releaseResources();
     method protected final void requireNotClosed();
     method protected final void setClosed(boolean p);
@@ -19,6 +20,16 @@ package androidx.wear.watchface.editor {
     property protected final boolean closed;
     property public final kotlinx.coroutines.CoroutineScope coroutineScope;
     property protected final boolean forceClosed;
+  }
+
+  public final class ChosenComplicationProvider {
+    ctor public ChosenComplicationProvider(int complicationId, androidx.wear.complications.ComplicationProviderInfo? complicationProviderInfo, android.os.Bundle extras);
+    method public int getComplicationId();
+    method public androidx.wear.complications.ComplicationProviderInfo? getComplicationProviderInfo();
+    method public android.os.Bundle getExtras();
+    property public final int complicationId;
+    property public final androidx.wear.complications.ComplicationProviderInfo? complicationProviderInfo;
+    property public final android.os.Bundle extras;
   }
 
   public final class EditorRequest {
@@ -47,6 +58,7 @@ package androidx.wear.watchface.editor {
     method public abstract Integer? getBackgroundComplicationId();
     method @UiThread public abstract Integer? getComplicationIdAt(@Px int x, @Px int y);
     method @UiThread public abstract suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
+    method @UiThread public abstract suspend Object? getComplicationsProviderInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> p);
     method public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public abstract long getPreviewReferenceTimeMillis();
     method public abstract androidx.wear.watchface.style.UserStyle getUserStyle();
@@ -54,7 +66,7 @@ package androidx.wear.watchface.editor {
     method public abstract android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method @UiThread public final boolean isCommitChangesOnClose();
-    method @UiThread public abstract suspend Object? openComplicationProviderChooser(int complicationId, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+    method @UiThread public abstract suspend Object? openComplicationProviderChooser(int complicationId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationProvider> p);
     method @UiThread public abstract android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     method @UiThread public final void setCommitChangesOnClose(boolean p);
     method public abstract void setUserStyle(androidx.wear.watchface.style.UserStyle p);
@@ -72,6 +84,9 @@ package androidx.wear.watchface.editor {
   public static final class EditorSession.Companion {
     method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
     method @UiThread public suspend Object? createOnWatchEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession> p);
+  }
+
+  public final class EditorSessionKt {
   }
 
   public class WatchFaceEditorContract extends androidx.activity.result.contract.ActivityResultContract<androidx.wear.watchface.editor.EditorRequest,kotlin.Unit> {

@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ProvidedValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -112,7 +113,7 @@ public fun <I, O> registerForActivityResult(
 public fun <I, O> rememberLauncherForActivityResult(
     contract: ActivityResultContract<I, O>,
     onResult: (O) -> Unit
-): ActivityResultLauncher<I> {
+): ManagedActivityResultLauncher<I, O> {
     // Keep track of the current contract and onResult listener
     val currentContract = rememberUpdatedState(contract)
     val currentOnResult = rememberUpdatedState(onResult)
@@ -126,18 +127,7 @@ public fun <I, O> rememberLauncherForActivityResult(
     }.activityResultRegistry
     val realLauncher = remember { ActivityResultLauncherHolder<I>() }
     val returnedLauncher = remember {
-        object : ActivityResultLauncher<I>() {
-            override fun launch(input: I, options: ActivityOptionsCompat?) {
-                realLauncher.launch(input, options)
-            }
-
-            override fun unregister() {
-                error("Registration is automatically handled by rememberLauncherForActivityResult")
-            }
-
-            @Suppress("UNCHECKED_CAST")
-            override fun getContract() = currentContract.value as ActivityResultContract<I, *>
-        }
+        ManagedActivityResultLauncher(realLauncher, currentContract)
     }
 
     // DisposableEffect ensures that we only register once
@@ -153,7 +143,42 @@ public fun <I, O> rememberLauncherForActivityResult(
     return returnedLauncher
 }
 
-private class ActivityResultLauncherHolder<I> {
+/**
+ * A launcher for a previously-{@link ActivityResultCaller#registerForActivityResult prepared call}
+ * to start the process of executing an {@link ActivityResultContract}.
+ *
+ * This launcher does not support the [unregister] function. Attempting to use [unregister] will
+ * result in an [IllegalStateException].
+ *
+ * @param I type of the input required to launch
+ */
+public class ManagedActivityResultLauncher<I, O> internal constructor(
+    private val launcher: ActivityResultLauncherHolder<I>,
+    private val contract: State<ActivityResultContract<I, O>>
+) : ActivityResultLauncher<I>() {
+    /**
+     * This function should never be called and doing so will result in an
+     * [UnsupportedOperationException].
+     *
+     * @throws UnsupportedOperationException if this function is called.
+     */
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Registration is automatically handled by rememberLauncherForActivityResult")
+    override fun unregister() {
+        throw UnsupportedOperationException(
+            "Registration is automatically handled by rememberLauncherForActivityResult"
+        )
+    }
+
+    override fun launch(input: I, options: ActivityOptionsCompat?) {
+        launcher.launch(input, options)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun getContract(): ActivityResultContract<I, *> = contract.value
+}
+
+internal class ActivityResultLauncherHolder<I> {
     var launcher: ActivityResultLauncher<I>? = null
 
     fun launch(input: I?, options: ActivityOptionsCompat?) {

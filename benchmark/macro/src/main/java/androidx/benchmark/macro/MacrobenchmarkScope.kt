@@ -23,6 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.concurrent.TimeUnit
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -83,10 +84,40 @@ public class MacrobenchmarkScope(
                 securityException
             )
         }
-        device.wait(
+
+        waitOnPackageLaunch()
+    }
+
+    /**
+     * Wait on the current package to complete an Activity launch.
+     *
+     * Note that [timeoutInSeconds] is for full Activity launch, and UiAutomator detection of
+     * Activity content. This is not just Activity launch time as would be reported by
+     * [StartupTimingMetric] - it must include additional fixed time.
+     *
+     * As an example, when this timeout was 5 seconds, a 2 second activity launch would
+     * frequently hit the timeout. This timeout should be conservatively large to encapsulate
+     * any slow app / hardware combo.
+     */
+    internal fun waitOnPackageLaunch(timeoutInSeconds: Long = 30) {
+        val timeoutInMilliseconds = TimeUnit.SECONDS.toMillis(timeoutInSeconds)
+
+        // Note: if this wait starts during an activity launch, it will wait until the launch
+        // completes. This is why it's safe to simply check package - even if launching from one
+        // activity to another within the package, the launch has to fully complete.
+
+        // Note though, that this wait does not wait for within-activity launch behavior to
+        // complete. that must be done separately.
+        val packageIsDisplayed = device.wait(
             Until.hasObject(By.pkg(packageName).depth(0)),
-            5000 /* ms */
+            timeoutInMilliseconds
         )
+        if (!packageIsDisplayed) {
+            throw IllegalStateException(
+                "Unable to detect Activity of package $packageName after " +
+                    "$timeoutInSeconds second timeout. Did it fail to launch?"
+            )
+        }
     }
 
     /**

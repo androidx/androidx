@@ -50,7 +50,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.versionedparcelable.ParcelUtils
-import androidx.wear.complications.SystemProviders.Companion.ProviderId
+import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.toApiComplicationData

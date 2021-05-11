@@ -81,7 +81,7 @@ public class TilesTimelineManagerTest {
     @After
     public void tearDown() {
         if (mTimelineManager != null) {
-            mTimelineManager.deInit();
+            mTimelineManager.close();
         }
     }
 
@@ -218,7 +218,7 @@ public class TilesTimelineManagerTest {
         shadowOf(getMainLooper()).idle();
 
         // Alarms should be set (as verified in previous test)
-        mTimelineManager.deInit();
+        mTimelineManager.close();
 
         verifyNoAlarmsSet();
     }

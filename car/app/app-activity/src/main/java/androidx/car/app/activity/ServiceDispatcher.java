@@ -23,6 +23,7 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.serialization.BundlerException;
 
@@ -33,9 +34,15 @@ import androidx.car.app.serialization.BundlerException;
  */
 @RestrictTo(LIBRARY)
 public class ServiceDispatcher {
+
+    /** An interface for monitoring the binding state of a service connection. */
+    public interface OnBindingListener {
+        /** Returns true if the service connection is bound. */
+        boolean isBound();
+    }
+
     private final ErrorHandler mErrorHandler;
-    @Nullable
-    private IRendererService mRendererService;
+    private OnBindingListener mOnBindingListener;
 
     /** A one way call to the service */
     public interface OneWayCall {
@@ -56,28 +63,15 @@ public class ServiceDispatcher {
         T invoke() throws RemoteException, BundlerException;
     }
 
-    public ServiceDispatcher(@NonNull ErrorHandler errorHandler) {
+    public ServiceDispatcher(@NonNull ErrorHandler errorHandler,
+            @NonNull OnBindingListener onBindingListener) {
         mErrorHandler = errorHandler;
+        mOnBindingListener = onBindingListener;
     }
 
-    /**
-     * Updates the bound service reference
-     *
-     * @param rendererService bound service or {@code null} if the service is not bound.
-     */
-    public void setRendererService(@Nullable IRendererService rendererService) {
-        mRendererService = rendererService;
-    }
-
-    /** Returns the bound service, or null if the service is not bound */
-    @Nullable
-    public IRendererService getRendererService() {
-        return mRendererService;
-    }
-
-    /** Returns true if the service is currently bound and able to receive messages */
-    public boolean isBound() {
-        return mRendererService != null;
+    @VisibleForTesting
+    public void setOnBindingListener(@NonNull OnBindingListener onBindingListener) {
+        mOnBindingListener = onBindingListener;
     }
 
     /** Dispatches the given {@link OneWayCall}. This is a non-blocking call. */
@@ -99,7 +93,7 @@ public class ServiceDispatcher {
     // TODO(b/184697399): Remove two-way calls as these are blocking.
     @Nullable
     public <T> T fetch(@Nullable T fallbackValue, @NonNull ReturnCall<T> call) {
-        if (mRendererService == null) {
+        if (!mOnBindingListener.isBound()) {
             // Avoid dispatching messages if we are not bound to the service
             return fallbackValue;
         }

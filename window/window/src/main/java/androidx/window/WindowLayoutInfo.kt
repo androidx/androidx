@@ -32,17 +32,11 @@ public class WindowLayoutInfo internal constructor(
 ) {
 
     override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append("WindowLayoutInfo{ DisplayFeatures[")
-        for (i in displayFeatures.indices) {
-            val feature = displayFeatures[i]
-            sb.append(feature)
-            if (i < displayFeatures.size - 1) {
-                sb.append(", ")
-            }
-        }
-        sb.append("] }")
-        return sb.toString()
+        return displayFeatures.joinToString(
+            separator = ", ",
+            prefix = "WindowLayoutInfo{ DisplayFeatures[",
+            postfix = "] }"
+        )
     }
 
     override fun equals(other: Any?): Boolean {

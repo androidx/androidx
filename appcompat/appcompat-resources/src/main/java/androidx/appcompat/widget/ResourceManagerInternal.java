@@ -353,7 +353,7 @@ public final class ResourceManagerInternal {
             @NonNull VectorEnabledTintResources resources, @DrawableRes final int resId) {
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
-            drawable = resources.superGetDrawable(resId);
+            drawable = resources.getDrawableCanonical(resId);
         }
         if (drawable != null) {
             return tintDrawable(context, resId, false, drawable);

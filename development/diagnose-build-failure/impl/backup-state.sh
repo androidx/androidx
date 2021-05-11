@@ -26,6 +26,12 @@ fi
 move=false
 if [ "$moveArg" == "--move" ]; then
   move=true
+  shift
+fi
+
+if [ "$3" != "" ]; then
+  echo "Unrecognized argument $3"
+  usage
 fi
 
 rm -rf "$stateDir"

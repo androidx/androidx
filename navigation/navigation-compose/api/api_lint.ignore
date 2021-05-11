@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-MissingJvmstatic: androidx.navigation.compose.NavHostKt#NavHost(androidx.navigation.NavHostController, String, androidx.compose.ui.Modifier, String, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit>):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
-MissingJvmstatic: androidx.navigation.compose.NavHostKt#NavHost(androidx.navigation.NavHostController, androidx.navigation.NavGraph, androidx.compose.ui.Modifier):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults

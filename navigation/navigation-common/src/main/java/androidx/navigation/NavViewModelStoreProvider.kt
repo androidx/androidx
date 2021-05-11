@@ -18,15 +18,14 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelStore
-import java.util.UUID
 
 /**
  * Interface that allows you to retrieve a [ViewModelStore] associated with a
- * particular [UUID].
+ * particular [NavBackStackEntry.id].
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NavViewModelStoreProvider {
-    public fun getViewModelStore(backStackEntryUUID: UUID): ViewModelStore
+    public fun getViewModelStore(backStackEntryId: String): ViewModelStore
 }

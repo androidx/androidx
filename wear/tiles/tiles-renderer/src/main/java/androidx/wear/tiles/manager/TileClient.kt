@@ -126,7 +126,7 @@ public class TileClient(
         context.unregisterReceiver(updateReceiver)
         job.cancel()
         updateScheduler.disableUpdates()
-        timelineManager?.deInit()
+        timelineManager?.close()
         timelineManager = null
         isRunning = false
     }
@@ -157,7 +157,7 @@ public class TileClient(
             }
 
             timelineManager?.apply {
-                deInit()
+                close()
             }
 
             val localTimelineManager = TilesTimelineManager(

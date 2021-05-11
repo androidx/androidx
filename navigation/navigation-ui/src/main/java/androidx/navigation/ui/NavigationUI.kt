@@ -62,7 +62,7 @@ public object NavigationUI {
      */
     @JvmStatic
     public fun onNavDestinationSelected(item: MenuItem, navController: NavController): Boolean {
-        val builder = NavOptions.Builder().setLaunchSingleTop(true)
+        val builder = NavOptions.Builder().setLaunchSingleTop(true).setRestoreState(true)
         if (
             navController.currentDestination!!.parent!!.findNode(item.itemId)
             is ActivityNavigator.Destination
@@ -78,7 +78,11 @@ public object NavigationUI {
                 .setPopExitAnim(R.animator.nav_default_pop_exit_anim)
         }
         if (item.order and Menu.CATEGORY_SECONDARY == 0) {
-            builder.setPopUpTo(findStartDestination(navController.graph).id, false)
+            builder.setPopUpTo(
+                findStartDestination(navController.graph).id,
+                inclusive = false,
+                saveState = true
+            )
         }
         val options = builder.build()
         return try {
@@ -509,7 +513,7 @@ public object NavigationUI {
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun matchDestinations(destination: NavDestination, destinationIds: Set<Int?>): Boolean =
-        generateSequence(destination) { it.parent }.all { destinationIds.contains(it.id) }
+        generateSequence(destination) { it.parent }.any { destinationIds.contains(it.id) }
 
     /**
      * Finds the actual start destination of the graph, handling cases where the graph's starting
@@ -518,9 +522,9 @@ public object NavigationUI {
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findStartDestination(graph: NavGraph): NavDestination =
-        generateSequence(graph.findNode(graph.startDestination)) {
+        generateSequence(graph.findNode(graph.startDestinationId)) {
             if (it is NavGraph) {
-                it.findNode(it.startDestination)
+                it.findNode(it.startDestinationId)
             } else {
                 null
             }

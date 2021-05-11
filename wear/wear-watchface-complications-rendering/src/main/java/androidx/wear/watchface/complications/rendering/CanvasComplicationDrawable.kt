@@ -92,7 +92,7 @@ public open class CanvasComplicationDrawable(
             field = value
             value.isInAmbientMode = watchState.isAmbient.value
             value.isLowBitAmbient = watchState.hasLowBitAmbient
-            value.setBurnInProtection(watchState.hasBurnInProtection)
+            value.isBurnInProtectionOn = watchState.hasBurnInProtection
 
             attachedComplication?.scheduleUpdateComplications()
         }

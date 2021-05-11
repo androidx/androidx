@@ -48,7 +48,14 @@ class BackStackState implements Parcelable {
         // These will populate the transactions we instantiate.
         HashMap<String, Fragment> fragments = new HashMap<>(mFragments.size());
         for (String fWho : mFragments) {
-            // Retrieve any saved state, clearing it out for future calls
+            Fragment existingFragment = fm.getFragmentStore().findFragmentByWho(fWho);
+            if (existingFragment != null) {
+                // If the Fragment still exists, this means the saveBackStack()
+                // hasn't executed yet, so we can use the existing Fragment directly
+                fragments.put(existingFragment.mWho, existingFragment);
+                continue;
+            }
+            // Otherwise, retrieve any saved state, clearing it out for future calls
             FragmentState fragmentState = fm.getFragmentStore().setSavedState(fWho, null);
             if (fragmentState != null) {
                 Fragment fragment = fragmentState.instantiate(fm.getFragmentFactory(),

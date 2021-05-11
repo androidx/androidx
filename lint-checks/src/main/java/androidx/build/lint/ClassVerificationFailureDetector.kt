@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.SdkConstants.ATTR_VALUE
@@ -32,10 +34,13 @@ import com.android.tools.lint.detector.api.Desugaring
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.LintFix
+import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.getLongAttribute
 import com.android.tools.lint.detector.api.getInternalMethodName
+import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiAnonymousClass
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
@@ -46,13 +51,16 @@ import com.intellij.psi.PsiSuperExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UInstanceExpression
 import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
+import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
 
@@ -371,13 +379,257 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 api > potentialRequiresApiVersion
             ) {
                 val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
+                val fix = createLintFix(method, call, api)
+
                 context.report(
                     ISSUE, reference, location,
                     "This call references a method added in API level $api; however, the " +
                         "containing class $containingClassName is reachable from earlier API " +
-                        "levels and will fail run-time class verification."
+                        "levels and will fail run-time class verification.",
+                    fix,
                 )
             }
+        }
+
+        /**
+         * Attempts to create a [LintFix] for the call to specified method.
+         *
+         * @return a lint fix, or `null` if no fix could be created
+         */
+        private fun createLintFix(
+            method: PsiMethod,
+            call: UCallExpression,
+            api: Int
+        ): LintFix? {
+            if (isKotlin(call.sourcePsi)) {
+                // We only support Java right now.
+                return null
+            }
+
+            // The host class should never be null if we're looking at Java code.
+            val callContainingClass = call.getContainingUClass() ?: return null
+
+            val (wrapperMethodName, methodForInsertion) = generateWrapperMethod(
+                method
+            ) ?: return null
+
+            val (wrapperClassName, insertionPoint, insertionSource) = generateInsertionSource(
+                api,
+                callContainingClass,
+                methodForInsertion
+            )
+
+            val replacementCall = generateWrapperCall(
+                method,
+                call.receiver,
+                call.valueArguments,
+                wrapperClassName,
+                wrapperMethodName
+            ) ?: return null
+
+            return fix().name("Extract to static inner class")
+                .composite(
+                    fix()
+                        .replace()
+                        .range(insertionPoint)
+                        .beginning()
+                        .with(insertionSource)
+                        .reformat(true)
+                        .shortenNames()
+                        .build(),
+                    fix()
+                        .replace()
+                        .range(context.getLocation(call))
+                        .with(replacementCall)
+                        .reformat(true)
+                        .shortenNames()
+                        .build(),
+                )
+        }
+
+        /**
+         * Generates source code for a wrapper method and class (where applicable) and calculates
+         * the insertion point. If the wrapper class already exists, returns source code for the
+         * method body only with an insertion point at the end of the existing wrapper class body.
+         *
+         * Source code follows the general format:
+         *
+         * ```java
+         * @RequiresApi(21)
+         * static class Api21Impl {
+         *   private Api21Impl() {}
+         *   // Method body here.
+         * }
+         * ```
+         *
+         * @param api API level at which the platform method can be safely called
+         * @param callContainingClass Class containing the call to the platform method
+         * @param wrapperMethodBody Source code for the wrapper method
+         * @return Triple containing (1) the name of the static wrapper class, (2) the insertion
+         * point for the generated source code, and (3) generated source code for a static wrapper
+         * method, including a static wrapper class if necessary
+         */
+        private fun generateInsertionSource(
+            api: Int,
+            callContainingClass: UClass,
+            wrapperMethodBody: String,
+        ): Triple<String, Location, String> {
+            val wrapperClassName = "Api${api}Impl"
+            val implInsertionPoint: Location
+            val implForInsertion: String
+
+            val existingWrapperClass = callContainingClass.innerClasses.find { innerClass ->
+                innerClass.name == wrapperClassName
+            }
+
+            if (existingWrapperClass == null) {
+                implInsertionPoint = context.getLocation(callContainingClass.lastChild)
+                implForInsertion = """
+                @androidx.annotation.RequiresApi($api)
+                static class $wrapperClassName {
+                    private $wrapperClassName() {
+                        // This class is not instantiable.
+                    }
+                    $wrapperMethodBody
+                }
+                """.trimIndent()
+            } else {
+                implInsertionPoint = context.getLocation(existingWrapperClass.lastChild)
+                implForInsertion = wrapperMethodBody.trimIndent()
+            }
+
+            return Triple(
+                wrapperClassName,
+                implInsertionPoint,
+                implForInsertion
+            )
+        }
+
+        /**
+         * Generates source code for a call to the generated wrapper method, or `null` if we don't
+         * know how to do that. Currently, this method is capable of handling static calls --
+         * including constructor calls -- and simple reference expressions from Java source code.
+         *
+         * Source code follows the general format:
+         *
+         * ```
+         * WrapperClassName.wrapperMethodName(receiverVar, argumentVar)
+         * ```
+         *
+         * @param method Platform method which is being called
+         * @param callReceiver Receiver of the call to the platform method
+         * @param callValueArguments Arguments of the call to the platform method
+         * @param wrapperClassName Name of the generated wrapper class
+         * @param wrapperMethodName Name of the generated wrapper method
+         * @return Source code for a call to the static wrapper method
+         */
+        private fun generateWrapperCall(
+            method: PsiMethod,
+            callReceiver: UExpression?,
+            callValueArguments: List<UExpression>,
+            wrapperClassName: String,
+            wrapperMethodName: String,
+        ): String? {
+            val isStatic = context.evaluator.isStatic(method)
+            val isConstructor = method.isConstructor
+            val isSimpleReference = callReceiver is JavaUSimpleNameReferenceExpression
+
+            val callReceiverStr = when {
+                isStatic -> null
+                isConstructor -> null
+                isSimpleReference ->
+                    (callReceiver as JavaUSimpleNameReferenceExpression).identifier
+                else -> {
+                    // We don't know how to handle this type of receiver. This should never happen.
+                    return null
+                }
+            }
+
+            val callValues = if (callValueArguments.isNotEmpty()) {
+                callValueArguments.joinToString(separator = ", ") { argument ->
+                    argument.asSourceString()
+                }
+            } else {
+                null
+            }
+
+            val replacementArgs = listOfNotNull(callReceiverStr, callValues).joinToString(", ")
+
+            return "$wrapperClassName.$wrapperMethodName($replacementArgs)"
+        }
+
+        /**
+         * Generates source code for a wrapper method, or `null` if we don't know how to do that.
+         * Currently, this method is capable of handling method and constructor calls from Java
+         * source code.
+         *
+         * Source code follows the general format:
+         *
+         * ```
+         * @DoNotInline
+         * static ReturnType methodName(HostType hostType, ParamType paramType) {
+         *   return hostType.methodName(paramType);
+         * }
+         * ```
+         *
+         * @param method Platform method which is being called
+         * @return Pair containing (1) the name of the static wrapper method and (2) generated
+         * source code for a static wrapper around the platform method
+         */
+        private fun generateWrapperMethod(method: PsiMethod): Pair<String, String>? {
+            val methodName = method.name
+            val evaluator = context.evaluator
+            val isStatic = evaluator.isStatic(method)
+            val isConstructor = method.isConstructor
+
+            // Neither of these should be null if we're looking at Java code.
+            val containingClass = method.containingClass ?: return null
+            val hostType = containingClass.name ?: return null
+            val hostVar = hostType[0].toLowerCase() + hostType.substring(1)
+
+            val hostParam = if (isStatic || isConstructor) { null } else { "$hostType $hostVar" }
+
+            val typeParamsStr = if (method.typeParameters.isNotEmpty()) {
+                "<${method.typeParameters.joinToString(", ") { param -> "${param.name}" }}> "
+            } else {
+                ""
+            }
+
+            val typedParams = method.parameters.map { param ->
+                "${(param.type as? PsiType)?.presentableText} ${param.name}"
+            }
+            val typedParamsStr = (listOfNotNull(hostParam) + typedParams).joinToString(", ")
+
+            val namedParamsStr = method.parameters.joinToString(separator = ", ") { param ->
+                "${param.name}"
+            }
+
+            val wrapperMethodName: String
+            val returnTypeStr: String
+            val returnStmtStr: String
+            val receiverStr: String
+
+            if (isConstructor) {
+                wrapperMethodName = "create$methodName"
+                returnTypeStr = hostType
+                returnStmtStr = "return "
+                receiverStr = "new "
+            } else {
+                wrapperMethodName = methodName
+                returnTypeStr = method.returnType?.presentableText ?: "void"
+                returnStmtStr = if ("void" == returnTypeStr) "" else "return "
+                receiverStr = if (isStatic) "$hostType." else "$hostVar."
+            }
+
+            return Pair(
+                wrapperMethodName,
+                """
+                    @androidx.annotation.DoNotInline
+                    static $typeParamsStr$returnTypeStr $wrapperMethodName($typedParamsStr) {
+                        $returnStmtStr$receiverStr$methodName($namedParamsStr);
+                    }
+                """
+            )
         }
 
         private fun getInheritanceChain(

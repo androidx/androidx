@@ -83,6 +83,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
+private const val DESTROY_TIMEOUT_MILLIS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -120,7 +121,12 @@ public class WatchFaceControlClientTest {
     @After
     public fun tearDown() {
         if (this::engine.isInitialized) {
-            engine.onDestroy()
+            val latch = CountDownLatch(1)
+            handler.post {
+                engine.onDestroy()
+                latch.countDown()
+            }
+            latch.await(DESTROY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
         }
         service.close()
     }

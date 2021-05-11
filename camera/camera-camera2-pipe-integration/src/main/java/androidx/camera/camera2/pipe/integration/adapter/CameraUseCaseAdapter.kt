@@ -126,7 +126,15 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
     object DefaultCaptureOptionsUnpacker : CaptureConfig.OptionUnpacker {
         override fun unpack(config: UseCaseConfig<*>, builder: CaptureConfig.Builder) {
-            // Unused.
+            val defaultCaptureConfig = config.defaultCaptureConfig
+            builder.templateType = defaultCaptureConfig.templateType
+            builder.implementationOptions = defaultCaptureConfig.implementationOptions
+            builder.addAllCameraCaptureCallbacks(defaultCaptureConfig.cameraCaptureCallbacks)
+            builder.setUseRepeatingSurface(defaultCaptureConfig.isUseRepeatingSurface)
+            builder.addAllTags(defaultCaptureConfig.tagBundle)
+            defaultCaptureConfig.surfaces.forEach { builder.addSurface(it) }
+
+            // TODO: Add extensions-specific capture request options
         }
     }
 

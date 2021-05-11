@@ -173,6 +173,8 @@ package androidx.wear.complications {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_START_PROVIDER_CHOOSER = "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCH_FACE_COMPONENT = "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT";
+    field public static boolean skipPermissionCheck;
+    field public static boolean useTestComplicationProviderChooserActivity;
   }
 
   public final class ComplicationProviderInfo {
@@ -191,11 +193,11 @@ package androidx.wear.complications {
   }
 
   public final class DefaultComplicationProviderPolicy {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, @androidx.wear.complications.SystemProviders.Companion.ProviderId int systemProviderFallback);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
     ctor public DefaultComplicationProviderPolicy();
-    ctor public DefaultComplicationProviderPolicy(@androidx.wear.complications.SystemProviders.Companion.ProviderId int systemProvider);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, @androidx.wear.complications.SystemProviders.Companion.ProviderId int systemProviderFallback);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, @androidx.wear.complications.SystemProviders.Companion.ProviderId int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(@androidx.wear.complications.SystemProviders.ProviderId int systemProvider);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
     method public android.content.ComponentName? getPrimaryProvider();
     method public android.content.ComponentName? getSecondaryProvider();
     method public int getSystemProviderFallback();
@@ -266,7 +268,7 @@ package androidx.wear.complications {
   public static final class SystemProviders.Companion {
   }
 
-  @IntDef({androidx.wear.complications.SystemProviders.NO_PROVIDER, androidx.wear.complications.SystemProviders.PROVIDER_WATCH_BATTERY, androidx.wear.complications.SystemProviders.PROVIDER_DATE, androidx.wear.complications.SystemProviders.PROVIDER_TIME_AND_DATE, androidx.wear.complications.SystemProviders.PROVIDER_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_WORLD_CLOCK, androidx.wear.complications.SystemProviders.PROVIDER_APP_SHORTCUT, androidx.wear.complications.SystemProviders.PROVIDER_UNREAD_NOTIFICATION_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_NEXT_EVENT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_CHAT, androidx.wear.complications.SystemProviders.PROVIDER_SUNRISE_SUNSET, androidx.wear.complications.SystemProviders.PROVIDER_DAY_OF_WEEK, androidx.wear.complications.SystemProviders.PROVIDER_FAVORITE_CONTACT, androidx.wear.complications.SystemProviders.PROVIDER_MOST_RECENT_APP, androidx.wear.complications.SystemProviders.PROVIDER_DAY_AND_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public static @interface SystemProviders.Companion.ProviderId {
+  @IntDef({androidx.wear.complications.SystemProviders.NO_PROVIDER, androidx.wear.complications.SystemProviders.PROVIDER_WATCH_BATTERY, androidx.wear.complications.SystemProviders.PROVIDER_DATE, androidx.wear.complications.SystemProviders.PROVIDER_TIME_AND_DATE, androidx.wear.complications.SystemProviders.PROVIDER_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_WORLD_CLOCK, androidx.wear.complications.SystemProviders.PROVIDER_APP_SHORTCUT, androidx.wear.complications.SystemProviders.PROVIDER_UNREAD_NOTIFICATION_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_NEXT_EVENT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_CHAT, androidx.wear.complications.SystemProviders.PROVIDER_SUNRISE_SUNSET, androidx.wear.complications.SystemProviders.PROVIDER_DAY_OF_WEEK, androidx.wear.complications.SystemProviders.PROVIDER_FAVORITE_CONTACT, androidx.wear.complications.SystemProviders.PROVIDER_MOST_RECENT_APP, androidx.wear.complications.SystemProviders.PROVIDER_DAY_AND_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public static @interface SystemProviders.ProviderId {
   }
 
 }

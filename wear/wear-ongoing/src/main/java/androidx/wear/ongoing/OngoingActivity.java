@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.util.Preconditions;
 
 import java.util.function.Predicate;
 
@@ -55,7 +56,7 @@ import java.util.function.Predicate;
  * them in both the {@link Builder#Builder(Context, String, int, NotificationCompat.Builder)} and
  * {@link NotificationManager#notify(String, int, Notification)}
  * <p>
- * Afterward, {@link OngoingActivity#update(Context, OngoingActivityStatus) update} can be used to
+ * Afterward, {@link OngoingActivity#update(Context, Status) update} can be used to
  * update the status.
  * <p>
  * If saving the {@link OngoingActivity} instance is not convenient, it can be recovered (after the
@@ -66,6 +67,7 @@ public final class OngoingActivity {
     @Nullable
     private final String mTag;
     private final int mNotificationId;
+    @Nullable
     private final NotificationCompat.Builder mNotificationBuilder;
     private final OngoingActivityData mData;
 
@@ -76,6 +78,14 @@ public final class OngoingActivity {
         this.mTag = tag;
         this.mNotificationId = notificationId;
         this.mNotificationBuilder = notificationBuilder;
+        this.mData = data;
+    }
+
+    // Used when reconstructing an OngoingActivity form a bundle.
+    OngoingActivity(@NonNull OngoingActivityData data) {
+        this.mTag = null;
+        this.mNotificationId = 0;
+        this.mNotificationBuilder = null;
         this.mData = data;
     }
 
@@ -91,11 +101,13 @@ public final class OngoingActivity {
         // Ongoing Activity Data
         private Icon mAnimatedIcon;
         private Icon mStaticIcon;
-        private OngoingActivityStatus mStatus;
+        private Status mStatus;
         private PendingIntent mTouchIntent;
         private LocusIdCompat mLocusId;
-        private int mOngoingActivityId = OngoingActivityData.DEFAULT_ID;
+        private int mOngoingActivityId = DEFAULT_ID;
         private String mCategory;
+
+        static final int DEFAULT_ID = -1;
 
         /**
          * Construct a new empty {@link Builder}, associated with the given notification.
@@ -181,7 +193,7 @@ public final class OngoingActivity {
          * show progress of the Ongoing Activity.
          */
         @NonNull
-        public Builder setStatus(@NonNull OngoingActivityStatus status) {
+        public Builder setStatus(@NonNull Status status) {
             mStatus = status;
             return this;
         }
@@ -248,11 +260,12 @@ public final class OngoingActivity {
                 throw new IllegalArgumentException("Touch intent should be specified.");
             }
 
-            OngoingActivityStatus status = mStatus;
+            OngoingActivityStatus status = mStatus == null ? null : mStatus.toVersionedParcelable();
             if (status == null) {
                 String text = notification.extras.getString(Notification.EXTRA_TEXT);
                 if (text != null) {
-                    status = OngoingActivityStatus.forPart(new TextStatusPart(text));
+                    status = Status.forPart(new Status.TextPart(text))
+                        .toVersionedParcelable();
                 }
             }
 
@@ -318,8 +331,9 @@ public final class OngoingActivity {
      * corresponding Notification.
      */
     @Nullable
-    public OngoingActivityStatus getStatus() {
-        return mData.getStatus();
+    public Status getStatus() {
+        return mData.getStatus() == null ? null :
+                Status.fromVersionedParcelable(mData.getStatus());
     }
 
     /**
@@ -376,7 +390,8 @@ public final class OngoingActivity {
      *                this call returns.
      */
     public void apply(@NonNull @SuppressWarnings("unused") Context context) {
-        mData.extend(mNotificationBuilder);
+        Preconditions.checkNotNull(mNotificationBuilder);
+        SerializationHelper.extend(mNotificationBuilder, mData);
     }
 
     /**
@@ -388,9 +403,10 @@ public final class OngoingActivity {
      *                this call returns.
      * @param status  The new status of this Ongoing Activity.
      */
-    public void update(@NonNull Context context, @NonNull OngoingActivityStatus status) {
-        mData.setStatus(status);
-        Notification notification = mData.extendAndBuild(mNotificationBuilder);
+    public void update(@NonNull Context context, @NonNull Status status) {
+        Preconditions.checkNotNull(mNotificationBuilder);
+        mData.setStatus(status.toVersionedParcelable());
+        Notification notification = SerializationHelper.extendAndBuild(mNotificationBuilder, mData);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (mTag == null) {
@@ -412,20 +428,23 @@ public final class OngoingActivity {
     @Nullable
     public static OngoingActivity recoverOngoingActivity(
             @NonNull Context context,
-            @NonNull Predicate<OngoingActivityData> filter
+            @NonNull Predicate<OngoingActivity> filter
     ) {
         StatusBarNotification[] notifications =
                 context.getSystemService(NotificationManager.class).getActiveNotifications();
         for (StatusBarNotification statusBarNotification : notifications) {
             OngoingActivityData data =
-                    OngoingActivityData.create(statusBarNotification.getNotification());
-            if (data != null && filter.test(data)) {
-                return new OngoingActivity(
+                    SerializationHelper.createInternal(statusBarNotification.getNotification());
+            if (data != null) {
+                OngoingActivity oa = new OngoingActivity(
                         statusBarNotification.getTag(),
                         statusBarNotification.getId(),
                         new NotificationCompat.Builder(context,
                                 statusBarNotification.getNotification()),
                         data);
+                if (filter.test(oa)) {
+                    return oa;
+                }
             }
         }
         return null;

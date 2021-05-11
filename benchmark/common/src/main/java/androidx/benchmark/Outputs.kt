@@ -52,14 +52,18 @@ public object Outputs {
 
         @SuppressLint("UnsafeNewApiCall", "NewApi")
         @Suppress("DEPRECATION")
-        dirUsableByAppAndShell = when (Build.VERSION.SDK_INT) {
-            Build.VERSION_CODES.R -> {
+        dirUsableByAppAndShell = when {
+            Build.VERSION.SDK_INT == 30 -> {
                 // On Android R, we are using the media directory because that is the directory
                 // that the shell has access to. Context: b/181601156
                 InstrumentationRegistry.getInstrumentation().context.externalMediaDirs
                     .firstOrNull {
                         Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED
                     }
+            }
+            Build.VERSION.SDK_INT <= 22 -> {
+                // prior to API 23, shell didn't have access to externalCacheDir
+                InstrumentationRegistry.getInstrumentation().context.cacheDir
             }
             else -> InstrumentationRegistry.getInstrumentation().context.externalCacheDir
         } ?: throw IllegalStateException(

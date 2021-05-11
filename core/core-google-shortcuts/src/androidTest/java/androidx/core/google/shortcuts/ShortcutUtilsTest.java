@@ -30,6 +30,7 @@ import android.content.Intent;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.crypto.tink.KeysetHandle;
@@ -38,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
 public class ShortcutUtilsTest {
     private static final String TEST_PACKAGE = "com.test.package";
 
@@ -65,7 +67,7 @@ public class ShortcutUtilsTest {
 
         String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent, null);
 
-        String expectedShortcutUrl = "http://www.google.com";
+        String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
         assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
     }
 
@@ -84,7 +86,7 @@ public class ShortcutUtilsTest {
         assertThat(trampolineIntent.getPackage()).isEqualTo(context.getPackageName());
         assertThat(trampolineIntent.getAction()).isEqualTo(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY)).isNotEmpty();
-        String expectedShortcutUrl = "http://www.google.com";
+        String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY))
                 .isEqualTo(expectedShortcutUrl);
     }
