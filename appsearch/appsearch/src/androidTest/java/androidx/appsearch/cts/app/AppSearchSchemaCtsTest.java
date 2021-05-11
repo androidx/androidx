@@ -163,7 +163,7 @@ public class AppSearchSchemaCtsTest {
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
                         .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
-                .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("long")
+                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .build())
                 .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
@@ -197,7 +197,7 @@ public class AppSearchSchemaCtsTest {
         assertThat(properties.get(1).getName()).isEqualTo("long");
         assertThat(properties.get(1).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(properties.get(1)).isInstanceOf(AppSearchSchema.Int64PropertyConfig.class);
+        assertThat(properties.get(1)).isInstanceOf(AppSearchSchema.LongPropertyConfig.class);
 
         assertThat(properties.get(2).getName()).isEqualTo("double");
         assertThat(properties.get(2).getCardinality())

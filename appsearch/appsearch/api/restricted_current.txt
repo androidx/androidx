@@ -32,7 +32,7 @@ package androidx.appsearch.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface Document.Id {
   }
 
-  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface Document.Int64Property {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface Document.LongProperty {
     method public abstract String name() default "";
     method public abstract boolean required() default false;
   }
@@ -140,13 +140,13 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema.DoublePropertyConfig.Builder setCardinality(int);
   }
 
-  public static final class AppSearchSchema.Int64PropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+  public static final class AppSearchSchema.LongPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
   }
 
-  public static final class AppSearchSchema.Int64PropertyConfig.Builder {
-    ctor public AppSearchSchema.Int64PropertyConfig.Builder(String);
-    method public androidx.appsearch.app.AppSearchSchema.Int64PropertyConfig build();
-    method public androidx.appsearch.app.AppSearchSchema.Int64PropertyConfig.Builder setCardinality(int);
+  public static final class AppSearchSchema.LongPropertyConfig.Builder {
+    ctor public AppSearchSchema.LongPropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.LongPropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.LongPropertyConfig.Builder setCardinality(int);
   }
 
   public abstract static class AppSearchSchema.PropertyConfig {

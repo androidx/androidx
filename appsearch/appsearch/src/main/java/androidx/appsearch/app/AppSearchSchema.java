@@ -181,7 +181,7 @@ public final class AppSearchSchema {
         // com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
         @IntDef(value = {
                 DATA_TYPE_STRING,
-                DATA_TYPE_INT64,
+                DATA_TYPE_LONG,
                 DATA_TYPE_DOUBLE,
                 DATA_TYPE_BOOLEAN,
                 DATA_TYPE_BYTES,
@@ -191,15 +191,19 @@ public final class AppSearchSchema {
         public @interface DataType {}
 
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_STRING = 1;
 
         /** @hide */
-        public static final int DATA_TYPE_INT64 = 2;
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final int DATA_TYPE_LONG = 2;
 
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_DOUBLE = 3;
 
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_BOOLEAN = 4;
 
         /**
@@ -312,8 +316,8 @@ public final class AppSearchSchema {
             switch (propertyBundle.getInt(PropertyConfig.DATA_TYPE_FIELD)) {
                 case PropertyConfig.DATA_TYPE_STRING:
                     return new StringPropertyConfig(propertyBundle);
-                case PropertyConfig.DATA_TYPE_INT64:
-                    return new Int64PropertyConfig(propertyBundle);
+                case PropertyConfig.DATA_TYPE_LONG:
+                    return new LongPropertyConfig(propertyBundle);
                 case PropertyConfig.DATA_TYPE_DOUBLE:
                     return new DoublePropertyConfig(propertyBundle);
                 case PropertyConfig.DATA_TYPE_BOOLEAN:
@@ -480,7 +484,13 @@ public final class AppSearchSchema {
         }
     }
 
-    /** Configuration for a property containing a 64-bit integer. */
+    /**
+     * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Deprecated
+    /*@exportToFramework:UnsupportedAppUsage*/
     public static final class Int64PropertyConfig extends PropertyConfig {
         Int64PropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
@@ -516,9 +526,52 @@ public final class AppSearchSchema {
             public Int64PropertyConfig build() {
                 Bundle bundle = new Bundle();
                 bundle.putString(NAME_FIELD, mPropertyName);
-                bundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_INT64);
+                bundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_LONG);
                 bundle.putInt(CARDINALITY_FIELD, mCardinality);
                 return new Int64PropertyConfig(bundle);
+            }
+        }
+    }
+
+    /** Configuration for a property containing a 64-bit integer. */
+    public static final class LongPropertyConfig extends PropertyConfig {
+        LongPropertyConfig(@NonNull Bundle bundle) {
+            super(bundle);
+        }
+
+        /** Builder for {@link LongPropertyConfig}. */
+        public static final class Builder {
+            private final String mPropertyName;
+            private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
+
+            /** Creates a new {@link LongPropertyConfig.Builder}. */
+            public Builder(@NonNull String propertyName) {
+                mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * The cardinality of the property (whether it is optional, required or repeated).
+             *
+             * <p>If this method is not called, the default cardinality is
+             * {@link PropertyConfig#CARDINALITY_OPTIONAL}.
+             */
+            @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
+            @NonNull
+            public LongPropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
+                Preconditions.checkArgumentInRange(
+                        cardinality, CARDINALITY_REPEATED, CARDINALITY_REQUIRED, "cardinality");
+                mCardinality = cardinality;
+                return this;
+            }
+
+            /** Constructs a new {@link LongPropertyConfig} from the contents of this builder. */
+            @NonNull
+            public LongPropertyConfig build() {
+                Bundle bundle = new Bundle();
+                bundle.putString(NAME_FIELD, mPropertyName);
+                bundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_LONG);
+                bundle.putInt(CARDINALITY_FIELD, mCardinality);
+                return new LongPropertyConfig(bundle);
             }
         }
     }

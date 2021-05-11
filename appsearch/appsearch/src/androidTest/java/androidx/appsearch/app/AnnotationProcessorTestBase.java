@@ -104,9 +104,9 @@ public abstract class AnnotationProcessorTestBase {
         long mCreationTimestampMillis;
 
         // Collections
-        @Document.Int64Property
+        @Document.LongProperty
         Collection<Long> mCollectLong;         // 1a
-        @Document.Int64Property
+        @Document.LongProperty
         Collection<Integer> mCollectInteger;   // 1a
         @Document.DoubleProperty
         Collection<Double> mCollectDouble;     // 1a
@@ -122,13 +122,13 @@ public abstract class AnnotationProcessorTestBase {
         Collection<Card> mCollectCard;         // 1c
 
         // Arrays
-        @Document.Int64Property
+        @Document.LongProperty
         Long[] mArrBoxLong;         // 2a
-        @Document.Int64Property
+        @Document.LongProperty
         long[] mArrUnboxLong;       // 2b
-        @Document.Int64Property
+        @Document.LongProperty
         Integer[] mArrBoxInteger;   // 2a
-        @Document.Int64Property
+        @Document.LongProperty
         int[] mArrUnboxInt;         // 2a
         @Document.DoubleProperty
         Double[] mArrBoxDouble;     // 2a
@@ -154,13 +154,13 @@ public abstract class AnnotationProcessorTestBase {
         // Single values
         @Document.StringProperty
         String mString;        // 3a
-        @Document.Int64Property
+        @Document.LongProperty
         Long mBoxLong;         // 3a
-        @Document.Int64Property
+        @Document.LongProperty
         long mUnboxLong;       // 3b
-        @Document.Int64Property
+        @Document.LongProperty
         Integer mBoxInteger;   // 3a
-        @Document.Int64Property
+        @Document.LongProperty
         int mUnboxInt;         // 3b
         @Document.DoubleProperty
         Double mBoxDouble;     // 3a

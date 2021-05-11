@@ -138,7 +138,7 @@ class SchemaCodeGenerator {
                 || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)
                 || typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)) {
-            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "Int64PropertyConfig");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "LongPropertyConfig");
         } else if (typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)
                 || typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)

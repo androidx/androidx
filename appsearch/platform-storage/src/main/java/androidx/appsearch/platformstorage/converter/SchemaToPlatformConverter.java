@@ -87,7 +87,7 @@ public final class SchemaToPlatformConverter {
                     .setIndexingType(stringProperty.getIndexingType())
                     .setTokenizerType(stringProperty.getTokenizerType())
                     .build();
-        } else if (jetpackProperty instanceof AppSearchSchema.Int64PropertyConfig) {
+        } else if (jetpackProperty instanceof AppSearchSchema.LongPropertyConfig) {
             return new android.app.appsearch.AppSearchSchema.Int64PropertyConfig.Builder(
                     jetpackProperty.getName())
                     .setCardinality(jetpackProperty.getCardinality())
@@ -136,7 +136,7 @@ public final class SchemaToPlatformConverter {
                     .build();
         } else if (platformProperty
                 instanceof android.app.appsearch.AppSearchSchema.Int64PropertyConfig) {
-            return new AppSearchSchema.Int64PropertyConfig.Builder(platformProperty.getName())
+            return new AppSearchSchema.LongPropertyConfig.Builder(platformProperty.getName())
                     .setCardinality(platformProperty.getCardinality())
                     .build();
         } else if (platformProperty

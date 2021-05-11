@@ -88,7 +88,7 @@ public class SchemaToProtoConverterTest {
                         .setTokenizerType(
                                 AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build()
-                ).addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("pubDate")
+                ).addProperty(new AppSearchSchema.LongPropertyConfig.Builder("pubDate")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .build()
                 ).build();

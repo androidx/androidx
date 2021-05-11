@@ -30,7 +30,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("setOfInt")
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("setOfInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .build())
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("repeatedByteArray")

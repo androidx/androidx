@@ -234,7 +234,7 @@ class IntrospectionHelper {
         BYTES_PROPERTY_CLASS("androidx.appsearch.annotation.Document.BytesProperty"),
         DOCUMENT_PROPERTY_CLASS("androidx.appsearch.annotation.Document.DocumentProperty"),
         DOUBLE_PROPERTY_CLASS("androidx.appsearch.annotation.Document.DoubleProperty"),
-        INT64_PROPERTY_CLASS("androidx.appsearch.annotation.Document.Int64Property"),
+        LONG_PROPERTY_CLASS("androidx.appsearch.annotation.Document.LongProperty"),
         STRING_PROPERTY_CLASS("androidx.appsearch.annotation.Document.StringProperty");
 
         private final String mClassFullPath;

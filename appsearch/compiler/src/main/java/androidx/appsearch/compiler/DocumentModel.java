@@ -339,7 +339,7 @@ class DocumentModel {
                     return;
                 }
                 break;
-            case INT64_PROPERTY_CLASS:
+            case LONG_PROPERTY_CLASS:
                 if (mHelper.isFieldOfExactType(property, mHelper.mIntegerBoxType,
                         mHelper.mIntPrimitiveType, mHelper.mLongBoxType,
                         mHelper.mLongPrimitiveType)) {

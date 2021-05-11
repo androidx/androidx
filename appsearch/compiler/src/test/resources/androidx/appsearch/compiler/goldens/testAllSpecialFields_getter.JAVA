@@ -20,7 +20,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
-          .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("price")
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .build())
           .build();

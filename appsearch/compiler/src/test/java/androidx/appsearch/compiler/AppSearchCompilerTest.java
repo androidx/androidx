@@ -182,7 +182,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int getPrice() { return 0; }\n"
+                        + "  @Document.LongProperty private int getPrice() { return 0; }\n"
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
@@ -196,7 +196,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
@@ -211,7 +211,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  private int getPrice() { return 0; }\n"
                         + "}\n");
 
@@ -228,7 +228,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "}\n");
 
@@ -246,7 +246,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "  int getPrice() { return 0; }\n"
                         + "  void setPrice(int n) {}\n"
@@ -263,7 +263,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int price() { return 0; }\n"
                         + "  void price(int n) {}\n"
                         + "}\n");
@@ -285,7 +285,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "}\n");
 
@@ -305,7 +305,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  private void setPrice(int n) {}\n"
                         + "}\n");
@@ -328,7 +328,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "}\n");
@@ -351,7 +351,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "  void setPrice(int n) {}\n"
@@ -369,7 +369,7 @@ public class AppSearchCompilerTest {
                         + "  private Gift() {}\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
@@ -385,7 +385,7 @@ public class AppSearchCompilerTest {
                         + "  Gift(int price) {}\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
@@ -409,7 +409,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -434,7 +434,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -458,7 +458,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -483,7 +483,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -503,7 +503,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
@@ -520,10 +520,10 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id private String id_;\n"
-                        + "  @Document.Int64Property private int price1;\n"
-                        + "  @Document.Int64Property private int mPrice2;\n"
-                        + "  @Document.Int64Property private int _price3;\n"
-                        + "  @Document.Int64Property final int price4_;\n"
+                        + "  @Document.LongProperty private int price1;\n"
+                        + "  @Document.LongProperty private int mPrice2;\n"
+                        + "  @Document.LongProperty private int _price3;\n"
+                        + "  @Document.LongProperty final int price4_;\n"
                         + "  int getPrice1() { return price1; }\n"
                         + "  int price2() { return mPrice2; }\n"
                         + "  int getPrice3() { return _price3; }\n"
@@ -554,7 +554,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "  @Document.BooleanProperty boolean cat = false;\n"
                         + "  public void setCat(boolean cat) {}\n"
                         + "  @Document.BooleanProperty private final boolean dog;\n"
@@ -587,7 +587,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
                         + "  @Document.StringProperty List<String> listOfString;\n"
-                        + "  @Document.Int64Property Collection<Integer> setOfInt;\n"
+                        + "  @Document.LongProperty Collection<Integer> setOfInt;\n"
                         + "  @Document.BytesProperty byte[][] repeatedByteArray;\n"
                         + "  @Document.BytesProperty byte[] byteArray;\n"
                         + "}\n");
@@ -624,8 +624,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
                         + "  @Document.StringProperty String stringProp;\n"
-                        + "  @Document.Int64Property Integer integerProp;\n"
-                        + "  @Document.Int64Property Long longProp;\n"
+                        + "  @Document.LongProperty Integer integerProp;\n"
+                        + "  @Document.LongProperty Long longProp;\n"
                         + "  @Document.DoubleProperty Float floatProp;\n"
                         + "  @Document.DoubleProperty Double doubleProp;\n"
                         + "  @Document.BooleanProperty Boolean booleanProp;\n"
@@ -735,8 +735,8 @@ public class AppSearchCompilerTest {
                         + "  @Id String id;\n"
                         + "\n"
                         + "  // Collections\n"
-                        + "  @Int64Property Collection<Long> collectLong;\n"         // 1a
-                        + "  @Int64Property Collection<Integer> collectInteger;\n"   // 1a
+                        + "  @LongProperty Collection<Long> collectLong;\n"         // 1a
+                        + "  @LongProperty Collection<Integer> collectInteger;\n"   // 1a
                         + "  @DoubleProperty Collection<Double> collectDouble;\n"     // 1a
                         + "  @DoubleProperty Collection<Float> collectFloat;\n"       // 1a
                         + "  @BooleanProperty Collection<Boolean> collectBoolean;\n"   // 1a
@@ -745,10 +745,10 @@ public class AppSearchCompilerTest {
                         + "  @DocumentProperty Collection<Gift> collectGift;\n"         // 1c
                         + "\n"
                         + "  // Arrays\n"
-                        + "  @Int64Property Long[] arrBoxLong;\n"         // 2a
-                        + "  @Int64Property long[] arrUnboxLong;\n"       // 2b
-                        + "  @Int64Property Integer[] arrBoxInteger;\n"   // 2a
-                        + "  @Int64Property int[] arrUnboxInt;\n"         // 2a
+                        + "  @LongProperty Long[] arrBoxLong;\n"         // 2a
+                        + "  @LongProperty long[] arrUnboxLong;\n"       // 2b
+                        + "  @LongProperty Integer[] arrBoxInteger;\n"   // 2a
+                        + "  @LongProperty int[] arrUnboxInt;\n"         // 2a
                         + "  @DoubleProperty Double[] arrBoxDouble;\n"     // 2a
                         + "  @DoubleProperty double[] arrUnboxDouble;\n"   // 2b
                         + "  @DoubleProperty Float[] arrBoxFloat;\n"       // 2a
@@ -762,10 +762,10 @@ public class AppSearchCompilerTest {
                         + "\n"
                         + "  // Single values\n"
                         + "  @StringProperty String string;\n"        // 3a
-                        + "  @Int64Property Long boxLong;\n"         // 3a
-                        + "  @Int64Property long unboxLong;\n"       // 3b
-                        + "  @Int64Property Integer boxInteger;\n"   // 3a
-                        + "  @Int64Property int unboxInt;\n"         // 3b
+                        + "  @LongProperty Long boxLong;\n"         // 3a
+                        + "  @LongProperty long unboxLong;\n"       // 3b
+                        + "  @LongProperty Integer boxInteger;\n"   // 3a
+                        + "  @LongProperty int unboxInt;\n"         // 3b
                         + "  @DoubleProperty Double boxDouble;\n"     // 3a
                         + "  @DoubleProperty double unboxDouble;\n"   // 3b
                         + "  @DoubleProperty Float boxFloat;\n"       // 3a
@@ -841,7 +841,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.CreationTimestampMillis long creationTs;\n"
                         + "  @Document.TtlMillis int ttlMs;\n"
-                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.LongProperty int price;\n"
                         + "  @Document.Score int score;\n"
                         + "}\n");
 
@@ -859,7 +859,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.Score private int score;\n"
                         + "  @Document.CreationTimestampMillis private long creationTs;\n"
                         + "  @Document.TtlMillis private int ttlMs;\n"
-                        + "  @Document.Int64Property private int price;\n"
+                        + "  @Document.LongProperty private int price;\n"
                         + "  public String getId() { return id; }\n"
                         + "  public void setId(String id) { this.id = id; }\n"
                         + "  public String getNamespace() { return namespace; }\n"

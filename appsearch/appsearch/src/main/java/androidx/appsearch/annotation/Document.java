@@ -266,7 +266,7 @@ public @interface Document {
     @Documented
     @Retention(RetentionPolicy.CLASS)
     @Target(ElementType.FIELD)
-    @interface Int64Property {
+    @interface LongProperty {
         /**
          * The name of this property. This string is used to query against this property.
          *
