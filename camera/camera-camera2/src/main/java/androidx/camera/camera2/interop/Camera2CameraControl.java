@@ -71,7 +71,8 @@ public final class Camera2CameraControl {
                 if (mCompleter != null) {
                     Object tag = captureResult.getRequest().getTag();
                     if (tag instanceof TagBundle) {
-                        Integer tagInteger = ((TagBundle) tag).getTag(TAG_KEY);
+                        TagBundle tagBundle = (TagBundle) tag;
+                        Integer tagInteger = (Integer) tagBundle.getTag(TAG_KEY);
                         if (tagInteger != null && tagInteger.equals(mCompleter.hashCode())) {
                             completerToSet = mCompleter;
                             mCompleter = null;

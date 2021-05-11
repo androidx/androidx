@@ -235,7 +235,7 @@ public final class SessionConfig {
         /**
          * Adds a tag to the SessionConfig with a key. For tracking the source.
          */
-        public void addTag(@NonNull String key, @NonNull Integer tag) {
+        public void addTag(@NonNull String key, @NonNull Object tag) {
             mCaptureConfigBuilder.addTag(key, tag);
         }
 

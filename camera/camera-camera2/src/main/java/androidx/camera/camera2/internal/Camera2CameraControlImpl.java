@@ -450,7 +450,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
         Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
         if (tag != null && tag instanceof Integer) {
-            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, (Integer) tag);
+            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, tag);
         }
         return mSessionConfigBuilder.build();
     }
