@@ -21,7 +21,6 @@ import androidx.window.extensions.ExtensionDisplayFeature
 import androidx.window.extensions.ExtensionFoldingFeature
 import androidx.window.extensions.ExtensionWindowLayoutInfo
 import com.nhaarman.mockitokotlin2.mock
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -36,18 +35,12 @@ import org.junit.Test
  */
 public class ExtensionAdapterTest : TranslatorTestInterface {
 
-    private lateinit var windowBoundsHelper: TestWindowBoundsHelper
+    private lateinit var windowBoundsCalculator: TestWindowMetricsCalculator
 
     @Before
     public fun setUp() {
-        windowBoundsHelper = TestWindowBoundsHelper()
-        windowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
-        WindowBoundsHelper.setForTesting(windowBoundsHelper)
-    }
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
+        windowBoundsCalculator = TestWindowMetricsCalculator()
+        windowBoundsCalculator.setCurrentBounds(WINDOW_BOUNDS)
     }
 
     @Test
@@ -64,7 +57,7 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
             FoldingFeature(foldFeature.bounds, FoldingFeature.TYPE_FOLD, FoldingFeature.STATE_FLAT)
         )
         val expected = WindowLayoutInfo(expectedFeatures)
-        val adapter = ExtensionAdapter()
+        val adapter = ExtensionAdapter(windowBoundsCalculator)
         val actual = adapter.translate(mockActivity, windowLayoutInfo)
         assertEquals(expected, actual)
     }
@@ -89,7 +82,7 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
                 ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
             )
         )
-        val extensionCallbackAdapter = ExtensionAdapter()
+        val extensionCallbackAdapter = ExtensionAdapter(windowBoundsCalculator)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
         val mockActivity = mock<Activity>()
         val actual = extensionCallbackAdapter.translate(
@@ -122,7 +115,7 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
                 ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
             )
         )
-        val adapter = ExtensionAdapter()
+        val adapter = ExtensionAdapter(windowBoundsCalculator)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
         val mockActivity = mock<Activity>()
         val actual = adapter.translate(mockActivity, windowLayoutInfo)
@@ -142,7 +135,7 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
         val extensionDisplayFeatures = listOf(foldFeature)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
         val mockActivity = mock<Activity>()
-        val adapter = ExtensionAdapter()
+        val adapter = ExtensionAdapter(windowBoundsCalculator)
         val actual = adapter.translate(mockActivity, windowLayoutInfo)
         assertTrue(
             "Remove fold feature not spanning full dimension",

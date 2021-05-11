@@ -90,7 +90,7 @@ public interface WindowInfoRepo {
             val repo = taggedRepo ?: activity.getOrCreateTag(R.id.androidx_window_activity_scope) {
                 WindowInfoRepoImp(
                     activity,
-                    WindowBoundsHelper(),
+                    WindowMetricsCalculatorCompat,
                     ExtensionWindowBackend.getInstance(activity)
                 )
             }
