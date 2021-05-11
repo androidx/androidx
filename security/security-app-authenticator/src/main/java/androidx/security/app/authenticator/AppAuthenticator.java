@@ -38,8 +38,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -133,26 +131,10 @@ public class AppAuthenticator {
      */
     private static final String NAME_ATTRIBUTE = "name";
     /**
-     * The attribute to declare the digest algorithm used for all certificate digests.
-     */
-    private static final String DIGEST_ALGORITHM_ATTRIBUTE = "digestAlgorithm";
-    /**
      * The default digest algorithm used for all certificate digests if one is not specified in
      * the root element.
      */
     static final String DEFAULT_DIGEST_ALGORITHM = "SHA-256";
-    /**
-     * The set of digest algorithms supported by the AppAuthenticator; insecure algorithms and
-     * those that do not support all platform levels have been removed.
-     */
-    private static final Set<String> SUPPORTED_DIGEST_ALGORITHMS;
-
-    static {
-        SUPPORTED_DIGEST_ALGORITHMS = new ArraySet<>(3);
-        SUPPORTED_DIGEST_ALGORITHMS.add("SHA-256");
-        SUPPORTED_DIGEST_ALGORITHMS.add("SHA-384");
-        SUPPORTED_DIGEST_ALGORITHMS.add("SHA-512");
-    }
 
     private AppSignatureVerifier mAppSignatureVerifier;
     private AppAuthenticatorUtils mAppAuthenticatorUtils;
@@ -464,22 +446,8 @@ public class AppAuthenticator {
                 throw new AppAuthenticatorXmlException(
                         "Provided XML does not contain the expected root tag: " + ROOT_TAG);
             }
-            assertExpectedAttribute(parser, ROOT_TAG, DIGEST_ALGORITHM_ATTRIBUTE, false);
-            String digestAlgorithm = parser.getAttributeValue(null, DIGEST_ALGORITHM_ATTRIBUTE);
-            if (TextUtils.isEmpty(digestAlgorithm)) {
-                digestAlgorithm = DEFAULT_DIGEST_ALGORITHM;
-            } else {
-                // Using US locale as this call is only intended to match the MessageDigest
-                // constants in the supported set as taken from the Android MessageDigest
-                // documentation.
-                digestAlgorithm = digestAlgorithm.toUpperCase(Locale.US);
-                if (!SUPPORTED_DIGEST_ALGORITHMS.contains(digestAlgorithm)) {
-                    throw new AppAuthenticatorXmlException("Provided XML contains an unsupported "
-                            + "digest algorithm, " + digestAlgorithm + "; must be one of the "
-                            + "following: " + Arrays.toString(
-                            SUPPORTED_DIGEST_ALGORITHMS.toArray()));
-                }
-            }
+            assertExpectedAttribute(parser, ROOT_TAG, null, false);
+            String digestAlgorithm = DEFAULT_DIGEST_ALGORITHM;
             int eventType = parser.nextTag();
             // Each new start tag should be for a new permission / expected-identity.
             while (eventType == XmlPullParser.START_TAG) {
