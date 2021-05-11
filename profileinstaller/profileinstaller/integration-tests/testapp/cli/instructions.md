@@ -24,7 +24,7 @@ Then generate a fat jar with gradle:
 ```
 cd <studio-master-dev-checkout>/studio-master-dev/tools
 ./gradlew :base:profgen-cli:clean :base:profgen-cli:jar
-ls ../out/build/base/profgen-cli/libs/profgen-cli*.jar
+ls ../out/build/base/profgen-cli/build/libs/profgen-cli*.jar
 ```
 
 Copy the resulting file to this directory and name it `profgen-cli.jar`

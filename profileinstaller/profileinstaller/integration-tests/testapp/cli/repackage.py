@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 
 import argparse
-from pathlib import Path
 import os
-import re
-import shutil
-import sys
 import shutil
 import subprocess
+import sys
 import tempfile
+from pathlib import Path
 from zipfile import ZipFile
+
+# CHANGEME:
+# PATH_TO_APKSIGNER = '/Users/lelandr/Library/Android/sdk/build-tools/30.0.3/apksigner'
+PATH_TO_APKSIGNER = 'apksigner'
 
 SCRIPT_PATH = Path(__file__).parent.absolute()
 SUPPORT_PATH = (SCRIPT_PATH / Path("../../../../..")).resolve()
@@ -17,15 +19,15 @@ ROOT_DIR = (SUPPORT_PATH / Path("../..")).resolve()
 BUILD_OUT_DIR = (Path(SUPPORT_PATH) / Path(
     "../../out/androidx/profileinstaller/profileinstaller/integration-tests/"
     "testapp/build/outputs/apk/")).resolve()
+MAPPING_OUT_PATH = (Path(SUPPORT_PATH) / Path(
+    "../../out/androidx/profileinstaller/profileinstaller/integration-tests/"
+    "testapp/build/outputs/mapping/release/mapping.txt")).resolve()
 
 APK_PREFIX = "testapp"
 APK_PROFILE_FILE = "baseline.prof"
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--variant', '-v', required=False, choices=['debug', 'release'],
-                        default='debug', help='apk build variant to annotate from default '
-                                              'build output directory')
     parser.add_argument('--profile', '-p', required=False, default=str(Path(SCRIPT_PATH) / Path(
         "all_compose_profile.txt")))
     parser.add_argument('--apk-path', '-f', required=False, help='apk path to for processing a '
@@ -33,12 +35,15 @@ def parse_args():
     parser.add_argument('--jar', '-j', required=False, default=str(Path(SCRIPT_PATH) /
                                                                    Path("profgen-cli.jar")))
     parser.add_argument('--output', '-o', required=False, default="out.apk")
+    parser.add_argument('--debug', type=bool, required=False, default=False)
+    parser.add_argument('--apk-signer', required=False, default=PATH_TO_APKSIGNER)
     args = parser.parse_args()
     return args
 
-def dir_for_buildtype(type, path):
+def dir_for_buildtype(debug, path):
     if (path is not None):
         return Path(path).absolute()
+    type = 'debug' if debug else 'release'
     newpath = BUILD_OUT_DIR / Path(type) / Path(APK_PREFIX + "-" + type + ".apk")
     return newpath.resolve()
 
@@ -51,7 +56,7 @@ def jar_from(jarPathStr):
 def output_apk_from(outPathStr):
     return Path(outPathStr)
 
-def check_env(apk_src, profile, jar, out_apk):
+def check_env(apk_src, profile, jar, out_apk, apk_signer):
     if not apk_src.exists():
         print("ERROR: APK source does not exist, build it using gradle.")
         print(apk_src)
@@ -67,9 +72,9 @@ def check_env(apk_src, profile, jar, out_apk):
         print(jar)
         sys.exit(-1)
 
-    if shutil.which('apksigner') is None:
+    if shutil.which(apk_signer) is None:
         print("ERROR: missing command line tool `apksigner`")
-        print("please install it on your system")
+        print("please install it on your system or modify the constant PATH_TO_APKSIGNER")
         sys.exit(-1)
 
     if out_apk.exists():
@@ -80,26 +85,37 @@ def check_env(apk_src, profile, jar, out_apk):
     print(f"Profgen:    {jar.absolute()}")
     print(f"Output:     {output_apk.absolute()}")
 
-def run_profgen(tmpDirName, apk_src, profile, jar, output_file):
+def run_profgen(tmpDirName, apk_src, profile, jar, output_file, debug):
+    print(f"Running profgen:")
+    print(f"Profile: {profile.absolute()}")
+    print(f"Apk: {apk_src.absolute()}")
+    print(f"Output: {output_file.absolute()}")
     jar_command = [
         'java',
         '-jar',
         str(jar.absolute()),
-        'bin',
+        'generate',
         str(profile.absolute()),
         '--apk',
         str(apk_src.absolute()),
         '--output',
-        str(output_file.absolute())
-    ]
-    subprocess.check_output(jar_command)
+        str(output_file.absolute()),
+        '--verbose'
+    ] + ([] if debug else [
+        '--map',
+        str(MAPPING_OUT_PATH.absolute())
+    ])
+    subprocess.run(jar_command, stdout=sys.stdout)
     if not output_file.exists():
         print(f"Failed to generate output file from profgen")
         print(" ".join(jar_command))
         sys.exit(-1)
 
-def repackage_jar(apk_src, profile, apk_dest, tmpDir):
-    working_dir = tmpDir / Path("working/")
+    output_size = os.stat(output_file.absolute()).st_size
+    print(f"Successfully created profile. Size: {output_size}")
+
+def repackage_jar(apk_src, profile, apk_dest, tmp_dir, apksigner):
+    working_dir = tmp_dir / Path("working/")
     working_dir.mkdir()
     working_apk = working_dir / Path("working.apk")
     shutil.copyfile(apk_src, working_apk)
@@ -113,7 +129,7 @@ def repackage_jar(apk_src, profile, apk_dest, tmpDir):
 
     keystore = Path.home() / Path(".android/debug.keystore")
     apksigner_command = [
-        'apksigner',
+        apksigner,
         'sign',
         '-ks',
         str(keystore.absolute()),
@@ -125,17 +141,18 @@ def repackage_jar(apk_src, profile, apk_dest, tmpDir):
 
     shutil.copyfile(working_apk, apk_dest)
 
-def generate_apk(apk_src, profile, jar, out_apk):
-    check_env(apk_src, profile, jar, out_apk)
+def generate_apk(apk_src, profile, jar, out_apk, debug, apk_signer):
+    check_env(apk_src, profile, jar, out_apk, apk_signer)
     with tempfile.TemporaryDirectory() as tmpDirName:
         output_profile = Path(tmpDirName) / Path("out.prof")
-        run_profgen(tmpDirName, apk_src, profile, jar, output_profile)
-        repackage_jar(apk_src, output_profile, out_apk, Path(tmpDirName))
+        print(f"Output profile: {output_profile.absolute()}")
+        run_profgen(tmpDirName, apk_src, profile, jar, output_profile, debug)
+        repackage_jar(apk_src, output_profile, out_apk, Path(tmpDirName), apk_signer)
 
 if __name__ == "__main__":
     args = parse_args()
-    apk_src = dir_for_buildtype(args.variant, args.apk_path)
+    apk_src = dir_for_buildtype(args.debug, args.apk_path)
     profile = profile_from(args.profile)
     jar = jar_from(args.jar)
     output_apk = output_apk_from(args.output)
-    generate_apk(apk_src, profile, jar, output_apk)
+    generate_apk(apk_src, profile, jar, output_apk, args.debug, args.apk_signer)
