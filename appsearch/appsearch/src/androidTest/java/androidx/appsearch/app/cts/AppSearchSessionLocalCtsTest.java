@@ -22,8 +22,11 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 
@@ -43,4 +46,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 new LocalStorage.SearchContext.Builder(context).setDatabaseName(dbName).build(),
                 executor);
     }
+
+    @FlakyTest(bugId = 187831733)
+    @Test
+    @Override
+    public void testCloseAndReopen() throws Exception {
+        super.testCloseAndReopen();
+    }
+
 }
