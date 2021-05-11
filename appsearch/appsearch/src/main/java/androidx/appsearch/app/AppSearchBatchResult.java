@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
@@ -33,6 +32,9 @@ import java.util.Map;
  *
  * <p>Alternatively, {@link #getAll()} returns a map of keys to {@link AppSearchResult} objects for
  * both successes and failures.
+ *
+ * @param <KeyType> The type of the keys for which the results will be reported.
+ * @param <ValueType> The type of the result objects for successful results.
  *
  * @see AppSearchSession#put
  * @see AppSearchSession#getByDocumentId
@@ -110,7 +112,12 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
         return "{\n  successes: " + mSuccesses + "\n  failures: " + mFailures + "\n}";
     }
 
-    /** Builder for {@link AppSearchBatchResult} objects. */
+    /**
+     * Builder for {@link AppSearchBatchResult} objects.
+     *
+     * @param <KeyType> The type of the keys for which the results will be reported.
+     * @param <ValueType> The type of the result objects for successful results.
+     */
     public static final class Builder<KeyType, ValueType> {
         private ArrayMap<KeyType, ValueType> mSuccesses = new ArrayMap<>();
         private ArrayMap<KeyType, AppSearchResult<ValueType>> mFailures = new ArrayMap<>();
