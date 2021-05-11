@@ -456,7 +456,6 @@ includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/lifecycle-viewmo
 includeProject(":lifecycle:lifecycle-viewmodel-savedstate", "lifecycle/lifecycle-viewmodel-savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lint-checks", "lint-checks")
 includeProject(":lint-checks:integration-tests", "lint-checks/integration-tests")
-includeProject(":lint-checks:tests", "lint-checks/tests")
 includeProject(":lint-demos:lint-demo-appcompat", "lint-demos/lint-demo-appcompat", [BuildType.MAIN])
 includeProject(":loader:loader", "loader/loader", [BuildType.MAIN])
 includeProject(":loader:loader-ktx", "loader/loader-ktx", [BuildType.MAIN])
