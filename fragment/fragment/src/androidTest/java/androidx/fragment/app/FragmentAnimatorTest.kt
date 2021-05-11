@@ -518,8 +518,11 @@ class FragmentAnimatorTest {
         assertThat(fragment2.isAdded).isFalse()
         assertThat(fm1.findFragmentByTag("2"))
             .isEqualTo(null) // fragmentManager does not know about animating fragment
-        assertThat(fragment2.parentFragmentManager)
-            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+        // Only do this check if the animator is still going.
+        if (fragment2.endLatch.count == 1L) {
+            assertThat(fragment2.parentFragmentManager)
+                .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+        }
 
         val fc2 = fc1.restart(activityRule, viewModelStore)
 
