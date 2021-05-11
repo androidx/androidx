@@ -17,19 +17,25 @@
 package androidx.appsearch.debugview.view;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
+import androidx.appsearch.exceptions.AppSearchException;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executors;
 
 /**
@@ -37,33 +43,49 @@ import java.util.concurrent.Executors;
  *
  * <p>This activity provides a view of all the documents that have been put into an application's
  * AppSearch database. The database is specified by creating an {@link android.content.Intent}
- * with a {@code String} extra containing key: {@code databaseName} and value: name of AppSearch
- * database.
+ * with extras specifying the database name and the AppSearch storage type.
  *
  * <p>To launch this activity, declare it in the application's manifest:
  * <pre>
  *     <activity android:name="androidx.appsearch.debugview.view.AppSearchDebugActivity" />
  * </pre>
  *
- * <p>Next, create an {@link android.content.Intent} with the {@code databaseName} to view
- * documents for, and start the activity:
+ * <p>Next, create an {@link android.content.Intent} from the activity that will launch the debug
+ * activity. Add the database name as an extra with key: {@link #DB_INTENT_KEY} and the storage
+ * type, which can be either {@link #STORAGE_TYPE_LOCAL} or {@link #STORAGE_TYPE_PLATFORM} with
+ * key: {@link #STORAGE_TYPE_INTENT_KEY}.
+ *
+ * <p>Example of launching the debug activity for local storage:
  * <pre>
  *     Intent intent = new Intent(this, AppSearchDebugActivity.class);
- *     intent.putExtra("databaseName", DB_NAME);
+ *     intent.putExtra(AppSearchDebugActivity.DB_INTENT_KEY, DB_NAME);
+ *     intent.putExtra(AppSearchDebugActivity.STORAGE_TYPE_INTENT_KEY,
+ *             AppSearchDebugActivity.STORAGE_TYPE_LOCAL);
  *     startActivity(intent);
  * </pre>
- *
- * <p><b>Note:</b> Debugging is currently only compatible with local storage.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AppSearchDebugActivity extends AppCompatActivity {
-    private static final String DB_INTENT_KEY = "databaseName";
+    private static final String TAG = "AppSearchDebugActivity";
+    public static final String DB_INTENT_KEY = "databaseName";
+    public static final String STORAGE_TYPE_INTENT_KEY = "storageType";
 
     private String mDbName;
     private ListenableFuture<DebugAppSearchManager> mDebugAppSearchManager;
     private ListeningExecutorService mBackgroundExecutor;
+
+    @IntDef(value = {
+            STORAGE_TYPE_LOCAL,
+            STORAGE_TYPE_PLATFORM,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StorageType {
+    }
+
+    public static final int STORAGE_TYPE_LOCAL = 0;
+    public static final int STORAGE_TYPE_PLATFORM = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,8 +94,17 @@ public class AppSearchDebugActivity extends AppCompatActivity {
 
         mBackgroundExecutor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
         mDbName = getIntent().getExtras().getString(DB_INTENT_KEY);
-        mDebugAppSearchManager = DebugAppSearchManager.create(
-                getApplicationContext(), mBackgroundExecutor, mDbName);
+        @StorageType int storageType =
+                getIntent().getExtras().getInt(STORAGE_TYPE_INTENT_KEY);
+        try {
+            mDebugAppSearchManager = DebugAppSearchManager.create(
+                    getApplicationContext(), mBackgroundExecutor, mDbName, storageType);
+        } catch (AppSearchException e) {
+            Toast.makeText(getApplicationContext(),
+                    "Failed to initialize AppSearch: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Failed to initialize AppSearch.", e);
+        }
     }
 
     @Override

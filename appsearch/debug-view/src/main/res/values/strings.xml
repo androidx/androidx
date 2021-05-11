@@ -15,6 +15,7 @@
   -->
 
 <resources>
-    <string name="appsearch_no_documents_error">No AppSearch documents found in database.
+    <string name="appsearch_no_documents_error">No AppSearch documents found in database. Verify
+        that the database name is valid and the correct storage type was selected.
     </string>
 </resources>
