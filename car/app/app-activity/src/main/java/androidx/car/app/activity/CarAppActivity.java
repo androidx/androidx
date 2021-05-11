@@ -232,23 +232,6 @@ public final class CarAppActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (mSurfaceView != null) {
-            mSurfaceView.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (mSurfaceView != null) {
-            mSurfaceView.setVisibility(View.VISIBLE);
-        }
-    }
-
-
-    @Override
     public void onBackPressed() {
         if (mOnBackPressedListener != null) {
             mOnBackPressedListener.onBackPressed();

@@ -45,7 +45,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
@@ -134,19 +133,6 @@ public class CarAppActivityTest {
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }
-            });
-        }
-    }
-
-    @Test
-    public void testSurfaceViewVisibilityOnLifecycleChange() {
-        setupCarAppActivityForTesting();
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
-                CarAppActivity.class)) {
-            scenario.onActivity(activity -> {
-                assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.VISIBLE);
-                scenario.moveToState(Lifecycle.State.CREATED);
-                assertThat(activity.mSurfaceView.getVisibility()).isEqualTo(View.GONE);
             });
         }
     }
