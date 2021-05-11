@@ -275,7 +275,7 @@ public class DismissibleFrameLayoutTest {
     private static class DismissCallback extends DismissibleFrameLayout.Callback {
 
         @Override
-        public void onDismissed(DismissibleFrameLayout layout) {
+        public void onDismissFinished(DismissibleFrameLayout layout) {
             layout.setVisibility(View.GONE);
         }
     }
