@@ -54,7 +54,7 @@ public class VisibilityStore {
 
     /** No-op implementation in local storage. */
     public VisibilityStore(@NonNull AppSearchImpl appSearchImpl, @NonNull Context context,
-            int userId, @NonNull String globalQuerierPackage) {
+            int userId) {
     }
 
     /** No-op implementation in local storage. */
@@ -75,6 +75,8 @@ public class VisibilityStore {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String prefixedSchema,
+            @NonNull String callerPackageName,
+            int callerPid,
             int callerUid) {
         return false;
     }

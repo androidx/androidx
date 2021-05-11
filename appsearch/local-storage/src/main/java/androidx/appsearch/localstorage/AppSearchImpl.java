@@ -203,11 +203,10 @@ public final class AppSearchImpl implements Closeable {
      */
     @NonNull
     public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context context, int userId,
-            @NonNull String globalQuerierPackage, @Nullable AppSearchLogger logger)
+            @Nullable AppSearchLogger logger)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
         Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(globalQuerierPackage);
 
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         InitializeStats.Builder initStatsBuilder = null;
@@ -216,8 +215,7 @@ public final class AppSearchImpl implements Closeable {
         }
 
         AppSearchImpl appSearchImpl =
-                new AppSearchImpl(icingDir, context, userId, globalQuerierPackage,
-                        initStatsBuilder);
+                new AppSearchImpl(icingDir, context, userId, initStatsBuilder);
 
         long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
         appSearchImpl.initializeVisibilityStore();
@@ -240,7 +238,6 @@ public final class AppSearchImpl implements Closeable {
      * @param initStatsBuilder collects stats for initialization if provided.
      */
     private AppSearchImpl(@NonNull File icingDir, @NonNull Context context, int userId,
-            @NonNull String globalQuerierPackage,
             @Nullable InitializeStats.Builder initStatsBuilder) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
 
@@ -256,7 +253,7 @@ public final class AppSearchImpl implements Closeable {
                     ObjectsCompat.hashCode(mIcingSearchEngineLocked));
 
             mVisibilityStoreLocked =
-                    new VisibilityStore(this, context, userId, globalQuerierPackage);
+                    new VisibilityStore(this, context, userId);
 
             // The core initialization procedure. If any part of this fails, we bail into
             // resetLocked(), deleting all data (but hopefully allowing AppSearchImpl to come up).
@@ -798,6 +795,7 @@ public final class AppSearchImpl implements Closeable {
      * @param queryExpression   Query String to search.
      * @param searchSpec        Spec for setting filters, raw query etc.
      * @param callerPackageName Package name of the caller, should belong to the {@code callerUid}.
+     * @param callerPid         Process id of the client making the globalQuery call.
      * @param callerUid         UID of the client making the globalQuery call.
      * @param logger            logger to collect globalQuery stats
      * @return The results of performing this search. It may contain an empty list of results if
@@ -809,6 +807,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @NonNull String callerPackageName,
+            int callerPid,
             int callerUid,
             @Nullable AppSearchLogger logger) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
@@ -855,7 +854,8 @@ public final class AppSearchImpl implements Closeable {
                         String prefixedSchema = prefix + schema;
                         if (packageName.equals(callerPackageName)
                                 || mVisibilityStoreLocked.isSchemaSearchableByCaller(
-                                packageName, databaseName, prefixedSchema, callerUid)) {
+                                packageName, databaseName, prefixedSchema, callerPackageName,
+                                callerPid, callerUid)) {
                             allowedPrefixedSchemas.add(prefixedSchema);
                         }
                     }
@@ -867,7 +867,8 @@ public final class AppSearchImpl implements Closeable {
                         for (String prefixedSchema : prefixedSchemas.keySet()) {
                             if (packageName.equals(callerPackageName)
                                     || mVisibilityStoreLocked.isSchemaSearchableByCaller(
-                                    packageName, databaseName, prefixedSchema, callerUid)) {
+                                    packageName, databaseName, prefixedSchema, callerPackageName,
+                                    callerPid, callerUid)) {
                                 allowedPrefixedSchemas.add(prefixedSchema);
                             }
                         }
@@ -1311,10 +1312,9 @@ public final class AppSearchImpl implements Closeable {
      * PersistToDisk, then all data in Icing will be lost.
      *
      * @param persistType the amount of data to persist. {@link PersistType.Code#LITE} will only
-     *                   persist the minimal amount of data to ensure all data can be recovered.
-     *                   {@link PersistType.Code#FULL} will persist all data necessary to
+     *                    persist the minimal amount of data to ensure all data can be recovered.
+     *                    {@link PersistType.Code#FULL} will persist all data necessary to
      *                    prevent data loss without needing data recovery.
-     *
      * @throws AppSearchException on any error that AppSearch persist data to disk.
      */
     public void persistToDisk(@NonNull PersistType.Code persistType) throws AppSearchException {

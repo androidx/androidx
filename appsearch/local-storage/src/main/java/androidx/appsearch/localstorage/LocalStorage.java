@@ -145,6 +145,7 @@ public class LocalStorage {
 
     /**
      * Contains information relevant to creating a global search session.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -220,8 +221,8 @@ public class LocalStorage {
      * <p>This process requires a native search library. If it's not created, the initialization
      * process will create one.
      *
-     * @param context  The {@link SearchContext} contains all information to create a new
-     *                 {@link AppSearchSession}
+     * @param context The {@link SearchContext} contains all information to create a new
+     *                {@link AppSearchSession}
      */
     @NonNull
     public static ListenableFuture<AppSearchSession> createSearchSession(
@@ -282,7 +283,6 @@ public class LocalStorage {
 
         // There is no global querier for a local storage instance.
         mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
-                /*globalQuerierPackage=*/ "",
                 /*logger=*/ null);
 
         executor.execute(() -> {
