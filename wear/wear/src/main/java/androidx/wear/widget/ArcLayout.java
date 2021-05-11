@@ -146,6 +146,11 @@ public class ArcLayout extends ViewGroup {
         // Stores the angle of the child, used to handle touch events.
         float mMiddleAngle;
 
+        // Position of the center of the child, in the parent's coordinate space.
+        // Currently only used for normal (not ArcLayout.Widget) children.
+        float mCenterX;
+        float mCenterY;
+
         /**
          * Creates a new set of layout parameters. The values are extracted from the supplied
          * attributes set and context.
@@ -412,48 +417,7 @@ public class ArcLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-
-            if (child.getVisibility() == GONE) {
-                continue;
-            }
-
-            // Curved container widgets have been measured so that the "arc" inside their widget
-            // will touch the outside of the box they have been measured in, taking into account
-            // the vertical alignment. Just grow them from the center.
-            if (child instanceof Widget) {
-                int leftPx =
-                        round((getMeasuredWidth() / 2f) - (child.getMeasuredWidth() / 2f));
-                int topPx =
-                        round((getMeasuredHeight() / 2f) - (child.getMeasuredHeight() / 2f));
-
-                child.layout(
-                        leftPx,
-                        topPx,
-                        leftPx + child.getMeasuredWidth(),
-                        topPx + child.getMeasuredHeight()
-                );
-            } else {
-                // Normal widgets need to be placed on their canvas, taking into account their
-                // vertical position.
-                // In terms of x axis, they are placed in the center of the screen, same as the
-                // center of the circle where all components lay.
-                // In terms of y axis, widget is placed on top of the circle (12 o'clock).
-                int leftPx =
-                        round((getMeasuredWidth() / 2f) - (child.getMeasuredWidth() / 2f));
-                int topPx = round(getChildTopInset(child));
-
-                child.layout(
-                        leftPx,
-                        topPx,
-                        leftPx + child.getMeasuredWidth(),
-                        topPx + child.getMeasuredHeight());
-            }
-        }
-
-        // Once dimensions are set, also layout the children in the arc, computing the
-        // center angle where they should be drawn.
+         // Layout the children in the arc, computing the center angle where they should be drawn.
         float currentCumulativeAngle = calculateInitialRotation();
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
@@ -471,7 +435,44 @@ public class ArcLayout extends ViewGroup {
             LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
             childLayoutParams.mMiddleAngle = middleAngle;
 
+            // Distance from the center of the ArcLayout to the center of the child widget
+            float centerToCenterDistance = (getMeasuredHeight() - child.getMeasuredHeight()) / 2
+                    - getChildTopInset(child);
+            // Move the center of the widget in the circle centered on this ArcLayout, and with
+            // radius centerToCenterDistance
+            childLayoutParams.mCenterX =
+                    (float) (getMeasuredWidth() / 2f
+                            + centerToCenterDistance * Math.sin(middleAngle * Math.PI / 180));
+            childLayoutParams.mCenterY =
+                    (float) (getMeasuredHeight() / 2f
+                            - centerToCenterDistance * Math.cos(middleAngle * Math.PI / 180));
+
             currentCumulativeAngle += mChildArcAngles.getTotalAngle();
+
+            // Curved container widgets have been measured so that the "arc" inside their widget
+            // will touch the outside of the box they have been measured in, taking into account
+            // the vertical alignment. Just grow them from the center.
+            if (child instanceof Widget) {
+                int leftPx =
+                        round((getMeasuredWidth() / 2f) - (child.getMeasuredWidth() / 2f));
+                int topPx =
+                        round((getMeasuredHeight() / 2f) - (child.getMeasuredHeight() / 2f));
+
+                child.layout(
+                        leftPx,
+                        topPx,
+                        leftPx + child.getMeasuredWidth(),
+                        topPx + child.getMeasuredHeight()
+                );
+            } else {
+                // Normal widget's centers need to be placed on their final position,
+                // the only thing left for drawing is to maybe rotate them.
+                int leftPx = round(childLayoutParams.mCenterX - child.getMeasuredWidth() / 2f);
+                int topPx = round(childLayoutParams.mCenterY - child.getMeasuredHeight() / 2f);
+
+                child.layout(leftPx, topPx, leftPx + child.getMeasuredWidth(),
+                        topPx + child.getMeasuredHeight());
+            }
         }
     }
 
@@ -520,17 +521,18 @@ public class ArcLayout extends ViewGroup {
 
     // Map a point to local child coordinates.
     private void mapPoint(View child, float angle, float[] point) {
-        float cx = getMeasuredWidth() / 2;
-        float cy = getMeasuredHeight() / 2;
-
         Matrix m = new Matrix();
-        m.postRotate(-angle, cx, cy);
-        m.postTranslate(-child.getX(), -child.getY());
-        if (!(child instanceof Widget)) {
-            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
-            if (!childLayoutParams.isRotated()) {
-                m.postRotate(angle, child.getWidth() / 2, child.getHeight() / 2);
+
+        LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+        if (child instanceof Widget) {
+            m.postRotate(-angle, getMeasuredWidth() / 2, getMeasuredHeight() / 2);
+            m.postTranslate(-child.getX(), -child.getY());
+        } else {
+            m.postTranslate(-childLayoutParams.mCenterX, -childLayoutParams.mCenterY);
+            if (childLayoutParams.isRotated()) {
+                m.postRotate(-angle);
             }
+            m.postTranslate(child.getWidth() / 2, child.getHeight() / 2);
         }
         m.mapPoints(point);
     }
@@ -568,48 +570,25 @@ public class ArcLayout extends ViewGroup {
         LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
         float middleAngle = childLayoutParams.mMiddleAngle;
 
-        // Rotate the child widget. This rotation places child widget in its correct place in the
-        // circle. Rotation is done around the center of the circle that components make. Canvas
-        // does this at the end, when all (if any) rotations are done.
-        canvas.rotate(
-                middleAngle,
-                getMeasuredWidth() / 2f,
-                getMeasuredHeight() / 2f);
-
         if (child instanceof Widget) {
+            // Rotate the child widget. This rotation places child widget in its correct place in
+            // the circle. Rotation is done around the center of the circle that components make.
+            canvas.rotate(
+                    middleAngle,
+                    getMeasuredWidth() / 2f,
+                    getMeasuredHeight() / 2f);
+
             ((Widget) child).checkInvalidAttributeAsChild();
         } else {
-            // Do we need to do some counter rotation?
-            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
-
-            float angleToRotate = 0f;
-
-            if (layoutParams.isRotated()) {
-                // For counterclockwise layout, especially when mixing standard Android widget with
-                // ArcLayoutWidget as children, we might need to rotate the standard widget to make
-                // them have the same upwards direction.
-                if (!mClockwise) {
-                    angleToRotate = 180f;
-                }
-            } else {
-                // Un-rotate about the top of the canvas, around the center of the actual child.
-                // This compounds with the initial rotation into a translation.
-                angleToRotate = -middleAngle;
-            }
-
-            // Do the actual rotation. This rotation is done in place around the center of the
+            // Normal components already have their center in the right position during layout,
+            // the only thing remaining is any needed rotation.
+            // This rotation is done in place around the center of the
             // child to adjust it based on rotation and clockwise attributes.
-            // Actual position of this component here is still at the
-            // top of the circle (12 o'clock), meaning that the strange rotation center is
-            // because the child view is x-centered but at the top of this container. Additional
-            // offset is added for vertical rectangular screens as for them the start of an arc
-            // is lower then usual.
-            float childInset = getChildTopInset(child);
-            canvas.rotate(
-                    angleToRotate,
-                    getMeasuredWidth() / 2f,
-                    child.getMeasuredHeight() / 2f + childInset
-            );
+            float angleToRotate = childLayoutParams.isRotated()
+                    ? middleAngle + (mClockwise ? 0f : 180f)
+                    : 0f;
+
+            canvas.rotate(angleToRotate, childLayoutParams.mCenterX, childLayoutParams.mCenterY);
         }
         boolean wasInvalidateIssued = super.drawChild(canvas, child, drawingTime);
 
