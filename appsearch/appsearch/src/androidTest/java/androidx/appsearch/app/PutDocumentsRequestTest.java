@@ -75,7 +75,8 @@ public class PutDocumentsRequestTest {
                 new LocalStorage.SearchContext.Builder(context, /*databaseName=*/ "")
                         .build()
         ).get();
-        session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build());
+        session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build())
+            .get();
 
         Set<Card> cards = ImmutableSet.of(new Card("cardNamespace", "cardId", "cardProperty"));
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDocuments(cards)
