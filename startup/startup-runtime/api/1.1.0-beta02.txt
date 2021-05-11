@@ -1,0 +1,26 @@
+// Signature format: 4.0
+package androidx.startup {
+
+  public final class AppInitializer {
+    method public static androidx.startup.AppInitializer getInstance(android.content.Context);
+    method public <T> T initializeComponent(Class<? extends androidx.startup.Initializer<T!>>);
+    method public boolean isEagerlyInitialized(Class<? extends androidx.startup.Initializer<?>>);
+  }
+
+  public class InitializationProvider extends android.content.ContentProvider {
+    ctor public InitializationProvider();
+    method public final int delete(android.net.Uri, String?, String![]?);
+    method public final String? getType(android.net.Uri);
+    method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
+    method public final boolean onCreate();
+    method public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
+  }
+
+  public interface Initializer<T> {
+    method public T create(android.content.Context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+  }
+
+}
+
