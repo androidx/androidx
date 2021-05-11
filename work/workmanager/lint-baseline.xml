@@ -2143,4 +2143,36 @@
             column="16"/>
     </issue>
 
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        activityManager.getHistoricalProcessExitReasons("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="171"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        if (info.getReason() == REASON_USER_REQUESTED) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="180"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            builder.setExpedited(true);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="129"
+            column="21"/>
+    </issue>
 </issues>
