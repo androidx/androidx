@@ -268,4 +268,36 @@ src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancel
             .run()
             .expectClean()
     }
+
+    @Test
+    fun `kotlin empty interface clean`() {
+        lint().files(
+            kotlin(
+                """
+            package com.example
+
+            class Foo
+            """
+            ).indented()
+        )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `java empty interface clean`() {
+        lint().files(
+            java(
+                """
+            package com.example;
+
+            public class Foo {
+
+            }
+            """
+            ).indented()
+        )
+            .run()
+            .expectClean()
+    }
 }
