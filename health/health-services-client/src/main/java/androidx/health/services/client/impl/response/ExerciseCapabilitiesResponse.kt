@@ -18,35 +18,38 @@ package androidx.health.services.client.impl.response
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.health.services.client.data.PassiveActivityState
+import androidx.health.services.client.data.ExerciseCapabilities
 
 /**
- * Response containing [PassiveActivityState].
+ * Response containing the [ExerciseCapabilities] of the Health Services exercise client on the
+ * device.
  *
  * @hide
  */
-public data class PassiveActivityStateResponse(val passiveActivityState: PassiveActivityState) :
-    Parcelable {
+public data class ExerciseCapabilitiesResponse(
+    /** [ExerciseCapabilities] supported by this device. */
+    val exerciseCapabilities: ExerciseCapabilities,
+) : Parcelable {
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(passiveActivityState, flags)
+        dest.writeParcelable(exerciseCapabilities, flags)
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveActivityStateResponse> =
-            object : Parcelable.Creator<PassiveActivityStateResponse> {
-                override fun createFromParcel(source: Parcel): PassiveActivityStateResponse? {
+        public val CREATOR: Parcelable.Creator<ExerciseCapabilitiesResponse> =
+            object : Parcelable.Creator<ExerciseCapabilitiesResponse> {
+                override fun createFromParcel(source: Parcel): ExerciseCapabilitiesResponse? {
                     val parcelable =
-                        source.readParcelable<PassiveActivityState>(
-                            PassiveActivityState::class.java.classLoader
+                        source.readParcelable<ExerciseCapabilities>(
+                            ExerciseCapabilities::class.java.classLoader
                         )
                             ?: return null
-                    return PassiveActivityStateResponse(parcelable)
+                    return ExerciseCapabilitiesResponse(parcelable)
                 }
 
-                override fun newArray(size: Int): Array<PassiveActivityStateResponse?> {
+                override fun newArray(size: Int): Array<ExerciseCapabilitiesResponse?> {
                     return arrayOfNulls(size)
                 }
             }
