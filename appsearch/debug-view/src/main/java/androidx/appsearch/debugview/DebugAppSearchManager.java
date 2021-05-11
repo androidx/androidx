@@ -17,16 +17,22 @@
 package androidx.appsearch.debugview;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.debugview.view.AppSearchDebugActivity;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
+import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.Futures;
@@ -69,11 +75,15 @@ public class DebugAppSearchManager implements Closeable {
      * @param context      application context.
      * @param executor     executor to run AppSearch operations on.
      * @param databaseName name of the database to open AppSearch debugging for.
+     * @param storageType  constant of the storage type to start session for.
+     * @throws AppSearchException if the storage type is invalid, or a R- device selects platform
+     *                            storage as the storage type for debugging.
      */
     @NonNull
     public static ListenableFuture<DebugAppSearchManager> create(
             @NonNull Context context,
-            @NonNull ExecutorService executor, @NonNull String databaseName) {
+            @NonNull ExecutorService executor, @NonNull String databaseName,
+            @AppSearchDebugActivity.StorageType int storageType) throws AppSearchException {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(databaseName);
@@ -81,8 +91,32 @@ public class DebugAppSearchManager implements Closeable {
         DebugAppSearchManager debugAppSearchManager =
                 new DebugAppSearchManager(context, executor);
 
-        return Futures.transform(debugAppSearchManager.initialize(databaseName),
-                unused -> debugAppSearchManager, executor);
+        ListenableFuture<DebugAppSearchManager> debugAppSearchManagerListenableFuture;
+
+        switch (storageType) {
+            case AppSearchDebugActivity.STORAGE_TYPE_LOCAL:
+                debugAppSearchManagerListenableFuture =
+                        Futures.transform(
+                                debugAppSearchManager.initializeLocalStorage(databaseName),
+                                unused -> debugAppSearchManager, executor);
+                break;
+            case AppSearchDebugActivity.STORAGE_TYPE_PLATFORM:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    debugAppSearchManagerListenableFuture =
+                            Futures.transform(
+                                    debugAppSearchManager.initializePlatformStorage(databaseName),
+                                    unused -> debugAppSearchManager, executor);
+                } else {
+                    throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
+                            "Platform Storage debugging only valid for S+ devices.");
+                }
+                break;
+            default:
+                throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
+                        "Invalid storage type specified. Verify that the "
+                                + "storage type that has been passed in the intent is valid.");
+        }
+        return debugAppSearchManagerListenableFuture;
     }
 
     /**
@@ -151,9 +185,21 @@ public class DebugAppSearchManager implements Closeable {
     }
 
     @NonNull
-    private ListenableFuture<AppSearchSession> initialize(@NonNull String databaseName) {
+    private ListenableFuture<AppSearchSession> initializeLocalStorage(
+            @NonNull String databaseName) {
         mAppSearchSessionFuture.setFuture(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(mContext, databaseName)
+                        .build())
+        );
+        return mAppSearchSessionFuture;
+    }
+
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.S)
+    private ListenableFuture<AppSearchSession> initializePlatformStorage(
+            @NonNull String databaseName) {
+        mAppSearchSessionFuture.setFuture(PlatformStorage.createSearchSession(
+                new PlatformStorage.SearchContext.Builder(mContext, databaseName)
                         .build())
         );
         return mAppSearchSessionFuture;

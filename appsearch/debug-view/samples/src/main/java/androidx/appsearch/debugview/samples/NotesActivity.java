@@ -124,7 +124,9 @@ public class NotesActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case (R.id.app_search_debug):
                 Intent intent = new Intent(this, AppSearchDebugActivity.class);
-                intent.putExtra("databaseName", DB_NAME);
+                intent.putExtra(AppSearchDebugActivity.DB_INTENT_KEY, DB_NAME);
+                intent.putExtra(AppSearchDebugActivity.STORAGE_TYPE_INTENT_KEY,
+                        AppSearchDebugActivity.STORAGE_TYPE_LOCAL);
                 startActivity(intent);
                 return true;
         }
