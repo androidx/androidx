@@ -106,11 +106,12 @@ public final class SearchResult {
     }
 
     /**
-     * @deprecated This method exists only for dogfooder transition and must be removed.
-     * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
+     * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated
+    /*@exportToFramework:UnsupportedAppUsage*/
     @NonNull
     public List<MatchInfo> getMatches() {
         return getMatchInfos();
@@ -236,11 +237,12 @@ public final class SearchResult {
         }
 
         /**
-         * @deprecated This method exists only for dogfooder transition and must be removed.
-         * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
+         * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
+         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated
+        /*@exportToFramework:UnsupportedAppUsage*/
         @NonNull
         public Builder addMatch(@NonNull MatchInfo matchInfo) {
             return addMatchInfo(matchInfo);
