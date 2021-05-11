@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -u
 
 scriptName="$(basename $0)"
 
@@ -65,13 +64,19 @@ if [ ! -e "$workingDir/gradlew" ]; then
   exit 1
 fi
 
+# resolve some paths
 scriptPath="$(cd $(dirname $0) && pwd)"
 vgrep="$scriptPath/impl/vgrep.sh"
 supportRoot="$(cd $scriptPath/../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
 tempDir="$checkoutRoot/diagnose-build-failure/"
-if [ "${GRADLE_USER_HOME:-}" == "" ]; then
-  GRADLE_USER_HOME="$(cd ~ && pwd)/.gradle"
+if [ "$OUT_DIR" != "" ]; then
+  mkdir -p "$OUT_DIR"
+  OUT_DIR="$(cd $OUT_DIR && pwd)"
+fi
+if [ "$DIST_DIR" != "" ]; then
+  mkdir -p "$DIST_DIR"
+  DIST_DIR="$(cd $DIST_DIR && pwd)"
 fi
 COLOR_WHITE="\e[97m"
 COLOR_GREEN="\e[32m"
@@ -106,7 +111,8 @@ function getBuildCommand() {
 function runBuild() {
   testCommand="$(getBuildCommand $*)"
   cd "$workingDir"
-  if eval $testCommand; then
+  echo Running $testCommand
+  if bash -c "$testCommand"; then
     echo -e "$COLOR_WHITE"
     echo
     echo '`'$testCommand'`' succeeded
@@ -122,7 +128,8 @@ function runBuild() {
 function backupState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/backup-state.sh "$backupDir" "$workingDir" "$2"
+  shift
+  ./impl/backup-state.sh "$backupDir" "$workingDir" "$@"
 }
 
 function restoreState() {
