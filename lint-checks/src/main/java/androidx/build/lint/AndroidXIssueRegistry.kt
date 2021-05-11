@@ -51,7 +51,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
                 PrivateConstructorForUtilityClass.ISSUE,
-                ClassVerificationFailureDetector.ISSUE
+                ClassVerificationFailureDetector.ISSUE,
+                IdeaSuppressionDetector.ISSUE,
             )
         }
     }
