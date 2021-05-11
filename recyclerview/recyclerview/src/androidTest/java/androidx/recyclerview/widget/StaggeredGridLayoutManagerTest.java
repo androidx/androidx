@@ -1042,6 +1042,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
     }
 
     @Test
+    @FlakyTest(bugId = 187711357)
     public void updateAfterFullSpan2() throws Throwable {
         updateAfterFullSpanGapHandlingTest(20);
     }
