@@ -26,13 +26,13 @@ import android.opengl.Matrix
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.SurfaceHolder
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -55,12 +55,13 @@ class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
-        val styleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
 
         // Create the renderer on the main thread. It's EGLContext is bound to this thread.
-        val renderer = MainThreadRenderer(surfaceHolder, styleRepository, watchState)
+        val renderer = MainThreadRenderer(surfaceHolder, currentUserStyleRepository, watchState)
         renderer.initOpenGlContext()
 
         // Load the textures on a background thread.
@@ -109,11 +110,7 @@ class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
             renderer.watchHandTexture = loadTextureFromResource(R.drawable.hand)
             checkGLError("Load watchHandTexture")
 
-            WatchFace(
-                WatchFaceType.ANALOG,
-                styleRepository,
-                renderer
-            )
+            WatchFace(WatchFaceType.ANALOG, renderer)
         }
     }
 

@@ -34,6 +34,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
@@ -44,7 +45,6 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,13 +62,19 @@ public class EditorSessionGuavaTest {
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
 
+    private val mockInvalidateCallback =
+        Mockito.mock(CanvasComplication.InvalidateCallback::class.java)
     private val placeholderWatchState = MutableWatchState().asWatchState()
     private val mockLeftCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+        CanvasComplicationDrawable(
+            ComplicationDrawable(),
+            placeholderWatchState,
+            mockInvalidateCallback
+        )
     private val leftComplication =
         Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
-            mockLeftCanvasComplication,
+            { _, _, -> mockLeftCanvasComplication },
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.LONG_TEXT,
@@ -82,11 +88,15 @@ public class EditorSessionGuavaTest {
             .build()
 
     private val mockRightCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+        CanvasComplicationDrawable(
+            ComplicationDrawable(),
+            placeholderWatchState,
+            mockInvalidateCallback
+        )
     private val rightComplication =
         Complication.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
-            mockRightCanvasComplication,
+            { _, _, -> mockRightCanvasComplication },
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.LONG_TEXT,
@@ -107,6 +117,7 @@ public class EditorSessionGuavaTest {
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        complicationsManager.watchState = placeholderWatchState
 
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
         Mockito.`when`(editorDelegate.complicationsManager).thenReturn(complicationsManager)
@@ -150,13 +161,13 @@ public class EditorSessionGuavaTest {
 
         val leftComplicationData = previewData[LEFT_COMPLICATION_ID] as
             ShortTextComplicationData
-        Truth.assertThat(
+        assertThat(
             leftComplicationData.text.getTextAt(resources, 0)
         ).isEqualTo("Left")
 
         val rightComplicationData = previewData[RIGHT_COMPLICATION_ID] as
             LongTextComplicationData
-        Truth.assertThat(
+        assertThat(
             rightComplicationData.text.getTextAt(resources, 0)
         ).isEqualTo("Right")
     }

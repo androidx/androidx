@@ -88,7 +88,7 @@ internal class HeadlessWatchFaceImpl(
         }
 
     override fun getUserStyleSchema() =
-        engine!!.watchFaceImpl.userStyleRepository.schema.toWireFormat()
+        engine!!.watchFaceImpl.currentUserStyleRepository.schema.toWireFormat()
 
     override fun release() {
         uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.release") {

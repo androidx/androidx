@@ -119,16 +119,11 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  *
  * @param watchFaceType The type of watch face, whether it's digital or analog. Used to determine
  * the default time for editor preview screenshots.
- * @param currentUserStyleRepository The [CurrentUserStyleRepository] for this WatchFace.
  * @param renderer The [Renderer] for this WatchFace.
- * @param complicationsManager The [ComplicationsManager] for this WatchFace.
  */
-public class WatchFace @JvmOverloads constructor(
+public class WatchFace(
     @WatchFaceType public var watchFaceType: Int,
-    public val currentUserStyleRepository: CurrentUserStyleRepository,
-    public val renderer: Renderer,
-    public var complicationsManager: ComplicationsManager =
-        ComplicationsManager(emptyList(), currentUserStyleRepository)
+    public val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
 
@@ -385,7 +380,9 @@ public class WatchFace @JvmOverloads constructor(
 public class WatchFaceImpl(
     watchface: WatchFace,
     private val watchFaceHostApi: WatchFaceHostApi,
-    private val watchState: WatchState
+    private val watchState: WatchState,
+    internal val currentUserStyleRepository: CurrentUserStyleRepository,
+    internal var complicationsManager: ComplicationsManager
 ) {
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
@@ -425,9 +422,7 @@ public class WatchFaceImpl(
 
     private val systemTimeProvider = watchface.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
-    internal val userStyleRepository = watchface.currentUserStyleRepository
     internal val renderer = watchface.renderer
-    internal val complicationsManager = watchface.complicationsManager
     private val tapListener = watchface.tapListener
 
     private data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
@@ -586,19 +581,19 @@ public class WatchFaceImpl(
         // persistence, otherwise we need to do our own.
         val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
         if (storedUserStyle != null) {
-            userStyleRepository.userStyle =
-                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
+            currentUserStyleRepository.userStyle =
+                UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
         } else {
             // The system doesn't support preference persistence we need to do it ourselves.
             val preferencesFile =
                 "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
 
-            userStyleRepository.userStyle = UserStyle(
+            currentUserStyleRepository.userStyle = UserStyle(
                 UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
-                userStyleRepository.schema
+                currentUserStyleRepository.schema
             )
 
-            userStyleRepository.addUserStyleChangeListener(
+            currentUserStyleRepository.addUserStyleChangeListener(
                 object : CurrentUserStyleRepository.UserStyleChangeListener {
                     @SuppressLint("SyntheticAccessor")
                     override fun onUserStyleChanged(userStyle: UserStyle) {
@@ -624,18 +619,20 @@ public class WatchFaceImpl(
             object : Complication.InvalidateListener {
                 @SuppressWarnings("SyntheticAccessor")
                 override fun onInvalidate() {
-                    // Ensure we render a frame if the Complication needs rendering, e.g. because it
-                    // loaded an image. However if we're animating there's no need to trigger an
-                    // extra invalidation.
-                    if (renderer.shouldAnimate() && computeDelayTillNextFrame(
-                            nextDrawTimeMillis,
-                            systemTimeProvider.getSystemTimeMillis()
-                        ) < MIN_PERCEPTABLE_DELAY_MILLIS
-                    ) {
-                        return
-                    }
-                    if (initFinished) {
-                        watchFaceHostApi.invalidate()
+                    // This could be called on any thread.
+                    watchFaceHostApi.getHandler().runOnHandlerWithTracing("onInvalidate") {
+                        // Ensure we render a frame if the Complication needs rendering, e.g.
+                        // because it loaded an image. However if we're animating there's no need
+                        // to trigger an extra invalidation.
+                        if (initFinished && (
+                            !renderer.shouldAnimate() || computeDelayTillNextFrame(
+                                    nextDrawTimeMillis,
+                                    systemTimeProvider.getSystemTimeMillis()
+                                ) > MIN_PERCEPTABLE_DELAY_MILLIS
+                            )
+                        ) {
+                            watchFaceHostApi.invalidate()
+                        }
                     }
                 }
             }
@@ -659,12 +656,12 @@ public class WatchFaceImpl(
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
         override val userStyleSchema: UserStyleSchema
-            get() = userStyleRepository.schema
+            get() = currentUserStyleRepository.schema
 
         override var userStyle: UserStyle
-            get() = userStyleRepository.userStyle
+            get() = currentUserStyleRepository.userStyle
             set(value) {
-                userStyleRepository.userStyle = value
+                currentUserStyleRepository.userStyle = value
                 watchFaceHostApi.onUserStyleChanged()
             }
 
@@ -735,7 +732,7 @@ public class WatchFaceImpl(
     internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
-        userStyleRepository.userStyle = style
+        currentUserStyleRepository.userStyle = style
         inOnSetStyle = false
     }
 
@@ -955,8 +952,10 @@ public class WatchFaceImpl(
         writer.println("muteMode=$muteMode")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
-        writer.println("currentUserStyleRepository.userStyle=${userStyleRepository.userStyle}")
-        writer.println("currentUserStyleRepository.schema=${userStyleRepository.schema}")
+        writer.println(
+            "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle}"
+        )
+        writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
         watchState.dump(writer)
         complicationsManager.dump(writer)
         renderer.dump(writer)

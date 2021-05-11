@@ -53,6 +53,7 @@ import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -300,13 +301,18 @@ public class EditorSessionTest {
         listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
     )
 
+    private val mockInvalidateCallback =
+        Mockito.mock(CanvasComplication.InvalidateCallback::class.java)
     private val placeholderWatchState = MutableWatchState().asWatchState()
-    private val mockLeftCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+    private val mockLeftCanvasComplication = CanvasComplicationDrawable(
+        ComplicationDrawable(),
+        placeholderWatchState,
+        mockInvalidateCallback
+    )
     private val leftComplication =
         Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
-            mockLeftCanvasComplication,
+            { _, _ -> mockLeftCanvasComplication },
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.LONG_TEXT,
@@ -319,12 +325,15 @@ public class EditorSessionTest {
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
-    private val mockRightCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+    private val mockRightCanvasComplication = CanvasComplicationDrawable(
+        ComplicationDrawable(),
+        placeholderWatchState,
+        mockInvalidateCallback
+    )
     private val rightComplication =
         Complication.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
-            mockRightCanvasComplication,
+            { _, _ -> mockRightCanvasComplication },
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.LONG_TEXT,
@@ -343,11 +352,15 @@ public class EditorSessionTest {
             .build()
 
     private val mockBackgroundCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+        CanvasComplicationDrawable(
+            ComplicationDrawable(),
+            placeholderWatchState,
+            mockInvalidateCallback
+        )
     private val backgroundComplication =
         Complication.createBackgroundComplicationBuilder(
             BACKGROUND_COMPLICATION_ID,
-            mockBackgroundCanvasComplication,
+            { _, _ -> mockBackgroundCanvasComplication },
             emptyList(),
             DefaultComplicationProviderPolicy()
         ).setEnabled(false).build()
@@ -387,6 +400,7 @@ public class EditorSessionTest {
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        complicationsManager.watchState = placeholderWatchState
 
         // Mocking getters and setters with mockito at the same time is hard so we do this instead.
         editorDelegate = object : WatchFace.EditorDelegate {
@@ -557,11 +571,15 @@ public class EditorSessionTest {
     @Test
     public fun fixedComplicationProvider() {
         val mockLeftCanvasComplication =
-            CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+            CanvasComplicationDrawable(
+                ComplicationDrawable(),
+                placeholderWatchState,
+                mockInvalidateCallback
+            )
         val fixedLeftComplication =
             Complication.createRoundRectComplicationBuilder(
                 LEFT_COMPLICATION_ID,
-                mockLeftCanvasComplication,
+                { _, _ -> mockLeftCanvasComplication },
                 listOf(
                     ComplicationType.RANGED_VALUE,
                     ComplicationType.LONG_TEXT,
@@ -1453,7 +1471,6 @@ public class EditorSessionTest {
             WatchFaceImpl(
                 WatchFace(
                     WatchFaceType.DIGITAL,
-                    currentUserStyleRepository,
                     object : Renderer.CanvasRenderer(
                         mockSurfaceHolder,
                         currentUserStyleRepository,
@@ -1471,7 +1488,9 @@ public class EditorSessionTest {
                     }
                 ),
                 mockWatchFaceHostApi,
-                watchState
+                watchState,
+                currentUserStyleRepository,
+                ComplicationsManager(emptyList(), currentUserStyleRepository)
             )
 
             assertThat(activity.onCreateException).isInstanceOf(IllegalStateException::class.java)

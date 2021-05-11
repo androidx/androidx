@@ -28,8 +28,6 @@ import androidx.annotation.ColorInt
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.Observer
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -39,13 +37,19 @@ import androidx.wear.watchface.style.WatchFaceLayer
  * A complication rendered with [ComplicationDrawable] which renders complications in a material
  * design style. This renderer can't be shared by multiple complications.
  *
- * @param _drawable The [ComplicationDrawable] to render with.
+ * @param drawable The [ComplicationDrawable] to render with.
  * @param watchState The watch's [WatchState] which contains details pertaining to (low-bit) ambient
  * mode and burn in protection needed to render correctly.
+ * @param invalidateCallback The [CanvasComplication.InvalidateCallback] associated with which can
+ * be used to request screen redrawing and to report updates
  */
-public open class CanvasComplicationDrawable(
-    _drawable: ComplicationDrawable,
-    private val watchState: WatchState
+public open class CanvasComplicationDrawable
+@SuppressWarnings("ExecutorRegistration") // invalidateCallback is owned by the library and
+// the callback is thread safe.
+constructor(
+    drawable: ComplicationDrawable,
+    private val watchState: WatchState,
+    private val invalidateCallback: CanvasComplication.InvalidateCallback
 ) : CanvasComplication {
 
     private companion object {
@@ -70,13 +74,12 @@ public open class CanvasComplicationDrawable(
     }
 
     init {
-        _drawable.callback = object :
-            Drawable.Callback {
+        drawable.callback = object : Drawable.Callback {
             override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
 
             @SuppressLint("SyntheticAccessor")
             override fun invalidateDrawable(who: Drawable) {
-                attachedComplication?.invalidate()
+                invalidateCallback.onInvalidate()
             }
 
             override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {}
@@ -84,7 +87,7 @@ public open class CanvasComplicationDrawable(
     }
 
     /** The [ComplicationDrawable] to render with. */
-    public var drawable: ComplicationDrawable = _drawable
+    public var drawable: ComplicationDrawable = drawable
         set(value) {
             // Copy the ComplicationData otherwise the complication will be blank until the next
             // update.
@@ -93,19 +96,14 @@ public open class CanvasComplicationDrawable(
             value.isInAmbientMode = watchState.isAmbient.value
             value.isLowBitAmbient = watchState.hasLowBitAmbient
             value.isBurnInProtectionOn = watchState.hasBurnInProtection
-
-            attachedComplication?.scheduleUpdateComplications()
         }
 
-    private val isAmbientObserver = Observer<Boolean> {
-        drawable.isInAmbientMode = it
-    }
-
-    private var attachedComplication: Complication? = null
-
-    override fun onAttach(complication: Complication) {
-        attachedComplication = complication
-        watchState.isAmbient.addObserver(isAmbientObserver)
+    init {
+        // This observer needs to use the property drawable defined above, not the constructor
+        // argument with the same name.
+        watchState.isAmbient.addObserver {
+            this.drawable.isInAmbientMode = it
+        }
     }
 
     override fun render(

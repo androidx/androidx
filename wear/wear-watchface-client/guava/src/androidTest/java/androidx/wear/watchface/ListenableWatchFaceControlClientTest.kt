@@ -33,7 +33,7 @@ import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.ListenableWatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlServiceFactory
-import androidx.wear.watchface.samples.createExampleCanvasAnalogWatchFaceBuilder
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -72,7 +72,7 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val headlessInstance = client.createHeadlessWatchFaceClient(
-            ComponentName(context, TestWatchFaceService::class.java),
+            ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
                 false,
@@ -141,7 +141,7 @@ public class ListenableWatchFaceControlClientTest {
                 null
             )
 
-        val service = object : TestWatchFaceService() {
+        val service = object : ExampleCanvasAnalogWatchFaceService() {
             init {
                 attachBaseContext(context)
             }
@@ -175,7 +175,7 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val headlessInstance1 = client.createHeadlessWatchFaceClient(
-            ComponentName(context, TestWatchFaceService::class.java),
+            ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
                 false,
@@ -187,7 +187,7 @@ public class ListenableWatchFaceControlClientTest {
         )!!
 
         val headlessInstance2 = client.createHeadlessWatchFaceClient(
-            ComponentName(context, TestWatchFaceService::class.java),
+            ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
                 false,
@@ -199,7 +199,7 @@ public class ListenableWatchFaceControlClientTest {
         )!!
 
         val headlessInstance3 = client.createHeadlessWatchFaceClient(
-            ComponentName(context, TestWatchFaceService::class.java),
+            ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
                 false,
@@ -238,7 +238,7 @@ public class ListenableWatchFaceControlClientTest {
                 null
             )
 
-        val service = object : TestWatchFaceService() {
+        val service = object : ExampleCanvasAnalogWatchFaceService() {
             init {
                 attachBaseContext(context)
             }
@@ -252,7 +252,7 @@ public class ListenableWatchFaceControlClientTest {
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         val headlessInstance1 = client.createHeadlessWatchFaceClient(
-            ComponentName(context, TestWatchFaceService::class.java),
+            ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
                 false,
@@ -331,7 +331,7 @@ public class ListenableWatchFaceControlClientTest {
                 null,
                 null
             )
-        val service = object : TestWatchFaceService() {
+        val service = object : ExampleCanvasAnalogWatchFaceService() {
             init {
                 attachBaseContext(context)
             }
@@ -347,19 +347,6 @@ public class ListenableWatchFaceControlClientTest {
         assertThat(interactiveInstance).isNotNull()
         interactiveInstance.close()
         client.close()
-    }
-}
-
-public open class TestWatchFaceService : WatchFaceService() {
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ): WatchFace {
-        return createExampleCanvasAnalogWatchFaceBuilder(
-            this,
-            surfaceHolder,
-            watchState
-        )
     }
 }
 

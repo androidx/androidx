@@ -17,6 +17,7 @@
 package androidx.wear.watchface
 
 import android.view.SurfaceHolder
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CompletableDeferred
 
@@ -28,14 +29,23 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
     /** Override this factory method to create your WatchFaceImpl. */
     protected abstract fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): ListenableFuture<WatchFace>
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace = CompletableDeferred<WatchFace>().apply {
-        val future = createWatchFaceFuture(surfaceHolder, watchState)
+        val future = createWatchFaceFuture(
+            surfaceHolder,
+            watchState,
+            complicationsManager,
+            currentUserStyleRepository
+        )
         future.addListener(
             { complete(future.get()) },
             { runnable -> runnable.run() }

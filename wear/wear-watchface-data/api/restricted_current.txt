@@ -144,6 +144,14 @@ package androidx.wear.watchface.control.data {
     field public final android.app.ApplicationErrorReport.CrashInfo crashInfo;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class DefaultProviderPoliciesParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public DefaultProviderPoliciesParams(android.content.ComponentName);
+    method public int describeContents();
+    method public android.content.ComponentName getWatchFaceName();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.DefaultProviderPoliciesParams!>! CREATOR;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class HeadlessWatchFaceInstanceParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public HeadlessWatchFaceInstanceParams(android.content.ComponentName, androidx.wear.watchface.data.DeviceConfig, int, int);
     method public int describeContents();
@@ -153,6 +161,17 @@ package androidx.wear.watchface.control.data {
     method public int getWidth();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams!>! CREATOR;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class IdTypeAndDefaultProviderPolicyWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public IdTypeAndDefaultProviderPolicyWireFormat(int, java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int);
+    method public int describeContents();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
+    method public java.util.List<android.content.ComponentName!>? getDefaultProvidersToTry();
+    method public int getFallbackSystemProvider();
+    method public int getId();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat!>! CREATOR;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public class WallpaperInteractiveWatchFaceInstanceParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
