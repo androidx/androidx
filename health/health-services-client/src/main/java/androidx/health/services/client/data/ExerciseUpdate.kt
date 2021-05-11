@@ -21,7 +21,6 @@ import android.os.Parcelable
 import java.time.Duration
 import java.time.Instant
 
-// TODO(b/179756269): add aggregated metrics.
 /** Contains the latest updated state and metrics for the current exercise. */
 public data class ExerciseUpdate(
     /** Returns the current status of the exercise. */
@@ -53,24 +52,9 @@ public data class ExerciseUpdate(
     val latestMilestoneMarkerSummaries: Set<MilestoneMarkerSummary>,
 
     /**
-     * Returns the [ExerciseConfig] used by the exercise when the [ExerciseUpdate] was dispatched,
-     * or `null` if there isn't any manually started exercise.
+     * Returns the [ExerciseConfig] used by the exercise when the [ExerciseUpdate] was dispatched.
      */
-    val exerciseConfig: ExerciseConfig?,
-
-    /**
-     * Returns the [AutoExerciseConfig] associated for the automatic exercise detection or `null` if
-     * the automatic exercise detection is stopped.
-     */
-    val autoExerciseConfig: AutoExerciseConfig?,
-
-    /**
-     * Returns the [ExerciseType] instance detected by the automatic exercise detection, otherwise
-     * [ExerciseType.UNKNOWN].
-     *
-     * It's only relevant when the automatic exercise detection is on.
-     */
-    val autoExerciseDetected: ExerciseType?,
+    val exerciseConfig: ExerciseConfig,
 ) : Parcelable {
     override fun describeContents(): Int = 0
 
@@ -93,8 +77,6 @@ public data class ExerciseUpdate(
         dest.writeTypedArray(latestMilestoneMarkerSummaries.toTypedArray(), flags)
 
         dest.writeParcelable(exerciseConfig, flags)
-        dest.writeParcelable(autoExerciseConfig, flags)
-        dest.writeInt(autoExerciseDetected?.id ?: -1)
     }
 
     public companion object {
@@ -127,14 +109,8 @@ public data class ExerciseUpdate(
                         MilestoneMarkerSummary.CREATOR
                     )
 
-                    val exerciseConfig: ExerciseConfig? =
-                        source.readParcelable(ExerciseConfig::class.java.classLoader)
-                    val autoExerciseConfig: AutoExerciseConfig? =
-                        source.readParcelable(AutoExerciseConfig::class.java.classLoader)
-                    val autoExerciseDetectedId = source.readInt()
-                    val autoExerciseDetected =
-                        if (autoExerciseDetectedId == -1) null
-                        else ExerciseType.fromId(autoExerciseDetectedId)
+                    val exerciseConfig: ExerciseConfig =
+                        source.readParcelable(ExerciseConfig::class.java.classLoader) ?: return null
 
                     return ExerciseUpdate(
                         exerciseState,
@@ -144,8 +120,6 @@ public data class ExerciseUpdate(
                         latestAchievedGoalsArray.filterNotNull().toSet(),
                         latestMilestoneMarkerSummariesArray.filterNotNull().toSet(),
                         exerciseConfig,
-                        autoExerciseConfig,
-                        autoExerciseDetected
                     )
                 }
 
@@ -153,31 +127,5 @@ public data class ExerciseUpdate(
                     return arrayOfNulls(size)
                 }
             }
-    }
-
-    /** Supported Exercise session types. */
-    public enum class ExerciseSessionType {
-        /**
-         * The exercise is a manually started exercise session.
-         *
-         * [ExerciseUpdate.getExerciseConfig] returns non-null config with this type.
-         */
-        MANUALLY_STARTED_EXERCISE,
-
-        /**
-         * The exercise is an automatic exercise detection session.
-         *
-         * [ExerciseUpdate.getAutoExerciseConfig] returns non-null config with this type.
-         */
-        AUTO_EXERCISE_DETECTION,
-    }
-
-    /** Returns the current [ExerciseSessionType] WHS is carrying out. */
-    public fun getExerciseSessionType(): ExerciseSessionType {
-        return if (autoExerciseConfig != null) {
-            ExerciseSessionType.AUTO_EXERCISE_DETECTION
-        } else {
-            ExerciseSessionType.MANUALLY_STARTED_EXERCISE
-        }
     }
 }

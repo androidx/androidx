@@ -17,4 +17,4 @@
 package androidx.health.services.client.impl.response;
 
 /** @hide */
-parcelable PassiveActivityStateResponse;
+parcelable ExerciseCapabilitiesResponse;

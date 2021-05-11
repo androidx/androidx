@@ -20,27 +20,27 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateListener
-import androidx.health.services.client.data.Capabilities
+import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.impl.ExerciseIpcClient.Companion.getServiceInterface
 import androidx.health.services.client.impl.internal.ExerciseInfoCallback
+import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.internal.StatusCallback
-import androidx.health.services.client.impl.internal.WhsConnectionManager
 import androidx.health.services.client.impl.ipc.ServiceOperation
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
-import androidx.health.services.client.impl.response.CapabilitiesResponse
+import androidx.health.services.client.impl.response.ExerciseCapabilitiesResponse
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 
 /**
- * [ExerciseClient] API implementation that receives data from the WHS Service.
+ * [ExerciseClient] implementation that is backed by Health Services.
  *
  * @hide
  */
@@ -180,16 +180,16 @@ private constructor(private val context: Context, connectionManager: ConnectionM
         return ipcClient.execute(serviceOperation)
     }
 
-    override val capabilities: ListenableFuture<Capabilities>
+    override val capabilities: ListenableFuture<ExerciseCapabilities>
         get() {
             val request = CapabilitiesRequest(context.packageName)
             val serviceOperation =
-                ServiceOperation<CapabilitiesResponse> { binder, resultFuture ->
+                ServiceOperation<ExerciseCapabilitiesResponse> { binder, resultFuture ->
                     resultFuture.set(getServiceInterface(binder).getCapabilities(request))
                 }
             return Futures.transform(
                 ipcClient.execute(serviceOperation),
-                { response -> response?.capabilities },
+                { response -> response?.exerciseCapabilities },
                 ContextCompat.getMainExecutor(context)
             )
         }
@@ -197,7 +197,7 @@ private constructor(private val context: Context, connectionManager: ConnectionM
     internal companion object {
         @JvmStatic
         fun getClient(context: Context): ServiceBackedExerciseClient {
-            return ServiceBackedExerciseClient(context, WhsConnectionManager.getInstance(context))
+            return ServiceBackedExerciseClient(context, HsConnectionManager.getInstance(context))
         }
     }
 }

@@ -18,35 +18,36 @@ package androidx.health.services.client.impl.response
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.health.services.client.data.Capabilities
+import androidx.health.services.client.data.PassiveMonitoringUpdate
 
 /**
- * Response containing the capabilities of WHS client on the device.
+ * Response containing [PassiveMonitoringUpdate].
  *
  * @hide
  */
-public data class CapabilitiesResponse(
-    /** [Capabilities] supported by this device. */
-    val capabilities: Capabilities,
+public data class PassiveMonitoringUpdateResponse(
+    val passiveMonitoringUpdate: PassiveMonitoringUpdate
 ) : Parcelable {
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(capabilities, flags)
+        dest.writeParcelable(passiveMonitoringUpdate, flags)
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<CapabilitiesResponse> =
-            object : Parcelable.Creator<CapabilitiesResponse> {
-                override fun createFromParcel(source: Parcel): CapabilitiesResponse? {
+        public val CREATOR: Parcelable.Creator<PassiveMonitoringUpdateResponse> =
+            object : Parcelable.Creator<PassiveMonitoringUpdateResponse> {
+                override fun createFromParcel(source: Parcel): PassiveMonitoringUpdateResponse? {
                     val parcelable =
-                        source.readParcelable<Capabilities>(Capabilities::class.java.classLoader)
+                        source.readParcelable<PassiveMonitoringUpdate>(
+                            PassiveMonitoringUpdate::class.java.classLoader
+                        )
                             ?: return null
-                    return CapabilitiesResponse(parcelable)
+                    return PassiveMonitoringUpdateResponse(parcelable)
                 }
 
-                override fun newArray(size: Int): Array<CapabilitiesResponse?> {
+                override fun newArray(size: Int): Array<PassiveMonitoringUpdateResponse?> {
                     return arrayOfNulls(size)
                 }
             }

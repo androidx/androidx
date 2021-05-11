@@ -29,7 +29,7 @@ import androidx.health.services.client.impl.ipc.internal.ConnectionManager
  *
  * @hide
  */
-public object WhsConnectionManager {
+public object HsConnectionManager {
 
     private val lock = Any()
 
@@ -53,7 +53,7 @@ public object WhsConnectionManager {
     private fun startHandlerThread(): Looper {
         val handlerThread =
             HandlerThread(
-                "WhsConnectionManager",
+                "HsConnectionManager",
                 Process.THREAD_PRIORITY_BACKGROUND + Process.THREAD_PRIORITY_MORE_FAVORABLE
             )
         handlerThread.start()
