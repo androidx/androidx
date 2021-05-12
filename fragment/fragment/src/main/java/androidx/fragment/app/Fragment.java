@@ -65,6 +65,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -2919,7 +2920,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                         @NonNull Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
                         if (mView != null) {
-                            mView.cancelPendingInputEvents();
+                            Api19Impl.cancelPendingInputEvents(mView);
                         }
                     }
                 }
@@ -3522,5 +3523,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // True when postponeEnterTransition has been called and startPostponeEnterTransition
         // hasn't been called yet.
         boolean mEnterTransitionPostponed;
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() { }
+
+        static void cancelPendingInputEvents(@NonNull View view) {
+            view.cancelPendingInputEvents();
+        }
     }
 }
