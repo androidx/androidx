@@ -58,6 +58,46 @@ import java.util.Objects;
  * <p>See {@link androidx.car.app.notification.CarAppExtender} for how to show
  * alerts with notifications. Frequent alert notifications distract the driver and are discouraged.
  *
+ * <h4>Pan and Zoom</h4>
+ *
+ * This template allows an app to provide pan and zoom functionality. To support pan and zoom,
+ * respond to the user input in {@link SurfaceCallback} methods, such as:
+ *
+ * <ul>
+ *     <li>{@link SurfaceCallback#onScroll(float, float)}</li>
+ *     <li>{@link SurfaceCallback#onFling(float, float)}</li>
+ *     <li>{@link SurfaceCallback#onScale(float, float, float)}</li>
+ * </ul>
+ *
+ * In order to receive the callbacks, add an {@link Action#PAN} button in a map
+ * {@link ActionStrip} via the {@link Builder#setMapActionStrip(ActionStrip)} method:
+ *
+ * <pre>{@code
+ * ...
+ * Action panAction = new Action.Builder(Action.PAN).setIcon(myPanIcon).build();
+ * ActionStrip mapActionStrip = new ActionStrip.Builder().addAction(panAction).build();
+ * NavigationTemplate.Builder builder = new NavigationTemplate.Builder();
+ * builder.setMapActionStrip(mapActionStrip);
+ * ...
+ * }</pre>
+ *
+ * When the user presses the {@link Action#PAN} button, the host enters the pan mode. In this
+ * mode, the host translates the user input from non-touch input devices, such as rotary controllers
+ * and touchpads, and calls the appropriate {@link SurfaceCallback} methods. Respond to the user
+ * action to enter or exit the pan mode via {@link Builder#setPanModeListener(PanModeListener)}.
+ *
+ * If the app does not include this button in the map {@link ActionStrip}, the app will not
+ * receive the user input for panning gestures from {@link SurfaceCallback} methods, and the host
+ * will exit any previously activated pan mode.
+ *
+ * The host may hide the pan button in some head units in which the user does not need it. Also, the
+ * host may hide other UI components in the template while the user is in the pan mode.
+ *
+ * Note that not all head units support touch gestures, and not all touch screens support
+ * multi-touch gestures. Therefore, some {@link SurfaceCallback} methods may not be called in
+ * some cars. In order to support different head units, use the buttons in the map action strip
+ * to provide necessary functionality, such as the zoom-in and zoom-out buttons.
+ *
  * <h4>Template Restrictions</h4>
  *
  * In regard to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
