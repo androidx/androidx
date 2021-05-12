@@ -201,7 +201,7 @@ package androidx.navigation {
     method public final void putAction(@IdRes int actionId, androidx.navigation.NavAction action);
     method public final void removeAction(@IdRes int actionId);
     method public final void removeArgument(String argumentName);
-    method public final void setId(int id);
+    method public final void setId(@IdRes int id);
     method public final void setLabel(CharSequence? p);
     method public final void setRoute(String? route);
     property public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments;
