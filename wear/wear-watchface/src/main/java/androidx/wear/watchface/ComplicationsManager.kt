@@ -17,6 +17,7 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -324,7 +325,12 @@ public class ComplicationsManager(
             return
         }
 
-        data.tapAction?.send()
+        try {
+            data.tapAction?.send()
+        } catch (e: CanceledException) {
+            // In case the PendingIntent is no longer able to execute the request.
+            // We don't need to do anything here.
+        }
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationTapped(complicationId)
         }
