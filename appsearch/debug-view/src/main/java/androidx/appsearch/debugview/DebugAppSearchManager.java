@@ -16,6 +16,7 @@
 
 package androidx.appsearch.debugview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
@@ -33,6 +34,7 @@ import androidx.appsearch.debugview.view.AppSearchDebugActivity;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.platformstorage.PlatformStorage;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.Futures;
@@ -79,6 +81,7 @@ public class DebugAppSearchManager implements Closeable {
      * @throws AppSearchException if the storage type is invalid, or a R- device selects platform
      *                            storage as the storage type for debugging.
      */
+    @SuppressLint("NewApi") //TODO(b/187881058) Remove SuppressLint when S SDK stabilizes.
     @NonNull
     public static ListenableFuture<DebugAppSearchManager> create(
             @NonNull Context context,
@@ -101,7 +104,7 @@ public class DebugAppSearchManager implements Closeable {
                                 unused -> debugAppSearchManager, executor);
                 break;
             case AppSearchDebugActivity.STORAGE_TYPE_PLATFORM:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (BuildCompat.isAtLeastS()) {
                     debugAppSearchManagerListenableFuture =
                             Futures.transform(
                                     debugAppSearchManager.initializePlatformStorage(databaseName),
