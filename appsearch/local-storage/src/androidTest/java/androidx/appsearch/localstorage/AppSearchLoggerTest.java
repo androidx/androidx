@@ -31,6 +31,7 @@ import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.InitializeStatsProto;

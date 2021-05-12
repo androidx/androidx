@@ -15,13 +15,16 @@
  */
 // @exportToFramework:skipFile()
 
-package androidx.appsearch.localstorage;
+package androidx.appsearch.localstorage.visibilitystore;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.PackageIdentifier;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.AppSearchImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -43,8 +46,10 @@ public class VisibilityStore {
      * These cannot have any of the special characters used by AppSearchImpl (e.g. {@code
      * AppSearchImpl#PACKAGE_DELIMITER} or {@code AppSearchImpl#DATABASE_DELIMITER}.
      */
+    @VisibleForTesting
     public static final String PACKAGE_NAME = "VS#Pkg";
 
+    @VisibleForTesting
     public static final String DATABASE_NAME = "VS#Db";
 
     /** No-op implementation in local storage. */
@@ -53,18 +58,24 @@ public class VisibilityStore {
     }
 
     /** No-op implementation in local storage. */
-    public void initialize() {
+    public void initialize() throws AppSearchException {
     }
 
     /** No-op implementation in local storage. */
-    public void setVisibility(@NonNull String prefix,
+    public void setVisibility(
+            @NonNull String packageName,
+            @NonNull String databaseName,
             @NonNull Set<String> schemasNotPlatformSurfaceable,
-            @NonNull Map<String, List<PackageIdentifier>> schemasPackageAccessible) {
+            @NonNull Map<String, List<PackageIdentifier>> schemasPackageAccessible)
+            throws AppSearchException {
     }
 
     /** No-op implementation in local storage. */
-    public boolean isSchemaSearchableByCaller(@NonNull String prefix,
-            @NonNull String prefixedSchema, int callerUid) {
+    public boolean isSchemaSearchableByCaller(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull String prefixedSchema,
+            int callerUid) {
         return false;
     }
 

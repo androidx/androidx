@@ -56,6 +56,7 @@ import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverte
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -476,8 +477,11 @@ public final class AppSearchImpl implements Closeable {
                 prefixedSchemasPackageAccessible.put(prefix + entry.getKey(), entry.getValue());
             }
 
-            mVisibilityStoreLocked.setVisibility(prefix,
-                    prefixedSchemasNotPlatformSurfaceable, prefixedSchemasPackageAccessible);
+            mVisibilityStoreLocked.setVisibility(
+                    packageName,
+                    databaseName,
+                    prefixedSchemasNotPlatformSurfaceable,
+                    prefixedSchemasPackageAccessible);
 
             return SetSchemaResponseToProtoConverter
                     .toSetSchemaResponse(setSchemaResultProto, prefix);
@@ -836,14 +840,15 @@ public final class AppSearchImpl implements Closeable {
             List<String> schemaFilters = searchSpec.getFilterSchemas();
             for (String prefix : prefixFilters) {
                 String packageName = getPackageName(prefix);
+                String databaseName = getDatabaseName(prefix);
 
                 if (!schemaFilters.isEmpty()) {
                     for (String schema : schemaFilters) {
                         // Client specified some schemas to search over, check each one
                         String prefixedSchema = prefix + schema;
                         if (packageName.equals(callerPackageName)
-                                || mVisibilityStoreLocked.isSchemaSearchableByCaller(prefix,
-                                prefixedSchema, callerUid)) {
+                                || mVisibilityStoreLocked.isSchemaSearchableByCaller(
+                                packageName, databaseName, prefixedSchema, callerUid)) {
                             allowedPrefixedSchemas.add(prefixedSchema);
                         }
                     }
@@ -853,8 +858,8 @@ public final class AppSearchImpl implements Closeable {
                     if (prefixedSchemas != null) {
                         for (String prefixedSchema : prefixedSchemas) {
                             if (packageName.equals(callerPackageName)
-                                    || mVisibilityStoreLocked.isSchemaSearchableByCaller(prefix,
-                                    prefixedSchema, callerUid)) {
+                                    || mVisibilityStoreLocked.isSchemaSearchableByCaller(
+                                    packageName, databaseName, prefixedSchema, callerUid)) {
                                 allowedPrefixedSchemas.add(prefixedSchema);
                             }
                         }
@@ -1760,14 +1765,6 @@ public final class AppSearchImpl implements Closeable {
         // TODO(b/161935693) only allow GetSchemaResultProto NOT_FOUND on first run
         checkCodeOneOf(schemaProto.getStatus(), StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
         return schemaProto.getSchema();
-    }
-
-    /** Returns a set of all prefixes AppSearchImpl knows about. */
-    // TODO(b/180058203): Remove this method once platform has switched away from using this method.
-    @GuardedBy("mReadWriteLock")
-    @NonNull
-    Set<String> getPrefixesLocked() {
-        return mSchemaMapLocked.keySet();
     }
 
     private static void addToMap(Map<String, Set<String>> map, String prefix,
