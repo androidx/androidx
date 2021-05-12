@@ -387,17 +387,6 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static class ArrayListManager {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="2366"
-            column="26"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public long getStartDelay(ViewGroup sceneRoot, Transition transition,"

@@ -50,7 +50,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 ObsoleteBuildCompatUsageDetector.ISSUE,
                 BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
-                PrivateConstructorForUtilityClass.ISSUE,
+                PrivateConstructorForUtilityClassDetector.ISSUE,
                 ClassVerificationFailureDetector.ISSUE,
                 IdeaSuppressionDetector.ISSUE,
             )

@@ -894,7 +894,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public class FocusHighlightHelper {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location

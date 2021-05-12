@@ -112,17 +112,6 @@
     </issue>
 
     <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                final Object insets = getOpticalInsetsMethod.invoke(drawable);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="90"
-            column="39"/>
-    </issue>
-
-    <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 18; however, the containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat.AnimationDrawableTransition is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                anim.setAutoCancel(true);"
@@ -168,17 +157,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.DrawableUtils is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            final android.graphics.Insets insets = drawable.getOpticalInsets();"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="74"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ResourceManagerInternal.DrawableDelegate is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        drawable.inflate(context.getResources(), parser, attrs, theme);"
         errorLine2="                                 ~~~~~~~">
@@ -190,45 +168,12 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ResourcesWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return mResources.getDrawable(id, theme);"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="137"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 15; however, the containing class androidx.appcompat.widget.ResourcesWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return mResources.getDrawableForDensity(id, density);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="144"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ResourcesWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return mResources.getDrawableForDensity(id, density, theme);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="150"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 15; however, the containing class androidx.appcompat.widget.ResourcesWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        mResources.getValueForDensity(id, density, outValue, resolveRefs);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="221"
+            line="241"
             column="20"/>
     </issue>
 
@@ -327,33 +272,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Rect getOpticalBounds(Drawable drawable) {"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="72"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Rect getOpticalBounds(Drawable drawable) {"
-        errorLine2="                                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="72"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="199"
+            line="159"
             column="19"/>
     </issue>
 
@@ -364,7 +287,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="199"
+            line="159"
             column="60"/>
     </issue>
 
@@ -694,7 +617,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"
-            line="67"
+            line="66"
             column="12"/>
     </issue>
 
