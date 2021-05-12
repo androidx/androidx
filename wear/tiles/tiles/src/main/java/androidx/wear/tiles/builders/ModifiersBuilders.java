@@ -19,11 +19,13 @@ package androidx.wear.tiles.builders;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.builders.ActionBuilders.Action;
 import androidx.wear.tiles.builders.ColorBuilders.ColorProp;
 import androidx.wear.tiles.builders.DimensionBuilders.DpProp;
+import androidx.wear.tiles.builders.TypeBuilders.BoolProp;
 import androidx.wear.tiles.proto.ModifiersProto;
 import androidx.wear.tiles.proto.TypesProto;
 
@@ -40,6 +42,25 @@ public final class ModifiersBuilders {
 
         private Clickable(ModifiersProto.Clickable impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the ID associated with thiss action. Intended for testing purposes only. */
+        @NonNull
+        public String getId() {
+            return mImpl.getId();
+        }
+
+        /**
+         * Gets the action to perform when the element this modifier is attached to is clicked.
+         * Intended for testing purposes only.
+         */
+        @Nullable
+        public Action getOnClick() {
+            if (mImpl.hasOnClick()) {
+                return Action.fromActionProto(mImpl.getOnClick());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -70,7 +91,6 @@ public final class ModifiersBuilders {
             Builder() {}
 
             /** Sets the ID associated with this action. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setId(@NonNull String id) {
                 mImpl.setId(id);
@@ -80,7 +100,6 @@ public final class ModifiersBuilders {
             /**
              * Sets the action to perform when the element this modifier is attached to is clicked.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setOnClick(@NonNull Action onClick) {
                 mImpl.setOnClick(onClick.toActionProto());
@@ -90,7 +109,6 @@ public final class ModifiersBuilders {
             /**
              * Sets the action to perform when the element this modifier is attached to is clicked.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setOnClick(@NonNull Action.Builder onClickBuilder) {
                 mImpl.setOnClick(onClickBuilder.build().toActionProto());
@@ -115,6 +133,15 @@ public final class ModifiersBuilders {
 
         private Semantics(ModifiersProto.Semantics impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the content description associated with this element. This will be dictated when the
+         * element is focused by the screen reader. Intended for testing purposes only.
+         */
+        @NonNull
+        public String getContentDescription() {
+            return mImpl.getContentDescription();
         }
 
         /** Returns a new {@link Builder}. */
@@ -148,7 +175,6 @@ public final class ModifiersBuilders {
              * Sets the content description associated with this element. This will be dictated when
              * the element is focused by the screen reader.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setContentDescription(@NonNull String contentDescription) {
                 mImpl.setContentDescription(contentDescription);
@@ -169,6 +195,67 @@ public final class ModifiersBuilders {
 
         private Padding(ModifiersProto.Padding impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the padding on the end of the content, depending on the layout direction, in DP and
+         * the value of "rtl_aware". Intended for testing purposes only.
+         */
+        @Nullable
+        public DpProp getEnd() {
+            if (mImpl.hasEnd()) {
+                return DpProp.fromProto(mImpl.getEnd());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the padding on the start of the content, depending on the layout direction, in DP
+         * and the value of "rtl_aware". Intended for testing purposes only.
+         */
+        @Nullable
+        public DpProp getStart() {
+            if (mImpl.hasStart()) {
+                return DpProp.fromProto(mImpl.getStart());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the padding at the top, in DP. Intended for testing purposes only. */
+        @Nullable
+        public DpProp getTop() {
+            if (mImpl.hasTop()) {
+                return DpProp.fromProto(mImpl.getTop());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the padding at the bottom, in DP. Intended for testing purposes only. */
+        @Nullable
+        public DpProp getBottom() {
+            if (mImpl.hasBottom()) {
+                return DpProp.fromProto(mImpl.getBottom());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets whether the start/end padding is aware of RTL support. If true, the values for
+         * start/end will follow the layout direction (i.e. start will refer to the right hand side
+         * of the container if the device is using an RTL locale). If false, start/end will always
+         * map to left/right, accordingly. Intended for testing purposes only.
+         */
+        @Nullable
+        public BoolProp getRtlAware() {
+            if (mImpl.hasRtlAware()) {
+                return BoolProp.fromProto(mImpl.getRtlAware());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -202,7 +289,6 @@ public final class ModifiersBuilders {
              * Sets the padding on the end of the content, depending on the layout direction, in DP
              * and the value of "rtl_aware".
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setEnd(@NonNull DpProp end) {
                 mImpl.setEnd(end.toProto());
@@ -213,7 +299,6 @@ public final class ModifiersBuilders {
              * Sets the padding on the end of the content, depending on the layout direction, in DP
              * and the value of "rtl_aware".
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setEnd(@NonNull DpProp.Builder endBuilder) {
                 mImpl.setEnd(endBuilder.build().toProto());
@@ -224,7 +309,6 @@ public final class ModifiersBuilders {
              * Sets the padding on the start of the content, depending on the layout direction, in
              * DP and the value of "rtl_aware".
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setStart(@NonNull DpProp start) {
                 mImpl.setStart(start.toProto());
@@ -235,7 +319,6 @@ public final class ModifiersBuilders {
              * Sets the padding on the start of the content, depending on the layout direction, in
              * DP and the value of "rtl_aware".
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setStart(@NonNull DpProp.Builder startBuilder) {
                 mImpl.setStart(startBuilder.build().toProto());
@@ -243,7 +326,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the padding at the top, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setTop(@NonNull DpProp top) {
                 mImpl.setTop(top.toProto());
@@ -251,7 +333,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the padding at the top, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setTop(@NonNull DpProp.Builder topBuilder) {
                 mImpl.setTop(topBuilder.build().toProto());
@@ -259,7 +340,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the padding at the bottom, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setBottom(@NonNull DpProp bottom) {
                 mImpl.setBottom(bottom.toProto());
@@ -267,13 +347,23 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the padding at the bottom, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setBottom(@NonNull DpProp.Builder bottomBuilder) {
                 mImpl.setBottom(bottomBuilder.build().toProto());
                 return this;
             }
 
+            /**
+             * Sets whether the start/end padding is aware of RTL support. If true, the values for
+             * start/end will follow the layout direction (i.e. start will refer to the right hand
+             * side of the container if the device is using an RTL locale). If false, start/end will
+             * always map to left/right, accordingly.
+             */
+            @NonNull
+            public Builder setRtlAware(@NonNull BoolProp rtlAware) {
+                mImpl.setRtlAware(rtlAware.toProto());
+                return this;
+            }
             /**
              * Sets whether the start/end padding is aware of RTL support. If true, the values for
              * start/end will follow the layout direction (i.e. start will refer to the right hand
@@ -288,15 +378,15 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the padding for all sides of the content, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
+            @SuppressLint("MissingGetterMatchingBuilder")
             public Builder setAll(@NonNull DpProp value) {
                 return setStart(value).setEnd(value).setTop(value).setBottom(value);
             }
 
             /** Sets the padding for all sides of the content, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
+            @SuppressLint("MissingGetterMatchingBuilder")
             public Builder setAll(@NonNull DpProp.Builder valueBuilder) {
                 return setStart(valueBuilder)
                         .setEnd(valueBuilder)
@@ -318,6 +408,26 @@ public final class ModifiersBuilders {
 
         private Border(ModifiersProto.Border impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the width of the border, in DP. Intended for testing purposes only. */
+        @Nullable
+        public DpProp getWidth() {
+            if (mImpl.hasWidth()) {
+                return DpProp.fromProto(mImpl.getWidth());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the color of the border. Intended for testing purposes only. */
+        @Nullable
+        public ColorProp getColor() {
+            if (mImpl.hasColor()) {
+                return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -347,7 +457,6 @@ public final class ModifiersBuilders {
             Builder() {}
 
             /** Sets the width of the border, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
                 mImpl.setWidth(width.toProto());
@@ -355,7 +464,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the width of the border, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setWidth(@NonNull DpProp.Builder widthBuilder) {
                 mImpl.setWidth(widthBuilder.build().toProto());
@@ -363,7 +471,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the color of the border. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
@@ -371,7 +478,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the color of the border. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
                 mImpl.setColor(colorBuilder.build().toProto());
@@ -392,6 +498,16 @@ public final class ModifiersBuilders {
 
         private Corner(ModifiersProto.Corner impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the radius of the corner in DP. Intended for testing purposes only. */
+        @Nullable
+        public DpProp getRadius() {
+            if (mImpl.hasRadius()) {
+                return DpProp.fromProto(mImpl.getRadius());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -421,7 +537,6 @@ public final class ModifiersBuilders {
             Builder() {}
 
             /** Sets the radius of the corner in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRadius(@NonNull DpProp radius) {
                 mImpl.setRadius(radius.toProto());
@@ -429,7 +544,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets the radius of the corner in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRadius(@NonNull DpProp.Builder radiusBuilder) {
                 mImpl.setRadius(radiusBuilder.build().toProto());
@@ -450,6 +564,33 @@ public final class ModifiersBuilders {
 
         private Background(ModifiersProto.Background impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the background color for this element. If not defined, defaults to being
+         * transparent. Intended for testing purposes only.
+         */
+        @Nullable
+        public ColorProp getColor() {
+            if (mImpl.hasColor()) {
+                return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the corner properties of this element. This only affects the drawing of this element
+         * if it has a background color or border. If not defined, defaults to having a square
+         * corner. Intended for testing purposes only.
+         */
+        @Nullable
+        public Corner getCorner() {
+            if (mImpl.hasCorner()) {
+                return Corner.fromProto(mImpl.getCorner());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -483,7 +624,6 @@ public final class ModifiersBuilders {
              * Sets the background color for this element. If not defined, defaults to being
              * transparent.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
@@ -494,7 +634,6 @@ public final class ModifiersBuilders {
              * Sets the background color for this element. If not defined, defaults to being
              * transparent.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
                 mImpl.setColor(colorBuilder.build().toProto());
@@ -506,7 +645,6 @@ public final class ModifiersBuilders {
              * element if it has a background color or border. If not defined, defaults to having a
              * square corner.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setCorner(@NonNull Corner corner) {
                 mImpl.setCorner(corner.toProto());
@@ -518,7 +656,6 @@ public final class ModifiersBuilders {
              * element if it has a background color or border. If not defined, defaults to having a
              * square corner.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setCorner(@NonNull Corner.Builder cornerBuilder) {
                 mImpl.setCorner(cornerBuilder.build().toProto());
@@ -543,6 +680,65 @@ public final class ModifiersBuilders {
 
         private Modifiers(ModifiersProto.Modifiers impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets allows its wrapped element to have actions associated with it, which will be
+         * executed when the element is tapped. Intended for testing purposes only.
+         */
+        @Nullable
+        public Clickable getClickable() {
+            if (mImpl.hasClickable()) {
+                return Clickable.fromProto(mImpl.getClickable());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets adds metadata for the modified element, for example, screen reader content
+         * descriptions. Intended for testing purposes only.
+         */
+        @Nullable
+        public Semantics getSemantics() {
+            if (mImpl.hasSemantics()) {
+                return Semantics.fromProto(mImpl.getSemantics());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets adds padding to the modified element. Intended for testing purposes only. */
+        @Nullable
+        public Padding getPadding() {
+            if (mImpl.hasPadding()) {
+                return Padding.fromProto(mImpl.getPadding());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets draws a border around the modified element. Intended for testing purposes only. */
+        @Nullable
+        public Border getBorder() {
+            if (mImpl.hasBorder()) {
+                return Border.fromProto(mImpl.getBorder());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets adds a background (with optional corner radius) to the modified element. Intended
+         * for testing purposes only.
+         */
+        @Nullable
+        public Background getBackground() {
+            if (mImpl.hasBackground()) {
+                return Background.fromProto(mImpl.getBackground());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -576,7 +772,6 @@ public final class ModifiersBuilders {
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
                 mImpl.setClickable(clickable.toProto());
@@ -587,7 +782,6 @@ public final class ModifiersBuilders {
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClickable(@NonNull Clickable.Builder clickableBuilder) {
                 mImpl.setClickable(clickableBuilder.build().toProto());
@@ -598,7 +792,6 @@ public final class ModifiersBuilders {
              * Sets adds metadata for the modified element, for example, screen reader content
              * descriptions.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setSemantics(@NonNull Semantics semantics) {
                 mImpl.setSemantics(semantics.toProto());
@@ -609,7 +802,6 @@ public final class ModifiersBuilders {
              * Sets adds metadata for the modified element, for example, screen reader content
              * descriptions.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setSemantics(@NonNull Semantics.Builder semanticsBuilder) {
                 mImpl.setSemantics(semanticsBuilder.build().toProto());
@@ -617,7 +809,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets adds padding to the modified element. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setPadding(@NonNull Padding padding) {
                 mImpl.setPadding(padding.toProto());
@@ -625,7 +816,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets adds padding to the modified element. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setPadding(@NonNull Padding.Builder paddingBuilder) {
                 mImpl.setPadding(paddingBuilder.build().toProto());
@@ -633,7 +823,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets draws a border around the modified element. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setBorder(@NonNull Border border) {
                 mImpl.setBorder(border.toProto());
@@ -641,7 +830,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets draws a border around the modified element. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setBorder(@NonNull Border.Builder borderBuilder) {
                 mImpl.setBorder(borderBuilder.build().toProto());
@@ -649,7 +837,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets adds a background (with optional corner radius) to the modified element. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setBackground(@NonNull Background background) {
                 mImpl.setBackground(background.toProto());
@@ -657,7 +844,6 @@ public final class ModifiersBuilders {
             }
 
             /** Sets adds a background (with optional corner radius) to the modified element. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setBackground(@NonNull Background.Builder backgroundBuilder) {
                 mImpl.setBackground(backgroundBuilder.build().toProto());
@@ -681,6 +867,32 @@ public final class ModifiersBuilders {
 
         private ArcModifiers(ModifiersProto.ArcModifiers impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets allows its wrapped element to have actions associated with it, which will be
+         * executed when the element is tapped. Intended for testing purposes only.
+         */
+        @Nullable
+        public Clickable getClickable() {
+            if (mImpl.hasClickable()) {
+                return Clickable.fromProto(mImpl.getClickable());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets adds metadata for the modified element, for example, screen reader content
+         * descriptions. Intended for testing purposes only.
+         */
+        @Nullable
+        public Semantics getSemantics() {
+            if (mImpl.hasSemantics()) {
+                return Semantics.fromProto(mImpl.getSemantics());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -714,7 +926,6 @@ public final class ModifiersBuilders {
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
                 mImpl.setClickable(clickable.toProto());
@@ -725,7 +936,6 @@ public final class ModifiersBuilders {
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClickable(@NonNull Clickable.Builder clickableBuilder) {
                 mImpl.setClickable(clickableBuilder.build().toProto());
@@ -736,7 +946,6 @@ public final class ModifiersBuilders {
              * Sets adds metadata for the modified element, for example, screen reader content
              * descriptions.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setSemantics(@NonNull Semantics semantics) {
                 mImpl.setSemantics(semantics.toProto());
@@ -747,7 +956,6 @@ public final class ModifiersBuilders {
              * Sets adds metadata for the modified element, for example, screen reader content
              * descriptions.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setSemantics(@NonNull Semantics.Builder semanticsBuilder) {
                 mImpl.setSemantics(semanticsBuilder.build().toProto());
@@ -772,6 +980,19 @@ public final class ModifiersBuilders {
 
         private SpanModifiers(ModifiersProto.SpanModifiers impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets allows its wrapped element to have actions associated with it, which will be
+         * executed when the element is tapped. Intended for testing purposes only.
+         */
+        @Nullable
+        public Clickable getClickable() {
+            if (mImpl.hasClickable()) {
+                return Clickable.fromProto(mImpl.getClickable());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -805,7 +1026,6 @@ public final class ModifiersBuilders {
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
                 mImpl.setClickable(clickable.toProto());
@@ -816,7 +1036,6 @@ public final class ModifiersBuilders {
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClickable(@NonNull Clickable.Builder clickableBuilder) {
                 mImpl.setClickable(clickableBuilder.build().toProto());

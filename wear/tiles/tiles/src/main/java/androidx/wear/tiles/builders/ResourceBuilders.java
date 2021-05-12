@@ -18,12 +18,15 @@ package androidx.wear.tiles.builders;
 
 import static androidx.annotation.Dimension.PX;
 
+import static java.util.stream.Collectors.toMap;
+
 import android.annotation.SuppressLint;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.proto.ResourceProto;
@@ -31,6 +34,8 @@ import androidx.wear.tiles.protobuf.ByteString;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.Map;
 
 /** Builders for the resources for a layout. */
 public final class ResourceBuilders {
@@ -61,6 +66,15 @@ public final class ResourceBuilders {
 
         private AndroidImageResourceByResId(ResourceProto.AndroidImageResourceByResId impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the Android resource ID of this image. This must refer to a drawable under
+         * R.drawable. Intended for testing purposes only.
+         */
+        @DrawableRes
+        public int getResourceId() {
+            return mImpl.getResourceId();
         }
 
         /** Returns a new {@link Builder}. */
@@ -95,7 +109,6 @@ public final class ResourceBuilders {
              * Sets the Android resource ID of this image. This must refer to a drawable under
              * R.drawable.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setResourceId(@DrawableRes int resourceId) {
                 mImpl.setResourceId(resourceId);
@@ -119,6 +132,43 @@ public final class ResourceBuilders {
 
         private InlineImageResource(ResourceProto.InlineImageResource impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the byte array representing the image. Intended for testing purposes only. */
+        @NonNull
+        public byte[] getData() {
+            return mImpl.getData().toByteArray();
+        }
+
+        /**
+         * Gets the native width of the image, in pixels. Only required for formats (e.g.
+         * IMAGE_FORMAT_RGB_565) where the image data does not include size. Intended for testing
+         * purposes only.
+         */
+        @Dimension(unit = PX)
+        public int getWidthPx() {
+            return mImpl.getWidthPx();
+        }
+
+        /**
+         * Gets the native height of the image, in pixels. Only required for formats (e.g.
+         * IMAGE_FORMAT_RGB_565) where the image data does not include size. Intended for testing
+         * purposes only.
+         */
+        @Dimension(unit = PX)
+        public int getHeightPx() {
+            return mImpl.getHeightPx();
+        }
+
+        /**
+         * Gets the format of the byte array data representing the image. May be left unspecified or
+         * set to IMAGE_FORMAT_UNDEFINED in which case the platform will attempt to extract this
+         * from the raw image data. If the platform does not support the format, the image will not
+         * be decoded or displayed. Intended for testing purposes only.
+         */
+        @ImageFormat
+        public int getFormat() {
+            return mImpl.getFormat().getNumber();
         }
 
         /** Returns a new {@link Builder}. */
@@ -150,7 +200,6 @@ public final class ResourceBuilders {
             Builder() {}
 
             /** Sets the byte array representing the image. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setData(@NonNull byte[] data) {
                 mImpl.setData(ByteString.copyFrom(data));
@@ -161,7 +210,6 @@ public final class ResourceBuilders {
              * Sets the native width of the image, in pixels. Only required for formats (e.g.
              * IMAGE_FORMAT_RGB_565) where the image data does not include size.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setWidthPx(@Dimension(unit = PX) int widthPx) {
                 mImpl.setWidthPx(widthPx);
@@ -172,7 +220,6 @@ public final class ResourceBuilders {
              * Sets the native height of the image, in pixels. Only required for formats (e.g.
              * IMAGE_FORMAT_RGB_565) where the image data does not include size.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setHeightPx(@Dimension(unit = PX) int heightPx) {
                 mImpl.setHeightPx(heightPx);
@@ -185,7 +232,6 @@ public final class ResourceBuilders {
              * to extract this from the raw image data. If the platform does not support the format,
              * the image will not be decoded or displayed.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setFormat(@ImageFormat int format) {
                 mImpl.setFormat(ResourceProto.ImageFormat.forNumber(format));
@@ -209,6 +255,32 @@ public final class ResourceBuilders {
 
         private ImageResource(ResourceProto.ImageResource impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets an image resource that maps to an Android drawable by resource ID. Intended for
+         * testing purposes only.
+         */
+        @Nullable
+        public AndroidImageResourceByResId getAndroidResourceByResId() {
+            if (mImpl.hasAndroidResourceByResId()) {
+                return AndroidImageResourceByResId.fromProto(mImpl.getAndroidResourceByResId());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets an image resource that contains the image data inline. Intended for testing purposes
+         * only.
+         */
+        @Nullable
+        public InlineImageResource getInlineResource() {
+            if (mImpl.hasInlineResource()) {
+                return InlineImageResource.fromProto(mImpl.getInlineResource());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -239,7 +311,6 @@ public final class ResourceBuilders {
             Builder() {}
 
             /** Sets an image resource that maps to an Android drawable by resource ID. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setAndroidResourceByResId(
                     @NonNull AndroidImageResourceByResId androidResourceByResId) {
@@ -248,7 +319,6 @@ public final class ResourceBuilders {
             }
 
             /** Sets an image resource that maps to an Android drawable by resource ID. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setAndroidResourceByResId(
                     @NonNull AndroidImageResourceByResId.Builder androidResourceByResIdBuilder) {
@@ -257,7 +327,6 @@ public final class ResourceBuilders {
             }
 
             /** Sets an image resource that contains the image data inline. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setInlineResource(@NonNull InlineImageResource inlineResource) {
                 mImpl.setInlineResource(inlineResource.toProto());
@@ -265,7 +334,6 @@ public final class ResourceBuilders {
             }
 
             /** Sets an image resource that contains the image data inline. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setInlineResource(
                     @NonNull InlineImageResource.Builder inlineResourceBuilder) {
@@ -287,6 +355,36 @@ public final class ResourceBuilders {
 
         private Resources(ResourceProto.Resources impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the version of this {@link Resources} instance.
+         *
+         * <p>Each tile specifies the version of resources it requires. After fetching a tile, the
+         * renderer will use the resources version specified by the tile to separately fetch the
+         * resources.
+         *
+         * <p>This value must match the version of the resources required by the tile for the tile
+         * to render successfully, and must match the resource version specified in ResourcesRequest
+         * which triggered this request. Intended for testing purposes only.
+         */
+        @NonNull
+        public String getVersion() {
+            return mImpl.getVersion();
+        }
+
+        /**
+         * Gets a map of resource_ids to images, which can be used by layouts. Intended for testing
+         * purposes only.
+         */
+        @NonNull
+        public Map<String, ImageResource> getIdToImageMapping() {
+            return Collections.unmodifiableMap(
+                    mImpl.getIdToImageMap().entrySet().stream()
+                            .collect(
+                                    toMap(
+                                            Map.Entry::getKey,
+                                            f -> ImageResource.fromProto(f.getValue()))));
         }
 
         /** Returns a new {@link Builder}. */
@@ -327,7 +425,6 @@ public final class ResourceBuilders {
              * tile to render successfully, and must match the resource version specified in
              * ResourcesRequest which triggered this request.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setVersion(@NonNull String version) {
                 mImpl.setVersion(version);

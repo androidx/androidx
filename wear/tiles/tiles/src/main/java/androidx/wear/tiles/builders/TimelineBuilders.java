@@ -16,13 +16,17 @@
 
 package androidx.wear.tiles.builders;
 
-import android.annotation.SuppressLint;
+import static java.util.stream.Collectors.toList;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.builders.LayoutElementBuilders.Layout;
 import androidx.wear.tiles.proto.TimelineProto;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Builders for a timeline with entries representing content that should be displayed within given
@@ -39,6 +43,22 @@ public final class TimelineBuilders {
 
         private TimeInterval(TimelineProto.TimeInterval impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets starting point of the time interval, in milliseconds since the Unix epoch. Intended
+         * for testing purposes only.
+         */
+        public long getStartMillis() {
+            return mImpl.getStartMillis();
+        }
+
+        /**
+         * Gets end point of the time interval, in milliseconds since the Unix epoch. Intended for
+         * testing purposes only.
+         */
+        public long getEndMillis() {
+            return mImpl.getEndMillis();
         }
 
         /** Returns a new {@link Builder}. */
@@ -69,7 +89,6 @@ public final class TimelineBuilders {
             Builder() {}
 
             /** Sets starting point of the time interval, in milliseconds since the Unix epoch. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setStartMillis(long startMillis) {
                 mImpl.setStartMillis(startMillis);
@@ -77,7 +96,6 @@ public final class TimelineBuilders {
             }
 
             /** Sets end point of the time interval, in milliseconds since the Unix epoch. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setEndMillis(long endMillis) {
                 mImpl.setEndMillis(endMillis);
@@ -98,6 +116,26 @@ public final class TimelineBuilders {
 
         private TimelineEntry(TimelineProto.TimelineEntry impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the validity period for this timeline entry. Intended for testing purposes only. */
+        @Nullable
+        public TimeInterval getValidity() {
+            if (mImpl.hasValidity()) {
+                return TimeInterval.fromProto(mImpl.getValidity());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the contents of this timeline entry. Intended for testing purposes only. */
+        @Nullable
+        public Layout getLayout() {
+            if (mImpl.hasLayout()) {
+                return Layout.fromProto(mImpl.getLayout());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -128,7 +166,6 @@ public final class TimelineBuilders {
             Builder() {}
 
             /** Sets the validity period for this timeline entry. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValidity(@NonNull TimeInterval validity) {
                 mImpl.setValidity(validity.toProto());
@@ -136,7 +173,6 @@ public final class TimelineBuilders {
             }
 
             /** Sets the validity period for this timeline entry. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValidity(@NonNull TimeInterval.Builder validityBuilder) {
                 mImpl.setValidity(validityBuilder.build().toProto());
@@ -144,7 +180,6 @@ public final class TimelineBuilders {
             }
 
             /** Sets the contents of this timeline entry. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setLayout(@NonNull Layout layout) {
                 mImpl.setLayout(layout.toProto());
@@ -152,7 +187,6 @@ public final class TimelineBuilders {
             }
 
             /** Sets the contents of this timeline entry. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setLayout(@NonNull Layout.Builder layoutBuilder) {
                 mImpl.setLayout(layoutBuilder.build().toProto());
@@ -188,6 +222,15 @@ public final class TimelineBuilders {
             this.mImpl = impl;
         }
 
+        /** Gets the entries in a timeline. Intended for testing purposes only. */
+        @NonNull
+        public List<TimelineEntry> getTimelineEntries() {
+            return Collections.unmodifiableList(
+                    mImpl.getTimelineEntriesList().stream()
+                            .map(TimelineEntry::fromProto)
+                            .collect(toList()));
+        }
+
         /** Returns a new {@link Builder}. */
         @NonNull
         public static Builder builder() {
@@ -216,7 +259,6 @@ public final class TimelineBuilders {
             Builder() {}
 
             /** Adds one item to the entries in a timeline. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder addTimelineEntry(@NonNull TimelineEntry timelineEntry) {
                 mImpl.addTimelineEntries(timelineEntry.toProto());
@@ -224,7 +266,6 @@ public final class TimelineBuilders {
             }
 
             /** Adds one item to the entries in a timeline. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder addTimelineEntry(@NonNull TimelineEntry.Builder timelineEntryBuilder) {
                 mImpl.addTimelineEntries(timelineEntryBuilder.build().toProto());
