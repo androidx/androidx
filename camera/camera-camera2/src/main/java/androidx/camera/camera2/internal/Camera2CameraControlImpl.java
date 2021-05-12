@@ -105,6 +105,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 public class Camera2CameraControlImpl implements CameraControlInternal {
     private static final String TAG = "Camera2CameraControlImp";
+    private static final int DEFAULT_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW;
     @VisibleForTesting
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -130,6 +131,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
+    private int mTemplate = DEFAULT_TEMPLATE;
 
     //******************** Should only be accessed by executor *****************************//
     private final CameraCaptureCallbackSet mCameraCaptureCallbackSet =
@@ -167,7 +169,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mControlUpdateCallback = controlUpdateCallback;
         mExecutor = executor;
         mSessionCallback = new CameraControlSessionCallback(mExecutor);
-        mSessionConfigBuilder.setTemplateType(getDefaultTemplate());
+        mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
                 CaptureCallbackContainer.create(mSessionCallback));
         // Adding a callback via SessionConfigBuilder requires a expensive updateSessionConfig
@@ -183,9 +185,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mExecutor.execute(
                 () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
-
-        // Initialize the session config
-        updateSessionConfig();
     }
 
     /** Increments the use count of the control. */
@@ -443,8 +442,34 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
     }
 
-    int getDefaultTemplate() {
-        return CameraDevice.TEMPLATE_PREVIEW;
+    /** {@inheritDoc} */
+    @Override
+    @NonNull
+    public SessionConfig getSessionConfig() {
+        mSessionConfigBuilder.setTemplateType(mTemplate);
+        mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
+        Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
+        if (tag != null && tag instanceof Integer) {
+            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, (Integer) tag);
+        }
+        return mSessionConfigBuilder.build();
+    }
+
+    @ExecutedBy("mExecutor")
+    int getTemplate() {
+        return mTemplate;
+    }
+
+    @ExecutedBy("mExecutor")
+    void setTemplate(int template) {
+        mTemplate = template;
+
+        mFocusMeteringControl.setTemplate(mTemplate);
+    }
+
+    @ExecutedBy("mExecutor")
+    void resetTemplate() {
+        setTemplate(DEFAULT_TEMPLATE);
     }
 
     private boolean isControlInUse() {
@@ -460,12 +485,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @ExecutedBy("mExecutor")
     void updateSessionConfigSynchronous() {
-        mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
-        Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
-        if (tag != null && tag instanceof Integer) {
-            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, (Integer) tag);
-        }
-        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+        mControlUpdateCallback.onCameraControlUpdateSessionConfig();
     }
 
     @ExecutedBy("mExecutor")
@@ -514,7 +534,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         if (!torch) {
             // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
             CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
-            singleRequestBuilder.setTemplateType(getDefaultTemplate());
+            singleRequestBuilder.setTemplateType(mTemplate);
             singleRequestBuilder.setUseRepeatingSurface(true);
             Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,

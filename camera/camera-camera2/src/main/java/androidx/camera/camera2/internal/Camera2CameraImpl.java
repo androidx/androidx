@@ -139,9 +139,6 @@ final class Camera2CameraImpl implements CameraInternal {
     /** The configured session which handles issuing capture requests. */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CaptureSession mCaptureSession;
-    /** The session configuration of camera control. */
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     // Used to debug number of requests to release camera
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -992,15 +989,21 @@ final class Camera2CameraImpl implements CameraInternal {
         ValidatingBuilder validatingBuilder = mUseCaseAttachState.getActiveAndAttachedBuilder();
 
         if (validatingBuilder.isValid()) {
-            // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
-            // to control Repeating Request and process results.
-            validatingBuilder.add(mCameraControlSessionConfig);
+            SessionConfig useCaseSessionConfig = validatingBuilder.build();
+            mCameraControlInternal.setTemplate(useCaseSessionConfig.getTemplateType());
+            validatingBuilder.add(mCameraControlInternal.getSessionConfig());
 
             SessionConfig sessionConfig = validatingBuilder.build();
             mCaptureSession.setSessionConfig(sessionConfig);
         } else {
+            mCameraControlInternal.resetTemplate();
             // Always reset the session config if there is no valid session config.
-            mCaptureSession.setSessionConfig(mCameraControlSessionConfig);
+            mCaptureSession.setSessionConfig(mCameraControlInternal.getSessionConfig());
+        }
+
+        // Update default request builder since template may change
+        if (mCameraDevice != null) {
+            updateDefaultRequestBuilderToCameraControl(mCameraDevice);
         }
     }
 
@@ -1690,12 +1693,12 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
+    @ExecutedBy("mExecutor")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void updateDefaultRequestBuilderToCameraControl(@NonNull CameraDevice cameraDevice) {
         try {
-            int templateType = mCameraControlInternal.getDefaultTemplate();
-            CaptureRequest.Builder builder =
-                    cameraDevice.createCaptureRequest(templateType);
+            int template = mCameraControlInternal.getTemplate();
+            CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(template);
             mCameraControlInternal.setDefaultRequestBuilder(builder);
         } catch (CameraAccessException e) {
             Logger.e(TAG, "fail to create capture request.", e);
@@ -1770,8 +1773,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         @ExecutedBy("mExecutor")
         @Override
-        public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
-            mCameraControlSessionConfig = Preconditions.checkNotNull(sessionConfig);
+        public void onCameraControlUpdateSessionConfig() {
             updateCaptureSessionConfig();
         }
 

@@ -30,7 +30,6 @@ import android.util.Size;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -55,16 +54,23 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
      * Returns the configuration for the given capture type, or <code>null</code> if the
      * configuration cannot be produced.
      */
-    @Nullable
+    @NonNull
     @Override
     @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public Config getConfig(@NonNull CaptureType captureType) {
         final MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
-        // TODO(b/114762170): Must set to preview here until we allow for multiple template
-        //  types
-        sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        switch (captureType) {
+            case IMAGE_CAPTURE:
+            case PREVIEW:
+            case IMAGE_ANALYSIS:
+                sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+                break;
+            case VIDEO_CAPTURE:
+                sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD);
+                break;
+        }
 
         if (captureType == CaptureType.PREVIEW) {
             // Set the WYSIWYG preview for CAPTURE_TYPE_PREVIEW
@@ -78,16 +84,16 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
 
-        // Only CAPTURE_TYPE_IMAGE_CAPTURE uses CameraDevice.TEMPLATE_STILL_CAPTURE. Other
-        // capture types all use CameraDevice.TEMPLATE_PREVIEW.
         switch (captureType) {
             case IMAGE_CAPTURE:
                 captureBuilder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
                 break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
-            case VIDEO_CAPTURE:
                 captureBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+                break;
+            case VIDEO_CAPTURE:
+                captureBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD);
                 break;
         }
         mutableConfig.insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureBuilder.build());
