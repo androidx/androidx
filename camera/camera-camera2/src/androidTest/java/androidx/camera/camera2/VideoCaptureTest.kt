@@ -49,6 +49,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -64,6 +65,12 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class VideoCaptureTest {
+    public companion object {
+        @ClassRule
+        @JvmField
+        public val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
+    }
+
     @get:Rule
     public val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
@@ -120,7 +127,9 @@ public class VideoCaptureTest {
     @Test
     @SdkSuppress(maxSdkVersion = 25)
     public fun buildFileOutputOptionsWithFileDescriptor_throwExceptionWhenAPILevelSmallerThan26() {
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file = File.createTempFile("CameraX", ".tmp").apply {
+            deleteOnExit()
+        }
 
         val fileDescriptor =
             ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE).fileDescriptor
@@ -135,7 +144,9 @@ public class VideoCaptureTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     public fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file = File.createTempFile("CameraX", ".tmp").apply {
+            deleteOnExit()
+        }
 
         // It's needed to have a variable here to hold the parcel file descriptor reference which
         // returned from ParcelFileDescriptor.open(), the returned parcel descriptor reference might
@@ -188,7 +199,9 @@ public class VideoCaptureTest {
     @FlakyTest // b/182165222
     @Test
     public fun unbind_shouldStopRecording() {
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file = File.createTempFile("CameraX", ".tmp").apply {
+            deleteOnExit()
+        }
 
         val preview = Preview.Builder().build()
         val videoCapture = VideoCapture.Builder().build()
@@ -272,7 +285,9 @@ public class VideoCaptureTest {
 
     @Test
     public fun videoCapture_saveResultToFile() {
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file = File.createTempFile("CameraX", ".tmp").apply {
+            deleteOnExit()
+        }
 
         val preview = Preview.Builder().build()
         val videoCapture = VideoCapture.Builder().build()
