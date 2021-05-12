@@ -56,11 +56,11 @@ public open class NavHostController
 
     /**
      * Sets the host's [OnBackPressedDispatcher]. If set, NavController will
-     * register a [OnBackPressedCallback] to handle system Back button events.
+     * register a [onBackPressedCallback] to handle system Back button events.
      *
      * You must explicitly called [setLifecycleOwner] before calling this
      * method as the owner set there will be used as the [LifecycleOwner] for registering
-     * the [OnBackPressedCallback].
+     * the [onBackPressedCallback].
      *
      * You can dynamically enable and disable whether the NavController should handle the
      * system Back button events by calling [enableOnBackPressed].

@@ -29,24 +29,21 @@ import java.util.regex.Pattern
  */
 public class NavDeepLink internal constructor(
     /**
-     * Get the uri pattern from the NavDeepLink.
+     * The uri pattern from the NavDeepLink.
      *
-     * @return the uri pattern for the deep link.
-     * @see NavDeepLinkRequest.getUri
+     * @see NavDeepLinkRequest.uri
      */
     public val uriPattern: String?,
     /**
-     * Get the action from the NavDeepLink.
+     * The action from the NavDeepLink.
      *
-     * @return the action for the deep link.
-     * @see NavDeepLinkRequest.getAction
+     * @see NavDeepLinkRequest.action
      */
     public val action: String?,
     /**
-     * Get the mimeType from the NavDeepLink.
+     * The mimeType from the NavDeepLink.
      *
-     * @return the mimeType of the deep link.
-     * @see NavDeepLinkRequest.getMimeType
+     * @see NavDeepLinkRequest.mimeType
      */
     public val mimeType: String?
 ) {

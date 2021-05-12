@@ -30,9 +30,7 @@ import java.lang.StringBuilder
  * A NavGraph serves as a 'virtual' destination: while the NavGraph itself will not appear
  * on the back stack, navigating to the NavGraph will cause the
  * [starting destination][getStartDestination] to be added to the back stack.
- */
-public open class NavGraph
-/**
+ *
  * Construct a new NavGraph. This NavGraph is not valid until you
  * [add a destination][addDestination] and [set the starting destination][setStartDestination].
  *
@@ -40,7 +38,7 @@ public open class NavGraph
  *                          with. Generally retrieved via a
  *                          [NavController]'s[NavigatorProvider.getNavigator] method.
  */
-constructor(navGraphNavigator: Navigator<out NavGraph>) :
+public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
     public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat<NavDestination>()
@@ -149,7 +147,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
 
     /**
      * Finds a destination in the collection by ID. This will recursively check the
-     * [parent][getParent] of this navigation graph if node is not found in this navigation graph.
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
      *
      * @param resid ID to locate
      * @return the node with ID resid
@@ -160,7 +158,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
 
     /**
      * Finds a destination in the collection by route. This will recursively check the
-     * [parent][getParent] of this navigation graph if node is not found in this navigation graph.
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
      *
      * @param route Route to locate
      * @return the node with route
@@ -273,7 +271,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
         get() = if (id != 0) super.displayName else "the root navigation"
 
     /**
-     * Returns the starting destination for this NavGraph. When navigating to the NavGraph, this
+     * Gets the starting destination for this NavGraph. When navigating to the NavGraph, this
      * destination is the one the user will initially see.
      *
      * @return the start destination
@@ -282,14 +280,12 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
     @Deprecated("Use getStartDestinationId instead.", ReplaceWith("startDestinationId"))
     public fun getStartDestination(): Int = startDestinationId
 
+    /**
+     * The starting destination id for this NavGraph. When navigating to the NavGraph, the
+     * destination represented by this id is the one the user will initially see.
+     */
     @get:IdRes
     public var startDestinationId: Int
-        /**
-         * Returns the starting destination for this NavGraph. When navigating to the NavGraph, this
-         * destination is the one the user will initially see.
-         *
-         * @return the start destination
-         */
         get() = startDestId
         private set(startDestId) {
             require(startDestId != id) {
@@ -305,7 +301,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
     /**
      * Sets the starting destination for this NavGraph.
      *
-     * This will clear any previously set [startDestinationRoute]
+     * This will clear any previously set [startDestinationRoute].
      *
      * @param startDestId The id of the destination to be shown when navigating to this
      *                    NavGraph.
@@ -327,10 +323,8 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     /**
-     * Returns the route for the starting destination for this NavGraph. When navigating to the
-     * NavGraph, this destination is the one the user will initially see.
-     *
-     * @return the start destination
+     * The route for the starting destination for this NavGraph. When navigating to the
+     * NavGraph, the destination represented by this route is the one the user will initially see.
      */
     public var startDestinationRoute: String? = null
         private set(startDestRoute) {
@@ -405,9 +399,9 @@ public operator fun NavGraph.contains(route: String): Boolean = findNode(route) 
 
 /**
  * Adds a destination to this NavGraph. The destination must have an
- * [id][NavDestination.getId] set.
+ * [id][NavDestination.id] set.
  *
- * The destination must not have a [parent][NavDestination.getParent] set. If
+ * The destination must not have a [parent][NavDestination.parent] set. If
  * the destination is already part of a [NavGraph], call
  * [NavGraph.remove] before calling this method.</p>
  *

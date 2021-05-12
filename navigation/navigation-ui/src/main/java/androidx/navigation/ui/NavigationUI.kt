@@ -48,7 +48,7 @@ public object NavigationUI {
      * MenuItem should have been added via one of the helper methods in this class.
      *
      * Importantly, it assumes the [menu item id][MenuItem.getItemId] matches a valid
-     * [action id][NavDestination.getAction] or [destination id][NavDestination.getId] to be
+     * [action id][NavDestination.getAction] or [destination id][NavDestination.id] to be
      * navigated to.
      *
      * By default, the back stack will be popped back to the navigation graph's start destination.
@@ -122,7 +122,7 @@ public object NavigationUI {
      * when the Up button is pressed.
      *
      * In cases where no Up action is available, the
-     * [AppBarConfiguration.getFallbackOnNavigateUpListener] will be called to provide
+     * [AppBarConfiguration.fallbackOnNavigateUpListener] will be called to provide
      * additional control.
      *
      * @param navController The NavController that hosts your content.
@@ -157,7 +157,7 @@ public object NavigationUI {
      * with a [NavController].
      *
      * By calling this method, the title in the action bar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.getLabel]).
+     * the destination changes (assuming there is a valid [label][NavDestination.label]).
      *
      * The start destination of your navigation graph is considered the only top level
      * destination. On the start destination of your navigation graph, the ActionBar will show
@@ -193,7 +193,7 @@ public object NavigationUI {
      * with a [NavController].
      *
      * By calling this method, the title in the action bar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.getLabel]).
+     * the destination changes (assuming there is a valid [label][NavDestination.label]).
      *
      * The [AppBarConfiguration] you provide controls how the Navigation button is
      * displayed.
@@ -224,7 +224,7 @@ public object NavigationUI {
      * Sets up a [Toolbar] for use with a [NavController].
      *
      * By calling this method, the title in the Toolbar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.getLabel]).
+     * the destination changes (assuming there is a valid [label][NavDestination.label]).
      *
      * The start destination of your navigation graph is considered the only top level
      * destination. On the start destination of your navigation graph, the Toolbar will show
@@ -258,7 +258,7 @@ public object NavigationUI {
      * Sets up a [Toolbar] for use with a [NavController].
      *
      * By calling this method, the title in the Toolbar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.getLabel]).
+     * the destination changes (assuming there is a valid [label][NavDestination.label]).
      *
      * The [AppBarConfiguration] you provide controls how the Navigation button is
      * displayed and what action is triggered when the Navigation button is tapped. This method
@@ -293,7 +293,7 @@ public object NavigationUI {
      *
      * By calling this method, the title in the CollapsingToolbarLayout will automatically be
      * updated when the destination changes (assuming there is a valid
-     * [label][NavDestination.getLabel]).
+     * [label][NavDestination.label]).
      *
      * The start destination of your navigation graph is considered the only top level
      * destination. On the start destination of your navigation graph, the Toolbar will show
@@ -330,7 +330,7 @@ public object NavigationUI {
      *
      * By calling this method, the title in the CollapsingToolbarLayout will automatically be
      * updated when the destination changes (assuming there is a valid
-     * [label][NavDestination.getLabel]).
+     * [label][NavDestination.label]).
      *
      * The [AppBarConfiguration] you provide controls how the Navigation button is
      * displayed and what action is triggered when the Navigation button is tapped. This method
