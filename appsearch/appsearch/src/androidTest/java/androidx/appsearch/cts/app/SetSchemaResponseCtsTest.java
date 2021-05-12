@@ -117,13 +117,16 @@ public class SetSchemaResponseCtsTest {
     @Test
     public void testMigrationFailure() {
         AppSearchResult<Void> expectedResult = AppSearchResult.newFailedResult(
-                AppSearchResult.RESULT_INTERNAL_ERROR, "errorMessage");
+                AppSearchResult.RESULT_INTERNAL_ERROR, "This is errorMessage.");
         SetSchemaResponse.MigrationFailure migrationFailure =
-                new SetSchemaResponse.MigrationFailure("namespace", "id",
-                        "schemaType", expectedResult);
-        assertThat(migrationFailure.getNamespace()).isEqualTo("namespace");
-        assertThat(migrationFailure.getSchemaType()).isEqualTo("schemaType");
-        assertThat(migrationFailure.getDocumentId()).isEqualTo("id");
+                new SetSchemaResponse.MigrationFailure("testNamespace", "testId",
+                        "testSchemaType", expectedResult);
+        assertThat(migrationFailure.getNamespace()).isEqualTo("testNamespace");
+        assertThat(migrationFailure.getSchemaType()).isEqualTo("testSchemaType");
+        assertThat(migrationFailure.getDocumentId()).isEqualTo("testId");
         assertThat(migrationFailure.getAppSearchResult()).isEqualTo(expectedResult);
+        assertThat(migrationFailure.toString()).isEqualTo("MigrationFailure { schemaType:"
+                + " testSchemaType, namespace: testNamespace, documentId: testId, "
+                + "appSearchResult: [FAILURE(2)]: This is errorMessage.}");
     }
 }

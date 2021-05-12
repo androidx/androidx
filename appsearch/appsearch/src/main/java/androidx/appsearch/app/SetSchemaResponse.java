@@ -372,5 +372,13 @@ public class SetSchemaResponse {
             return AppSearchResult.newFailedResult(mBundle.getInt(RESULT_CODE_FIELD),
                     mBundle.getString(ERROR_MESSAGE_FIELD, /*defaultValue=*/""));
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "MigrationFailure { schemaType: " + getSchemaType() + ", namespace: "
+                    + getNamespace() + ", documentId: " + getDocumentId() + ", appSearchResult: "
+                    + getAppSearchResult().toString() + "}";
+        }
     }
 }
