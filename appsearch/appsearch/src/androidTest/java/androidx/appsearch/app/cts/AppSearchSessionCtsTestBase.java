@@ -665,7 +665,8 @@ public abstract class AppSearchSessionCtsTestBase {
     @Test
     public void testQuery_namespaceFilter() throws Exception {
         // Schema registration
-        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build());
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+            .get();
 
         // Index two documents
         AppSearchEmail expectedEmail =
@@ -1789,7 +1790,8 @@ public abstract class AppSearchSessionCtsTestBase {
     @Test
     public void testCloseAndReopen() throws Exception {
         // Schema registration
-        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build());
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+            .get();
 
         // Index a document
         AppSearchEmail inEmail =
