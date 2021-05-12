@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@Suppress("DEPRECATION")
 class VideoEncoderTest {
 
     @get: Rule

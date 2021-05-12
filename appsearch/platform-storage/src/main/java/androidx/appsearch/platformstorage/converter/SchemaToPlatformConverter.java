@@ -111,10 +111,9 @@ public final class SchemaToPlatformConverter {
             AppSearchSchema.DocumentPropertyConfig documentProperty =
                     (AppSearchSchema.DocumentPropertyConfig) jetpackProperty;
             return new android.app.appsearch.AppSearchSchema.DocumentPropertyConfig.Builder(
-                    documentProperty.getName())
+                    documentProperty.getName(), documentProperty.getSchemaType())
                     .setCardinality(documentProperty.getCardinality())
-                    .setSchemaType(documentProperty.getSchemaType())
-                    .setIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
+                    .setShouldIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
         } else {
             throw new IllegalArgumentException(
@@ -163,7 +162,7 @@ public final class SchemaToPlatformConverter {
                     documentProperty.getName(),
                     documentProperty.getSchemaType())
                     .setCardinality(documentProperty.getCardinality())
-                    .setShouldIndexNestedProperties(documentProperty.isIndexNestedProperties())
+                    .setShouldIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
         } else {
             throw new IllegalArgumentException(

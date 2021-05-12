@@ -59,15 +59,16 @@ public final class RequestToPlatformConverter {
 
     /**
      * Translates a jetpack {@link GetByDocumentIdRequest} into a platform
-     * {@link android.app.appsearch.GetByUriRequest}.
+     * {@link android.app.appsearch.GetByDocumentIdRequest}.
      */
     @NonNull
-    public static android.app.appsearch.GetByUriRequest toPlatformGetByDocumentIdRequest(
+    public static android.app.appsearch.GetByDocumentIdRequest toPlatformGetByDocumentIdRequest(
             @NonNull GetByDocumentIdRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
-        android.app.appsearch.GetByUriRequest.Builder platformBuilder =
-                new android.app.appsearch.GetByUriRequest.Builder(jetpackRequest.getNamespace())
-                        .addUris(jetpackRequest.getIds());
+        android.app.appsearch.GetByDocumentIdRequest.Builder platformBuilder =
+                new android.app.appsearch.GetByDocumentIdRequest.Builder(
+                        jetpackRequest.getNamespace())
+                        .addIds(jetpackRequest.getIds());
         for (Map.Entry<String, List<String>> projection :
                 jetpackRequest.getProjectionsInternal().entrySet()) {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());
@@ -77,14 +78,16 @@ public final class RequestToPlatformConverter {
 
     /**
      * Translates a jetpack {@link RemoveByDocumentIdRequest} into a platform
-     * {@link android.app.appsearch.RemoveByUriRequest}.
+     * {@link android.app.appsearch.RemoveByDocumentIdRequest}.
      */
     @NonNull
-    public static android.app.appsearch.RemoveByUriRequest toPlatformRemoveByDocumentIdRequest(
+    public static android.app.appsearch.RemoveByDocumentIdRequest
+            toPlatformRemoveByDocumentIdRequest(
             @NonNull RemoveByDocumentIdRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
-        return new android.app.appsearch.RemoveByUriRequest.Builder(jetpackRequest.getNamespace())
-                .addUris(jetpackRequest.getIds())
+        return new android.app.appsearch.RemoveByDocumentIdRequest.Builder(
+                jetpackRequest.getNamespace())
+                .addIds(jetpackRequest.getIds())
                 .build();
     }
 
@@ -96,9 +99,9 @@ public final class RequestToPlatformConverter {
     public static android.app.appsearch.ReportUsageRequest toPlatformReportUsageRequest(
             @NonNull ReportUsageRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
-        return new android.app.appsearch.ReportUsageRequest.Builder(jetpackRequest.getNamespace())
-                .setUri(jetpackRequest.getDocumentId())
-                .setUsageTimeMillis(jetpackRequest.getUsageTimestampMillis())
+        return new android.app.appsearch.ReportUsageRequest.Builder(
+                jetpackRequest.getNamespace(), jetpackRequest.getDocumentId())
+                .setUsageTimestampMillis(jetpackRequest.getUsageTimestampMillis())
                 .build();
     }
 }

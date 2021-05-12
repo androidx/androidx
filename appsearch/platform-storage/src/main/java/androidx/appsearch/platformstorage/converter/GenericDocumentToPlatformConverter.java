@@ -89,7 +89,8 @@ public final class GenericDocumentToPlatformConverter {
         Preconditions.checkNotNull(platformDocument);
         GenericDocument.Builder<GenericDocument.Builder<?>> jetpackBuilder =
                 new GenericDocument.Builder<>(
-                        platformDocument.getNamespace(), platformDocument.getUri(),
+                        platformDocument.getNamespace(),
+                        platformDocument.getId(),
                         platformDocument.getSchemaType());
         jetpackBuilder
                 .setScore(platformDocument.getScore())

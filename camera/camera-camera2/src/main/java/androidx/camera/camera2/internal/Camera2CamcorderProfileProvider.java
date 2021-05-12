@@ -93,6 +93,7 @@ public class Camera2CamcorderProfileProvider implements CamcorderProfileProvider
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private CamcorderProfileProxy getProfileInternal(int quality) {
         CamcorderProfile profile = null;
         try {
