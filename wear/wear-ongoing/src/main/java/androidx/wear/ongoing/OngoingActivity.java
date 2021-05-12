@@ -229,8 +229,11 @@ public final class OngoingActivity {
         }
 
         /**
-         * Set the category of this {@link OngoingActivity}, this may be used by the system to
-         * prioritize it.
+         * Set the category of this {@link OngoingActivity}.
+         * <p>
+         * Must be one of the predefined notification categories (see the {@code CATEGORY_*}
+         * constants in {@link NotificationCompat}) that best describes this
+         * {@link OngoingActivity}. This may be used by the system to prioritize it.
          */
         @NonNull
         public Builder setCategory(@NonNull String category) {
