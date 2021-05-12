@@ -224,20 +224,16 @@ public final class CaptureConfig {
 
         /**
          * Adds a {@link CameraCaptureSession.StateCallback} callback.
-         *
-         * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
             if (mCameraCaptureCallbacks.contains(cameraCaptureCallback)) {
-                throw new IllegalArgumentException("duplicate camera capture callback");
+                return;
             }
             mCameraCaptureCallbacks.add(cameraCaptureCallback);
         }
 
         /**
          * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
-         *
-         * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllCameraCaptureCallbacks(
                 @NonNull Collection<CameraCaptureCallback> cameraCaptureCallbacks) {

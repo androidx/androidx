@@ -216,6 +216,8 @@ public final class VideoCapture extends UseCase {
     private MediaCodec mAudioEncoder;
     @Nullable
     private ListenableFuture<Void> mRecordingFuture = null;
+    @NonNull
+    private SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -334,6 +336,8 @@ public final class VideoCapture extends UseCase {
         }
 
         setupEncoder(getCameraId(), suggestedResolution);
+        // VideoCapture has to be active to apply SessionConfig's template type.
+        notifyActive();
         return suggestedResolution;
     }
 
@@ -447,7 +451,12 @@ public final class VideoCapture extends UseCase {
         mEndOfAudioVideoSignal.set(false);
         mIsRecording = true;
 
-        notifyActive();
+        // Attach Surface to repeating request.
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addSurface(mDeferrableSurface);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        notifyUpdated();
+
         mAudioHandler.post(() -> audioEncode(postListener));
 
         String cameraId = getCameraId();
@@ -479,7 +488,11 @@ public final class VideoCapture extends UseCase {
             return;
         }
         Logger.i(TAG, "stopRecording");
-        notifyInactive();
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        notifyUpdated();
+
         if (!mEndOfAudioVideoSignal.get() && mIsRecording) {
             // stop audio encoder thread, and wait video encoder and muxer stop.
             mEndOfAudioStreamSignal.set(true);
@@ -609,7 +622,7 @@ public final class VideoCapture extends UseCase {
         Surface cameraSurface = mVideoEncoder.createInputSurface();
         mCameraSurface = cameraSurface;
 
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        mSessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
@@ -619,9 +632,9 @@ public final class VideoCapture extends UseCase {
                 cameraSurface::release, CameraXExecutors.mainThreadExecutor()
         );
 
-        sessionConfigBuilder.addSurface(mDeferrableSurface);
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
-        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+        mSessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
             @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
@@ -637,7 +650,7 @@ public final class VideoCapture extends UseCase {
             }
         });
 
-        updateSessionConfig(sessionConfigBuilder.build());
+        updateSessionConfig(mSessionConfigBuilder.build());
 
         // audio encoder setup
         setAudioParametersByCamcorderProfile(resolution, cameraId);

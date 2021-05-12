@@ -39,6 +39,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
@@ -190,5 +191,10 @@ class CameraControlAdapter @Inject constructor(
         val camera = useCaseManager.camera
         checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
         camera.capture(captureConfigs)
+    }
+
+    override fun getSessionConfig(): SessionConfig {
+        warn { "TODO: getSessionConfig is not yet supported" }
+        return SessionConfig.defaultEmptySessionConfig()
     }
 }

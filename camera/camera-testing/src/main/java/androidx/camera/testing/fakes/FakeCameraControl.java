@@ -58,7 +58,6 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
-        updateSessionConfig();
     }
 
     /** Notifies all submitted requests onCaptureCancelled */
@@ -153,12 +152,14 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public Rect getSensorRect() {
-        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
+    public SessionConfig getSessionConfig() {
+        return mSessionConfigBuilder.build();
     }
 
-    private void updateSessionConfig() {
-        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+    @NonNull
+    @Override
+    public Rect getSensorRect() {
+        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
     }
 
     @NonNull
