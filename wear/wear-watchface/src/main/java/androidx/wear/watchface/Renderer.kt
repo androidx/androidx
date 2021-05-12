@@ -674,7 +674,6 @@ public sealed class Renderer(
             calendar: Calendar
         ) {
             makeContextCurrent()
-            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
             renderAndComposite(calendar)
             if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
                 Log.w(TAG, "eglSwapBuffers failed")
@@ -692,7 +691,6 @@ public sealed class Renderer(
             makeContextCurrent()
             val prevRenderParameters = this.renderParameters
             this.renderParameters = renderParameters
-            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
             renderAndComposite(calendar)
             this.renderParameters = prevRenderParameters
             GLES20.glFinish()
@@ -714,6 +712,8 @@ public sealed class Renderer(
         }
 
         private fun renderAndComposite(calendar: Calendar) {
+            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
+
             // Usually renderParameters.watchFaceWatchFaceLayers will be non-empty.
             if (renderParameters.watchFaceLayers.isNotEmpty()) {
                 render(calendar)
@@ -769,8 +769,9 @@ public sealed class Renderer(
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
          * where possible. For correct behavior this function must use the supplied [Calendar]
-         * in favor of any other ways of getting the time. Note [makeContextCurrent] is called by
-         * the library before this method.
+         * in favor of any other ways of getting the time. Note [makeContextCurrent] and
+         * `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` are called by the library before this
+         * method.
          *
          * @param calendar The current [Calendar]
          */
@@ -785,6 +786,8 @@ public sealed class Renderer(
          * or a solid outline around the [RenderParameters.HighlightLayer.highlightedElement]. This
          * will be composited as needed on top of the results of [render]. For correct behavior this
          * function must use the supplied [Calendar] in favor of any other ways of getting the time.
+         * Note [makeContextCurrent] and `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` are
+         * called by the library before this method.
          *
          * @param calendar The current [Calendar]
          */
