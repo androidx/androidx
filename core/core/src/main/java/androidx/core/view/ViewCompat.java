@@ -1208,10 +1208,10 @@ public class ViewCompat {
      * Adds an accessibility action that can be performed on a node associated with a view.
      * A view can only have 32 actions created with this API.
      *
-     * @param view The view.
-     * @param label The use facing description of the action.
+     * @param view    The view.
+     * @param label   The user facing description of the action. If an action with the same label
+     *               already exists, it will be replaced.
      * @param command The command performed when the service requests the action.
-     *
      * @return The id associated with the action,
      * or {@link View#NO_ID} if the action could not be created.
      * This id can be used to remove the action.
@@ -1224,7 +1224,7 @@ public class ViewCompat {
     public static int addAccessibilityAction(
             @NonNull View view, @NonNull CharSequence label,
             @NonNull AccessibilityViewCommand command) {
-        int actionId = getAvailableActionIdFromResources(view);
+        int actionId = getAvailableActionIdFromResources(view, label);
         if (actionId != View.NO_ID) {
             AccessibilityActionCompat action =
                     new AccessibilityActionCompat(actionId, label, command);
@@ -1267,9 +1267,16 @@ public class ViewCompat {
             R.id.accessibility_custom_action_30,
             R.id.accessibility_custom_action_31};
 
-    private static int getAvailableActionIdFromResources(View view) {
+    private static int getAvailableActionIdFromResources(View view, @NonNull CharSequence label) {
         int result = View.NO_ID;
+        // Finds the existing custom action id by label.
         List<AccessibilityActionCompat> actions = getActionList(view);
+        for (int i = 0; i < actions.size(); i++) {
+            if (TextUtils.equals(label, actions.get(i).getLabel())) {
+                return actions.get(i).getId();
+            }
+        }
+        // Finds the first available action id from resources.
         for (int i = 0; i < ACCESSIBILITY_ACTIONS_RESOURCE_IDS.length && result == View.NO_ID;
                 i++) {
             int id = ACCESSIBILITY_ACTIONS_RESOURCE_IDS[i];
