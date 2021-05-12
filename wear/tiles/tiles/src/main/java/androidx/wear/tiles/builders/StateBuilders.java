@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.builders;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -68,7 +66,6 @@ public final class StateBuilders {
             Builder() {}
 
             /** Sets the ID of the clickable that was last clicked. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setLastClickableId(@NonNull String lastClickableId) {
                 mImpl.setLastClickableId(lastClickableId);

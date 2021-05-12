@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.builders;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -40,6 +38,12 @@ public final class ColorBuilders {
 
         private ColorProp(ColorProto.ColorProp impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the color value, in ARGB format. Intended for testing purposes only. */
+        @ColorInt
+        public int getArgb() {
+            return mImpl.getArgb();
         }
 
         /** Returns a new {@link Builder}. */
@@ -69,7 +73,6 @@ public final class ColorBuilders {
             Builder() {}
 
             /** Sets the color value, in ARGB format. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setArgb(@ColorInt int argb) {
                 mImpl.setArgb(argb);

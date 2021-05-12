@@ -16,13 +16,19 @@
 
 package androidx.wear.tiles.builders;
 
+import static java.util.stream.Collectors.toMap;
+
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.builders.StateBuilders.State;
 import androidx.wear.tiles.proto.ActionProto;
+
+import java.util.Collections;
+import java.util.Map;
 
 /** Builders for actions that can be performed when a user interacts with layout elements. */
 public final class ActionBuilders {
@@ -66,6 +72,12 @@ public final class ActionBuilders {
             this.mImpl = impl;
         }
 
+        /** Gets the value. Intended for testing purposes only. */
+        @NonNull
+        public String getValue() {
+            return mImpl.getValue();
+        }
+
         /** Returns a new {@link Builder}. */
         @NonNull
         public static Builder builder() {
@@ -102,7 +114,6 @@ public final class ActionBuilders {
             Builder() {}
 
             /** Sets the value. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(@NonNull String value) {
                 mImpl.setValue(value);
@@ -123,6 +134,11 @@ public final class ActionBuilders {
 
         private AndroidIntExtra(ActionProto.AndroidIntExtra impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value. Intended for testing purposes only. */
+        public int getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -161,7 +177,6 @@ public final class ActionBuilders {
             Builder() {}
 
             /** Sets the value. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(int value) {
                 mImpl.setValue(value);
@@ -182,6 +197,11 @@ public final class ActionBuilders {
 
         private AndroidLongExtra(ActionProto.AndroidLongExtra impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value. Intended for testing purposes only. */
+        public long getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -220,7 +240,6 @@ public final class ActionBuilders {
             Builder() {}
 
             /** Sets the value. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(long value) {
                 mImpl.setValue(value);
@@ -241,6 +260,11 @@ public final class ActionBuilders {
 
         private AndroidDoubleExtra(ActionProto.AndroidDoubleExtra impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value. Intended for testing purposes only. */
+        public double getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -279,7 +303,6 @@ public final class ActionBuilders {
             Builder() {}
 
             /** Sets the value. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(double value) {
                 mImpl.setValue(value);
@@ -300,6 +323,11 @@ public final class ActionBuilders {
 
         private AndroidBooleanExtra(ActionProto.AndroidBooleanExtra impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the value. Intended for testing purposes only. */
+        public boolean getValue() {
+            return mImpl.getValue();
         }
 
         /** Returns a new {@link Builder}. */
@@ -413,6 +441,38 @@ public final class ActionBuilders {
             this.mImpl = impl;
         }
 
+        /**
+         * Gets the package name to send the intent to, for example, "com.google.weather". Intended
+         * for testing purposes only.
+         */
+        @NonNull
+        public String getPackageName() {
+            return mImpl.getPackageName();
+        }
+
+        /**
+         * Gets the fully qualified class name (including the package) to send the intent to, for
+         * example, "com.google.weather.WeatherOverviewActivity". Intended for testing purposes
+         * only.
+         */
+        @NonNull
+        public String getClassName() {
+            return mImpl.getClassName();
+        }
+
+        /** Gets the extras to be included in the intent. Intended for testing purposes only. */
+        @NonNull
+        public Map<String, AndroidExtra> getKeyToExtraMapping() {
+            return Collections.unmodifiableMap(
+                    mImpl.getKeyToExtraMap().entrySet().stream()
+                            .collect(
+                                    toMap(
+                                            Map.Entry::getKey,
+                                            f ->
+                                                    AndroidExtra.fromAndroidExtraProto(
+                                                            f.getValue()))));
+        }
+
         /** Returns a new {@link Builder}. */
         @NonNull
         public static Builder builder() {
@@ -441,7 +501,6 @@ public final class ActionBuilders {
             Builder() {}
 
             /** Sets the package name to send the intent to, for example, "com.google.weather". */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setPackageName(@NonNull String packageName) {
                 mImpl.setPackageName(packageName);
@@ -452,7 +511,6 @@ public final class ActionBuilders {
              * Sets the fully qualified class name (including the package) to send the intent to,
              * for example, "com.google.weather.WeatherOverviewActivity".
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setClassName(@NonNull String className) {
                 mImpl.setClassName(className);
@@ -496,6 +554,16 @@ public final class ActionBuilders {
             this.mImpl = impl;
         }
 
+        /** Gets an action to launch an Android activity. Intended for testing purposes only. */
+        @Nullable
+        public AndroidActivity getAndroidActivity() {
+            if (mImpl.hasAndroidActivity()) {
+                return AndroidActivity.fromProto(mImpl.getAndroidActivity());
+            } else {
+                return null;
+            }
+        }
+
         /** Returns a new {@link Builder}. */
         @NonNull
         public static Builder builder() {
@@ -532,7 +600,6 @@ public final class ActionBuilders {
             Builder() {}
 
             /** Sets an action to launch an Android activity. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setAndroidActivity(@NonNull AndroidActivity androidActivity) {
                 mImpl.setAndroidActivity(androidActivity.toProto());
@@ -540,7 +607,6 @@ public final class ActionBuilders {
             }
 
             /** Sets an action to launch an Android activity. */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setAndroidActivity(
                     @NonNull AndroidActivity.Builder androidActivityBuilder) {
@@ -562,6 +628,21 @@ public final class ActionBuilders {
 
         private LoadAction(ActionProto.LoadAction impl) {
             this.mImpl = impl;
+        }
+
+        /**
+         * Gets the state to load the next tile with. This will be included in the TileRequest sent
+         * after this action is invoked by a {@link
+         * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}. Intended for testing purposes
+         * only.
+         */
+        @Nullable
+        public State getRequestState() {
+            if (mImpl.hasRequestState()) {
+                return State.fromProto(mImpl.getRequestState());
+            } else {
+                return null;
+            }
         }
 
         /** Returns a new {@link Builder}. */
@@ -604,7 +685,6 @@ public final class ActionBuilders {
              * sent after this action is invoked by a {@link
              * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRequestState(@NonNull State requestState) {
                 mImpl.setRequestState(requestState.toProto());
@@ -616,7 +696,6 @@ public final class ActionBuilders {
              * sent after this action is invoked by a {@link
              * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRequestState(@NonNull State.Builder requestStateBuilder) {
                 mImpl.setRequestState(requestStateBuilder.build().toProto());
