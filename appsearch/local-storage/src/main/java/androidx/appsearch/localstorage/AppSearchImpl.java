@@ -156,7 +156,8 @@ public final class AppSearchImpl implements Closeable {
     private final LogUtil mLogUtil = new LogUtil(TAG);
 
     @GuardedBy("mReadWriteLock")
-    private final IcingSearchEngine mIcingSearchEngineLocked;
+    @VisibleForTesting
+    final IcingSearchEngine mIcingSearchEngineLocked;
 
     @GuardedBy("mReadWriteLock")
     private final VisibilityStore mVisibilityStoreLocked;
@@ -256,69 +257,78 @@ public final class AppSearchImpl implements Closeable {
             mVisibilityStoreLocked =
                     new VisibilityStore(this, context, userId, globalQuerierPackage);
 
-            mLogUtil.piiTrace("icingSearchEngine.initialize, request");
-            InitializeResultProto initializeResultProto = mIcingSearchEngineLocked.initialize();
-            mLogUtil.piiTrace(
-                    "icingSearchEngine.initialize, response",
-                    initializeResultProto.getStatus(),
-                    initializeResultProto);
-
-            if (initStatsBuilder != null) {
-                initStatsBuilder
-                        .setStatusCode(statusProtoToResultCode(initializeResultProto.getStatus()))
-                        // TODO(b/173532925) how to get DeSyncs value
-                        .setHasDeSync(false);
-                AppSearchLoggerHelper.copyNativeStats(
-                        initializeResultProto.getInitializeStats(), initStatsBuilder);
-            }
-
-            long prepareSchemaAndNamespacesLatencyStartMillis = SystemClock.elapsedRealtime();
-            SchemaProto schemaProto;
-            GetAllNamespacesResultProto getAllNamespacesResultProto = null;
+            // The core initialization procedure. If any part of this fails, we bail into
+            // resetLocked(), deleting all data (but hopefully allowing AppSearchImpl to come up).
             try {
+                mLogUtil.piiTrace("icingSearchEngine.initialize, request");
+                InitializeResultProto initializeResultProto = mIcingSearchEngineLocked.initialize();
+                mLogUtil.piiTrace(
+                        "icingSearchEngine.initialize, response",
+                        initializeResultProto.getStatus(),
+                        initializeResultProto);
+
+                if (initStatsBuilder != null) {
+                    initStatsBuilder
+                            .setStatusCode(
+                                    statusProtoToResultCode(initializeResultProto.getStatus()))
+                            // TODO(b/173532925) how to get DeSyncs value
+                            .setHasDeSync(false);
+                    AppSearchLoggerHelper.copyNativeStats(
+                            initializeResultProto.getInitializeStats(), initStatsBuilder);
+                }
+
                 checkSuccess(initializeResultProto.getStatus());
-                schemaProto = getSchemaProtoLocked();
-                getAllNamespacesResultProto = mIcingSearchEngineLocked.getAllNamespaces();
+
+                long prepareSchemaAndNamespacesLatencyStartMillis = SystemClock.elapsedRealtime();
+                SchemaProto schemaProto = getSchemaProtoLocked();
+
+                mLogUtil.piiTrace("init:getAllNamespaces, request");
+                GetAllNamespacesResultProto getAllNamespacesResultProto =
+                        mIcingSearchEngineLocked.getAllNamespaces();
                 mLogUtil.piiTrace(
                         "init:getAllNamespaces, response",
                         getAllNamespacesResultProto.getNamespacesCount(),
                         getAllNamespacesResultProto);
-                checkSuccess(getAllNamespacesResultProto.getStatus());
-            } catch (AppSearchException e) {
-                Log.w(TAG, "Error initializing, resetting IcingSearchEngine.", e);
-                if (initStatsBuilder != null && getAllNamespacesResultProto != null) {
+
+                if (initStatsBuilder != null) {
                     initStatsBuilder.setStatusCode(
                             statusProtoToResultCode(getAllNamespacesResultProto.getStatus()))
                             .setPrepareSchemaAndNamespacesLatencyMillis(
                                     (int) (SystemClock.elapsedRealtime()
                                             - prepareSchemaAndNamespacesLatencyStartMillis));
                 }
+
+                checkSuccess(getAllNamespacesResultProto.getStatus());
+
+                // Populate schema map
+                for (SchemaTypeConfigProto schema : schemaProto.getTypesList()) {
+                    String prefixedSchemaType = schema.getSchemaType();
+                    addToMap(mSchemaMapLocked, getPrefix(prefixedSchemaType), schema);
+                }
+
+                // Populate namespace map
+                for (String prefixedNamespace : getAllNamespacesResultProto.getNamespacesList()) {
+                    addToMap(mNamespaceMapLocked, getPrefix(prefixedNamespace), prefixedNamespace);
+                }
+
+                // logging prepare_schema_and_namespaces latency
+                if (initStatsBuilder != null) {
+                    initStatsBuilder.setPrepareSchemaAndNamespacesLatencyMillis(
+                            (int) (SystemClock.elapsedRealtime()
+                                    - prepareSchemaAndNamespacesLatencyStartMillis));
+                }
+
+                mLogUtil.piiTrace("Init completed successfully");
+
+            } catch (AppSearchException e) {
                 // Some error. Reset and see if it fixes it.
-                resetLocked();
-                return;
+                Log.e(TAG, "Error initializing, resetting IcingSearchEngine.", e);
+                if (initStatsBuilder != null) {
+                    initStatsBuilder.setStatusCode(e.getResultCode());
+                }
+                resetLocked(initStatsBuilder);
             }
 
-            // Populate schema map
-            for (SchemaTypeConfigProto schema : schemaProto.getTypesList()) {
-                String prefixedSchemaType = schema.getSchemaType();
-                addToMap(mSchemaMapLocked, getPrefix(prefixedSchemaType),
-                        schema);
-            }
-
-            // Populate namespace map
-            for (String prefixedNamespace : getAllNamespacesResultProto.getNamespacesList()) {
-                addToMap(mNamespaceMapLocked, getPrefix(prefixedNamespace),
-                        prefixedNamespace);
-            }
-
-            // logging prepare_schema_and_namespaces latency
-            if (initStatsBuilder != null) {
-                initStatsBuilder.setPrepareSchemaAndNamespacesLatencyMillis(
-                        (int) (SystemClock.elapsedRealtime()
-                                - prepareSchemaAndNamespacesLatencyStartMillis));
-            }
-
-            mLogUtil.piiTrace("Init completed successfully");
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -1373,7 +1383,8 @@ public final class AppSearchImpl implements Closeable {
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @GuardedBy("mReadWriteLock")
-    private void resetLocked() throws AppSearchException {
+    private void resetLocked(@Nullable InitializeStats.Builder initStatsBuilder)
+            throws AppSearchException {
         mLogUtil.piiTrace("icingSearchEngine.reset, request");
         ResetResultProto resetResultProto = mIcingSearchEngineLocked.reset();
         mLogUtil.piiTrace(
@@ -1383,6 +1394,12 @@ public final class AppSearchImpl implements Closeable {
         mOptimizeIntervalCountLocked = 0;
         mSchemaMapLocked.clear();
         mNamespaceMapLocked.clear();
+
+        if (initStatsBuilder != null) {
+            initStatsBuilder
+                    .setHasReset(true)
+                    .setResetStatusCode(statusProtoToResultCode(resetResultProto.getStatus()));
+        }
 
         // Must be called after everything else since VisibilityStore may repopulate
         // IcingSearchEngine with an initial schema.
