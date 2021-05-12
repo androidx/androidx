@@ -732,17 +732,6 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static final class ICSMediaPlayer {"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="378"
-            column="32"/>
-    </issue>
-
-    <issue
         id="RestrictedApi"
         message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
         errorLine1="        checkArgument(selectionTracker != null);"

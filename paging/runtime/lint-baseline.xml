@@ -19,7 +19,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="157"
+            line="161"
             column="31"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="199"
+            line="203"
             column="31"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="252"
+            line="256"
             column="44"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="261"
+            line="265"
             column="9"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="304"
+            line="308"
             column="44"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="313"
+            line="317"
             column="9"/>
     </issue>
 

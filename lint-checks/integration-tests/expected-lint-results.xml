@@ -178,6 +178,54 @@
     </issue>
 
     <issue
+        id="PrivateConstructorForUtilityClass"
+        severity="Error"
+        message="Utility class is missing private constructor"
+        category="Correctness"
+        priority="5"
+        summary="Utility classes should have a private constructor"
+        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
+        errorLine1="    static class DefaultInnerClass {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="37"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        severity="Error"
+        message="Utility class is missing private constructor"
+        category="Correctness"
+        priority="5"
+        summary="Utility classes should have a private constructor"
+        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
+        errorLine1="    protected static class ProtectedInnerClass {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="46"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        severity="Error"
+        message="Utility class is missing private constructor"
+        category="Correctness"
+        priority="5"
+        summary="Utility classes should have a private constructor"
+        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
+        errorLine1="    public static class PublicInnerClass {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="55"
+            column="25"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         severity="Fatal"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
