@@ -173,6 +173,39 @@ class FlowWithLifecycleTest {
     }
 
     @Test
+    fun testOnEachBeforeOperatorOnlyExecutesInTheRightState() = runBlocking(Dispatchers.Main) {
+        owner.setState(Lifecycle.State.RESUMED)
+        val sharedFlow = MutableSharedFlow<Int>()
+        val resultList = mutableListOf<Int>()
+
+        sharedFlow
+            .onEach { resultList.add(it) }
+            .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)
+            .launchIn(owner.lifecycleScope)
+
+        sharedFlow.emit(1)
+        sharedFlow.emit(2)
+        yield()
+        assertThat(resultList).containsExactly(1, 2).inOrder()
+
+        // Lifecycle is started again, onEach shouldn't be called
+        owner.setState(Lifecycle.State.STARTED)
+        yield()
+        sharedFlow.emit(3)
+        yield()
+        assertThat(resultList).containsExactly(1, 2).inOrder()
+
+        // Lifecycle is resumed again, onEach should be called
+        owner.setState(Lifecycle.State.RESUMED)
+        yield()
+        sharedFlow.emit(4)
+        yield()
+        assertThat(resultList).containsExactly(1, 2, 4).inOrder()
+
+        owner.setState(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
     fun testExtensionFailsWithInitializedState() = runBlocking(Dispatchers.Main) {
         try {
             flowOf(1, 2, 3)

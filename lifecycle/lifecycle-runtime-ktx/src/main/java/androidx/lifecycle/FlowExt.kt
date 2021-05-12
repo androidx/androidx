@@ -17,11 +17,11 @@
 package androidx.lifecycle
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.launch
 
 /**
  * Flow operator that emits values from `this` upstream Flow when the [lifecycle] is
@@ -58,13 +58,22 @@ import kotlinx.coroutines.flow.launchIn
  * }
  * ```
  *
+ * `flowWithLifecycle` cancels the upstream Flow when [lifecycle] falls below
+ * [minActiveState] state. However, the downstream Flow will be active without receiving any
+ * emissions as long as the scope used to collect the Flow is active. As such, please take care
+ * when using this function in an operator chain, as the order of the operators matters. For
+ * example, `flow1.flowWithLifecycle(lifecycle).combine(flow2)` behaves differently than
+ * `flow1.combine(flow2).flowWithLifecycle(lifecycle)`. The former continues to combine both
+ * flows even when [lifecycle] falls below [minActiveState] state whereas the combination is
+ * cancelled in the latter case.
+ *
  * Warning: [Lifecycle.State.INITIALIZED] is not allowed in this API. Passing it as a
  * parameter will throw an [IllegalArgumentException].
  *
  * Tip: If multiple flows need to be collected using `flowWithLifecycle`, consider using
- * the [LifecycleOwner.addRepeatingJob] API to collect from all of them using a different
- * [launch] per flow instead. This will be more efficient as only one [LifecycleObserver] will be
- * added to the [lifecycle] instead of one per flow.
+ * the [Lifecycle.repeatOnLifecycle] API to collect from all of them using a different
+ * [launch] per flow instead. That's more efficient and consumes less resources as no hot flows
+ * are created.
  *
  * @param lifecycle The [Lifecycle] where the restarting collecting from `this` flow work will be
  * kept alive.
