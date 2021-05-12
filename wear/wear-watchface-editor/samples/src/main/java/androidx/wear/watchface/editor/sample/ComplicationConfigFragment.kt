@@ -22,7 +22,6 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +35,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.RenderParameters.HighlightLayer
+import androidx.wear.watchface.editor.ChosenComplicationProvider
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.widget.SwipeDismissFrameLayout
 import kotlinx.coroutines.launch
@@ -151,7 +151,7 @@ internal class ConfigView(
         watchFaceConfigActivity.coroutineScope.launch {
             val chosenComplicationProvider =
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
-            Log.d(TAG, "showComplicationConfig: $chosenComplicationProvider")
+            updateUi(chosenComplicationProvider)
             // Redraw after the complication provider chooser has run.
             invalidate()
         }
@@ -196,5 +196,11 @@ internal class ConfigView(
             previewComplicationData
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
+    }
+
+    private fun updateUi(
+        @Suppress("UNUSED_PARAMETER") chosenComplicationProvider: ChosenComplicationProvider?
+    ) {
+        // The fragment can use the chosen complication to update the UI.
     }
 }
