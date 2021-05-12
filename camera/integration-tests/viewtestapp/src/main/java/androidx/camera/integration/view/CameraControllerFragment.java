@@ -51,7 +51,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
-import androidx.camera.view.SensorRotationListener;
+import androidx.camera.view.RotationReceiver;
 import androidx.camera.view.video.ExperimentalVideo;
 import androidx.camera.view.video.OnVideoSavedCallback;
 import androidx.camera.view.video.OutputFileOptions;
@@ -89,7 +89,7 @@ public class CameraControllerFragment extends Fragment {
     private ToggleButton mTapToFocusToggle;
     private TextView mZoomStateText;
     private TextView mTorchStateText;
-    private RotationListener mSensorRotationListener;
+    private SensorRotationReceiver mSensorRotationReceiver;
     private TextView mLuminance;
     private boolean mIsAnalyzerSet = true;
 
@@ -123,8 +123,8 @@ public class CameraControllerFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
-        mSensorRotationListener = new RotationListener(requireContext());
-        mSensorRotationListener.enable();
+        mSensorRotationReceiver = new SensorRotationReceiver(requireContext());
+        mSensorRotationReceiver.enable();
         mCameraController = new LifecycleCameraController(requireContext());
         checkFailedFuture(mCameraController.getInitializationFuture());
         runSafely(() -> mCameraController.bindToLifecycle(getViewLifecycleOwner()));
@@ -321,8 +321,8 @@ public class CameraControllerFragment extends Fragment {
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
-        if (mSensorRotationListener != null) {
-            mSensorRotationListener.disable();
+        if (mSensorRotationReceiver != null) {
+            mSensorRotationReceiver.disable();
         }
     }
 
@@ -451,11 +451,11 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Listens to accelerometer rotation change and pass it to tests.
      */
-    static class RotationListener extends SensorRotationListener {
+    static class SensorRotationReceiver extends RotationReceiver {
 
         private int mRotation;
 
-        RotationListener(@NonNull Context context) {
+        SensorRotationReceiver(@NonNull Context context) {
             super(context);
         }
 
@@ -498,7 +498,7 @@ public class CameraControllerFragment extends Fragment {
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     int getSensorRotation() {
-        return mSensorRotationListener.getRotation();
+        return mSensorRotationReceiver.getRotation();
     }
 
     @VisibleForTesting
