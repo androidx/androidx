@@ -145,7 +145,7 @@ public class AppAuthenticator {
      * @param appSignatureVerifier the verifier to be used to verify app signing identities
      * @param appAuthenticatorUtils the utils to be used
      */
-    private AppAuthenticator(AppSignatureVerifier appSignatureVerifier,
+    AppAuthenticator(AppSignatureVerifier appSignatureVerifier,
             AppAuthenticatorUtils appAuthenticatorUtils) {
         mAppSignatureVerifier = appSignatureVerifier;
         mAppAuthenticatorUtils = appAuthenticatorUtils;
@@ -413,6 +413,24 @@ public class AppAuthenticator {
     private static AppAuthenticator createFromParser(Context context, XmlPullParser parser)
             throws AppAuthenticatorXmlException, IOException {
         AppAuthenticatorConfig config = createConfigFromParser(parser);
+        return createFromConfig(context, config);
+    }
+
+    /**
+     * Creates a new {@code AppAuthenticator} that can be used to guard resources based on
+     * package name / signing identity as well as allow verification of expected signing identities
+     * before interacting with other apps on a device using the configuration defined in the
+     * provided {@code config}.
+     *
+     * @param context the context within which to create the {@code AppAuthenticator}
+     * @param config  an {@link AppAuthenticatorConfig} containing the definitions for the
+     *                permissions and expected identities based on package / expected signing
+     *                certificate digests
+     * @return a new {@code AppAuthenticator} that can be used to enforce the signing identities
+     * defined in the provided {@code config}
+     */
+    static AppAuthenticator createFromConfig(Context context,
+            @NonNull AppAuthenticatorConfig config) {
         AppSignatureVerifier verifier = AppSignatureVerifier.builder(context)
                 .setPermissionAllowMap(config.getPermissionAllowMap())
                 .setExpectedIdentities(config.getExpectedIdentities())
@@ -422,7 +440,7 @@ public class AppAuthenticator {
     }
 
     /**
-     * Creates a new {@code AppAuthentictorConfig} that can be used to instantiate a new {@code
+     * Creates a new {@code AppAuthenticatorConfig} that can be used to instantiate a new {@code
      * AppAuthenticator} with the specified config.
      *
      * @param parser an {@link XmlPullParser} containing the definition for the permissions and
