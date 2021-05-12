@@ -295,7 +295,7 @@ package androidx.navigation {
     method public final void addDestinations(java.util.Collection<? extends androidx.navigation.NavDestination> nodes);
     method public final void addDestinations(androidx.navigation.NavDestination... nodes);
     method public final void clear();
-    method public final androidx.navigation.NavDestination? findNode(@IdRes int resid);
+    method public final androidx.navigation.NavDestination? findNode(@IdRes int resId);
     method public final androidx.navigation.NavDestination? findNode(String? route);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> getNodes();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String getStartDestDisplayName();
