@@ -631,7 +631,7 @@ class AffectedModuleDetectorImplTest {
             includeUncommitted: Boolean
         ) = changedFiles
 
-        override fun findPreviousMergeCL() = lastMergeSha
+        override fun findPreviousSubmittedChange() = lastMergeSha
 
         // Implement unused abstract method
         override fun getGitLog(
