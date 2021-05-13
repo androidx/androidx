@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"អនុញ្ញាតឱ្យ <xliff:g id="APP_0">%1$s</xliff:g> បង្ហាញ​ស្ថិតិប្រើប្រាស់​របស់ <xliff:g id="APP_2">%2$s</xliff:g> ?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- វា​អាច​អាន​ព័ត៌មាន​ពី <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- វាអាច​ធ្វើសកម្មភាព​នៅក្នុង <xliff:g id="APP">%1$s</xliff:g>"</string>
-
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"អនុញ្ញាត"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"បដិសេធ"</string>
 </resources>
