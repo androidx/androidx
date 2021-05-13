@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 
@@ -114,7 +115,9 @@ internal class InteractiveInstanceManager {
                 return if (instance != null) {
                     instance.impl
                 } else {
-                    pendingWallpaperInteractiveWatchFaceInstance = value
+                    TraceEvent("Set pendingWallpaperInteractiveWatchFaceInstance").use {
+                        pendingWallpaperInteractiveWatchFaceInstance = value
+                    }
                     null
                 }
             }

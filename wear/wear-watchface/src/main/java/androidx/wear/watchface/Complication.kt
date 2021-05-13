@@ -206,7 +206,9 @@ public class Complication internal constructor(
             complicationsManager.watchState,
             object : CanvasComplication.InvalidateCallback {
                 override fun onInvalidate() {
-                    invalidateListener.onInvalidate()
+                    if (this@Complication::invalidateListener.isInitialized) {
+                        invalidateListener.onInvalidate()
+                    }
                 }
             }
         )
@@ -460,12 +462,6 @@ public class Complication internal constructor(
             }
             field = value
             complicationBoundsDirty = true
-
-            // The caller might modify a number of complications. For efficiency we need to coalesce
-            // these into one update task.
-            if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdate()
-            }
         }
 
     internal var enabledDirty = true
@@ -482,12 +478,6 @@ public class Complication internal constructor(
             }
             field = value
             enabledDirty = true
-
-            // The caller might enable/disable a number of complications. For efficiency we need
-            // to coalesce these into one update task.
-            if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdate()
-            }
         }
 
     internal var supportedTypesDirty = true
@@ -504,12 +494,6 @@ public class Complication internal constructor(
             require(value.isNotEmpty())
             field = value
             supportedTypesDirty = true
-
-            // The caller might modify a number of complications. For efficiency we need to
-            // coalesce these into one update task.
-            if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdate()
-            }
         }
 
     internal var defaultProviderPolicyDirty = true
@@ -528,12 +512,6 @@ public class Complication internal constructor(
             }
             field = value
             defaultProviderPolicyDirty = true
-
-            // The caller might modify a number of complications. For efficiency we need to
-            // coalesce these into one update task.
-            if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdate()
-            }
         }
 
     internal var defaultProviderTypeDirty = true
@@ -551,12 +529,6 @@ public class Complication internal constructor(
             }
             field = value
             defaultProviderTypeDirty = true
-
-            // The caller might modify a number of complications. For efficiency we need to
-            // coalesce these into one update task.
-            if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdate()
-            }
         }
 
     internal var accessibilityTraversalIndexDirty = true
@@ -579,12 +551,6 @@ public class Complication internal constructor(
             }
             field = value
             accessibilityTraversalIndexDirty = true
-
-            // The caller might enable/disable a number of complications. For efficiency we need
-            // to coalesce these into one update task.
-            if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdate()
-            }
         }
 
     internal var dataDirty = true

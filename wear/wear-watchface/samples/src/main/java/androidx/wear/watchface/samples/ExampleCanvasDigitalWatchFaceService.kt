@@ -638,15 +638,20 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             colorStyleSetting,
             complicationsManager
         )
-        upperComplication.complicationData.addObserver {
-            // Force bounds recalculation, because this can affect the size of the central time
-            // display.
-            renderer.oldBounds.set(0, 0, 0, 0)
-        }
-        lowerComplication.complicationData.addObserver {
-            // Force bounds recalculation, because this can affect the size of the central time
-            // display.
-            renderer.oldBounds.set(0, 0, 0, 0)
+
+        // createWatchFace is called on a worker thread but the observers should be called from the
+        // UiThread.
+        getUiThreadHandler().post {
+            upperComplication.complicationData.addObserver {
+                // Force bounds recalculation, because this can affect the size of the central time
+                // display.
+                renderer.oldBounds.set(0, 0, 0, 0)
+            }
+            lowerComplication.complicationData.addObserver {
+                // Force bounds recalculation, because this can affect the size of the central time
+                // display.
+                renderer.oldBounds.set(0, 0, 0, 0)
+            }
         }
         return WatchFace(WatchFaceType.DIGITAL, renderer)
     }

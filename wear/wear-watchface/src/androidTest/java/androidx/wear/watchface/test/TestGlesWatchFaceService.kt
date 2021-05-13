@@ -79,7 +79,7 @@ internal class TestGlesWatchFaceService(
 
     override fun getMutableWatchState() = mutableWatchState
 
-    override fun getHandler() = handler
+    override fun getUiThreadHandlerImpl() = handler
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
