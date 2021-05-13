@@ -37,6 +37,10 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    lintOptions {
+        // Bug in Android Lint 7.0.0-alpha15 b/187419330
+        disable("MissingLeanbackLauncher", "ImpliedTouchscreenHardware", "MissingLeanbackSupport")
+    }
 }
 
 // Allow usage of Kotlin's @OptIn.

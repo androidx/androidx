@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
@@ -24,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("UnstableApiUsage")
 @RunWith(JUnit4::class)
 class BanInappropriateExperimentalUsageTest {
 
@@ -90,12 +91,14 @@ class BanInappropriateExperimentalUsageTest {
             .issues(BanInappropriateExperimentalUsage.ISSUE)
             .run()
             .expect(
+                /* ktlint-enable max-line-length */
                 """
-                consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:25: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:25: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
                     @ExperimentalSampleAnnotationJava
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
+                /* ktlint-enable max-line-length */
             )
     }
 }

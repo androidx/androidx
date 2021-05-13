@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.startup.lint
 
 import androidx.startup.lint.Stubs.INITIALIZER
@@ -22,6 +24,7 @@ import androidx.startup.lint.Stubs.TEST_INITIALIZER_JAVA
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class InitializerConstructorTest {
@@ -50,6 +53,7 @@ class InitializerConstructorTest {
             .expectClean()
     }
 
+    @Ignore("b/187539166")
     @Test
     fun testFailureWhenZeroNoArgumentConstructorsArePresent() {
         val component: TestFile = kotlin(

@@ -21,6 +21,7 @@ import androidx.appcompat.res.ColorStateListLoadingDetector
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class ColorStateListLoadingDetectorTest {
@@ -62,6 +63,7 @@ class ColorStateListLoadingDetectorTest {
             .expectClean()
     }
 
+    @Ignore("b/187524984")
     @Test
     fun testCoreGetColorStateListApi24() {
         val customActivity = kotlin(
@@ -121,6 +123,7 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
         /* ktlint-enable max-line-length */
     }
 
+    @Ignore("b/187524984")
     @Test
     fun testCoreGetColorStateListApi14() {
         val customActivity = kotlin(

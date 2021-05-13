@@ -99,6 +99,7 @@ internal class RxDataStoreSingletonDelegate internal constructor(
 
                 INSTANCE = with(RxPreferenceDataStoreBuilder(applicationContext, fileName)) {
                     setIoScheduler(scheduler)
+                    @Suppress("NewApi", "ClassVerificationFailure") // b/187418647
                     produceMigrations(applicationContext).forEach {
                         addDataMigration(it)
                     }

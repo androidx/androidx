@@ -17,7 +17,6 @@
 package androidx.security.identity;
 
 import android.content.Context;
-import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -112,12 +111,10 @@ class SoftwareWritableIdentityCredential extends WritableIdentityCredential {
                     .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512);
 
             // Attestation is only available in Nougat and onwards.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                if (challenge == null) {
-                    challenge = new byte[0];
-                }
-                builder.setAttestationChallenge(challenge);
+            if (challenge == null) {
+                challenge = new byte[0];
             }
+            builder.setAttestationChallenge(challenge);
             kpg.initialize(builder.build());
             mKeyPair = kpg.generateKeyPair();
 

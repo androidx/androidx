@@ -52,18 +52,5 @@ function buildAndroidx() {
   $SCRIPT_DIR/impl/parse_profile_htmls.sh
 }
 
-function exportTransformsDir() {
-  echo exporting transforms directory
-  destDir="$DIST_DIR/transforms-2/files-2.1"
-  mkdir -p "$destDir"
-  zip -r "$DIST_DIR/transforms.zip" "$OUT_DIR/.gradle/caches/transforms-2/files-2.1"
-}
-
-#if buildAndroidx; then
-#  echo build succeeded
-#else
-#  # b/162260809 export transforms directory to help identify cause of corrupt/missing files
-#  exportTransformsDir
-#  exit 1
-#fi
+buildAndroidx
 echo "Completing $0 at $(date)"

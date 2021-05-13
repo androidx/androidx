@@ -71,6 +71,7 @@ internal class ChannelManager<T>(
     /**
      * Actor that does all the work. Any state and functionality should go here.
      */
+    @Suppress("SyntheticAccessor")
     private inner class Actor : StoreRealActor<Message<T>>(scope) {
 
         private val buffer = Buffer<T>(bufferSize)

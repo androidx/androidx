@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class TestSizeAnnotationEnforcerTest : LintDetectorTest() {
     override fun getDetector(): Detector = TestSizeAnnotationEnforcer()
@@ -90,12 +89,14 @@ class TestSizeAnnotationEnforcerTest : LintDetectorTest() {
         )
             .run()
             .expect(
+                /* ktlint-disable max-line-length */
 """
-src/test/androidx/ui/foo/).kt:8: Error: Unexpected test size annotation [UnexpectedTestSizeAnnotation]
+src/test/androidx/ui/foo/Test.kt:8: Error: Unexpected test size annotation [UnexpectedTestSizeAnnotation]
                 @MediumTest
                 ~~~~~~~~~~~
 1 errors, 0 warnings
 """
+                /* ktlint-enable max-line-length */
             )
     }
 
@@ -117,12 +118,14 @@ src/test/androidx/ui/foo/).kt:8: Error: Unexpected test size annotation [Unexpec
         )
             .run()
             .expect(
+                /* ktlint-disable max-line-length */
                 """
-src/androidTest/androidx/ui/foo/).kt:7: Error: Unsupported test runner. Supported runners are: [androidx.test.ext.junit.runners.AndroidJUnit4, org.junit.runners.Parameterized] [UnsupportedTestRunner]
+src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Supported runners are: [androidx.test.ext.junit.runners.AndroidJUnit4, org.junit.runners.Parameterized] [UnsupportedTestRunner]
                 @RunWith(JUnit4::class)
                          ~~~~~~~~~~~~~
 1 errors, 0 warnings
             """
+                /* ktlint-enable max-line-length */
             )
     }
 
@@ -250,12 +253,14 @@ src/androidTest/androidx/ui/foo/).kt:7: Error: Unsupported test runner. Supporte
         )
             .run()
             .expect(
+                /* ktlint-disable max-line-length */
                 """
-src/androidTest/androidx/ui/foo/).kt:16: Error: Missing test size annotation [MissingTestSizeAnnotation]
+src/androidTest/androidx/ui/foo/Test.kt:16: Error: Missing test size annotation [MissingTestSizeAnnotation]
                     fun bar() {}
                         ~~~
 1 errors, 0 warnings
                 """
+                /* ktlint-enable max-line-length */
             )
     }
 
@@ -286,15 +291,17 @@ src/androidTest/androidx/ui/foo/).kt:16: Error: Missing test size annotation [Mi
         )
             .run()
             .expect(
+                /* ktlint-disable max-line-length */
                 """
-src/androidTest/androidx/ui/foo/).kt:11: Error: Missing test size annotation [MissingTestSizeAnnotation]
+src/androidTest/androidx/ui/foo/Test.kt:11: Error: Missing test size annotation [MissingTestSizeAnnotation]
                     fun foo() {}
                         ~~~
-src/androidTest/androidx/ui/foo/).kt:14: Error: Missing test size annotation [MissingTestSizeAnnotation]
+src/androidTest/androidx/ui/foo/Test.kt:14: Error: Missing test size annotation [MissingTestSizeAnnotation]
                     fun bar() {}
                         ~~~
 2 errors, 0 warnings
                 """
+                /* ktlint-enable max-line-length */
             )
     }
 
@@ -331,7 +338,6 @@ src/androidTest/androidx/ui/foo/).kt:14: Error: Missing test size annotation [Mi
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */
 
 private val RunWith = kotlin(
     """

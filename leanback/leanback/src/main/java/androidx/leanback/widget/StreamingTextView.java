@@ -292,11 +292,7 @@ class StreamingTextView extends EditText {
     }
 
     public static boolean isLayoutRtl(View view) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return View.LAYOUT_DIRECTION_RTL == view.getLayoutDirection();
-        } else {
-            return false;
-        }
+        return View.LAYOUT_DIRECTION_RTL == view.getLayoutDirection();
     }
 
     public void updateRecognizedText(String stableText, List<Float> rmsValues) {}

@@ -40,9 +40,9 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
         // If not within an SDK check, flag
         if (!isWithinVersionCheckConditional(
-                context.evaluator, node, SdkVersionInfo.HIGHEST_KNOWN_API, false
+                context, node, SdkVersionInfo.HIGHEST_KNOWN_API, false
             ) && !isWithinVersionCheckConditional(
-                    context.evaluator, node, 1, true
+                    context, node, 1, true
                 )
         ) {
 

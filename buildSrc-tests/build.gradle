@@ -48,3 +48,8 @@ tasks["ktlintFormat"].configure({ t ->
     t.workingDir = ktlintDir
     t.args = t.args + ktlintIncludes
 })
+
+// Broken in AGP 7.0-alpha15 due to b/180408027
+tasks["lint"].configure { t ->
+    t.enabled = false
+}

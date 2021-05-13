@@ -1,5 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TARGET_ID = 1;"
+        errorLine2="                        ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="43"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int EXCLUDE_ID = 2;"
+        errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="45"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int EXCLUDE_CLASS = 3;"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="47"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TARGET_NAME = 4;"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="49"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int EXCLUDE_NAME = 5;"
+        errorLine2="                           ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="51"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TO_SCENE = 1;"
+        errorLine2="                       ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="65"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TRANSITION = 2;"
+        errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="67"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int DURATION = 1;"
+        errorLine2="                       ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="82"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int START_DELAY = 2;"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="84"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int MATCH_ORDER = 3;"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="86"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int REPARENT_WITH_OVERLAY = 1;"
+        errorLine2="                                    ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="129"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int MINIMUM_VERTICAL_ANGLE = 1;"
+        errorLine2="                                     ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="163"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int MAXIMUM_ANGLE = 2;"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="165"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="SoonBlockedPrivateApi"
+        message="Reflective access to mDrawMatrix will throw an exception when targeting API 30 and above"
+        errorLine1="                sDrawMatrixField = ImageView.class.getDeclaredField(&quot;mDrawMatrix&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ImageViewUtils.java"
+            line="102"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SoonBlockedPrivateApi"
+        message="Reflective access to mViewFlags will throw an exception when targeting API 30 and above"
+        errorLine1="                sViewFlagsField = View.class.getDeclaredField(&quot;mViewFlags&quot;);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsBase.java"
+            line="157"
+            column="35"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"

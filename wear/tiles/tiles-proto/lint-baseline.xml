@@ -1,5 +1,1743 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidStringExtra` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="217"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="302"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidIntExtra` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="525"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="581"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidLongExtra` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="804"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="860"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidDoubleExtra` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="1083"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="1139"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidBooleanExtra` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="1362"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="1418"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidExtra` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="2013"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="2281"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidActivity` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="2823"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="3108"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `LaunchAction` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="3392"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="3479"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `LoadAction` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="3763"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="3856"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Action` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="4222"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ActionProto.java"
+            line="4346"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ColorProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ColorProto.java"
+            line="172"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ColorProto.java"
+            line="228"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `DeviceParameters` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DeviceParametersProto.java"
+            line="679"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DeviceParametersProto.java"
+            line="950"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `DpProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="172"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="228"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `SpProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="451"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="507"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `EmProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="730"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="786"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `DegreesProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1009"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1065"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ExpandedDimensionProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1242"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1258"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `WrappedDimensionProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1432"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1448"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ProportionalDimensionProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1730"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="1826"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ContainerDimension` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="2269"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="2441"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ImageDimension` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="2887"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="3059"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `SpacerDimension` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="3387"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/DimensionProto.java"
+            line="3487"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TileAddEvent` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="172"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="228"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TileRemoveEvent` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="451"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="507"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TileEnterEvent` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="732"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="788"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TileLeaveEvent` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="1013"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/EventProto.java"
+            line="1069"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `HorizontalAlignmentProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="1547"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="1629"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `VerticalAlignmentProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="1888"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="1970"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `FontWeightProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="2229"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="2311"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `FontVariantProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="2570"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="2652"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `SpanVerticalAlignmentProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="2911"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="2993"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `FontStyle` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="3947"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="4514"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TextAlignmentProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="4780"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="4862"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TextOverflowProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="5121"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="5203"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcAnchorTypeProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="5462"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="5544"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Text` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="6522"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="7107"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ContentScaleModeProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="7345"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="7407"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Image` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="8119"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="8508"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Spacer` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="9007"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="9248"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Box` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="10173"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="10716"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `SpanText` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="11213"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="11448"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `SpanImage` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="12147"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="12530"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Span` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="12905"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="13029"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Spannable` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="14055"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="14670"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Column` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="15506"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="15978"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Row` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="16813"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="17285"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Arc` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="18162"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="18670"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcText` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="19162"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="19397"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcLine` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="19979"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="20279"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcSpacer` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="20761"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="20990"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcAdapter` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="21418"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="21612"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `LayoutElement` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="22431"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="22843"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcLayoutElement` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="23371"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="23591"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Layout` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="23873"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/LayoutElementProto.java"
+            line="23960"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Clickable` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="330"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="492"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Semantics` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="773"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="863"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Padding` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="1583"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="1984"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Border` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="2366"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="2524"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Corner` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="2801"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="2888"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Background` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="3289"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="3465"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Modifiers` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="4166"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="4549"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ArcModifiers` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="4949"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="5119"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `SpanModifiers` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="5406"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ModifiersProto.java"
+            line="5499"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TileRequest` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/RequestProto.java"
+            line="328"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/RequestProto.java"
+            line="486"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ResourcesRequest` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/RequestProto.java"
+            line="1048"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/RequestProto.java"
+            line="1341"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `AndroidImageResourceByResId` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="287"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="346"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `InlineImageResource` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="784"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="1007"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `ImageResource` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="1392"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="1550"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Resources` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="2021"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/ResourceProto.java"
+            line="2257"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `State` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/StateProto.java"
+            line="217"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/StateProto.java"
+            line="302"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Tile` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TileProto.java"
+            line="485"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TileProto.java"
+            line="764"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TimeInterval` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TimelineProto.java"
+            line="222"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TimelineProto.java"
+            line="318"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `TimelineEntry` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TimelineProto.java"
+            line="697"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TimelineProto.java"
+            line="855"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Timeline` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TimelineProto.java"
+            line="1255"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TimelineProto.java"
+            line="1419"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `Int32Prop` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="172"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="228"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `StringProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="496"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="581"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `FloatProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="804"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="860"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `BoolProp` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="1083"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/TypesProto.java"
+            line="1139"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `DEFAULT_INSTANCE` of class `VersionInfo` requires synthetic accessor"
+        errorLine1="        super(DEFAULT_INSTANCE);"
+        errorLine2="              ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/VersionProto.java"
+            line="234"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Builder` requires synthetic accessor"
+        errorLine1="          return new Builder();"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="../../../../../out/androidx/wear/tiles/tiles-proto/build/generated/source/proto/main/java/androidx/wear/tiles/proto/VersionProto.java"
+            line="339"
+            column="18"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
