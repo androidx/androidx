@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
@@ -221,7 +222,7 @@ public final class AppSearchImpl implements Closeable {
         appSearchImpl.initializeVisibilityStore();
         long prepareVisibilityStoreLatencyEndMillis = SystemClock.elapsedRealtime();
 
-        if (logger != null && initStatsBuilder != null) {
+        if (logger != null) {
             initStatsBuilder
                     .setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis))
@@ -265,9 +266,7 @@ public final class AppSearchImpl implements Closeable {
 
             if (initStatsBuilder != null) {
                 initStatsBuilder
-                        .setStatusCode(
-                                statusProtoToAppSearchException(
-                                        initializeResultProto.getStatus()).getResultCode())
+                        .setStatusCode(statusProtoToResultCode(initializeResultProto.getStatus()))
                         // TODO(b/173532925) how to get DeSyncs value
                         .setHasDeSync(false);
                 AppSearchLoggerHelper.copyNativeStats(
@@ -290,8 +289,7 @@ public final class AppSearchImpl implements Closeable {
                 Log.w(TAG, "Error initializing, resetting IcingSearchEngine.", e);
                 if (initStatsBuilder != null && getAllNamespacesResultProto != null) {
                     initStatsBuilder.setStatusCode(
-                            statusProtoToAppSearchException(
-                                    getAllNamespacesResultProto.getStatus()).getResultCode())
+                            statusProtoToResultCode(getAllNamespacesResultProto.getStatus()))
                             .setPrepareSchemaAndNamespacesLatencyMillis(
                                     (int) (SystemClock.elapsedRealtime()
                                             - prepareSchemaAndNamespacesLatencyStartMillis));
@@ -632,10 +630,9 @@ public final class AppSearchImpl implements Closeable {
             addToMap(mNamespaceMapLocked, prefix, documentBuilder.getNamespace());
 
             // Logging stats
-            if (logger != null && pStatsBuilder != null) {
+            if (pStatsBuilder != null) {
                 pStatsBuilder.getGeneralStatsBuilder().setStatusCode(
-                        statusProtoToAppSearchException(putResultProto.getStatus())
-                                .getResultCode());
+                        statusProtoToResultCode(putResultProto.getStatus()));
                 pStatsBuilder
                         .setGenerateDocumentProtoLatencyMillis(
                                 (int) (generateDocumentProtoEndTimeMillis
@@ -651,7 +648,7 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.writeLock().unlock();
 
-            if (logger != null && pStatsBuilder != null) {
+            if (logger != null) {
                 long totalEndTimeMillis = SystemClock.elapsedRealtime();
                 pStatsBuilder.getGeneralStatsBuilder().setTotalLatencyMillis(
                         (int) (totalEndTimeMillis - totalStartTimeMillis));
@@ -774,7 +771,7 @@ public final class AppSearchImpl implements Closeable {
                     sStatsBuilder);
         } finally {
             mReadWriteLock.readLock().unlock();
-            if (logger != null && sStatsBuilder != null) {
+            if (logger != null) {
                 sStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
                 logger.logStats(sStatsBuilder.build());
@@ -854,9 +851,10 @@ public final class AppSearchImpl implements Closeable {
                     }
                 } else {
                     // Client didn't specify certain schemas to search over, check all schemas
-                    Set<String> prefixedSchemas = mSchemaMapLocked.get(prefix).keySet();
+                    Map<String, SchemaTypeConfigProto> prefixedSchemas =
+                            mSchemaMapLocked.get(prefix);
                     if (prefixedSchemas != null) {
-                        for (String prefixedSchema : prefixedSchemas) {
+                        for (String prefixedSchema : prefixedSchemas.keySet()) {
                             if (packageName.equals(callerPackageName)
                                     || mVisibilityStoreLocked.isSchemaSearchableByCaller(
                                     packageName, databaseName, prefixedSchema, callerUid)) {
@@ -872,7 +870,7 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.readLock().unlock();
 
-            if (logger != null && sStatsBuilder != null) {
+            if (logger != null) {
                 sStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
                 logger.logStats(sStatsBuilder.build());
@@ -973,8 +971,7 @@ public final class AppSearchImpl implements Closeable {
 
         if (sStatsBuilder != null) {
             sStatsBuilder
-                    .setStatusCode(statusProtoToAppSearchException(
-                            searchResultProto.getStatus()).getResultCode())
+                    .setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()))
                     .setRewriteSearchSpecLatencyMillis((int) (rewriteSearchSpecLatencyEndMillis
                             - rewriteSearchSpecLatencyStartMillis));
             AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(), sStatsBuilder);
@@ -1529,15 +1526,17 @@ public final class AppSearchImpl implements Closeable {
 
             // Empty namespaces on the search spec means to query over all namespaces.
             Set<String> existingNamespaces = mNamespaceMapLocked.get(prefix);
-            if (namespaceFilters.isEmpty()) {
-                // Include all namespaces
-                searchSpecBuilder.addAllNamespaceFilters(existingNamespaces);
-            } else {
-                // Prefix the given namespaces.
-                for (int i = 0; i < namespaceFilters.size(); i++) {
-                    String prefixedNamespace = prefix + namespaceFilters.get(i);
-                    if (existingNamespaces.contains(prefixedNamespace)) {
-                        searchSpecBuilder.addNamespaceFilters(prefixedNamespace);
+            if (existingNamespaces != null) {
+                if (namespaceFilters.isEmpty()) {
+                    // Include all namespaces
+                    searchSpecBuilder.addAllNamespaceFilters(existingNamespaces);
+                } else {
+                    // Prefix the given namespaces.
+                    for (int i = 0; i < namespaceFilters.size(); i++) {
+                        String prefixedNamespace = prefix + namespaceFilters.get(i);
+                        if (existingNamespaces.contains(prefixedNamespace)) {
+                            searchSpecBuilder.addNamespaceFilters(prefixedNamespace);
+                        }
                     }
                 }
             }
@@ -1636,6 +1635,9 @@ public final class AppSearchImpl implements Closeable {
         Map<String, List<String>> packageAndNamespaceToNamespaces = new ArrayMap<>();
         for (String prefix : existingPrefixes) {
             Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
+            if (prefixedNamespaces == null) {
+                continue;
+            }
             String packageName = getPackageName(prefix);
             // Create a new prefix without the database name. This will allow us to group namespaces
             // that have the same name and package but a different database name together.
@@ -1689,6 +1691,9 @@ public final class AppSearchImpl implements Closeable {
         Map<String, List<String>> packageToNamespacesMap = new ArrayMap<>();
         for (String prefix : existingPrefixes) {
             Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
+            if (prefixedNamespaces == null) {
+                continue;
+            }
             String packageName = getPackageName(prefix);
             List<String> packageNamespaceList = packageToNamespacesMap.get(packageName);
             if (packageNamespaceList == null) {
@@ -1728,6 +1733,9 @@ public final class AppSearchImpl implements Closeable {
         Map<String, List<String>> namespaceToPrefixedNamespaces = new ArrayMap<>();
         for (String prefix : existingPrefixes) {
             Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
+            if (prefixedNamespaces == null) {
+                continue;
+            }
             for (String prefixedNamespace : prefixedNamespaces) {
                 String namespace;
                 try {
@@ -1824,7 +1832,9 @@ public final class AppSearchImpl implements Closeable {
             return;
         }
 
-        throw statusProtoToAppSearchException(statusProto);
+        throw new AppSearchException(
+                ResultCodeToProtoConverter.toResultCode(statusProto.getCode()),
+                statusProto.getMessage());
     }
 
     /**
@@ -1950,16 +1960,16 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
-     * Converts an erroneous status code to an AppSearchException. Callers should ensure that
-     * the status code is not OK or WARNING_DATA_LOSS.
+     * Converts an erroneous status code from the Icing status enums to the AppSearchResult enums.
      *
-     * @param statusProto StatusProto with error code and message to translate into
-     *                    AppSearchException.
-     * @return AppSearchException with the parallel error code.
+     * <p>Callers should ensure that the status code is not OK or WARNING_DATA_LOSS.
+     *
+     * @param statusProto StatusProto with error code to translate into an
+     *                    {@link AppSearchResult} code.
+     * @return {@link AppSearchResult} error code
      */
-    private static AppSearchException statusProtoToAppSearchException(StatusProto statusProto) {
-        return new AppSearchException(
-                ResultCodeToProtoConverter.toResultCode(statusProto.getCode()),
-                statusProto.getMessage());
+    private static @AppSearchResult.ResultCode int statusProtoToResultCode(
+            @NonNull StatusProto statusProto) {
+        return ResultCodeToProtoConverter.toResultCode(statusProto.getCode());
     }
 }
