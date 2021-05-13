@@ -56,7 +56,7 @@ fun Chip(
     shape: Shape = MaterialTheme.shapes.small,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     indication: Indication? = LocalIndication.current,
-    role: Role? = null,
+    role: Role? = Role.Button,
     content: @Composable () -> Unit,
 ) {
     Surface(
@@ -74,7 +74,7 @@ fun Chip(
                     painter = colors.background(enabled = enabled).value,
                 )
 
-        val contentBoxModifier = modifier
+        val contentBoxModifier = Modifier
             .clickable(
                 enabled = enabled,
                 onClickLabel = onClickLabel,
@@ -137,19 +137,28 @@ interface ChipColors {
  * Contains the default values used by [Chip]
  */
 public object ChipDefaults {
-    val primaryChipColors: ChipColors
-        @Composable
-        get() = chipColors(
-            backgroundColor = MaterialTheme.colors.primary,
-            contentColor = MaterialTheme.colors.onPrimary
-        )
 
-    val secondaryChipColors: ChipColors
-        @Composable
-        get() = chipColors(
-            backgroundColor = MaterialTheme.colors.surface,
-            contentColor = MaterialTheme.colors.onSurface,
+    @Composable
+    public fun primaryChipColors(
+        backgroundColor: Color = MaterialTheme.colors.primary,
+        contentColor: Color = contentColorFor(backgroundColor)
+    ): ChipColors {
+        return chipColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor
         )
+    }
+
+    @Composable
+    public fun secondaryChipColors(
+        backgroundColor: Color = MaterialTheme.colors.surface,
+        contentColor: Color = contentColorFor(backgroundColor)
+    ): ChipColors {
+        return chipColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor
+        )
+    }
 
     private val ChipHorizontalPadding = 16.dp
     private val ChipVerticalPadding = 6.dp
