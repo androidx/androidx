@@ -309,14 +309,14 @@ public final class CaptureConfig {
 
         /** Gets a tag's value by a key. */
         @Nullable
-        public Integer getTag(@NonNull String key) {
+        public Object getTag(@NonNull String key) {
             return mMutableTagBundle.getTag(key);
         }
 
         /**
          * Sets a tag with a key to CaptureConfig.
          */
-        public void addTag(@NonNull String key, @NonNull Integer tag) {
+        public void addTag(@NonNull String key, @NonNull Object tag) {
             mMutableTagBundle.putTag(key, tag);
         }
 

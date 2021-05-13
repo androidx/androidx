@@ -248,7 +248,7 @@ final class ProcessingSurface extends DeferrableSurface {
             return;
         }
 
-        Integer tagValue = imageInfo.getTagBundle().getTag(mTagBundleKey);
+        Integer tagValue = (Integer) imageInfo.getTagBundle().getTag(mTagBundleKey);
         if (tagValue == null) {
             image.close();
             return;

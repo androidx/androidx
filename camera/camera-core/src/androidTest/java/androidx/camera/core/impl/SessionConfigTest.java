@@ -563,7 +563,7 @@ public class SessionConfigTest {
     @Test
     public void combineTwoSessionsTagsValid() {
         SessionConfig session0 = createSessionConfigWithTag("TEST00", 0);
-        SessionConfig session1 = createSessionConfigWithTag("TEST01", 1);
+        SessionConfig session1 = createSessionConfigWithTag("TEST01", "String");
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(session0);
@@ -576,10 +576,10 @@ public class SessionConfigTest {
         TagBundle tag = sessionCombined.getRepeatingCaptureConfig().getTagBundle();
 
         assertThat(tag.getTag("TEST00")).isEqualTo(0);
-        assertThat(tag.getTag("TEST01")).isEqualTo(1);
+        assertThat(tag.getTag("TEST01")).isEqualTo("String");
     }
 
-    private SessionConfig createSessionConfigWithTag(String key, int tagValue) {
+    private SessionConfig createSessionConfigWithTag(String key, Object tagValue) {
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
