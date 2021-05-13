@@ -1,7 +1,403 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
+            line="41"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
+            line="45"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
+            line="49"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
+            line="53"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
+            line="57"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
+            line="41"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
+            line="47"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
+            line="53"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
+            line="59"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
+            line="65"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
+            line="41"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
+            line="49"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
+            line="57"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
+            line="65"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
+            line="73"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Exception requires API level 17 (current min is 17): `android.view.WindowManager.InvalidDisplayException`, and having a surrounding/preceding version check **does not** help since prior to API level 19, just **loading** the class will cause a crash. Consider marking the surrounding class with `RequiresApi(19)` to ensure that the class is never loaded except when on API 19 or higher."
+        errorLine1="                } catch (WindowManager.InvalidDisplayException ex) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
+            line="444"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;class>` requires API level 24 (current min is 14)"
+        errorLine1="    class=&quot;com.example.android.supportv7.drawable.MyDrawable&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/my_drawable.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="VectorDrawableCompat"
+        message="To use VectorDrawableCompat, you need to set `android.defaultConfig.vectorDrawables.useSupportLibrary = true` in `:support-v7-demos/build.gradle`"
+        errorLine1="               app:srcCompat=&quot;@drawable/animation_vector_drawable_grouping_1&quot;/>"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v11/appcompat_animated_vector.xml"
+            line="27"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.action_bar_tab_content` appears to be unused"
+        errorLine1="&lt;TextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/action_bar_tab_content.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.action_bar_tabs` appears to be unused"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/action_bar_tabs.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.xml.preferences` appears to be unused"
+        errorLine1="&lt;PreferenceScreen xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/xml/preferences.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.sample_media_controller` appears to be unused"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/sample_media_controller.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.selection_demo_item` appears to be unused"
+        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/color/selection_demo_item.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sample_media_router_text` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sample_media_router_text&quot;>This activity demonstrates how to"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.variable_volume_route_group_name` appears to be unused"
+        errorLine1="    &lt;string name=&quot;variable_volume_route_group_name&quot;>Variable Volume Route Group&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="46"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.mixed_volume_route_group_name` appears to be unused"
+        errorLine1="    &lt;string name=&quot;mixed_volume_route_group_name&quot;>Mixed Volume Route Group&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sample_dynamic_group_mrp_service` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sample_dynamic_group_mrp_service&quot;>Media Route Provider Service Support Library Sample (supporting dynamic group)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="50"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.action_bar_tabs` appears to be unused"
+        errorLine1="    &lt;string name=&quot;action_bar_tabs&quot;>AppCompat/Action Bar/Action Bar Tabs&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="73"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.action_bar_with_navigation_drawer` appears to be unused"
+        errorLine1="    &lt;string name=&quot;action_bar_with_navigation_drawer&quot;>AppCompat/Action Bar/Navigation Drawer Toggle&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="77"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.toggle_navigation` appears to be unused"
+        errorLine1="    &lt;string name=&quot;toggle_navigation&quot;>Navigation&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="109"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_add_tab` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_add_tab&quot;>Add new tab&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="116"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_remove_tab` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_remove_tab&quot;>Remove last tab&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="117"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_toggle_tabs` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_toggle_tabs&quot;>Toggle tab mode&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="118"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_remove_all_tabs` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_remove_all_tabs&quot;>Remove all tabs&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="119"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sliding_pane_layout_support` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sliding_pane_layout_support&quot;>Widget/Sliding pane layout&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="130"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sliding_pane_layout_summary` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sliding_pane_layout_summary&quot;>This activity illustrates the use of sliding panes."
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="132"
+            column="13"/>
+    </issue>
+
+ <issue
         id="OnClick"
         message="Corresponding method handler &apos;`public void onAddTab(android.view.View)`&apos; not found"
         errorLine1="                android:onClick=&quot;onAddTab&quot; />"
@@ -1035,7 +1431,7 @@
             column="13"/>
     </issue>
 
-    <issue
+ <issue
         id="UnusedResources"
         message="The resource `R.string.action_bar_with_navigation_drawer` appears to be unused"
         errorLine1="    &lt;string name=&quot;action_bar_with_navigation_drawer&quot;>AppCompat/Action Bar/Navigation Drawer Toggle&lt;/string>"
@@ -4698,7 +5094,7 @@
             column="29"/>
     </issue>
 
-    <issue
+     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"

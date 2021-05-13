@@ -50,6 +50,9 @@ android {
         minSdkVersion 23
         multiDexEnabled = true
     }
+    lintOptions {
+        disable("InvalidPackage")
+    }
 }
 
 androidx {

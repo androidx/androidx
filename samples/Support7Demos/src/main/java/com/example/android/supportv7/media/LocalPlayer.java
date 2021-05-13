@@ -325,13 +325,7 @@ public abstract class LocalPlayer extends Player implements
                     return;
                 }
                 if (mSurface != null) {
-                    // The setSurface API does not exist until V14+.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
-                    } else {
-                        throw new UnsupportedOperationException("MediaPlayer does not support "
-                                + "setSurface() on this version of the platform.");
-                    }
+                    ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
                 } else if (mSurfaceHolder != null) {
                     mMediaPlayer.setDisplay(mSurfaceHolder);
                 } else {

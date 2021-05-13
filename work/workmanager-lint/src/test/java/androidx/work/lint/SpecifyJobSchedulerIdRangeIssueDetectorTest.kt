@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.work.lint
 
 import androidx.work.lint.Stubs.JOB_SERVICE
 import androidx.work.lint.Stubs.WORK_MANAGER_CONFIGURATION_PROVIDER
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class SpecifyJobSchedulerIdRangeIssueDetectorTest {
 
+    @Ignore("b/187541663")
     @Test
     fun failWhenUsingCustomJobServiceAndIdsAreNotSpecified() {
         val service = kotlin(

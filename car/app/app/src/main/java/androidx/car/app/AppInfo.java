@@ -16,6 +16,8 @@
 
 package androidx.car.app;
 
+import static androidx.car.app.versioning.CarAppApiLevels.UNKNOWN;
+
 import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
@@ -117,9 +119,9 @@ public final class AppInfo {
 
     // Used for serialization
     private AppInfo() {
-        mMinCarAppApiLevel = 0;
+        mMinCarAppApiLevel = UNKNOWN;
         mLibraryVersion = null;
-        mLatestCarAppApiLevel = 0;
+        mLatestCarAppApiLevel = UNKNOWN;
     }
 
     /** @hide */

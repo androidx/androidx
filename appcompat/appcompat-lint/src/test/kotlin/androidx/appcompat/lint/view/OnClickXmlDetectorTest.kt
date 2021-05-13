@@ -22,6 +22,7 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class OnClickXmlDetectorTest {
@@ -85,6 +86,7 @@ class OnClickXmlDetectorTest {
         ).indented().within("src")
     }
 
+    @Ignore("b/187524984")
     @Test
     fun testCoreOnClickApi14() {
         // Manifest that sets min sdk to 14
@@ -128,6 +130,7 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
         /* ktlint-enable max-line-length */
     }
 
+    @Ignore("b/187524984")
     @Test
     fun testCoreOnClickApi23() {
         // Manifest that sets min sdk to 23

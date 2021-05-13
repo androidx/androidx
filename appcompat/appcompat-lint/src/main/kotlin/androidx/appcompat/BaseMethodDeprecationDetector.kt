@@ -16,6 +16,7 @@
 
 package androidx.appcompat
 
+import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
@@ -45,7 +46,7 @@ abstract class BaseMethodDeprecationDetector(
             node: UCallExpression,
             method: PsiMethod
         ): Boolean {
-            return context.mainProject.minSdkVersion.featureLevel >= sdkLevel
+            return context.getMinSdk() >= sdkLevel
         }
     }
 
@@ -55,7 +56,7 @@ abstract class BaseMethodDeprecationDetector(
             node: UCallExpression,
             method: PsiMethod
         ): Boolean {
-            return context.mainProject.minSdkVersion.featureLevel > sdkLevel
+            return context.getMinSdk() > sdkLevel
         }
     }
 
@@ -65,7 +66,7 @@ abstract class BaseMethodDeprecationDetector(
             node: UCallExpression,
             method: PsiMethod
         ): Boolean {
-            return context.mainProject.minSdkVersion.featureLevel <= sdkLevel
+            return context.getMinSdk() <= sdkLevel
         }
     }
 
@@ -75,7 +76,7 @@ abstract class BaseMethodDeprecationDetector(
             node: UCallExpression,
             method: PsiMethod
         ): Boolean {
-            return context.mainProject.minSdkVersion.featureLevel < sdkLevel
+            return context.getMinSdk() < sdkLevel
         }
     }
 
@@ -160,5 +161,17 @@ abstract class BaseMethodDeprecationDetector(
                 return
             }
         }
+    }
+}
+
+// Copied from ApiDetector.kt
+@Suppress("UnstableApiUsage")
+fun Context.getMinSdk(): Int {
+    val useProject = if (isGlobalAnalysis()) mainProject else project
+    return if (!useProject.isAndroidProject) {
+        // Don't flag API checks in non-Android projects
+        Integer.MAX_VALUE
+    } else {
+        useProject.minSdkVersion.featureLevel
     }
 }

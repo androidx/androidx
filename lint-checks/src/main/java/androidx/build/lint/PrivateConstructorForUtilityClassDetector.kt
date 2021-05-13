@@ -27,8 +27,10 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.intellij.lang.jvm.JvmModifier
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.PsiParameter
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UClass
@@ -74,6 +76,12 @@ class PrivateConstructorForUtilityClassDetector : Detector(), Detector.UastScann
                 "Utility class is missing private constructor"
             )
         }
+    }
+
+    private fun PsiModifierListOwner.isPrivateOrParameterInPrivateMethod(): Boolean {
+        if (hasModifier(JvmModifier.PRIVATE)) return true
+        val parentMethod = (this as? PsiParameter)?.declarationScope as? PsiMethod ?: return false
+        return parentMethod.hasModifier(JvmModifier.PRIVATE)
     }
 
     /**

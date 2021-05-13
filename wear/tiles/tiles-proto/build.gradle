@@ -96,6 +96,12 @@ protobuf {
             project.tasks.named("runErrorProne").configure {
                 it.dependsOn(task)
             }
+            project.tasks.named("lint").configure {
+                it.dependsOn(task)
+            }
+            project.tasks.named("lintAnalyze").configure {
+                it.dependsOn(task)
+            }
             task.builtins {
                 java {
                     option 'lite'

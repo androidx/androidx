@@ -178,18 +178,45 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
-application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
+application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
+\$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/emoji[0-9]+/emoji[0-9]+\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/benchmark\-utils/benchmark\-utils\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/material/material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/animation/animation\-core/animation\-core\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/foundation\-layout\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-text/ui\-text\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-graphics/ui\-graphics\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation\-layout/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
+\$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-graphics:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Float[0-9]+\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/runtime/runtime/compose\-runtime\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
 \[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
@@ -275,6 +302,7 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
 # > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/ads/ads\-identifier\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :internal-testutils-runtime:processDebugAndroidTestManifest
 # > Task :slice-benchmark:processReleaseAndroidTestManifest
@@ -296,6 +324,7 @@ Build testing_surface_format_.*
 # > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/emoji2/emoji2\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
 # > Task :leanback:leanback:processDebugAndroidTestManifest
@@ -333,11 +362,13 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :inte
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/recyclerview/recyclerview\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/room/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
@@ -372,6 +403,14 @@ warning: The following options were not recognized by any processor: '\[dagger\.
 # b/166471969
 .*androidTest.*AndroidManifest.*xml Warning.*:
 Package name.*test' used in: .*AndroidManifest.*xml.*
+\$SUPPORT/slices/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/appcompat/appcompat\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/collection/collection\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/navigation/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/work/workmanager\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \[:internal\-testutils\-espresso\] \$OUT_DIR/androidx/internal\-testutils\-espresso/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-espresso, :internal\-testutils\-runtime\.
 \$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -426,6 +465,8 @@ More than one file was found with OS independent path '.*'\. This version of the
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
+Package name 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
 \$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
 Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.
 # > Task :buildSrc:build UP-TO-DATE
@@ -447,6 +488,7 @@ Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-r
 # > Task :support-wear-demos:packageDebugAndroidTest
 PackagingOptions\.jniLibs\.useLegacyPackaging should be set to true because android:extractNativeLibs is set to "true" in AndroidManifest\.xml\.
 # > Task :camera:integration-tests:camera-testapp-camera2-pipe:dexBuilderDebug
+WARNING:\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-camera[0-9]+\-pipe/build/intermediates/jacoco_instrumented_classes/debug/out/androidx/camera/integration/camera[0-9]+/pipe/DebugKt\.class: D[0-9]+: Invalid stack map table at [0-9]+: aload [0-9]+, error: The expected type Initialized\(double\) is not assignable to java\.lang\.Object\.
 \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-camera[0-9]+\-pipe/build/intermediates/jacoco_instrumented_classes/debug/out/androidx/camera/integration/camera[0-9]+/pipe/DebugKt\.class: D[0-9]+: Invalid stack map table at [0-9]+: aload [0-9]+, error: The expected type Initialized\(double\) is not assignable to java\.lang\.Object\.
 # > Task :support-remotecallback-demos:lintDebug
 [0-9]+ errors\, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
@@ -460,6 +502,7 @@ w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/an
 # > Task :inspection:inspection-gradle-plugin:test
 There were failing tests\. See the report at: .*.html
 # > Task :compose:ui:ui:processDebugUnitTestManifest
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
 # > Task *:lintDebug
 # TODO: b/182321297 remove when this message isn't printed
@@ -482,14 +525,18 @@ java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorK
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitVerticalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint INT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformableKt\$detectZoom\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DraggableKt\$draggable\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+\(\$this\$fastAny\$iv\) by constraint FLOAT\.
 Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint FLOAT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformGestureDetectorKt\$detectTransformGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.lazy\.LazyListScrollingKt\$doSmoothScrollToItem\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint FLOAT\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: INT for value: v[0-9]+\(index\$iv\$iv\) by constraint FLOAT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.translatePointerEventsToChannel\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlinx\.coroutines\.CoroutineScope, kotlinx\.coroutines\.channels\.SendChannel, androidx\.compose\.runtime\.State, androidx\.compose\.runtime\.MutableState, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancellation\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.ForEachGestureKt\.forEachGesture\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 # > Task :preference:preference:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/preference\/preference\/src\/androidTest\/java\/androidx\/preference\/tests\/PreferenceDialogFragmentCompatTest\.kt\: \([0-9]+\, [0-9]+\)\: \'setTargetFragment\(Fragment\?\, Int\)\: Unit\' is deprecated\. Deprecated in Java
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
@@ -515,20 +562,28 @@ Unresolved function .*
 # > Task :compose:ui:ui-inspection:externalNativeBuildDebug
 Build compose_inspection_jni_.*
 # > Task :compose:foundation:foundation-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:material:material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/material/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/material\/material\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:foundation:foundation-layout:foundation-layout-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation\-layout/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-layout\/foundation\-layout\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-text:ui-text-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-text/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-text\/ui\-text\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:benchmark-utils:benchmark-utils-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/benchmark\-utils/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/benchmark\-utils\/benchmark\-utils\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:animation:animation-core:animation-core-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/animation/animation\-core/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/animation\/animation\-core\/animation\-core\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-graphics/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-graphics\/ui\-graphics\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :docs-public:doclavaDocs
 \$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
@@ -971,3 +1026,36 @@ Execution optimizations have been disabled for task ':benchmark:benchmark\-macro
 Error processing .* broken class file\? \(This feature requires ASM[0-9]+\)
 # > Task :profileinstaller:profileinstaller:processDebugUnitTestManifest
 \$SUPPORT/profileinstaller/profileinstaller/src/test/AndroidManifest\.xml Warning:
+Unknown flag --class-dir: Use --help for usage information
+Scanning .+: \.*
+\.+
+# > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-tooling/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+.*Unknown issue id.*
+No issues found.*
+Incorrect detector reported disabled issue.*
+Scanning .* \(Phase 2\):
+dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
+# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ methods\.
+Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\$requestLoop\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.graph\.Controller[0-9]+A\.submit[0-9]+A\(androidx\.camera\.camera[0-9]+\.pipe\.AeMode, androidx\.camera\.camera[0-9]+\.pipe\.AfMode, androidx\.camera\.camera[0-9]+\.pipe\.AwbMode, java\.util\.List, java\.util\.List, java\.util\.List, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.graph\.Controller[0-9]+A\.lock[0-9]+A\(java\.util\.List, java\.util\.List, java\.util\.List, androidx\.camera\.camera[0-9]+\.pipe\.Lock[0-9]+ABehavior, androidx\.camera\.camera[0-9]+\.pipe\.Lock[0-9]+ABehavior, androidx\.camera\.camera[0-9]+\.pipe\.Lock[0-9]+ABehavior, int, java\.lang\.Long, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\.openCameraWithRetry\-RzXb[0-9]+QE\(java\.lang\.String, kotlinx\.coroutines\.CoroutineScope, kotlin\.coroutines\.Continuation\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint INT\.
+Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
+# > Task :paging:paging-samples:reportLibraryMetrics
+java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorItemKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorPageKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
+# > Task :wear:wear-complications-data:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ method\.
+java\.lang\.Object androidx\.wear\.complications\.ProviderInfoRetriever\.retrievePreviewComplicationData\(android\.content\.ComponentName, androidx\.wear\.complications\.data\.ComplicationType, kotlin\.coroutines\.Continuation\)
+# > Task :wear:wear-watchface-editor:reportLibraryMetrics
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.getPreviewData\$wear_watchface_editor_release\(androidx\.wear\.complications\.ProviderInfoRetriever, androidx\.wear\.complications\.ComplicationProviderInfo, kotlin\.coroutines\.Continuation\)
+# > Task :work:work-runtime-ktx:reportLibraryMetrics
+java\.lang\.Object androidx\.work\.OperationKt\.await\(androidx\.work\.Operation, kotlin\.coroutines\.Continuation\)
+# > Task :compose:material:material:reportLibraryMetrics
+java\.lang\.Object androidx\.compose\.material\.SnackbarHostState\.showSnackbar\(java\.lang\.String, java\.lang\.String, androidx\.compose\.material\.SnackbarDuration, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.material\.SwipeableState\.processNewAnchors\$material_release\(java\.util\.Map, java\.util\.Map, kotlin\.coroutines\.Continuation\)

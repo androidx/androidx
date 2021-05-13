@@ -16,6 +16,7 @@
 
 package androidx.appcompat.view
 
+import androidx.appcompat.getMinSdk
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
@@ -48,7 +49,7 @@ class OnClickXmlDetector : LayoutDetector() {
             // versions
             return
         }
-        if (context.mainProject.minSdkVersion.featureLevel < 23) {
+        if (context.getMinSdk() < 23) {
             // The resolution is not guaranteed to work on pre-23 versions of the platform
             context.report(
                 USING_ON_CLICK_IN_XML,

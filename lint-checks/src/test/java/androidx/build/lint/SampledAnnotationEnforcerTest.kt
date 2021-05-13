@@ -40,7 +40,7 @@ class SampledAnnotationEnforcerTest {
     private val fooModuleName = "foo"
     private val sampleModuleName = "samples"
 
-    private val barFilePath = "foo/src/foo/Bar.kt"
+    private val barFilePath = "../foo/src/foo/Bar.kt"
 
     private val emptySampleFile = kotlin(
         """
