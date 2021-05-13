@@ -57,12 +57,10 @@ public final class Trace {
      */
     @SuppressLint("NewApi")
     public static boolean isEnabled() {
-        try {
-            if (sIsTagEnabledMethod == null) {
-                return android.os.Trace.isEnabled();
-            }
-        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return TraceApi29Impl.isEnabled();
         }
+
         return isEnabledFallback();
     }
 
