@@ -164,7 +164,7 @@ public open class NavDestination(
      */
     @get:IdRes
     public var id: Int = 0
-        set(id) {
+        set(@IdRes id) {
             field = id
             idName = null
         }
