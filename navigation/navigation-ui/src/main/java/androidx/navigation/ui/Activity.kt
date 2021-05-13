@@ -26,7 +26,7 @@ import androidx.navigation.NavController
  *
  * By calling this method, the title in the action bar will automatically be updated when
  * the destination changes (assuming there is a valid
- * [label][androidx.navigation.NavDestination.getLabel]).
+ * [label][androidx.navigation.NavDestination.label]).
  *
  * The start destination of your navigation graph is considered the only top level
  * destination. On the start destination of your navigation graph, the ActionBar will show
@@ -56,7 +56,7 @@ public fun AppCompatActivity.setupActionBarWithNavController(
  *
  * By calling this method, the title in the action bar will automatically be updated when
  * the destination changes (assuming there is a valid
- * [label][androidx.navigation.NavDestination.getLabel]).
+ * [label][androidx.navigation.NavDestination.label]).
  *
  * The [AppBarConfiguration] you provide controls how the Navigation button is
  * displayed.

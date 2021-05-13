@@ -45,9 +45,7 @@ import androidx.annotation.IdRes
  */
 public interface NavHost {
     /**
-     * Returns the [navigation controller][NavController] for this navigation host.
-     *
-     * @return this host's navigation controller
+     * The [navigation controller][NavController] for this navigation host.
      */
     public val navController: NavController
 }

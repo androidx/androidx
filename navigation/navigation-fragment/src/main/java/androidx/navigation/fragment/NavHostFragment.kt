@@ -84,7 +84,7 @@ public open class NavHostFragment : Fragment(), NavHost {
     private var defaultNavHost = false
 
     /**
-     * Returns the [navigation controller][NavController] for this navigation host.
+     * The [navigation controller][NavController] for this navigation host.
      * This method will return null until this host fragment's [onCreate]
      * has been called and it has had an opportunity to restore from a previous instance state.
      *

@@ -28,21 +28,15 @@ public annotation class NavDestinationDsl
 @NavDestinationDsl
 public open class NavDestinationBuilder<out D : NavDestination> internal constructor(
     /**
-     * Returns the navigator the destination was created from
-     *
-     * @return this destination's navigator
+     * The navigator the destination was created from
      */
     protected val navigator: Navigator<out D>,
     /**
-     * Returns the destination's unique ID.
-     *
-     * @return this destination's ID
+     * The destination's unique ID.
      */
     @IdRes public val id: Int,
     /**
-     * Returns the destination's unique route.
-     *
-     * @return this destination's route
+     * The destination's unique route.
      */
     public val route: String?
 ) {
@@ -214,7 +208,7 @@ public class NavArgumentBuilder {
     private var _type: NavType<*>? = null
 
     /**
-     * Sets the NavType for this argument.
+     * The NavType for this argument.
      *
      * If you don't set a type explicitly, it will be inferred
      * from the default value of this argument.

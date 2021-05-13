@@ -85,9 +85,7 @@ public inline fun NavGraphBuilder.navigation(
 @NavDestinationDsl
 public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     /**
-     * Retrieve the [NavGraphBuilder]'s [NavigatorProvider].
-     *
-     * @return The [NavigatorProvider] used by this [NavGraphBuilder].
+     * The [NavGraphBuilder]'s [NavigatorProvider].
      */
     public val provider: NavigatorProvider
     @IdRes private var startDestinationId: Int = 0

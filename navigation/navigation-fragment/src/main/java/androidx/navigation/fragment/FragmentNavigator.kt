@@ -264,18 +264,15 @@ public open class FragmentNavigator(
 
     /**
      * NavDestination specific to [FragmentNavigator]
-     */
-    @NavDestination.ClassType(Fragment::class)
-    public open class Destination
-    /**
+     *
      * Construct a new fragment destination. This destination is not valid until you set the
      * Fragment via [setClassName].
      *
-     * @param fragmentNavigator The [FragmentNavigator] which this destination
-     * will be associated with. Generally retrieved via a
-     * [NavController]'s
-     * [NavigatorProvider.getNavigator] method.
+     * @param fragmentNavigator The [FragmentNavigator] which this destination will be associated
+     * with. Generally retrieved via a [NavController]'s [NavigatorProvider.getNavigator] method.
      */
+    @NavDestination.ClassType(Fragment::class)
+    public open class Destination
     public constructor(fragmentNavigator: Navigator<out Destination>) :
         NavDestination(fragmentNavigator) {
 
@@ -311,7 +308,7 @@ public open class FragmentNavigator(
 
         private var _className: String? = null
         /**
-         * Gets the Fragment's class name associated with this destination
+         * The Fragment's class name associated with this destination
          *
          * @throws IllegalStateException when no Fragment class was set.
          */
@@ -342,7 +339,7 @@ public open class FragmentNavigator(
         private val _sharedElements = LinkedHashMap<View, String>()
 
         /**
-         * Gets the map of shared elements associated with these Extras. The returned map
+         * The map of shared elements associated with these Extras. The returned map
          * is an [unmodifiable][Map] copy of the underlying map and should be treated as immutable.
          */
         public val sharedElements: Map<View, String>
