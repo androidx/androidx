@@ -76,15 +76,18 @@ public class AppSearchImplTest {
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
     private AppSearchImpl mAppSearchImpl;
+    /**
+     * Always trigger optimize in this class. OptimizeStrategy will be tested in its own test class.
+     */
+    private static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
 
-        // Give ourselves global query permissions
+        // Give ourselves global query permissions.
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID,
-                /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
     }
 
     /**
@@ -349,7 +352,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testOptimize() throws Exception {
+    public void testTriggerCheckOptimizeByMutationSize() throws Exception {
         // Insert schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -357,50 +360,29 @@ public class AppSearchImplTest {
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false, /*version=*/ 0);
 
-        // Insert enough documents.
-        for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
-                + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
-            GenericDocument document =
-                    new GenericDocument.Builder<>("namespace", "id" + i, "type").build();
-            mAppSearchImpl.putDocument("package", "database", document, /*logger=*/ null);
-        }
+        // Insert a document and then remove it to generate garbage.
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "type").build();
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/ null);
+        mAppSearchImpl.remove("package", "database", "namespace", "id");
 
-        // Check optimize() will release 0 docs since there is no deletion.
+        // Verify there is garbage documents.
         GetOptimizeInfoResultProto optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
+        assertThat(optimizeInfo.getOptimizableDocs()).isEqualTo(1);
+
+        // Increase mutation counter and stop before reach the threshold
+        mAppSearchImpl.checkForOptimize(AppSearchImpl.CHECK_OPTIMIZE_INTERVAL - 1);
+
+        // Verify the optimize() isn't triggered.
+        optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
+        assertThat(optimizeInfo.getOptimizableDocs()).isEqualTo(1);
+
+        // Increase the counter and reach the threshold, optimize() should be triggered.
+        mAppSearchImpl.checkForOptimize(/*mutateBatchSize=*/ 1);
+
+        // Verify optimize() is triggered.
+        optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
         assertThat(optimizeInfo.getOptimizableDocs()).isEqualTo(0);
-
-        // delete 999 documents, we will reach the threshold to trigger optimize() in next
-        // deletion.
-        for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1; i++) {
-            mAppSearchImpl.remove("package", "database", "namespace", "id" + i);
-        }
-
-        // Updates the check for optimize counter, checkForOptimize() will be triggered since
-        // CHECK_OPTIMIZE_INTERVAL is reached but optimize() won't since
-        // OPTIMIZE_THRESHOLD_DOC_COUNT is not.
-        mAppSearchImpl.checkForOptimize(
-                /*mutateBatchSize=*/ AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1);
-
-        // Verify optimize() still not be triggered.
-        optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
-        assertThat(optimizeInfo.getOptimizableDocs())
-                .isEqualTo(AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1);
-
-        // Keep delete docs
-        for (int i = AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT;
-                i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
-                        + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
-            mAppSearchImpl.remove("package", "database", "namespace", "id" + i);
-        }
-        // updates the check for optimize counter, will reach both CHECK_OPTIMIZE_INTERVAL and
-        // OPTIMIZE_THRESHOLD_DOC_COUNT this time and trigger a optimize().
-        mAppSearchImpl.checkForOptimize(
-                /*mutateBatchSize*/ AppSearchImpl.CHECK_OPTIMIZE_INTERVAL);
-
-        // Verify optimize() is triggered
-        optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
-        assertThat(optimizeInfo.getOptimizableDocs())
-                .isLessThan(AppSearchImpl.CHECK_OPTIMIZE_INTERVAL);
+        assertThat(optimizeInfo.getEstimatedOptimizableBytes()).isEqualTo(0);
     }
 
     @Test
@@ -409,8 +391,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID,
-                /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         // Insert schema
         List<AppSearchSchema> schemas = ImmutableList.of(
@@ -472,7 +453,8 @@ public class AppSearchImplTest {
                 appsearchDir,
                 context,
                 VisibilityStore.NO_OP_USER_ID,
-                testLogger);
+                testLogger,
+                ALWAYS_OPTIMIZE);
 
         // Check recovery state
         InitializeStats initStats = testLogger.mInitializeStats;
@@ -1296,8 +1278,7 @@ public class AppSearchImplTest {
     public void testThrowsExceptionIfClosed() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID, /*logger
-                =*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         // Initial check that we could do something at first.
         List<AppSearchSchema> schemas =
@@ -1385,7 +1366,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1407,7 +1388,7 @@ public class AppSearchImplTest {
 
         // That document should be visible even from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
         getResult = appSearchImpl2.getDocument("package", "database", "namespace1",
                 "id1",
                 Collections.emptyMap());
@@ -1420,7 +1401,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1462,7 +1443,7 @@ public class AppSearchImplTest {
 
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
         assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
                 "database",
                 "namespace1",
@@ -1480,7 +1461,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1524,7 +1505,7 @@ public class AppSearchImplTest {
 
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
         assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
                 "database",
                 "namespace1",
