@@ -55,9 +55,9 @@ android {
 }
 
 androidx {
-    name = "Android for Cars App Library Activity Extension"
+    name = "Android for Cars App Library Automotive Extension"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
-    description = "Activity rendering specific funationaltiy to build navigation, parking, and charging apps for cars"
+    description = "Automotive OS specific funationaltiy to build navigation, parking, and charging apps for cars"
 }
