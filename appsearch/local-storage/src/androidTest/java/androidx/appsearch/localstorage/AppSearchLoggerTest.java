@@ -254,7 +254,6 @@ public class AppSearchLoggerTest {
                 nativeDocumentRetrievingLatencyMillis);
     }
 
-
     //
     // Testing actual logging
     //
