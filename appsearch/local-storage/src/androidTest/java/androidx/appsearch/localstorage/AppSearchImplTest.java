@@ -36,8 +36,8 @@ import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
-import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -888,30 +888,6 @@ public class AppSearchImplTest {
                 Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
-    }
-
-    @Test
-    public void testGetPrefixes() throws Exception {
-        Set<String> existingPrefixes = mAppSearchImpl.getPrefixesLocked();
-
-        // Has database1
-        Set<String> expectedPrefixes = new ArraySet<>(existingPrefixes);
-        expectedPrefixes.add(createPrefix("package", "database1"));
-        mAppSearchImpl.setSchema("package", "database1",
-                Collections.singletonList(new AppSearchSchema.Builder(
-                        "schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
-        assertThat(mAppSearchImpl.getPrefixesLocked()).containsExactlyElementsIn(expectedPrefixes);
-
-        // Has both databases
-        expectedPrefixes.add(createPrefix("package", "database2"));
-        mAppSearchImpl.setSchema("package", "database2",
-                Collections.singletonList(new AppSearchSchema.Builder(
-                        "schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
-        assertThat(mAppSearchImpl.getPrefixesLocked()).containsExactlyElementsIn(expectedPrefixes);
     }
 
     @Test
