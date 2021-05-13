@@ -151,11 +151,11 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
      * Finds a destination in the collection by ID. This will recursively check the
      * [parent][getParent] of this navigation graph if node is not found in this navigation graph.
      *
-     * @param resid ID to locate
-     * @return the node with ID resid
+     * @param resId ID to locate
+     * @return the node with ID resId
      */
-    public fun findNode(@IdRes resid: Int): NavDestination? {
-        return findNode(resid, true)
+    public fun findNode(@IdRes resId: Int): NavDestination? {
+        return findNode(resId, true)
     }
 
     /**
@@ -173,12 +173,12 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findNode(@IdRes resid: Int, searchParents: Boolean): NavDestination? {
-        val destination = nodes[resid]
+    public fun findNode(@IdRes resId: Int, searchParents: Boolean): NavDestination? {
+        val destination = nodes[resId]
         // Search the parent for the NavDestination if it is not a child of this navigation graph
         // and searchParents is true
         return destination
-            ?: if (searchParents && parent != null) parent!!.findNode(resid) else null
+            ?: if (searchParents && parent != null) parent!!.findNode(resId) else null
     }
 
     /**
