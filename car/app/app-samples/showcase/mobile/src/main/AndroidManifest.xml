@@ -47,7 +47,7 @@
         android:resource="@style/CarAppTheme"
         tools:ignore="MetadataTagInsideApplicationTag" />
 
-    <meta-data android:name="androidx.car.app.minApiLevel"
+    <meta-data android:name="androidx.car.app.minCarApiLevel"
         android:value="1"
         tools:ignore="MetadataTagInsideApplicationTag" />
 

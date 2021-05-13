@@ -45,7 +45,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  * <manifest ...>
  *   <application ...>
  *     <meta-data
- *         android:name="androidx.car.app.minApiLevel"
+ *         android:name="androidx.car.app.minCarApiLevel"
  *         android:value="1" />
  *     ...
  *   </application>
@@ -68,7 +68,7 @@ public final class AppInfo {
      *
      * @see CarContext#getCarAppApiLevel()
      */
-    public static final String MIN_API_LEVEL_MANIFEST_KEY = "androidx.car.app.minApiLevel";
+    public static final String MIN_API_LEVEL_METADATA_KEY = "androidx.car.app.minCarApiLevel";
 
     @Keep
     @Nullable
@@ -92,7 +92,7 @@ public final class AppInfo {
         int minApiLevel = retrieveMinCarAppApiLevel(context);
         if (minApiLevel < CarAppApiLevels.getOldest()
                 || minApiLevel > CarAppApiLevels.getLatest()) {
-            throw new IllegalArgumentException("Min API level (" + MIN_API_LEVEL_MANIFEST_KEY
+            throw new IllegalArgumentException("Min API level (" + MIN_API_LEVEL_METADATA_KEY
                     + "=" + minApiLevel + ") is out of range (" + CarAppApiLevels.getOldest() + "-"
                     + CarAppApiLevels.getLatest() + ")");
         }
@@ -133,11 +133,11 @@ public final class AppInfo {
                     PackageManager.GET_META_DATA);
             int apiLevel = applicationInfo.metaData != null
                                    ? applicationInfo.metaData.getInt(
-                                       MIN_API_LEVEL_MANIFEST_KEY, CarAppApiLevels.UNKNOWN)
+                    MIN_API_LEVEL_METADATA_KEY, CarAppApiLevels.UNKNOWN)
                                    : CarAppApiLevels.UNKNOWN;
             if (apiLevel == CarAppApiLevels.UNKNOWN) {
                 throw new IllegalArgumentException("Min API level not declared in manifest ("
-                    + MIN_API_LEVEL_MANIFEST_KEY + ")");
+                    + MIN_API_LEVEL_METADATA_KEY + ")");
             }
             return apiLevel;
         } catch (PackageManager.NameNotFoundException e) {
