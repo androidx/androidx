@@ -52,5 +52,6 @@ function buildAndroidx() {
   $SCRIPT_DIR/impl/parse_profile_htmls.sh
 }
 
-buildAndroidx
+# Disabled due to https://github.com/google/dagger/issues/2618
+# buildAndroidx
 echo "Completing $0 at $(date)"
