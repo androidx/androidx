@@ -473,199 +473,16 @@ def filesStateFromTree(rootPath):
     state.add(path, states[path])
   return state
 
-class FilesState_HyperBoxNode(object):
-  def __init__(self, dimensions):
-    self.dimensions = dimensions
-    self.children = []
-    if len(dimensions) > 1:
-      nextDimensions = dimensions[1:]
-      for i in range(dimensions[0]):
-        self.children.append(FilesState_HyperBoxNode(nextDimensions))
-    else:
-      for i in range(dimensions[0]):
-         self.children.append(FilesState_LeafBox())
-
-  def getFiles(self, coordinates):
-    child = self.children[coordinates[0]]
-    return child.getFiles(coordinates[1:])
-
-  def setFiles(self, coordinates, files):
-    self.children[coordinates[0]].setFiles(coordinates[1:], files)
-
-  def clearFiles(self, coordinates):
-    self.children[coordinates[0]].clearFiles(coordinates[1:])
-
-  def removeSlice(self, dimension, index):
-    if dimension == 0:
-      del self.children[index]
-    else:
-      for child in self.children:
-        child.removeSlice(dimension - 1, index)
-
-  def getSlice(self, dimension, index):
-    result = FilesState()
-    for i in range(len(self.children)):
-      if dimension != 0 or i == index:
-        child = self.children[i]
-        childResult = child.getSlice(dimension - 1, index)
-        result = result.expandedWithEmptyEntriesFor(childResult).withConflictsFrom(childResult)
-    return result
-
-
-class FilesState_LeafBox(object):
-  def __init__(self):
-    self.files = FilesState()
-
-  def getFiles(self, coordinates):
-    return self.files
-
-  def setFiles(self, coordinates, files):
-    self.files = files
-
-  def clearFiles(self, coordinates):
-    self.files = FilesState()
-
-  def removeSlice(self, dimensions, index):
-    return
-
-  def getSlice(self, dimension, index):
-    return self.getFiles([])
-
-class FilesState_HyperBox(object):
-  def __init__(self, dimensions):
-    self.dimensions = dimensions
-    self.durations = []
-    self.numFiles = 0
-    if len(dimensions) < 1:
-      raise Exception("dimensions must be nonempty: " + str(dimensions))
-    for length in dimensions:
-      if length < 1:
-        raise Exception("Illegal dimension " + str(length) + " in " + str(dimensions))
-      self.durations.append([None] * length)
-    self.root = FilesState_HyperBoxNode(dimensions)
-
-  def getNumDimensions(self):
-    return len(self.dimensions)
-
-  def getSize(self, dimension):
-    return self.dimensions[dimension]
-
-  def getDimensions(self):
-    return self.dimensions
-
-  def getSliceDuration(self, dimension, index):
-    return self.durations[dimension][index]
-
-  def setSliceDuration(self, dimension, index, value):
-    durations = self.durations[dimension]
-    if index >= len(durations):
-      raise Exception("Index " + str(index) + " too large for durations " + str(durations) + " of length " + str(len(durations)) + ". All durations: " + str(self.durations))
-    durations[index] = value
-
-  def removeSlice(self, dimension, index):
-    durations = self.durations[dimension]
-    del durations[index]
-    self.root.removeSlice(dimension, index)
-    self.dimensions[dimension] -= 1
-
-  def getFastestIndex(self, dimension):
-    durations = self.durations[dimension]
-    fastestValue = None
-    fastestIndex = None
-    for i in range(len(durations)):
-      value = durations[i]
-      if value is not None:
-        if fastestValue is None or value < fastestValue:
-          fastestValue = value
-          fastestIndex = i
-    return fastestIndex
-
-  def getFastestIndices(self):
-    return [self.getFastestIndex(dimension) for dimension in range(self.getNumDimensions())]
-
-  def getFiles(self, coordinates):
-    return self.root.getFiles(coordinates)
-
-  def setFiles(self, dimensions, files):
-    self.root.setFiles(dimensions, files)
-    self.numFiles = None
-
-  def clearFiles(self, dimensions):
-    self.setFiles(dimensions, FilesState())
-
-  def getNumFiles(self):
-    if self.numFiles is None:
-      numFiles = 0
-      for child in self.getChildren():
-        numFiles += child.size()
-      self.numFiles = numFiles
-    return self.numFiles
-
-  def getSlice(self, dimension, index):
-    return self.root.getSlice(dimension, index)
-
-  def incrementCoordinates(self, coordinates):
-    coordinates = coordinates[:]
-    for i in range(len(coordinates)):
-      coordinates[i] += 1
-      if coordinates[i] >= self.dimensions[i]:
-        coordinates[i] = 0
-      else:
-        return coordinates
-    return None
-
-  def getChildren(self):
-    if len(self.dimensions) < 1 or self.dimensions[0] < 1:
-      return []
-    coordinates = [0] * len(self.dimensions)
-    children = []
-    while coordinates is not None:
-      child = self.getFiles(coordinates)
-      if child is not None and child.size() > 0:
-        children.append(child)
-      coordinates = self.incrementCoordinates(coordinates)
-    return children
-
-  def getNumChildren(self):
-    return len(self.getChildren())
-
-  def getAllFiles(self):
-    files = FilesState()
-    for child in self.getChildren():
-      files = files.expandedWithEmptyEntriesFor(child).withConflictsFrom(child)
-    return files
-
-def boxFromList(fileStates):
-  numStates = len(fileStates)
-  if numStates == 1:
-    dimensions = [1]
-  else:
-    dimensions = []
-    while numStates > 1:
-      if numStates == 4:
-        # if there are 4 states we want to make it a 2x2
-        nextDimension = 2
-      else:
-        nextDimension = min(3, numStates)
-      dimensions.append(nextDimension)
-      numStates = int(math.ceil(float(numStates) / float(nextDimension)))
-  tree = FilesState_HyperBox(dimensions)
-  coordinates = [0] * len(dimensions)
-  for state in fileStates:
-    tree.setFiles(coordinates, state)
-    coordinates = tree.incrementCoordinates(coordinates)
-  return tree
-
 # runs a Job in this process
-def runJobInSameProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
-  job = Job(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe)
+def runJobInSameProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, twoWayPipe):
+  job = Job(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, twoWayPipe)
   job.runAndReport()
 
 # starts a Job in a new process
-def runJobInOtherProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, queue, identifier):
+def runJobInOtherProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, queue, identifier):
   parentWriter, childReader = multiprocessing.Pipe()
   childInfo = TwoWayPipe(childReader, queue, identifier)
-  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, childInfo,))
+  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, childInfo,))
   process.start()
   return parentWriter
 
@@ -677,15 +494,15 @@ class TwoWayPipe(object):
 
 # Stores a subprocess for running tests and some information about which tests to run
 class Job(object):
-  def __init__(self, shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
+  def __init__(self, shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, twoWayPipe):
     self.shellCommand = shellCommand
     self.workPath = workPath
     self.full_resetTo_state = full_resetTo_state
     self.assumeNoSideEffects = assumeNoSideEffects
     # all of the files that we've found so far that we can add
     self.acceptedState = FilesState()
-    # HyperBox of all of the possible changes we're considering
-    self.candidateBox = candidateBox
+    # FilesState of all of the possible changes we're considering
+    self.testState = testState
     # FilesState telling the current set of files that we're testing modifying
     self.currentTestState = None
     self.busy = False
@@ -703,13 +520,13 @@ class Job(object):
 
   def run(self):
     print("#" * 100)
-    print("Checking " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
+    print("Checking " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
     # set file state
     if not self.assumeNoSideEffects:
       fileIo.removePath(self.workPath)
     # If the user told us that we don't have to worry about the possibility of the shell command generating files whose state matters,
     # then we don't reset any unrecognized files (they might even be caches that improve speed)
-    testState = self.candidateBox
+    testState = self.testState
     self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(self.workPath, self.cachePath)
 
     # run test
@@ -720,10 +537,10 @@ class Job(object):
 
     # report results
     if returnCode == 0:
-      print("Passed: " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
+      print("Passed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
       return True
     else:
-      print("Failed: " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
+      print("Failed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
       return False
 
 
