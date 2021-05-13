@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
 import android.util.Rational;
@@ -38,6 +39,7 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -101,14 +103,6 @@ class FocusMeteringControl {
     private MeteringRectangle[] mAfRects = new MeteringRectangle[]{};
     private MeteringRectangle[] mAeRects = new MeteringRectangle[]{};
     private MeteringRectangle[] mAwbRects = new MeteringRectangle[]{};
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            MeteringRectangle[] mDefaultAfRects = new MeteringRectangle[]{};
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            MeteringRectangle[] mDefaultAeRects = new MeteringRectangle[]{};
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            MeteringRectangle[] mDefaultAwbRects = new MeteringRectangle[]{};
-
     CallbackToFutureAdapter.Completer<FocusMeteringResult> mRunningActionCompleter = null;
     CallbackToFutureAdapter.Completer<Void> mRunningCancelCompleter = null;
     //**************************************************************************************//
@@ -131,16 +125,6 @@ class FocusMeteringControl {
         mScheduler = scheduler;
     }
 
-    /**
-     * Sets a {@link CaptureRequest.Builder} to get the default capture request 3A regions in
-     * order to complete the ListenableFuture in {@link #startFocusAndMetering} and
-     * {@link #cancelFocusAndMetering}.
-     */
-    void setDefaultRequestBuilder(@NonNull CaptureRequest.Builder builder) {
-        mDefaultAfRects = builder.get(CaptureRequest.CONTROL_AF_REGIONS);
-        mDefaultAeRects = builder.get(CaptureRequest.CONTROL_AE_REGIONS);
-        mDefaultAwbRects = builder.get(CaptureRequest.CONTROL_AWB_REGIONS);
-    }
 
     /**
      * Set current active state. Set active if it is ready to accept focus/metering operations.
@@ -525,33 +509,6 @@ class FocusMeteringControl {
         }
     }
 
-    private static int getRegionCount(@Nullable MeteringRectangle[] regions) {
-        if (regions == null) {
-            return 0;
-        }
-        return regions.length;
-    }
-
-    private static boolean hasEqualRegions(@Nullable MeteringRectangle[] regions1,
-            @Nullable MeteringRectangle[] regions2) {
-        if (getRegionCount(regions1) == 0 && getRegionCount(regions2) == 0) {
-            return true;
-        }
-
-        if (getRegionCount(regions1) != getRegionCount(regions2)) {
-            return false;
-        }
-
-        if (regions1 != null && regions2 != null) {
-            for (int i = 0; i < regions1.length; i++) {
-                if (!regions1[i].equals(regions2[i])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     private boolean isAfModeSupported() {
         return mCameraControl.getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
                 == CaptureRequest.CONTROL_AF_MODE_AUTO;
@@ -607,18 +564,19 @@ class FocusMeteringControl {
         mAeRects = aeRects;
         mAwbRects = awbRects;
 
+        long sessionUpdateId;
         // Trigger AF scan if any AF points are added.
         if (shouldTriggerAF()) {
             mIsInAfAutoMode = true;
             mIsAutoFocusCompleted = false;
             mIsFocusSuccessful = false;
-            mCameraControl.updateSessionConfigSynchronous();
+            sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
             triggerAf(null);
         } else {
             mIsInAfAutoMode = false;
             mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
             mIsFocusSuccessful = false;  // False because AF is not triggered.
-            mCameraControl.updateSessionConfigSynchronous();
+            sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
         }
 
         mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
@@ -646,23 +604,8 @@ class FocusMeteringControl {
                     }
 
                     // Check 3A regions
-                    if (mIsAutoFocusCompleted && result.getRequest() != null) {
-                        MeteringRectangle[] toMatchAfRegions =
-                                (afRects.length != 0 ? afRects : mDefaultAfRects);
-                        MeteringRectangle[] toMatchAeRegions =
-                                (aeRects.length != 0 ? aeRects : mDefaultAeRects);
-                        MeteringRectangle[] toMatchAwbRegions =
-                                (awbRects.length != 0 ? awbRects : mDefaultAwbRects);
-
-                        CaptureRequest request = result.getRequest();
-                        if (hasEqualRegions(request.get(CaptureRequest.CONTROL_AF_REGIONS),
-                                toMatchAfRegions)
-                                && hasEqualRegions(
-                                request.get(CaptureRequest.CONTROL_AE_REGIONS), toMatchAeRegions)
-                                && hasEqualRegions(
-                                request.get(CaptureRequest.CONTROL_AWB_REGIONS),
-                                toMatchAwbRegions)) {
-
+                    if (mIsAutoFocusCompleted) {
+                        if (isSessionUpdated(result, sessionUpdateId)) {
                             completeActionFuture(mIsFocusSuccessful);
                             return true; // remove this listener
                         }
@@ -716,35 +659,6 @@ class FocusMeteringControl {
         mRunningCancelCompleter = completer;
         disableAutoCancel();
 
-        if (mRunningCancelCompleter != null) {
-            int targetAfMode =
-                    mCameraControl.getSupportedAfMode(
-                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-            mSessionListenerForCancel =
-                    captureResult -> {
-                        Integer afMode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
-                        CaptureRequest request = captureResult.getRequest();
-
-                        MeteringRectangle[] afRegions = request.get(
-                                CaptureRequest.CONTROL_AF_REGIONS);
-                        MeteringRectangle[] aeRegions = request.get(
-                                CaptureRequest.CONTROL_AE_REGIONS);
-                        MeteringRectangle[] awbRegions =
-                                request.get(CaptureRequest.CONTROL_AWB_REGIONS);
-
-                        if (afMode == targetAfMode
-                                && hasEqualRegions(afRegions, mDefaultAfRects)
-                                && hasEqualRegions(aeRegions, mDefaultAeRects)
-                                && hasEqualRegions(awbRegions, mDefaultAwbRects)) {
-                            completeCancelFuture();
-                            return true; // remove this listener
-                        }
-                        return false;
-                    };
-
-            mCameraControl.addCaptureResultListener(mSessionListenerForCancel);
-        }
-
         if (shouldTriggerAF()) {
             cancelAfAeTrigger(true, false);
         }
@@ -753,6 +667,46 @@ class FocusMeteringControl {
         mAwbRects = new MeteringRectangle[]{};
 
         mIsInAfAutoMode = false;
-        mCameraControl.updateSessionConfigSynchronous();
+        long sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
+
+        if (mRunningCancelCompleter != null) {
+            int targetAfMode =
+                    mCameraControl.getSupportedAfMode(
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            mSessionListenerForCancel =
+                    captureResult -> {
+                        Integer afMode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
+                        if (afMode == targetAfMode
+                                && isSessionUpdated(captureResult, sessionUpdateId)) {
+                            completeCancelFuture();
+                            return true; // remove this listener
+                        }
+                        return false;
+                    };
+
+            mCameraControl.addCaptureResultListener(mSessionListenerForCancel);
+        }
+    }
+
+    private static boolean isSessionUpdated(@NonNull TotalCaptureResult captureResult,
+            long sessionUpdateId) {
+        if (captureResult.getRequest() == null) {
+            return false;
+        }
+        Object tag = captureResult.getRequest().getTag();
+        if (tag instanceof TagBundle) {
+            Long tagLong =
+                    (Long) ((TagBundle) tag).getTag(Camera2CameraControlImpl.TAG_SESSION_UPDATE_ID);
+            if (tagLong == null) {
+                return false;
+            }
+            long sessionUpdateIdInCaptureResult = tagLong.longValue();
+            // Check if session update is already done.
+            if (sessionUpdateIdInCaptureResult >= sessionUpdateId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

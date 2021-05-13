@@ -73,6 +73,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A Camera2 implementation for CameraControlInternal interface
@@ -131,9 +132,13 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
-    private int mTemplate = DEFAULT_TEMPLATE;
 
+    static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
+    private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
     //******************** Should only be accessed by executor *****************************//
+    private int mTemplate = DEFAULT_TEMPLATE;
+    // SessionUpdateId will auto-increment every time session updates.
+    private long mCurrentSessionUpdateId = 0;
     private final CameraCaptureCallbackSet mCameraCaptureCallbackSet =
             new CameraCaptureCallbackSet();
     //**************************************************************************************//
@@ -282,14 +287,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @ExecutedBy("mExecutor")
     public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
         mPreviewAspectRatio = previewAspectRatio;
-    }
-
-    /**
-     * Sets a {@link CaptureRequest.Builder} to get the default capture request parameters in order
-     * to compare the 3A regions in CaptureResult in FocusMeteringControl.
-     */
-    public void setDefaultRequestBuilder(@NonNull CaptureRequest.Builder builder) {
-        mFocusMeteringControl.setDefaultRequestBuilder(builder);
     }
 
     @NonNull
@@ -445,6 +442,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     /** {@inheritDoc} */
     @Override
     @NonNull
+    @ExecutedBy("mExecutor")
     public SessionConfig getSessionConfig() {
         mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
@@ -452,12 +450,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         if (tag != null && tag instanceof Integer) {
             mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, tag);
         }
+        mSessionConfigBuilder.addTag(TAG_SESSION_UPDATE_ID, mCurrentSessionUpdateId);
         return mSessionConfigBuilder.build();
-    }
-
-    @ExecutedBy("mExecutor")
-    int getTemplate() {
-        return mTemplate;
     }
 
     @ExecutedBy("mExecutor")
@@ -483,9 +477,19 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mExecutor.execute(this::updateSessionConfigSynchronous);
     }
 
+    /**
+     * Triggers an update to the session synchronously.
+     *
+     * <p>It will return an auto-incremented ID representing the session update request. The ID
+     * will be put in the tag of SessionConfig using key {@link #TAG_SESSION_UPDATE_ID}. It can
+     * then retrieve the ID in {@link TotalCaptureResult} to check if the session update is done or
+     * not.
+     */
     @ExecutedBy("mExecutor")
-    void updateSessionConfigSynchronous() {
+    long updateSessionConfigSynchronous() {
+        mCurrentSessionUpdateId = mNextSessionUpdateId.getAndIncrement();
         mControlUpdateCallback.onCameraControlUpdateSessionConfig();
+        return mCurrentSessionUpdateId;
     }
 
     @ExecutedBy("mExecutor")
@@ -727,6 +731,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     int getMaxAwbRegionCount() {
         Integer count = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB);
         return count == null ? 0 : count;
+    }
+
+    @VisibleForTesting
+    long getCurrentSessionUpdateId()  {
+        return mCurrentSessionUpdateId;
     }
 
     /** An interface to listen to camera capture results. */

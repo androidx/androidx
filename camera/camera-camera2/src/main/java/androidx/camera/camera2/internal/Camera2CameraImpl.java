@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -1000,11 +999,6 @@ final class Camera2CameraImpl implements CameraInternal {
             // Always reset the session config if there is no valid session config.
             mCaptureSession.setSessionConfig(mCameraControlInternal.getSessionConfig());
         }
-
-        // Update default request builder since template may change
-        if (mCameraDevice != null) {
-            updateDefaultRequestBuilderToCameraControl(mCameraDevice);
-        }
     }
 
     /**
@@ -1406,10 +1400,6 @@ final class Camera2CameraImpl implements CameraInternal {
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             debugLog("CameraDevice.onOpened()");
             mCameraDevice = cameraDevice;
-
-            // CameraControl needs CaptureRequest.Builder to get default capture request options.
-            updateDefaultRequestBuilderToCameraControl(cameraDevice);
-
             mCameraDeviceError = ERROR_NONE;
             switch (mState) {
                 case CLOSING:
@@ -1690,18 +1680,6 @@ final class Camera2CameraImpl implements CameraInternal {
             void reset() {
                 mFirstReopenTime = INVALID_TIME;
             }
-        }
-    }
-
-    @ExecutedBy("mExecutor")
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void updateDefaultRequestBuilderToCameraControl(@NonNull CameraDevice cameraDevice) {
-        try {
-            int template = mCameraControlInternal.getTemplate();
-            CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(template);
-            mCameraControlInternal.setDefaultRequestBuilder(builder);
-        } catch (CameraAccessException e) {
-            Logger.e(TAG, "fail to create capture request.", e);
         }
     }
 
