@@ -61,7 +61,6 @@ public class AppSearchLoggerTest {
         // Give ourselves global query permissions
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
                 context, VisibilityStore.NO_OP_USER_ID,
-                /*globalQuerierPackage=*/ context.getPackageName(),
                 /*logger=*/ null);
         mLogger = new TestLogger();
     }
@@ -263,7 +262,6 @@ public class AppSearchLoggerTest {
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
                 context,
                 VisibilityStore.NO_OP_USER_ID,
-                /*globalQuerierPackage=*/ context.getPackageName(),
                 mLogger);
 
         InitializeStats iStats = mLogger.mInitializeStats;
