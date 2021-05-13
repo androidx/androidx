@@ -28,6 +28,7 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
@@ -158,13 +159,9 @@ class FocusMeteringControl {
     @ExecutedBy("mExecutor")
     void addFocusMeteringOptions(@NonNull Camera2ImplConfig.Builder configBuilder) {
 
-        int defaultAfMode = mTemplate == CameraDevice.TEMPLATE_RECORD
-                ? CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO
-                : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
-
         int afMode = mIsInAfAutoMode
                 ? CaptureRequest.CONTROL_AF_MODE_AUTO
-                : defaultAfMode;
+                : getDefaultAfMode();
 
         configBuilder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));
@@ -509,6 +506,18 @@ class FocusMeteringControl {
         }
     }
 
+    @VisibleForTesting
+    @ExecutedBy("mExecutor")
+    int getDefaultAfMode() {
+        switch (mTemplate) {
+            case CameraDevice.TEMPLATE_RECORD:
+                return CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO;
+            case CameraDevice.TEMPLATE_PREVIEW:
+            default:
+                return CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+        }
+    }
+
     private boolean isAfModeSupported() {
         return mCameraControl.getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
                 == CaptureRequest.CONTROL_AF_MODE_AUTO;
@@ -670,9 +679,7 @@ class FocusMeteringControl {
         long sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
 
         if (mRunningCancelCompleter != null) {
-            int targetAfMode =
-                    mCameraControl.getSupportedAfMode(
-                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            int targetAfMode = mCameraControl.getSupportedAfMode(getDefaultAfMode());
             mSessionListenerForCancel =
                     captureResult -> {
                         Integer afMode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
