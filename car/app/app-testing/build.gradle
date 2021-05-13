@@ -28,11 +28,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
-    implementation(project(":annotation:annotation-experimental"))
     implementation(ROBOLECTRIC) {
         exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
     }
-    api(KOTLIN_STDLIB) // Due to :annotation-experimental
+    implementation("androidx.annotation:annotation-experimental:1.1.0")
+    compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
 
     testImplementation("junit:junit:4.13")
     testImplementation(ANDROIDX_TEST_CORE)
