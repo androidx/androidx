@@ -18,24 +18,15 @@
 
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.TestFile
-import com.android.tools.lint.checks.infrastructure.TestLintResult
-import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class PrivateConstructorForUtilityClassDetectorTest {
-
-    private fun check(
-        vararg testFiles: TestFile,
-    ): TestLintResult {
-        return lint()
-            .files(*testFiles)
-            .issues(PrivateConstructorForUtilityClassDetector.ISSUE)
-            .run()
-    }
+class PrivateConstructorForUtilityClassDetectorTest : AbstractLintDetectorTest(
+    useDetector = PrivateConstructorForUtilityClassDetector(),
+    useIssues = listOf(PrivateConstructorForUtilityClassDetector.ISSUE),
+) {
 
     @Test
     fun testInnerClassVisibilityJava() {

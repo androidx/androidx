@@ -14,40 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.build.lint
+@file:Suppress("UnstableApiUsage")
 
-import com.android.tools.lint.checks.infrastructure.TestFiles.java
-import com.android.tools.lint.checks.infrastructure.TestLintResult
-import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+package androidx.build.lint
 
 import org.junit.Ignore
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @Ignore("ANDROID_HOME not available on CI")
-class ObsoleteBuildCompatUsageDetectorTest {
-    private val buildCompatStub = java(
-        """
-        package androidx.core.os;
-        public class BuildCompat {
-          public static boolean isAtLeastN() { return false; }
-          public static boolean isAtLeastNMR1() { return false; }
-          public static boolean isAtLeastO() { return false; }
-          public static boolean isAtLeastOMR1() { return false; }
-          public static boolean isAtLeastP() { return false; }
-          public static boolean isAtLeastQ() { return false; }
-        }
-        """.trimIndent()
-    )
+@RunWith(JUnit4::class)
+class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
+    useDetector = ObsoleteBuildCompatUsageDetector(),
+    useIssues = listOf(ObsoleteBuildCompatUsageDetector.ISSUE),
+    stubs = arrayOf(BuildCompat),
+) {
 
-    private fun check(vararg code: String): TestLintResult {
-        return lint().files(buildCompatStub, *code.map(::java).toTypedArray())
-            .allowMissingSdk(true)
-            .issues(ObsoleteBuildCompatUsageDetector.ISSUE)
-            .run()
-    }
-
-    @Test fun isAtLeastN() {
-        val input = """
+    @Test
+    fun isAtLeastN() {
+        val input = java(
+            """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -57,26 +44,34 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastN()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 24:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastN()) {
             +     if (Build.VERSION.SDK_INT >= 24) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
     }
 
-    @Test fun isAtLeastNStaticImport() {
-        val input = """
+    @Test
+    fun isAtLeastNStaticImport() {
+        val input = java(
+            """
             package foo;
             import static androidx.core.os.BuildCompat.isAtLeastN;
             public class Example {
@@ -86,26 +81,34 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (isAtLeastN()) {
                     ~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 24:
             @@ -5 +5
             -     if (isAtLeastN()) {
             +     if (Build.VERSION.SDK_INT >= 24) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
     }
 
-    @Test fun isAtLeastNMR1() {
-        val input = """
+    @Test
+    fun isAtLeastNMR1() {
+        val input = java(
+            """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -115,26 +118,34 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastNMR1()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 25:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastNMR1()) {
             +     if (Build.VERSION.SDK_INT >= 25) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
     }
 
-    @Test fun isAtLeastO() {
-        val input = """
+    @Test
+    fun isAtLeastO() {
+        val input = java(
+            """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -144,26 +155,34 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastO()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 26:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastO()) {
             +     if (Build.VERSION.SDK_INT >= 26) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
     }
 
-    @Test fun isAtLeastOMR1() {
-        val input = """
+    @Test
+    fun isAtLeastOMR1() {
+        val input = java(
+            """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -173,26 +192,34 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastOMR1()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 27:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastOMR1()) {
             +     if (Build.VERSION.SDK_INT >= 27) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
     }
 
-    @Test fun isAtLeastP() {
-        val input = """
+    @Test
+    fun isAtLeastP() {
+        val input = java(
+            """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -202,26 +229,34 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastP()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 28:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastP()) {
             +     if (Build.VERSION.SDK_INT >= 28) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
     }
 
-    @Test fun isAtLeastQ() {
-        val input = """
+    @Test
+    fun isAtLeastQ() {
+        val input = java(
+            """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -231,21 +266,43 @@ class ObsoleteBuildCompatUsageDetectorTest {
                 }
               }
             }
-        """
+            """.trimIndent()
+        )
+
+        /* ktlint-disable max-line-length */
         val expected = """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastQ()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
+
         val expectedDiff = """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 29:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastQ()) {
             +     if (Build.VERSION.SDK_INT >= 29) {
         """
-        check(input.trimIndent())
+        /* ktlint-enable max-line-length */
+
+        check(input)
             .expect(expected.trimIndent())
             .expectFixDiffs(expectedDiff.trimIndent())
+    }
+
+    companion object {
+        private val BuildCompat = java(
+            """
+            package androidx.core.os;
+            public class BuildCompat {
+              public static boolean isAtLeastN() { return false; }
+              public static boolean isAtLeastNMR1() { return false; }
+              public static boolean isAtLeastO() { return false; }
+              public static boolean isAtLeastOMR1() { return false; }
+              public static boolean isAtLeastP() { return false; }
+              public static boolean isAtLeastQ() { return false; }
+            }
+            """.trimIndent()
+        )
     }
 }

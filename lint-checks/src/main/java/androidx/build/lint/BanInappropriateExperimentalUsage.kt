@@ -22,13 +22,14 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
-import com.intellij.psi.PsiCompiledElement
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.resolveToUElement
 
@@ -45,11 +46,28 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
 
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
+            if (DEBUG) {
+                if (APPLICABLE_ANNOTATIONS.contains(node.qualifiedName) && node.sourcePsi != null) {
+                    (node.uastParent as? UClass)?.let { annotation ->
+                        println(
+                            "${context.driver.mode}: declared ${annotation.qualifiedName} in " +
+                                "${context.project}"
+                        )
+                    }
+                }
+            }
+
+            // If we find an usage of an experimentally-declared annotation, check it.
             val annotation = node.resolveToUElement()
             if (annotation is UAnnotated) {
                 val annotations = context.evaluator.getAllAnnotations(annotation, false)
-                val isOptIn = annotations.any { APPLICABLE_ANNOTATIONS.contains(it.qualifiedName) }
-                if (isOptIn) {
+                if (annotations.any { APPLICABLE_ANNOTATIONS.contains(it.qualifiedName) }) {
+                    if (DEBUG) {
+                        println(
+                            "${context.driver.mode}: used ${node.qualifiedName} in " +
+                                "${context.project}"
+                        )
+                    }
                     verifyUsageOfElementIsWithinSameGroup(context, node, annotation, ISSUE)
                 }
             }
@@ -64,28 +82,28 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
     ) {
         val evaluator = context.evaluator
         val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
-        val annotationCoordinates = evaluator.getLibrary(annotation) ?: run {
-            // Is the annotation defined in source code?
-            if (usageCoordinates != null && annotation !is PsiCompiledElement) {
-                annotation.sourcePsi?.let { sourcePsi ->
-                    evaluator.getProject(sourcePsi)?.mavenCoordinate
-                }
-            } else {
-                null
-            }
-        }
         val usageGroupId = usageCoordinates?.groupId
-        val annotationGroupId = annotationCoordinates?.groupId
+        val annotationGroupId = evaluator.getLibrary(annotation)?.groupId
         if (annotationGroupId != usageGroupId && annotationGroupId != null) {
-            context.report(
-                issue, usage, context.getNameLocation(usage),
-                "`Experimental` and `RequiresOptIn` APIs may only be used within the same-version" +
-                    " group where they were defined."
-            )
+            if (DEBUG) {
+                println(
+                    "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
+                )
+            }
+            Incident(context)
+                .issue(issue)
+                .at(usage)
+                .message(
+                    "`Experimental` and `RequiresOptIn` APIs may only be used within the " +
+                        "same-version group where they were defined."
+                )
+                .report()
         }
     }
 
     companion object {
+        private const val DEBUG = false
+
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
         private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
         private const val JAVA_EXPERIMENTAL_ANNOTATION =

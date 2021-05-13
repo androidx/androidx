@@ -23,22 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class IdeaSuppressionDetectorTest : AbstractLintDetectorTest(
-    useDetector = IdeaSuppressionDetector(),
-    useIssues = listOf(IdeaSuppressionDetector.ISSUE),
+class MetadataTagInsideApplicationTagDetectorTest : AbstractLintDetectorTest(
+    useDetector = MetadataTagInsideApplicationTagDetector(),
+    useIssues = listOf(MetadataTagInsideApplicationTagDetector.ISSUE),
 ) {
 
     @Test
-    fun `Detection of IDEA-specific suppression in Java sources`() {
+    fun `Detect usage of metadata tag insice application tag`() {
         val input = arrayOf(
-            javaSample("androidx.IdeaSuppressionJava")
+            manifestSample()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+AndroidManifest.xml:20: Error: Detected <application>-level meta-data tag. [MetadataTagInsideApplicationTag]
+        <meta-data android:name="name" android:value="value" />
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
