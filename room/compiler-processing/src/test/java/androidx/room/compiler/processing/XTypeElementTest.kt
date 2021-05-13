@@ -202,6 +202,12 @@ class XTypeElementTest {
                 inner class InnerKotlinClass
                 class NestedKotlinClass
             }
+            annotation class KotlinAnnotation
+            data class DataClass(val foo: Int)
+            inline class InlineClass(val foo: Int)
+            fun interface FunInterface {
+               fun foo()
+            }
             """.trimIndent()
         )
         val javaSrc = Source.java(
@@ -213,8 +219,15 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
+        val javaAnnotationSrc = Source.java(
+            "JavaAnnotation",
+            """
+            public @interface JavaAnnotation {
+            }
+            """.trimIndent()
+        )
         runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
+            sources = listOf(kotlinSrc, javaSrc, javaAnnotationSrc)
         ) { invocation ->
             fun getModifiers(element: XTypeElement): Set<String> {
                 val result = mutableSetOf<String>()
@@ -224,8 +237,15 @@ class XTypeElementTest {
                 if (element.isProtected()) result.add("protected")
                 if (element.isPublic()) result.add("public")
                 if (element.isKotlinObject()) result.add("object")
+                if (element.isCompanionObject()) result.add("companion")
+                if (element.isFunctionalInterface()) result.add("fun")
+                if (element.isClass()) result.add("class")
+                if (element.isDataClass()) result.add("data")
+                if (element.isValueClass()) result.add("value")
+                if (element.isExpect()) result.add("expect")
                 if (element.isInterface()) result.add("interface")
                 if (element.isStatic()) result.add("static")
+                if (element.isAnnotationClass()) result.add("annotation")
                 return result
             }
 
@@ -235,32 +255,55 @@ class XTypeElementTest {
             )
 
             assertThat(getModifiers("OpenClass"))
-                .containsExactly("public")
+                .containsExactly("public", "class")
             assertThat(getModifiers("AbstractClass"))
-                .containsExactly("abstract", "public")
+                .containsExactly("abstract", "public", "class")
             assertThat(getModifiers("MyObject"))
                 .containsExactly("final", "public", "object")
             assertThat(getModifiers("MyInterface"))
                 .containsExactly("abstract", "interface", "public")
             assertThat(getModifiers("Final"))
-                .containsExactly("final", "public")
+                .containsExactly("final", "public", "class")
             assertThat(getModifiers("PrivateClass"))
                 .containsExactlyElementsIn(
                     if (invocation.isKsp) {
-                        listOf("private", "final")
+                        listOf("private", "final", "class")
                     } else {
                         // java does not support top level private classes.
-                        listOf("final")
+                        listOf("final", "class")
                     }
                 )
             assertThat(getModifiers("OuterKotlinClass.InnerKotlinClass"))
-                .containsExactly("final", "public")
+                .containsExactly("final", "public", "class")
             assertThat(getModifiers("OuterKotlinClass.NestedKotlinClass"))
-                .containsExactly("final", "public", "static")
+                .containsExactly("final", "public", "static", "class")
             assertThat(getModifiers("OuterJavaClass.InnerJavaClass"))
-                .containsExactly("public")
+                .containsExactly("public", "class")
             assertThat(getModifiers("OuterJavaClass.NestedJavaClass"))
-                .containsExactly("public", "static")
+                .containsExactly("public", "static", "class")
+            assertThat(getModifiers("JavaAnnotation"))
+                .containsExactly("abstract", "public", "annotation")
+            assertThat(getModifiers("KotlinAnnotation")).apply {
+                // KSP vs KAPT metadata have a difference in final vs abstract modifiers
+                // for annotation types.
+                if (invocation.isKsp) {
+                    containsExactly("final", "public", "annotation")
+                } else {
+                    containsExactly("abstract", "public", "annotation")
+                }
+            }
+            assertThat(getModifiers("DataClass"))
+                .containsExactly("public", "final", "class", "data")
+            assertThat(getModifiers("InlineClass"))
+                .containsExactly("public", "final", "class", "value")
+
+            if (!invocation.isKsp) {
+                // TODO: Enable for ksp too once it supports fun interfaces
+                //  https://github.com/google/ksp/issues/393
+                assertThat(getModifiers("FunInterface"))
+                    .containsExactly("public", "abstract", "interface", "fun")
+            }
+
         }
     }
 

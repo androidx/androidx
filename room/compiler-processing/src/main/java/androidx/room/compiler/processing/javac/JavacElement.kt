@@ -86,4 +86,8 @@ internal abstract class JavacElement(
             MoreElements.getPackage(it.annotationType.asElement()).toString() == pkg
         }
     }
+
+    override val docComment: String? by lazy {
+        env.elementUtils.getDocComment(element)
+    }
 }
