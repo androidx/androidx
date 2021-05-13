@@ -41,7 +41,6 @@ public class FakeHostTest {
             TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
 
     @Test
-    @SuppressWarnings("PendingIntentMutability")
     public void performNotificationActionClick() {
         ComponentName componentName = new ComponentName(mCarContext,  CarAppService.class);
         Intent broadcast =
