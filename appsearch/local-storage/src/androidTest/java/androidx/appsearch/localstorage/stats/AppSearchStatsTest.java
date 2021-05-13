@@ -165,7 +165,9 @@ public class AppSearchStatsTest {
                 .setSchemaStoreRecoveryLatencyMillis(nativeSchemaStoreRecoveryLatencyMillis)
                 .setDocumentStoreDataStatus(nativeDocumentStoreDataStatus)
                 .setDocumentCount(nativeNumDocuments)
-                .setSchemaTypeCount(nativeNumSchemaTypes);
+                .setSchemaTypeCount(nativeNumSchemaTypes)
+                .setHasReset(true)
+                .setResetStatusCode(AppSearchResult.RESULT_INVALID_SCHEMA);
         final InitializeStats iStats = iStatsBuilder.build();
 
 
@@ -193,6 +195,8 @@ public class AppSearchStatsTest {
                 nativeDocumentStoreDataStatus);
         assertThat(iStats.getDocumentCount()).isEqualTo(nativeNumDocuments);
         assertThat(iStats.getSchemaTypeCount()).isEqualTo(nativeNumSchemaTypes);
+        assertThat(iStats.hasReset()).isTrue();
+        assertThat(iStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_INVALID_SCHEMA);
     }
 
     @Test

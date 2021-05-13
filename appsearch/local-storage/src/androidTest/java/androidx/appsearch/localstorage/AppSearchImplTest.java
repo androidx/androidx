@@ -26,6 +26,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
@@ -35,6 +36,7 @@ import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
+import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
@@ -45,10 +47,12 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.PersistType;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
+import com.google.android.icing.proto.PutResultProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
+import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableList;
@@ -82,8 +86,6 @@ public class AppSearchImplTest {
                 /*globalQuerierPackage=*/ context.getPackageName(),
                 /*logger=*/ null);
     }
-
-    //TODO(b/175430168) add test to verify reset is working properly.
 
     /**
      * Ensure that we can rewrite an incoming schema type by adding the database as a prefix. While
@@ -399,6 +401,134 @@ public class AppSearchImplTest {
         optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
         assertThat(optimizeInfo.getOptimizableDocs())
                 .isLessThan(AppSearchImpl.CHECK_OPTIMIZE_INTERVAL);
+    }
+
+    @Test
+    public void testReset() throws Exception {
+        // Setup the index
+        Context context = ApplicationProvider.getApplicationContext();
+        File appsearchDir = mTemporaryFolder.newFolder();
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
+
+        // Insert schema
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Type1").build(),
+                new AppSearchSchema.Builder("Type2").build());
+        appSearchImpl.setSchema(
+                context.getPackageName(),
+                "database1",
+                schemas,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0);
+
+        // Insert a valid doc
+        GenericDocument validDoc =
+                new GenericDocument.Builder<>("namespace1", "id1", "Type1").build();
+        appSearchImpl.putDocument(
+                context.getPackageName(),
+                "database1",
+                validDoc,
+                /*logger=*/null);
+
+        // Query it via global query. We use the same code again later so this is to make sure we
+        // have our global query configured right.
+        SearchResultPage results = appSearchImpl.globalQuery(
+                /*queryExpression=*/ "",
+                new SearchSpec.Builder().addFilterSchemas("Type1").build(),
+                context.getPackageName(),
+                VisibilityStore.NO_OP_USER_ID,
+                /*logger=*/ null);
+        assertThat(results.getResults()).hasSize(1);
+        assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
+
+        // Create a doc with a malformed namespace
+        DocumentProto invalidDoc = DocumentProto.newBuilder()
+                .setNamespace("invalidNamespace")
+                .setUri("id2")
+                .setSchema(context.getPackageName() + "$database1/Type1")
+                .build();
+        AppSearchException e = assertThrows(
+                AppSearchException.class,
+                () -> PrefixUtil.getPrefix(invalidDoc.getNamespace()));
+        assertThat(e).hasMessageThat().isEqualTo(
+                "The prefixed value \"invalidNamespace\" doesn't contain a valid database name");
+
+        // Insert the invalid doc with an invalid namespace right into icing
+        PutResultProto putResultProto = appSearchImpl.mIcingSearchEngineLocked.put(invalidDoc);
+        assertThat(putResultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+
+        // Create a logger for capturing initialization to make sure we are logging the recovery
+        // process correctly.
+        AppSearchLoggerTest.TestLogger testLogger = new AppSearchLoggerTest.TestLogger();
+
+        // Initialize AppSearchImpl. This should cause a reset.
+        appSearchImpl.close();
+        appSearchImpl = AppSearchImpl.create(
+                appsearchDir,
+                context,
+                VisibilityStore.NO_OP_USER_ID,
+                /*globalQuerierPackage=*/ context.getPackageName(),
+                testLogger);
+
+        // Check recovery state
+        InitializeStats initStats = testLogger.mInitializeStats;
+        assertThat(initStats).isNotNull();
+        assertThat(initStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_INTERNAL_ERROR);
+        assertThat(initStats.hasDeSync()).isFalse();
+        assertThat(initStats.getDocumentStoreRecoveryCause())
+                .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
+        // TODO(b/187879464): There should not be a recovery here, but icing lib reports one if the
+        //  doc had no tokens. Once the mentioned bug is fixed, uncomment this.
+        // assertThat(initStats.getIndexRestorationCause())
+        //         .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(initStats.getSchemaStoreRecoveryCause())
+                .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(initStats.getDocumentStoreDataStatus())
+                .isEqualTo(InitializeStats.DOCUMENT_STORE_DATA_STATUS_NO_DATA_LOSS);
+        assertThat(initStats.hasReset()).isTrue();
+        assertThat(initStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+
+        // Make sure all our data is gone
+        assertThat(appSearchImpl.getSchema(context.getPackageName(), "database1").getSchemas())
+                .isEmpty();
+        results = appSearchImpl.globalQuery(
+                /*queryExpression=*/ "",
+                new SearchSpec.Builder().addFilterSchemas("Type1").build(),
+                context.getPackageName(),
+                VisibilityStore.NO_OP_USER_ID,
+                /*logger=*/ null);
+        assertThat(results.getResults()).isEmpty();
+
+        // Make sure the index can now be used successfully
+        appSearchImpl.setSchema(
+                context.getPackageName(),
+                "database1",
+                Collections.singletonList(new AppSearchSchema.Builder("Type1").build()),
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0);
+
+        // Insert a valid doc
+        appSearchImpl.putDocument(
+                context.getPackageName(),
+                "database1",
+                validDoc,
+                /*logger=*/null);
+
+        // Query it via global query.
+        results = appSearchImpl.globalQuery(
+                /*queryExpression=*/ "",
+                new SearchSpec.Builder().addFilterSchemas("Type1").build(),
+                context.getPackageName(),
+                VisibilityStore.NO_OP_USER_ID,
+                /*logger=*/ null);
+        assertThat(results.getResults()).hasSize(1);
+        assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
     }
 
     @Test

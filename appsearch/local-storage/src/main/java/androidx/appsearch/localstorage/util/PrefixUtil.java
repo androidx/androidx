@@ -119,8 +119,10 @@ public class PrefixUtil {
             // Add 1 to include the char size of the DATABASE_DELIMITER
             return prefixedString.substring(delimiterIndex + 1);
         }
-        throw new AppSearchException(AppSearchResult.RESULT_UNKNOWN_ERROR,
-                "The prefixed value doesn't contains a valid database name.");
+        throw new AppSearchException(
+                AppSearchResult.RESULT_INTERNAL_ERROR,
+                "The prefixed value \"" + prefixedString + "\" doesn't contain a valid "
+                        + "database name");
     }
 
     /**
@@ -134,8 +136,10 @@ public class PrefixUtil {
     public static String getPrefix(@NonNull String prefixedString) throws AppSearchException {
         int databaseDelimiterIndex = prefixedString.indexOf(DATABASE_DELIMITER);
         if (databaseDelimiterIndex == -1) {
-            throw new AppSearchException(AppSearchResult.RESULT_UNKNOWN_ERROR,
-                    "The databaseName prefixed value doesn't contain a valid database name.");
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_INTERNAL_ERROR,
+                    "The prefixed value \"" + prefixedString + "\" doesn't contain a valid "
+                            + "database name");
         }
 
         // Add 1 to include the char size of the DATABASE_DELIMITER
