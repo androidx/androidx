@@ -38,7 +38,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, maxSdk = 30) // Robolectric uses wrong maxSdk by default
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class RobolectricSmokeTest {
