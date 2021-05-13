@@ -16,7 +16,7 @@
 #
 
 
-import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess, stat, sys
+import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess, stat, sys, time
 from collections import OrderedDict
 
 def usage():
@@ -264,6 +264,9 @@ class FilesState(object):
       return self.fileStates[filePath]
     return None
 
+  def getKeys(self):
+    return self.fileStates.keys()
+
   # returns a FilesState resembling <self> but without the keys for which other[key] == self[key]
   def withoutDuplicatesFrom(self, other, checkWithFileSystem=False):
     result = FilesState()
@@ -474,15 +477,15 @@ def filesStateFromTree(rootPath):
   return state
 
 # runs a Job in this process
-def runJobInSameProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, twoWayPipe):
-  job = Job(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, twoWayPipe)
+def runJobInSameProcess(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+  job = Job(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe)
   job.runAndReport()
 
 # starts a Job in a new process
-def runJobInOtherProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, queue, identifier):
+def runJobInOtherProcess(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, queue, identifier):
   parentWriter, childReader = multiprocessing.Pipe()
   childInfo = TwoWayPipe(childReader, queue, identifier)
-  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, childInfo,))
+  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, childInfo,))
   process.start()
   return parentWriter
 
@@ -494,54 +497,73 @@ class TwoWayPipe(object):
 
 # Stores a subprocess for running tests and some information about which tests to run
 class Job(object):
-  def __init__(self, shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, testState, twoWayPipe):
+  def __init__(self, shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+    # the test to run
     self.shellCommand = shellCommand
+    # directory to run the test in
     self.workPath = workPath
-    self.full_resetTo_state = full_resetTo_state
+    # the state of our working directory
+    self.originalState = originalState
+    # whether to assume that the test won't change anything important
     self.assumeNoSideEffects = assumeNoSideEffects
-    # all of the files that we've found so far that we can add
-    self.acceptedState = FilesState()
-    # FilesState of all of the possible changes we're considering
+    # the best accepted state
+    self.full_resetTo_state = full_resetTo_state
+    # the changes we're considering
     self.testState = testState
-    # FilesState telling the current set of files that we're testing modifying
-    self.currentTestState = None
-    self.busy = False
-    self.complete = False
     self.pipe = twoWayPipe
     self.cachePath = cachePath
 
   def runAndReport(self):
     succeeded = False
+    postState = None
     try:
-      succeeded = self.run()
+      (succeeded, postState) = self.run()
     finally:
       print("^" * 100)
-      self.pipe.writerQueue.put((self.pipe.identifier, succeeded))
+      self.pipe.writerQueue.put((self.pipe.identifier, succeeded, postState))
 
   def run(self):
     print("#" * 100)
     print("Checking " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
-    # set file state
-    if not self.assumeNoSideEffects:
-      fileIo.removePath(self.workPath)
-    # If the user told us that we don't have to worry about the possibility of the shell command generating files whose state matters,
-    # then we don't reset any unrecognized files (they might even be caches that improve speed)
-    testState = self.testState
-    self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(self.workPath, self.cachePath)
+
+    # compute the state that we want the files to be in before we start the test
+    fullStateToTest = self.full_resetTo_state.expandedWithEmptyEntriesFor(self.testState).withConflictsFrom(self.testState, True)
+    #print("Starting with original worker state of " + str(self.originalState))
+
+    # update our files on disk to match the state we want to test
+    fullStateToTest.expandedWithEmptyEntriesFor(self.originalState).withoutDuplicatesFrom(self.originalState).apply(self.workPath)
 
     # run test
-    start = datetime.datetime.now()
+    testStartSeconds = time.time()
+    testStart = datetime.datetime.now()
     returnCode = ShellScript(self.shellCommand, self.workPath).process()
-    now = datetime.datetime.now()
-    duration = (now - start).total_seconds()
+    testEnd = datetime.datetime.now()
+    duration = (testEnd - testStart).total_seconds()
+
+    if self.assumeNoSideEffects:
+      # assume that no relevant files changed
+      postState = fullStateToTest
+    else:
+      # determine which files weren't changed by the test command
+      postState = filesStateFromTree(self.workPath)
+      for key in postState.getKeys():
+        modified = postState.getContent(key)
+        if isinstance(modified, FileBacked_FileContent):
+          # If any filepath wasn't modified since the start of the test, then its content matches the original
+          # (If the content is known to match the original, we won't have to reset it next time)
+          if os.path.getmtime(modified.referencePath) < testStartSeconds:
+            original = fullStateToTest.getContent(key)
+            if original is not None:
+              if isinstance(original, FileBacked_FileContent):
+                modified.referencePath = original.referencePath
 
     # report results
     if returnCode == 0:
       print("Passed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
-      return True
+      return (True, postState)
     else:
       print("Failed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
-      return False
+      return (False, postState)
 
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
@@ -667,6 +689,7 @@ class DiffRunner(object):
     workingDir = self.getWorkPath(jobId)
     queue = multiprocessing.Queue()
     activeTestStatesById = {}
+    workerStatesById = {}
     initialSplitSize = 2
     if self.maxNumJobsAtOnce != "auto" and self.maxNumJobsAtOnce > 2:
       initialSplitSize = self.maxNumJobsAtOnce
@@ -697,10 +720,10 @@ class DiffRunner(object):
 
       if len(activeTestStatesById) > 0:
         # wait for a response from a worker
-        response = queue.get()
-        identifier = response[0]
+        identifier, didAcceptState, workerNewState = queue.get()
         box = activeTestStatesById[identifier]
-        didAcceptState = response[1]
+        #print("main process received worker new state of " + str(workerNewState))
+        workerStatesById[identifier] = workerNewState
         numCompletedTests += 1
         numCompletionsSinceLastPoolSizeChange += 1
         if didAcceptState:
@@ -840,7 +863,11 @@ class DiffRunner(object):
           # start job
           workingDir = self.getWorkPath(jobId)
           cacheDir = self.getFilesCachePath(jobId)
-          runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
+          if jobId in workerStatesById:
+            workerPreviousState = workerStatesById[jobId]
+          else:
+            workerPreviousState = FilesState()
+          runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
           activeTestStatesById[jobId] = box
           availableTestStates = availableTestStates[1:]
 
