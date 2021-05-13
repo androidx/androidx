@@ -29,9 +29,6 @@ android {
         testInstrumentationRunner "androidx.hilt.integration.workerapp.TestRunner"
     }
     buildTypes {
-        debug {
-            testCoverageEnabled = false
-        }
         release {
             minifyEnabled true
             shrinkResources true

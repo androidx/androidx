@@ -15,12 +15,6 @@ android {
             includeAndroidResources = true
         }
     }
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // disable code coverage for robolectric test
-        }
-    }
-
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
