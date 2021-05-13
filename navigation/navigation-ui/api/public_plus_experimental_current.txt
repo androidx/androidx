@@ -39,7 +39,7 @@ package androidx.navigation.ui {
   }
 
   public final class BottomNavigationViewKt {
-    method public static void setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView, androidx.navigation.NavController navController);
   }
 
   public final class CollapsingToolbarLayoutKt {
@@ -74,7 +74,7 @@ package androidx.navigation.ui {
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController);
     method public static void setupWithNavController(com.google.android.material.navigation.NavigationView navigationView, androidx.navigation.NavController navController);
-    method public static void setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView navigationBarView, androidx.navigation.NavController navController);
     field public static final androidx.navigation.ui.NavigationUI INSTANCE;
   }
 

@@ -17,15 +17,15 @@
 package androidx.navigation.ui
 
 import androidx.navigation.NavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
 
 /**
- * Sets up a [BottomNavigationView] for use with a [NavController]. This will call
+ * Sets up a [NavigationBarView] for use with a [NavController]. This will call
  * [android.view.MenuItem.onNavDestinationSelected] when a menu item is selected.
  *
  * The selected item in the NavigationView will automatically be updated when the destination
  * changes.
  */
-public fun BottomNavigationView.setupWithNavController(navController: NavController) {
+public fun NavigationBarView.setupWithNavController(navController: NavController) {
     NavigationUI.setupWithNavController(this, navController)
 }

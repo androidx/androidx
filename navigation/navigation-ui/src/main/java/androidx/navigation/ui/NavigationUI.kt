@@ -32,8 +32,10 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavOptions
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.navigation.NavigationView
 import java.lang.IllegalArgumentException
 import java.lang.ref.WeakReference
@@ -446,29 +448,30 @@ public object NavigationUI {
     }
 
     /**
-     * Sets up a [BottomNavigationView] for use with a [NavController]. This will call
+     * Sets up a [NavigationBarView] for use with a [NavController]. This will call
      * [onNavDestinationSelected] when a menu item is selected. The
-     * selected item in the BottomNavigationView will automatically be updated when the destination
+     * selected item in the NavigationBarView will automatically be updated when the destination
      * changes.
      *
-     * @param bottomNavigationView The BottomNavigationView that should be kept in sync with
-     * changes to the NavController.
+     * @param navigationBarView The NavigationBarView ([BottomNavigationView] or
+     * [NavigationRailView])
+     * that should be kept in sync with changes to the NavController.
      * @param navController The NavController that supplies the primary menu.
      * Navigation actions on this NavController will be reflected in the
-     * selected item in the BottomNavigationView.
+     * selected item in the NavigationBarView.
      */
     @JvmStatic
     public fun setupWithNavController(
-        bottomNavigationView: BottomNavigationView,
+        navigationBarView: NavigationBarView,
         navController: NavController
     ) {
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+        navigationBarView.setOnItemSelectedListener { item ->
             onNavDestinationSelected(
                 item,
                 navController
             )
         }
-        val weakReference = WeakReference(bottomNavigationView)
+        val weakReference = WeakReference(navigationBarView)
         navController.addOnDestinationChangedListener(
             object : NavController.OnDestinationChangedListener {
                 override fun onDestinationChanged(
