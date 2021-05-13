@@ -240,8 +240,20 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
-if $supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
+setupCommand="work=\$(pwd)
+$scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
+"
+buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
+cleanupCommand="$scriptPath/impl/backup-state.sh \$work $workingDir --move >/dev/null"
+fullFiltererCommand="$setupCommand
+if $buildCommand; then
+  $cleanupCommand
+  exit 0
+else
+  $cleanupCommand
+  exit 1
+fi"
+if $supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
