@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -49,9 +50,9 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
             @NonNull Map<KeyType, ValueType> successes,
             @NonNull Map<KeyType, AppSearchResult<ValueType>> failures,
             @NonNull Map<KeyType, AppSearchResult<ValueType>> all) {
-        mSuccesses = successes;
-        mFailures = failures;
-        mAll = all;
+        mSuccesses = Preconditions.checkNotNull(successes);
+        mFailures = Preconditions.checkNotNull(failures);
+        mAll = Preconditions.checkNotNull(all);
     }
 
     /** Returns {@code true} if this {@link AppSearchBatchResult} has no failures. */
@@ -71,7 +72,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      */
     @NonNull
     public Map<KeyType, ValueType> getSuccesses() {
-        return mSuccesses;
+        return Collections.unmodifiableMap(mSuccesses);
     }
 
     /**
@@ -82,7 +83,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      */
     @NonNull
     public Map<KeyType, AppSearchResult<ValueType>> getFailures() {
-        return mFailures;
+        return Collections.unmodifiableMap(mFailures);
     }
 
     /**
@@ -93,7 +94,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      */
     @NonNull
     public Map<KeyType, AppSearchResult<ValueType>> getAll() {
-        return mAll;
+        return Collections.unmodifiableMap(mAll);
     }
 
     /**
@@ -183,10 +184,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
         @NonNull
         public AppSearchBatchResult<KeyType, ValueType> build() {
             mBuilt = true;
-            return new AppSearchBatchResult<>(
-                    new ArrayMap<>(mSuccesses),
-                    new ArrayMap<>(mFailures),
-                    new ArrayMap<>(mAll));
+            return new AppSearchBatchResult<>(mSuccesses, mFailures, mAll);
         }
 
         private void resetIfBuilt() {
