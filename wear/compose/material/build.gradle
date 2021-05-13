@@ -40,6 +40,10 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation(project(":compose:material:material"))
     implementation(project(":compose:material:material-ripple"))
+
+    androidTestImplementation project(path: ':compose:ui:ui-test')
+    androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
+    androidTestImplementation project(path: ':compose:test-utils')
 }
 
 android {
