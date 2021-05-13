@@ -134,10 +134,7 @@ public class DialogFragmentNavigator(
 
     /**
      * NavDestination specific to [DialogFragmentNavigator].
-     */
-    @NavDestination.ClassType(DialogFragment::class)
-    public open class Destination
-    /**
+     *
      * Construct a new fragment destination. This destination is not valid until you set the
      * Fragment via [setClassName].
      *
@@ -145,11 +142,13 @@ public class DialogFragmentNavigator(
      *                          associated with. Generally retrieved via a [NavController]'s
      *                          [NavigatorProvider.getNavigator] method.
      */
+    @NavDestination.ClassType(DialogFragment::class)
+    public open class Destination
     public constructor(fragmentNavigator: Navigator<out Destination>) :
         NavDestination(fragmentNavigator), FloatingWindow {
         private var _className: String? = null
         /**
-         * Gets the DialogFragment's class name associated with this destination
+         * The DialogFragment's class name associated with this destination
          *
          * @throws IllegalStateException when no DialogFragment class was set.
          */

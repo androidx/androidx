@@ -23,15 +23,13 @@ import androidx.annotation.IdRes
  */
 public interface NavDirections {
     /**
-     * Returns a action id to navigate with.
-     *
-     * @return id of an action
+     * An action id to navigate with.
      */
     @get:IdRes
     public val actionId: Int
 
     /**
-     * Returns arguments to pass to the destination
+     * Arguments to pass to the destination
      */
     public val arguments: Bundle
 }
