@@ -27,11 +27,6 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // b/130307237 test coverage breaks robolectric
-        }
-    }
 }
 
 dependencies {

@@ -234,7 +234,6 @@ for compact in "--ci" "--strict" "--clean"; do
     expanded="--strict\
      --stacktrace\
      -Pandroidx.summarizeStderr\
-     -Pandroidx.coverageEnabled=true\
      -Pandroidx.enableAffectedModuleDetection\
      --no-watch-fs"
   fi
