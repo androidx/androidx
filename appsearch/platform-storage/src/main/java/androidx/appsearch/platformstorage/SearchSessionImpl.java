@@ -152,7 +152,7 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
                 ResolvableFuture.create();
-        mPlatformSession.getByUri(
+        mPlatformSession.getByDocumentId(
                 RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
                 mExecutor,
                 new BatchResultCallbackAdapter<>(

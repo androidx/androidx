@@ -138,7 +138,7 @@ public final class SetSchemaRequestToPlatformConverter {
                 platformResponse.getMigrationFailures()) {
             jetpackBuilder.addMigrationFailure(new SetSchemaResponse.MigrationFailure(
                     migrationFailure.getNamespace(),
-                    migrationFailure.getUri(),
+                    migrationFailure.getDocumentId(),
                     migrationFailure.getSchemaType(),
                     AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
                             migrationFailure.getAppSearchResult())));
