@@ -32,7 +32,6 @@ import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.testing.navigation.TestNavigationManager;
 import androidx.test.core.app.ApplicationProvider;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -66,9 +65,7 @@ public class TestCarContextTest {
                 .isSameInstanceAs(mCarContext.getCarService(TestScreenManager.class));
     }
 
-    @Ignore("b/187746290")
     @Test
-    @SuppressWarnings("PendingIntentMutability")
     public void getStartCarAppIntents() {
         Intent startApp = new Intent(Intent.ACTION_VIEW);
 
@@ -78,12 +75,18 @@ public class TestCarContextTest {
 
         Intent broadcast =
                 new Intent("foo").setComponent(new ComponentName(mCarContext.getPackageName(),
-                        "bar"));
+                        "androidx.car.app.CarAppService"));
         PendingIntent pendingIntent = CarPendingIntent.getCarApp(mCarContext, 1, broadcast, 0);
 
         mCarContext.getFakeHost().performNotificationActionClick(pendingIntent);
 
-        assertThat(mCarContext.getStartCarAppIntents()).containsExactly(startApp, broadcast);
+        List<Intent> startCarAppIntents = mCarContext.getStartCarAppIntents();
+        assertThat(startCarAppIntents).hasSize(2);
+        assertThat(startCarAppIntents.get(0)).isEqualTo(startApp);
+        assertThat(startCarAppIntents.get(1).getComponent()).isEqualTo(
+                new ComponentName(mCarContext.getPackageName(),
+                        "androidx.car.app.CarAppService"));
+        assertThat(startCarAppIntents.get(1).getAction()).isEqualTo("foo");
     }
 
     @Test
