@@ -117,6 +117,7 @@ dependencies {
     docs("androidx.fragment:fragment-ktx:1.4.0-alpha01")
     docs("androidx.fragment:fragment-testing:1.4.0-alpha01")
     docs("androidx.gridlayout:gridlayout:1.0.0")
+    docs("androidx.health:health-services-client:1.0.0-alpha01")
     docs("androidx.heifwriter:heifwriter:1.1.0-alpha01")
     docs("androidx.hilt:hilt-common:1.0.0-beta01")
     docs("androidx.hilt:hilt-navigation:1.0.0-beta01")
