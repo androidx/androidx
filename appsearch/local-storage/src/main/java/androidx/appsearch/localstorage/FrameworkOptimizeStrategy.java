@@ -23,22 +23,25 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 
 /**
- * An implementation of {@link androidx.appsearch.localstorage.OptimizeStrategy} will
- * determine when to trigger {@link androidx.appsearch.localstorage.AppSearchImpl#optimize()} in
+ * An implementation of {@link OptimizeStrategy} will
+ * determine when to trigger {@link AppSearchImpl#optimize()} in
  * Jetpack environment.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class JetpackOptimizeStrategy implements OptimizeStrategy{
+public class FrameworkOptimizeStrategy implements OptimizeStrategy{
 
     @VisibleForTesting
-    static final int DOC_COUNT_OPTIMIZE_THRESHOLD = 1000;
+    static final int DOC_COUNT_OPTIMIZE_THRESHOLD = 100_000;
     @VisibleForTesting
-    static final int BYTES_OPTIMIZE_THRESHOLD = 1 * 1024 * 1024; // 1MB
+    static final int BYTES_OPTIMIZE_THRESHOLD = 1 * 1024 * 1024 * 1024; // 1GB
+    @VisibleForTesting
+    static final long TIME_OPTIMIZE_THRESHOLD_MILLIS = 7 * 24 * 60 * 60 * 1000;   // 1 week
 
     @Override
     public boolean shouldOptimize(@NonNull GetOptimizeInfoResultProto optimizeInfo) {
         return optimizeInfo.getOptimizableDocs() >= DOC_COUNT_OPTIMIZE_THRESHOLD
-                || optimizeInfo.getEstimatedOptimizableBytes() >= BYTES_OPTIMIZE_THRESHOLD;
+                || optimizeInfo.getEstimatedOptimizableBytes() >= BYTES_OPTIMIZE_THRESHOLD
+                || optimizeInfo.getTimeSinceLastOptimizeMs() >= TIME_OPTIMIZE_THRESHOLD_MILLIS;
     }
 }
