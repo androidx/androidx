@@ -1059,3 +1059,8 @@ java\.lang\.Object androidx\.work\.OperationKt\.await\(androidx\.work\.Operation
 # > Task :compose:material:material:reportLibraryMetrics
 java\.lang\.Object androidx\.compose\.material\.SnackbarHostState\.showSnackbar\(java\.lang\.String, java\.lang\.String, androidx\.compose\.material\.SnackbarDuration, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.material\.SwipeableState\.processNewAnchors\$material_release\(java\.util\.Map, java\.util\.Map, kotlin\.coroutines\.Continuation\)
+# > Task :car:app:app-samples:helloworld-automotive:processReleaseMainManifest
+\[:car:app:app\-automotive\] \$OUT_DIR/androidx/car/app/app\-automotive/build/intermediates/merged_manifest/release/AndroidManifest\.xml Warning:
+Package name 'androidx\.car\.app' used in: :car:app:app\-automotive, :car:app:app\.
+# > Task :car:app:app-automotive:processDebugUnitTestManifest
+\[:car:app:app\-automotive\] \$OUT_DIR/androidx/car/app/app\-automotive/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:

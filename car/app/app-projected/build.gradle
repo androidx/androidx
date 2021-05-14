@@ -31,9 +31,9 @@ dependencies {
 }
 
 androidx {
-    name = "androidx.car.app:app-property"
+    name = "Android for Cars App Library Projected Extension"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
-    description = "Access car properties such as energy levels and speed"
+    description = "Android Auto Projected specific funationaltiy to build navigation, parking, and charging apps for cars"
 }
