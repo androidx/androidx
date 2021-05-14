@@ -138,6 +138,9 @@ public final class NavigationTemplate implements Template {
     @Keep
     @Nullable
     private final Toggle mPanModeToggle;
+    @Keep
+    @Nullable
+    private final PanModeDelegate mPanModeDelegate;
 
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
@@ -160,11 +163,27 @@ public final class NavigationTemplate implements Template {
         return mMapActionStrip;
     }
 
-    /** Returns whether this template is in the pan mode. */
+    /**
+     * Returns whether this template is in the pan mode.
+     *
+     * @deprecated use {@link #getPanModeDelegate()}
+     */
+    // TODO(b/187989940): remove after hosts switch over to using getPanModeDelegate/
+    @Deprecated
     @RequiresCarApi(2)
     @Nullable
     public Toggle getPanModeToggle() {
         return mPanModeToggle;
+    }
+
+    /**
+     * Returns the {@link PanModeDelegate} that should be called when the user interacts with
+     * pan mode on this template, or {@code null} if a {@link PanModeListener} was not set.
+     */
+    @RequiresCarApi(2)
+    @Nullable
+    public PanModeDelegate getPanModeDelegate() {
+        return mPanModeDelegate;
     }
 
     /**
@@ -203,7 +222,7 @@ public final class NavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mNavigationInfo, mBackgroundColor, mDestinationTravelEstimate,
-                mActionStrip, mMapActionStrip, mPanModeToggle);
+                mActionStrip, mMapActionStrip, mPanModeToggle, mPanModeDelegate == null);
     }
 
     @Override
@@ -222,7 +241,8 @@ public final class NavigationTemplate implements Template {
                 otherTemplate.mDestinationTravelEstimate)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
-                && Objects.equals(mPanModeToggle, otherTemplate.mPanModeToggle);
+                && Objects.equals(mPanModeToggle, otherTemplate.mPanModeToggle)
+                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null);
     }
 
     NavigationTemplate(Builder builder) {
@@ -232,6 +252,7 @@ public final class NavigationTemplate implements Template {
         mActionStrip = builder.mActionStrip;
         mMapActionStrip = builder.mMapActionStrip;
         mPanModeToggle = builder.mPanModeToggle;
+        mPanModeDelegate = builder.mPanModeDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -242,6 +263,7 @@ public final class NavigationTemplate implements Template {
         mActionStrip = null;
         mMapActionStrip = null;
         mPanModeToggle = null;
+        mPanModeDelegate = null;
     }
 
     /** A builder of {@link NavigationTemplate}. */
@@ -258,6 +280,9 @@ public final class NavigationTemplate implements Template {
         ActionStrip mMapActionStrip;
         @Nullable
         Toggle mPanModeToggle;
+        @Nullable
+        PanModeDelegate mPanModeDelegate;
+
 
         /**
          * Sets the navigation information to display on the template.
@@ -365,6 +390,7 @@ public final class NavigationTemplate implements Template {
             mPanModeToggle =
                     new Toggle.Builder(
                             (isInPanMode) -> panModeListener.onPanModeChanged(isInPanMode)).build();
+            mPanModeDelegate = PanModeDelegateImpl.create(panModeListener);
             return this;
         }
 
