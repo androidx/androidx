@@ -41,9 +41,8 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>The previous template is in a loading state (see {@link Pane.Builder#setLoading}, or
- *   <li>The template title has not changed, and the number of rows and the string contents
- *       (title, texts, not counting spans) of each row between the previous and new {@link Pane}s
- *       have not changed.
+ *   <li>The template title has not changed, and the number of rows and the title (not counting
+ *       spans) of each row between the previous and new {@link Pane}s have not changed.
  * </ul>
  */
 @CarProtocol
