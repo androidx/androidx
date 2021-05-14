@@ -417,7 +417,7 @@ public class CarContextTest {
         OnRequestPermissionsCallback callback = mock(OnRequestPermissionsCallback.class);
 
         mLifecycleOwner.mRegistry.setCurrentState(State.CREATED);
-        mCarContext.requestPermissions(Runnable::run, permissions, callback);
+        mCarContext.requestPermissions(permissions, Runnable::run, callback);
 
         ShadowApplication sa = shadowOf((Application) ApplicationProvider.getApplicationContext());
         Intent startActivityIntent = sa.getNextStartedActivity();
