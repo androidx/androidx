@@ -101,6 +101,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -823,17 +824,17 @@ public final class AppSearchImpl implements Closeable {
         try {
             throwIfClosedLocked();
 
+            // Convert package filters to prefix filters
             Set<String> packageFilters = new ArraySet<>(searchSpec.getFilterPackageNames());
             Set<String> prefixFilters = new ArraySet<>();
-            Set<String> allPrefixes = mNamespaceMapLocked.keySet();
             if (packageFilters.isEmpty()) {
                 // Client didn't restrict their search over packages. Try to query over all
                 // packages/prefixes
-                prefixFilters = allPrefixes;
+                prefixFilters = mNamespaceMapLocked.keySet();
             } else {
                 // Client did restrict their search over packages. Only include the prefixes that
                 // belong to the specified packages.
-                for (String prefix : allPrefixes) {
+                for (String prefix : mNamespaceMapLocked.keySet()) {
                     String packageName = getPackageName(prefix);
                     if (packageFilters.contains(packageName)) {
                         prefixFilters.add(prefix);
@@ -841,43 +842,53 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
 
-            // Find which schemas the client is allowed to query over.
-            Set<String> allowedPrefixedSchemas = new ArraySet<>();
-            List<String> schemaFilters = searchSpec.getFilterSchemas();
+            // Convert schema filters to prefixed schema filters
+            ArraySet<String> prefixedSchemaFilters = new ArraySet<>();
             for (String prefix : prefixFilters) {
-                String packageName = getPackageName(prefix);
-                String databaseName = getDatabaseName(prefix);
-
-                if (!schemaFilters.isEmpty()) {
-                    for (String schema : schemaFilters) {
-                        // Client specified some schemas to search over, check each one
-                        String prefixedSchema = prefix + schema;
-                        if (packageName.equals(callerPackageName)
-                                || mVisibilityStoreLocked.isSchemaSearchableByCaller(
-                                packageName, databaseName, prefixedSchema, callerPackageName,
-                                callerPid, callerUid)) {
-                            allowedPrefixedSchemas.add(prefixedSchema);
-                        }
-                    }
-                } else {
+                List<String> schemaFilters = searchSpec.getFilterSchemas();
+                if (schemaFilters.isEmpty()) {
                     // Client didn't specify certain schemas to search over, check all schemas
-                    Map<String, SchemaTypeConfigProto> prefixedSchemas =
-                            mSchemaMapLocked.get(prefix);
-                    if (prefixedSchemas != null) {
-                        for (String prefixedSchema : prefixedSchemas.keySet()) {
-                            if (packageName.equals(callerPackageName)
-                                    || mVisibilityStoreLocked.isSchemaSearchableByCaller(
-                                    packageName, databaseName, prefixedSchema, callerPackageName,
-                                    callerPid, callerUid)) {
-                                allowedPrefixedSchemas.add(prefixedSchema);
-                            }
-                        }
+                    prefixedSchemaFilters.addAll(mSchemaMapLocked.get(prefix).keySet());
+                } else {
+                    // Client specified some schemas to search over, check each one
+                    for (int i = 0; i < schemaFilters.size(); i++) {
+                        prefixedSchemaFilters.add(prefix + schemaFilters.get(i));
                     }
                 }
             }
 
-            return doQueryLocked(prefixFilters, allowedPrefixedSchemas, queryExpression,
-                    searchSpec, sStatsBuilder);
+            // Remove the schemas the client is not allowed to search over
+            Iterator<String> prefixedSchemaIt = prefixedSchemaFilters.iterator();
+            while (prefixedSchemaIt.hasNext()) {
+                String prefixedSchema = prefixedSchemaIt.next();
+                String packageName = getPackageName(prefixedSchema);
+
+                boolean allow;
+                if (packageName.equals(callerPackageName)) {
+                    // Callers can always retrieve their own data
+                    allow = true;
+                } else {
+                    String databaseName = getDatabaseName(prefixedSchema);
+                    allow = mVisibilityStoreLocked.isSchemaSearchableByCaller(
+                            packageName,
+                            databaseName,
+                            prefixedSchema,
+                            callerPackageName,
+                            callerPid,
+                            callerUid);
+                }
+
+                if (!allow) {
+                    prefixedSchemaIt.remove();
+                }
+            }
+
+            return doQueryLocked(
+                    prefixFilters,
+                    prefixedSchemaFilters,
+                    queryExpression,
+                    searchSpec,
+                    sStatsBuilder);
         } finally {
             mReadWriteLock.readLock().unlock();
 
