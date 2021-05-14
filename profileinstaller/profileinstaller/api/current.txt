@@ -2,8 +2,8 @@
 package androidx.profileinstaller {
 
   public class ProfileInstaller {
-    method @WorkerThread public static void tryInstallSync(android.content.Context);
-    method @WorkerThread public static void tryInstallSync(android.content.Context, androidx.profileinstaller.ProfileInstaller.Diagnostics);
+    method @WorkerThread public static void writeProfile(android.content.Context);
+    method @WorkerThread public static void writeProfile(android.content.Context, androidx.profileinstaller.ProfileInstaller.Diagnostics);
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST = 1; // 0x1
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 0; // 0x0
     field public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 3; // 0x3
