@@ -303,7 +303,6 @@ class XTypeElementTest {
                 assertThat(getModifiers("FunInterface"))
                     .containsExactly("public", "abstract", "interface", "fun")
             }
-
         }
     }
 

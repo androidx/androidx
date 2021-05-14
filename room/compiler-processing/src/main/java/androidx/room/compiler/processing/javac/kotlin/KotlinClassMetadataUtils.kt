@@ -193,7 +193,14 @@ private class ConstructorReader(val result: MutableList<KmConstructor>) : KmClas
 internal class KotlinMetadataClassFlags(val classMetadata: KotlinClassMetadata.Class) {
 
     private val flags: Flags by lazy {
-        classMetadata.toKmClass().flags
+        var theFlags: Flags = 0
+        classMetadata.accept(object : KmClassVisitor() {
+            override fun visit(flags: Flags, name: ClassName) {
+                theFlags = flags
+                super.visit(flags, name)
+            }
+        })
+        return@lazy theFlags
     }
 
     fun isObject(): Boolean = Flag.Class.IS_OBJECT(flags)
