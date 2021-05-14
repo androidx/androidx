@@ -15,25 +15,5 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app.activity"
-    android:versionCode="1"
-    android:versionName="0.1">
-    <queries>
-        <intent>
-            <action android:name="android.car.template.host.RendererService" />
-        </intent>
-    </queries>
-
-    <!--
-     singleTop so that if a new Intent is sent targeting this activity, we will use the same
-     instance instead of creating a new one.
-    -->
-    <application>
-        <activity
-            android:name=".CarAppActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
-    </application>
+    package="androidx.car.app">
 </manifest>
