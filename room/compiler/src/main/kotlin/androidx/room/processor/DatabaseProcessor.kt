@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.requireEnclosingTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
@@ -91,7 +90,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            it.requireEnclosingTypeElement().className == RoomTypeNames.ROOM_DB
+            it.enclosingElement.className == RoomTypeNames.ROOM_DB
         }.mapNotNull { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change

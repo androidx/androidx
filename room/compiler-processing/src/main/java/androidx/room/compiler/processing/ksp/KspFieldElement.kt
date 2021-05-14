@@ -20,14 +20,13 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
 internal class KspFieldElement(
     env: KspProcessingEnv,
     override val declaration: KSPropertyDeclaration,
-    val containing: KspTypeElement
+    val containing: KspMemberContainer
 ) : KspElement(env, declaration),
     XFieldElement,
     XHasModifiers by KspHasModifiers.create(declaration),
@@ -37,8 +36,8 @@ internal class KspFieldElement(
         arrayOf(declaration, containing)
     }
 
-    override val enclosingElement: XTypeElement by lazy {
-        declaration.requireEnclosingTypeElement(env)
+    override val enclosingElement: KspMemberContainer by lazy {
+        declaration.requireEnclosingMemberContainer(env)
     }
 
     override val name: String by lazy {
@@ -48,12 +47,12 @@ internal class KspFieldElement(
     override val type: KspType by lazy {
         env.wrap(
             originatingReference = declaration.type,
-            ksType = declaration.typeAsMemberOf(env.resolver, containing.type.ksType)
+            ksType = declaration.typeAsMemberOf(env.resolver, containing.type?.ksType)
         )
     }
 
     override fun asMemberOf(other: XType): XType {
-        if (containing.type.isSameType(other)) {
+        if (containing.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)
@@ -78,7 +77,7 @@ internal class KspFieldElement(
             return KspFieldElement(
                 env = env,
                 declaration = declaration,
-                containing = declaration.requireEnclosingTypeElement(env)
+                containing = declaration.requireEnclosingMemberContainer(env)
             )
         }
     }

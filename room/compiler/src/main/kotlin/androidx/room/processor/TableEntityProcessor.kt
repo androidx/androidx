@@ -20,7 +20,6 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.requireEnclosingTypeElement
 import androidx.room.ext.isNotNone
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
@@ -110,7 +109,7 @@ class TableEntityProcessor internal constructor(
                         Warning.INDEX_FROM_PARENT_FIELD_IS_DROPPED,
                         ProcessorErrors.droppedSuperClassFieldIndex(
                             it.columnName, element.qualifiedName,
-                            it.element.requireEnclosingTypeElement().qualifiedName
+                            it.element.enclosingElement.className.toString()
                         )
                     )
                     null

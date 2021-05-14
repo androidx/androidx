@@ -25,11 +25,14 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 /**
  * Returns the type of a property as if it is member of the given [ksType].
  */
-internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
+internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType?): KSType {
     val resolved = type.resolve()
     if (isStatic()) {
         // calling as member with a static would throw as it might be a member of the companion
         // object
+        return resolved
+    }
+    if (ksType == null) {
         return resolved
     }
     // see: https://github.com/google/ksp/issues/107
@@ -47,7 +50,7 @@ internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KS
 internal fun KSValueParameter.typeAsMemberOf(
     resolver: Resolver,
     functionDeclaration: KSFunctionDeclaration,
-    ksType: KSType
+    ksType: KSType?
 ): KSType {
     val resolved = type.resolve()
     if (functionDeclaration.isStatic()) {
@@ -59,6 +62,9 @@ internal fun KSValueParameter.typeAsMemberOf(
         // see: https://github.com/google/ksp/issues/107
         // as member of might lose the `isError` information hence we should check before calling
         // asMemberOf.
+        return resolved
+    }
+    if (ksType == null) {
         return resolved
     }
     val asMember = resolver.asMemberOf(
@@ -73,11 +79,12 @@ internal fun KSValueParameter.typeAsMemberOf(
 
 internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
     resolver: Resolver,
-    ksType: KSType
+    ksType: KSType?
 ): KSType {
     val resolved = returnType?.resolve()
     return when {
         resolved == null -> null
+        ksType == null -> resolved
         resolved.isError -> resolved
         isStatic() -> {
             // calling as member with a static would throw as it might be a member of the companion
