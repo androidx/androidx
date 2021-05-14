@@ -6,7 +6,7 @@ package androidx.car.app {
     method public int getLatestCarAppApiLevel();
     method public String getLibraryDisplayVersion();
     method public int getMinCarAppApiLevel();
-    field public static final String MIN_API_LEVEL_MANIFEST_KEY = "androidx.car.app.minApiLevel";
+    field public static final String MIN_API_LEVEL_METADATA_KEY = "androidx.car.app.minCarApiLevel";
   }
 
   public class AppManager {
