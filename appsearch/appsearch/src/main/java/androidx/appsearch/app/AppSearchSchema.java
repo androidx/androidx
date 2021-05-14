@@ -491,7 +491,7 @@ public final class AppSearchSchema {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated
     /*@exportToFramework:UnsupportedAppUsage*/
-    public static final class Int64PropertyConfig extends PropertyConfig {
+    public static class Int64PropertyConfig extends PropertyConfig {
         Int64PropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
         }
@@ -502,6 +502,7 @@ public final class AppSearchSchema {
             private @Cardinality int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link Int64PropertyConfig.Builder}. */
+            /*@exportToFramework:UnsupportedAppUsage*/
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
             }
@@ -514,6 +515,7 @@ public final class AppSearchSchema {
              */
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getter defined in superclass
             @NonNull
+            /*@exportToFramework:UnsupportedAppUsage*/
             public Int64PropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
                 Preconditions.checkArgumentInRange(
                         cardinality, CARDINALITY_REPEATED, CARDINALITY_REQUIRED, "cardinality");
@@ -523,6 +525,7 @@ public final class AppSearchSchema {
 
             /** Constructs a new {@link Int64PropertyConfig} from the contents of this builder. */
             @NonNull
+            /*@exportToFramework:UnsupportedAppUsage*/
             public Int64PropertyConfig build() {
                 Bundle bundle = new Bundle();
                 bundle.putString(NAME_FIELD, mPropertyName);
@@ -534,7 +537,8 @@ public final class AppSearchSchema {
     }
 
     /** Configuration for a property containing a 64-bit integer. */
-    public static final class LongPropertyConfig extends PropertyConfig {
+    // TODO(b/181887768): This should extend directly from PropertyConfig
+    public static final class LongPropertyConfig extends Int64PropertyConfig {
         LongPropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
         }
