@@ -276,7 +276,7 @@ public class ProfileInstaller {
     ) {
         byte[] version = desiredVersion();
         if (version == null) {
-            diagnostics.result(RESULT_UNSUPPORTED_ART_VERSION, null);
+            diagnostics.result(RESULT_UNSUPPORTED_ART_VERSION, Build.VERSION.SDK_INT);
             return;
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -391,17 +391,22 @@ public class ProfileInstaller {
         }
 
         switch (Build.VERSION.SDK_INT) {
-            case Build.VERSION_CODES.N_MR1:
             case Build.VERSION_CODES.N:
+            case Build.VERSION_CODES.N_MR1:
                 return ProfileVersion.V001_N;
 
-            case Build.VERSION_CODES.O_MR1:
             case Build.VERSION_CODES.O:
+            case Build.VERSION_CODES.O_MR1:
                 return ProfileVersion.V005_O;
-        }
 
-        // we default back to P+, assuming that this will work for future releases
-        return ProfileVersion.V010_P;
+            case Build.VERSION_CODES.P:
+            case Build.VERSION_CODES.Q:
+            case Build.VERSION_CODES.R:
+                return ProfileVersion.V010_P;
+
+            default:
+                return null;
+        }
     }
 
     /**
