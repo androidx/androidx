@@ -25,6 +25,7 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(MULTIDEX)
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
@@ -46,6 +47,7 @@ android {
 
     defaultConfig {
         testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
+        multiDexEnabled true
     }
 }
 

@@ -1,0 +1,28 @@
+// Signature format: 4.0
+package androidx.core.widget {
+
+  public final class RemoteViewsCompat {
+    method public static void setRemoteAdapter(android.content.Context context, android.widget.RemoteViews remoteViews, int appWidgetId, @IdRes int viewId, androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems items);
+    field public static final androidx.core.widget.RemoteViewsCompat INSTANCE;
+  }
+
+  public static final class RemoteViewsCompat.RemoteCollectionItems {
+    method public int getItemCount();
+    method public long getItemId(int position);
+    method public android.widget.RemoteViews getItemView(int position);
+    method public int getViewTypeCount();
+    method public boolean hasStableIds();
+    property public final int itemCount;
+    property public final int viewTypeCount;
+  }
+
+  public static final class RemoteViewsCompat.RemoteCollectionItems.Builder {
+    ctor public RemoteViewsCompat.RemoteCollectionItems.Builder();
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder addItem(long id, android.widget.RemoteViews view);
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems build();
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder setHasStableIds(boolean hasStableIds);
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder setViewTypeCount(int viewTypeCount);
+  }
+
+}
+
