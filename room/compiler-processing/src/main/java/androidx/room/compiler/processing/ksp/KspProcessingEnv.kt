@@ -27,6 +27,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -42,6 +43,7 @@ internal class KspProcessingEnv(
     val resolver: Resolver
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+    private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
     private val typeElementStore =
         XTypeElementStore(
@@ -210,6 +212,15 @@ internal class KspProcessingEnv(
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
         return typeElementStore[declaration]
+    }
+
+    fun wrapKSFile(file: KSFile): KspMemberContainer {
+        return ksFileMemberContainers.getOrPut(file) {
+            KspFileMemberContainer(
+                env = this,
+                ksFile = file
+            )
+        }
     }
 
     class CommonTypes(resolver: Resolver) {

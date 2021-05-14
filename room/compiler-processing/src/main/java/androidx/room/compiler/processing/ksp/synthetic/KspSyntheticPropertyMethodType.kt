@@ -25,12 +25,18 @@ import com.squareup.javapoet.TypeVariableName
  */
 internal sealed class KspSyntheticPropertyMethodType(
     val origin: KspSyntheticPropertyMethodElement,
-    val containing: XType
+    val containing: XType?
 ) : XMethodType {
 
     override val parameterTypes: List<XType> by lazy {
-        origin.parameters.map {
-            it.asMemberOf(containing)
+        if (containing == null) {
+            origin.parameters.map {
+                it.type
+            }
+        } else {
+            origin.parameters.map {
+                it.asMemberOf(containing)
+            }
         }
     }
 
@@ -40,7 +46,7 @@ internal sealed class KspSyntheticPropertyMethodType(
     companion object {
         fun create(
             element: KspSyntheticPropertyMethodElement,
-            container: XType
+            container: XType?
         ): XMethodType {
             return when (element) {
                 is KspSyntheticPropertyMethodElement.Getter ->
@@ -59,19 +65,23 @@ internal sealed class KspSyntheticPropertyMethodType(
 
     private class Getter(
         origin: KspSyntheticPropertyMethodElement.Getter,
-        containingType: XType
+        containingType: XType?
     ) : KspSyntheticPropertyMethodType(
         origin = origin,
         containing = containingType
     ) {
         override val returnType: XType by lazy {
-            origin.field.asMemberOf(containingType)
+            if (containingType == null) {
+                origin.field.type
+            } else {
+                origin.field.asMemberOf(containingType)
+            }
         }
     }
 
     private class Setter(
         origin: KspSyntheticPropertyMethodElement.Setter,
-        containingType: XType
+        containingType: XType?
     ) : KspSyntheticPropertyMethodType(
         origin = origin,
         containing = containingType

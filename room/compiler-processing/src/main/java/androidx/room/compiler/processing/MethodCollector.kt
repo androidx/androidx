@@ -78,7 +78,7 @@ private class MethodCollector(
             return false
         }
         // check package
-        return packageName == other.requireEnclosingTypeElement().packageName
+        return packageName == other.enclosingElement.className.packageName()
     }
 }
 

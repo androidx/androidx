@@ -21,7 +21,6 @@ import androidx.room.ext.T
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.isConstructor
 import androidx.room.compiler.processing.isMethod
-import androidx.room.compiler.processing.requireEnclosingTypeElement
 import com.squareup.javapoet.CodeBlock
 
 /**
@@ -54,7 +53,7 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
                 //  elements.
                 builder.addStatement(
                     "$L = $T.$L($L)", outVar,
-                    element.requireEnclosingTypeElement().className,
+                    element.enclosingElement.className,
                     element.name, args
                 )
             }

@@ -47,7 +47,8 @@ internal sealed class KspTypeElement(
 ) : KspElement(env, declaration),
     XTypeElement,
     XHasModifiers by KspHasModifiers.create(declaration),
-    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE) {
+    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE),
+    KspMemberContainer {
 
     /**
      * The true origin of this class file. This may not match `declaration.origin` when declaration
@@ -68,7 +69,8 @@ internal sealed class KspTypeElement(
     }
 
     override val enclosingTypeElement: XTypeElement? by lazy {
-        declaration.findEnclosingTypeElement(env)
+        // if it is a file, don't return it
+        declaration.findEnclosingMemberContainer(env) as? XTypeElement
     }
 
     override val equalityItems: Array<out Any?> by lazy {

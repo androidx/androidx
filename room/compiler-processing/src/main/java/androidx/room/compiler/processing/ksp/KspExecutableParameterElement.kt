@@ -40,7 +40,7 @@ internal class KspExecutableParameterElement(
         parameter.typeAsMemberOf(
             resolver = env.resolver,
             functionDeclaration = method.declaration,
-            ksType = method.containing.declaration.asStarProjectedType()
+            ksType = method.containing.type?.ksType
         ).let {
             env.wrap(
                 originatingReference = parameter.type,
@@ -53,7 +53,7 @@ internal class KspExecutableParameterElement(
         get() = "$name in ${method.fallbackLocationText}"
 
     override fun asMemberOf(other: XType): KspType {
-        if (method.containing.type.isSameType(other)) {
+        if (method.containing.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)

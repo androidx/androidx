@@ -96,7 +96,7 @@ internal class OverrideVarianceResolver(
             containing = env.wrapClassDeclaration(declaredIn),
             declaration = funDeclaration.findOverridee() ?: funDeclaration
         )
-        val containing = overrideeElm.enclosingElement.type as? KspType ?: return null
+        val containing = overrideeElm.enclosingElement.type ?: return null
         return KspMethodType.create(
             env = env,
             origin = overrideeElm,

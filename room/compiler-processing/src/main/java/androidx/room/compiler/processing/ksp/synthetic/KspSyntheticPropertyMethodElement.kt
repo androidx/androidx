@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
@@ -32,7 +33,7 @@ import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
-import androidx.room.compiler.processing.ksp.findEnclosingTypeElement
+import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
 import androidx.room.compiler.processing.ksp.overrides
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
@@ -67,7 +68,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun isSuspendFunction() = false
 
-    final override val enclosingElement: XTypeElement
+    final override val enclosingElement: XMemberContainer
         get() = this.field.enclosingElement
 
     final override fun isVarArgs() = false
@@ -248,7 +249,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             env: KspProcessingEnv,
             propertyAccessor: KSPropertyAccessor
         ): KspSyntheticPropertyMethodElement {
-            val enclosingType = propertyAccessor.receiver.findEnclosingTypeElement(env)
+            val enclosingType = propertyAccessor.receiver.findEnclosingMemberContainer(env)
 
             checkNotNull(enclosingType) {
                 "XProcessing does not currently support annotations on top level " +

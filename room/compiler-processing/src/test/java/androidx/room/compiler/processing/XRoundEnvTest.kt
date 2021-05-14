@@ -21,8 +21,11 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import org.junit.Test
 
 class XRoundEnvTest {
@@ -138,39 +141,16 @@ class XRoundEnvTest {
         )
 
         runProcessorTest(listOf(source)) { testInvocation ->
-            if (testInvocation.isKsp) {
-                // Currently not supported
-                // https://issuetracker.google.com/issues/184526463
-                val exception = try {
-                    testInvocation.roundEnv.getElementsAnnotatedWith(
-                        TopLevelAnnotation::class
-                    )
-                    null
-                } catch (e: Throwable) {
-                    e
-                }
-
-                assertThat(exception).isNotNull()
-                assertThat(exception)
-                    .hasMessageThat()
-                    .contains(
-                        "XProcessing does not currently support annotations on top level functions"
-                    )
-            } else {
-
-                val annotatedElements = testInvocation.roundEnv.getElementsAnnotatedWith(
-                    TopLevelAnnotation::class
-                )
-
-                val targetElement = testInvocation.processingEnv.requireTypeElement("BazKt")
-
-                assertThat(
-                    annotatedElements
-                ).apply {
-                    hasSize(1)
-                    contains(targetElement.getDeclaredMethod("myFun"))
-                }
-            }
+            val annotatedElements = testInvocation.roundEnv.getElementsAnnotatedWith(
+                TopLevelAnnotation::class
+            )
+            assertThat(annotatedElements).hasSize(1)
+            val subject = annotatedElements.filterIsInstance<XMethodElement>().first()
+            assertThat(subject.name).isEqualTo("myFun")
+            assertThat(subject.enclosingElement.className).isEqualTo(
+                ClassName.get("", "BazKt")
+            )
+            assertThat(subject.isStatic()).isTrue()
         }
     }
 
@@ -179,51 +159,66 @@ class XRoundEnvTest {
         val source = Source.kotlin(
             "Baz.kt",
             """
+            @file:JvmName("MyCustomClass")
+            package foo.bar
             import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
             @get:TopLevelAnnotation
+            var myPropertyGetter: Int = 0
+            @set:TopLevelAnnotation
+            var myPropertySetter: Int = 0
+            @field:TopLevelAnnotation
             var myProperty: Int = 0
             """.trimIndent()
         )
 
-        runProcessorTest(listOf(source)) { testInvocation ->
-            if (testInvocation.isKsp) {
-                // Currently not supported
-                // https://issuetracker.google.com/issues/184526463
-                val exception = try {
-                    testInvocation.roundEnv.getElementsAnnotatedWith(
-                        TopLevelAnnotation::class
-                    )
-                    null
-                } catch (e: Throwable) {
-                    e
+        runKspTest(listOf(source)) { testInvocation ->
+            val annotatedElements = testInvocation.roundEnv.getElementsAnnotatedWith(
+                TopLevelAnnotation::class
+            )
+            assertThat(annotatedElements).hasSize(3)
+            val byName = annotatedElements.associateBy {
+                when (it) {
+                    is XMethodElement -> it.name
+                    is XFieldElement -> it.name
+                    else -> error("unexpected type $it")
                 }
-
-                assertThat(exception).isNotNull()
-                assertThat(exception)
-                    .hasMessageThat()
-                    .contains(
-                        "XProcessing does not currently support annotations on top level properties"
-                    )
-            } else {
-
-                val annotatedElements = testInvocation.roundEnv.getElementsAnnotatedWith(
-                    TopLevelAnnotation::class
+            }
+            val containerClassName = ClassName.get("foo.bar", "MyCustomClass")
+            assertThat(byName.keys).containsExactly(
+                "getMyPropertyGetter",
+                "setMyPropertySetter",
+                "myProperty"
+            )
+            (byName["getMyPropertyGetter"] as XMethodElement).let {
+                assertThat(it.returnType.typeName).isEqualTo(TypeName.INT)
+                assertThat(it.parameters).hasSize(0)
+                assertThat(it.enclosingElement.className).isEqualTo(
+                    containerClassName
                 )
-
-                val targetElement = testInvocation.processingEnv.requireTypeElement("BazKt")
-
-                assertThat(
-                    annotatedElements
-                ).apply {
-                    hasSize(1)
-                    contains(targetElement.getDeclaredMethod("getMyProperty"))
-                }
+                assertThat(it.isStatic()).isTrue()
+            }
+            (byName["setMyPropertySetter"] as XMethodElement).let {
+                assertThat(it.returnType.typeName).isEqualTo(TypeName.VOID)
+                assertThat(it.parameters).hasSize(1)
+                assertThat(it.parameters.first().type.typeName).isEqualTo(TypeName.INT)
+                assertThat(it.enclosingElement.className).isEqualTo(
+                    containerClassName
+                )
+                assertThat(it.isStatic()).isTrue()
+            }
+            (byName["myProperty"] as XFieldElement).let {
+                assertThat(it.type.typeName).isEqualTo(TypeName.INT)
+                assertThat(it.enclosingElement.className).isEqualTo(
+                    containerClassName
+                )
+                assertThat(it.isStatic()).isTrue()
             }
         }
     }
 
     annotation class TopLevelAnnotation
 
+    @Suppress("unused") // used in tests
     @Target(AnnotationTarget.PROPERTY)
     annotation class PropertyAnnotation
 }
