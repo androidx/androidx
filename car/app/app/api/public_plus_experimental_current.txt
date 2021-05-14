@@ -47,7 +47,7 @@ package androidx.car.app {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
     method public void requestPermissions(java.util.List<java.lang.String!>, androidx.car.app.OnRequestPermissionsCallback);
-    method public void requestPermissions(java.util.concurrent.Executor, java.util.List<java.lang.String!>, androidx.car.app.OnRequestPermissionsCallback);
+    method public void requestPermissions(java.util.List<java.lang.String!>, java.util.concurrent.Executor, androidx.car.app.OnRequestPermissionsCallback);
     method public void startCarApp(android.content.Intent);
     method @Deprecated public static void startCarApp(android.content.Intent, android.content.Intent);
     field public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";

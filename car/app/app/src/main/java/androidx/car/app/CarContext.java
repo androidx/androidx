@@ -451,7 +451,7 @@ public class CarContext extends ContextWrapper {
      */
     public void requestPermissions(@NonNull List<String> permissions,
             @NonNull OnRequestPermissionsCallback callback) {
-        requestPermissions(ContextCompat.getMainExecutor(this), permissions, callback);
+        requestPermissions(permissions, ContextCompat.getMainExecutor(this), callback);
     }
 
     /**
@@ -469,15 +469,16 @@ public class CarContext extends ContextWrapper {
      * <p>If the Session is destroyed before the user accepts or rejects the permissions, the
      * callback will not be executed.
      *
-     * @param executor    the executor that will be used for calling the {@code callback} provided
      * @param permissions the runtime permissions to request from the user
+     * @param executor    the executor that will be used for calling the {@code callback} provided
      * @param callback    callback that will be notified when the user takes action on the
      *                    permission request
      * @throws NullPointerException if any of {@code executor}, {@code permissions} or
      *                              {@code callback} are {@code null}
      */
-    public void requestPermissions(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull List<String> permissions, @NonNull OnRequestPermissionsCallback callback) {
+    public void requestPermissions(@NonNull List<String> permissions,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull OnRequestPermissionsCallback callback) {
         requireNonNull(executor);
         requireNonNull(permissions);
         requireNonNull(callback);

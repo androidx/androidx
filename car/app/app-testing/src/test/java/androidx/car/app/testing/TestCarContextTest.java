@@ -97,7 +97,7 @@ public class TestCarContextTest {
 
     @Test
     public void getLastPermissionRequest() {
-        assertThat(mCarContext.getLastPermissionRequest()).isNull();
+        assertThat(mCarContext.getLastPermissionRequestInfo()).isNull();
 
         List<String> permissions = new ArrayList<>();
         permissions.add("foo");
@@ -106,7 +106,7 @@ public class TestCarContextTest {
 
         mCarContext.requestPermissions(permissions, callback);
 
-        TestCarContext.PermissionRequest request = mCarContext.getLastPermissionRequest();
+        TestCarContext.PermissionRequestInfo request = mCarContext.getLastPermissionRequestInfo();
 
         assertThat(request.getPermissionsRequested()).containsExactlyElementsIn(permissions);
         assertThat(request.getCallback()).isEqualTo(callback);
