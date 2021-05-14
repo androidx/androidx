@@ -161,4 +161,6 @@ interface XProcessingEnv {
      * from both dependencies and source.
      */
     fun getTypeElementsFromPackage(packageName: String): List<XTypeElement>
+
+    // TODO: Add support for getting top level members in a package
 }

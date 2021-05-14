@@ -228,11 +228,9 @@ class XRoundEnvTest {
 
         runProcessorTest(listOf(source)) { testInvocation ->
             val elements = testInvocation.processingEnv.getTypeElementsFromPackage("foo")
-
             val targetElement = testInvocation.processingEnv.requireTypeElement(
                 "foo.Baz"
             )
-
             assertThat(
                 elements
             ).contains(targetElement)
