@@ -39,10 +39,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Install ahead of time tracing profiles to configure ART to precompile bundled libraries.
@@ -409,51 +405,63 @@ public class ProfileInstaller {
     }
 
     /**
-     * Try to install the profile from assets into the ART aot profile directory.
+     * Try to write the profile from assets into the ART aot profile directory.
+     *
+     * You do not need to call this method if {@link ProfileInstallerInitializer} is enabled for
+     * your application.
+     *
+     * If you disable the initializer, you should <b>call this method within 5-10 seconds</b> of
+     * app launch, to ensure that art can use the generated profile.
      *
      * This should always be called after the first screen is shown to the user, to avoid
      * delaying application startup to install AOT profiles.
+     *
+     * It is encouraged that you call this method during <b>every</b> app startup to ensure
+     * profiles are written correctly after app upgrades, or if the profile failed to write on the
+     * previous launch.
+     *
+     * Profiles will be correctly formatted based on the current API level of the device, and only
+     * installed if profileinstaller can determine that it is safe to do so.
+     *
+     * If the profile is not written, no action needs to be taken.
      *
      * @param context context to read assets from
      */
     @WorkerThread
-    public static void tryInstallSync(@NonNull Context context) {
-        tryInstallSync(context, EMPTY_DIAGNOSTICS);
+    public static void writeProfile(@NonNull Context context) {
+        writeProfile(context, EMPTY_DIAGNOSTICS);
     }
 
     /**
-     * Try to install the profile from assets into the ART aot profile directory.
+     * Try to write the profile from assets into the ART aot profile directory.
+     *
+     * You do not need to call this method if {@link ProfileInstallerInitializer} is enabled for
+     * your application.
+     *
+     * If you disable the initializer, you should call this method within 5-10 seconds of app
+     * launch, to ensure that art can use the generated profile.
      *
      * This should always be called after the first screen is shown to the user, to avoid
      * delaying application startup to install AOT profiles.
+     *
+     * It is encouraged that you call this method during <b>every</b> app startup to ensure
+     * profiles are written correctly after app upgrades, or if the profile failed to write on the
+     * previous launch.
+     *
+     * Profiles will be correctly formatted based on the current API level of the device, and only
+     * installed if profileinstaller can determine that it is safe to do so.
+     *
+     * If the profile is not written, no action needs to be taken.
+
      *
      * @param context context to read assets from
      * @param diagnostics an object which will receive diagnostic information about the installation
      */
     @WorkerThread
-    public static void tryInstallSync(@NonNull Context context, @NonNull Diagnostics diagnostics) {
+    public static void writeProfile(@NonNull Context context, @NonNull Diagnostics diagnostics) {
         Context appContext = context.getApplicationContext();
         String packageName = appContext.getPackageName();
         AssetManager assetManager = appContext.getAssets();
         transcodeAndWrite(assetManager, packageName, diagnostics);
-    }
-
-    /**
-     * Creates a new thread and calls {@link ProfileInstaller#tryInstallSync(Context)} on it.
-     *
-     * Thread will be destroyed after the call completes.
-     *
-     * Warning: *Never* call this during app initialization as it will create a thread and
-     * start disk read/write immediately.
-     */
-    static void tryInstallInBackground(@NonNull Context context) {
-        Executor executor = new ThreadPoolExecutor(
-                /* corePoolSize = */0,
-                /* maximumPoolSize = */1,
-                /* keepAliveTime = */0,
-                /* unit = */TimeUnit.MILLISECONDS,
-                /* workQueue = */new LinkedBlockingQueue<>()
-        );
-        executor.execute(() -> tryInstallSync(context));
     }
 }
