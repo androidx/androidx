@@ -105,6 +105,13 @@ public class AppSearchDebugActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
             Log.e(TAG, "Failed to initialize AppSearch.", e);
         }
+
+        MenuFragment menuFragment = new MenuFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, menuFragment)
+                .addToBackStack(/*name=*/null)
+                .commit();
     }
 
     @Override
