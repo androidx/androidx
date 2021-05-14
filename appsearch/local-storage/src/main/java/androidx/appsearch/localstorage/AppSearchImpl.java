@@ -17,7 +17,6 @@
 package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
-import static androidx.appsearch.localstorage.util.PrefixUtil.createPackagePrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
@@ -1345,20 +1344,47 @@ public final class AppSearchImpl implements Closeable {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
+            Set<String> existingPackages = getPackageToDatabases().keySet();
+            if (existingPackages.contains(packageName)) {
+                existingPackages.remove(packageName);
+                prunePackageData(existingPackages);
+            }
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+    }
 
+    /**
+     * Remove all {@link AppSearchSchema}s and {@link GenericDocument}s that doesn't belong to any
+     * of the given installed packages
+     *
+     * @param installedPackages   The name of all installed package.
+     * @throws AppSearchException if we cannot remove the data.
+     */
+    public void prunePackageData(@NonNull Set<String> installedPackages) throws AppSearchException {
+        mReadWriteLock.writeLock().lock();
+        try {
+            throwIfClosedLocked();
+            Map<String, Set<String>> packageToDatabases = getPackageToDatabases();
+            if (installedPackages.containsAll(packageToDatabases.keySet())) {
+                // No package got removed. We are good.
+                return;
+            }
+
+            // Prune schema proto
             SchemaProto existingSchema = getSchemaProtoLocked();
             SchemaProto.Builder newSchemaBuilder = SchemaProto.newBuilder();
-
-            String prefix = createPackagePrefix(packageName);
             for (int i = 0; i < existingSchema.getTypesCount(); i++) {
-                if (!existingSchema.getTypes(i).getSchemaType().startsWith(prefix)) {
+                String packageName = getPackageName(existingSchema.getTypes(i).getSchemaType());
+                if (installedPackages.contains(packageName)) {
                     newSchemaBuilder.addTypes(existingSchema.getTypes(i));
                 }
             }
+
             SchemaProto finalSchema = newSchemaBuilder.build();
 
-            // Apply schema, set force override to true to remove all schemas and documents under
-            // that package.
+            // Apply schema, set force override to true to remove all schemas and documents that
+            // doesn't belong to any of these installed packages.
             mLogUtil.piiTrace(
                     "clearPackageData.setSchema, request",
                     finalSchema.getTypesCount(),
@@ -1372,6 +1398,20 @@ public final class AppSearchImpl implements Closeable {
 
             // Determine whether it succeeded.
             checkSuccess(setSchemaResultProto.getStatus());
+
+            // Prune cached maps
+            for (Map.Entry<String, Set<String>> entry : packageToDatabases.entrySet()) {
+                String packageName = entry.getKey();
+                Set<String> databaseNames = entry.getValue();
+                if (!installedPackages.contains(packageName) && databaseNames != null) {
+                    for (String databaseName : databaseNames) {
+                        String removedPrefix = createPrefix(packageName, databaseName);
+                        mSchemaMapLocked.remove(removedPrefix);
+                        mNamespaceMapLocked.remove(removedPrefix);
+                    }
+                }
+            }
+            //TODO(b/145759910) clear visibility setting for package.
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
