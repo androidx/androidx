@@ -16,6 +16,8 @@
 
 package androidx.room;
 
+import androidx.annotation.StringDef;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -55,6 +57,18 @@ public @interface Index {
     String[] value();
 
     /**
+     * List of column sort orders in the Index.
+     * <p>
+     * The size of array should be equal to size of columns in {@link #value()}
+     * See <a href="https://sqlite.org/lang_createindex.html">SQLite documentation</a> for details
+     * on descending indices.
+     *
+     * @return The list of column sort orders in the Index.
+     */
+    @Order
+    String[] orders() default {};
+
+    /**
      * Name of the index. If not set, Room will set it to the list of columns joined by '_' and
      * prefixed by "index_${tableName}". So if you have a table with name "Foo" and with an index
      * of {"bar", "baz"}, generated index name will be  "index_Foo_bar_baz". If you need to specify
@@ -71,4 +85,23 @@ public @interface Index {
      * @return True if index is unique. False by default.
      */
     boolean unique() default false;
+
+    /**
+     * Ascending returning order.
+     */
+    String ASC = "ASC";
+
+    /**
+     * Descending returning order.
+     */
+    String DESC = "DESC";
+
+    /**
+     * Constants definition for sort order that can be used in {@link #orders()}
+     */
+    @StringDef({ASC, DESC})
+    @Retention(RetentionPolicy.CLASS)
+    @SuppressWarnings("PublicTypedef")
+    @interface Order {
+    }
 }

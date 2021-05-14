@@ -48,6 +48,22 @@ class IndexTest {
         )
     }
 
+    @Test
+    fun createWithSortOrder() {
+        val index = Index(
+            name = "foo",
+            unique = false,
+            fields = listOf(mockField("bar"), mockField("baz")),
+            orders = listOf("ASC", "DESC")
+        )
+        MatcherAssert.assertThat(
+            index.createQuery("my_table"),
+            CoreMatchers.`is`(
+                "CREATE INDEX IF NOT EXISTS `foo` ON `my_table` (`bar` ASC, `baz` DESC)"
+            )
+        )
+    }
+
     private fun mockField(columnName: String): Field {
         val (element, type) = mockElementAndType()
         return Field(

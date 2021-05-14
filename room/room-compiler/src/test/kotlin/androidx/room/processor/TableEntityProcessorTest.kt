@@ -171,6 +171,84 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun index_sort_desc() {
+        val annotation = mapOf(
+            "indices" to """@Index(value = {"foo"}, orders = {"DESC"})"""
+        )
+        singleEntity(
+            """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """,
+            annotation
+        ) { entity, _ ->
+            assertThat(
+                entity.indices,
+                `is`(
+                    listOf(
+                        Index(
+                            name = "index_MyEntity_foo",
+                            unique = false,
+                            fields = fieldsByName(entity, "foo"),
+                            orders = listOf("DESC")
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun index_sort_multiple() {
+        val annotation = mapOf(
+            "tableName" to "\"MyTable\"",
+            "indices" to """@Index(value = {"foo", "id"}, orders = {"DESC", "ASC"})"""
+        )
+        singleEntity(
+            """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """,
+            annotation
+        ) { entity, _ ->
+            assertThat(
+                entity.indices,
+                `is`(
+                    listOf(
+                        Index(
+                            name = "index_MyTable_foo_id",
+                            unique = false,
+                            fields = fieldsByName(entity, "foo", "id"),
+                            orders = listOf("DESC", "ASC")
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun index_invalidOrdersSize() {
+        val annotation = mapOf(
+            "indices" to """@Index(value = {"foo", "id"}, orders = {"DESC"})"""
+        )
+        singleEntity(
+            """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """,
+            annotation
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INVALID_INDEX_ORDERS_SIZE)
+            }
+        }
+    }
+
+    @Test
     fun getterWithAssignableType() {
         singleEntity(
             """
