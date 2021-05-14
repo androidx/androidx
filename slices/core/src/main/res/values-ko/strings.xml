@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g>에서 <xliff:g id="APP_2">%2$s</xliff:g>의 슬라이스를 표시하도록 허용하시겠습니까?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- <xliff:g id="APP">%1$s</xliff:g>의 정보를 읽을 수 있음"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- <xliff:g id="APP">%1$s</xliff:g>에서 작업할 수 있음"</string>
-
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"허용"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"거부"</string>
 </resources>
