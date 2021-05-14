@@ -48,7 +48,7 @@ public class SearchResultToPlatformConverter {
                 .setGenericDocument(document)
                 .setRankingSignal(platformResult.getRankingSignal());
         List<android.app.appsearch.SearchResult.MatchInfo> platformMatches =
-                platformResult.getMatches();
+                platformResult.getMatchInfos();
         for (int i = 0; i < platformMatches.size(); i++) {
             SearchResult.MatchInfo jetpackMatchInfo = toJetpackMatchInfo(platformMatches.get(i));
             builder.addMatchInfo(jetpackMatchInfo);
