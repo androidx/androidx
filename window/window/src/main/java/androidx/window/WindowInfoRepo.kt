@@ -61,8 +61,8 @@ public interface WindowInfoRepo {
      * areas of the display are not available to windows created for the associated [Context].
      * For example, devices with foldable displays that wrap around the enclosure may split the
      * physical display into different regions, one for the front and one for the back, each acting
-     * as different logical displays. In this case [.getMaximumWindowMetrics] would return
-     * the region describing the side of the device the associated [context&#39;s][Context]
+     * as different logical displays. In this case [getMaximumWindowMetrics] would return
+     * the region describing the side of the device the associated [context's][Context]
      * window is placed.
      *
      * @see currentWindowMetrics
