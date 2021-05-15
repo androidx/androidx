@@ -31,7 +31,6 @@ dependencies {
 
     api(KOTLIN_STDLIB) // Due to :annotation-experimental
     implementation("androidx.core:core:1.6.0-alpha01")
-    implementation("androidx.activity:activity:1.2.2")
     implementation(project(":annotation:annotation-experimental"))
 }
 
