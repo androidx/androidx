@@ -29,8 +29,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,16 +85,30 @@ public final class FragmentStrictMode {
      * different penalties for different detected actions.
      */
     public static final class Policy {
-        private final Set<Flag> flags;
-        private final OnViolationListener listener;
+        private final Set<Flag> mFlags;
+        private final OnViolationListener mListener;
+        private final Map<Class<? extends Fragment>,
+                Set<Class<? extends Violation>>> mAllowedViolations;
 
         /** The default, lax policy which doesn't catch anything. */
         @NonNull
-        public static final Policy LAX = new Policy(new HashSet<Flag>(), null);
+        public static final Policy LAX = new Policy(new HashSet<>(), null, new HashMap<>());
 
-        private Policy(@NonNull Set<Flag> flags, @Nullable OnViolationListener listener) {
-            this.flags = Collections.unmodifiableSet(flags);
-            this.listener = listener;
+        private Policy(
+                @NonNull Set<Flag> flags,
+                @Nullable OnViolationListener listener,
+                @NonNull Map<Class<? extends Fragment>,
+                        Set<Class<? extends Violation>>> allowedViolations) {
+            this.mFlags = new HashSet<>(flags);
+            this.mListener = listener;
+
+            Map<Class<? extends Fragment>, Set<Class<? extends Violation>>>
+                    newAllowedViolationsMap = new HashMap<>();
+            for (Map.Entry<Class<? extends Fragment>,
+                    Set<Class<? extends Violation>>> entry : allowedViolations.entrySet()) {
+                newAllowedViolationsMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
+            this.mAllowedViolations = newAllowedViolationsMap;
         }
 
         /**
@@ -105,19 +120,22 @@ public final class FragmentStrictMode {
          * order is insignificant: all penalties apply to all detected problems.
          */
         public static final class Builder {
-            private final Set<Flag> flags;
-            private OnViolationListener listener;
+            private final Set<Flag> mFlags;
+            private OnViolationListener mListener;
+            private final Map<Class<? extends Fragment>,
+                    Set<Class<? extends Violation>>> mAllowedViolations;
 
             /** Create a Builder that detects nothing and has no violations. */
             public Builder() {
-                flags = new HashSet<>();
+                mFlags = new HashSet<>();
+                mAllowedViolations = new HashMap<>();
             }
 
             /** Log detected violations to the system log. */
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder penaltyLog() {
-                flags.add(Flag.PENALTY_LOG);
+                mFlags.add(Flag.PENALTY_LOG);
                 return this;
             }
 
@@ -129,7 +147,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder penaltyDeath() {
-                flags.add(Flag.PENALTY_DEATH);
+                mFlags.add(Flag.PENALTY_DEATH);
                 return this;
             }
 
@@ -140,7 +158,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder penaltyListener(@NonNull OnViolationListener listener) {
-                this.listener = listener;
+                this.mListener = listener;
                 return this;
             }
 
@@ -151,7 +169,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectFragmentReuse() {
-                flags.add(Flag.DETECT_FRAGMENT_REUSE);
+                mFlags.add(Flag.DETECT_FRAGMENT_REUSE);
                 return this;
             }
 
@@ -159,7 +177,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectFragmentTagUsage() {
-                flags.add(Flag.DETECT_FRAGMENT_TAG_USAGE);
+                mFlags.add(Flag.DETECT_FRAGMENT_TAG_USAGE);
                 return this;
             }
 
@@ -170,7 +188,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectRetainInstanceUsage() {
-                flags.add(Flag.DETECT_RETAIN_INSTANCE_USAGE);
+                mFlags.add(Flag.DETECT_RETAIN_INSTANCE_USAGE);
                 return this;
             }
 
@@ -178,7 +196,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectSetUserVisibleHint() {
-                flags.add(Flag.DETECT_SET_USER_VISIBLE_HINT);
+                mFlags.add(Flag.DETECT_SET_USER_VISIBLE_HINT);
                 return this;
             }
 
@@ -189,7 +207,7 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectTargetFragmentUsage() {
-                flags.add(Flag.DETECT_TARGET_FRAGMENT_USAGE);
+                mFlags.add(Flag.DETECT_TARGET_FRAGMENT_USAGE);
                 return this;
             }
 
@@ -200,7 +218,29 @@ public final class FragmentStrictMode {
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectWrongFragmentContainer() {
-                flags.add(Flag.DETECT_WRONG_FRAGMENT_CONTAINER);
+                mFlags.add(Flag.DETECT_WRONG_FRAGMENT_CONTAINER);
+                return this;
+            }
+
+            /**
+             * Allow the specified {@link Fragment} class to bypass penalties for the
+             * specified {@link Violation}, if detected.
+             *
+             * By default, all {@link Fragment} classes will incur penalties for any
+             * detected {@link Violation}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder allowViolation(
+                    @NonNull Class<? extends Fragment> fragmentClass,
+                    @NonNull Class<? extends Violation> violationClass) {
+                Set<Class<? extends Violation>> violationsToBypass =
+                        mAllowedViolations.get(fragmentClass);
+                if (violationsToBypass == null) {
+                    violationsToBypass = new HashSet<>();
+                }
+                violationsToBypass.add(violationClass);
+                mAllowedViolations.put(fragmentClass, violationsToBypass);
                 return this;
             }
 
@@ -212,10 +252,10 @@ public final class FragmentStrictMode {
              */
             @NonNull
             public Policy build() {
-                if (listener == null && !flags.contains(Flag.PENALTY_DEATH)) {
+                if (mListener == null && !mFlags.contains(Flag.PENALTY_DEATH)) {
                     penaltyLog();
                 }
-                return new Policy(flags, listener);
+                return new Policy(mFlags, mListener, mAllowedViolations);
             }
         }
     }
@@ -255,7 +295,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_FRAGMENT_REUSE)) {
+        if (policy.mFlags.contains(Flag.DETECT_FRAGMENT_REUSE)
+                && shouldHandlePolicyViolation(
+                fragment.getClass(), policy, violation.getClass())) {
             handlePolicyViolation(fragment, policy, violation);
         }
     }
@@ -266,7 +308,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_FRAGMENT_TAG_USAGE)) {
+        if (policy.mFlags.contains(Flag.DETECT_FRAGMENT_TAG_USAGE)
+                && shouldHandlePolicyViolation(
+                fragment.getClass(), policy, violation.getClass())) {
             handlePolicyViolation(fragment, policy, violation);
         }
     }
@@ -277,7 +321,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)) {
+        if (policy.mFlags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)
+                && shouldHandlePolicyViolation(
+                fragment.getClass(), policy, violation.getClass())) {
             handlePolicyViolation(fragment, policy, violation);
         }
     }
@@ -288,7 +334,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)) {
+        if (policy.mFlags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)
+                && shouldHandlePolicyViolation(
+                fragment.getClass(), policy, violation.getClass())) {
             handlePolicyViolation(fragment, policy, violation);
         }
     }
@@ -299,7 +347,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)) {
+        if (policy.mFlags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)
+                && shouldHandlePolicyViolation(
+                fragment.getClass(), policy, violation.getClass())) {
             handlePolicyViolation(fragment, policy, violation);
         }
     }
@@ -310,7 +360,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_WRONG_FRAGMENT_CONTAINER)) {
+        if (policy.mFlags.contains(Flag.DETECT_WRONG_FRAGMENT_CONTAINER)
+                && shouldHandlePolicyViolation(
+                fragment.getClass(), policy, violation.getClass())) {
             handlePolicyViolation(fragment, policy, violation);
         }
     }
@@ -320,7 +372,9 @@ public final class FragmentStrictMode {
         logIfDebuggingEnabled(fragment.getClass().getName(), violation);
 
         Policy policy = getNearestPolicy(fragment);
-        handlePolicyViolation(fragment, policy, violation);
+        if (shouldHandlePolicyViolation(fragment.getClass(), policy, violation.getClass())) {
+            handlePolicyViolation(fragment, policy, violation);
+        }
     }
 
     private static void logIfDebuggingEnabled(
@@ -333,6 +387,15 @@ public final class FragmentStrictMode {
         }
     }
 
+    private static boolean shouldHandlePolicyViolation(
+            @NonNull Class<? extends Fragment> fragmentClass,
+            @NonNull final Policy policy,
+            @NonNull Class<? extends Violation> violationClass) {
+        Set<Class<? extends Violation>> violationsToBypass =
+                policy.mAllowedViolations.get(fragmentClass);
+        return violationsToBypass == null || !violationsToBypass.contains(violationClass);
+    }
+
     private static void handlePolicyViolation(
             @NonNull Fragment fragment,
             @NonNull final Policy policy,
@@ -340,20 +403,20 @@ public final class FragmentStrictMode {
     ) {
         final String fragmentName = fragment.getClass().getName();
 
-        if (policy.flags.contains(Flag.PENALTY_LOG)) {
+        if (policy.mFlags.contains(Flag.PENALTY_LOG)) {
             Log.d(TAG, "Policy violation in " + fragmentName, violation);
         }
 
-        if (policy.listener != null) {
+        if (policy.mListener != null) {
             runOnHostThread(fragment, new Runnable() {
                 @Override
                 public void run() {
-                    policy.listener.onViolation(violation);
+                    policy.mListener.onViolation(violation);
                 }
             });
         }
 
-        if (policy.flags.contains(Flag.PENALTY_DEATH)) {
+        if (policy.mFlags.contains(Flag.PENALTY_DEATH)) {
             runOnHostThread(fragment, new Runnable() {
                 @Override
                 public void run() {

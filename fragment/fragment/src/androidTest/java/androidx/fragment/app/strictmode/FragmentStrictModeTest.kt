@@ -36,6 +36,8 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class FragmentStrictModeTest {
+    private val fragmentClass = StrictFragment::class.java
+
     private lateinit var originalPolicy: FragmentStrictMode.Policy
 
     @Before
@@ -292,5 +294,39 @@ public class FragmentStrictModeTest {
             executePendingTransactions()
             assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
         }
+    }
+
+    @Test
+    public fun detectAllowedViolations() {
+        val violationClass1 = RetainInstanceUsageViolation::class.java
+        val violationClass2 = SetUserVisibleHintViolation::class.java
+        val violationClassList = listOf(violationClass1, violationClass2)
+
+        var violation: Violation? = null
+        var policyBuilder = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .detectSetUserVisibleHint()
+            .penaltyListener { violation = it }
+        for (violationClass in violationClassList) {
+            policyBuilder = policyBuilder.allowViolation(fragmentClass, violationClass)
+        }
+        FragmentStrictMode.setDefaultPolicy(policyBuilder.build())
+
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance = true
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(violationClass2)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(violationClass2)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().userVisibleHint = true
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(violationClass2)
     }
 }
