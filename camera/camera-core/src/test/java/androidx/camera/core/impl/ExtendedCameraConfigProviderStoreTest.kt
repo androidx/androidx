@@ -37,12 +37,13 @@ public class ExtendedCameraConfigProviderStoreTest {
 
         ExtendedCameraConfigProviderStore.addConfig(id, cameraConfigProvider)
 
-        assertThat(ExtendedCameraConfigProviderStore.getConfig(id)).isEqualTo(cameraConfigProvider)
+        assertThat(ExtendedCameraConfigProviderStore.getConfigProvider(id))
+            .isEqualTo(cameraConfigProvider)
     }
 
     @Test
     public fun returnDefaultEmptyCameraConfigProvider_whenNoDataStored() {
-        assertThat(ExtendedCameraConfigProviderStore.getConfig(Object())).isEqualTo(
+        assertThat(ExtendedCameraConfigProviderStore.getConfigProvider(Object())).isEqualTo(
             CameraConfigProvider.EMPTY
         )
     }

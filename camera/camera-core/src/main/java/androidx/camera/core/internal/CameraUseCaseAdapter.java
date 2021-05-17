@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
@@ -491,63 +490,13 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @Override
-    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws CameraException {
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
         synchronized (mLock) {
-            CameraConfig newCameraConfig = cameraConfig == null ? CameraConfigs.emptyConfig() :
-                    cameraConfig;
-            // Check for new camera
-            CameraFilter cameraFilter = newCameraConfig.getCameraFilter();
-            CameraSelector cameraSelector =
-                    new CameraSelector.Builder().addCameraFilter(cameraFilter).build();
-            CameraInternal cameraInternal = cameraSelector.select(mCameraInternals);
-
-            Map<UseCase, ConfigPair> configs = getConfigs(mUseCases,
-                    newCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-
-            // Calculate the config
-            Map<UseCase, Size> suggestedResolutionsMap;
-            try {
-                suggestedResolutionsMap =
-                        calculateSuggestedResolutions(cameraInternal.getCameraInfoInternal(),
-                                mUseCases,
-                                Collections.emptyList(),
-                                configs);
-            } catch (IllegalArgumentException e) {
-                // It can fail because of the suggested resolution
-                // It can fail because the merged configs are no good
-                throw new CameraException(e.getMessage());
+            if (cameraConfig == null) {
+                mCameraConfig = CameraConfigs.emptyConfig();
+                return;
             }
-
-            updateViewPort(suggestedResolutionsMap, mUseCases);
-
-            if (mAttached) {
-                mCameraInternal.detachUseCases(mUseCases);
-            }
-
-            for (UseCase useCase : mUseCases) {
-                useCase.onDetach(mCameraInternal);
-            }
-
-            for (UseCase useCase : mUseCases) {
-                ConfigPair configPair = configs.get(useCase);
-                useCase.onAttach(cameraInternal, configPair.mExtendedConfig,
-                        configPair.mCameraConfig);
-                useCase.updateSuggestedResolution(
-                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
-            }
-
-            if (mAttached) {
-                notifyAttachedUseCasesChange(mUseCases);
-                cameraInternal.attachUseCases(mUseCases);
-            }
-
-            for (UseCase useCase : mUseCases) {
-                useCase.notifyState();
-            }
-
-            mCameraInternal = cameraInternal;
-            // Update the config map now that the setting has succeeded
-            mCameraConfig = newCameraConfig;
+            mCameraConfig = cameraConfig;
         }
     }
 

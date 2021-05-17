@@ -255,8 +255,7 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     }
 
     @Override
-    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
-            CameraUseCaseAdapter.CameraException {
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig)  {
         mCameraUseCaseAdapter.setExtendedConfig(cameraConfig);
     }
 }

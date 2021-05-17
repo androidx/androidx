@@ -53,7 +53,7 @@ public final class ExtendedCameraConfigProviderStore {
      * {@link CameraConfigProvider} associated with the key.
      */
     @NonNull
-    public static CameraConfigProvider getConfig(@NonNull Object key) {
+    public static CameraConfigProvider getConfigProvider(@NonNull Object key) {
         final CameraConfigProvider provider;
         synchronized (LOCK) {
             provider = CAMERA_CONFIG_PROVIDERS.get(key);

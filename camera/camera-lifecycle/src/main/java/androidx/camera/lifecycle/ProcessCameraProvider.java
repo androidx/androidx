@@ -42,7 +42,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraConfig;
-import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.utils.ContextUtil;
@@ -154,7 +153,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     public static ListenableFuture<ProcessCameraProvider> getInstance(
             @NonNull Context context) {
         Preconditions.checkNotNull(context);
-        return Futures.transform(CameraX.getOrCreateInstance(context), cameraX ->  {
+        return Futures.transform(CameraX.getOrCreateInstance(context), cameraX -> {
             sAppInstance.setCameraX(cameraX);
             sAppInstance.setContext(ContextUtil.getApplicationContext(context));
             return sAppInstance;
@@ -429,32 +428,29 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                                     mCameraX.getDefaultConfigFactory()));
         }
 
-        CameraConfig cameraConfig = CameraConfigs.emptyConfig();
+        CameraConfig cameraConfig = null;
 
         // Retrieves extended camera configs from ExtendedCameraConfigProviderStore
         for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
             if (cameraFilter.getId() != CameraFilter.Id.DEFAULT) {
-                CameraConfig extendedCameraConfig = ExtendedCameraConfigProviderStore.getConfig(
-                        cameraFilter.getId()).getConfig(lifecycleCameraToBind.getCameraInfo(),
-                        mContext);
+                CameraConfig extendedCameraConfig =
+                        ExtendedCameraConfigProviderStore.getConfigProvider(cameraFilter.getId())
+                                .getConfig(lifecycleCameraToBind.getCameraInfo(), mContext);
+                if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
+                    continue;
+                }
 
                 // Only allows one camera config now.
-                if (extendedCameraConfig != CameraConfigs.emptyConfig()
-                        && cameraConfig != CameraConfigs.emptyConfig()) {
+                if (cameraConfig != null) {
                     throw new IllegalArgumentException(
                             "Cannot apply multiple extended camera configs at the same time.");
-                } else {
-                    cameraConfig = extendedCameraConfig;
                 }
+                cameraConfig = extendedCameraConfig;
             }
         }
 
         // Applies extended camera configs to the camera
-        try {
-            lifecycleCameraToBind.setExtendedConfig(cameraConfig);
-        } catch (CameraUseCaseAdapter.CameraException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        lifecycleCameraToBind.setExtendedConfig(cameraConfig);
 
         if (useCases.length == 0) {
             return lifecycleCameraToBind;
