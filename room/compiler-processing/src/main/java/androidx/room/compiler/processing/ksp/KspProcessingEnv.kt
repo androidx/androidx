@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -80,6 +81,14 @@ internal class KspProcessingEnv(
 
     override fun findTypeElement(qName: String): XTypeElement? {
         return typeElementStore[qName]
+    }
+
+    @OptIn(KspExperimental::class)
+    override fun getTypeElementsFromPackage(packageName: String): List<XTypeElement> {
+        return resolver.getDeclarationsFromPackage(packageName)
+            .filterIsInstance<KSClassDeclaration>()
+            .map { KspTypeElement.create(this, it) }
+            .toList()
     }
 
     override fun findType(qName: String): XType? {
