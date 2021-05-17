@@ -73,6 +73,16 @@ internal class JavacProcessingEnv(
         return typeElementStore[qName]
     }
 
+    override fun getTypeElementsFromPackage(packageName: String): List<XTypeElement> {
+        // Note, to support Java Modules we would need to use "getAllPackageElements",
+        // but that is only available in Java 9+.
+        val packageElement = delegate.elementUtils.getPackageElement(packageName)
+
+        return packageElement.enclosedElements
+            .filterIsInstance<TypeElement>()
+            .map { wrapTypeElement(it) }
+    }
+
     override fun findType(qName: String): XType? {
         // check for primitives first
         PRIMITIVE_TYPES[qName]?.let {
