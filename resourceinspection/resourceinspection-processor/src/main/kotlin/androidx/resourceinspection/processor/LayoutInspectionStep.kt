@@ -67,8 +67,8 @@ internal class LayoutInspectionStep(
         return emptySet()
     }
 
-    /** Parse the annotated getters of a view class into a [ViewIR]. */
-    private fun parseView(type: TypeElement, getters: Iterable<ExecutableElement>): ViewIR? {
+    /** Parse the annotated getters of a view class into a [View]. */
+    private fun parseView(type: TypeElement, getters: Iterable<ExecutableElement>): View? {
         if (!type.asType().isAssignableTo("android.view.View")) {
             getters.forEach { getter ->
                 printError(
@@ -93,13 +93,13 @@ internal class LayoutInspectionStep(
                 duplicates.forEach { attribute ->
                     val qualifiedName = attribute.qualifiedName
                     val otherGetters = duplicates
-                        .filter { it.getter != attribute.getter }
-                        .joinToString { it.getter.toString() }
+                        .filter { it.invocation != attribute.invocation }
+                        .joinToString { it.invocation }
 
                     printError(
                         "Duplicate attribute $qualifiedName is also present on $otherGetters",
-                        attribute.getter,
-                        attribute.annotation
+                        (attribute as? GetterAttribute)?.getter,
+                        (attribute as? GetterAttribute)?.annotation
                     )
                 }
             }
@@ -110,11 +110,11 @@ internal class LayoutInspectionStep(
             return null
         }
 
-        return ViewIR(type, attributes = attributes.filterNotNull().sortedBy { it.qualifiedName })
+        return View(type, attributes = attributes.filterNotNull().sortedBy { it.qualifiedName })
     }
 
-    /** Get an [AttributeIR] from a method known to have an `Attribute` annotation. */
-    private fun parseAttribute(getter: ExecutableElement): AttributeIR? {
+    /** Get an [Attribute] from a method known to have an `Attribute` annotation. */
+    private fun parseAttribute(getter: ExecutableElement): Attribute? {
         val annotation = getter.getAnnotationMirror(ATTRIBUTE)!!
         val annotationValue = getAnnotationValue(annotation, "value")
         val value = annotationValue.value as String
@@ -139,7 +139,7 @@ internal class LayoutInspectionStep(
             // TODO(b/180041203): Verify attribute ID or at least existence of R files
             // TODO(b/180041633): Validate consistency of int mapping
 
-            AttributeIR(getter, annotation, namespace, name, type, intMapping)
+            GetterAttribute(getter, annotation, namespace, name, type, intMapping)
         } else if (!value.contains(':')) {
             printError("Attribute name must include namespace", getter, annotation, annotationValue)
             null
@@ -150,11 +150,11 @@ internal class LayoutInspectionStep(
     }
 
     /** Parse `Attribute.intMapping`. */
-    private fun parseIntMapping(annotation: AnnotationMirror): List<IntMapIR> {
+    private fun parseIntMapping(annotation: AnnotationMirror): List<IntMap> {
         return (getAnnotationValue(annotation, "intMapping").value as List<*>).map { entry ->
             val intMapAnnotation = (entry as AnnotationValue).value as AnnotationMirror
 
-            IntMapIR(
+            IntMap(
                 name = getAnnotationValue(intMapAnnotation, "name").value as String,
                 value = getAnnotationValue(intMapAnnotation, "value").value as Int,
                 mask = getAnnotationValue(intMapAnnotation, "mask").value as Int,
@@ -165,35 +165,35 @@ internal class LayoutInspectionStep(
     /** Map the getter's annotations and return type to the internal attribute type. */
     private fun inferAttributeType(
         getter: ExecutableElement,
-        intMapping: List<IntMapIR>
-    ): AttributeTypeIR {
+        intMapping: List<IntMap>
+    ): AttributeType {
         return when (getter.returnType.kind) {
-            TypeKind.BOOLEAN -> AttributeTypeIR.BOOLEAN
-            TypeKind.BYTE -> AttributeTypeIR.BYTE
-            TypeKind.CHAR -> AttributeTypeIR.CHAR
-            TypeKind.DOUBLE -> AttributeTypeIR.DOUBLE
-            TypeKind.FLOAT -> AttributeTypeIR.FLOAT
-            TypeKind.SHORT -> AttributeTypeIR.SHORT
+            TypeKind.BOOLEAN -> AttributeType.BOOLEAN
+            TypeKind.BYTE -> AttributeType.BYTE
+            TypeKind.CHAR -> AttributeType.CHAR
+            TypeKind.DOUBLE -> AttributeType.DOUBLE
+            TypeKind.FLOAT -> AttributeType.FLOAT
+            TypeKind.SHORT -> AttributeType.SHORT
             TypeKind.INT -> when {
-                getter.isAnnotationPresent(COLOR_INT) -> AttributeTypeIR.COLOR
-                getter.isAnnotationPresent(GRAVITY_INT) -> AttributeTypeIR.GRAVITY
-                getter.hasResourceIdAnnotation() -> AttributeTypeIR.RESOURCE_ID
-                intMapping.any { it.mask != 0 } -> AttributeTypeIR.INT_FLAG
-                intMapping.isNotEmpty() -> AttributeTypeIR.INT_ENUM
-                else -> AttributeTypeIR.INT
+                getter.isAnnotationPresent(COLOR_INT) -> AttributeType.COLOR
+                getter.isAnnotationPresent(GRAVITY_INT) -> AttributeType.GRAVITY
+                getter.hasResourceIdAnnotation() -> AttributeType.RESOURCE_ID
+                intMapping.any { it.mask != 0 } -> AttributeType.INT_FLAG
+                intMapping.isNotEmpty() -> AttributeType.INT_ENUM
+                else -> AttributeType.INT
             }
             TypeKind.LONG ->
                 if (getter.isAnnotationPresent(COLOR_LONG)) {
-                    AttributeTypeIR.COLOR
+                    AttributeType.COLOR
                 } else {
-                    AttributeTypeIR.LONG
+                    AttributeType.LONG
                 }
             TypeKind.DECLARED, TypeKind.ARRAY ->
                 if (getter.returnType.isAssignableTo("android.graphics.Color")) {
-                    AttributeTypeIR.COLOR
+                    AttributeType.COLOR
                 } else {
                     // TODO(b/180041034): Validate object types and unbox primitives
-                    AttributeTypeIR.OBJECT
+                    AttributeType.OBJECT
                 }
             else -> throw IllegalArgumentException("Unexpected attribute type")
         }
@@ -215,7 +215,7 @@ internal class LayoutInspectionStep(
     /** Convenience wrapper for [javax.annotation.processing.Messager.printMessage]. */
     private fun printError(
         message: String,
-        element: Element,
+        element: Element?,
         annotation: AnnotationMirror? = null,
         value: AnnotationValue? = null
     ) {
