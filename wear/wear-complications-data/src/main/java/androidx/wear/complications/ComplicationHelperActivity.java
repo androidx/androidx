@@ -16,7 +16,6 @@
 
 package androidx.wear.complications;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -30,6 +29,7 @@ import android.support.wearable.complications.ComplicationProviderInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.wear.complications.data.ComplicationType;
@@ -57,7 +57,7 @@ import java.util.Objects;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.N)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("ForbiddenSuperClass")
 public final class ComplicationHelperActivity extends Activity
