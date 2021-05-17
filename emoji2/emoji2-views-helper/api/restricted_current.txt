@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.emoji2.viewshelper {
+package androidx.emoji2.viewsintegration {
 
   public final class EmojiEditTextHelper {
     ctor public EmojiEditTextHelper(android.widget.EditText);

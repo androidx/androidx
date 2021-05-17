@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.emoji2.viewshelper.EmojiTextViewHelper;
+import androidx.emoji2.viewsintegration.EmojiTextViewHelper;
 
 
 /**

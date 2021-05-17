@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.emoji2.viewshelper;
+package androidx.emoji2.viewsintegration;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.text.TextWatcher;
+import android.text.method.KeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
@@ -44,7 +48,7 @@ import org.mockito.ArgumentCaptor;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 19)
-public class EmojiEditTextHelperDisabledTest {
+public class EmojiEditTextHelperTest {
     EmojiEditTextHelper mEmojiEditTextHelper;
     EditText mEditText;
 
@@ -53,7 +57,42 @@ public class EmojiEditTextHelperDisabledTest {
         EmojiCompat.reset(mock(EmojiCompat.class));
         mEditText = new EditText(ApplicationProvider.getApplicationContext());
         mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
-        mEmojiEditTextHelper.setEnabled(/* isEnabled */ false);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetKeyListener_withNull_throwsException() {
+        mEmojiEditTextHelper.getKeyListener(null);
+    }
+
+    @Test
+    public void testGetKeyListener_returnsEmojiKeyListener() {
+        final KeyListener keyListener = mEmojiEditTextHelper.getKeyListener(
+                mock(KeyListener.class));
+
+        assertThat(keyListener, instanceOf(EmojiKeyListener.class));
+    }
+
+    @Test
+    public void testGetKeyListener_doesNotCreateNewInstance() {
+        KeyListener mockKeyListener = mock(KeyListener.class);
+        final KeyListener keyListener1 = mEmojiEditTextHelper.getKeyListener(mockKeyListener);
+        final KeyListener keyListener2 = mEmojiEditTextHelper.getKeyListener(keyListener1);
+        assertSame(keyListener1, keyListener2);
+    }
+
+    @Test
+    public void testGetOnCreateInputConnection_withNullAttrs_returnsInputConnection() {
+        final InputConnection inputConnection = mEmojiEditTextHelper.onCreateInputConnection(
+                mock(InputConnection.class), null);
+        assertNotNull(inputConnection);
+        assertThat(inputConnection, instanceOf(EmojiInputConnection.class));
+    }
+
+    @Test
+    public void testGetOnCreateInputConnection_withNullInputConnection_returnsNull() {
+        InputConnection inputConnection = mEmojiEditTextHelper.onCreateInputConnection(null,
+                new EditorInfo());
+        assertNull(inputConnection);
     }
 
     @Test
@@ -127,16 +166,20 @@ public class EmojiEditTextHelperDisabledTest {
     }
 
     @Test
-    public void textWatcher_isDisabled_whenDisabled() {
+    public void setEnabled_passesValue_toTextWatcher() {
         mEditText = mock(EditText.class);
         mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
-        mEmojiEditTextHelper.setEnabled(false);
         // capture TextWatcher
         final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
                 TextWatcher.class);
         verify(mEditText, times(1)).addTextChangedListener(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue(), instanceOf(EmojiTextWatcher.class));
         final EmojiTextWatcher emojiTextWatcher = (EmojiTextWatcher) argumentCaptor.getValue();
+        assertTrue(emojiTextWatcher.isEnabled());
+
+        mEmojiEditTextHelper.setEnabled(/* isEnabled */ false);
         assertFalse(emojiTextWatcher.isEnabled());
+        mEmojiEditTextHelper.setEnabled(/* isEnabled */ true);
+        assertTrue(emojiTextWatcher.isEnabled());
     }
 }
