@@ -475,6 +475,7 @@ A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :annotation:annotation-experimental-lint:compileKotlin
 w\: ATTENTION\!
 This build uses unsafe internal compiler arguments\:
+\-XXLanguage:\+NonParenthesizedAnnotationsOnFunctionalTypes
 This mode is not recommended for production use\,
 as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
@@ -977,6 +978,8 @@ Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 # > Task :docs-tip-of-tree:doclavaDocs
 javadoc\: warning \- Multiple sources of package comments found for package \"javax\.annotation\"
 [0-9]+ warning
+# > Task :profileinstaller:profileinstaller:integration-tests:testapp:compileReleaseKotlin
+w: Flag is not supported by this version of the compiler: \-Xallow\-jvm\-ir\-dependencies
 # > Task :room:room-compiler-processing-testing:sourceJar
 Execution optimizations have been disabled for task ':room:room\-compiler\-processing\-testing:sourceJar' to ensure correctness due to the following reasons:
 \- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/room/room\-compiler\-processing\-testing/build/test\-config'\. Reason: Task ':room:room\-compiler\-processing\-testing:sourceJar' uses this output of task ':room:room\-compiler\-processing\-testing:prepareTestConfiguration' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.

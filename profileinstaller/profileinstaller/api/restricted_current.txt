@@ -8,6 +8,7 @@ package androidx.profileinstaller {
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 0; // 0x0
     field public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 3; // 0x3
     field public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 2; // 0x2
+    field public static final androidx.profileinstaller.ProfileInstaller.Diagnostics LOG_DIAGNOSTICS;
     field public static final int RESULT_ALREADY_INSTALLED = 1; // 0x1
     field public static final int RESULT_BASELINE_PROFILE_NOT_FOUND = 5; // 0x5
     field public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 4; // 0x4
