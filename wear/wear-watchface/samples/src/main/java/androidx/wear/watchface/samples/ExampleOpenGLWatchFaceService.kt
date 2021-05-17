@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.samples
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
@@ -35,19 +34,19 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.complications.rendering.GlesTextureComplication
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
-import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.complications.rendering.GlesTextureComplication
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -75,76 +74,80 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
  * Sample watch face using OpenGL. The watch face is rendered using
  * [Gles2ColoredTriangleList]s. The camera moves around in interactive mode and stops moving
  * when the watch enters ambient mode.
+ *
+ * NB this is open for testing.
  */
-class ExampleOpenGLWatchFaceService() : WatchFaceService() {
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ) = createExampleOpenGLWatchFaceBuilder(
-        this,
-        surfaceHolder,
-        watchState
-    )
-}
+open class ExampleOpenGLWatchFaceService : WatchFaceService() {
+    // Lazy because the context isn't initialized til later.
+    private val watchFaceStyle by lazy {
+        WatchFaceColorStyle.create(this, "white_style")
+    }
 
-fun createExampleOpenGLWatchFaceBuilder(
-    context: Context,
-    surfaceHolder: SurfaceHolder,
-    watchState: WatchState
-): WatchFace {
-    val watchFaceStyle = WatchFaceColorStyle.create(context, "white_style")
-    val colorStyleSetting = ListUserStyleSetting(
-        UserStyleSetting.Id("color_style_setting"),
-        "Colors",
-        "Watchface colorization",
-        icon = null,
-        options = listOf(
-            ListUserStyleSetting.ListOption(
-                Option.Id("red_style"),
-                "Red",
-                Icon.createWithResource(context, R.drawable.red_style)
-            ),
-            ListUserStyleSetting.ListOption(
-                Option.Id("green_style"),
-                "Green",
-                Icon.createWithResource(context, R.drawable.green_style)
-            )
-        ),
-        listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-    )
-    val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
-    val complicationsManager = ComplicationsManager(
-        listOf(
-            Complication.createRoundRectComplicationBuilder(
-                EXAMPLE_OPENGL_COMPLICATION_ID,
-                CanvasComplicationDrawable(watchFaceStyle.getDrawable(context)!!, watchState),
-                listOf(
-                    ComplicationType.RANGED_VALUE,
-                    ComplicationType.LONG_TEXT,
-                    ComplicationType.SHORT_TEXT,
-                    ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+    private val colorStyleSetting by lazy {
+        ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization",
+            icon = null,
+            options = listOf(
+                ListUserStyleSetting.ListOption(
+                    Option.Id("red_style"),
+                    "Red",
+                    Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-                ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-                .build()
+                ListUserStyleSetting.ListOption(
+                    Option.Id("green_style"),
+                    "Green",
+                    Icon.createWithResource(this, R.drawable.green_style)
+                )
+            ),
+            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+    }
+
+    private val complication = Complication.createRoundRectComplicationBuilder(
+        EXAMPLE_OPENGL_COMPLICATION_ID,
+        { watchState, listener ->
+            CanvasComplicationDrawable(
+                watchFaceStyle.getDrawable(this@ExampleOpenGLWatchFaceService)!!,
+                watchState,
+                listener
+            )
+        },
+        listOf(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
         ),
-        userStyleRepository
-    )
-    val renderer = ExampleOpenGLRenderer(
-        surfaceHolder,
-        userStyleRepository,
-        watchState,
-        colorStyleSetting,
-        complicationsManager[EXAMPLE_OPENGL_COMPLICATION_ID]!!
-    )
-    renderer.initOpenGlContext()
-    return WatchFace(
+        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+        ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        .build()
+
+    public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
+
+    public override fun createComplicationsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = ComplicationsManager(listOf(complication), currentUserStyleRepository)
+
+    public override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
         WatchFaceType.ANALOG,
-        userStyleRepository,
-        renderer,
-        complicationsManager
+        ExampleOpenGLRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            colorStyleSetting,
+            complication
+        ).apply {
+            initOpenGlContext()
+        }
     ).setLegacyWatchFaceStyle(
         WatchFace.LegacyWatchFaceOverlayStyle(
             0,
@@ -181,17 +184,17 @@ class ExampleOpenGLRenderer(
     private val modelMatrices = Array(360) { FloatArray(16) }
 
     /**
-     * Products of [mViewMatrices] and [mProjectionMatrix]. One matrix per camera
+     * Products of [viewMatrices] and [projectionMatrix]. One matrix per camera
      * position.
      */
     private val vpMatrices = Array(numCameraAngles) { FloatArray(16) }
 
-    /** The product of [mAmbientViewMatrix] and [mProjectionMatrix]  */
+    /** The product of [ambientViewMatrix] and [projectionMatrix]  */
     private val ambientVpMatrix = FloatArray(16)
 
     /**
-     * Product of [mModelMatrices], [mViewMatrices], and
-     * [mProjectionMatrix].
+     * Product of [modelMatrices], [viewMatrices], and
+     * [projectionMatrix].
      */
     private val mvpMatrix = FloatArray(16)
 

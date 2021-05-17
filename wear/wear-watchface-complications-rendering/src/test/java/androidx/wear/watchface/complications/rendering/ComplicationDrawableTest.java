@@ -52,13 +52,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.complications.data.DataKt;
 import androidx.wear.watchface.CanvasType;
+import androidx.wear.watchface.ComplicationsManager;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceService;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
-import androidx.wear.watchface.style.UserStyleSchema;
 
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
@@ -70,7 +70,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.coroutines.Continuation;
@@ -742,13 +741,11 @@ public class ComplicationDrawableTest {
         @Nullable
         @Override
         protected Object createWatchFace(@NonNull SurfaceHolder surfaceHolder,
-                @NonNull WatchState watchState,
+                @NonNull WatchState watchState, @NonNull ComplicationsManager complicationsManager,
+                @NonNull CurrentUserStyleRepository currentUserStyleRepository,
                 @NonNull Continuation<? super WatchFace> completion) {
-            CurrentUserStyleRepository currentUserStyleRepository =
-                    new CurrentUserStyleRepository(new UserStyleSchema(new ArrayList<>()));
             return new WatchFace(
                     WatchFaceType.ANALOG,
-                    currentUserStyleRepository,
                     new Renderer.CanvasRenderer(
                             surfaceHolder, currentUserStyleRepository, watchState,
                             CanvasType.SOFTWARE, 16L) {

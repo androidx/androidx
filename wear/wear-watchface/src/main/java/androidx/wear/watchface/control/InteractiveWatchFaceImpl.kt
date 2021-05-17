@@ -116,7 +116,7 @@ internal class InteractiveWatchFaceImpl(
         uiThreadHandler.runBlockingOnHandlerWithTracing(
             "InteractiveWatchFaceImpl.getUserStyleSchema"
         ) {
-            engine.watchFaceImpl.userStyleRepository.schema.toWireFormat()
+            engine.watchFaceImpl.currentUserStyleRepository.schema.toWireFormat()
         }
 
     override fun bringAttentionToComplication(id: Int) {
