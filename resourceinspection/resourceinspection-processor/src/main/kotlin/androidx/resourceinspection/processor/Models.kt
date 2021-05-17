@@ -22,34 +22,46 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
 /** Represents a view with annotated attributes, mostly a convenience class. */
-internal data class ViewIR(
+internal data class View(
     val type: TypeElement,
-    val attributes: List<AttributeIR>
+    val attributes: List<Attribute>
 ) {
     val className: ClassName = ClassName.get(type)
 }
 
+internal interface Attribute {
+    val name: String
+    val namespace: String
+    val type: AttributeType
+    val intMapping: List<IntMap>
+    val invocation: String
+
+    val qualifiedName: String
+        get() = "$namespace:$name"
+}
+
 /** Represents an `Attribute` with its getter. */
-internal data class AttributeIR(
+internal data class GetterAttribute(
     val getter: ExecutableElement,
     val annotation: AnnotationMirror,
-    val namespace: String,
-    val name: String,
-    val type: AttributeTypeIR,
-    val intMapping: List<IntMapIR>
-) {
-    val qualifiedName: String = "$namespace:$name"
+    override val namespace: String,
+    override val name: String,
+    override val type: AttributeType,
+    override val intMapping: List<IntMap> = emptyList()
+) : Attribute {
+    override val invocation: String
+        get() = "${getter.simpleName}()"
 }
 
 /** Represents an `Attribute.IntMap` entry. */
-internal data class IntMapIR(
+internal data class IntMap(
     val name: String,
     val value: Int,
-    val mask: Int
+    val mask: Int = 0
 )
 
 /** Represents the type of the attribute, determined from context and the annotation itself. */
-internal enum class AttributeTypeIR(val apiSuffix: String) {
+internal enum class AttributeType(val apiSuffix: String) {
     BOOLEAN("Boolean"),
     BYTE("Byte"),
     CHAR("Char"),
