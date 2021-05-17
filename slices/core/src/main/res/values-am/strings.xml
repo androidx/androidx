@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> የ<xliff:g id="APP_2">%2$s</xliff:g> ቁራጮችን እንዲያሳይ ይፈቀድለት?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- ከ<xliff:g id="APP">%1$s</xliff:g> የመጣ መረጃን ማንበብ ይችላል"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- በ<xliff:g id="APP">%1$s</xliff:g> ውስጥ እርምጃዎችን መውሰድ ይችላል"</string>
-
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"ፍቀድ"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"ከልክል"</string>
 </resources>
