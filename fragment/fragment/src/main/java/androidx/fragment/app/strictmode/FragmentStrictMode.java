@@ -251,56 +251,86 @@ public final class FragmentStrictMode {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onFragmentReuse(@NonNull Fragment fragment) {
+        Violation violation = new FragmentReuseViolation();
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_FRAGMENT_REUSE)) {
-            handlePolicyViolation(fragment, policy, new FragmentReuseViolation());
+            handlePolicyViolation(fragment, policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onFragmentTagUsage(@NonNull Fragment fragment) {
+        Violation violation = new FragmentTagUsageViolation();
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_FRAGMENT_TAG_USAGE)) {
-            handlePolicyViolation(fragment, policy, new FragmentTagUsageViolation());
+            handlePolicyViolation(fragment, policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onRetainInstanceUsage(@NonNull Fragment fragment) {
+        Violation violation = new RetainInstanceUsageViolation();
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)) {
-            handlePolicyViolation(fragment, policy, new RetainInstanceUsageViolation());
+            handlePolicyViolation(fragment, policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
+        Violation violation = new SetUserVisibleHintViolation();
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)) {
-            handlePolicyViolation(fragment, policy, new SetUserVisibleHintViolation());
+            handlePolicyViolation(fragment, policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onTargetFragmentUsage(@NonNull Fragment fragment) {
+        Violation violation = new TargetFragmentUsageViolation();
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)) {
-            handlePolicyViolation(fragment, policy, new TargetFragmentUsageViolation());
+            handlePolicyViolation(fragment, policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onWrongFragmentContainer(@NonNull Fragment fragment) {
+        Violation violation = new WrongFragmentContainerViolation();
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_WRONG_FRAGMENT_CONTAINER)) {
-            handlePolicyViolation(fragment, policy, new WrongFragmentContainerViolation());
+            handlePolicyViolation(fragment, policy, violation);
         }
     }
 
     @VisibleForTesting
     static void onPolicyViolation(@NonNull Fragment fragment, @NonNull Violation violation) {
+        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+
         Policy policy = getNearestPolicy(fragment);
         handlePolicyViolation(fragment, policy, violation);
+    }
+
+    private static void logIfDebuggingEnabled(
+            @NonNull String fragmentName,
+            @NonNull final Violation violation
+    ) {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG, "StrictMode violation in " + fragmentName,
+                    violation);
+        }
     }
 
     private static void handlePolicyViolation(
