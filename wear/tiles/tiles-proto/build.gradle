@@ -98,9 +98,11 @@ protobuf {
             }
             project.tasks.named("lint").configure {
                 it.dependsOn(task)
+                it.enabled = false
             }
             project.tasks.named("lintAnalyze").configure {
                 it.dependsOn(task)
+                it.enabled = false
             }
             task.builtins {
                 java {
