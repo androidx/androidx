@@ -1,6 +1,9 @@
 // Signature format: 4.0
 package androidx.resourceinspection.annotation {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface AppCompatShadowedAttributes {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Attribute {
     method public abstract androidx.resourceinspection.annotation.Attribute.IntMap[] intMapping() default {};
     method public abstract String value();
