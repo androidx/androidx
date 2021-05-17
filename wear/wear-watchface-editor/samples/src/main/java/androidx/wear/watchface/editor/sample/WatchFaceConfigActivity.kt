@@ -92,7 +92,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 EditorSession.createOnWatchEditingSession(
                     this@WatchFaceConfigActivity,
                     intent!!
-                )!!,
+                ),
                 object : FragmentController {
                     @SuppressLint("SyntheticAccessor")
                     override fun showConfigFragment() {
