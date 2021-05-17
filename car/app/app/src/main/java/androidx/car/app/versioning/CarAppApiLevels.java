@@ -31,7 +31,7 @@ public final class CarAppApiLevels {
     /**
      * API level 3.
      *
-     * <p>Includes a vehicle manager for access to sensors and other vehicle properties.
+     * <p>Includes a car hardware manager for access to sensors and other vehicle properties.
      */
     @CarAppApiLevel
     public static final int LEVEL_3 = 3;

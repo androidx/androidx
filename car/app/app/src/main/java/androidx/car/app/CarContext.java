@@ -39,10 +39,12 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
+import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.utils.RemoteUtils;
@@ -93,7 +95,8 @@ public class CarContext extends ContextWrapper {
      *
      * @hide
      */
-    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE, CONSTRAINT_SERVICE})
+    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE, CONSTRAINT_SERVICE,
+            HARDWARE_SERVICE})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
     public @interface CarServiceType {
@@ -119,6 +122,10 @@ public class CarContext extends ContextWrapper {
      * Internal usage only. Top level binder to host.
      */
     public static final String CAR_SERVICE = "car";
+
+    /** Manages access to androidx.car.app.hardware properties, sensors and actions. */
+    @RequiresCarApi(3)
+    public static final String HARDWARE_SERVICE = "hardware";
 
     /**
      * Key for including a IStartCarApp in the notification {@link Intent}, for starting the app
@@ -151,10 +158,18 @@ public class CarContext extends ContextWrapper {
     static final String EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY =
             "androidx.car.app.action.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY";
 
+    /**
+     * Holds an exception to be thrown when accessing {@link CarHardwareManager} if there is an
+     * error during initialization.
+     */
+    @Nullable
+    private final IllegalStateException mCarHardwareManagerException;
+
     private final AppManager mAppManager;
     private final NavigationManager mNavigationManager;
     private final ScreenManager mScreenManager;
     private final ConstraintManager mConstraintManager;
+    private final CarHardwareManager mCarHardwareManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
     private final HostDispatcher mHostDispatcher;
     private final Lifecycle mLifecycle;
@@ -208,6 +223,11 @@ public class CarContext extends ContextWrapper {
                 return mScreenManager;
             case CONSTRAINT_SERVICE:
                 return mConstraintManager;
+            case HARDWARE_SERVICE:
+                if (mCarHardwareManagerException != null) {
+                    throw mCarHardwareManagerException;
+                }
+                return mCarHardwareManager;
             default: // fall out
         }
 
@@ -258,6 +278,8 @@ public class CarContext extends ContextWrapper {
             return SCREEN_SERVICE;
         } else if (serviceClass.isInstance(mConstraintManager)) {
             return CONSTRAINT_SERVICE;
+        } else if (serviceClass.isInstance(mCarHardwareManager)) {
+            return HARDWARE_SERVICE;
         }
 
         throw new IllegalArgumentException("The class does not correspond to a car service");
@@ -624,6 +646,24 @@ public class CarContext extends ContextWrapper {
         mNavigationManager = NavigationManager.create(this, hostDispatcher, lifecycle);
         mScreenManager = ScreenManager.create(this, lifecycle);
         mConstraintManager = ConstraintManager.create(this, hostDispatcher);
+
+        // Try to instantiate a CarHardwareManager.
+        CarHardwareManager carHardwareManager = null;
+        IllegalStateException carHardwareManagerException = null;
+        try {
+            carHardwareManager = CarHardwareManager.create(this, hostDispatcher);
+            if (carHardwareManager == null) {
+                carHardwareManagerException = new IllegalStateException("CarHardwareManager not "
+                        + "configured. Did you forget to add a dependency on automotive or "
+                        + "projected artifacts?");
+            }
+        } catch (IllegalStateException e) {
+            carHardwareManager = new CarHardwareManager() { };
+            carHardwareManagerException = e;
+        }
+        mCarHardwareManager = carHardwareManager;
+        mCarHardwareManagerException = carHardwareManagerException;
+
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());
         mLifecycle = lifecycle;
