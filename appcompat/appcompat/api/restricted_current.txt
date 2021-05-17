@@ -1328,7 +1328,7 @@ package androidx.appcompat.widget {
     ctor public AlertDialogLayout(android.content.Context?, android.util.AttributeSet?);
   }
 
-  public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatAutoCompleteTextView(android.content.Context);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -1340,7 +1340,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatButton(android.content.Context);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet?, int);
@@ -1361,7 +1361,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatCheckBox(android.content.Context);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet?, int);
@@ -1376,7 +1376,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView {
     ctor public AppCompatCheckedTextView(android.content.Context);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -1403,7 +1403,7 @@ package androidx.appcompat.widget {
     method public static void preload();
   }
 
-  public class AppCompatEditText extends android.widget.EditText implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.OnReceiveContentViewBehavior androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatEditText extends android.widget.EditText implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.OnReceiveContentViewBehavior androidx.core.view.TintableBackgroundView {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?, int);
@@ -1418,7 +1418,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
     ctor public AppCompatImageButton(android.content.Context);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet?, int);
@@ -1439,7 +1439,7 @@ package androidx.appcompat.widget {
     method public void setImageResource(int);
   }
 
-  public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
     ctor public AppCompatImageView(android.content.Context);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet?, int);
@@ -1454,7 +1454,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -1466,7 +1466,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatRadioButton(android.content.Context!);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?, int);
@@ -1493,7 +1493,7 @@ package androidx.appcompat.widget {
     ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet?, int);
   }
 
-  public class AppCompatSpinner extends android.widget.Spinner implements androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatSpinner extends android.widget.Spinner implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatSpinner(android.content.Context);
     ctor public AppCompatSpinner(android.content.Context, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet?);
@@ -1507,7 +1507,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatTextView(android.content.Context);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -1531,7 +1531,7 @@ package androidx.appcompat.widget {
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
   }
 
-  public class AppCompatToggleButton extends android.widget.ToggleButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatToggleButton extends android.widget.ToggleButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
     ctor public AppCompatToggleButton(android.content.Context);
     ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet?, int);
@@ -1681,21 +1681,21 @@ package androidx.appcompat.widget {
     method protected androidx.appcompat.widget.LinearLayoutCompat.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.LinearLayoutCompat.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method protected androidx.appcompat.widget.LinearLayoutCompat.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public int getBaselineAlignedChildIndex();
-    method public android.graphics.drawable.Drawable! getDividerDrawable();
-    method public int getDividerPadding();
+    method @androidx.resourceinspection.annotation.Attribute("android:baselineAlignedChildIndex") public int getBaselineAlignedChildIndex();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:divider") public android.graphics.drawable.Drawable! getDividerDrawable();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:dividerPadding") public int getDividerPadding();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getDividerWidth();
-    method public int getGravity();
-    method @androidx.appcompat.widget.LinearLayoutCompat.OrientationMode public int getOrientation();
-    method @androidx.appcompat.widget.LinearLayoutCompat.DividerMode public int getShowDividers();
-    method public float getWeightSum();
-    method public boolean isBaselineAligned();
-    method public boolean isMeasureWithLargestChildEnabled();
+    method @GravityInt @androidx.resourceinspection.annotation.Attribute("android:gravity") public int getGravity();
+    method @androidx.appcompat.widget.LinearLayoutCompat.OrientationMode @androidx.resourceinspection.annotation.Attribute(value="android:orientation", intMapping={@androidx.resourceinspection.annotation.Attribute.IntMap(name="horizontal", value=0), @androidx.resourceinspection.annotation.Attribute.IntMap(name="vertical", value=1)}) public int getOrientation();
+    method @androidx.appcompat.widget.LinearLayoutCompat.DividerMode @androidx.resourceinspection.annotation.Attribute(value="androidx.appcompat:showDividers", intMapping={@androidx.resourceinspection.annotation.Attribute.IntMap(name="none", value=0), @androidx.resourceinspection.annotation.Attribute.IntMap(name="beginning", value=1, mask=1), @androidx.resourceinspection.annotation.Attribute.IntMap(name="middle", value=2, mask=2), @androidx.resourceinspection.annotation.Attribute.IntMap(name="end", value=4, mask=4)}) public int getShowDividers();
+    method @androidx.resourceinspection.annotation.Attribute("android:weightSum") public float getWeightSum();
+    method @androidx.resourceinspection.annotation.Attribute("android:baselineAligned") public boolean isBaselineAligned();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:measureWithLargestChild") public boolean isMeasureWithLargestChildEnabled();
     method public void setBaselineAligned(boolean);
     method public void setBaselineAlignedChildIndex(int);
     method public void setDividerDrawable(android.graphics.drawable.Drawable!);
     method public void setDividerPadding(int);
-    method public void setGravity(int);
+    method public void setGravity(@GravityInt int);
     method public void setHorizontalGravity(int);
     method public void setMeasureWithLargestChildEnabled(boolean);
     method public void setOrientation(@androidx.appcompat.widget.LinearLayoutCompat.OrientationMode int);
@@ -1872,13 +1872,13 @@ package androidx.appcompat.widget {
     ctor public SearchView(android.content.Context);
     ctor public SearchView(android.content.Context, android.util.AttributeSet?);
     ctor public SearchView(android.content.Context, android.util.AttributeSet?, int);
-    method public int getImeOptions();
+    method @androidx.resourceinspection.annotation.Attribute("android:imeOptions") public int getImeOptions();
     method public int getInputType();
-    method public int getMaxWidth();
+    method @androidx.resourceinspection.annotation.Attribute("android:maxWidth") public int getMaxWidth();
     method public CharSequence! getQuery();
-    method public CharSequence? getQueryHint();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:queryHint") public CharSequence? getQueryHint();
     method public androidx.cursoradapter.widget.CursorAdapter! getSuggestionsAdapter();
-    method public boolean isIconfiedByDefault();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:iconifiedByDefault") public boolean isIconfiedByDefault();
     method public boolean isIconified();
     method public boolean isQueryRefinementEnabled();
     method public boolean isSubmitButtonEnabled();
@@ -1940,19 +1940,19 @@ package androidx.appcompat.widget {
     ctor public SwitchCompat(android.content.Context);
     ctor public SwitchCompat(android.content.Context, android.util.AttributeSet?);
     ctor public SwitchCompat(android.content.Context, android.util.AttributeSet?, int);
-    method public boolean getShowText();
-    method public boolean getSplitTrack();
-    method public int getSwitchMinWidth();
-    method public int getSwitchPadding();
-    method public CharSequence! getTextOff();
-    method public CharSequence! getTextOn();
-    method public android.graphics.drawable.Drawable! getThumbDrawable();
-    method public int getThumbTextPadding();
-    method public android.content.res.ColorStateList? getThumbTintList();
-    method public android.graphics.PorterDuff.Mode? getThumbTintMode();
-    method public android.graphics.drawable.Drawable! getTrackDrawable();
-    method public android.content.res.ColorStateList? getTrackTintList();
-    method public android.graphics.PorterDuff.Mode? getTrackTintMode();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:showText") public boolean getShowText();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:splitTrack") public boolean getSplitTrack();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:switchMinWidth") public int getSwitchMinWidth();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:switchPadding") public int getSwitchPadding();
+    method @androidx.resourceinspection.annotation.Attribute("android:textOff") public CharSequence! getTextOff();
+    method @androidx.resourceinspection.annotation.Attribute("android:textOn") public CharSequence! getTextOn();
+    method @androidx.resourceinspection.annotation.Attribute("android:thumb") public android.graphics.drawable.Drawable! getThumbDrawable();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTextPadding") public int getThumbTextPadding();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTint") public android.content.res.ColorStateList? getThumbTintList();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTintMode") public android.graphics.PorterDuff.Mode? getThumbTintMode();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:track") public android.graphics.drawable.Drawable! getTrackDrawable();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:trackTint") public android.content.res.ColorStateList? getTrackTintList();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:trackTintMode") public android.graphics.PorterDuff.Mode? getTrackTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void onMeasure(int, int);
     method public void setEmojiCompatEnabled(boolean);
@@ -2036,31 +2036,31 @@ package androidx.appcompat.widget {
     method protected androidx.appcompat.widget.Toolbar.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.Toolbar.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method protected androidx.appcompat.widget.Toolbar.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public CharSequence? getCollapseContentDescription();
-    method public android.graphics.drawable.Drawable? getCollapseIcon();
-    method public int getContentInsetEnd();
-    method public int getContentInsetEndWithActions();
-    method public int getContentInsetLeft();
-    method public int getContentInsetRight();
-    method public int getContentInsetStart();
-    method public int getContentInsetStartWithNavigation();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:collapseContentDescription") public CharSequence? getCollapseContentDescription();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:collapseIcon") public android.graphics.drawable.Drawable? getCollapseIcon();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:contentInsetEnd") public int getContentInsetEnd();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:contentInsetEndWithActions") public int getContentInsetEndWithActions();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:contentInsetLeft") public int getContentInsetLeft();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:contentInsetRight") public int getContentInsetRight();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:contentInsetStart") public int getContentInsetStart();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:contentInsetStartWithNavigation") public int getContentInsetStartWithNavigation();
     method public int getCurrentContentInsetEnd();
     method public int getCurrentContentInsetLeft();
     method public int getCurrentContentInsetRight();
     method public int getCurrentContentInsetStart();
-    method public android.graphics.drawable.Drawable! getLogo();
-    method public CharSequence! getLogoDescription();
-    method public android.view.Menu! getMenu();
-    method public CharSequence? getNavigationContentDescription();
-    method public android.graphics.drawable.Drawable? getNavigationIcon();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:logo") public android.graphics.drawable.Drawable! getLogo();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:logoDescription") public CharSequence! getLogoDescription();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:menu") public android.view.Menu! getMenu();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:navigationContentDescription") public CharSequence? getNavigationContentDescription();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:navigationIcon") public android.graphics.drawable.Drawable? getNavigationIcon();
     method public android.graphics.drawable.Drawable? getOverflowIcon();
-    method public int getPopupTheme();
-    method public CharSequence! getSubtitle();
-    method public CharSequence! getTitle();
-    method public int getTitleMarginBottom();
-    method public int getTitleMarginEnd();
-    method public int getTitleMarginStart();
-    method public int getTitleMarginTop();
+    method @StyleRes @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:popupTheme") public int getPopupTheme();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:subtitle") public CharSequence! getSubtitle();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:title") public CharSequence! getTitle();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:titleMarginBottom") public int getTitleMarginBottom();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:titleMarginEnd") public int getTitleMarginEnd();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:titleMarginStart") public int getTitleMarginStart();
+    method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:titleMarginTop") public int getTitleMarginTop();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.appcompat.widget.DecorToolbar! getWrapper();
     method public boolean hasExpandedActionView();
     method public boolean hideOverflowMenu();
