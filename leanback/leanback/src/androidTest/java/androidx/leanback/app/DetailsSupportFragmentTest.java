@@ -1258,16 +1258,17 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN),
                 1000);
 
-        View fragmentView = activity.getTestFragment().getView();
-        RowsSupportFragment rowsSupportFragment =
-                ((DetailsSupportFragmentEntranceTransition) activity.getTestFragment())
-                        .getRowsSupportFragment();
+        DetailsSupportFragmentEntranceTransition detailsFragment =
+                (DetailsSupportFragmentEntranceTransition) activity.getTestFragment();
+        View fragmentView = detailsFragment.getView();
+        RowsSupportFragment rowsSupportFragment = detailsFragment.getRowsSupportFragment();
         VerticalGridView gridView = rowsSupportFragment.getVerticalGridView();
         LeakDetector leakDetector = new LeakDetector();
         leakDetector.observeObject(fragmentView);
         // Note: RowsSupportFragment is referred by childFragmentManager of details fragment.
         leakDetector.observeObject(gridView);
         leakDetector.observeObject(gridView.getRecycledViewPool());
+        leakDetector.observeObject(detailsFragment.mDetailsBackgroundController.mCoverBitmap);
         for (int i = 0; i < gridView.getChildCount(); i++) {
             leakDetector.observeObject(gridView.getChildAt(i));
         }
@@ -1286,6 +1287,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 return emptyFragment.isResumed();
             }
         });
+        assertTrue(detailsFragment.mBackgroundDrawable != null);
         leakDetector.assertNoLeak();
     }
 }
