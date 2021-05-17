@@ -20,9 +20,8 @@ import androidx.core.util.Consumer
 import java.util.concurrent.Executor
 
 /**
- * Backing interface for {@link androidx.window.WindowManager} instances that server as the default
- * information
- * supplier.
+ * Backing interface for [WindowManager] instances that serve as the default
+ * information supplier.
  */
 public interface WindowBackend {
     /**
