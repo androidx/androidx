@@ -19,7 +19,9 @@ package androidx.wear.watchface.control;
 import androidx.wear.watchface.control.IInteractiveWatchFace;
 import androidx.wear.watchface.control.IHeadlessWatchFace;
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace;
+import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams;
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
+import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat;
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams;
 import androidx.wear.watchface.editor.IEditorService;
 
@@ -31,12 +33,12 @@ import androidx.wear.watchface.editor.IEditorService;
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 6
+    // Next Id: 7
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 1;
+    const int API_VERSION = 2;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -91,4 +93,14 @@ interface IWatchFaceControlService {
      * @since API version 1.
      */
     IEditorService getEditorService() = 5;
+
+    /**
+     * Returns an array of {@link IdAndDefaultProviderPolicyWireFormat} describing the default
+     * provider policy for the watch face's complications. Note this call does not create the
+     * renderer so it's cheaper than creating a headless instance and querying ComplicationState.
+     *
+     * @since API version 2.
+     */
+    IdTypeAndDefaultProviderPolicyWireFormat[] getDefaultProviderPolicies(
+            in DefaultProviderPoliciesParams params) = 6;
 }

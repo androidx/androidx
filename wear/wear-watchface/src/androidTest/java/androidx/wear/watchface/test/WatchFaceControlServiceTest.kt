@@ -35,6 +35,7 @@ import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
@@ -56,7 +57,6 @@ import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -74,13 +74,12 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace = withContext(mainThreadCoroutineScope.coroutineContext) {
-        val currentUserStyleRepository =
-            CurrentUserStyleRepository(UserStyleSchema(emptyList()))
         WatchFace(
             WatchFaceType.DIGITAL,
-            CurrentUserStyleRepository(UserStyleSchema(emptyList())),
             object : Renderer.CanvasRenderer(
                 surfaceHolder,
                 currentUserStyleRepository,

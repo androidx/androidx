@@ -33,17 +33,22 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleSchema
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
-    private val complicationsManager: ComplicationsManager,
-    private val renderer: TestRenderer,
-    private val currentUserStyleRepository: CurrentUserStyleRepository,
+    private val complications: List<Complication>,
+    private val rendererFactory: (
+        surfaceHolder: SurfaceHolder,
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        watchState: WatchState,
+    ) -> TestRenderer,
+    private val userStyleSchema: UserStyleSchema,
     private val watchState: MutableWatchState,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
@@ -56,31 +61,15 @@ internal class TestWatchFaceService(
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var lastUserStyle: UserStyle? = null
+    var renderer: TestRenderer? = null
 
     /** A mutable list of the ids of the complications that have been tapped. */
     private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
 
-    init {
-        currentUserStyleRepository.addUserStyleChangeListener(
-            object : CurrentUserStyleRepository.UserStyleChangeListener {
-                override fun onUserStyleChanged(userStyle: UserStyle) {
-                    lastUserStyle = userStyle
-                }
-            }
-        )
-
-        complicationsManager.addTapListener(
-            object : ComplicationsManager.TapCallback {
-                override fun onComplicationTapped(complicationId: Int) {
-                    mutableTappedComplicationIds.add(complicationId)
-                }
-            })
-    }
-
     fun reset() {
         clearTappedState()
         complicationSelected = null
-        renderer.lastOnDrawCalendar = null
+        renderer?.lastOnDrawCalendar = null
         mockSystemTimeMillis = 0L
     }
 
@@ -92,19 +81,44 @@ internal class TestWatchFaceService(
         attachBaseContext(ApplicationProvider.getApplicationContext())
     }
 
+    override fun createUserStyleSchema() = userStyleSchema
+
+    override fun createComplicationsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationsManager {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
+                override fun onUserStyleChanged(userStyle: UserStyle) {
+                    lastUserStyle = userStyle
+                }
+            }
+        )
+
+        val complicationsManager = ComplicationsManager(complications, currentUserStyleRepository)
+        complicationsManager.addTapListener(
+            object : ComplicationsManager.TapCallback {
+                override fun onComplicationTapped(complicationId: Int) {
+                    mutableTappedComplicationIds.add(complicationId)
+                }
+            }
+        )
+        return complicationsManager
+    }
+
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ) = WatchFace(
-        watchFaceType,
-        currentUserStyleRepository,
-        renderer,
-        complicationsManager
-    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-        override fun getSystemTimeMillis(): Long {
-            return mockSystemTimeMillis
-        }
-    }).setTapListener(tapListener)
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
+        renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
+        return WatchFace(watchFaceType, renderer!!)
+            .setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+                override fun getSystemTimeMillis(): Long {
+                    return mockSystemTimeMillis
+                }
+            }).setTapListener(tapListener)
+    }
 
     override fun getHandler() = handler
 
@@ -123,7 +137,8 @@ internal class TestWatchFaceService(
         context: Context,
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
-    ) {}
+    ) {
+    }
 
     override fun expectPreRInitFlow() = preAndroidR
 }
@@ -214,6 +229,21 @@ public open class TestRenderer(
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
     }
+}
+
+public open class TestRendererWithShouldAnimate(
+    surfaceHolder: SurfaceHolder,
+    currentUserStyleRepository: CurrentUserStyleRepository,
+    watchState: WatchState,
+    interactiveFrameRateMs: Long,
+    public var animate: Boolean = true
+) : TestRenderer(
+    surfaceHolder,
+    currentUserStyleRepository,
+    watchState,
+    interactiveFrameRateMs
+) {
+    override fun shouldAnimate(): Boolean = animate
 }
 
 public fun createComplicationData(): androidx.wear.complications.data.ComplicationData =

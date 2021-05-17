@@ -24,7 +24,6 @@ import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
-import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
@@ -38,13 +37,12 @@ import androidx.wear.watchface.RenderParameters.HighlightedElement
 
 /** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
-    /**
-     * Called when the CanvasComplication attaches to a [Complication]. This will get called during
-     * [Complication] initialization and if [Complication.renderer] is assigned with this
-     * CanvasComplication.
-     */
-    @UiThread
-    public fun onAttach(complication: Complication)
+
+    /** Interface for observing when a [CanvasComplication] needs the screen to be redrawn. */
+    public interface InvalidateCallback {
+        /** Signals that the complication needs to be redrawn. Can be called on any thread. */
+        public fun onInvalidate()
+    }
 
     /**
      * Draws the complication defined by [getData] into the canvas with the specified bounds.
@@ -100,8 +98,7 @@ public interface CanvasComplication {
      * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
      * ComplicationData. You can choose whether this is done synchronously or asynchronously via
      * [loadDrawablesAsynchronous]. When any asynchronous loading has completed
-     * [Complication.invalidate] must be called for the [Complication] instance previously passed
-     * in via [onAttach].
+     * [InvalidateCallback.onInvalidate] must be called.
      *
      * @param complicationData The [ComplicationData] to render with
      * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
@@ -158,7 +155,9 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * content description labels.
  * @param boundsType The [ComplicationBoundsType] of the complication.
  * @param bounds The complication's [ComplicationBounds].
- * @param renderer The [CanvasComplication] used to render the complication.
+ * @param canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
+ * [CanvasComplication] for rendering the complication. The factory allows us to decouple
+ * Complication from potentially expensive asset loading.
  * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Used
  * during complication, this list should be non-empty.
  * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] which controls the initial
@@ -181,7 +180,7 @@ public class Complication internal constructor(
     accessibilityTraversalIndex: Int,
     @ComplicationBoundsType public val boundsType: Int,
     bounds: ComplicationBounds,
-    public val renderer: CanvasComplication,
+    public val canvasComplicationFactory: CanvasComplicationFactory,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: ComplicationType,
@@ -192,6 +191,27 @@ public class Complication internal constructor(
     public val fixedComplicationProvider: Boolean,
     public val tapFilter: ComplicationTapFilter
 ) {
+    /**
+     * The [ComplicationsManager] this is attached to. Only set after the [ComplicationsManager] has
+     * been created.
+     */
+    internal lateinit var complicationsManager: ComplicationsManager
+
+    /**
+     * The [CanvasComplication] used to render the complication. This can't be used until after
+     * [WatchFaceService.createWatchFace] has completed.
+     */
+    public val renderer: CanvasComplication by lazy {
+        canvasComplicationFactory.create(
+            complicationsManager.watchState,
+            object : CanvasComplication.InvalidateCallback {
+                override fun onInvalidate() {
+                    invalidateListener.onInvalidate()
+                }
+            }
+        )
+    }
+
     init {
         require(id >= 0) { "id must be >= 0" }
         require(accessibilityTraversalIndex >= 0) {
@@ -209,8 +229,9 @@ public class Complication internal constructor(
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          * unique within the watch face.
-         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should not
-         * be shared between complications.
+         * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
+         * [CanvasComplication] to use for rendering. Note renderers should not be shared between
+         * complications.
          * @param supportedTypes The types of complication supported by this Complication. Used
          * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
@@ -220,13 +241,13 @@ public class Complication internal constructor(
         @JvmStatic
         public fun createRoundRectComplicationBuilder(
             id: Int,
-            renderer: CanvasComplication,
+            canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
             bounds: ComplicationBounds
         ): Builder = Builder(
             id,
-            renderer,
+            canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.ROUND_RECT,
@@ -243,8 +264,9 @@ public class Complication internal constructor(
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          * unique within the watch face.
-         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should not
-         * be shared between complications.
+         * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
+         * [CanvasComplication] to use for rendering. Note renderers should not be shared between
+         * complications.
          * @param supportedTypes The types of complication supported by this Complication. Used
          * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
@@ -253,12 +275,12 @@ public class Complication internal constructor(
         @JvmStatic
         public fun createBackgroundComplicationBuilder(
             id: Int,
-            renderer: CanvasComplication,
+            canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy
         ): Builder = Builder(
             id,
-            renderer,
+            canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.BACKGROUND,
@@ -278,8 +300,9 @@ public class Complication internal constructor(
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          * unique within the watch face.
-         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should not
-         * be shared between complications.
+         * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
+         * [CanvasComplication] to use for rendering. Note renderers should not be shared between
+         * complications.
          * @param supportedTypes The types of complication supported by this Complication. Used
          * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
@@ -292,14 +315,14 @@ public class Complication internal constructor(
         @JvmStatic
         public fun createEdgeComplicationBuilder(
             id: Int,
-            renderer: CanvasComplication,
+            canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
             bounds: ComplicationBounds,
             complicationTapFilter: ComplicationTapFilter
         ): Builder = Builder(
             id,
-            renderer,
+            canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.EDGE,
@@ -313,8 +336,9 @@ public class Complication internal constructor(
      *
      * @param id The watch face's ID for this complication. Can be any integer but should be unique
      * within the watch face.
-     * @param renderer The [CanvasComplication] to use for rendering. Note renderers should not be
-     * shared between complications.
+     * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
+     * [CanvasComplication] to use for rendering. Note renderers should not be shared between
+     * complications.
      * @param supportedTypes The types of complication supported by this Complication. Used
      * during complication, this list should be non-empty.
      * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
@@ -326,7 +350,7 @@ public class Complication internal constructor(
      */
     public class Builder internal constructor(
         private val id: Int,
-        private val renderer: CanvasComplication,
+        private val canvasComplicationFactory: CanvasComplicationFactory,
         private val supportedTypes: List<ComplicationType>,
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
         @ComplicationBoundsType private val boundsType: Int,
@@ -399,7 +423,7 @@ public class Complication internal constructor(
             accessibilityTraversalIndex,
             boundsType,
             bounds,
-            renderer,
+            canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
             defaultProviderType,
@@ -410,17 +434,11 @@ public class Complication internal constructor(
         )
     }
 
-    init {
-        renderer.onAttach(this)
-    }
-
     internal interface InvalidateListener {
-        /** Requests redraw. */
-        @UiThread
+        /** Requests redraw. Can be called on any thread */
         fun onInvalidate()
     }
 
-    private lateinit var complicationsManager: ComplicationsManager
     private lateinit var invalidateListener: InvalidateListener
 
     internal var complicationBoundsDirty = true
@@ -667,30 +685,8 @@ public class Complication internal constructor(
         renderer.isHighlighted = highlight
     }
 
-    /**
-     * Requests redraw of the watch face. Useful when initialization is asynchronous, e.g. when
-     * loading a [Drawable].
-     */
-    public fun invalidate() {
-        invalidateListener.onInvalidate()
-    }
-
-    internal fun init(
-        complicationsManager: ComplicationsManager,
-        invalidateListener: InvalidateListener
-    ) {
-        this.complicationsManager = complicationsManager
+    internal fun init(invalidateListener: InvalidateListener) {
         this.invalidateListener = invalidateListener
-    }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun scheduleUpdateComplications() {
-        // In tests this may not be initialized.
-        if (this::complicationsManager.isInitialized) {
-            // Update active complications to ensure accessibility data is up to date.
-            complicationsManager.scheduleUpdate()
-        }
     }
 
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
