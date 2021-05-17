@@ -26,7 +26,7 @@ import android.graphics.Rect
  * visual or touch discontinuity, make some area invisible or create a logical divider or
  * separation in the screen space.
  *
- * @see FoldingFeature that represents a screen fold that intersects the application window.
+ * @see FoldingFeature Represents a screen fold that intersects the application window.
  */
 public interface DisplayFeature {
     /**
