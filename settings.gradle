@@ -509,7 +509,7 @@ includeProject(":preference:preference", "preference/preference", [BuildType.MAI
 includeProject(":preference:preference-ktx", "preference/preference-ktx", [BuildType.MAIN])
 includeProject(":print:print", "print/print", [BuildType.MAIN])
 includeProject(":profileinstaller:profileinstaller", "profileinstaller/profileinstaller", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":profileinstaller:profileinstaller:integration-tests:testapp", "profileinstaller/profileinstaller/integration-tests/testapp", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":profileinstaller:profileinstaller:integration-tests:testapp", "profileinstaller/profileinstaller/integration-tests/testapp", [BuildType.COMPOSE])
 includeProject(":recommendation:recommendation", "recommendation/recommendation", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview", "recyclerview/recyclerview", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview-benchmark", "recyclerview/recyclerview-benchmark", [BuildType.MAIN])

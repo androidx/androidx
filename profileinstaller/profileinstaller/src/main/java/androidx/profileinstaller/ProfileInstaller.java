@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -98,6 +99,65 @@ public class ProfileInstaller {
         @Override
         public void result(int code, @Nullable Object data) {
             // do nothing
+        }
+    };
+
+    @SuppressWarnings("unused")
+    @NonNull
+    public static final Diagnostics LOG_DIAGNOSTICS = new Diagnostics() {
+        static final String TAG = "ProfileInstaller";
+        @Override
+        public void diagnostic(int code, @Nullable Object data) {
+            String msg = "";
+            switch (code) {
+                case DIAGNOSTIC_CURRENT_PROFILE_EXISTS:
+                    msg = "DIAGNOSTIC_CURRENT_PROFILE_EXISTS";
+                    break;
+                case DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST:
+                    msg = "DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST";
+                    break;
+                case DIAGNOSTIC_REF_PROFILE_EXISTS:
+                    msg = "DIAGNOSTIC_REF_PROFILE_EXISTS";
+                    break;
+                case DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST:
+                    msg = "DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST";
+                    break;
+            }
+            Log.d(TAG, msg);
+        }
+
+        @Override
+        public void result(int code, @Nullable Object data) {
+            String msg = "";
+            switch (code) {
+                case RESULT_INSTALL_SUCCESS: msg = "RESULT_INSTALL_SUCCESS";
+                    break;
+                case RESULT_ALREADY_INSTALLED: msg = "RESULT_ALREADY_INSTALLED";
+                    break;
+                case RESULT_UNSUPPORTED_ART_VERSION: msg = "RESULT_UNSUPPORTED_ART_VERSION";
+                    break;
+                case RESULT_NOT_WRITABLE: msg = "RESULT_NOT_WRITABLE";
+                    break;
+                case RESULT_DESIRED_FORMAT_UNSUPPORTED: msg = "RESULT_DESIRED_FORMAT_UNSUPPORTED";
+                    break;
+                case RESULT_BASELINE_PROFILE_NOT_FOUND: msg = "RESULT_BASELINE_PROFILE_NOT_FOUND";
+                    break;
+                case RESULT_IO_EXCEPTION: msg = "RESULT_IO_EXCEPTION";
+                    break;
+                case RESULT_PARSE_EXCEPTION: msg = "RESULT_PARSE_EXCEPTION";
+                    break;
+            }
+
+            switch (code) {
+                case RESULT_BASELINE_PROFILE_NOT_FOUND:
+                case RESULT_IO_EXCEPTION:
+                case RESULT_PARSE_EXCEPTION:
+                    Log.e(TAG, msg, (Throwable) data);
+                    break;
+                default:
+                    Log.d(TAG, msg);
+                    break;
+            }
         }
     };
 
@@ -315,7 +375,7 @@ public class ProfileInstaller {
                 // NOTE: If transcoding is needed, then it isn't meaningful to compare the
                 // lengths of the baseline profile with the cur/ref profiles. As a result, we
                 // split logic here.
-                if (transcodingNeeded) {
+                if (!transcodingNeeded) {
                     if (shouldSkipInstall(diagnostics,
                             baselineLength,
                             curExists,
