@@ -162,10 +162,11 @@ compatibility between various components of the development workflow.
 
 From the `frameworks/support` directory, you can use `./studiow m` (short for
 `ANDROIDX_PROJECTS=main ./gradlew studio`) to automatically download and run the
-correct version of Studio to work on the `main` set of androidx projects.
+correct version of Studio to work on the `main` set of androidx projects
+(non-Compose Jetpack libraries).
 [studiow](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:studiow)
 also supports several other arguments like `all` for other subsets of the
-projects.
+projects (run `./studiow` for help).
 
 Next, open the `framework/support` project root from your checkout. If Studio
 asks you which SDK you would like to use, select `Use project SDK`. Importing
