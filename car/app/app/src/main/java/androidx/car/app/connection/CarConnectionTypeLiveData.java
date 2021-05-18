@@ -16,8 +16,8 @@
 
 package androidx.car.app.connection;
 
-import static androidx.car.app.connection.ConnectionToCar.ACTION_CAR_CONNECTION_UPDATED;
-import static androidx.car.app.connection.ConnectionToCar.CAR_CONNECTION_STATE;
+import static androidx.car.app.connection.CarConnection.ACTION_CAR_CONNECTION_UPDATED;
+import static androidx.car.app.connection.CarConnection.CAR_CONNECTION_STATE;
 import static androidx.car.app.utils.LogTags.TAG_CONNECTION_TO_CAR;
 
 import android.content.AsyncQueryHandler;
@@ -31,14 +31,14 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.connection.ConnectionToCar.ConnectionType;
+import androidx.car.app.connection.CarConnection.ConnectionType;
 import androidx.lifecycle.LiveData;
 
 /**
  * A {@link LiveData} that will query once while being observed and only again if it gets updates
  * via a broadcast.
  */
-final class ConnectionToCarTypeLiveData extends LiveData<@ConnectionType Integer> {
+final class CarConnectionTypeLiveData extends LiveData<@ConnectionType Integer> {
     @VisibleForTesting
     static final String CAR_CONNECTION_AUTHORITY = "androidx.car.app.connection";
 
@@ -50,7 +50,7 @@ final class ConnectionToCarTypeLiveData extends LiveData<@ConnectionType Integer
     private final AsyncQueryHandler mQueryHandler;
     private final CarConnectionBroadcastReceiver mBroadcastReceiver;
 
-    ConnectionToCarTypeLiveData(Context context) {
+    CarConnectionTypeLiveData(Context context) {
         mContext = context;
 
         mQueryHandler = new CarConnectionQueryHandler(
@@ -88,7 +88,7 @@ final class ConnectionToCarTypeLiveData extends LiveData<@ConnectionType Integer
             if (response == null) {
                 Log.w(TAG_CONNECTION_TO_CAR, "Null response from content provider when checking "
                         + "connection to the car, treating as disconnected");
-                postValue(ConnectionToCar.NOT_CONNECTED);
+                postValue(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
                 return;
             }
 
@@ -96,14 +96,14 @@ final class ConnectionToCarTypeLiveData extends LiveData<@ConnectionType Integer
             if (carConnectionTypeColumn < 0) {
                 Log.e(TAG_CONNECTION_TO_CAR, "Connection to car response is missing the "
                         + "connection type, treating as disconnected");
-                postValue(ConnectionToCar.NOT_CONNECTED);
+                postValue(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
                 return;
             }
 
             if (!response.moveToNext()) {
-                Log.e(TAG_CONNECTION_TO_CAR,  "Connection to car response is empty, treating as "
+                Log.e(TAG_CONNECTION_TO_CAR, "Connection to car response is empty, treating as "
                         + "disconnected");
-                postValue(ConnectionToCar.NOT_CONNECTED);
+                postValue(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
                 return;
             }
 

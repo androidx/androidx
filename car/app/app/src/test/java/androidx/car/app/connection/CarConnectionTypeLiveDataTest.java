@@ -49,16 +49,16 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowLooper;
 
-/** Tests for {@link ConnectionToCarTypeLiveData}. */
+/** Tests for {@link CarConnectionTypeLiveData}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class ConnectionToCarTypeLiveDataTest {
+public class CarConnectionTypeLiveDataTest {
     @Mock
     private Observer<Integer> mMockObserver;
 
     private final Application mApplication = ApplicationProvider.getApplicationContext();
     private final Context mContext = ApplicationProvider.getApplicationContext();
-    private ConnectionToCarTypeLiveData mConnectionToCarTypeLiveData;
+    private CarConnectionTypeLiveData mCarConnectionTypeLiveData;
     private TestContentProvider mContentProvider;
 
     @Before
@@ -66,76 +66,76 @@ public class ConnectionToCarTypeLiveDataTest {
         MockitoAnnotations.initMocks(this);
 
         ProviderInfo info = new ProviderInfo();
-        info.authority = ConnectionToCarTypeLiveData.CAR_CONNECTION_AUTHORITY;
+        info.authority = CarConnectionTypeLiveData.CAR_CONNECTION_AUTHORITY;
         mContentProvider =
                 Robolectric.buildContentProvider(TestContentProvider.class).create(info).get();
 
         // Starts with 1 broadcast receiver (for CarPendingIntent)
         assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
 
-        mConnectionToCarTypeLiveData = new ConnectionToCarTypeLiveData(mContext);
+        mCarConnectionTypeLiveData = new CarConnectionTypeLiveData(mContext);
     }
 
     @Test
     public void observe_registersBroadcastReceiver() {
         assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
 
         assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(2);
     }
 
     @Test
     public void getInstance_queriesContentProvider() {
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
         assertThat(mContentProvider.mDidQueryContentProvider).isTrue();
     }
 
     @Test
     public void contentProviderQuery_wasProjecting() {
         mContentProvider.mIsProjecting = true;
-        mConnectionToCarTypeLiveData = new ConnectionToCarTypeLiveData(mContext);
+        mCarConnectionTypeLiveData = new CarConnectionTypeLiveData(mContext);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
         ShadowLooper.runUiThreadTasks();
-        verify(mMockObserver).onChanged(ConnectionToCar.PROJECTION);
+        verify(mMockObserver).onChanged(CarConnection.CONNECTION_TYPE_PROJECTION);
     }
 
     @Test
     public void contentProviderQuery_nullReturn() {
         mContentProvider.mReturnNull = true;
-        mConnectionToCarTypeLiveData = new ConnectionToCarTypeLiveData(mContext);
+        mCarConnectionTypeLiveData = new CarConnectionTypeLiveData(mContext);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
         ShadowLooper.runUiThreadTasks();
-        verify(mMockObserver).onChanged(ConnectionToCar.NOT_CONNECTED);
+        verify(mMockObserver).onChanged(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
     }
 
     @Test
     public void contentProviderQuery_noColumn() {
         mContentProvider.mReturnNoColumn = true;
-        mConnectionToCarTypeLiveData = new ConnectionToCarTypeLiveData(mContext);
+        mCarConnectionTypeLiveData = new CarConnectionTypeLiveData(mContext);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
         ShadowLooper.runUiThreadTasks();
-        verify(mMockObserver).onChanged(ConnectionToCar.NOT_CONNECTED);
+        verify(mMockObserver).onChanged(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
     }
 
     @Test
     public void contentProviderQuery_noRow() {
         mContentProvider.mReturnNoRow = true;
-        mConnectionToCarTypeLiveData = new ConnectionToCarTypeLiveData(mContext);
+        mCarConnectionTypeLiveData = new CarConnectionTypeLiveData(mContext);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
         ShadowLooper.runUiThreadTasks();
-        verify(mMockObserver).onChanged(ConnectionToCar.NOT_CONNECTED);
+        verify(mMockObserver).onChanged(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
     }
 
     @Test
     public void broadcastReceived_queriesAndSetsValue() {
         InOrder mocks = inOrder(mMockObserver);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
         ShadowLooper.runUiThreadTasks();
 
         ShadowApplication.Wrapper receiverWrapper = shadowOf(
@@ -143,11 +143,11 @@ public class ConnectionToCarTypeLiveDataTest {
 
         mContentProvider.mIsProjecting = true;
         receiverWrapper.broadcastReceiver.onReceive(mContext,
-                new Intent(ConnectionToCar.ACTION_CAR_CONNECTION_UPDATED));
+                new Intent(CarConnection.ACTION_CAR_CONNECTION_UPDATED));
         ShadowLooper.runUiThreadTasks();
 
-        mocks.verify(mMockObserver).onChanged(ConnectionToCar.NOT_CONNECTED);
-        mocks.verify(mMockObserver).onChanged(ConnectionToCar.PROJECTION);
+        mocks.verify(mMockObserver).onChanged(CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
+        mocks.verify(mMockObserver).onChanged(CarConnection.CONNECTION_TYPE_PROJECTION);
         mocks.verifyNoMoreInteractions();
     }
 
@@ -155,11 +155,11 @@ public class ConnectionToCarTypeLiveDataTest {
     public void stopObserving_removedBroadcastReceiver() {
         assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
 
-        mConnectionToCarTypeLiveData.observeForever(mMockObserver);
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
 
         assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(2);
 
-        mConnectionToCarTypeLiveData.removeObserver(mMockObserver);
+        mCarConnectionTypeLiveData.removeObserver(mMockObserver);
 
         assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
     }
@@ -182,7 +182,7 @@ public class ConnectionToCarTypeLiveDataTest {
                 @Nullable String selection, @Nullable String[] selectionArgs,
                 @Nullable String sortOrder) {
             mDidQueryContentProvider = true;
-            assertThat(projection).asList().containsExactly(ConnectionToCar.CAR_CONNECTION_STATE);
+            assertThat(projection).asList().containsExactly(CarConnection.CAR_CONNECTION_STATE);
 
             if (mReturnNull) {
                 return null;
@@ -199,9 +199,9 @@ public class ConnectionToCarTypeLiveDataTest {
             if (mReturnNoColumn) {
                 return cursor;
             }
-            rowBuilder.add(ConnectionToCar.CAR_CONNECTION_STATE,
-                    mIsProjecting ? ConnectionToCar.PROJECTION :
-                            ConnectionToCar.NOT_CONNECTED);
+            rowBuilder.add(CarConnection.CAR_CONNECTION_STATE,
+                    mIsProjecting ? CarConnection.CONNECTION_TYPE_PROJECTION :
+                            CarConnection.CONNECTION_TYPE_NOT_CONNECTED);
 
             return cursor;
         }

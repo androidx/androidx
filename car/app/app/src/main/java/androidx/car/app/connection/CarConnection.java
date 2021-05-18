@@ -33,14 +33,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO(b/169537526): Remove this class
 /**
  * A class that allows retrieval of information about connection to a car head unit.
- *
- * @deprecated use {@link CarConnection} instead.
  */
-@Deprecated
-public final class ConnectionToCar {
+public final class CarConnection {
     /**
      * Defines current car connection state.
      *
@@ -60,7 +56,7 @@ public final class ConnectionToCar {
      *
      * @hide
      */
-    @IntDef({NOT_CONNECTED, NATIVE, PROJECTION})
+    @IntDef({CONNECTION_TYPE_NOT_CONNECTED, CONNECTION_TYPE_NATIVE, CONNECTION_TYPE_PROJECTION})
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE_USE})
     @RestrictTo(LIBRARY)
@@ -68,28 +64,28 @@ public final class ConnectionToCar {
     }
 
     /**
-     * Not connected to any car head unit.
+     * Not connected to any car head unit.z
      */
-    public static final int NOT_CONNECTED = 0;
+    public static final int CONNECTION_TYPE_NOT_CONNECTED = 0;
 
     /**
      * Natively running on a head unit (Android Automotive OS).
      */
-    public static final int NATIVE = 1;
+    public static final int CONNECTION_TYPE_NATIVE = 1;
 
     /**
      * Connected to a car head unit by projecting to it.
      */
-    public static final int PROJECTION = 2;
+    public static final int CONNECTION_TYPE_PROJECTION = 2;
 
     private final LiveData<Integer> mConnectionTypeLiveData;
 
     /**
-     * Constructs a {@link ConnectionToCar} that can be used to get connection information.
+     * Constructs a {@link CarConnection} that can be used to get connection information.
      *
      * @throws NullPointerException if {@code context} is {@code null}
      */
-    public ConnectionToCar(@NonNull Context context) {
+    public CarConnection(@NonNull Context context) {
         requireNonNull(context);
         mConnectionTypeLiveData = isAutomotiveOS(context)
                 ? new AutomotiveCarConnectionTypeLiveData()
@@ -104,9 +100,9 @@ public final class ConnectionToCar {
      *
      * <p>Connection types are:
      * <ol>
-     *     <li>{@link #NOT_CONNECTED}
-     *     <li>{@link #NATIVE}
-     *     <li>{@link #PROJECTION}
+     *     <li>{@link #CONNECTION_TYPE_NOT_CONNECTED}
+     *     <li>{@link #CONNECTION_TYPE_NATIVE}
+     *     <li>{@link #CONNECTION_TYPE_PROJECTION}
      * </ol>
      */
     @NonNull
