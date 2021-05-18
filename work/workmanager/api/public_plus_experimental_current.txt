@@ -167,7 +167,7 @@ package androidx.work {
     method @RequiresApi(24) public final java.util.List<android.net.Uri!> getTriggeredContentUris();
     method public final boolean isStopped();
     method public void onStopped();
-    method @Deprecated public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(androidx.work.ForegroundInfo);
+    method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(androidx.work.ForegroundInfo);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setProgressAsync(androidx.work.Data);
     method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }

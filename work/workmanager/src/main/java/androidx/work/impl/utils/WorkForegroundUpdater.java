@@ -23,7 +23,6 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
 import androidx.work.Logger;
@@ -83,9 +82,6 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
             @Override
             public void run() {
                 try {
-                    if (BuildCompat.isAtLeastS()) {
-                        throw new IllegalStateException("Use an expedited job instead.");
-                    }
                     if (!future.isCancelled()) {
                         String workSpecId = id.toString();
                         WorkInfo.State state = mWorkSpecDao.getState(workSpecId);
@@ -99,6 +95,8 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
                         }
 
                         // startForeground() is idempotent
+                        // NOTE: This will fail when the process is subject to foreground service
+                        // restrictions. Propagate the exception to the caller.
                         mForegroundProcessor.startForeground(workSpecId, foregroundInfo);
                         Intent intent = createNotifyIntent(context, workSpecId, foregroundInfo);
                         context.startService(intent);
