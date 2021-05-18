@@ -389,7 +389,7 @@ public class SearchFragment extends Fragment {
         });
 
         if (!isSpeechRecognizerAvailable()) {
-            if(mSearchBar.hasFocus()) {
+            if (mSearchBar.hasFocus()) {
                 mSearchBar.findViewById(R.id.lb_search_text_editor).requestFocus();
             }
             mSearchBar.findViewById(R.id.lb_search_bar_speech_orb).setFocusable(false);
@@ -419,8 +419,7 @@ public class SearchFragment extends Fragment {
         mIsPaused = false;
         if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer
                 && mSpeechRecognizerEnabled) {
-            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(
-                    FragmentUtil.getContext(SearchFragment.this));
+            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(FragmentUtil.getContext(SearchFragment.this));
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
         if (mPendingStartRecognitionWhenPaused) {
@@ -783,8 +782,7 @@ public class SearchFragment extends Fragment {
     }
 
     boolean isSpeechRecognizerAvailable() {
-        return SpeechRecognizer.isRecognitionAvailable(
-                FragmentUtil.getContext(SearchFragment.this));
+        return SpeechRecognizer.isRecognitionAvailable(FragmentUtil.getContext(SearchFragment.this));
     }
 
     static class ExternalQuery {
