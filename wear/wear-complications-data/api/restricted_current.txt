@@ -165,7 +165,7 @@ package androidx.wear.complications {
     property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
+  @RequiresApi(android.os.Build.VERSION_CODES.N) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public ComplicationHelperActivity();
     method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
     method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>, String?);

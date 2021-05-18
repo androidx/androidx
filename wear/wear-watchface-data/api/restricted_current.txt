@@ -106,7 +106,7 @@ package android.support.wearable.watchface.accessibility {
     method public static android.support.wearable.complications.ComplicationText makeTimeAsComplicationText(android.content.Context);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ContentDescriptionLabel implements android.os.Parcelable {
+  @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ContentDescriptionLabel implements android.os.Parcelable {
     ctor public ContentDescriptionLabel(android.graphics.Rect, android.support.wearable.complications.ComplicationTextTemplate);
     ctor public ContentDescriptionLabel(android.graphics.Rect, android.support.wearable.complications.ComplicationText);
     ctor public ContentDescriptionLabel(android.content.Context, android.graphics.Rect, android.support.wearable.complications.ComplicationData);
