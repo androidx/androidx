@@ -235,7 +235,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         builder.setSmallIcon(R.drawable.ic_bug_report_24px)
                 .setContentTitle(title + " (phone)")
                 .setContentText(text + " (phone)")
-                .setColor(getCarContext().getColor(R.color.carColorGreen))
+                .setColor(getCarContext().getColor(androidx.car.app.R.color.carColorGreen))
                 .setColorized(true)
                 .setLargeIcon(
                         BitmapFactory.decodeResource(

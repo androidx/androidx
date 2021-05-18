@@ -184,7 +184,7 @@ public class CardViewActivity extends AppCompatActivity {
             case R.id.selector:
                 return R.color.card_selector;
             default:
-                return R.color.cardview_light_background;
+                return androidx.cardview.R.color.cardview_light_background;
         }
     }
 }

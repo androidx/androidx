@@ -85,7 +85,7 @@ public class PlaybackFragment
 
             @Override
             public void onActionClicked(Action action) {
-                if (action.getId() == R.id.lb_control_picture_in_picture) {
+                if (action.getId() == androidx.leanback.R.id.lb_control_picture_in_picture) {
                     if (Build.VERSION.SDK_INT >= 24) {
                         getActivity().enterPictureInPictureMode();
                     }
