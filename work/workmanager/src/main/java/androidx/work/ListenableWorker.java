@@ -216,15 +216,18 @@ public abstract class ListenableWorker {
      * Under the hood, WorkManager manages and runs a foreground service on your behalf to
      * execute this WorkRequest, showing the notification provided in
      * {@link ForegroundInfo}.
+     * <p>
+     * Calling {@code setForegroundAsync} will fail with an
+     * {@link IllegalStateException} when the process is subject to foreground
+     * service restrictions. Consider using
+     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)} and
+     * {@link ListenableWorker#getForegroundInfoAsync()} instead.
      *
      * @param foregroundInfo The {@link ForegroundInfo}
      * @return A {@link ListenableFuture} which resolves after the {@link ListenableWorker}
      * transitions to running in the context of a foreground {@link android.app.Service}.
-     * @deprecated Use {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)} and
-     * {@link ListenableWorker#getForegroundInfoAsync()} instead.
      */
     @NonNull
-    @Deprecated
     public final ListenableFuture<Void> setForegroundAsync(@NonNull ForegroundInfo foregroundInfo) {
         mRunInForeground = true;
         return mWorkerParams.getForegroundUpdater()

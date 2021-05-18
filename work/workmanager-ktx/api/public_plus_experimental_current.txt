@@ -8,7 +8,7 @@ package androidx.work {
     method @androidx.work.ExperimentalExpeditedWork public suspend Object? getForegroundInfo(kotlin.coroutines.Continuation<? super androidx.work.ForegroundInfo> $completion);
     method @androidx.work.ExperimentalExpeditedWork public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ForegroundInfo> getForegroundInfoAsync();
     method public final void onStopped();
-    method @Deprecated public final suspend Object? setForeground(androidx.work.ForegroundInfo foregroundInfo, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public final suspend Object? setForeground(androidx.work.ForegroundInfo foregroundInfo, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final suspend Object? setProgress(androidx.work.Data data, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
     property @Deprecated public kotlinx.coroutines.CoroutineDispatcher coroutineContext;

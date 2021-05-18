@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.lang.IllegalStateException
 
 /**
  * A [ListenableWorker] implementation that provides interop with Kotlin Coroutines.  Override
@@ -117,14 +116,12 @@ public abstract class CoroutineWorker(
      * is a suspending function unlike the [setForegroundAsync] API which returns a
      * [ListenableFuture].
      *
+     * Calling [setForeground] will throw an [IllegalStateException] if the process is subject to
+     * foreground service restrictions. Consider using  [WorkRequest.Builder.setExpedited]
+     * and [getForegroundInfo] instead.
+     *
      * @param foregroundInfo The [ForegroundInfo]
      */
-    @Deprecated(
-        message = "Use WorkRequest.Builder.setExpedited() and ListenableWorker.getForegroundInfo()",
-        replaceWith = ReplaceWith("TODO(\"Replace with getForegroundInfo()\")"),
-        level = DeprecationLevel.WARNING
-    )
-    @Suppress("DEPRECATION")
     public suspend fun setForeground(foregroundInfo: ForegroundInfo) {
         setForegroundAsync(foregroundInfo).await()
     }

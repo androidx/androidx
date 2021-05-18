@@ -18,21 +18,25 @@ package androidx.work.impl.utils
 
 import android.app.Notification
 import android.content.Context
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.work.Constraints
 import androidx.work.ForegroundInfo
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import org.junit.Assert.assertTrue
+import androidx.work.worker.TestWorker
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
@@ -92,22 +96,28 @@ public class WorkForegroundUpdaterTest {
         }
     }
 
+    @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 16)
-    public fun setForeground_onSApi() {
-        if (!BuildCompat.isAtLeastS()) {
-            return
-        }
+    public fun setForeground_throwsException() {
         `when`(mWorkSpecDao.getState(anyString())).thenReturn(WorkInfo.State.RUNNING)
-        var exceptional = false
+        `when`(mForegroundProcessor.startForeground(anyString(), ArgumentMatchers.any()))
+            .thenThrow(IllegalStateException("Subject to foreground service restrictions."))
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setConstraints(
+                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            ).build()
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
         val foregroundUpdater =
             WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
-        val uuid = UUID.randomUUID()
+        var exception: Throwable? = null
         try {
-            foregroundUpdater.setForegroundAsync(mContext, uuid, mForegroundInfo).get()
-        } catch (exception: IllegalStateException) {
-            exceptional = true
+            val future = foregroundUpdater.setForegroundAsync(mContext, request.id, metadata)
+            future.get()
+        } catch (throwable: Throwable) {
+            exception = throwable
         }
-        assertTrue(exceptional)
+        assertNotNull("Exception cannot be null", exception)
     }
 }
