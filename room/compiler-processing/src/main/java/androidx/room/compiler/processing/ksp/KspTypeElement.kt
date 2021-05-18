@@ -40,6 +40,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
+import javax.tools.Diagnostic
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
@@ -251,6 +252,40 @@ internal sealed class KspTypeElement(
 
     override fun isKotlinObject(): Boolean {
         return declaration.classKind == ClassKind.OBJECT
+    }
+
+    override fun isCompanionObject(): Boolean {
+        return declaration.isCompanionObject
+    }
+
+    override fun isAnnotationClass(): Boolean {
+        return declaration.classKind == ClassKind.ANNOTATION_CLASS
+    }
+
+    override fun isClass(): Boolean {
+        return declaration.classKind == ClassKind.CLASS
+    }
+
+    override fun isDataClass(): Boolean {
+        return Modifier.DATA in declaration.modifiers
+    }
+
+    override fun isValueClass(): Boolean {
+        return Modifier.INLINE in declaration.modifiers
+    }
+
+    override fun isFunctionalInterface(): Boolean {
+        // TODO: Update this once KSP supports it
+        // https://github.com/google/ksp/issues/393
+        env.messager.printMessage(
+            Diagnostic.Kind.WARNING,
+            "XProcessing does not yet support checking for functional interfaces in KSP."
+        )
+        return false
+    }
+
+    override fun isExpect(): Boolean {
+        return Modifier.EXPECT in declaration.modifiers
     }
 
     override fun isFinal(): Boolean {

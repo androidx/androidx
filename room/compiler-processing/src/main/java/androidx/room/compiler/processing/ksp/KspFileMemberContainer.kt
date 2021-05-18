@@ -58,6 +58,12 @@ internal class KspFileMemberContainer(
 
     override val fallbackLocationText: String = ksFile.filePath
 
+    override val docComment: String? by lazy {
+        // TODO: Not yet implemented in KSP.
+        // https://github.com/google/ksp/issues/392
+        null
+    }
+
     companion object {
         private fun KSFile.findClassName(): String {
             return annotations.firstOrNull {
