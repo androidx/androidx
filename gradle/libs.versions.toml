@@ -120,7 +120,7 @@ playServicesBase = { module = "com.google.android.gms:play-services-base", versi
 protobuf = { module = "com.google.protobuf:protobuf-java", version = "3.4.0" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version = "3.10.0" }
 protobufGradlePlugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.8.16" }
-protobufLite = { module = "com.google.protobuf:protobuf-javalite", version = "3.4.0" }
+protobufLite = { module = "com.google.protobuf:protobuf-javalite", version = "3.10.0" }
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version = "2.7.2" }
 robolectric = { module = "org.robolectric:robolectric", version = "4.4-alpha-2" }

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryVersions
-import androidx.build.RunApiTasks
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 import androidx.build.shadow.AndroidXDontIncludeResourceTransformer
+import static androidx.build.dependencies.DependenciesKt.PROTOBUF_COMPILER
 
 plugins {
     id("AndroidXPlugin")
@@ -38,7 +37,7 @@ configurations {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    shadowed(PROTOBUF_LITE)
+    shadowed(libs.protobufLite)
 }
 
 sourceSets {
@@ -57,9 +56,9 @@ shadowJar {
 
     relocate "com.google.protobuf", "androidx.wear.tiles.protobuf"
 
-    // PROTOBUF_LITE ships with a standard set of proto files in the JAR, which clash if this
+    // libs.protobufLite ships with a standard set of proto files in the JAR, which clash if this
     // library is included from two different downstream libraries. exclude("*.proto") (or
-    // **/*.proto etc etc) doesn't exclude the ones from PROTOBUF_LITE, so take a more heavy handed
+    // **/*.proto etc etc) doesn't exclude the ones from libs.protobufLite, so take a more heavy handed
     // approach and use a transformer to strip those files.
     // TODO: move back to DontIncludeResourceTransformer.class once Shadow plugin version >6.1.0
     transform(AndroidXDontIncludeResourceTransformer.class) {
@@ -82,7 +81,7 @@ configurations {
 
 protobuf {
     protoc {
-        artifact = PROTOBUF_COMPILER
+        artifact = PROTOBUF_COMPILER // TODO(b/188537796): Switch this to `libs.protobufCompiler`
     }
 
     // Generates the java proto-lite code for the protos in this project. See
