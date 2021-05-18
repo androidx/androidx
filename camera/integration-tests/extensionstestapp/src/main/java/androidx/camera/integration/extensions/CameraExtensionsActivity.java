@@ -119,27 +119,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Sets up the appropriate UseCases.
-     */
-    private void bindUseCases() {
-        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
-                "ImageCapture");
-        mImageCapture = imageCaptureBuilder.build();
-
-        Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
-
-        mPreview = previewBuilder.build();
-        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-
-        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
-                mImageCapture, mPreview);
-    }
-
     void setupButtons() {
         Button btnToggleMode = findViewById(R.id.PhotoToggle);
         Button btnSwitchCamera = findViewById(R.id.Switch);
-        btnToggleMode.setOnClickListener(view -> enableNextExtension());
+        btnToggleMode.setOnClickListener(view -> bindUseCasesWithNextExtension());
         btnSwitchCamera.setOnClickListener(view -> switchCameras());
     }
 
@@ -147,8 +130,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mCameraProvider.unbindAll();
         mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
                 ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
-        bindUseCases();
-        enableExtension(mCurrentImageCaptureType);
+        bindUseCasesWithExtension(mCurrentImageCaptureType);
     }
 
     @Extensions.ExtensionMode
@@ -172,30 +154,37 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
     }
 
-    void enableNextExtension() {
+    void bindUseCasesWithNextExtension() {
         do {
             mCurrentImageCaptureType = mCurrentImageCaptureType.getNextType();
-        } while (!enableExtension(mCurrentImageCaptureType));
+        } while (!bindUseCasesWithExtension(mCurrentImageCaptureType));
     }
 
     // TODO(b/162875208) Suppress until new extensions API made public
     @SuppressLint("RestrictedAPI")
-    boolean enableExtension(ImageCaptureType imageCaptureType) {
+    boolean bindUseCasesWithExtension(ImageCaptureType imageCaptureType) {
         // Check that extension can be enabled and if so enable it
         @Extensions.ExtensionMode
         int extensionMode = extensionModeFrom(imageCaptureType);
-
         if (!mExtensions.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
                 extensionMode)) {
             return false;
         }
 
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
+                "ImageCapture");
+        mImageCapture = imageCaptureBuilder.build();
+
+        Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
+
+        mPreview = previewBuilder.build();
+        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+
         CameraSelector cameraSelector = mExtensions.getExtensionCameraSelector(
                 mCurrentCameraSelector, extensionMode);
 
         mCameraProvider.unbindAll();
-
-        mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
+        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
 
         // Update the UI and save location for ImageCapture
         Button toggleButton = findViewById(R.id.PhotoToggle);
@@ -269,13 +258,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         return true;
     }
 
-    /** Creates all the use cases. */
-    void createUseCases() {
-        ExtensionsManager.setExtensionsErrorListener((errorCode) ->
-                Log.d(TAG, "Extensions error in error code: " + errorCode));
-        bindUseCases();
-    }
-
     @SuppressWarnings("UnstableApiUsage")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -339,8 +321,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             case NONE:
                                 mExtensions = ExtensionsManager.getExtensions(
                                         getApplicationContext());
-                                createUseCases();
-                                enableNextExtension();
+                                ExtensionsManager.setExtensionsErrorListener((errorCode) ->
+                                        Log.d(TAG, "Extensions error in error code: " + errorCode));
+                                bindUseCasesWithNextExtension();
                                 setupButtons();
                                 break;
                             case LIBRARY_UNAVAILABLE_ERROR_LOADING:
@@ -407,9 +390,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 motionEvent.getX(), motionEvent.getY());
 
                 mCamera.getCameraControl().startFocusAndMetering(
-                        new FocusMeteringAction.Builder(point).build())
-                        .addListener(() -> {},
-                                ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+                        new FocusMeteringAction.Builder(point).build()).addListener(() -> {},
+                        ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
             }
             return true;
         });
