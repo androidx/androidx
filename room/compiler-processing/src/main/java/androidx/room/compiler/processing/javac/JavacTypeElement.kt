@@ -81,18 +81,16 @@ internal sealed class JavacTypeElement(
     override fun isExpect() = kotlinMetadata?.isExpect() == true
 
     override fun isAnnotationClass(): Boolean {
-        return (element.kind == ElementKind.ANNOTATION_TYPE) ||
-            kotlinMetadata?.isAnnotationClass() == true
+        return kotlinMetadata?.isAnnotationClass()
+            ?: (element.kind == ElementKind.ANNOTATION_TYPE)
     }
 
     override fun isClass(): Boolean {
-        return (element.kind == ElementKind.CLASS) ||
-            kotlinMetadata?.isClass() == true
+        return kotlinMetadata?.isClass() ?: (element.kind == ElementKind.CLASS)
     }
 
     override fun isInterface(): Boolean {
-        return (element.kind == ElementKind.INTERFACE) ||
-            kotlinMetadata?.isInterface() == true
+        return kotlinMetadata?.isInterface() ?: (element.kind == ElementKind.INTERFACE)
     }
 
     override fun findPrimaryConstructor(): JavacConstructorElement? {
