@@ -38,16 +38,17 @@ dependencies {
     kapt(GRADLE_INCAP_HELPER_PROCESSOR)
     kapt(AUTO_SERVICE_PROCESSOR)
 
-    testImplementation(project(":resourceinspection:resourceinspection-annotation"))
-    testImplementation(project(":annotation:annotation"))
-    testImplementation(INTELLIJ_ANNOTATIONS)
     testImplementation(JUNIT)
-    testImplementation(JSR250)
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(TRUTH)
-    testImplementation fileTree(
+
+    testRuntimeOnly(project(":resourceinspection:resourceinspection-annotation"))
+    testRuntimeOnly(project(":annotation:annotation"))
+    testRuntimeOnly(fileTree(
             dir: "${getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar")
+            include : "android.jar"))
+    testRuntimeOnly(INTELLIJ_ANNOTATIONS)
+    testRuntimeOnly(JSR250)
 }
 
 androidx {
