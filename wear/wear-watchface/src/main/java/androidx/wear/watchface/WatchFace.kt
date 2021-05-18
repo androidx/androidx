@@ -418,6 +418,27 @@ public class WatchFaceImpl(
         // available programmatically. The value below is the default but it could be overridden
         // by OEMs.
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
+
+        internal val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
+            hashMapOf(
+                DrawMode.AMBIENT to
+                    RenderParameters(
+                        DrawMode.AMBIENT, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
+                    ),
+                DrawMode.INTERACTIVE to
+                    RenderParameters(
+                        DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
+                    ),
+                DrawMode.LOW_BATTERY_INTERACTIVE to
+                    RenderParameters(
+                        DrawMode.LOW_BATTERY_INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
+                    ),
+                DrawMode.MUTE to
+                    RenderParameters(
+                        DrawMode.MUTE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
+                    ),
+            )
     }
 
     private val systemTimeProvider = watchface.systemTimeProvider
@@ -819,8 +840,10 @@ public class WatchFaceImpl(
         } else if (muteMode) {
             newDrawMode = DrawMode.MUTE
         }
-        renderer.renderParameters =
-            RenderParameters(newDrawMode, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
+
+        if (renderer.renderParameters.drawMode != newDrawMode) {
+            renderer.renderParameters = defaultRenderParametersForDrawMode[newDrawMode]!!
+        }
     }
 
     /** @hide */
