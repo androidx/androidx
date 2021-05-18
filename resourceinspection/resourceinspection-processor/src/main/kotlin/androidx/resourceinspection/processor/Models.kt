@@ -53,6 +53,19 @@ internal data class GetterAttribute(
         get() = "${getter.simpleName}()"
 }
 
+/**
+ * Represents a shadowed platform attribute in a different namespace, mainly for AppCompat.
+ *
+ * The constructor has some reasonable defaults to make defining these as constants less toilsome.
+ */
+internal data class ShadowedAttribute(
+    override val name: String,
+    override val invocation: String,
+    override val type: AttributeType = AttributeType.OBJECT,
+    override val intMapping: List<IntMap> = emptyList(),
+    override val namespace: String = "androidx.appcompat"
+) : Attribute
+
 /** Represents an `Attribute.IntMap` entry. */
 internal data class IntMap(
     val name: String,
