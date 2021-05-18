@@ -30,6 +30,7 @@ import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -529,28 +530,20 @@ public abstract class VersionedParcel {
      * Flatten a Size into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(21)
     public void writeSize(@Nullable Size val, int fieldId) {
         setOutputField(fieldId);
-        writeBoolean(val != null);
-        if (val != null) {
-            writeInt(val.getWidth());
-            writeInt(val.getHeight());
-        }
+        Api21Impl.writeSize(this, val);
     }
 
     /**
      * Flatten a SizeF into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(21)
     public void writeSizeF(@Nullable SizeF val, int fieldId) {
         setOutputField(fieldId);
-        writeBoolean(val != null);
-        if (val != null) {
-            writeFloat(val.getWidth());
-            writeFloat(val.getHeight());
-        }
+        Api21Impl.writeSizeF(this, val);
     }
 
     /**
@@ -1279,35 +1272,25 @@ public abstract class VersionedParcel {
     /**
      * Read a Size from the parcel at the current dataPosition().
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(21)
     @Nullable
     public Size readSize(@Nullable Size def, int fieldId) {
         if (!readField(fieldId)) {
             return def;
         }
-        if (readBoolean()) {
-            int width = readInt();
-            int height = readInt();
-            return new Size(width, height);
-        }
-        return null;
+        return Api21Impl.readSize(this);
     }
 
     /**
      * Read a SizeF from the parcel at the current dataPosition().
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(21)
     @Nullable
     public SizeF readSizeF(@Nullable SizeF def, int fieldId) {
         if (!readField(fieldId)) {
             return def;
         }
-        if (readBoolean()) {
-            float width = readFloat();
-            float height = readFloat();
-            return new SizeF(width, height);
-        }
-        return null;
+        return Api21Impl.readSizeF(this);
     }
 
     /**
@@ -1700,6 +1683,49 @@ public abstract class VersionedParcel {
     public static class ParcelException extends RuntimeException {
         public ParcelException(@Nullable Throwable source) {
             super(source);
+        }
+    }
+
+    @RequiresApi(21)
+    private static final class Api21Impl {
+        @DoNotInline
+        static void writeSize(@NonNull VersionedParcel self, @Nullable Size val) {
+            self.writeBoolean(val != null);
+            if (val != null) {
+                self.writeInt(val.getWidth());
+                self.writeInt(val.getHeight());
+            }
+        }
+
+        @DoNotInline
+        static void writeSizeF(@NonNull VersionedParcel self, @Nullable SizeF val) {
+            self.writeBoolean(val != null);
+            if (val != null) {
+                self.writeFloat(val.getWidth());
+                self.writeFloat(val.getHeight());
+            }
+        }
+
+        @DoNotInline
+        @Nullable
+        static Size readSize(@NonNull VersionedParcel self) {
+            if (self.readBoolean()) {
+                int width = self.readInt();
+                int height = self.readInt();
+                return new Size(width, height);
+            }
+            return null;
+        }
+
+        @DoNotInline
+        @Nullable
+        static SizeF readSizeF(@NonNull VersionedParcel self) {
+            if (self.readBoolean()) {
+                float width = self.readFloat();
+                float height = self.readFloat();
+                return new SizeF(width, height);
+            }
+            return null;
         }
     }
 }
