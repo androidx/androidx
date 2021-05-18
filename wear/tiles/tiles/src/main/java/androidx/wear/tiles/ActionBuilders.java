@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.builders;
+package androidx.wear.tiles;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.builders.StateBuilders.State;
+import androidx.wear.tiles.StateBuilders.State;
 import androidx.wear.tiles.proto.ActionProto;
 
 import java.util.Collections;
@@ -633,8 +633,7 @@ public final class ActionBuilders {
         /**
          * Gets the state to load the next tile with. This will be included in the TileRequest sent
          * after this action is invoked by a {@link
-         * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}. Intended for testing purposes
-         * only.
+         * androidx.wear.tiles.ModifiersBuilders.Clickable}. Intended for testing purposes only.
          */
         @Nullable
         public State getRequestState() {
@@ -683,7 +682,7 @@ public final class ActionBuilders {
             /**
              * Sets the state to load the next tile with. This will be included in the TileRequest
              * sent after this action is invoked by a {@link
-             * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}.
+             * androidx.wear.tiles.ModifiersBuilders.Clickable}.
              */
             @NonNull
             public Builder setRequestState(@NonNull State requestState) {
@@ -694,7 +693,7 @@ public final class ActionBuilders {
             /**
              * Sets the state to load the next tile with. This will be included in the TileRequest
              * sent after this action is invoked by a {@link
-             * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}.
+             * androidx.wear.tiles.ModifiersBuilders.Clickable}.
              */
             @NonNull
             public Builder setRequestState(@NonNull State.Builder requestStateBuilder) {

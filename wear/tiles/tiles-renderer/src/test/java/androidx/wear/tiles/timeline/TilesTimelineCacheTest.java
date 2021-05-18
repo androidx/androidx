@@ -19,12 +19,12 @@ package androidx.wear.tiles.timeline;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.Nullable;
+import androidx.wear.tiles.LayoutElementBuilders.Layout;
+import androidx.wear.tiles.LayoutElementBuilders.Text;
 import androidx.wear.tiles.TilesTestRunner;
-import androidx.wear.tiles.builders.LayoutElementBuilders.Layout;
-import androidx.wear.tiles.builders.LayoutElementBuilders.Text;
-import androidx.wear.tiles.builders.TimelineBuilders.TimeInterval;
-import androidx.wear.tiles.builders.TimelineBuilders.Timeline;
-import androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry;
+import androidx.wear.tiles.TimelineBuilders.TimeInterval;
+import androidx.wear.tiles.TimelineBuilders.Timeline;
+import androidx.wear.tiles.TimelineBuilders.TimelineEntry;
 
 import com.google.common.truth.Expect;
 

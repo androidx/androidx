@@ -28,12 +28,12 @@ import android.app.AlarmManager;
 import android.content.Context;
 
 import androidx.core.content.ContextCompat;
+import androidx.wear.tiles.LayoutElementBuilders.Layout;
+import androidx.wear.tiles.LayoutElementBuilders.Text;
 import androidx.wear.tiles.TilesTestRunner;
-import androidx.wear.tiles.builders.LayoutElementBuilders.Layout;
-import androidx.wear.tiles.builders.LayoutElementBuilders.Text;
-import androidx.wear.tiles.builders.TimelineBuilders.TimeInterval;
-import androidx.wear.tiles.builders.TimelineBuilders.Timeline;
-import androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry;
+import androidx.wear.tiles.TimelineBuilders.TimeInterval;
+import androidx.wear.tiles.TimelineBuilders.Timeline;
+import androidx.wear.tiles.TimelineBuilders.TimelineEntry;
 
 import com.google.common.truth.Expect;
 

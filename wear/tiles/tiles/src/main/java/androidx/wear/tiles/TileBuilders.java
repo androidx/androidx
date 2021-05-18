@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.builders;
+package androidx.wear.tiles;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.builders.TimelineBuilders.Timeline;
+import androidx.wear.tiles.TimelineBuilders.Timeline;
 import androidx.wear.tiles.proto.TileProto;
 import androidx.wear.tiles.proto.VersionProto.VersionInfo;
 
@@ -40,9 +40,10 @@ public final class TileBuilders {
         }
 
         /**
-         * Gets the resource version required for these tiles. This can be any user-defined string;
-         * it is only used to cache resources, and is passed in ResourcesRequest if the system does
-         * not have a copy of the specified resource version. Intended for testing purposes only.
+         * Gets the resource version required for these tiles. This can be any developer-defined
+         * string; it is only used to cache resources, and is passed in ResourcesRequest if the
+         * system does not have a copy of the specified resource version. Intended for testing
+         * purposes only.
          */
         @NonNull
         public String getResourcesVersion() {
