@@ -16,33 +16,38 @@
 
 package androidx.car.app.connection;
 
-import static org.mockito.Mockito.verify;
+import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
 
-import androidx.lifecycle.Observer;
+import static com.google.common.truth.Truth.assertThat;
 
-import org.junit.Before;
+import static org.robolectric.Shadows.shadowOf;
+
+import android.content.Context;
+
+import androidx.test.core.app.ApplicationProvider;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-/** Tests for {@link AutomotiveConnectionToCarTypeLiveData}. */
+/** Tests for {@link CarConnection}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class AutomotiveConnectionToCarTypeLiveDataTest {
-    @Mock private Observer<Integer> mMockObserver;
+public class CarConnectionTest {
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    @Test
+    public void getType_projection() {
+        assertThat(new CarConnection(mContext).getType()).isInstanceOf(
+                CarConnectionTypeLiveData.class);
     }
 
     @Test
-    public void observe_returnsNative() {
-        new AutomotiveConnectionToCarTypeLiveData().observeForever(mMockObserver);
+    public void getType_automotive() {
+        shadowOf(mContext.getPackageManager()).setSystemFeature(FEATURE_AUTOMOTIVE, true);
 
-        verify(mMockObserver).onChanged(ConnectionToCar.NATIVE);
+        assertThat(new CarConnection(mContext).getType()).isInstanceOf(
+                AutomotiveCarConnectionTypeLiveData.class);
     }
 }
