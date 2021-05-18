@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertShape
@@ -36,16 +37,21 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onChildAt
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -228,6 +234,27 @@ class ChipSizeTest {
     fun gives_base_chip_correct_height() =
         verifyHeight(ChipDefaults.Height)
 
+    @Test
+    fun has_icon_in_correct_location_when_only_single_line_of_text() {
+        val iconTag = "TestIcon"
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                Chip(
+                    onClick = {},
+                    label = { Text("Blue green orange") },
+                    icon = { CreateImage(iconTag) },
+                    modifier = Modifier.testTag(chipTag)
+                )
+            }
+        val itemBounds = rule.onNodeWithTag(chipTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(iconTag, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+
+        rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
+            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+
     private fun verifyHeight(expectedHeight: Dp) {
         rule.verifyHeight(expectedHeight) {
             Chip(
@@ -254,11 +281,33 @@ class ChipColorTest {
         )
 
     @Test
+    fun three_slot_layout_gives_primary_enabled_colors() =
+        verifyThreeSlotColors(
+            TestChipColors.Primary,
+            ChipStatus.Enabled,
+            { MaterialTheme.colors.primary },
+            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.onPrimary }
+        )
+
+    @Test
     fun gives_primary_disabled_colors() =
         verifyColors(
             TestChipColors.Primary,
             ChipStatus.Disabled,
             { MaterialTheme.colors.primary },
+            { MaterialTheme.colors.onPrimary }
+        )
+
+    @Test
+    fun three_slot_layout_gives_primary_disabled_colors() =
+        verifyThreeSlotColors(
+            TestChipColors.Primary,
+            ChipStatus.Disabled,
+            { MaterialTheme.colors.primary },
+            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.onPrimary },
             { MaterialTheme.colors.onPrimary }
         )
 
@@ -272,11 +321,33 @@ class ChipColorTest {
         )
 
     @Test
+    fun three_slot_layout_gives_secondary_enabled_colors() =
+        verifyThreeSlotColors(
+            TestChipColors.Secondary,
+            ChipStatus.Enabled,
+            { MaterialTheme.colors.surface },
+            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.onSurface }
+        )
+
+    @Test
     fun gives_secondary_disabled_colors() =
         verifyColors(
             TestChipColors.Secondary,
             ChipStatus.Disabled,
             { MaterialTheme.colors.surface },
+            { MaterialTheme.colors.onSurface }
+        )
+
+    @Test
+    fun three_slot_layout_gives_secondary_disabled_colors() =
+        verifyThreeSlotColors(
+            TestChipColors.Secondary,
+            ChipStatus.Enabled,
+            { MaterialTheme.colors.surface },
+            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.onSurface },
             { MaterialTheme.colors.onSurface }
         )
 
@@ -344,6 +415,60 @@ class ChipColorTest {
     }
 
     @Test
+    fun allows_custom_enabled_secondary_label_color_override() {
+        val overrideColor = Color.Red
+        var actualContentColor = Color.Transparent
+        var actualSecondaryContentColor = Color.Transparent
+        var expectedContent = Color.Transparent
+        rule.setContentWithTheme {
+            expectedContent = MaterialTheme.colors.onPrimary
+            Chip(
+                onClick = {},
+                colors = ChipDefaults.chipColors(
+                    secondaryContentColor = overrideColor
+                ),
+                label = {
+                    actualContentColor = LocalContentColor.current
+                },
+                secondaryLabel = {
+                    actualSecondaryContentColor = LocalContentColor.current
+                },
+                enabled = true,
+                modifier = Modifier.testTag("test-item")
+            )
+        }
+        assertEquals(expectedContent, actualContentColor)
+        assertEquals(overrideColor, actualSecondaryContentColor)
+    }
+
+    @Test
+    fun allows_custom_enabled_icon_tint_color_override() {
+        val overrideColor = Color.Red
+        var actualContentColor = Color.Transparent
+        var actualIconTintColor = Color.Transparent
+        var expectedContent = Color.Transparent
+        rule.setContentWithTheme {
+            expectedContent = MaterialTheme.colors.onPrimary
+            Chip(
+                onClick = {},
+                colors = ChipDefaults.chipColors(
+                    iconTintColor = overrideColor
+                ),
+                label = {
+                    actualContentColor = LocalContentColor.current
+                },
+                icon = {
+                    actualIconTintColor = LocalContentColor.current
+                },
+                enabled = true,
+                modifier = Modifier.testTag("test-item")
+            )
+        }
+        assertEquals(expectedContent, actualContentColor)
+        assertEquals(overrideColor, actualIconTintColor)
+    }
+
+    @Test
     fun allows_custom_disabled_content_color_override() {
         val overrideColor = Color.Yellow
         var actualContentColor = Color.Transparent
@@ -405,6 +530,114 @@ class ChipColorTest {
                 .captureToImage()
                 .assertContainsColor(expectedBackground, 50.0f)
         }
+    }
+
+    private fun verifyThreeSlotColors(
+        testChipColors: TestChipColors,
+        status: ChipStatus,
+        backgroundColor: @Composable () -> Color,
+        contentColor: @Composable () -> Color,
+        secondaryContentColor: @Composable () -> Color,
+        iconColor: @Composable () -> Color
+    ) {
+        var expectedBackground = Color.Transparent
+        var expectedContent = Color.Transparent
+        var expectedSecondaryContent = Color.Transparent
+        var expectedIcon = Color.Transparent
+        var actualContent = Color.Transparent
+        var actualSecondaryContent = Color.Transparent
+        var actualIcon = Color.Transparent
+        var expectedAlpha = 0.0f
+
+        rule.setContentWithTheme {
+            expectedBackground = backgroundColor()
+            expectedContent = contentColor()
+            expectedSecondaryContent = secondaryContentColor()
+            expectedIcon = iconColor()
+            expectedAlpha = ContentAlpha.disabled
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(expectedBackground)
+            ) {
+                Chip(
+                    onClick = {},
+                    colors = testChipColors.chipColors(),
+                    label = { actualContent = LocalContentColor.current },
+                    secondaryLabel = { actualSecondaryContent = LocalContentColor.current },
+                    icon = { actualIcon = LocalContentColor.current },
+                    enabled = status.enabled(),
+                    modifier = Modifier.testTag("test-item")
+                )
+            }
+        }
+
+        if (status.enabled()) {
+            assertEquals(expectedContent, actualContent)
+            assertEquals(expectedSecondaryContent, actualSecondaryContent)
+            assertEquals(expectedIcon, actualIcon)
+        } else {
+            assertEquals(expectedContent.copy(alpha = expectedAlpha), actualContent)
+            assertEquals(
+                expectedSecondaryContent.copy(alpha = expectedAlpha),
+                actualSecondaryContent
+            )
+            assertEquals(expectedIcon.copy(alpha = expectedAlpha), actualIcon)
+        }
+
+        if (expectedBackground != Color.Transparent) {
+            rule.onNodeWithTag("test-item").onChildAt(0)
+                .captureToImage()
+                .assertContainsColor(expectedBackground, 50.0f)
+        }
+    }
+}
+
+class ChipFontTest {
+    @get:Rule
+    val rule = createComposeRule()
+
+    @Test
+    fun gives_correct_text_style_base() {
+        var actualTextStyle = TextStyle.Default
+        var expectedTextStyle = TextStyle.Default
+        rule.setContentWithTheme {
+            expectedTextStyle = MaterialTheme.typography.button
+            Chip(
+                onClick = {},
+                colors = ChipDefaults.primaryChipColors(),
+                content = {
+                    actualTextStyle = LocalTextStyle.current
+                },
+                enabled = true,
+                modifier = Modifier.testTag("test-item")
+            )
+        }
+        assertEquals(expectedTextStyle, actualTextStyle)
+    }
+
+    @Test
+    fun gives_correct_text_style_three_slot_chip() {
+        var actualLabelTextStyle = TextStyle.Default
+        var actualSecondaryLabelTextStyle = TextStyle.Default
+        var expectedTextStyle = TextStyle.Default
+        rule.setContentWithTheme {
+            expectedTextStyle = MaterialTheme.typography.button
+            Chip(
+                onClick = {},
+                colors = ChipDefaults.primaryChipColors(),
+                label = {
+                    actualLabelTextStyle = LocalTextStyle.current
+                },
+                secondaryLabel = {
+                    actualSecondaryLabelTextStyle = LocalTextStyle.current
+                },
+                enabled = true,
+                modifier = Modifier.testTag("test-item")
+            )
+        }
+        assertEquals(expectedTextStyle, actualLabelTextStyle)
+        assertEquals(expectedTextStyle, actualSecondaryLabelTextStyle)
     }
 }
 
