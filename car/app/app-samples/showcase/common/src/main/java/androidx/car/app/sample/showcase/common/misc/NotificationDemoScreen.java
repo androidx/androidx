@@ -340,7 +340,8 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
     /** Returns a pending intent with the provided intent action. */
     private PendingIntent createPendingIntent(String intentAction) {
         Intent intent = new Intent(intentAction);
-        return PendingIntent.getBroadcast(getCarContext(), intentAction.hashCode(), intent, 0);
+        return PendingIntent.getBroadcast(getCarContext(), intentAction.hashCode(), intent,
+                PendingIntent.FLAG_IMMUTABLE);
     }
 
     final class HandlerCallback implements Handler.Callback {
