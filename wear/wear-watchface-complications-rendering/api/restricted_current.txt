@@ -13,8 +13,6 @@ package androidx.wear.watchface.complications.rendering {
     method public void setHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
     property public boolean isHighlighted;
-    field public static final float EXPANSION_DP = 6.0f;
-    field public static final float STROKE_WIDTH_DP = 3.0f;
   }
 
   public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
