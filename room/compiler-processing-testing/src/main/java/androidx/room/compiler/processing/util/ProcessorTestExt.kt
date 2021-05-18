@@ -183,7 +183,10 @@ fun runProcessorTest(
     targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handlers: List<(XTestInvocation) -> Unit>
 ) {
-    val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
+    val javaApRunner = if (
+        sources.any { it is Source.KotlinSource } ||
+        targetLanguage == XProcessingEnv.Language.KOTLIN
+    ) {
         KaptCompilationTestRunner
     } else {
         JavacCompilationTestRunner
@@ -211,13 +214,11 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
-    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handler: (XTestInvocation) -> Unit
 ) = runJavaProcessorTest(
     sources = sources,
     classpath = classpath,
     options = options,
-    targetLanguage = targetLanguage,
     handlers = listOf(handler)
 )
 
@@ -229,7 +230,6 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
-    targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA,
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -237,7 +237,7 @@ fun runJavaProcessorTest(
             sources = sources,
             classpath = classpath,
             options = options,
-            targetLanguage = targetLanguage,
+            targetLanguage = XProcessingEnv.Language.JAVA,
             handlers = handlers
         ),
         JavacCompilationTestRunner

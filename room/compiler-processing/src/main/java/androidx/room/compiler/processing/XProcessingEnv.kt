@@ -35,7 +35,7 @@ interface XProcessingEnv {
     val backend: Backend
 
     /**
-     * The target language the processor is set to expect
+     * The expected language of the sources to be processed and generated.
      */
     val targetLanguage: Language
 

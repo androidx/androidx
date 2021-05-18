@@ -18,10 +18,12 @@ package androidx.room.compiler.processing.util.runner
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.JavaCompileTestingCompilationResult
 import androidx.room.compiler.processing.util.Source
 import com.google.testing.compile.Compiler
+import org.jetbrains.kotlin.types.model.requireOrDescribe
 
 @ExperimentalProcessingApi
 internal object JavacCompilationTestRunner : CompilationTestRunner {
@@ -33,9 +35,12 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
     }
 
     override fun compile(params: TestCompilationParameters): CompilationResult {
+        require(params.targetLanguage != XProcessingEnv.Language.KOTLIN) {
+            "Javac processor is not meant to process Kotlin code. Use KAPT instead."
+        }
         val syntheticJavacProcessor = SyntheticJavacProcessor(
             params.handlers,
-            params.targetLanguage
+            XProcessingEnv.Language.JAVA
         )
         val sources = if (params.sources.isEmpty()) {
             // synthesize a source to trigger compilation

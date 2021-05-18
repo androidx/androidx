@@ -18,6 +18,8 @@ package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
+import androidx.room.compiler.processing.util.runner.TestCompilationParameters
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
@@ -208,25 +210,26 @@ class TestRunnerTest {
         }
 
         runProcessorTest(
+            sources = listOf(src),
             targetLanguage = XProcessingEnv.Language.JAVA,
             handler = handler
         )
         runProcessorTest(
+            sources = listOf(src),
             targetLanguage = XProcessingEnv.Language.JAVA,
             handlers = listOf(handler)
         )
         runProcessorTestWithoutKsp(
-            targetLanguage = XProcessingEnv.Language.JAVA,
-            handler = handler
-        )
-        runJavaProcessorTest(
             sources = listOf(src),
             targetLanguage = XProcessingEnv.Language.JAVA,
             handler = handler
         )
         runJavaProcessorTest(
             sources = listOf(src),
-            targetLanguage = XProcessingEnv.Language.JAVA,
+            handler = handler
+        )
+        runJavaProcessorTest(
+            sources = listOf(src),
             handlers = listOf(handler)
         )
         runKaptTest(
@@ -266,14 +269,17 @@ class TestRunnerTest {
         }
 
         runProcessorTest(
+            sources = listOf(src),
             targetLanguage = XProcessingEnv.Language.KOTLIN,
             handler = handler
         )
         runProcessorTest(
+            sources = listOf(src),
             targetLanguage = XProcessingEnv.Language.KOTLIN,
             handlers = listOf(handler)
         )
         runProcessorTestWithoutKsp(
+            sources = listOf(src),
             targetLanguage = XProcessingEnv.Language.KOTLIN,
             handler = handler
         )
@@ -297,5 +303,31 @@ class TestRunnerTest {
             targetLanguage = XProcessingEnv.Language.KOTLIN,
             handlers = listOf(handler)
         )
+    }
+
+    @Test
+    fun javacTestRunnerFails_kotlin() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo
+            class Foo { }
+            """.trimIndent()
+        )
+        val handler: (XTestInvocation) -> Unit = { }
+        val params = TestCompilationParameters(
+            sources = listOf(src),
+            targetLanguage = XProcessingEnv.Language.KOTLIN,
+            handlers = emptyList()
+        )
+
+        val result = kotlin.runCatching {
+            JavacCompilationTestRunner.compile(params)
+        }
+
+        assertThat(result.isFailure).isEqualTo(true)
+        assertThat(result.exceptionOrNull())
+            .hasMessageThat()
+            .isEqualTo("Javac processor is not meant to process Kotlin code. Use KAPT instead.")
     }
 }
