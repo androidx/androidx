@@ -279,16 +279,6 @@ for compact in "--ci" "--strict" "--clean"; do
   fi
 done
 
-function tryToDiagnosePossibleDaemonFailure() {
-  # copy daemon logs
-  if [ -n "$GRADLE_USER_HOME" ]; then
-    if [ -n "$DIST_DIR" ]; then
-      cp -r "$GRADLE_USER_HOME/daemon" "$DIST_DIR/gradle-daemon"
-      cp ./hs_err* $DIST_DIR/ 2>/dev/null || true
-    fi
-  fi
-}
-
 function removeCaches() {
   rm -rf $SCRIPT_PATH/.gradle
   rm -rf $SCRIPT_PATH/buildSrc/.gradle
@@ -342,7 +332,6 @@ function runGradle() {
   if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     return 0
   else
-    tryToDiagnosePossibleDaemonFailure
     # Print AndroidX-specific help message if build fails
     # Have to do this build-failure detection in gradlew rather than in build.gradle
     # so that this message still prints even if buildSrc itself fails
