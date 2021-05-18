@@ -393,6 +393,17 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
   }
 
+  public static final class LayoutElementBuilders.ColorFilter {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getTint();
+  }
+
+  public static final class LayoutElementBuilders.ColorFilter.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+  }
+
   public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.LayoutElementBuilders.Column.Builder builder();
     method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();

@@ -1403,6 +1403,94 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /** Filtering parameters used for images. This can be used to apply a color tint to images. */
+    public static final class ColorFilter {
+        private final LayoutElementProto.ColorFilter mImpl;
+
+        private ColorFilter(LayoutElementProto.ColorFilter impl) {
+            this.mImpl = impl;
+        }
+
+        /**
+         * Gets the tint color to use. If specified, the image will be tinted, using SRC_IN blending
+         * (that is, all color information will be stripped from the target image, and only the
+         * alpha channel will be blended with the requested color).
+         *
+         * <p>Note that only Android image resources can be tinted; Inline images will not be
+         * tinted, and this property will have no effect. Intended for testing purposes only.
+         */
+        @Nullable
+        public ColorProp getTint() {
+            if (mImpl.hasTint()) {
+                return ColorProp.fromProto(mImpl.getTint());
+            } else {
+                return null;
+            }
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
+            return new ColorFilter(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ColorFilter toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link ColorFilter} */
+        public static final class Builder {
+            private final LayoutElementProto.ColorFilter.Builder mImpl =
+                    LayoutElementProto.ColorFilter.newBuilder();
+
+            Builder() {}
+
+            /**
+             * Sets the tint color to use. If specified, the image will be tinted, using SRC_IN
+             * blending (that is, all color information will be stripped from the target image, and
+             * only the alpha channel will be blended with the requested color).
+             *
+             * <p>Note that only Android image resources can be tinted; Inline images will not be
+             * tinted, and this property will have no effect.
+             */
+            @NonNull
+            public Builder setTint(@NonNull ColorProp tint) {
+                mImpl.setTint(tint.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the tint color to use. If specified, the image will be tinted, using SRC_IN
+             * blending (that is, all color information will be stripped from the target image, and
+             * only the alpha channel will be blended with the requested color).
+             *
+             * <p>Note that only Android image resources can be tinted; Inline images will not be
+             * tinted, and this property will have no effect.
+             */
+            @NonNull
+            public Builder setTint(@NonNull ColorProp.Builder tintBuilder) {
+                mImpl.setTint(tintBuilder.build().toProto());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public ColorFilter build() {
+                return ColorFilter.fromProto(mImpl.build());
+            }
+        }
+    }
+
     /**
      * An image.
      *
@@ -1478,6 +1566,20 @@ public final class LayoutElementBuilders {
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
                 return Modifiers.fromProto(mImpl.getModifiers());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets filtering parameters for this image. If not specified, defaults to no filtering.
+         * Intended for testing purposes only.
+         */
+        @TilesExperimental
+        @Nullable
+        public ColorFilter getFilter() {
+            if (mImpl.hasFilter()) {
+                return ColorFilter.fromProto(mImpl.getFilter());
             } else {
                 return null;
             }
@@ -1599,6 +1701,26 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets filtering parameters for this image. If not specified, defaults to no filtering.
+             */
+            @TilesExperimental
+            @NonNull
+            public Builder setFilter(@NonNull ColorFilter filter) {
+                mImpl.setFilter(filter.toProto());
+                return this;
+            }
+
+            /**
+             * Sets filtering parameters for this image. If not specified, defaults to no filtering.
+             */
+            @TilesExperimental
+            @NonNull
+            public Builder setFilter(@NonNull ColorFilter.Builder filterBuilder) {
+                mImpl.setFilter(filterBuilder.build().toProto());
                 return this;
             }
 

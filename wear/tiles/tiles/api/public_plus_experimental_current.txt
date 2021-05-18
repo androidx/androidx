@@ -394,6 +394,17 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
   }
 
+  public static final class LayoutElementBuilders.ColorFilter {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getTint();
+  }
+
+  public static final class LayoutElementBuilders.ColorFilter.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+  }
+
   public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.LayoutElementBuilders.Column.Builder builder();
     method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
@@ -515,6 +526,7 @@ package androidx.wear.tiles {
   public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.LayoutElementBuilders.Image.Builder builder();
     method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.ColorFilter? getFilter();
     method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getHeight();
     method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
@@ -525,6 +537,8 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.LayoutElementBuilders.Image build();
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter);
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
