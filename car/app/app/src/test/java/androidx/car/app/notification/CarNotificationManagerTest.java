@@ -70,9 +70,9 @@ public class CarNotificationManagerTest {
             mContext);
 
     private final PendingIntent mDefaultPendingIntent = PendingIntent.getBroadcast(mContext, 1,
-            new Intent("foo"), 0);
+            new Intent("foo"), PendingIntent.FLAG_IMMUTABLE);
     private final PendingIntent mExtendedPendingIntent = PendingIntent.getBroadcast(mContext, 1,
-            new Intent("bar"), 0);
+            new Intent("bar"), PendingIntent.FLAG_IMMUTABLE);
 
     private int mDefaultIcon;
     private int mExtendedIcon;
