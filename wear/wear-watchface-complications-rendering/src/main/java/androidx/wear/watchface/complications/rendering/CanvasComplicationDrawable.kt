@@ -53,8 +53,8 @@ constructor(
 ) : CanvasComplication {
 
     private companion object {
-        const val EXPANSION_DP = 6.0f
-        const val STROKE_WIDTH_DP = 3.0f
+        internal const val EXPANSION_DP = 6.0f
+        internal const val STROKE_WIDTH_DP = 3.0f
     }
 
     private val complicationHighlightRenderer by lazy {
