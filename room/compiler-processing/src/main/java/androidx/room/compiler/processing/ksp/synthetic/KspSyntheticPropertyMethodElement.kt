@@ -80,6 +80,12 @@ internal sealed class KspSyntheticPropertyMethodElement(
         )
     }
 
+    override val docComment: String? by lazy {
+        // Not yet implemented in KSP.
+        // https://github.com/google/ksp/issues/392
+        null
+    }
+
     final override fun asMemberOf(other: XType): XMethodType {
         return KspSyntheticPropertyMethodType.create(
             element = this,
@@ -224,6 +230,12 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
             override fun asMemberOf(other: XType): XType {
                 return origin.field.asMemberOf(other)
+            }
+
+            override val docComment: String? by lazy {
+                // Not yet implemented in KSP.
+                // https://github.com/google/ksp/issues/392
+                null
             }
 
             override fun kindName(): String {

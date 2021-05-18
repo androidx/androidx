@@ -40,6 +40,11 @@ interface XElement : XAnnotated {
      * message. Without this information, developer gets no clue on where the error is.
      */
     val fallbackLocationText: String
+
+    /**
+     * The documentation comment of the element, or null if there is none.
+     */
+    val docComment: String?
 }
 
 /**
