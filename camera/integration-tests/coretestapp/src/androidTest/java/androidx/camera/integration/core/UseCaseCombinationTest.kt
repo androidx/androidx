@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -75,6 +76,8 @@ class UseCaseCombinationTest(
     /** Test Combination: Preview + ImageCapture */
     @Test
     fun previewCombinesImageCapture() = runBlocking {
+        skipTestOnCameraPipeConfig()
+
         val preview = initPreview()
         val imageCapture = initImageCapture()
 
@@ -105,6 +108,8 @@ class UseCaseCombinationTest(
     /** Test Combination: Preview + ImageAnalysis + ImageCapture  */
     @Test
     fun previewCombinesImageAnalysisAndImageCapture() = runBlocking {
+        skipTestOnCameraPipeConfig()
+
         val preview = initPreview()
         val imageAnalysis = initImageAnalysis()
         val imageCapture = initImageCapture()
@@ -133,5 +138,14 @@ class UseCaseCombinationTest(
 
     private fun initImageCapture(): ImageCapture {
         return ImageCapture.Builder().build()
+    }
+
+    // TODO(b/187015621): Remove when DeferrableSurface reference count support is added to
+    //  Camera-pipe-integration
+    private fun skipTestOnCameraPipeConfig() {
+        Assume.assumeFalse(
+            "DeferrableSurface ref count isn't supported on Camera-pipe-integration (b/187015621)",
+            implName == CameraPipeConfig::class.simpleName
+        )
     }
 }
