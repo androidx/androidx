@@ -50,6 +50,15 @@ import java.lang.annotation.Target;
  * AppCompat to mix shadowed attributes and regular attribute annotations on the same view
  * without hand-written inspection companions.
  * <p>
+ * The full list of supported interfaces is
+ * {@link androidx.core.widget.AutoSizeableTextView},
+ * {@link androidx.core.view.TintableBackgroundView},
+ * {@link androidx.core.widget.TintableCheckedTextView},
+ * {@link androidx.core.widget.TintableCompoundButton},
+ * {@link androidx.core.widget.TintableCompoundDrawablesView}, and
+ * {@link androidx.core.widget.TintableImageSourceView}.
+ * Please see the mapping in {@link androidx.resourceinspection.processor} for full details.
+ *
  * @hide
  */
 @Target(TYPE)
