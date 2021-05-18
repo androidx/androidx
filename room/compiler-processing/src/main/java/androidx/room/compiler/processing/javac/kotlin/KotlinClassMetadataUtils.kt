@@ -39,6 +39,7 @@ import kotlinx.metadata.jvm.KotlinClassMetadata
 internal interface KmExecutable {
     val parameters: List<KmValueParameter>
 }
+
 /**
  * Represents the kotlin metadata of a function
  */
@@ -68,6 +69,7 @@ internal data class KmProperty(
 ) {
     val typeParameters
         get() = type.typeArguments
+
     fun isNullable() = Flag.Type.IS_NULLABLE(type.flags)
 }
 
@@ -188,23 +190,40 @@ private class ConstructorReader(val result: MutableList<KmConstructor>) : KmClas
     }
 }
 
-internal fun KotlinClassMetadata.Class.isObject(): Boolean = ObjectReader().let {
-    this@isObject.accept(it)
-    it.isObject
+internal class KotlinMetadataClassFlags(val classMetadata: KotlinClassMetadata.Class) {
+
+    private val flags: Flags by lazy {
+        var theFlags: Flags = 0
+        classMetadata.accept(object : KmClassVisitor() {
+            override fun visit(flags: Flags, name: ClassName) {
+                theFlags = flags
+                super.visit(flags, name)
+            }
+        })
+        return@lazy theFlags
+    }
+
+    fun isObject(): Boolean = Flag.Class.IS_OBJECT(flags)
+
+    fun isCompanionObject(): Boolean = Flag.Class.IS_COMPANION_OBJECT(flags)
+
+    fun isAnnotationClass(): Boolean = Flag.Class.IS_ANNOTATION_CLASS(flags)
+
+    fun isInterface(): Boolean = Flag.Class.IS_INTERFACE(flags)
+
+    fun isClass(): Boolean = Flag.Class.IS_CLASS(flags)
+
+    fun isDataClass(): Boolean = Flag.Class.IS_DATA(flags)
+
+    fun isValueClass(): Boolean = Flag.Class.IS_INLINE(flags)
+
+    fun isFunctionalInterface(): Boolean = Flag.Class.IS_FUN(flags)
+
+    fun isExpect(): Boolean = Flag.Class.IS_EXPECT(flags)
 }
 
 internal fun KotlinClassMetadata.Class.readProperties(): List<KmProperty> =
     mutableListOf<KmProperty>().apply { accept(PropertyReader(this)) }
-
-/**
- * Reads whether the given class is a kotlin object
- */
-private class ObjectReader : KmClassVisitor() {
-    var isObject: Boolean = false
-    override fun visit(flags: Flags, name: ClassName) {
-        isObject = Flag.Class.IS_OBJECT(flags)
-    }
-}
 
 /**
  * Reads the properties of a class declaration

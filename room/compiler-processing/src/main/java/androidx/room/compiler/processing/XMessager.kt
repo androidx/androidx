@@ -37,7 +37,11 @@ abstract class XMessager {
         onPrintMessage(kind, msg, element)
     }
 
-    abstract fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement? = null)
+    protected abstract fun onPrintMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement? = null
+    )
 
     fun addMessageWatcher(watcher: XMessager) {
         watchers.add(watcher)
