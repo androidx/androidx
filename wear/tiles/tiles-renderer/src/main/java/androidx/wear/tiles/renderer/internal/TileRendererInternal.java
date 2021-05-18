@@ -936,6 +936,34 @@ public final class TileRendererInternal {
         // sets the gravity of the foreground Drawable). Go and apply gravity to the child.
         applyGravityToFrameLayoutChildren(frame, gravity);
 
+        // HACK: FrameLayout has a bug in it. If we add one WRAP_CONTENT child, and one MATCH_PARENT
+        // child, the expected behaviour is that the FrameLayout sizes itself to fit the
+        // WRAP_CONTENT child (e.g. a TextView), then the MATCH_PARENT child is forced to the
+        // same size as the outer FrameLayout (and hence, the size of the TextView, after
+        // accounting for padding etc). Because of a bug though, this doesn't happen; instead,
+        // the MATCH_PARENT child will just keep its intrinsic size. This is because FrameLayout
+        // only forces MATCH_PARENT children to a given size if there are _more than one_ of them
+        // (see the bottom of FrameLayout#onMeasure).
+        //
+        // To work around this (without copying the whole of FrameLayout just to change a "1" to
+        // "0"), we add a Space element in if there is one MATCH_PARENT child. This has a tiny
+        // cost to the measure pass, and negligible cost to layout/draw (since it doesn't take
+        // part in those passes).
+        int numMatchParentChildren = 0;
+        for (int i = 0; i < frame.getChildCount(); i++) {
+            LayoutParams lp = frame.getChildAt(i).getLayoutParams();
+            if (lp.width == LayoutParams.MATCH_PARENT || lp.height == LayoutParams.MATCH_PARENT) {
+                numMatchParentChildren++;
+            }
+        }
+
+        if (numMatchParentChildren == 1) {
+            Space hackSpace = new Space(mAppContext);
+            LayoutParams hackSpaceLp =
+                    new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            frame.addView(hackSpace, hackSpaceLp);
+        }
+
         return wrappedView;
     }
 
@@ -1152,7 +1180,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        ImageView imageView = new ImageView(mAppContext);
+        ImageViewWithoutIntrinsicSizes imageView = new ImageViewWithoutIntrinsicSizes(mAppContext);
 
         if (image.hasContentScaleMode()) {
             imageView.setScaleType(

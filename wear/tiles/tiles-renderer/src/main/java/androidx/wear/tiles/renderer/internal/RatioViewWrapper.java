@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.renderer.internal;
 
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -104,9 +105,10 @@ public class RatioViewWrapper extends ViewGroup {
         // Measure the child within the given bounds.
         childView.measure(widthMeasureSpec, heightMeasureSpec);
 
+        // No aspect ratio. Trust the child and hope for the best.
         if (mAspectRatio == UNDEFINED_ASPECT_RATIO) {
-            // We don't have an aspect ratio.
             setMeasuredDimension(childView.getMeasuredWidth(), childView.getMeasuredHeight());
+            combineMeasuredStates(getMeasuredState(), childView.getMeasuredState());
             return;
         }
 
@@ -168,7 +170,7 @@ public class RatioViewWrapper extends ViewGroup {
                 // This should have been picked up by the aspect ratio check above...
                 throw new IllegalStateException(
                         "Neither target width nor target height was smaller than measured"
-                                + " width/height");
+                            + " width/height");
             }
         } else if (widthMeasureMode == MeasureSpec.EXACTLY) {
             // Can't change the width, but can change height.
