@@ -69,10 +69,12 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -1041,7 +1043,7 @@ public final class VideoCaptureLegacy extends UseCase {
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -1068,7 +1070,8 @@ public final class VideoCaptureLegacy extends UseCase {
                     mParcelFileDescriptor =
                             outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
-                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                    mediaMuxer = Api26Impl.createMediaMuxer(
+                            mParcelFileDescriptor.getFileDescriptor(),
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {
@@ -1881,6 +1884,23 @@ public final class VideoCaptureLegacy extends UseCase {
                 return new OutputFileOptions(mFile, mFileDescriptor, mContentResolver,
                         mSaveCollection, mContentValues, mMetadata);
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 8.0 (API 26).
+     */
+    @RequiresApi(26)
+    private static class Api26Impl {
+
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static MediaMuxer createMediaMuxer(@NonNull FileDescriptor fileDescriptor, int format)
+                throws IOException {
+            return new MediaMuxer(fileDescriptor, format);
         }
     }
 }

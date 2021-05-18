@@ -420,79 +420,13 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.camera.core.CameraX is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return baseContext.createAttributionContext(context.getAttributionTag());"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraX.java"
-            line="452"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.camera.core.CameraX is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return baseContext.createAttributionContext(context.getAttributionTag());"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraX.java"
-            line="452"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.camera.core.impl.utils.ContextUtil is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return applicationContext.createAttributionContext(context.getAttributionTag());"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/ContextUtil.java"
-            line="35"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.camera.core.impl.utils.ContextUtil is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return applicationContext.createAttributionContext(context.getAttributionTag());"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/ContextUtil.java"
-            line="35"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.camera.core.VideoCapture is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),"
-        errorLine2="                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="1039"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.camera.core.VideoCapture is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="1066"
-            column="34"/>
-    </issue>
-
-    <issue
         id="KotlinPropertyAccess"
         message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="        boolean isUseRepeatingSurface() {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="306"
+            line="302"
             column="17"/>
     </issue>
 

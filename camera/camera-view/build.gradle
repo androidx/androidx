@@ -31,7 +31,7 @@ apply(from: "dependencies.gradle")
 
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0")
-    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.camera:camera-core:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
