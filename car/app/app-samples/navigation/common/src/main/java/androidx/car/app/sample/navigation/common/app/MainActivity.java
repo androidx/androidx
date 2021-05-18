@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
-import androidx.car.app.connection.ConnectionToCar;
+import androidx.car.app.connection.CarConnection;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
 
@@ -82,7 +82,7 @@ public class MainActivity extends ComponentActivity {
         Button stopNavButton = findViewById(R.id.stop_nav);
         stopNavButton.setOnClickListener(this::stopNavigation);
 
-        new ConnectionToCar(this).getType().observe(this,
+        new CarConnection(this).getType().observe(this,
                 this::onConnectionStateUpdate);
     }
 
@@ -112,7 +112,7 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void onConnectionStateUpdate(Integer connectionState) {
-        String message = connectionState > ConnectionToCar.NOT_CONNECTED
+        String message = connectionState > CarConnection.CONNECTION_TYPE_NOT_CONNECTED
                 ? "Connected to a car head unit"
                 : "Not Connected to a car head unit";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();

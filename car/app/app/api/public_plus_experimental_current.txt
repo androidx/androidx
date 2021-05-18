@@ -182,14 +182,24 @@ package androidx.car.app.annotations {
 
 package androidx.car.app.connection {
 
-  public final class ConnectionToCar {
-    ctor public ConnectionToCar(android.content.Context);
+  public final class CarConnection {
+    ctor public CarConnection(android.content.Context);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getType();
     field public static final String ACTION_CAR_CONNECTION_UPDATED = "androidx.car.app.connection.action.CAR_CONNECTION_UPDATED";
     field public static final String CAR_CONNECTION_STATE = "CarConnectionState";
-    field public static final int NATIVE = 1; // 0x1
-    field public static final int NOT_CONNECTED = 0; // 0x0
-    field public static final int PROJECTION = 2; // 0x2
+    field public static final int CONNECTION_TYPE_NATIVE = 1; // 0x1
+    field public static final int CONNECTION_TYPE_NOT_CONNECTED = 0; // 0x0
+    field public static final int CONNECTION_TYPE_PROJECTION = 2; // 0x2
+  }
+
+  @Deprecated public final class ConnectionToCar {
+    ctor @Deprecated public ConnectionToCar(android.content.Context);
+    method @Deprecated public androidx.lifecycle.LiveData<java.lang.Integer!> getType();
+    field @Deprecated public static final String ACTION_CAR_CONNECTION_UPDATED = "androidx.car.app.connection.action.CAR_CONNECTION_UPDATED";
+    field @Deprecated public static final String CAR_CONNECTION_STATE = "CarConnectionState";
+    field @Deprecated public static final int NATIVE = 1; // 0x1
+    field @Deprecated public static final int NOT_CONNECTED = 0; // 0x0
+    field @Deprecated public static final int PROJECTION = 2; // 0x2
   }
 
 }

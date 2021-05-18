@@ -16,15 +16,15 @@
 
 package androidx.car.app.connection;
 
-import androidx.car.app.connection.ConnectionToCar.ConnectionType;
+import androidx.car.app.connection.CarConnection.ConnectionType;
 import androidx.lifecycle.LiveData;
 
 /**
  * A {@link LiveData} that always returns that it is connected natively to a car head unit.
  */
-final class AutomotiveConnectionToCarTypeLiveData extends LiveData<@ConnectionType Integer> {
+final class AutomotiveCarConnectionTypeLiveData extends LiveData<@ConnectionType Integer> {
     @Override
     protected void onActive() {
-        setValue(ConnectionToCar.NATIVE);
+        setValue(CarConnection.CONNECTION_TYPE_NATIVE);
     }
 }
