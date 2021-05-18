@@ -136,8 +136,7 @@ public class TileProviderServiceTest {
 
     @Test
     public void tileProvider_onTileAdd() throws Exception {
-        EventProto.TileAddEvent addRequest =
-                EventProto.TileAddEvent.getDefaultInstance();
+        EventProto.TileAddEvent addRequest = EventProto.TileAddEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileAddEvent(
                 new TileAddEventData(addRequest.toByteArray(), TileAddEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
@@ -147,8 +146,7 @@ public class TileProviderServiceTest {
 
     @Test
     public void tileProvider_onTileRemove() throws Exception {
-        EventProto.TileRemoveEvent removeRequest =
-                EventProto.TileRemoveEvent.getDefaultInstance();
+        EventProto.TileRemoveEvent removeRequest = EventProto.TileRemoveEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileRemoveEvent(
                 new TileRemoveEventData(
                         removeRequest.toByteArray(), TileRemoveEventData.VERSION_PROTOBUF));
@@ -159,8 +157,7 @@ public class TileProviderServiceTest {
 
     @Test
     public void tileProvider_onTileEnter() throws Exception {
-        EventProto.TileEnterEvent enterRequest =
-                EventProto.TileEnterEvent.getDefaultInstance();
+        EventProto.TileEnterEvent enterRequest = EventProto.TileEnterEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileEnterEvent(
                 new TileEnterEventData(
                         enterRequest.toByteArray(), TileEnterEventData.VERSION_PROTOBUF));
@@ -171,8 +168,7 @@ public class TileProviderServiceTest {
 
     @Test
     public void tileProvider_onTileLeave() throws Exception {
-        EventProto.TileLeaveEvent leaveRequest =
-                EventProto.TileLeaveEvent.getDefaultInstance();
+        EventProto.TileLeaveEvent leaveRequest = EventProto.TileLeaveEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileLeaveEvent(
                 new TileLeaveEventData(
                         leaveRequest.toByteArray(), TileLeaveEventData.VERSION_PROTOBUF));

@@ -96,8 +96,7 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
 
         if (mSweepAngleDegrees >= 360f) {
             // Android internally will take the modulus of the angle with 360, so drawing a full
-            // ring
-            // can't be done using path.arcTo. In that case, just draw a circle.
+            // ring can't be done using path.arcTo. In that case, just draw a circle.
             mPath.addOval(
                     insetPx,
                     insetPx,
@@ -106,10 +105,8 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
                     Direction.CW);
         } else if (mSweepAngleDegrees != 0) {
             // The arc needs to be offset by -90 degrees. The ArcContainer will rotate this widget
-            // such
-            // that the "12 o clock" position on the canvas is aligned to the center of our
-            // requested
-            // angle, but 0 degrees in Android corresponds to the "3 o clock" position.
+            // such that the "12 o clock" position on the canvas is aligned to the center of our
+            // requested angle, but 0 degrees in Android corresponds to the "3 o clock" position.
             mPath.moveTo(0, 0); // Work-around for b/177676885
             mPath.arcTo(
                     insetPx,

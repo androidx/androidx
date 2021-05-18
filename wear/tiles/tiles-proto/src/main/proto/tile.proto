@@ -12,9 +12,9 @@ option java_outer_classname = "TileProto";
 // A holder for a tile. This specifies the resources to use for this delivery
 // of the tile, and the timeline for the tile.
 message Tile {
-  // The resource version required for these tiles. This can be any developer-defined
-  // string; it is only used to cache resources, and is passed in
-  // ResourcesRequest if the system does not have a copy of the specified
+  // The resource version required for these tiles. This can be any
+  // developer-defined string; it is only used to cache resources, and is passed
+  // in ResourcesRequest if the system does not have a copy of the specified
   // resource version.
   string resources_version = 1;
 
