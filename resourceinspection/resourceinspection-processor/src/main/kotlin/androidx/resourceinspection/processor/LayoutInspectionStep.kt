@@ -21,6 +21,7 @@ import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.GeneratedAnnotationSpecs.generatedAnnotationSpec
 import com.google.auto.common.MoreElements.asExecutable
 import com.google.auto.common.MoreElements.asType
+import com.google.auto.common.MoreElements.getPackage
 import com.google.auto.common.Visibility
 import com.google.auto.common.Visibility.effectiveVisibilityOfElement
 import com.google.common.collect.ImmutableSetMultimap
@@ -48,40 +49,48 @@ internal class LayoutInspectionStep(
     ).orElse(null)
 
     override fun annotations(): Set<String> {
-        return setOf(ATTRIBUTE)
+        return setOf(ATTRIBUTE, APP_COMPAT_SHADOWED_ATTRIBUTES)
     }
 
     override fun process(
         elementsByAnnotation: ImmutableSetMultimap<String, Element>
     ): Set<Element> {
         // TODO(b/180039277): Validate that linked APIs (e.g. InspectionCompanion) are present
-        elementsByAnnotation[ATTRIBUTE]
-            .map { asExecutable(it) }
-            .groupBy { asType(it.enclosingElement) }
-            .forEach { (type, getters) ->
-                parseView(type, getters)?.let { view ->
-                    generateInspectionCompanion(view, generatedAnnotation)
-                        .writeTo(processingEnv.filer)
-                }
-            }
+
+        val views = mergeViews(
+            elementsByAnnotation[ATTRIBUTE]
+                .groupBy({ asType(it.enclosingElement) }, { asExecutable(it) }),
+            elementsByAnnotation[APP_COMPAT_SHADOWED_ATTRIBUTES]
+                .mapTo(mutableSetOf()) { asType(it) }
+        )
+        val filer = processingEnv.filer
+
+        views.forEach { generateInspectionCompanion(it, generatedAnnotation).writeTo(filer) }
+
+        // We don't defer elements for later rounds in this processor
         return emptySet()
     }
 
-    /** Parse the annotated getters of a view class into a [View]. */
-    private fun parseView(type: TypeElement, getters: Iterable<ExecutableElement>): View? {
-        if (!type.asType().isAssignableTo("android.view.View")) {
-            getters.forEach { getter ->
-                printError(
-                    "@Attribute must only annotate subclasses of android.view.View",
-                    getter,
-                    getter.getAnnotationMirror(ATTRIBUTE)
-                )
+    /** Merge shadowed and regular attributes into [View] models. */
+    private fun mergeViews(
+        viewsWithGetters: Map<TypeElement, List<ExecutableElement>>,
+        viewsWithShadowedAttributes: Set<TypeElement>
+    ): List<View> {
+        return (viewsWithGetters.keys + viewsWithShadowedAttributes).mapNotNull { viewType ->
+            val getterAttributes = viewsWithGetters[viewType].orEmpty().map(::parseGetter)
+
+            if (viewType in viewsWithShadowedAttributes) {
+                inferShadowedAttributes(viewType)?.let { shadowedAttributes ->
+                    createView(viewType, getterAttributes + shadowedAttributes)
+                }
+            } else {
+                createView(viewType, getterAttributes)
             }
-            return null
         }
+    }
 
-        val attributes = getters.map(::parseAttribute)
-
+    /** Parse the annotated getters of a view class into a [View]. */
+    private fun createView(type: TypeElement, attributes: Collection<Attribute?>): View? {
         val duplicateAttributes = attributes
             .filterNotNull()
             .groupBy { it.qualifiedName }
@@ -106,7 +115,7 @@ internal class LayoutInspectionStep(
             return null
         }
 
-        if (attributes.any { it == null }) {
+        if (attributes.isEmpty() || attributes.any { it == null }) {
             return null
         }
 
@@ -114,7 +123,7 @@ internal class LayoutInspectionStep(
     }
 
     /** Get an [Attribute] from a method known to have an `Attribute` annotation. */
-    private fun parseAttribute(getter: ExecutableElement): Attribute? {
+    private fun parseGetter(getter: ExecutableElement): Attribute? {
         val annotation = getter.getAnnotationMirror(ATTRIBUTE)!!
         val annotationValue = getAnnotationValue(annotation, "value")
         val value = annotationValue.value as String
@@ -126,6 +135,11 @@ internal class LayoutInspectionStep(
 
         if (effectiveVisibilityOfElement(getter) != Visibility.PUBLIC) {
             printError("@Attribute getter must be public", getter, annotation)
+            return null
+        }
+
+        if (!getter.enclosingElement.asType().isAssignableTo(VIEW)) {
+            printError("@Attribute must be on a subclass of android.view.View", getter, annotation)
             return null
         }
 
@@ -189,7 +203,7 @@ internal class LayoutInspectionStep(
                     AttributeType.LONG
                 }
             TypeKind.DECLARED, TypeKind.ARRAY ->
-                if (getter.returnType.isAssignableTo("android.graphics.Color")) {
+                if (getter.returnType.isAssignableTo(COLOR)) {
                     AttributeType.COLOR
                 } else {
                     // TODO(b/180041034): Validate object types and unbox primitives
@@ -197,6 +211,43 @@ internal class LayoutInspectionStep(
                 }
             else -> throw IllegalArgumentException("Unexpected attribute type")
         }
+    }
+
+    /** Determines shadowed attributes based on interfaces present on the view. */
+    private fun inferShadowedAttributes(viewType: TypeElement): List<ShadowedAttribute>? {
+        if (!viewType.asType().isAssignableTo(VIEW)) {
+            printError(
+                "@AppCompatShadowedAttributes must be on a subclass of android.view.View",
+                viewType,
+                viewType.getAnnotationMirror(APP_COMPAT_SHADOWED_ATTRIBUTES)
+            )
+            return null
+        }
+
+        if (!getPackage(viewType).qualifiedName.startsWith("androidx.appcompat.")) {
+            printError(
+                "@AppCompatShadowedAttributes is only supported in the androidx.appcompat package",
+                viewType,
+                viewType.getAnnotationMirror(APP_COMPAT_SHADOWED_ATTRIBUTES)
+            )
+            return null
+        }
+
+        val attributes = viewType.interfaces.flatMap {
+            APP_COMPAT_INTERFACE_MAP[it.toString()].orEmpty()
+        }
+
+        if (attributes.isEmpty()) {
+            printError(
+                "@AppCompatShadowedAttributes is present on this view, but it does not implement " +
+                    "any interfaces that indicate it has shadowed attributes.",
+                viewType,
+                viewType.getAnnotationMirror(APP_COMPAT_SHADOWED_ATTRIBUTES)
+            )
+            return null
+        }
+
+        return attributes
     }
 
     private fun Element.hasResourceIdAnnotation(): Boolean {
@@ -248,8 +299,15 @@ internal class LayoutInspectionStep(
         /** Regex for matching resource ID annotations. */
         val RESOURCE_ID_ANNOTATION = """androidx?\.annotation\.[A-Z]\w+Res""".toRegex()
 
-        /** Fully qualified name of the `Attribute` annotation` */
+        /** Fully qualified name of the `Attribute` annotation */
         const val ATTRIBUTE = "androidx.resourceinspection.annotation.Attribute"
+
+        /** Fully qualified name of the `AppCompatShadowedAttributes` annotation */
+        const val APP_COMPAT_SHADOWED_ATTRIBUTES =
+            "androidx.resourceinspection.annotation.AppCompatShadowedAttributes"
+
+        /** Fully qualified name of the platform's Color class */
+        const val COLOR = "android.graphics.Color"
 
         /** Fully qualified name of `ColorInt` */
         const val COLOR_INT = "androidx.annotation.ColorInt"
@@ -259,5 +317,61 @@ internal class LayoutInspectionStep(
 
         /** Fully qualified name of `GravityInt` */
         const val GRAVITY_INT = "androidx.annotation.GravityInt"
+
+        /** Fully qualified name of the platform's View class */
+        const val VIEW = "android.view.View"
+
+        /**
+         * Map of compat interface names in `androidx.core` to the AppCompat attributes they
+         * shadow. These virtual attributes are added to the inspection companion for views within
+         * AppCompat with the `@AppCompatShadowedAttributes` annotation.
+         *
+         * As you can tell, this is brittle. The good news is these are established platform APIs
+         * from API <= 29 (the minimum for app inspection) and are unlikely to change in the
+         * future. If you update this list, please update the documentation comment in
+         * [androidx.resourceinspection.annotation.AppCompatShadowedAttributes] as well.
+         */
+        val APP_COMPAT_INTERFACE_MAP: Map<String, List<ShadowedAttribute>> = mapOf(
+            "androidx.core.view.TintableBackgroundView" to listOf(
+                ShadowedAttribute("backgroundTint", "getBackgroundTintList()"),
+                ShadowedAttribute("backgroundTintMode", "getBackgroundTintMode()")
+            ),
+            "androidx.core.widget.AutoSizeableTextView" to listOf(
+                ShadowedAttribute(
+                    "autoSizeTextType",
+                    "getAutoSizeTextType()",
+                    AttributeType.INT_ENUM,
+                    listOf(
+                        IntMap("none", 0 /* TextView.AUTO_SIZE_TEXT_TYPE_NONE */),
+                        IntMap("uniform", 1 /* TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM */),
+                    )
+                ),
+                ShadowedAttribute(
+                    "autoSizeStepGranularity", "getAutoSizeStepGranularity()", AttributeType.INT
+                ),
+                ShadowedAttribute(
+                    "autoSizeMinTextSize", "getAutoSizeMinTextSize()", AttributeType.INT
+                ),
+                ShadowedAttribute(
+                    "autoSizeMaxTextSize", "getAutoSizeMaxTextSize()", AttributeType.INT
+                )
+            ),
+            "androidx.core.widget.TintableCheckedTextView" to listOf(
+                ShadowedAttribute("checkMarkTint", "getCheckMarkTintList()"),
+                ShadowedAttribute("checkMarkTintMode", "getCheckMarkTintMode()")
+            ),
+            "androidx.core.widget.TintableCompoundButton" to listOf(
+                ShadowedAttribute("buttonTint", "getButtonTintList()"),
+                ShadowedAttribute("buttonTintMode", "getButtonTintMode()")
+            ),
+            "androidx.core.widget.TintableCompoundDrawablesView" to listOf(
+                ShadowedAttribute("drawableTint", "getCompoundDrawableTintList()"),
+                ShadowedAttribute("drawableTintMode", "getCompoundDrawableTintMode()")
+            ),
+            "androidx.core.widget.TintableImageSourceView" to listOf(
+                ShadowedAttribute("tint", "getImageTintList()"),
+                ShadowedAttribute("tintMode", "getImageTintMode()"),
+            )
+        )
     }
 }
