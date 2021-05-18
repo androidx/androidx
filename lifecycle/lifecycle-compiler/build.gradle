@@ -25,13 +25,6 @@ plugins {
     id("kotlin")
 }
 
-// Temporary hack to stop AS to adding two guavas into test's classpath
-configurations.all {
-    resolutionStrategy {
-        force GUAVA
-    }
-}
-
 dependencies {
     implementation(project(":lifecycle:lifecycle-common"))
     implementation(KOTLIN_STDLIB)
