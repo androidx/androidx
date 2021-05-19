@@ -58,6 +58,7 @@ import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -123,6 +124,7 @@ public final class PreviewTest {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
+    @FlakyTest // b/188598639
     @Test
     public void surfaceProvider_isUsedAfterSetting() {
         final Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
