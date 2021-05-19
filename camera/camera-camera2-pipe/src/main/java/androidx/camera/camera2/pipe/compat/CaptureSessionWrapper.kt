@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.CaptureRequest
@@ -28,7 +27,6 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 import java.io.Closeable
-import kotlin.jvm.Throws
 
 /**
  * Interface shim for [CameraCaptureSession] with minor modifications.
@@ -293,20 +291,18 @@ internal open class AndroidCameraCaptureSession(
     }
 
     override val isReprocessable: Boolean
-        @SuppressLint("UnsafeNewApiCall")
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return cameraCaptureSession.isReprocessable
+                return Api23Compat.isReprocessable(cameraCaptureSession)
             }
             // Reprocessing is not supported  prior to Android M
             return false
         }
 
     override val inputSurface: Surface?
-        @SuppressLint("UnsafeNewApiCall")
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return cameraCaptureSession.inputSurface
+                return Api23Compat.getInputSurface(cameraCaptureSession)
             }
             // Reprocessing is not supported prior to Android M, and a CaptureSession that does not
             // support reprocessing will have a null input surface on M and beyond.
@@ -314,7 +310,6 @@ internal open class AndroidCameraCaptureSession(
         }
 
     @RequiresApi(26)
-    @SuppressLint("UnsafeNewApiCall")
     override fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>) {
         check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             "Attempting to call finalizeOutputConfigurations before O is not supported and may " +
@@ -323,7 +318,12 @@ internal open class AndroidCameraCaptureSession(
         }
 
         rethrowCamera2Exceptions {
-            cameraCaptureSession.finalizeOutputConfigurations(outputConfigs.map { it.unwrap() })
+            Api26Compat.finalizeOutputConfigurations(
+                cameraCaptureSession,
+                outputConfigs.map {
+                    it.unwrap()
+                }
+            )
         }
     }
 
