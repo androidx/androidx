@@ -2,402 +2,6 @@
 <issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
-            line="41"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
-            line="45"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
-            line="49"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
-            line="53"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatLocalNightModeActivity.java"
-            line="57"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
-            line="41"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
-            line="47"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
-            line="53"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
-            line="59"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeAlertDialog.java"
-            line="65"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="41"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="49"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="57"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="65"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="73"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Exception requires API level 17 (current min is 17): `android.view.WindowManager.InvalidDisplayException`, and having a surrounding/preceding version check **does not** help since prior to API level 19, just **loading** the class will cause a crash. Consider marking the surrounding class with `RequiresApi(19)` to ensure that the class is never loaded except when on API 19 or higher."
-        errorLine1="                } catch (WindowManager.InvalidDisplayException ex) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="444"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;class>` requires API level 24 (current min is 14)"
-        errorLine1="    class=&quot;com.example.android.supportv7.drawable.MyDrawable&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/my_drawable.xml"
-            line="19"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="VectorDrawableCompat"
-        message="To use VectorDrawableCompat, you need to set `android.defaultConfig.vectorDrawables.useSupportLibrary = true` in `:support-v7-demos/build.gradle`"
-        errorLine1="               app:srcCompat=&quot;@drawable/animation_vector_drawable_grouping_1&quot;/>"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-v11/appcompat_animated_vector.xml"
-            line="27"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.action_bar_tab_content` appears to be unused"
-        errorLine1="&lt;TextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/action_bar_tab_content.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.action_bar_tabs` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/action_bar_tabs.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.xml.preferences` appears to be unused"
-        errorLine1="&lt;PreferenceScreen xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/xml/preferences.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.sample_media_controller` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/sample_media_controller.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.selection_demo_item` appears to be unused"
-        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/color/selection_demo_item.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_media_router_text` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_media_router_text&quot;>This activity demonstrates how to"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="29"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.variable_volume_route_group_name` appears to be unused"
-        errorLine1="    &lt;string name=&quot;variable_volume_route_group_name&quot;>Variable Volume Route Group&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="46"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.mixed_volume_route_group_name` appears to be unused"
-        errorLine1="    &lt;string name=&quot;mixed_volume_route_group_name&quot;>Mixed Volume Route Group&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_dynamic_group_mrp_service` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_dynamic_group_mrp_service&quot;>Media Route Provider Service Support Library Sample (supporting dynamic group)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.action_bar_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_bar_tabs&quot;>AppCompat/Action Bar/Action Bar Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="73"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.action_bar_with_navigation_drawer` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_bar_with_navigation_drawer&quot;>AppCompat/Action Bar/Navigation Drawer Toggle&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="77"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.toggle_navigation` appears to be unused"
-        errorLine1="    &lt;string name=&quot;toggle_navigation&quot;>Navigation&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_add_tab` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_add_tab&quot;>Add new tab&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="116"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_remove_tab` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_remove_tab&quot;>Remove last tab&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_toggle_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_toggle_tabs&quot;>Toggle tab mode&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_remove_all_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_remove_all_tabs&quot;>Remove all tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="119"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sliding_pane_layout_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sliding_pane_layout_support&quot;>Widget/Sliding pane layout&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="130"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sliding_pane_layout_summary` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sliding_pane_layout_summary&quot;>This activity illustrates the use of sliding panes."
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="132"
-            column="13"/>
-    </issue>
-
- <issue
         id="OnClick"
         message="Corresponding method handler &apos;`public void onAddTab(android.view.View)`&apos; not found"
         errorLine1="                android:onClick=&quot;onAddTab&quot; />"
@@ -453,7 +57,8 @@
         <location
             file="src/main/res/layout/appcompat_night_mode.xml"
             line="23"
-            column="9"/>
+            column="9"
+            message="`wrap_content` here may not work well with WebView below"/>
     </issue>
 
     <issue
@@ -639,7 +244,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="450"
+            line="444"
             column="26"/>
     </issue>
 
@@ -892,7 +497,7 @@
         errorLine2="                                                       ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="436"
+            line="430"
             column="56"/>
     </issue>
 
@@ -1128,395 +733,10 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        checkArgument(selectionTracker != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/simple/DemoAdapter.java"
-            line="54"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        checkArgument(selectionTracker != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/single/DemoAdapter.java"
-            line="54"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        checkArgument(tracker != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/DemoAdapter.java"
-            line="78"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="        if (initialRoute.getGroupMemberIds().isEmpty()) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="121"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            memberIds.addAll(initialRoute.getGroupMemberIds());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="124"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                .addGroupMemberId(routeDescriptor1.getId())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="228"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                .addGroupMemberId(routeDescriptor3.getId())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="229"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                            .addGroupMemberIds(memberIds);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="276"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            for (String memberRouteId : routeDescriptor.getGroupMemberIds()) {"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="341"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.clearGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                            .clearGroupMemberIds();"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="351"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                groupDescriptorBuilder.addGroupMemberId(memberRouteId);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="353"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                if (!routeDescriptor.getGroupMemberIds().isEmpty()"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="553"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                        &amp;&amp; mMemberRouteIds.containsAll(routeDescriptor.getGroupMemberIds())) {"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="554"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            if (routeDescriptor.getGroupMemberIds().isEmpty()) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="582"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            for (String routeId : routeDescriptor.getGroupMemberIds()) {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="587"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        Preconditions.checkArgument(group != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/Uris.java"
-            line="61"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        Preconditions.checkArgument(isCheese(uri));"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/Uris.java"
-            line="66"
-            column="9"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `layout`.">
         <location
             file="src/main/res/layout-v11"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.action_bar_tab_content` appears to be unused"
-        errorLine1="&lt;TextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/action_bar_tab_content.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.action_bar_tabs` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/action_bar_tabs.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.xml.preferences` appears to be unused"
-        errorLine1="&lt;PreferenceScreen xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/xml/preferences.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.sample_media_controller` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/sample_media_controller.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.selection_demo_item` appears to be unused"
-        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/color/selection_demo_item.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_media_router_text` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_media_router_text&quot;>This activity demonstrates how to"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="29"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.variable_volume_route_group_name` appears to be unused"
-        errorLine1="    &lt;string name=&quot;variable_volume_route_group_name&quot;>Variable Volume Route Group&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="46"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.mixed_volume_route_group_name` appears to be unused"
-        errorLine1="    &lt;string name=&quot;mixed_volume_route_group_name&quot;>Mixed Volume Route Group&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_dynamic_group_mrp_service` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_dynamic_group_mrp_service&quot;>Media Route Provider Service Support Library Sample (supporting dynamic group)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.action_bar_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_bar_tabs&quot;>AppCompat/Action Bar/Action Bar Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="73"
-            column="13"/>
-    </issue>
-
- <issue
-        id="UnusedResources"
-        message="The resource `R.string.action_bar_with_navigation_drawer` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_bar_with_navigation_drawer&quot;>AppCompat/Action Bar/Navigation Drawer Toggle&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="77"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.toggle_navigation` appears to be unused"
-        errorLine1="    &lt;string name=&quot;toggle_navigation&quot;>Navigation&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_add_tab` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_add_tab&quot;>Add new tab&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="116"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_remove_tab` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_remove_tab&quot;>Remove last tab&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_toggle_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_toggle_tabs&quot;>Toggle tab mode&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_remove_all_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_remove_all_tabs&quot;>Remove all tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="119"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sliding_pane_layout_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sliding_pane_layout_support&quot;>Widget/Sliding pane layout&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="130"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sliding_pane_layout_summary` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sliding_pane_layout_summary&quot;>This activity illustrates the use of sliding panes."
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="132"
-            column="13"/>
     </issue>
 
     <issue
@@ -2666,23 +1886,23 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mMediaPlayer` of class `LocalPlayer` requires synthetic accessor"
-        errorLine1="                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
-        errorLine2="                                                  ~~~~~~~~~~~~">
+        errorLine1="                    ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
+        errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="330"
-            column="51"/>
+            line="328"
+            column="47"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mSurface` of class `LocalPlayer` requires synthetic accessor"
-        errorLine1="                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
-        errorLine2="                                                                ~~~~~~~~">
+        errorLine1="                    ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
+        errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="330"
-            column="65"/>
+            line="328"
+            column="61"/>
     </issue>
 
     <issue
@@ -2692,7 +1912,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="335"
+            line="329"
             column="28"/>
     </issue>
 
@@ -2703,7 +1923,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="336"
+            line="330"
             column="21"/>
     </issue>
 
@@ -2714,7 +1934,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="336"
+            line="330"
             column="45"/>
     </issue>
 
@@ -2725,7 +1945,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="338"
+            line="332"
             column="21"/>
     </issue>
 
@@ -2736,7 +1956,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="464"
+            line="458"
             column="17"/>
     </issue>
 
@@ -2747,7 +1967,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="472"
+            line="466"
             column="17"/>
     </issue>
 
@@ -2758,7 +1978,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="481"
+            line="475"
             column="17"/>
     </issue>
 
@@ -2769,7 +1989,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="535"
+            line="529"
             column="31"/>
     </issue>
 
@@ -2780,7 +2000,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="537"
+            line="531"
             column="21"/>
     </issue>
 
@@ -2791,7 +2011,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="538"
+            line="532"
             column="21"/>
     </issue>
 
@@ -4921,17 +4141,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected T mLayoutManager;"
-        errorLine2="              ~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
-            line="49"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected RecyclerView mRecyclerView;"
         errorLine2="              ~~~~~~~~~~~~">
         <location
@@ -4949,17 +4158,6 @@
             file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
             line="56"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    abstract protected T createLayoutManager();"
-        errorLine2="                       ~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
-            line="64"
-            column="24"/>
     </issue>
 
     <issue
@@ -5094,7 +4292,7 @@
             column="29"/>
     </issue>
 
-     <issue
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
@@ -5959,7 +5157,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="395"
+            line="389"
             column="34"/>
     </issue>
 
@@ -5970,7 +5168,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="407"
+            line="401"
             column="29"/>
     </issue>
 
@@ -5981,7 +5179,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="462"
+            line="456"
             column="36"/>
     </issue>
 
@@ -5992,7 +5190,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="471"
+            line="465"
             column="36"/>
     </issue>
 
@@ -6003,7 +5201,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="480"
+            line="474"
             column="38"/>
     </issue>
 
@@ -6014,7 +5212,7 @@
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="603"
+            line="597"
             column="30"/>
     </issue>
 
@@ -6025,7 +5223,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="615"
+            line="609"
             column="29"/>
     </issue>
 
@@ -6036,7 +5234,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="637"
+            line="631"
             column="37"/>
     </issue>
 
@@ -6047,7 +5245,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="642"
+            line="636"
             column="37"/>
     </issue>
 
@@ -6058,7 +5256,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="652"
+            line="646"
             column="16"/>
     </issue>
 

@@ -2,20 +2,6 @@
 <issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="InvalidPackage"
-        message="Invalid package reference in org.mockito:mockito-core; not included in Android: `java.lang.instrument`. Referenced from `org.mockito.internal.creation.bytebuddy.InlineByteBuddyMockMaker`.">
-        <location
-            file="../../../../../prebuilts/androidx/external/org/mockito/mockito-core/2.25.0/mockito-core-2.25.0.jar"/>
-    </issue>
-
-    <issue
-        id="InvalidPackage"
-        message="Invalid package reference in org.mockito:mockito-core; not included in Android: `javax.tools`. Referenced from `org.mockito.internal.creation.bytebuddy.InlineByteBuddyMockMaker`.">
-        <location
-            file="../../../../../prebuilts/androidx/external/org/mockito/mockito-core/2.25.0/mockito-core-2.25.0.jar"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void starting(Description description) {"
