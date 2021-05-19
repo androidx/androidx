@@ -98,11 +98,12 @@ public class ListPopupWindowActivity extends AppCompatActivity {
                     public View getView(int position, View convertView, ViewGroup parent) {
                         if (convertView == null) {
                             convertView = LayoutInflater.from(parent.getContext()).inflate(
-                                    R.layout.abc_popup_menu_item_layout, parent, false);
+                                    androidx.appcompat.R.layout.abc_popup_menu_item_layout,
+                                    parent, false);
                             ViewHolder viewHolder = new ViewHolder();
                             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
-                            viewHolder.shortcut =
-                                    (TextView) convertView.findViewById(R.id.shortcut);
+                            viewHolder.shortcut = (TextView) convertView.findViewById(
+                                    androidx.appcompat.R.id.shortcut);
                             convertView.setTag(viewHolder);
                         }
 
