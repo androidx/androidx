@@ -378,10 +378,10 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         views: List<DatabaseView>
     ) {
         val entitiesInfo = entities.map {
-            Triple(it.tableName.toLowerCase(Locale.US), it.typeName.toString(), it.element)
+            Triple(it.tableName.lowercase(Locale.US), it.typeName.toString(), it.element)
         }
         val viewsInfo = views.map {
-            Triple(it.viewName.toLowerCase(Locale.US), it.typeName.toString(), it.element)
+            Triple(it.viewName.lowercase(Locale.US), it.typeName.toString(), it.element)
         }
         (entitiesInfo + viewsInfo)
             .groupBy { (name, _, _) -> name }

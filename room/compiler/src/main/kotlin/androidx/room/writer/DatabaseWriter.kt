@@ -277,7 +277,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 }
                 addStatement(
                     "$L.put($S, $L)", viewTablesVar,
-                    view.viewName.toLowerCase(Locale.US), tablesVar
+                    view.viewName.lowercase(Locale.US), tablesVar
                 )
             }
             addStatement(

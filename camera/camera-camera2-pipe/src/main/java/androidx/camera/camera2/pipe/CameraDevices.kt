@@ -58,7 +58,7 @@ public interface CameraDevices {
     public fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class CameraId(public val value: String) {
     public companion object {
         public inline fun fromCamera2Id(value: String): CameraId = CameraId(value)

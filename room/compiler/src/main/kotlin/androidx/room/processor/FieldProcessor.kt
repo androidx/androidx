@@ -119,7 +119,7 @@ class FieldProcessor(
         if (value == null) {
             return null
         }
-        val trimmed = value.trim().toLowerCase(Locale.ENGLISH)
+        val trimmed = value.trim().lowercase(Locale.ENGLISH)
         val defaultValue = if (affinity == SQLTypeAffinity.TEXT) {
             if (value == ColumnInfo.VALUE_UNSPECIFIED) {
                 null

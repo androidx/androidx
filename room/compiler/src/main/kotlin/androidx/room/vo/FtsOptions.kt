@@ -66,7 +66,7 @@ data class FtsOptions(
             }
 
             if (matchInfo != MatchInfo.FTS4) {
-                add("matchinfo=${matchInfo.name.toLowerCase(Locale.US)}")
+                add("matchinfo=${matchInfo.name.lowercase(Locale.US)}")
             }
 
             notIndexedColumns.forEach {

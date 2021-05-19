@@ -113,6 +113,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(MOCKITO_CORE)
+    testImplementation(ANTLR)
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"

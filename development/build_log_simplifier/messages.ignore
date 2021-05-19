@@ -4,6 +4,8 @@
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
+\$CHECKOUT/prebuilts/androidx/external/.+\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
+\$OUT_DIR/.+\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
 WARN: The registry key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' accessed, but not loaded yet
 PROGRESS: Rendering
 No docs found on supertype with \{@inheritDoc\} method .*
@@ -423,6 +425,7 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$OUT_DIR/androidx/compose/compiler/compiler\-hosted/integration\-tests/kotlin\-compiler\-repackaged/build/repackaged/kotlin\-compiler\-repackaged\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper \(file\:\$GRADLE_USER_HOME\/caches\/[0-9]+\.[0-9]+\.[0-9]+\/generated\-gradle\-jars\/gradle\-api\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to class java\.lang\.ClassLoader
@@ -430,9 +433,9 @@ WARNING\: Please consider reporting this to the maintainers of org\.gradle\.inte
 WARNING\: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/robolectric\/shadowapi\/[0-9]+\.[0-9]+\-alpha\-[0-9]+\/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to method java\.lang\.ClassLoader\.getPackage\(java\.lang\.String\)
 WARNING\: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers\$[0-9]+
 WARNING\: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/com\/android\/tools\/external\/com\-intellij\/intellij\-core\/[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
-WARNING\: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-compiler\-embeddable\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-compiler\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler\-embeddable/.+/kotlin\-compiler\-embeddable\-.+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/.+/kotlin\-compiler\-.+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Please consider reporting this to the maintainers of com\.intellij\.util\.ReflectionUtil
 WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
@@ -454,7 +457,9 @@ Run the build with '\-\-info' for more details\.
 w: Consider providing an explicit dependency on kotlin\-reflect [^/]* to prevent strange errors
 # > Task :room:room-compiler:test
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+
+WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :wear:wear-watchface-complications-rendering:compileDebugUnitTestJavaWithJavac
 # > Task :wear:wear-watchface:testDebugUnitTest
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
@@ -464,6 +469,10 @@ More than one file was found with OS independent path '.*'\. This version of the
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-reflect/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 Package name 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
@@ -556,9 +565,50 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.Snapshot\.Companion\$openSnapshotCount\(\) \(Snapshot\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.geometry\.Offset\$getDistance\(\) \(Offset\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$rotate\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipRect\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipPath\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, androidx\.compose\.ui\.graphics\.Path, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$withTransform\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawTransform, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.vector\$group\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.String, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.collections\.List\(\(androidx\.compose\.ui\.graphics\.vector\.PathNode\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.Unit\)\)\) \(ImageVector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.unit\$constrainWidth\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.unit\$constrainHeight\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\$ActivityNavigatorExtras\(androidx\.core\.app\.ActivityOptionsCompat, kotlin\.Int\) \(ActivityNavigatorExtras\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\$navigation\(androidx\.navigation\.NavigatorProvider, kotlin\.Int, kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.navigation\.NavGraphBuilder, kotlin\.Unit\)\)\) \(NavGraphBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\.DynamicActivityNavigatorDestinationBuilder\$build\(\) \(DynamicActivityNavigatorDestinationBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\.fragment\.DynamicFragmentNavigatorDestinationBuilder\$build\(\) \(DynamicFragmentNavigatorDestinationBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.fragment\$FragmentNavigatorExtras\(kotlin\.Array\(\(kotlin\.Pair\(\(android\.view\.View, kotlin\.String\)\)\)\)\) \(FragmentNavigatorExtras\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.security\.crypto\$EncryptedFile\(android\.content\.Context, java\.io\.File, androidx\.security\.crypto\.MasterKey, androidx\.security\.crypto\.EncryptedFile\.FileEncryptionScheme, kotlin\.String, kotlin\.String\) \(EncryptedFile\.kt:[0-9]+\)
+Found an unresolved type in androidx\.slice\.builders\$list\(android\.content\.Context, android\.net\.Uri, kotlin\.Long, kotlin\.Function[0-9]+\(\(androidx\.slice\.builders\.ListBuilderDsl, kotlin\.Unit\)\)\) \(ListBuilder\.kt:[0-9]+\)
 # See b/180023439 for hiltNavGraphViewModel warning.
 Found an unresolved type in androidx\.hilt\.navigation\.compose\$hiltNavGraphViewModel\(androidx\.navigation\.NavController, kotlin\.String\) \(NavHostController\.kt:[0-9]+\)
 Unresolved link to .*
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$mutableStateListOf\(kotlin\.Array\(\(androidx\.compose\.runtime\.mutableStateListOf\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$toMutableStateList\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.toMutableStateList\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$mutableStateMapOf\(kotlin\.Array\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.mutableStateMapOf\.K, androidx\.compose\.runtime\.mutableStateMapOf\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$toMutableStateMap\(kotlin\.collections\.Iterable\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.toMutableStateMap\.K, androidx\.compose\.runtime\.toMutableStateMap\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.collection\.MutableVector\$sortWith\(\(\(androidx\.compose\.runtime\.collection\.MutableVector\.T\)\)\) \(MutableVector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\$navigation\(androidx\.navigation\.NavigatorProvider, kotlin\.Int, kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.navigation\.dynamicfeatures\.DynamicNavGraphBuilder, kotlin\.Unit\)\)\) \(DynamicNavGraphBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\$createGraph\(androidx\.navigation\.NavController, kotlin\.Int, kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.navigation\.dynamicfeatures\.DynamicNavGraphBuilder, kotlin\.Unit\)\)\) \(NavController\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setCoroutineScope\(kotlinx\.coroutines\.CoroutineScope\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setInitialLoadKey\(androidx\.paging\.LivePagedListBuilder\.Key\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.LivePagedListBuilder\.Value\)\)\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExecutor\(java\.util\.concurrent\.Executor\) \(LivePagedListBuilder\.kt:[0-9]+\)
 Unresolved function .*
 # > Task :compose:ui:ui-inspection:externalNativeBuildDebug
 Build compose_inspection_jni_.*
@@ -1021,7 +1071,6 @@ WARNING: Illegal reflective access by org\.codehaus\.groovy\.vmplugin\.v7\.Java7
 WARNING: Please consider reporting this to the maintainers of org\.codehaus\.groovy\.vmplugin\.v7\.Java7\$1
 # https://youtrack.jetbrains.com/issue/KT-30589
 WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.base\.javac\.KaptJavaFileManager .* to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
-WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt3\.base\.javac\.KaptJavaFileManager
 # > Task :benchmark:benchmark-macro:compileReleaseKotlin
 Execution optimizations have been disabled for task ':benchmark:benchmark\-macro:.*' to ensure correctness due to the following reasons:
 \- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/benchmark/benchmark\-macro/build/generated/source/wire'\. Reason: Task ':benchmark:benchmark\-macro:.*' uses this output of task ':benchmark:benchmark\-macro:.*' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
@@ -1042,6 +1091,8 @@ dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see
 # > Task :camera:camera-camera2-pipe:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ methods\.
 Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\$fetchComplicationsData\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.CameraDevicesKt\$find\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\$requestLoop\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
 java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.graph\.Controller[0-9]+A\.submit[0-9]+A\(androidx\.camera\.camera[0-9]+\.pipe\.AeMode, androidx\.camera\.camera[0-9]+\.pipe\.AfMode, androidx\.camera\.camera[0-9]+\.pipe\.AwbMode, java\.util\.List, java\.util\.List, java\.util\.List, kotlin\.coroutines\.Continuation\)
@@ -1067,3 +1118,13 @@ java\.lang\.Object androidx\.compose\.material\.SwipeableState\.processNewAnchor
 Package name 'androidx\.car\.app' used in: :car:app:app\-automotive, :car:app:app\.
 # > Task :car:app:app-automotive:processDebugUnitTestManifest
 \[:car:app:app\-automotive\] \$OUT_DIR/androidx/car/app/app\-automotive/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
+# > Task :camera:camera-video:lintDebug
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+# > Task :compose:foundation:foundation:androidReleaseSourcesJar
+Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
+# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.Camera[0-9]+DeviceCache\$getCameras\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.camera\.camera[0-9]+\.pipe\.core\.Debug \{\} for value: v[0-9]+\(this_\$iv\$iv\) by constraint INT\.
+# > Task :compose:foundation:foundation:integration-tests:foundation-demos:reportLibraryMetrics
+Stripped invalid locals information from [0-9]+ method\.
+java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)

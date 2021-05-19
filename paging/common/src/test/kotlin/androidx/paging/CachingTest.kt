@@ -324,7 +324,7 @@ class CachingTest {
                         ViewportHint.Access(
                             pageOffset = loadedPageCount - 1,
                             indexInPage = it.pages.last().data.size - 1,
-                            presentedItemsBefore = it.pages.sumBy { it.data.size } - 1,
+                            presentedItemsBefore = it.pages.sumOf { it.data.size } - 1,
                             presentedItemsAfter = 0,
                             originalPageOffsetFirst =
                                 it.pages.first().originalPageOffsets.minOrNull()!!,

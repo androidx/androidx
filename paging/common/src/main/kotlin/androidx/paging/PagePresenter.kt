@@ -90,7 +90,7 @@ internal class PagePresenter<T : Any>(
     override val size: Int
         get() = placeholdersBefore + storageCount + placeholdersAfter
 
-    private fun List<TransformablePage<T>>.fullCount() = sumBy { it.data.size }
+    private fun List<TransformablePage<T>>.fullCount() = sumOf { it.data.size }
 
     fun processEvent(pageEvent: PageEvent<T>, callback: ProcessPageEventCallback) {
         when (pageEvent) {

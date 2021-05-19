@@ -425,7 +425,7 @@ class Viewfinder(
 
         companion object {
             fun parseString(layoutMode: String): ViewfinderLayout {
-                return when (layoutMode.toLowerCase(Locale.ROOT)) {
+                return when (layoutMode.lowercase(Locale.ROOT)) {
                     "fit" -> FIT
                     "fill" -> FILL
                     "center" -> CENTER

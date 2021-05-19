@@ -33,7 +33,7 @@ internal abstract class KspElement(
         return when (declaration) {
             is KSClassDeclaration ->
                 (declaration as KSClassDeclaration).classKind.name
-                    .toLowerCase(Locale.US)
+                    .lowercase(Locale.US)
             is KSPropertyDeclaration -> "property"
             is KSFunctionDeclaration -> "function"
             else -> declaration::class.simpleName ?: "unknown"

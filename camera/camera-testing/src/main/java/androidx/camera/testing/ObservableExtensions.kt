@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.ContinuationInterceptor
 
-public fun <T> Observable<T>.asFlow(): Flow<T> = callbackFlow {
+public fun <T> Observable<T>.asFlow(): Flow<T?> = callbackFlow {
     val observer = object : Observable.Observer<T> {
         override fun onNewData(value: T?) {
             launch(start = CoroutineStart.UNDISPATCHED) {
