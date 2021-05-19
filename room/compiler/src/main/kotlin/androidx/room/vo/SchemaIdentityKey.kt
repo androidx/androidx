@@ -30,7 +30,7 @@ class SchemaIdentityKey {
     companion object {
         private val SEPARATOR = "?:?"
         private val ENGLISH_SORT = Comparator<String> { o1, o2 ->
-            o1.toLowerCase(Locale.ENGLISH).compareTo(o2.toLowerCase(Locale.ENGLISH))
+            o1.lowercase(Locale.ENGLISH).compareTo(o2.lowercase(Locale.ENGLISH))
         }
     }
 

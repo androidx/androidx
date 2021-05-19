@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.androidGradlePlugin)
     implementation(libs.dexMemberList)
     implementation(libs.kotlinGradlePlugin)
+    implementation(libs.kgpLeakPatcher)
     implementation(libs.kotlinPoet)
 
     implementation(libs.dokkaGradlePlugin)

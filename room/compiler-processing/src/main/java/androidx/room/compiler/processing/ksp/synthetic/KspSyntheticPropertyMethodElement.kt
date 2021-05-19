@@ -154,6 +154,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 return if (propName.startsWith("is")) {
                     propName
                 } else {
+                    @Suppress("DEPRECATION") // b/187985877
                     "get${propName.capitalize(Locale.US)}"
                 }
             }
@@ -249,6 +250,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 return if (propName.startsWith("is")) {
                     "set${propName.substring(2)}"
                 } else {
+                    @Suppress("DEPRECATION") // b/187985877
                     "set${propName.capitalize(Locale.US)}"
                 }
             }

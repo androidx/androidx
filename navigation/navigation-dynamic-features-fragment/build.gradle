@@ -56,6 +56,13 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
+    androidTestImplementation(MULTIDEX)
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
 
 androidx {

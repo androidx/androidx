@@ -48,7 +48,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
         private set
 
     internal val storageCount
-        get() = pages.sumBy { it.data.size }
+        get() = pages.sumOf { it.data.size }
 
     private var _placeholdersBefore = 0
 

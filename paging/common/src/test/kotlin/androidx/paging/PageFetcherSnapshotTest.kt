@@ -3504,7 +3504,7 @@ class PageFetcherSnapshotTest {
     internal suspend fun <T : Any> PageFetcher<*, T>.assertEventByGeneration(
         expected: List<List<PageEvent<T>>>
     ) {
-        val total = expected.sumBy { it.size }
+        val total = expected.sumOf { it.size }
         val actual = collectEvents {
             awaitEventCount(total)
             stop()

@@ -264,7 +264,7 @@ internal class JavacProcessingEnv(
         val PRIMITIVE_TYPES = TypeKind.values().filter {
             it.isPrimitive
         }.associateBy {
-            it.name.toLowerCase(Locale.US)
+            it.name.lowercase(Locale.US)
         }
     }
 }

@@ -23,7 +23,7 @@ import android.os.SystemClock
 /**
  * A nanosecond timestamp
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class TimestampNs constructor(public val value: Long) {
     public inline operator fun minus(other: TimestampNs): DurationNs =
         DurationNs(value - other.value)
@@ -32,7 +32,7 @@ public inline class TimestampNs constructor(public val value: Long) {
         TimestampNs(value + other.value)
 }
 
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class DurationNs(public val value: Long) {
     public inline operator fun minus(other: DurationNs): DurationNs =
         DurationNs(value - other.value)

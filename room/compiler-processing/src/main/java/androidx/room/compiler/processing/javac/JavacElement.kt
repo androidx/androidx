@@ -78,7 +78,7 @@ internal abstract class JavacElement(
     }
 
     override fun kindName(): String {
-        return element.kind.name.toLowerCase(Locale.US)
+        return element.kind.name.lowercase(Locale.US)
     }
 
     override fun hasAnnotationWithPackage(pkg: String): Boolean {

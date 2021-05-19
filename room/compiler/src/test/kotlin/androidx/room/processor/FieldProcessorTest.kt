@@ -235,7 +235,7 @@ class FieldProcessorTest {
         ALL_PRIMITIVES.forEach { primitive ->
             singleEntity(
                 "@TypeConverters(foo.bar.MyConverter.class) @NonNull " +
-                    "${primitive.toString().toLowerCase(Locale.US)}[] arr;"
+                    "${primitive.toString().lowercase(Locale.US)}[] arr;"
             ) { field, invocation ->
                 assertThat(
                     field,

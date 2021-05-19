@@ -28,7 +28,7 @@ class ListUpdateCallbackFake : ListUpdateCallback {
     val interactions
         get() = allEvents.size
 
-    fun itemCountFromEvents() = allEvents.sumBy {
+    fun itemCountFromEvents() = allEvents.sumOf {
         when (it) {
             is OnInsertedEvent -> it.count
             is OnRemovedEvent -> -it.count

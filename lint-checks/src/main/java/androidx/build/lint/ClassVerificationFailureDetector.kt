@@ -710,7 +710,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // Neither of these should be null if we're looking at Java code.
             val containingClass = method.containingClass ?: return null
             val hostType = containingClass.name ?: return null
-            val hostVar = hostType[0].toLowerCase() + hostType.substring(1)
+            val hostVar = hostType[0].lowercaseChar() + hostType.substring(1)
 
             val hostParam = if (isStatic || isConstructor) { null } else { "$hostType $hostVar" }
 
