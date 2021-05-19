@@ -1128,6 +1128,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
 
     @Test
     @LargeTest
+    @FlakyTest(bugId = 188565856)
     public void testPageScrollPositionChangesSwipe() {
         // Swipe one page to the left
         verifyScrollCallbacksToHigherPage(ViewPagerActions.wrap(swipeLeft()), 1);
