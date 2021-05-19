@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.emoji2.viewshelper;
+package androidx.emoji2.viewsintegration;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;

@@ -28,7 +28,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.R;
-import androidx.emoji2.viewshelper.EmojiEditTextHelper;
+import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
 
 /**
  * Helper for using EmojiCompat from TextView in appcompat.
