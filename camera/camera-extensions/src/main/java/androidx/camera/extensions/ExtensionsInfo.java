@@ -58,13 +58,13 @@ import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class Extensions {
-    private static final String TAG = "Extensions";
+public final class ExtensionsInfo {
+    private static final String TAG = "ExtensionsInfo";
 
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";
 
-    Extensions(@NonNull Context context) {
+    ExtensionsInfo(@NonNull Context context) {
     }
 
     /**

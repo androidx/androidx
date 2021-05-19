@@ -41,13 +41,13 @@ class ExtensionsManagerTest {
         when (availabilityFuture.get(5000, TimeUnit.MILLISECONDS)!!) {
             ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE,
             ExtensionsManager.ExtensionsAvailability.NONE ->
-                assertThat(ExtensionsManager.getExtensions(context)).isNotNull()
+                assertThat(ExtensionsManager.getExtensionsInfo(context)).isNotNull()
 
             ExtensionsManager.ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
             ExtensionsManager.ExtensionsAvailability
                 .LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION ->
                 assertThrows<IllegalStateException> {
-                    ExtensionsManager.getExtensions(context)
+                    ExtensionsManager.getExtensionsInfo(context)
                 }
         }
     }
@@ -55,7 +55,7 @@ class ExtensionsManagerTest {
     @Test
     fun exceptionThrownIfNotInit() {
         assertThrows<IllegalStateException> {
-            ExtensionsManager.getExtensions(context)
+            ExtensionsManager.getExtensionsInfo(context)
         }
     }
 }

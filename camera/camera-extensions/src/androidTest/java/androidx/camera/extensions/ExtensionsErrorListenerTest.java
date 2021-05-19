@@ -88,7 +88,7 @@ public final class ExtensionsErrorListenerTest {
         return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
     }
 
-    private Extensions mExtensions;
+    private ExtensionsInfo mExtensionsInfo;
     private CameraSelector mCameraSelector;
     private EffectMode mEffectMode;
     @ExtensionMode.Mode
@@ -131,13 +131,13 @@ public final class ExtensionsErrorListenerTest {
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
-        mExtensions = ExtensionsManager.getExtensions(mContext);
+        mExtensionsInfo = ExtensionsManager.getExtensionsInfo(mContext);
         mLatch = new CountDownLatch(1);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();
         mFakeLifecycleOwner.startAndResume();
         mExtensionsCameraSelector =
-                mExtensions.getExtensionCameraSelector(mCameraSelector, mExtensionMode);
+                mExtensionsInfo.getExtensionCameraSelector(mCameraSelector, mExtensionMode);
     }
 
     @After
