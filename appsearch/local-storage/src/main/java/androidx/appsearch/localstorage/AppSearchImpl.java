@@ -55,6 +55,7 @@ import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConvert
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.util.LogUtil;
@@ -1098,16 +1099,19 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to mutate group.
      *
-     * @param packageName  The package name that owns the document.
-     * @param databaseName The databaseName the document is in.
-     * @param namespace    Namespace of the document to remove.
-     * @param id           ID of the document to remove.
+     * @param packageName        The package name that owns the document.
+     * @param databaseName       The databaseName the document is in.
+     * @param namespace          Namespace of the document to remove.
+     * @param id                 ID of the document to remove.
+     * @param removeStatsBuilder builder for {@link RemoveStats} to hold stats for remove
      * @throws AppSearchException on IcingSearchEngine error.
      */
     public void remove(
             @NonNull String packageName, @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String id) throws AppSearchException {
+            @NonNull String id,
+            @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
+        long totalLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
@@ -1120,9 +1124,20 @@ public final class AppSearchImpl implements Closeable {
                     mIcingSearchEngineLocked.delete(prefixedNamespace, id);
             mLogUtil.piiTrace(
                     "removeById, response", deleteResultProto.getStatus(), deleteResultProto);
+
+            if (removeStatsBuilder != null) {
+                removeStatsBuilder.setStatusCode(statusProtoToResultCode(
+                        deleteResultProto.getStatus()));
+                AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteStats(),
+                        removeStatsBuilder);
+            }
             checkSuccess(deleteResultProto.getStatus());
         } finally {
             mReadWriteLock.writeLock().unlock();
+            if (removeStatsBuilder != null) {
+                removeStatsBuilder.setTotalLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - totalLatencyStartTimeMillis));
+            }
         }
     }
 
@@ -1135,12 +1150,15 @@ public final class AppSearchImpl implements Closeable {
      * @param databaseName    The databaseName the document is in.
      * @param queryExpression Query String to search.
      * @param searchSpec      Defines what and how to remove
+     * @param removeStatsBuilder builder for {@link RemoveStats} to hold stats for remove
      * @throws AppSearchException on IcingSearchEngine error.
      */
     public void removeByQuery(@NonNull String packageName, @NonNull String databaseName,
             @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec)
+            @NonNull SearchSpec searchSpec,
+            @Nullable RemoveStats.Builder removeStatsBuilder)
             throws AppSearchException {
+        long totalLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
@@ -1175,12 +1193,24 @@ public final class AppSearchImpl implements Closeable {
             mLogUtil.piiTrace(
                     "removeByQuery, response", deleteResultProto.getStatus(), deleteResultProto);
 
+            if (removeStatsBuilder != null) {
+                removeStatsBuilder.setStatusCode(statusProtoToResultCode(
+                        deleteResultProto.getStatus()));
+                // TODO(b/187206766) also log query stats here once IcingLib returns it
+                AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteStats(),
+                        removeStatsBuilder);
+            }
+
             // It seems that the caller wants to get success if the data matching the query is
             // not in the DB because it was not there or was successfully deleted.
             checkCodeOneOf(deleteResultProto.getStatus(),
                     StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
         } finally {
             mReadWriteLock.writeLock().unlock();
+            if (removeStatsBuilder != null) {
+                removeStatsBuilder.setTotalLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - totalLatencyStartTimeMillis));
+            }
         }
     }
 

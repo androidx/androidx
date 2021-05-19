@@ -20,9 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 import com.google.android.icing.proto.QueryStatsProto;
@@ -120,5 +122,21 @@ public final class AppSearchLoggerHelper {
                 .setResultWithSnippetsCount(fromNativeStats.getNumResultsWithSnippets())
                 .setDocumentRetrievingLatencyMillis(
                         fromNativeStats.getDocumentRetrievalLatencyMs());
+    }
+
+    /*
+     * Copy native Query stats to buiilder.
+     *
+     * @param fromNativeStats Stats copied from.
+     * @param toStatsBuilder Stats copied to.
+     */
+    static void copyNativeStats(@NonNull DeleteStatsProto fromNativeStats,
+            @NonNull RemoveStats.Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromNativeStats);
+        Preconditions.checkNotNull(toStatsBuilder);
+        toStatsBuilder
+                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
+                .setDeleteType(fromNativeStats.getDeleteType().getNumber())
+                .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted());
     }
 }
