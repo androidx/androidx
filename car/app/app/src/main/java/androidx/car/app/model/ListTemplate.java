@@ -47,10 +47,10 @@ import java.util.Objects;
  *   <li>The template title has not changed, and the {@link ItemList} structure between the
  *       templates have not changed. This means that if the previous template has multiple
  *       {@link ItemList} sections, the new template must have the same number of sections with
- *       the same headers. Further, the number of rows and the string contents (title, texts, not
- *       counting spans) of each row must not have changed.
- *   <li>For rows that contain a {@link Toggle}, updates to the title or texts are also allowed if
- *       the toggle state has changed between the previous and new templates.
+ *       the same headers. Further, the number of rows and the title (not counting spans) of
+ *       each row must not have changed.
+ *   <li>For rows that contain a {@link Toggle}, updates to the title are also allowed if the
+ *       toggle state has changed between the previous and new templates.
  * </ul>
  */
 @CarProtocol
