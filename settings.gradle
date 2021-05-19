@@ -173,6 +173,7 @@ includeProject(":appsearch:appsearch-compiler", "appsearch/compiler", [BuildType
 includeProject(":appsearch:appsearch-debug-view", "appsearch/debug-view", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-debug-view:samples", "appsearch/debug-view/samples",
         [BuildType.MAIN])
+includeProject(":appsearch:appsearch-ktx", "appsearch/appsearch-ktx", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-local-storage", "appsearch/local-storage", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-platform-storage", "appsearch/platform-storage", [BuildType.MAIN])
 includeProject(":arch:core:core-common", "arch/core/core-common", [BuildType.MAIN])
