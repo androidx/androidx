@@ -134,7 +134,10 @@ public class Camera2CameraMetadata constructor(
                 try {
                     Debug.trace("Camera-${camera.value}#physicalCameraIds") {
                         @Suppress("UselessCallOnNotNull")
-                        characteristics.physicalCameraIds.orEmpty().map { CameraId(it) }.toSet()
+                        Api28Compat.getPhysicalCameraIds(characteristics)
+                            .orEmpty()
+                            .map { CameraId(it) }
+                            .toSet()
                     }
                 } catch (ignored: AssertionError) {
                     emptySet()

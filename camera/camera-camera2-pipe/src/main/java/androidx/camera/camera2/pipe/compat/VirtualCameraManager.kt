@@ -204,7 +204,6 @@ internal class VirtualCameraManager @Inject constructor(
 
     @SuppressLint(
         "MissingPermission", // Permissions are checked by calling methods.
-        "UnsafeNewApiCall" // Implementation calls the appropriate API depending on API level
     )
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
@@ -234,7 +233,8 @@ internal class VirtualCameraManager @Inject constructor(
             try {
                 Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        instance.openCamera(
+                        Api28Compat.openCamera(
+                            instance,
                             cameraId.value,
                             threads.camera2Executor,
                             cameraState
@@ -325,7 +325,11 @@ internal class VirtualCameraManager @Inject constructor(
         // TODO: Turn this into a broadcast service so that multiple listeners can be registered if
         //  needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            manager.registerAvailabilityCallback(threads.camera2Executor, availabilityCallback)
+            Api28Compat.registerAvailabilityCallback(
+                manager,
+                threads.camera2Executor,
+                availabilityCallback
+            )
         } else {
             manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
         }
