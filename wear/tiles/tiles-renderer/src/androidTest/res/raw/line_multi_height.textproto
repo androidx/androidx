@@ -183,7 +183,7 @@ column {
       contents {
         column {
           horizontal_alignment {
-            value: HALIGN_START
+            value: HORIZONTAL_ALIGN_START
           }
           contents {
             text {

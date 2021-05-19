@@ -137,15 +137,16 @@ public final class TileRendererInternal {
 
     private static final String TAG = "TileRendererInternal";
 
-    private static final int HALIGN_DEFAULT_GRAVITY = Gravity.CENTER_HORIZONTAL;
-    private static final int VALIGN_DEFAULT_GRAVITY = Gravity.CENTER_VERTICAL;
+    private static final int HORIZONTAL_ALIGN_DEFAULT_GRAVITY = Gravity.CENTER_HORIZONTAL;
+    private static final int VERTICAL_ALIGN_DEFAULT_GRAVITY = Gravity.CENTER_VERTICAL;
     private static final int TEXT_ALIGN_DEFAULT = Gravity.CENTER_HORIZONTAL;
     private static final ScaleType IMAGE_DEFAULT_SCALE_TYPE = ScaleType.FIT_CENTER;
 
     @WearArcLayout.LayoutParams.VerticalAlignment
-    private static final int ARC_VALIGN_DEFAULT = WearArcLayout.LayoutParams.VALIGN_CENTER;
+    private static final int ARC_VERTICAL_ALIGN_DEFAULT =
+            WearArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER;
 
-    private static final int SPAN_VALIGN_DEFAULT = ImageSpan.ALIGN_BOTTOM;
+    private static final int SPAN_VERTICAL_ALIGN_DEFAULT = ImageSpan.ALIGN_BOTTOM;
 
     // This is pretty badly named; TruncateAt specifies where to place the ellipsis (or whether to
     // marquee). Disabling truncation with null actually disables the _ellipsis_, but text will
@@ -368,55 +369,55 @@ public final class TileRendererInternal {
 
     private static int horizontalAlignmentToGravity(HorizontalAlignmentProp alignment) {
         switch (alignment.getValue()) {
-            case HALIGN_START:
+            case HORIZONTAL_ALIGN_START:
                 return Gravity.START;
-            case HALIGN_CENTER:
+            case HORIZONTAL_ALIGN_CENTER:
                 return Gravity.CENTER_HORIZONTAL;
-            case HALIGN_END:
+            case HORIZONTAL_ALIGN_END:
                 return Gravity.END;
-            case HALIGN_LEFT:
+            case HORIZONTAL_ALIGN_LEFT:
                 return Gravity.LEFT;
-            case HALIGN_RIGHT:
+            case HORIZONTAL_ALIGN_RIGHT:
                 return Gravity.RIGHT;
             case UNRECOGNIZED:
-            case HALIGN_UNDEFINED:
-                return HALIGN_DEFAULT_GRAVITY;
+            case HORIZONTAL_ALIGN_UNDEFINED:
+                return HORIZONTAL_ALIGN_DEFAULT_GRAVITY;
         }
 
-        return HALIGN_DEFAULT_GRAVITY;
+        return HORIZONTAL_ALIGN_DEFAULT_GRAVITY;
     }
 
     private static int verticalAlignmentToGravity(VerticalAlignmentProp alignment) {
         switch (alignment.getValue()) {
-            case VALIGN_TOP:
+            case VERTICAL_ALIGN_TOP:
                 return Gravity.TOP;
-            case VALIGN_CENTER:
+            case VERTICAL_ALIGN_CENTER:
                 return Gravity.CENTER_VERTICAL;
-            case VALIGN_BOTTOM:
+            case VERTICAL_ALIGN_BOTTOM:
                 return Gravity.BOTTOM;
             case UNRECOGNIZED:
-            case VALIGN_UNDEFINED:
-                return VALIGN_DEFAULT_GRAVITY;
+            case VERTICAL_ALIGN_UNDEFINED:
+                return VERTICAL_ALIGN_DEFAULT_GRAVITY;
         }
 
-        return VALIGN_DEFAULT_GRAVITY;
+        return VERTICAL_ALIGN_DEFAULT_GRAVITY;
     }
 
     @WearArcLayout.LayoutParams.VerticalAlignment
     private static int verticalAlignmentToArcVAlign(VerticalAlignmentProp alignment) {
         switch (alignment.getValue()) {
-            case VALIGN_TOP:
-                return WearArcLayout.LayoutParams.VALIGN_OUTER;
-            case VALIGN_CENTER:
-                return WearArcLayout.LayoutParams.VALIGN_CENTER;
-            case VALIGN_BOTTOM:
-                return WearArcLayout.LayoutParams.VALIGN_INNER;
+            case VERTICAL_ALIGN_TOP:
+                return WearArcLayout.LayoutParams.VERTICAL_ALIGN_OUTER;
+            case VERTICAL_ALIGN_CENTER:
+                return WearArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER;
+            case VERTICAL_ALIGN_BOTTOM:
+                return WearArcLayout.LayoutParams.VERTICAL_ALIGN_INNER;
             case UNRECOGNIZED:
-            case VALIGN_UNDEFINED:
-                return ARC_VALIGN_DEFAULT;
+            case VERTICAL_ALIGN_UNDEFINED:
+                return ARC_VERTICAL_ALIGN_DEFAULT;
         }
 
-        return ARC_VALIGN_DEFAULT;
+        return ARC_VERTICAL_ALIGN_DEFAULT;
     }
 
     private static ScaleType contentScaleModeToScaleType(ContentScaleMode contentScaleMode) {
@@ -438,16 +439,16 @@ public final class TileRendererInternal {
     private static int spanVerticalAlignmentToImgSpanAlignment(
             SpanVerticalAlignmentProp alignment) {
         switch (alignment.getValue()) {
-            case SPAN_VALIGN_TEXT_BASELINE:
+            case SPAN_VERTICAL_ALIGN_TEXT_BASELINE:
                 return ImageSpan.ALIGN_BASELINE;
-            case SPAN_VALIGN_BOTTOM:
+            case SPAN_VERTICAL_ALIGN_BOTTOM:
                 return ImageSpan.ALIGN_BOTTOM;
-            case SPAN_VALIGN_UNDEFINED:
+            case SPAN_VERTICAL_ALIGN_UNDEFINED:
             case UNRECOGNIZED:
-                return SPAN_VALIGN_DEFAULT;
+                return SPAN_VERTICAL_ALIGN_DEFAULT;
         }
 
-        return SPAN_VALIGN_DEFAULT;
+        return SPAN_VERTICAL_ALIGN_DEFAULT;
     }
 
     /**

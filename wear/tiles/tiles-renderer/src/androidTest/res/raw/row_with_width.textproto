@@ -12,7 +12,7 @@ box {
     expanded_dimension {}
   }
   horizontal_alignment {
-    value: HALIGN_END
+    value: HORIZONTAL_ALIGN_END
   }
   modifiers {
     background {

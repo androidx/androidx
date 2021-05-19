@@ -122,20 +122,20 @@ public class WearArcLayout extends ViewGroup {
          */
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @IntDef({VALIGN_OUTER, VALIGN_CENTER, VALIGN_INNER})
+        @IntDef({VERTICAL_ALIGN_OUTER, VERTICAL_ALIGN_CENTER, VERTICAL_ALIGN_INNER})
         public @interface VerticalAlignment {}
 
         /** Align to the outer edge of the parent WearArcLayout. */
-        public static final int VALIGN_OUTER = 0;
+        public static final int VERTICAL_ALIGN_OUTER = 0;
 
         /** Align to the center of the parent WearArcLayout. */
-        public static final int VALIGN_CENTER = 1;
+        public static final int VERTICAL_ALIGN_CENTER = 1;
 
         /** Align to the inner edge of the parent WearArcLayout. */
-        public static final int VALIGN_INNER = 2;
+        public static final int VERTICAL_ALIGN_INNER = 2;
 
         private boolean mRotate = true;
-        @VerticalAlignment private int mVerticalAlignment = VALIGN_CENTER;
+        @VerticalAlignment private int mVerticalAlignment = VERTICAL_ALIGN_CENTER;
 
         // Internally used during layout/draw
         // Stores the angle of the child, used to handle touch events.
@@ -155,7 +155,7 @@ public class WearArcLayout extends ViewGroup {
 
             mRotate = a.getBoolean(R.styleable.WearArcLayout_Layout_layout_rotate, true);
             mVerticalAlignment =
-                    a.getInt(R.styleable.WearArcLayout_Layout_layout_valign, VALIGN_CENTER);
+                    a.getInt(R.styleable.WearArcLayout_Layout_layout_valign, VERTICAL_ALIGN_CENTER);
 
             a.recycle();
         }
@@ -661,11 +661,11 @@ public class WearArcLayout extends ViewGroup {
         int margin = mClockwise ? childLayoutParams.topMargin : childLayoutParams.bottomMargin;
 
         switch (childLayoutParams.getVerticalAlignment()) {
-            case LayoutParams.VALIGN_OUTER:
+            case LayoutParams.VERTICAL_ALIGN_OUTER:
                 return margin;
-            case LayoutParams.VALIGN_CENTER:
+            case LayoutParams.VERTICAL_ALIGN_CENTER:
                 return margin + thicknessDiffPx / 2f;
-            case LayoutParams.VALIGN_INNER:
+            case LayoutParams.VERTICAL_ALIGN_INNER:
                 return margin + thicknessDiffPx;
             default:
                 // Nortmally unreachable...

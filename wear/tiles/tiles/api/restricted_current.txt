@@ -237,15 +237,15 @@ package androidx.wear.tiles {
     field public static final int FONT_WEIGHT_BOLD = 700; // 0x2bc
     field public static final int FONT_WEIGHT_NORMAL = 400; // 0x190
     field public static final int FONT_WEIGHT_UNDEFINED = 0; // 0x0
-    field public static final int HALIGN_CENTER = 2; // 0x2
-    field public static final int HALIGN_END = 5; // 0x5
-    field public static final int HALIGN_LEFT = 1; // 0x1
-    field public static final int HALIGN_RIGHT = 3; // 0x3
-    field public static final int HALIGN_START = 4; // 0x4
-    field public static final int HALIGN_UNDEFINED = 0; // 0x0
-    field public static final int SPAN_VALIGN_BOTTOM = 1; // 0x1
-    field public static final int SPAN_VALIGN_TEXT_BASELINE = 2; // 0x2
-    field public static final int SPAN_VALIGN_UNDEFINED = 0; // 0x0
+    field public static final int HORIZONTAL_ALIGN_CENTER = 2; // 0x2
+    field public static final int HORIZONTAL_ALIGN_END = 5; // 0x5
+    field public static final int HORIZONTAL_ALIGN_LEFT = 1; // 0x1
+    field public static final int HORIZONTAL_ALIGN_RIGHT = 3; // 0x3
+    field public static final int HORIZONTAL_ALIGN_START = 4; // 0x4
+    field public static final int HORIZONTAL_ALIGN_UNDEFINED = 0; // 0x0
+    field public static final int SPAN_VERTICAL_ALIGN_BOTTOM = 1; // 0x1
+    field public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2; // 0x2
+    field public static final int SPAN_VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
     field public static final int TEXT_ALIGN_CENTER = 2; // 0x2
     field public static final int TEXT_ALIGN_END = 3; // 0x3
     field public static final int TEXT_ALIGN_START = 1; // 0x1
@@ -253,10 +253,10 @@ package androidx.wear.tiles {
     field public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
     field public static final int TEXT_OVERFLOW_TRUNCATE = 1; // 0x1
     field public static final int TEXT_OVERFLOW_UNDEFINED = 0; // 0x0
-    field public static final int VALIGN_BOTTOM = 3; // 0x3
-    field public static final int VALIGN_CENTER = 2; // 0x2
-    field public static final int VALIGN_TOP = 1; // 0x1
-    field public static final int VALIGN_UNDEFINED = 0; // 0x0
+    field public static final int VERTICAL_ALIGN_BOTTOM = 3; // 0x3
+    field public static final int VERTICAL_ALIGN_CENTER = 2; // 0x2
+    field public static final int VERTICAL_ALIGN_TOP = 1; // 0x1
+    field public static final int VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
   }
 
   public static final class LayoutElementBuilders.Arc implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
