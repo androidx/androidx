@@ -52,11 +52,22 @@ public class MenuFragment extends Fragment {
         documentListButton.setOnClickListener(
                 unusedView -> {
                     DocumentListFragment documentListFragment = new DocumentListFragment();
-                    getActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, documentListFragment)
-                            .addToBackStack(/*name=*/null)
-                            .commit();
+                    navigateToFragment(documentListFragment);
                 });
+
+        Button schemaTypeListButton = getView().findViewById(R.id.view_schema_types_button);
+        schemaTypeListButton.setOnClickListener(
+                unusedView -> {
+                    SchemaTypeListFragment schemaTypeListFragment = new SchemaTypeListFragment();
+                    navigateToFragment(schemaTypeListFragment);
+                });
+    }
+
+    private void navigateToFragment(Fragment fragment) {
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(/*name=*/null)
+                .commit();
     }
 }
