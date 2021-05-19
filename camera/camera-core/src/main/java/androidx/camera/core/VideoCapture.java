@@ -43,7 +43,6 @@ import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECU
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -69,10 +68,12 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -1031,7 +1032,6 @@ public final class VideoCapture extends UseCase {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
@@ -1049,7 +1049,7 @@ public final class VideoCapture extends UseCase {
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -1076,7 +1076,8 @@ public final class VideoCapture extends UseCase {
                     mParcelFileDescriptor =
                             outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
-                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                    mediaMuxer = Api26Impl.createMediaMuxer(
+                            mParcelFileDescriptor.getFileDescriptor(),
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {
@@ -1889,6 +1890,23 @@ public final class VideoCapture extends UseCase {
                 return new OutputFileOptions(mFile, mFileDescriptor, mContentResolver,
                         mSaveCollection, mContentValues, mMetadata);
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 8.0 (API 26).
+     */
+    @RequiresApi(26)
+    private static class Api26Impl {
+
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static MediaMuxer createMediaMuxer(@NonNull FileDescriptor fileDescriptor, int format)
+                throws IOException {
+            return new MediaMuxer(fileDescriptor, format);
         }
     }
 }

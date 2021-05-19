@@ -27,8 +27,10 @@ import android.media.AudioRecord;
 import android.media.AudioTimestamp;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Observable;
@@ -266,8 +268,8 @@ public final class AudioSource {
         long presentationTimeUs = -1;
         if (Build.VERSION.SDK_INT >= 24) {
             AudioTimestamp audioTimestamp = new AudioTimestamp();
-            if (mAudioRecord.getTimestamp(audioTimestamp, AudioTimestamp.TIMEBASE_MONOTONIC)
-                    == AudioRecord.SUCCESS) {
+            if (Api24Impl.getTimestamp(mAudioRecord, audioTimestamp,
+                    AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
                 presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(audioTimestamp.nanoTime);
             } else {
                 Logger.w(TAG, "Unable to get audio timestamp");
@@ -422,6 +424,22 @@ public final class AudioSource {
                     mAudioFormat,
                     mDefaultBufferSize
             );
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 7.0 (API 24).
+     */
+    @RequiresApi(24)
+    private static class Api24Impl {
+
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static int getTimestamp(@NonNull AudioRecord audioRecord,
+                @NonNull AudioTimestamp audioTimestamp, int timeBase) {
+            return audioRecord.getTimestamp(audioTimestamp, timeBase);
         }
     }
 }

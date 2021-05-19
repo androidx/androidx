@@ -24,12 +24,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
@@ -259,7 +261,8 @@ public abstract class CameraController {
     private static Context getApplicationContext(@NonNull Context context) {
         Context applicationContext = context.getApplicationContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return applicationContext.createAttributionContext(context.getAttributionTag());
+            return Api30Impl.createAttributionContext(applicationContext,
+                    Api30Impl.getAttributionTag(context));
         } else {
             return applicationContext;
         }
@@ -1193,6 +1196,29 @@ public abstract class CameraController {
             if (mPreviewDisplay != null && mPreviewDisplay.getDisplayId() == displayId) {
                 mPreview.setTargetRotation(mPreviewDisplay.getRotation());
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 11 (API 30).
+     */
+    @RequiresApi(30)
+    private static class Api30Impl {
+
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static Context createAttributionContext(@NonNull Context context,
+                @Nullable String attributeTag) {
+            return context.createAttributionContext(attributeTag);
+        }
+
+        @DoNotInline
+        @Nullable
+        static String getAttributionTag(@NonNull Context context) {
+            return context.getAttributionTag();
         }
     }
 }

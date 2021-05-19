@@ -22,6 +22,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.ApiCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,7 +122,7 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         @RequiresApi(api = Build.VERSION_CODES.M)
         public void onSurfacePrepared(@NonNull SynchronizedCaptureSession session,
                 @NonNull Surface surface) {
-            mCameraCaptureSessionStateCallback.onSurfacePrepared(
+            ApiCompat.Api23Impl.onSurfacePrepared(mCameraCaptureSessionStateCallback,
                     session.toCameraCaptureSessionCompat().toCameraCaptureSession(), surface);
         }
 
@@ -140,7 +141,7 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         @Override
         @RequiresApi(api = Build.VERSION_CODES.O)
         public void onCaptureQueueEmpty(@NonNull SynchronizedCaptureSession session) {
-            mCameraCaptureSessionStateCallback.onCaptureQueueEmpty(
+            ApiCompat.Api26Impl.onCaptureQueueEmpty(mCameraCaptureSessionStateCallback,
                     session.toCameraCaptureSessionCompat().toCameraCaptureSession());
         }
 
