@@ -596,7 +596,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 )
 
                 // Wait for watchface init to complete.
-                engineWrapper.deferredWatchFaceImpl.await()
+                val watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
 
                 val backgroundAction = pendingBackgroundAction
                 if (backgroundAction != null) {
@@ -612,11 +612,12 @@ public abstract class WatchFaceService : WallpaperService() {
                     pendingVisibilityChanged = null
                 }
                 for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    engineWrapper.setComplicationData(
+                    watchFaceImpl.onComplicationDataUpdate(
                         complicationDataUpdate.complicationId,
                         complicationDataUpdate.data
                     )
                 }
+                watchFaceImpl.complicationsManager.updateComplications()
             }
         }
     }
@@ -1475,15 +1476,15 @@ public abstract class WatchFaceService : WallpaperService() {
                             if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
                                 ComplicationBoundsType.BACKGROUND
                             } else {
-                                // TODO(b/188630090): Use complication.complicationData.value
-                                complication.renderer.getData()?.let {
+                                if (complication.complicationData.hasValue()) {
                                     labels.add(
                                         Pair(
                                             complication.accessibilityTraversalIndex,
                                             ContentDescriptionLabel(
                                                 _context,
                                                 complication.computeBounds(screenBounds),
-                                                it.asWireComplicationData()
+                                                complication.complicationData.value
+                                                    .asWireComplicationData()
                                             )
                                         )
                                     )
