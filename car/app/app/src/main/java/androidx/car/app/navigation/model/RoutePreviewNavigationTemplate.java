@@ -64,13 +64,13 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or
- *   <li>The template title has not changed, and the number of rows and the string contents
- *       (title, texts, not counting spans) of each row between the previous and new
- *       {@link ItemList}s have not changed.
+ *   <li>The template title has not changed, and the number of rows and the title (not
+ *       counting spans) of each row between the previous and new {@link ItemList}s have not
+ *       changed.
  * </ul>
  *
- * <p>Note that specifically, this means the app can't use this template to continuously refresh
- * the routes as the car moves without hitting the template limit.
+ * <p>Note that specifically, this means the app should not use this template to continuously
+ * refresh the routes as the car moves.
  *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
