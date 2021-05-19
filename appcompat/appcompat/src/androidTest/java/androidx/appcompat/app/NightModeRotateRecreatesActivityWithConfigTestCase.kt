@@ -27,7 +27,6 @@ import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.lifecycle.Lifecycle
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -35,6 +34,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.LifecycleOwnerUtils
 import org.junit.After
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
 import org.junit.Before
 import org.junit.Rule
@@ -78,7 +78,6 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
         }
     }
 
-    @FlakyTest // b/188599568
     @Test
     public fun testRotateRecreatesActivityWithConfig() {
         // Set local night mode to MODE_NIGHT_YES and wait for state RESUMED.
@@ -121,14 +120,16 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
 
         // Wait for the activity to be recreated after rotation
         var count = 0
-        var lastActivity = activity
-        while (activity == lastActivity && count < 5) {
+        var lastActivity: Activity? = activity
+        while ((lastActivity == null || activity == lastActivity) && count < 5) {
+            // If this times out, it will return null.
             lastActivity = monitor.waitForActivityWithTimeout(1000L)
             count++
         }
         instrumentation.waitForIdleSync()
 
         // Ensure that we didn't time out
+        assertNotNull("Activity was not recreated within 5000ms", lastActivity)
         assertNotEquals("Activity was not recreated within 5000ms", activity, lastActivity)
     }
 
