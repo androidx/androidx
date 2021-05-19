@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.kotlinPoet)
 
     implementation(libs.dokkaGradlePlugin)
+    implementation(libs.gson)
 
     implementation(libs.androidLint)
 
