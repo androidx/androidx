@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
     api("androidx.annotation:annotation-experimental:1.1.0")

@@ -397,7 +397,8 @@ public final class CameraCaptureSessionCompat {
 
                 @Override
                 public void run() {
-                    mWrappedCallback.onCaptureBufferLost(session, request, target, frameNumber);
+                    ApiCompat.Api24Impl.onCaptureBufferLost(mWrappedCallback, session, request,
+                            target, frameNumber);
                 }
             });
         }
@@ -465,7 +466,7 @@ public final class CameraCaptureSessionCompat {
 
                 @Override
                 public void run() {
-                    mWrappedCallback.onCaptureQueueEmpty(session);
+                    ApiCompat.Api26Impl.onCaptureQueueEmpty(mWrappedCallback, session);
                 }
             });
         }
@@ -490,7 +491,7 @@ public final class CameraCaptureSessionCompat {
 
                 @Override
                 public void run() {
-                    mWrappedCallback.onSurfacePrepared(session, surface);
+                    ApiCompat.Api23Impl.onSurfacePrepared(mWrappedCallback, session, surface);
                 }
             });
         }
