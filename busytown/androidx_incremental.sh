@@ -29,9 +29,22 @@ function hashOutDir() {
 }
 hashOutDir
 
+# diagnostics to hopefully help us figure out b/188565660
+function zipKotlinMetadata() {
+  zipFile=kotlinMetadata.zip
+  echo "zipping kotlin metadata"
+  (cd $OUT_DIR && find -name "*kotlin_metadata" | xargs zip "$DIST_DIR/$zipFile")
+  echo done zipping kotlin metadata
+}
+
 # Run Gradle
-impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
-    --profile "$@"
+if impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
+    --profile "$@"; then
+  echo build succeeded
+else
+  zipKotlinMetadata
+  echo build failed
+fi
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
 impl/parse_profile_htmls.sh
