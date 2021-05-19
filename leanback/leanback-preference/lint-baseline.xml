@@ -2,6 +2,39 @@
 <issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
+        id="MissingLeanbackLauncher"
+        message="Expecting an activity to have `android.intent.category.LEANBACK_LAUNCHER` intent filter"
+        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine2=" ~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ImpliedTouchscreenHardware"
+        message="Hardware feature `android.hardware.touchscreen` not explicitly marked as optional "
+        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine2=" ~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="MissingLeanbackSupport"
+        message="Expecting `&lt;uses-feature android:name=&quot;android.software.leanback&quot; android:required=&quot;false&quot; />` tag"
+        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine2=" ~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha01" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha01">
 
     <issue
         id="OnClick"
@@ -189,7 +189,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="41"
+            line="42"
             column="30"/>
     </issue>
 
@@ -200,7 +200,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="49"
+            line="51"
             column="30"/>
     </issue>
 
@@ -211,7 +211,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="57"
+            line="60"
             column="30"/>
     </issue>
 
@@ -222,7 +222,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="65"
+            line="69"
             column="30"/>
     </issue>
 
@@ -233,7 +233,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="73"
+            line="78"
             column="30"/>
     </issue>
 
@@ -261,210 +261,100 @@
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;ifRoom&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
-            line="20"
+            file="src/main/res/menu/content_actions.xml"
+            line="22"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:actionViewClass` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
-            line="21"
+            file="src/main/res/menu/content_actions.xml"
+            line="23"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;never&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
+            file="src/main/res/menu/content_actions.xml"
             line="25"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;ifRoom&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/action_bar_share_action_provider.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/action_bar_share_action_provider.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom|collapseActionView&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="23"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:actionViewClass` when not using the appcompat library"
-        errorLine1="          app:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="24"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;always&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="35"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="41"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom&quot;>"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="45"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/display_options_actions.xml"
-            line="20"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_with_tinted_icons.xml"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_with_tinted_icons.xml"
-            line="34"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_with_tinted_icons.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/sample_media_router_menu.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;androidx.mediarouter.app.MediaRouteActionProvider&quot;/>"
+        message="Should use `app:actionProviderClass` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot; />"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/sample_media_router_menu.xml"
-            line="22"
+            file="src/main/res/menu/content_actions.xml"
+            line="27"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/sample_palette_actions.xml"
-            line="23"
+            file="src/main/res/menu/content_actions.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;ifRoom&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"
+            line="48"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;ifRoom&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/single_action.xml"
-            line="23"
+            file="src/main/res/menu/content_actions.xml"
+            line="52"
             column="9"/>
     </issue>
 
@@ -1472,18 +1362,18 @@
         errorLine2="                                       ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="103"
+            line="104"
             column="40"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `shortcut` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                            viewHolder.shortcut ="
+        errorLine1="                            viewHolder.shortcut = (TextView) convertView.findViewById("
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="104"
+            line="105"
             column="40"/>
     </issue>
 
@@ -1494,7 +1384,7 @@
         errorLine2="                                   ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="110"
+            line="111"
             column="36"/>
     </issue>
 
@@ -1505,7 +1395,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="111"
+            line="112"
             column="36"/>
     </issue>
 
@@ -1516,7 +1406,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="116"
+            line="117"
             column="45"/>
     </issue>
 
@@ -1527,7 +1417,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="116"
+            line="117"
             column="17"/>
     </issue>
 
@@ -1538,7 +1428,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="117"
+            line="118"
             column="48"/>
     </issue>
 
@@ -1549,7 +1439,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="117"
+            line="118"
             column="17"/>
     </issue>
 
@@ -1560,7 +1450,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="120"
+            line="121"
             column="40"/>
     </issue>
 
@@ -1571,7 +1461,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="122"
+            line="123"
             column="17"/>
     </issue>
 
@@ -1582,7 +1472,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="126"
+            line="127"
             column="17"/>
     </issue>
 
@@ -1593,7 +1483,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="130"
+            line="131"
             column="25"/>
     </issue>
 
@@ -1604,7 +1494,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="131"
+            line="132"
             column="25"/>
     </issue>
 
@@ -1615,7 +1505,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="132"
+            line="133"
             column="25"/>
     </issue>
 
@@ -1626,7 +1516,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="137"
+            line="138"
             column="17"/>
     </issue>
 
@@ -1637,7 +1527,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="140"
+            line="141"
             column="25"/>
     </issue>
 
@@ -1648,7 +1538,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="145"
+            line="146"
             column="43"/>
     </issue>
 
@@ -1659,7 +1549,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="145"
+            line="146"
             column="17"/>
     </issue>
 
@@ -1670,7 +1560,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="148"
+            line="149"
             column="17"/>
     </issue>
 
@@ -1681,7 +1571,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="158"
+            line="159"
             column="17"/>
     </issue>
 
@@ -3991,7 +3881,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="47"
+            line="48"
             column="32"/>
     </issue>
 
@@ -4002,7 +3892,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="55"
+            line="57"
             column="33"/>
     </issue>
 
@@ -4013,7 +3903,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="63"
+            line="66"
             column="38"/>
     </issue>
 
@@ -4024,7 +3914,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="71"
+            line="75"
             column="41"/>
     </issue>
 
