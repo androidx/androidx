@@ -179,7 +179,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mTypeMenu = menu.addSubMenu("Type");
-        mTypeMenu.setIcon(R.drawable.ic_large);
+        mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_large);
         mTypeMenu.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         mTypeMenu.add("Shortcut");
         mTypeMenu.add("Small");
@@ -201,17 +201,17 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getTitle().toString()) {
             case "Shortcut":
-                mTypeMenu.setIcon(R.drawable.ic_shortcut);
+                mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_shortcut);
                 mSelectedMode = SliceView.MODE_SHORTCUT;
                 updateSliceModes();
                 return true;
             case "Small":
-                mTypeMenu.setIcon(R.drawable.ic_small);
+                mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_small);
                 mSelectedMode = SliceView.MODE_SMALL;
                 updateSliceModes();
                 return true;
             case "Large":
-                mTypeMenu.setIcon(R.drawable.ic_large);
+                mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_large);
                 mSelectedMode = SliceView.MODE_LARGE;
                 updateSliceModes();
                 return true;

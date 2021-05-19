@@ -439,7 +439,7 @@ public class FingerprintDialogFragment extends DialogFragment {
          * Gets the resource ID of the {@code colorError} style attribute.
          */
         static int getColorErrorAttr() {
-            return R.attr.colorError;
+            return androidx.appcompat.R.attr.colorError;
         }
     }
 
