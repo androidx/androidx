@@ -29,9 +29,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
-import androidx.wear.tiles.builders.LayoutElementBuilders
-import androidx.wear.tiles.builders.ResourceBuilders
-import androidx.wear.tiles.builders.TimelineBuilders
+import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.ResourceBuilders
+import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.connection.TilesConnection
 import androidx.wear.tiles.proto.DeviceParametersProto
 import androidx.wear.tiles.proto.RequestProto

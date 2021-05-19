@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.builders;
+package androidx.wear.tiles;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;

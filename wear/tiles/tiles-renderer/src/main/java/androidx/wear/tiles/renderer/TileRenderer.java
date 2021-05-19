@@ -23,9 +23,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
-import androidx.wear.tiles.builders.LayoutElementBuilders;
-import androidx.wear.tiles.builders.ResourceBuilders;
-import androidx.wear.tiles.builders.StateBuilders;
+import androidx.wear.tiles.LayoutElementBuilders;
+import androidx.wear.tiles.ResourceBuilders;
+import androidx.wear.tiles.StateBuilders;
 import androidx.wear.tiles.renderer.internal.StandardResourceResolvers;
 import androidx.wear.tiles.renderer.internal.TileRendererInternal;
 

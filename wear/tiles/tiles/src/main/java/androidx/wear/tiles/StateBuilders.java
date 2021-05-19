@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.builders;
+package androidx.wear.tiles;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -64,13 +64,6 @@ public final class StateBuilders {
             private final StateProto.State.Builder mImpl = StateProto.State.newBuilder();
 
             Builder() {}
-
-            /** Sets the ID of the clickable that was last clicked. */
-            @NonNull
-            public Builder setLastClickableId(@NonNull String lastClickableId) {
-                mImpl.setLastClickableId(lastClickableId);
-                return this;
-            }
 
             /** Builds an instance from accumulated values. */
             @NonNull

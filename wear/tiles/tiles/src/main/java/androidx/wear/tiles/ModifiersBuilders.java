@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.builders;
+package androidx.wear.tiles;
 
 import android.annotation.SuppressLint;
 
@@ -22,10 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.builders.ActionBuilders.Action;
-import androidx.wear.tiles.builders.ColorBuilders.ColorProp;
-import androidx.wear.tiles.builders.DimensionBuilders.DpProp;
-import androidx.wear.tiles.builders.TypeBuilders.BoolProp;
+import androidx.wear.tiles.ActionBuilders.Action;
+import androidx.wear.tiles.ColorBuilders.ColorProp;
+import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.TypeBuilders.BoolProp;
 import androidx.wear.tiles.proto.ModifiersProto;
 import androidx.wear.tiles.proto.TypesProto;
 
@@ -44,7 +44,7 @@ public final class ModifiersBuilders {
             this.mImpl = impl;
         }
 
-        /** Gets the ID associated with thiss action. Intended for testing purposes only. */
+        /** Gets the ID associated with this action. Intended for testing purposes only. */
         @NonNull
         public String getId() {
             return mImpl.getId();
@@ -370,8 +370,8 @@ public final class ModifiersBuilders {
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
              */
-            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
+            @SuppressLint("MissingGetterMatchingBuilder")
             public Builder setRtlAware(boolean rtlAware) {
                 mImpl.setRtlAware(TypesProto.BoolProp.newBuilder().setValue(rtlAware));
                 return this;
@@ -492,7 +492,7 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** The corner of a {@link androidx.wear.tiles.builders.LayoutElementBuilders.Box} element. */
+    /** The corner of a {@link androidx.wear.tiles.LayoutElementBuilders.Box} element. */
     public static final class Corner {
         private final ModifiersProto.Corner mImpl;
 
@@ -972,8 +972,8 @@ public final class ModifiersBuilders {
 
     /**
      * {@link Modifiers} that can be used with {@link
-     * androidx.wear.tiles.builders.LayoutElementBuilders.Span} elements. These may change the way
-     * they are drawn, or change their behaviour.
+     * androidx.wear.tiles.LayoutElementBuilders.Span} elements. These may change the way they are
+     * drawn, or change their behaviour.
      */
     public static final class SpanModifiers {
         private final ModifiersProto.SpanModifiers mImpl;

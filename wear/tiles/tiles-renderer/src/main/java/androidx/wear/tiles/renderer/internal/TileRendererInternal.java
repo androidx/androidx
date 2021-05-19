@@ -25,10 +25,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -114,6 +116,7 @@ import androidx.wear.tiles.proto.ModifiersProto.Padding;
 import androidx.wear.tiles.proto.ModifiersProto.SpanModifiers;
 import androidx.wear.tiles.proto.StateProto.State;
 import androidx.wear.tiles.renderer.R;
+import androidx.wear.tiles.renderer.internal.ResourceResolvers.ResourceAccessException;
 import androidx.wear.tiles.renderer.internal.WearArcLayout.ArcLayoutWidget;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -1189,10 +1192,42 @@ public final class TileRendererInternal {
             // If the future is done, immediately draw.
             setImageDrawable(imageView, drawableFuture, protoResId);
         } else {
+            // Is there a placeholder to use in the meantime?
+            try {
+                if (mResourceResolvers.hasPlaceholderDrawable(protoResId)) {
+                    imageView.setImageDrawable(
+                            mResourceResolvers.getPlaceholderDrawableOrThrow(protoResId));
+                }
+            } catch (ResourceAccessException ex) {
+                Log.e(TAG, "Exception loading placeholder for resource " + protoResId, ex);
+            }
+
             // Otherwise, handle the result on the UI thread.
             drawableFuture.addListener(
                     () -> setImageDrawable(imageView, drawableFuture, protoResId),
                     ContextCompat.getMainExecutor(mAppContext));
+        }
+
+        boolean canImageBeTinted = false;
+
+        try {
+            canImageBeTinted = mResourceResolvers.canImageBeTinted(protoResId);
+        } catch (IllegalArgumentException ex) {
+            // This implies that the image doesn't exist, but in that case, the above statement
+            // should have thrown.
+            Log.wtf(TAG, "Exception tinting image " + protoResId, ex);
+        }
+
+        if (image.hasFilter()) {
+            if (image.getFilter().hasTint() && canImageBeTinted) {
+                // Only allow tinting for Android images.
+                ColorStateList tint = ColorStateList.valueOf(image.getFilter().getTint().getArgb());
+                imageView.setImageTintList(tint);
+
+                // SRC_IN throws away the colours in the drawable that we're tinting. Effectively,
+                // the drawable being tinted is only a mask to apply the colour to.
+                imageView.setImageTintMode(Mode.SRC_IN);
+            }
         }
 
         return wrappedView;
@@ -1354,10 +1389,24 @@ public final class TileRendererInternal {
             }
         } else {
             // If the future is not done, add an empty drawable to builder as a placeholder.
-            Drawable emptyDrawable = new ColorDrawable(Color.TRANSPARENT);
+            @Nullable Drawable placeholderDrawable = null;
+
+            try {
+                if (mResourceResolvers.hasPlaceholderDrawable(protoResId)) {
+                    placeholderDrawable =
+                            mResourceResolvers.getPlaceholderDrawableOrThrow(protoResId);
+                }
+            } catch (ResourceAccessException ex) {
+                Log.e(TAG, "Could not get placeholder for image " + protoResId, ex);
+            }
+
+            if (placeholderDrawable == null) {
+                placeholderDrawable = new ColorDrawable(Color.TRANSPARENT);
+            }
+
             int startInclusive = builder.length();
-            FixedImageSpan emptyDrawableSpan =
-                    appendSpanDrawable(builder, emptyDrawable, protoImage);
+            FixedImageSpan placeholderDrawableSpan =
+                    appendSpanDrawable(builder, placeholderDrawable, protoImage);
             int endExclusive = builder.length();
 
             // When the future is done, replace the empty drawable with the received one.
@@ -1366,7 +1415,7 @@ public final class TileRendererInternal {
                         // Remove the placeholder. This should be safe, even with other modifiers
                         // applied. This just removes the single drawable span, and should leave
                         // other spans in place.
-                        builder.removeSpan(emptyDrawableSpan);
+                        builder.removeSpan(placeholderDrawableSpan);
                         // Add the new drawable to the same range.
                         setSpanDrawable(
                                 builder, drawableFuture, startInclusive, endExclusive, protoImage);

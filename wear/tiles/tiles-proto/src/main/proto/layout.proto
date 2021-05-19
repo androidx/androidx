@@ -316,6 +316,19 @@ message ContentScaleModeProp {
   ContentScaleMode value = 1;
 }
 
+// Filtering parameters used for images. This can be used to apply a color tint
+// to images.
+message ColorFilter {
+  // The tint color to use. If specified, the image will be tinted, using
+  // SRC_IN blending (that is, all color information will be stripped from the
+  // target image, and only the alpha channel will be blended with the requested
+  // color).
+  //
+  // Note that only Android image resources can be tinted; Inline images will
+  // not be tinted, and this property will have no effect.
+  ColorProp tint = 1;
+}
+
 // An image.
 //
 // Images used in this element must exist in the resource bundle that
@@ -340,6 +353,10 @@ message Image {
 
   // Modifiers for this element.
   Modifiers modifiers = 5;
+
+  // Filtering parameters for this image. If not specified, defaults to no
+  // filtering.
+  ColorFilter filter = 6;
 }
 
 // A simple spacer, typically used to provide padding between adjacent elements.

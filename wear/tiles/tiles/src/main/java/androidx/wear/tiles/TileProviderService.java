@@ -27,9 +27,9 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.tiles.builders.ResourceBuilders.Resources;
-import androidx.wear.tiles.builders.TileBuilders.Tile;
-import androidx.wear.tiles.builders.TileBuilders.Version;
+import androidx.wear.tiles.ResourceBuilders.Resources;
+import androidx.wear.tiles.TileBuilders.Tile;
+import androidx.wear.tiles.TileBuilders.Version;
 import androidx.wear.tiles.proto.TileProto;
 import androidx.wear.tiles.readers.EventReaders.TileAddEvent;
 import androidx.wear.tiles.readers.EventReaders.TileEnterEvent;
@@ -277,7 +277,7 @@ public abstract class TileProviderService extends Service {
                                             Log.e(
                                                     TAG,
                                                     "RemoteException while returning resources"
-                                                            + " payload",
+                                                        + " payload",
                                                     ex);
                                         }
                                     },

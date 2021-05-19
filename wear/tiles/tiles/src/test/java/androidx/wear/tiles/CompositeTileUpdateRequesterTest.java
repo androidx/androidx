@@ -24,8 +24,6 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.wear.tiles.builders.ResourceBuilders;
-import androidx.wear.tiles.builders.TileBuilders;
 import androidx.wear.tiles.readers.RequestReaders;
 
 import com.google.common.util.concurrent.ListenableFuture;

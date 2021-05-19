@@ -101,6 +101,56 @@ public class ResourceResolvers {
         return new Builder(protoResources);
     }
 
+    /**
+     * Returns whether the resource specified by {@code protoResourceId} has a placeholder resource
+     * associated with it.
+     */
+    public boolean hasPlaceholderDrawable(@NonNull String protoResourceId) {
+        return getPlaceholderResourceId(protoResourceId) != null;
+    }
+
+    /**
+     * Returns the placeholder drawable for the resource specified by {@code protoResourceId}.
+     *
+     * @throws ResourceAccessException If the specified resource does not have a placeholder
+     *     associated, or the placeholder could not be loaded.
+     * @throws IllegalArgumentException If the specified resource, or its placeholder, does not
+     *     exist.
+     * @see ResourceResolvers#hasPlaceholderDrawable(String)
+     */
+    @NonNull
+    public Drawable getPlaceholderDrawableOrThrow(@NonNull String protoResourceId)
+            throws ResourceAccessException {
+        String placeholderResourceId = getPlaceholderResourceId(protoResourceId);
+
+        if (placeholderResourceId == null) {
+            throw new ResourceAccessException(
+                    "Resource " + protoResourceId + " does not have a placeholder resource.");
+        }
+
+        ResourceProto.ImageResource placeholderImageResource =
+                mProtoResources.getIdToImageMap().get(placeholderResourceId);
+
+        if (placeholderImageResource == null) {
+            throw new IllegalArgumentException(
+                    "Resource " + placeholderResourceId + " is not defined in resources bundle");
+        }
+
+        if (placeholderImageResource.hasAndroidResourceByResId()
+                && mAndroidImageResourceByResIdResolver != null) {
+            AndroidImageResourceByResIdResolver resolver = mAndroidImageResourceByResIdResolver;
+            return resolver.getDrawableOrThrow(
+                    placeholderImageResource.getAndroidResourceByResId());
+        }
+
+        if (placeholderImageResource.hasInlineResource() && mInlineImageResourceResolver != null) {
+            InlineImageResourceResolver resolver = mInlineImageResourceResolver;
+            return resolver.getDrawableOrThrow(placeholderImageResource.getInlineResource());
+        }
+
+        throw new ResourceAccessException("Can't find resolver for image resource.");
+    }
+
     /** Get the drawable corresponding to the given resource ID. */
     @NonNull
     public ListenableFuture<Drawable> getDrawable(@NonNull String protoResourceId) {
@@ -127,6 +177,39 @@ public class ResourceResolvers {
         return createFailedFuture(
                 new ResourceAccessException(
                         "Can't find resolver for image resource " + protoResourceId));
+    }
+
+    /** Returns whether an image can be tinted or not. */
+    public boolean canImageBeTinted(@NonNull String protoResourceId) {
+        // Only Android image resources can be tinted for now. This is because we don't really know
+        // what
+        // is in an inline image.
+        ResourceProto.ImageResource imageResource =
+                mProtoResources.getIdToImageMap().get(protoResourceId);
+
+        if (imageResource == null) {
+            throw new IllegalArgumentException(
+                    "Resource " + protoResourceId + " is not defined in resources bundle");
+        }
+
+        if (imageResource.hasAndroidResourceByResId()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Nullable
+    private String getPlaceholderResourceId(@NonNull String originalResourceId) {
+        ResourceProto.ImageResource imageResource =
+                mProtoResources.getIdToImageMap().get(originalResourceId);
+
+        if (imageResource == null) {
+            throw new IllegalArgumentException(
+                    "Resource " + originalResourceId + " is not defined in resources bundle");
+        }
+
+        return null;
     }
 
     @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
