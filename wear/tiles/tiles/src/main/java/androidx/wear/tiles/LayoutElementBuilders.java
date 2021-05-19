@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.builders;
+package androidx.wear.tiles;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,21 +27,20 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.TilesExperimental;
-import androidx.wear.tiles.builders.ColorBuilders.ColorProp;
-import androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension;
-import androidx.wear.tiles.builders.DimensionBuilders.DegreesProp;
-import androidx.wear.tiles.builders.DimensionBuilders.DpProp;
-import androidx.wear.tiles.builders.DimensionBuilders.EmProp;
-import androidx.wear.tiles.builders.DimensionBuilders.ImageDimension;
-import androidx.wear.tiles.builders.DimensionBuilders.SpProp;
-import androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension;
-import androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers;
-import androidx.wear.tiles.builders.ModifiersBuilders.Modifiers;
-import androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers;
-import androidx.wear.tiles.builders.TypeBuilders.BoolProp;
-import androidx.wear.tiles.builders.TypeBuilders.Int32Prop;
-import androidx.wear.tiles.builders.TypeBuilders.StringProp;
+import androidx.wear.tiles.ColorBuilders.ColorProp;
+import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
+import androidx.wear.tiles.DimensionBuilders.DegreesProp;
+import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.DimensionBuilders.EmProp;
+import androidx.wear.tiles.DimensionBuilders.ImageDimension;
+import androidx.wear.tiles.DimensionBuilders.SpProp;
+import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
+import androidx.wear.tiles.ModifiersBuilders.ArcModifiers;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
+import androidx.wear.tiles.ModifiersBuilders.SpanModifiers;
+import androidx.wear.tiles.TypeBuilders.BoolProp;
+import androidx.wear.tiles.TypeBuilders.Int32Prop;
+import androidx.wear.tiles.TypeBuilders.StringProp;
 import androidx.wear.tiles.proto.LayoutElementProto;
 import androidx.wear.tiles.proto.TypesProto;
 import androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters;
@@ -1088,8 +1087,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -1228,20 +1227,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -1410,6 +1403,94 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /** Filtering parameters used for images. This can be used to apply a color tint to images. */
+    public static final class ColorFilter {
+        private final LayoutElementProto.ColorFilter mImpl;
+
+        private ColorFilter(LayoutElementProto.ColorFilter impl) {
+            this.mImpl = impl;
+        }
+
+        /**
+         * Gets the tint color to use. If specified, the image will be tinted, using SRC_IN blending
+         * (that is, all color information will be stripped from the target image, and only the
+         * alpha channel will be blended with the requested color).
+         *
+         * <p>Note that only Android image resources can be tinted; Inline images will not be
+         * tinted, and this property will have no effect. Intended for testing purposes only.
+         */
+        @Nullable
+        public ColorProp getTint() {
+            if (mImpl.hasTint()) {
+                return ColorProp.fromProto(mImpl.getTint());
+            } else {
+                return null;
+            }
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
+            return new ColorFilter(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ColorFilter toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link ColorFilter} */
+        public static final class Builder {
+            private final LayoutElementProto.ColorFilter.Builder mImpl =
+                    LayoutElementProto.ColorFilter.newBuilder();
+
+            Builder() {}
+
+            /**
+             * Sets the tint color to use. If specified, the image will be tinted, using SRC_IN
+             * blending (that is, all color information will be stripped from the target image, and
+             * only the alpha channel will be blended with the requested color).
+             *
+             * <p>Note that only Android image resources can be tinted; Inline images will not be
+             * tinted, and this property will have no effect.
+             */
+            @NonNull
+            public Builder setTint(@NonNull ColorProp tint) {
+                mImpl.setTint(tint.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the tint color to use. If specified, the image will be tinted, using SRC_IN
+             * blending (that is, all color information will be stripped from the target image, and
+             * only the alpha channel will be blended with the requested color).
+             *
+             * <p>Note that only Android image resources can be tinted; Inline images will not be
+             * tinted, and this property will have no effect.
+             */
+            @NonNull
+            public Builder setTint(@NonNull ColorProp.Builder tintBuilder) {
+                mImpl.setTint(tintBuilder.build().toProto());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public ColorFilter build() {
+                return ColorFilter.fromProto(mImpl.build());
+            }
+        }
+    }
+
     /**
      * An image.
      *
@@ -1478,13 +1559,27 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
                 return Modifiers.fromProto(mImpl.getModifiers());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets filtering parameters for this image. If not specified, defaults to no filtering.
+         * Intended for testing purposes only.
+         */
+        @TilesExperimental
+        @Nullable
+        public ColorFilter getFilter() {
+            if (mImpl.hasFilter()) {
+                return ColorFilter.fromProto(mImpl.getFilter());
             } else {
                 return null;
             }
@@ -1595,23 +1690,37 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets filtering parameters for this image. If not specified, defaults to no filtering.
+             */
+            @TilesExperimental
+            @NonNull
+            public Builder setFilter(@NonNull ColorFilter filter) {
+                mImpl.setFilter(filter.toProto());
+                return this;
+            }
+
+            /**
+             * Sets filtering parameters for this image. If not specified, defaults to no filtering.
+             */
+            @TilesExperimental
+            @NonNull
+            public Builder setFilter(@NonNull ColorFilter.Builder filterBuilder) {
+                mImpl.setFilter(filterBuilder.build().toProto());
                 return this;
             }
 
@@ -1659,8 +1768,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -1742,20 +1851,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -1843,8 +1946,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -1991,20 +2094,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -2055,8 +2152,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public SpanModifiers getModifiers() {
@@ -2135,20 +2232,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -2211,8 +2302,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public SpanModifiers getModifiers() {
@@ -2318,20 +2409,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -2436,8 +2521,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -2560,20 +2645,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -2760,8 +2839,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -2885,20 +2964,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -2983,8 +3056,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -3107,20 +3180,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -3203,8 +3270,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -3342,20 +3409,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -3402,8 +3463,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public ArcModifiers getModifiers() {
@@ -3482,20 +3543,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -3555,8 +3610,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public ArcModifiers getModifiers() {
@@ -3644,20 +3699,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());
@@ -3707,8 +3756,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this element.
-         * Intended for testing purposes only.
+         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
+         * for testing purposes only.
          */
         @Nullable
         public ArcModifiers getModifiers() {
@@ -3782,20 +3831,14 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
-             * element.
-             */
+            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
                 mImpl.setModifiers(modifiersBuilder.build().toProto());

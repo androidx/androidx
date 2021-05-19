@@ -25,9 +25,7 @@ import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.builders.ResourceBuilders;
-import androidx.wear.tiles.builders.TileBuilders;
-import androidx.wear.tiles.builders.TileBuilders.Version;
+import androidx.wear.tiles.TileBuilders.Version;
 import androidx.wear.tiles.proto.EventProto;
 import androidx.wear.tiles.proto.RequestProto;
 import androidx.wear.tiles.proto.ResourceProto.Resources;

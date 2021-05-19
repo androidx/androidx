@@ -1,248 +1,225 @@
 // Signature format: 4.0
 package androidx.wear.tiles {
 
-  public abstract class TileProviderService extends android.app.Service {
-    ctor public TileProviderService();
-    method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
-    method public android.os.IBinder? onBind(android.content.Intent);
-    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.builders.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.readers.RequestReaders.ResourcesRequest);
-    method @MainThread protected void onTileAddEvent(androidx.wear.tiles.readers.EventReaders.TileAddEvent);
-    method @MainThread protected void onTileEnterEvent(androidx.wear.tiles.readers.EventReaders.TileEnterEvent);
-    method @MainThread protected void onTileLeaveEvent(androidx.wear.tiles.readers.EventReaders.TileLeaveEvent);
-    method @MainThread protected void onTileRemoveEvent(androidx.wear.tiles.readers.EventReaders.TileRemoveEvent);
-    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.builders.TileBuilders.Tile!> onTileRequest(androidx.wear.tiles.readers.RequestReaders.TileRequest);
-    field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
-    field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
-    field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
-  }
-
-  public interface TileUpdateRequester {
-    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileProviderService>);
-  }
-
-}
-
-package androidx.wear.tiles.builders {
-
   public final class ActionBuilders {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra booleanExtra(boolean);
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra doubleExtra(double);
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra intExtra(int);
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra longExtra(long);
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra stringExtra(String);
+    method public static androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra booleanExtra(boolean);
+    method public static androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra doubleExtra(double);
+    method public static androidx.wear.tiles.ActionBuilders.AndroidIntExtra intExtra(int);
+    method public static androidx.wear.tiles.ActionBuilders.AndroidLongExtra longExtra(long);
+    method public static androidx.wear.tiles.ActionBuilders.AndroidStringExtra stringExtra(String);
   }
 
   public static interface ActionBuilders.Action {
   }
 
   public static interface ActionBuilders.Action.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.Action build();
+    method public androidx.wear.tiles.ActionBuilders.Action build();
   }
 
   public static final class ActionBuilders.AndroidActivity {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder builder();
+    method public static androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder builder();
     method public String getClassName();
-    method public java.util.Map<java.lang.String!,androidx.wear.tiles.builders.ActionBuilders.AndroidExtra!> getKeyToExtraMapping();
+    method public java.util.Map<java.lang.String!,androidx.wear.tiles.ActionBuilders.AndroidExtra!> getKeyToExtraMapping();
     method public String getPackageName();
   }
 
   public static final class ActionBuilders.AndroidActivity.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.builders.ActionBuilders.AndroidExtra);
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder);
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity build();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder setClassName(String);
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder setPackageName(String);
+    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.ActionBuilders.AndroidExtra);
+    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder addKeyToExtraMapping(String, androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder);
+    method public androidx.wear.tiles.ActionBuilders.AndroidActivity build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder setClassName(String);
+    method public androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder setPackageName(String);
   }
 
-  public static final class ActionBuilders.AndroidBooleanExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra.Builder builder();
+  public static final class ActionBuilders.AndroidBooleanExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra.Builder builder();
     method public boolean getValue();
   }
 
-  public static final class ActionBuilders.AndroidBooleanExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra build();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidBooleanExtra.Builder setValue(boolean);
+  public static final class ActionBuilders.AndroidBooleanExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidBooleanExtra.Builder setValue(boolean);
   }
 
-  public static final class ActionBuilders.AndroidDoubleExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra.Builder builder();
+  public static final class ActionBuilders.AndroidDoubleExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra.Builder builder();
     method public double getValue();
   }
 
-  public static final class ActionBuilders.AndroidDoubleExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra build();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidDoubleExtra.Builder setValue(double);
+  public static final class ActionBuilders.AndroidDoubleExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidDoubleExtra.Builder setValue(double);
   }
 
   public static interface ActionBuilders.AndroidExtra {
   }
 
   public static interface ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidExtra build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidExtra build();
   }
 
-  public static final class ActionBuilders.AndroidIntExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra.Builder builder();
+  public static final class ActionBuilders.AndroidIntExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.ActionBuilders.AndroidIntExtra.Builder builder();
     method public int getValue();
   }
 
-  public static final class ActionBuilders.AndroidIntExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra build();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidIntExtra.Builder setValue(int);
+  public static final class ActionBuilders.AndroidIntExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.ActionBuilders.AndroidIntExtra build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidIntExtra.Builder setValue(int);
   }
 
-  public static final class ActionBuilders.AndroidLongExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra.Builder builder();
+  public static final class ActionBuilders.AndroidLongExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.ActionBuilders.AndroidLongExtra.Builder builder();
     method public long getValue();
   }
 
-  public static final class ActionBuilders.AndroidLongExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra build();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidLongExtra.Builder setValue(long);
+  public static final class ActionBuilders.AndroidLongExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.ActionBuilders.AndroidLongExtra build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidLongExtra.Builder setValue(long);
   }
 
-  public static final class ActionBuilders.AndroidStringExtra implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra {
-    method public static androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra.Builder builder();
+  public static final class ActionBuilders.AndroidStringExtra implements androidx.wear.tiles.ActionBuilders.AndroidExtra {
+    method public static androidx.wear.tiles.ActionBuilders.AndroidStringExtra.Builder builder();
     method public String getValue();
   }
 
-  public static final class ActionBuilders.AndroidStringExtra.Builder implements androidx.wear.tiles.builders.ActionBuilders.AndroidExtra.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra build();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidStringExtra.Builder setValue(String);
+  public static final class ActionBuilders.AndroidStringExtra.Builder implements androidx.wear.tiles.ActionBuilders.AndroidExtra.Builder {
+    method public androidx.wear.tiles.ActionBuilders.AndroidStringExtra build();
+    method public androidx.wear.tiles.ActionBuilders.AndroidStringExtra.Builder setValue(String);
   }
 
-  public static final class ActionBuilders.LaunchAction implements androidx.wear.tiles.builders.ActionBuilders.Action {
-    method public static androidx.wear.tiles.builders.ActionBuilders.LaunchAction.Builder builder();
-    method public androidx.wear.tiles.builders.ActionBuilders.AndroidActivity? getAndroidActivity();
+  public static final class ActionBuilders.LaunchAction implements androidx.wear.tiles.ActionBuilders.Action {
+    method public static androidx.wear.tiles.ActionBuilders.LaunchAction.Builder builder();
+    method public androidx.wear.tiles.ActionBuilders.AndroidActivity? getAndroidActivity();
   }
 
-  public static final class ActionBuilders.LaunchAction.Builder implements androidx.wear.tiles.builders.ActionBuilders.Action.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.LaunchAction build();
-    method public androidx.wear.tiles.builders.ActionBuilders.LaunchAction.Builder setAndroidActivity(androidx.wear.tiles.builders.ActionBuilders.AndroidActivity);
-    method public androidx.wear.tiles.builders.ActionBuilders.LaunchAction.Builder setAndroidActivity(androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder);
+  public static final class ActionBuilders.LaunchAction.Builder implements androidx.wear.tiles.ActionBuilders.Action.Builder {
+    method public androidx.wear.tiles.ActionBuilders.LaunchAction build();
+    method public androidx.wear.tiles.ActionBuilders.LaunchAction.Builder setAndroidActivity(androidx.wear.tiles.ActionBuilders.AndroidActivity);
+    method public androidx.wear.tiles.ActionBuilders.LaunchAction.Builder setAndroidActivity(androidx.wear.tiles.ActionBuilders.AndroidActivity.Builder);
   }
 
-  public static final class ActionBuilders.LoadAction implements androidx.wear.tiles.builders.ActionBuilders.Action {
-    method public static androidx.wear.tiles.builders.ActionBuilders.LoadAction.Builder builder();
-    method public androidx.wear.tiles.builders.StateBuilders.State? getRequestState();
+  public static final class ActionBuilders.LoadAction implements androidx.wear.tiles.ActionBuilders.Action {
+    method public static androidx.wear.tiles.ActionBuilders.LoadAction.Builder builder();
+    method public androidx.wear.tiles.StateBuilders.State? getRequestState();
   }
 
-  public static final class ActionBuilders.LoadAction.Builder implements androidx.wear.tiles.builders.ActionBuilders.Action.Builder {
-    method public androidx.wear.tiles.builders.ActionBuilders.LoadAction build();
-    method public androidx.wear.tiles.builders.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.builders.StateBuilders.State);
-    method public androidx.wear.tiles.builders.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.builders.StateBuilders.State.Builder);
+  public static final class ActionBuilders.LoadAction.Builder implements androidx.wear.tiles.ActionBuilders.Action.Builder {
+    method public androidx.wear.tiles.ActionBuilders.LoadAction build();
+    method public androidx.wear.tiles.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.StateBuilders.State);
+    method public androidx.wear.tiles.ActionBuilders.LoadAction.Builder setRequestState(androidx.wear.tiles.StateBuilders.State.Builder);
   }
 
   public final class ColorBuilders {
-    method public static androidx.wear.tiles.builders.ColorBuilders.ColorProp argb(@ColorInt int);
+    method public static androidx.wear.tiles.ColorBuilders.ColorProp argb(@ColorInt int);
   }
 
   public static final class ColorBuilders.ColorProp {
-    method public static androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder builder();
+    method public static androidx.wear.tiles.ColorBuilders.ColorProp.Builder builder();
     method @ColorInt public int getArgb();
   }
 
   public static final class ColorBuilders.ColorProp.Builder {
-    method public androidx.wear.tiles.builders.ColorBuilders.ColorProp build();
-    method public androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
+    method public androidx.wear.tiles.ColorBuilders.ColorProp build();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
   }
 
   public final class DimensionBuilders {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.DegreesProp degrees(float);
-    method public static androidx.wear.tiles.builders.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    method public static androidx.wear.tiles.builders.DimensionBuilders.EmProp em(int);
-    method public static androidx.wear.tiles.builders.DimensionBuilders.ExpandedDimensionProp expand();
-    method public static androidx.wear.tiles.builders.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
-    method public static androidx.wear.tiles.builders.DimensionBuilders.WrappedDimensionProp wrap();
+    method public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
+    method public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method public static androidx.wear.tiles.DimensionBuilders.EmProp em(int);
+    method public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp expand();
+    method public static androidx.wear.tiles.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
+    method public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp wrap();
   }
 
   public static interface DimensionBuilders.ContainerDimension {
   }
 
   public static interface DimensionBuilders.ContainerDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension build();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension build();
   }
 
   public static final class DimensionBuilders.DegreesProp {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.DegreesProp.Builder builder();
+    method public static androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder builder();
     method public float getValue();
   }
 
   public static final class DimensionBuilders.DegreesProp.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.DegreesProp build();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DegreesProp.Builder setValue(float);
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp build();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.DpProp implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension androidx.wear.tiles.builders.DimensionBuilders.ImageDimension androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder builder();
+  public static final class DimensionBuilders.DpProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension androidx.wear.tiles.DimensionBuilders.ImageDimension androidx.wear.tiles.DimensionBuilders.SpacerDimension {
+    method public static androidx.wear.tiles.DimensionBuilders.DpProp.Builder builder();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
   }
 
-  public static final class DimensionBuilders.DpProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp build();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  public static final class DimensionBuilders.DpProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder androidx.wear.tiles.DimensionBuilders.SpacerDimension.Builder {
+    method public androidx.wear.tiles.DimensionBuilders.DpProp build();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
   public static final class DimensionBuilders.EmProp {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.EmProp.Builder builder();
+    method public static androidx.wear.tiles.DimensionBuilders.EmProp.Builder builder();
     method public float getValue();
   }
 
   public static final class DimensionBuilders.EmProp.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.EmProp build();
-    method public androidx.wear.tiles.builders.DimensionBuilders.EmProp.Builder setValue(float);
+    method public androidx.wear.tiles.DimensionBuilders.EmProp build();
+    method public androidx.wear.tiles.DimensionBuilders.EmProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension androidx.wear.tiles.builders.DimensionBuilders.ImageDimension {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.ExpandedDimensionProp.Builder builder();
+  public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension androidx.wear.tiles.DimensionBuilders.ImageDimension {
+    method public static androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp.Builder builder();
   }
 
-  public static final class DimensionBuilders.ExpandedDimensionProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.ExpandedDimensionProp build();
+  public static final class DimensionBuilders.ExpandedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder {
+    method public androidx.wear.tiles.DimensionBuilders.ExpandedDimensionProp build();
   }
 
   public static interface DimensionBuilders.ImageDimension {
   }
 
   public static interface DimensionBuilders.ImageDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.ImageDimension build();
+    method public androidx.wear.tiles.DimensionBuilders.ImageDimension build();
   }
 
-  public static final class DimensionBuilders.ProportionalDimensionProp implements androidx.wear.tiles.builders.DimensionBuilders.ImageDimension {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.ProportionalDimensionProp.Builder builder();
+  public static final class DimensionBuilders.ProportionalDimensionProp implements androidx.wear.tiles.DimensionBuilders.ImageDimension {
+    method public static androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder builder();
     method @IntRange(from=0) public int getAspectRatioHeight();
     method @IntRange(from=0) public int getAspectRatioWidth();
   }
 
-  public static final class DimensionBuilders.ProportionalDimensionProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.ProportionalDimensionProp build();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioHeight(@IntRange(from=0) int);
-    method public androidx.wear.tiles.builders.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioWidth(@IntRange(from=0) int);
+  public static final class DimensionBuilders.ProportionalDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder {
+    method public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp build();
+    method public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioHeight(@IntRange(from=0) int);
+    method public androidx.wear.tiles.DimensionBuilders.ProportionalDimensionProp.Builder setAspectRatioWidth(@IntRange(from=0) int);
   }
 
   public static final class DimensionBuilders.SpProp {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder builder();
+    method public static androidx.wear.tiles.DimensionBuilders.SpProp.Builder builder();
     method @Dimension(unit=androidx.annotation.Dimension.SP) public float getValue();
   }
 
   public static final class DimensionBuilders.SpProp.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp build();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.SP) float);
+    method public androidx.wear.tiles.DimensionBuilders.SpProp build();
+    method public androidx.wear.tiles.DimensionBuilders.SpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.SP) float);
   }
 
   public static interface DimensionBuilders.SpacerDimension {
   }
 
   public static interface DimensionBuilders.SpacerDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension build();
+    method public androidx.wear.tiles.DimensionBuilders.SpacerDimension build();
   }
 
-  public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension {
-    method public static androidx.wear.tiles.builders.DimensionBuilders.WrappedDimensionProp.Builder builder();
+  public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.tiles.DimensionBuilders.ContainerDimension {
+    method public static androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp.Builder builder();
   }
 
-  public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder {
-    method public androidx.wear.tiles.builders.DimensionBuilders.WrappedDimensionProp build();
+  public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder {
+    method public androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp build();
   }
 
   public final class LayoutElementBuilders {
@@ -282,604 +259,615 @@ package androidx.wear.tiles.builders {
     field public static final int VALIGN_UNDEFINED = 0; // 0x0
   }
 
-  public static final class LayoutElementBuilders.Arc implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder builder();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DegreesProp? getAnchorAngle();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
-    method public java.util.List<androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement!> getContents();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
+  public static final class LayoutElementBuilders.Arc implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Arc.Builder builder();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp? getAnchorAngle();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement!> getContents();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
   }
 
-  public static final class LayoutElementBuilders.Arc.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.tiles.builders.DimensionBuilders.DegreesProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.tiles.builders.DimensionBuilders.DegreesProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.tiles.builders.LayoutElementBuilders.ArcAnchorTypeProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setAnchorType(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
+  public static final class LayoutElementBuilders.Arc.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.tiles.DimensionBuilders.DegreesProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setAnchorType(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
   }
 
-  public static final class LayoutElementBuilders.ArcAdapter implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement? getContent();
-    method public androidx.wear.tiles.builders.TypeBuilders.BoolProp? getRotateContents();
+  public static final class LayoutElementBuilders.ArcAdapter implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method public androidx.wear.tiles.TypeBuilders.BoolProp? getRotateContents();
   }
 
-  public static final class LayoutElementBuilders.ArcAdapter.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter.Builder setContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter.Builder setContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(androidx.wear.tiles.builders.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(boolean);
+  public static final class LayoutElementBuilders.ArcAdapter.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAdapter.Builder setRotateContents(boolean);
   }
 
   public static final class LayoutElementBuilders.ArcAnchorTypeProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcAnchorTypeProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.ArcAnchorTypeProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAnchorTypeProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcAnchorTypeProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcAnchorTypeProp.Builder setValue(int);
   }
 
   public static interface LayoutElementBuilders.ArcLayoutElement {
   }
 
   public static interface LayoutElementBuilders.ArcLayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement build();
   }
 
-  public static final class LayoutElementBuilders.ArcLine implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder builder();
-    method public androidx.wear.tiles.builders.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DegreesProp? getLength();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers? getModifiers();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getThickness();
+  public static final class LayoutElementBuilders.ArcLine implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp? getLength();
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getThickness();
   }
 
-  public static final class LayoutElementBuilders.ArcLine.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.tiles.builders.DimensionBuilders.DegreesProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.tiles.builders.DimensionBuilders.DegreesProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
+  public static final class LayoutElementBuilders.ArcLine.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
   }
 
-  public static final class LayoutElementBuilders.ArcSpacer implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder builder();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DegreesProp? getLength();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers? getModifiers();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getThickness();
+  public static final class LayoutElementBuilders.ArcSpacer implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder builder();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp? getLength();
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getThickness();
   }
 
-  public static final class LayoutElementBuilders.ArcSpacer.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder setLength(androidx.wear.tiles.builders.DimensionBuilders.DegreesProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder setLength(androidx.wear.tiles.builders.DimensionBuilders.DegreesProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder setThickness(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder setThickness(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
+  public static final class LayoutElementBuilders.ArcSpacer.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setLength(androidx.wear.tiles.DimensionBuilders.DegreesProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder setThickness(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
   }
 
-  public static final class LayoutElementBuilders.ArcText implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle? getFontStyle();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers? getModifiers();
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp? getText();
+  public static final class LayoutElementBuilders.ArcText implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers? getModifiers();
+    method public androidx.wear.tiles.TypeBuilders.StringProp? getText();
   }
 
-  public static final class LayoutElementBuilders.ArcText.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder setText(androidx.wear.tiles.builders.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder setText(String);
+  public static final class LayoutElementBuilders.ArcText.Builder implements androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ArcText.Builder setText(String);
   }
 
-  public static final class LayoutElementBuilders.Box implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder builder();
-    method public java.util.List<androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement!> getContents();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension? getHeight();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension? getWidth();
+  public static final class LayoutElementBuilders.Box implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Box.Builder builder();
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
+    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Box.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setHorizontalAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setHorizontalAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setVerticalAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setVerticalAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder);
+  public static final class LayoutElementBuilders.Box.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setHorizontalAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setVerticalAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Box.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
   }
 
-  public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder builder();
-    method public java.util.List<androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement!> getContents();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension? getHeight();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension? getWidth();
+  public static final class LayoutElementBuilders.ColorFilter {
+    method public static androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getTint();
   }
 
-  public static final class LayoutElementBuilders.Column.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setHorizontalAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setHorizontalAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder);
+  public static final class LayoutElementBuilders.ColorFilter.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.ColorFilter.Builder setTint(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+  }
+
+  public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Column.Builder builder();
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
+    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getHorizontalAlignment();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
+  }
+
+  public static final class LayoutElementBuilders.Column.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHorizontalAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setHorizontalAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Column.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
   }
 
   public static final class LayoutElementBuilders.ContentScaleModeProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.ContentScaleModeProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.ContentScaleModeProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ContentScaleModeProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ContentScaleModeProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp.Builder setValue(int);
   }
 
   public static final class LayoutElementBuilders.FontStyle {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder builder();
-    method public androidx.wear.tiles.builders.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.builders.TypeBuilders.BoolProp? getItalic();
-    method public androidx.wear.tiles.builders.DimensionBuilders.EmProp? getLetterSpacing();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp? getSize();
-    method public androidx.wear.tiles.builders.TypeBuilders.BoolProp? getUnderline();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontWeightProp? getWeight();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.tiles.TypeBuilders.BoolProp? getItalic();
+    method public androidx.wear.tiles.DimensionBuilders.EmProp? getLetterSpacing();
+    method public androidx.wear.tiles.DimensionBuilders.SpProp? getSize();
+    method public androidx.wear.tiles.TypeBuilders.BoolProp? getUnderline();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp? getWeight();
   }
 
   public static final class LayoutElementBuilders.FontStyle.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setItalic(androidx.wear.tiles.builders.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setItalic(boolean);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.tiles.builders.DimensionBuilders.EmProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.tiles.builders.DimensionBuilders.EmProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.builders.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.tiles.builders.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.tiles.builders.LayoutElementBuilders.FontWeightProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder setWeight(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle build();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setItalic(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setItalic(boolean);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.tiles.DimensionBuilders.EmProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.tiles.DimensionBuilders.EmProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.DimensionBuilders.SpProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.tiles.LayoutElementBuilders.FontWeightProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(int);
   }
 
   public static class LayoutElementBuilders.FontStyles {
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body1();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body2();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder button();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption1();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption2();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display1();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display2();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display3();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title1();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title2();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title3();
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyles withDeviceParameters(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyles withDeviceParameters(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
   }
 
   public static final class LayoutElementBuilders.FontWeightProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontWeightProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontWeightProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.FontWeightProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontWeightProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontWeightProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp.Builder setValue(int);
   }
 
   public static final class LayoutElementBuilders.HorizontalAlignmentProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.HorizontalAlignmentProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ImageDimension? getHeight();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp? getResourceId();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ImageDimension? getWidth();
+  public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Image.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
+    method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getHeight();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
+    method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Image.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.builders.LayoutElementBuilders.ContentScaleModeProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ImageDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setResourceId(androidx.wear.tiles.builders.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setResourceId(String);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ImageDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder);
+  public static final class LayoutElementBuilders.Image.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Image build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(String);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ImageDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ImageDimension.Builder);
   }
 
   public static final class LayoutElementBuilders.Layout {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Layout.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement? getRoot();
+    method public static androidx.wear.tiles.LayoutElementBuilders.Layout.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
   }
 
   public static final class LayoutElementBuilders.Layout.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Layout build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Layout.Builder setRoot(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Layout.Builder setRoot(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder setRoot(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder setRoot(androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder);
   }
 
   public static interface LayoutElementBuilders.LayoutElement {
   }
 
   public static interface LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement build();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement build();
   }
 
-  public static final class LayoutElementBuilders.Row implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder builder();
-    method public java.util.List<androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement!> getContents();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension? getHeight();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
-    method public androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension? getWidth();
+  public static final class LayoutElementBuilders.Row implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Row.Builder builder();
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getContents();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getHeight();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlignment();
+    method public androidx.wear.tiles.DimensionBuilders.ContainerDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Row.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder addContent(androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setVerticalAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setVerticalAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder);
+  public static final class LayoutElementBuilders.Row.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder addContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setVerticalAlignment(androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setVerticalAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Row.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder);
   }
 
-  public static final class LayoutElementBuilders.Spacer implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder builder();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension? getHeight();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension? getWidth();
+  public static final class LayoutElementBuilders.Spacer implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder builder();
+    method public androidx.wear.tiles.DimensionBuilders.SpacerDimension? getHeight();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.DimensionBuilders.SpacerDimension? getWidth();
   }
 
-  public static final class LayoutElementBuilders.Spacer.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension.Builder);
+  public static final class LayoutElementBuilders.Spacer.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.tiles.DimensionBuilders.SpacerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.tiles.DimensionBuilders.SpacerDimension.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.tiles.DimensionBuilders.SpacerDimension);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.tiles.DimensionBuilders.SpacerDimension.Builder);
   }
 
   public static interface LayoutElementBuilders.Span {
   }
 
   public static interface LayoutElementBuilders.Span.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Span build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Span build();
   }
 
-  public static final class LayoutElementBuilders.SpanImage implements androidx.wear.tiles.builders.LayoutElementBuilders.Span {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanVerticalAlignmentProp? getAlignment();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getHeight();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers? getModifiers();
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp? getResourceId();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getWidth();
+  public static final class LayoutElementBuilders.SpanImage implements androidx.wear.tiles.LayoutElementBuilders.Span {
+    method public static androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp? getAlignment();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getHeight();
+    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers? getModifiers();
+    method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getWidth();
   }
 
-  public static final class LayoutElementBuilders.SpanImage.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.Span.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.SpanVerticalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setResourceId(androidx.wear.tiles.builders.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setResourceId(String);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
+  public static final class LayoutElementBuilders.SpanImage.Builder implements androidx.wear.tiles.LayoutElementBuilders.Span.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage build();
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setAlignment(androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setHeight(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setResourceId(String);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanImage.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
   }
 
-  public static final class LayoutElementBuilders.SpanText implements androidx.wear.tiles.builders.LayoutElementBuilders.Span {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle? getFontStyle();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers? getModifiers();
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp? getText();
+  public static final class LayoutElementBuilders.SpanText implements androidx.wear.tiles.LayoutElementBuilders.Span {
+    method public static androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
+    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers? getModifiers();
+    method public androidx.wear.tiles.TypeBuilders.StringProp? getText();
   }
 
-  public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.Span.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder setText(androidx.wear.tiles.builders.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder setText(String);
+  public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.tiles.LayoutElementBuilders.Span.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText build();
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanText.Builder setText(String);
   }
 
   public static final class LayoutElementBuilders.SpanVerticalAlignmentProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanVerticalAlignmentProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.SpanVerticalAlignmentProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanVerticalAlignmentProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.SpanVerticalAlignmentProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.SpanVerticalAlignmentProp.Builder setValue(int);
   }
 
-  public static final class LayoutElementBuilders.Spannable implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder builder();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp? getLineSpacing();
-    method public androidx.wear.tiles.builders.TypeBuilders.Int32Prop? getMaxLines();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp? getOverflow();
-    method public java.util.List<androidx.wear.tiles.builders.LayoutElementBuilders.Span!> getSpans();
+  public static final class LayoutElementBuilders.Spannable implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder builder();
+    method public androidx.wear.tiles.DimensionBuilders.SpProp? getLineSpacing();
+    method public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
+    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp? getOverflow();
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.Span!> getSpans();
   }
 
-  public static final class LayoutElementBuilders.Spannable.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.builders.LayoutElementBuilders.Span);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.builders.LayoutElementBuilders.Span.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setLineSpacing(androidx.wear.tiles.builders.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setLineSpacing(androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.tiles.builders.TypeBuilders.Int32Prop);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.HorizontalAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setOverflow(androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder setOverflow(int);
+  public static final class LayoutElementBuilders.Spannable.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.LayoutElementBuilders.Span);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.LayoutElementBuilders.Span.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineSpacing(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineSpacing(androidx.wear.tiles.DimensionBuilders.SpProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMultilineAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setOverflow(androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setOverflow(int);
   }
 
-  public static final class LayoutElementBuilders.Text implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle? getFontStyle();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp? getLineHeight();
-    method public androidx.wear.tiles.builders.TypeBuilders.Int32Prop? getMaxLines();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers? getModifiers();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextAlignmentProp? getMultilineAlignment();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp? getOverflow();
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp? getText();
+  public static final class LayoutElementBuilders.Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.LayoutElementBuilders.Text.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontStyle? getFontStyle();
+    method public androidx.wear.tiles.DimensionBuilders.SpProp? getLineHeight();
+    method public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
+    method public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp? getMultilineAlignment();
+    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp? getOverflow();
+    method public androidx.wear.tiles.TypeBuilders.StringProp? getText();
   }
 
-  public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.tiles.builders.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.tiles.builders.TypeBuilders.Int32Prop);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setMultilineAlignment(androidx.wear.tiles.builders.LayoutElementBuilders.TextAlignmentProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setMultilineAlignment(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setOverflow(androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setOverflow(int);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setText(androidx.wear.tiles.builders.TypeBuilders.StringProp);
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder setText(String);
+  public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    method public androidx.wear.tiles.LayoutElementBuilders.Text build();
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMultilineAlignment(androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setMultilineAlignment(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setOverflow(androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setOverflow(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setText(androidx.wear.tiles.TypeBuilders.StringProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Text.Builder setText(String);
   }
 
   public static final class LayoutElementBuilders.TextAlignmentProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.TextAlignmentProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.TextAlignmentProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextAlignmentProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextAlignmentProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.TextAlignmentProp.Builder setValue(int);
   }
 
   public static final class LayoutElementBuilders.TextOverflowProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.TextOverflowProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.TextOverflowProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.TextOverflowProp.Builder setValue(int);
   }
 
   public static final class LayoutElementBuilders.VerticalAlignmentProp {
-    method public static androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp.Builder builder();
+    method public static androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp.Builder builder();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.VerticalAlignmentProp.Builder {
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp build();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.VerticalAlignmentProp.Builder setValue(int);
+    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp.Builder setValue(int);
   }
 
   public final class ModifiersBuilders {
   }
 
   public static final class ModifiersBuilders.ArcModifiers {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder builder();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable? getClickable();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Semantics? getSemantics();
+    method public static androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder builder();
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
+    method public androidx.wear.tiles.ModifiersBuilders.Semantics? getSemantics();
   }
 
   public static final class ModifiersBuilders.ArcModifiers.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.tiles.builders.ModifiersBuilders.Clickable);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.tiles.builders.ModifiersBuilders.Semantics);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.tiles.builders.ModifiersBuilders.Semantics.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers build();
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics);
+    method public androidx.wear.tiles.ModifiersBuilders.ArcModifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics.Builder);
   }
 
   public static final class ModifiersBuilders.Background {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder builder();
-    method public androidx.wear.tiles.builders.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Corner? getCorner();
+    method public static androidx.wear.tiles.ModifiersBuilders.Background.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.tiles.ModifiersBuilders.Corner? getCorner();
   }
 
   public static final class ModifiersBuilders.Background.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Background build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder setCorner(androidx.wear.tiles.builders.ModifiersBuilders.Corner);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder setCorner(androidx.wear.tiles.builders.ModifiersBuilders.Corner.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Background build();
+    method public androidx.wear.tiles.ModifiersBuilders.Background.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Background.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Background.Builder setCorner(androidx.wear.tiles.ModifiersBuilders.Corner);
+    method public androidx.wear.tiles.ModifiersBuilders.Background.Builder setCorner(androidx.wear.tiles.ModifiersBuilders.Corner.Builder);
   }
 
   public static final class ModifiersBuilders.Border {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder builder();
-    method public androidx.wear.tiles.builders.ColorBuilders.ColorProp? getColor();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getWidth();
+    method public static androidx.wear.tiles.ModifiersBuilders.Border.Builder builder();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getWidth();
   }
 
   public static final class ModifiersBuilders.Border.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Border build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder setColor(androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder setWidth(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Border build();
+    method public androidx.wear.tiles.ModifiersBuilders.Border.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Border.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Border.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Border.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
   }
 
   public static final class ModifiersBuilders.Clickable {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder builder();
+    method public static androidx.wear.tiles.ModifiersBuilders.Clickable.Builder builder();
     method public String getId();
-    method public androidx.wear.tiles.builders.ActionBuilders.Action? getOnClick();
+    method public androidx.wear.tiles.ActionBuilders.Action? getOnClick();
   }
 
   public static final class ModifiersBuilders.Clickable.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder setId(String);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.tiles.builders.ActionBuilders.Action);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.tiles.builders.ActionBuilders.Action.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable build();
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setId(String);
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.tiles.ActionBuilders.Action);
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.tiles.ActionBuilders.Action.Builder);
   }
 
   public static final class ModifiersBuilders.Corner {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Corner.Builder builder();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getRadius();
+    method public static androidx.wear.tiles.ModifiersBuilders.Corner.Builder builder();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getRadius();
   }
 
   public static final class ModifiersBuilders.Corner.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Corner build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Corner build();
+    method public androidx.wear.tiles.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
   }
 
   public static final class ModifiersBuilders.Modifiers {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder builder();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Background? getBackground();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Border? getBorder();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable? getClickable();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding? getPadding();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Semantics? getSemantics();
+    method public static androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder builder();
+    method public androidx.wear.tiles.ModifiersBuilders.Background? getBackground();
+    method public androidx.wear.tiles.ModifiersBuilders.Border? getBorder();
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
+    method public androidx.wear.tiles.ModifiersBuilders.Padding? getPadding();
+    method public androidx.wear.tiles.ModifiersBuilders.Semantics? getSemantics();
   }
 
   public static final class ModifiersBuilders.Modifiers.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.tiles.builders.ModifiersBuilders.Background);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.tiles.builders.ModifiersBuilders.Border);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.tiles.builders.ModifiersBuilders.Clickable);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.tiles.builders.ModifiersBuilders.Padding);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.tiles.builders.ModifiersBuilders.Semantics);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.tiles.builders.ModifiersBuilders.Semantics.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers build();
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.tiles.ModifiersBuilders.Background);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBackground(androidx.wear.tiles.ModifiersBuilders.Background.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.tiles.ModifiersBuilders.Border);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.tiles.ModifiersBuilders.Border.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.tiles.ModifiersBuilders.Padding);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.tiles.ModifiersBuilders.Padding.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics);
+    method public androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.tiles.ModifiersBuilders.Semantics.Builder);
   }
 
   public static final class ModifiersBuilders.Padding {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder builder();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getBottom();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getEnd();
-    method public androidx.wear.tiles.builders.TypeBuilders.BoolProp? getRtlAware();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getStart();
-    method public androidx.wear.tiles.builders.DimensionBuilders.DpProp? getTop();
+    method public static androidx.wear.tiles.ModifiersBuilders.Padding.Builder builder();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getBottom();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getEnd();
+    method public androidx.wear.tiles.TypeBuilders.BoolProp? getRtlAware();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getStart();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp? getTop();
   }
 
   public static final class ModifiersBuilders.Padding.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setRtlAware(androidx.wear.tiles.builders.TypeBuilders.BoolProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setRtlAware(boolean);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setStart(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setStart(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setTop(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setTop(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding build();
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setRtlAware(androidx.wear.tiles.TypeBuilders.BoolProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setRtlAware(boolean);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setStart(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setStart(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setTop(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.ModifiersBuilders.Padding.Builder setTop(androidx.wear.tiles.DimensionBuilders.DpProp.Builder);
   }
 
   public static final class ModifiersBuilders.Semantics {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.Semantics.Builder builder();
+    method public static androidx.wear.tiles.ModifiersBuilders.Semantics.Builder builder();
     method public String getContentDescription();
   }
 
   public static final class ModifiersBuilders.Semantics.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Semantics build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Semantics.Builder setContentDescription(String);
+    method public androidx.wear.tiles.ModifiersBuilders.Semantics build();
+    method public androidx.wear.tiles.ModifiersBuilders.Semantics.Builder setContentDescription(String);
   }
 
   public static final class ModifiersBuilders.SpanModifiers {
-    method public static androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers.Builder builder();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.Clickable? getClickable();
+    method public static androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder builder();
+    method public androidx.wear.tiles.ModifiersBuilders.Clickable? getClickable();
   }
 
   public static final class ModifiersBuilders.SpanModifiers.Builder {
-    method public androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers build();
-    method public androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.builders.ModifiersBuilders.Clickable);
-    method public androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder);
+    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers build();
+    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
+    method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable.Builder);
   }
 
   public final class ResourceBuilders {
@@ -888,31 +876,31 @@ package androidx.wear.tiles.builders {
   }
 
   public static final class ResourceBuilders.AndroidImageResourceByResId {
-    method public static androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId.Builder builder();
+    method public static androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId.Builder builder();
     method @DrawableRes public int getResourceId();
   }
 
   public static final class ResourceBuilders.AndroidImageResourceByResId.Builder {
-    method public androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId build();
-    method public androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId.Builder setResourceId(@DrawableRes int);
+    method public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId build();
+    method public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId.Builder setResourceId(@DrawableRes int);
   }
 
   public static final class ResourceBuilders.ImageResource {
-    method public static androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder builder();
-    method public androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId? getAndroidResourceByResId();
-    method public androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource? getInlineResource();
+    method public static androidx.wear.tiles.ResourceBuilders.ImageResource.Builder builder();
+    method public androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId? getAndroidResourceByResId();
+    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource? getInlineResource();
   }
 
   public static final class ResourceBuilders.ImageResource.Builder {
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource build();
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId);
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId.Builder);
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource);
-    method public androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder);
+    method public androidx.wear.tiles.ResourceBuilders.ImageResource build();
+    method public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId);
+    method public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId.Builder);
+    method public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.ResourceBuilders.InlineImageResource);
+    method public androidx.wear.tiles.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder);
   }
 
   public static final class ResourceBuilders.InlineImageResource {
-    method public static androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder builder();
+    method public static androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder builder();
     method public byte[] getData();
     method public int getFormat();
     method @Dimension(unit=androidx.annotation.Dimension.PX) public int getHeightPx();
@@ -920,138 +908,156 @@ package androidx.wear.tiles.builders {
   }
 
   public static final class ResourceBuilders.InlineImageResource.Builder {
-    method public androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource build();
-    method public androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder setData(byte[]);
-    method public androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder setFormat(int);
-    method public androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder setHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
-    method public androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder setWidthPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
+    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource build();
+    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setData(byte[]);
+    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setFormat(int);
+    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
+    method public androidx.wear.tiles.ResourceBuilders.InlineImageResource.Builder setWidthPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
   }
 
   public static final class ResourceBuilders.Resources {
-    method public static androidx.wear.tiles.builders.ResourceBuilders.Resources.Builder builder();
-    method public java.util.Map<java.lang.String!,androidx.wear.tiles.builders.ResourceBuilders.ImageResource!> getIdToImageMapping();
+    method public static androidx.wear.tiles.ResourceBuilders.Resources.Builder builder();
+    method public java.util.Map<java.lang.String!,androidx.wear.tiles.ResourceBuilders.ImageResource!> getIdToImageMapping();
     method public String getVersion();
   }
 
   public static final class ResourceBuilders.Resources.Builder {
-    method public androidx.wear.tiles.builders.ResourceBuilders.Resources.Builder addIdToImageMapping(String, androidx.wear.tiles.builders.ResourceBuilders.ImageResource);
-    method public androidx.wear.tiles.builders.ResourceBuilders.Resources.Builder addIdToImageMapping(String, androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder);
-    method public androidx.wear.tiles.builders.ResourceBuilders.Resources build();
-    method public androidx.wear.tiles.builders.ResourceBuilders.Resources.Builder setVersion(String);
+    method public androidx.wear.tiles.ResourceBuilders.Resources.Builder addIdToImageMapping(String, androidx.wear.tiles.ResourceBuilders.ImageResource);
+    method public androidx.wear.tiles.ResourceBuilders.Resources.Builder addIdToImageMapping(String, androidx.wear.tiles.ResourceBuilders.ImageResource.Builder);
+    method public androidx.wear.tiles.ResourceBuilders.Resources build();
+    method public androidx.wear.tiles.ResourceBuilders.Resources.Builder setVersion(String);
   }
 
   public final class StateBuilders {
   }
 
   public static final class StateBuilders.State {
-    method public static androidx.wear.tiles.builders.StateBuilders.State.Builder builder();
+    method public static androidx.wear.tiles.StateBuilders.State.Builder builder();
     method public String getLastClickableId();
   }
 
   public static final class StateBuilders.State.Builder {
-    method public androidx.wear.tiles.builders.StateBuilders.State build();
-    method public androidx.wear.tiles.builders.StateBuilders.State.Builder setLastClickableId(String);
+    method public androidx.wear.tiles.StateBuilders.State build();
   }
 
   public final class TileBuilders {
   }
 
   public static final class TileBuilders.Tile {
-    method public static androidx.wear.tiles.builders.TileBuilders.Tile.Builder builder();
+    method public static androidx.wear.tiles.TileBuilders.Tile.Builder builder();
     method public long getFreshnessIntervalMillis();
     method public String getResourcesVersion();
-    method public androidx.wear.tiles.builders.TimelineBuilders.Timeline? getTimeline();
+    method public androidx.wear.tiles.TimelineBuilders.Timeline? getTimeline();
   }
 
   public static final class TileBuilders.Tile.Builder {
-    method public androidx.wear.tiles.builders.TileBuilders.Tile build();
-    method public androidx.wear.tiles.builders.TileBuilders.Tile.Builder setFreshnessIntervalMillis(long);
-    method public androidx.wear.tiles.builders.TileBuilders.Tile.Builder setResourcesVersion(String);
-    method public androidx.wear.tiles.builders.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.builders.TimelineBuilders.Timeline);
-    method public androidx.wear.tiles.builders.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.builders.TimelineBuilders.Timeline.Builder);
+    method public androidx.wear.tiles.TileBuilders.Tile build();
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setFreshnessIntervalMillis(long);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setResourcesVersion(String);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline.Builder);
+  }
+
+  public abstract class TileProviderService extends android.app.Service {
+    ctor public TileProviderService();
+    method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
+    method public android.os.IBinder? onBind(android.content.Intent);
+    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.readers.RequestReaders.ResourcesRequest);
+    method @MainThread protected void onTileAddEvent(androidx.wear.tiles.readers.EventReaders.TileAddEvent);
+    method @MainThread protected void onTileEnterEvent(androidx.wear.tiles.readers.EventReaders.TileEnterEvent);
+    method @MainThread protected void onTileLeaveEvent(androidx.wear.tiles.readers.EventReaders.TileLeaveEvent);
+    method @MainThread protected void onTileRemoveEvent(androidx.wear.tiles.readers.EventReaders.TileRemoveEvent);
+    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> onTileRequest(androidx.wear.tiles.readers.RequestReaders.TileRequest);
+    field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
+    field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
+    field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
+  }
+
+  public interface TileUpdateRequester {
+    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileProviderService>);
   }
 
   public final class TimelineBuilders {
   }
 
   public static final class TimelineBuilders.TimeInterval {
-    method public static androidx.wear.tiles.builders.TimelineBuilders.TimeInterval.Builder builder();
+    method public static androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder builder();
     method public long getEndMillis();
     method public long getStartMillis();
   }
 
   public static final class TimelineBuilders.TimeInterval.Builder {
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimeInterval build();
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimeInterval.Builder setEndMillis(long);
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimeInterval.Builder setStartMillis(long);
+    method public androidx.wear.tiles.TimelineBuilders.TimeInterval build();
+    method public androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder setEndMillis(long);
+    method public androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder setStartMillis(long);
   }
 
   public static final class TimelineBuilders.Timeline {
-    method public static androidx.wear.tiles.builders.TimelineBuilders.Timeline.Builder builder();
-    method public java.util.List<androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry!> getTimelineEntries();
+    method public static androidx.wear.tiles.TimelineBuilders.Timeline.Builder builder();
+    method public java.util.List<androidx.wear.tiles.TimelineBuilders.TimelineEntry!> getTimelineEntries();
   }
 
   public static final class TimelineBuilders.Timeline.Builder {
-    method public androidx.wear.tiles.builders.TimelineBuilders.Timeline.Builder addTimelineEntry(androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry);
-    method public androidx.wear.tiles.builders.TimelineBuilders.Timeline.Builder addTimelineEntry(androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder);
-    method public androidx.wear.tiles.builders.TimelineBuilders.Timeline build();
+    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder addTimelineEntry(androidx.wear.tiles.TimelineBuilders.TimelineEntry);
+    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder addTimelineEntry(androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder);
+    method public androidx.wear.tiles.TimelineBuilders.Timeline build();
   }
 
   public static final class TimelineBuilders.TimelineEntry {
-    method public static androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder builder();
-    method public androidx.wear.tiles.builders.LayoutElementBuilders.Layout? getLayout();
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimeInterval? getValidity();
+    method public static androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout? getLayout();
+    method public androidx.wear.tiles.TimelineBuilders.TimeInterval? getValidity();
   }
 
   public static final class TimelineBuilders.TimelineEntry.Builder {
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry build();
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder setLayout(androidx.wear.tiles.builders.LayoutElementBuilders.Layout);
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder setLayout(androidx.wear.tiles.builders.LayoutElementBuilders.Layout.Builder);
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder setValidity(androidx.wear.tiles.builders.TimelineBuilders.TimeInterval);
-    method public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder setValidity(androidx.wear.tiles.builders.TimelineBuilders.TimeInterval.Builder);
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry build();
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setLayout(androidx.wear.tiles.LayoutElementBuilders.Layout);
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setLayout(androidx.wear.tiles.LayoutElementBuilders.Layout.Builder);
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setValidity(androidx.wear.tiles.TimelineBuilders.TimeInterval);
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder setValidity(androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder);
   }
 
   public final class TypeBuilders {
   }
 
   public static final class TypeBuilders.BoolProp {
-    method public static androidx.wear.tiles.builders.TypeBuilders.BoolProp.Builder builder();
+    method public static androidx.wear.tiles.TypeBuilders.BoolProp.Builder builder();
     method public boolean getValue();
   }
 
   public static final class TypeBuilders.BoolProp.Builder {
-    method public androidx.wear.tiles.builders.TypeBuilders.BoolProp build();
-    method public androidx.wear.tiles.builders.TypeBuilders.BoolProp.Builder setValue(boolean);
+    method public androidx.wear.tiles.TypeBuilders.BoolProp build();
+    method public androidx.wear.tiles.TypeBuilders.BoolProp.Builder setValue(boolean);
   }
 
   public static final class TypeBuilders.FloatProp {
-    method public static androidx.wear.tiles.builders.TypeBuilders.FloatProp.Builder builder();
+    method public static androidx.wear.tiles.TypeBuilders.FloatProp.Builder builder();
     method public float getValue();
   }
 
   public static final class TypeBuilders.FloatProp.Builder {
-    method public androidx.wear.tiles.builders.TypeBuilders.FloatProp build();
-    method public androidx.wear.tiles.builders.TypeBuilders.FloatProp.Builder setValue(float);
+    method public androidx.wear.tiles.TypeBuilders.FloatProp build();
+    method public androidx.wear.tiles.TypeBuilders.FloatProp.Builder setValue(float);
   }
 
   public static final class TypeBuilders.Int32Prop {
-    method public static androidx.wear.tiles.builders.TypeBuilders.Int32Prop.Builder builder();
+    method public static androidx.wear.tiles.TypeBuilders.Int32Prop.Builder builder();
     method public int getValue();
   }
 
   public static final class TypeBuilders.Int32Prop.Builder {
-    method public androidx.wear.tiles.builders.TypeBuilders.Int32Prop build();
-    method public androidx.wear.tiles.builders.TypeBuilders.Int32Prop.Builder setValue(int);
+    method public androidx.wear.tiles.TypeBuilders.Int32Prop build();
+    method public androidx.wear.tiles.TypeBuilders.Int32Prop.Builder setValue(int);
   }
 
   public static final class TypeBuilders.StringProp {
-    method public static androidx.wear.tiles.builders.TypeBuilders.StringProp.Builder builder();
+    method public static androidx.wear.tiles.TypeBuilders.StringProp.Builder builder();
     method public String getValue();
   }
 
   public static final class TypeBuilders.StringProp.Builder {
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp build();
-    method public androidx.wear.tiles.builders.TypeBuilders.StringProp.Builder setValue(String);
+    method public androidx.wear.tiles.TypeBuilders.StringProp build();
+    method public androidx.wear.tiles.TypeBuilders.StringProp.Builder setValue(String);
   }
 
 }
@@ -1100,7 +1106,7 @@ package androidx.wear.tiles.readers {
 
   public static class RequestReaders.TileRequest {
     method public androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters getDeviceParameters();
-    method public androidx.wear.tiles.builders.StateBuilders.State getState();
+    method public androidx.wear.tiles.StateBuilders.State getState();
   }
 
 }
