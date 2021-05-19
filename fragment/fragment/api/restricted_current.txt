@@ -489,7 +489,6 @@ package androidx.fragment.app {
 package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public FragmentReuseViolation();
   }
 
   public final class FragmentStrictMode {
@@ -527,27 +526,22 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public FragmentTagUsageViolation();
   }
 
   public final class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public RetainInstanceUsageViolation();
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public SetUserVisibleHintViolation();
   }
 
   public final class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public TargetFragmentUsageViolation();
   }
 
   public abstract class Violation extends java.lang.RuntimeException {
-    ctor public Violation();
+    method public androidx.fragment.app.Fragment getFragment();
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public WrongFragmentContainerViolation();
   }
 
 }
