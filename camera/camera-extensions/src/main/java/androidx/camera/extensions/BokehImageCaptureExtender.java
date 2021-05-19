@@ -68,7 +68,7 @@ public class BokehImageCaptureExtender extends ImageCaptureExtender {
 
         VendorBokehImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new BokehImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_BOKEH);
+            init(builder, mImpl, ExtensionMode.BOKEH);
         }
     }
 

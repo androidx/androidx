@@ -63,13 +63,13 @@ public abstract class PreviewExtender {
 
     private Preview.Builder mBuilder;
     private PreviewExtenderImpl mImpl;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
     @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(Preview.Builder builder, PreviewExtenderImpl implementation,
-            @Extensions.ExtensionMode int effectMode) {
+            @ExtensionMode.Mode int effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
@@ -152,7 +152,7 @@ public abstract class PreviewExtender {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void updateBuilderConfig(@NonNull Preview.Builder builder,
-            @Extensions.ExtensionMode int effectMode, @NonNull PreviewExtenderImpl impl,
+            @ExtensionMode.Mode int effectMode, @NonNull PreviewExtenderImpl impl,
             @NonNull Context context) {
         PreviewExtenderAdapter previewExtenderAdapter;
 
@@ -218,7 +218,7 @@ public abstract class PreviewExtender {
         }
     }
 
-    static void checkImageCaptureEnabled(@Extensions.ExtensionMode int effectMode,
+    static void checkImageCaptureEnabled(@ExtensionMode.Mode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isImageCaptureExtenderEnabled = false;
         boolean isMismatched = false;
@@ -231,11 +231,11 @@ public abstract class PreviewExtender {
         for (UseCase useCase : activeUseCases) {
             int imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
                     ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE,
-                    Extensions.EXTENSION_MODE_NONE);
+                    ExtensionMode.NONE);
 
             if (effectMode == imageCaptureExtenderMode) {
                 isImageCaptureExtenderEnabled = true;
-            } else if (imageCaptureExtenderMode != Extensions.EXTENSION_MODE_NONE) {
+            } else if (imageCaptureExtenderMode != ExtensionMode.NONE) {
                 isMismatched = true;
             }
         }

@@ -68,7 +68,7 @@ public class HdrPreviewExtender extends PreviewExtender {
 
         VendorHdrPreviewExtender(Preview.Builder builder) {
             mImpl = new HdrPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_HDR);
+            init(builder, mImpl, ExtensionMode.HDR);
         }
     }
 

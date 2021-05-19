@@ -46,6 +46,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.Extensions;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -133,21 +134,21 @@ public class CameraExtensionsActivity extends AppCompatActivity
         bindUseCasesWithExtension(mCurrentImageCaptureType);
     }
 
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     int extensionModeFrom(ImageCaptureType imageCaptureType) {
         switch (imageCaptureType) {
             case IMAGE_CAPTURE_TYPE_HDR:
-                return Extensions.EXTENSION_MODE_HDR;
+                return ExtensionMode.HDR;
             case IMAGE_CAPTURE_TYPE_BOKEH:
-                return Extensions.EXTENSION_MODE_BOKEH;
+                return ExtensionMode.BOKEH;
             case IMAGE_CAPTURE_TYPE_NIGHT:
-                return Extensions.EXTENSION_MODE_NIGHT;
+                return ExtensionMode.NIGHT;
             case IMAGE_CAPTURE_TYPE_BEAUTY:
-                return Extensions.EXTENSION_MODE_BEAUTY;
+                return ExtensionMode.BEAUTY;
             case IMAGE_CAPTURE_TYPE_AUTO:
-                return Extensions.EXTENSION_MODE_AUTO;
+                return ExtensionMode.AUTO;
             case IMAGE_CAPTURE_TYPE_DEFAULT:
-                return Extensions.EXTENSION_MODE_NONE;
+                return ExtensionMode.NONE;
             default:
                 throw new IllegalArgumentException(
                         "ImageCaptureType does not exist: " + imageCaptureType);
@@ -164,7 +165,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @SuppressLint("RestrictedAPI")
     boolean bindUseCasesWithExtension(ImageCaptureType imageCaptureType) {
         // Check that extension can be enabled and if so enable it
-        @Extensions.ExtensionMode
+        @ExtensionMode.Mode
         int extensionMode = extensionModeFrom(imageCaptureType);
         if (!mExtensions.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
                 extensionMode)) {

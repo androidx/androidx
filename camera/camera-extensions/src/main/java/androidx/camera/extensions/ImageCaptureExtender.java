@@ -66,13 +66,13 @@ public abstract class ImageCaptureExtender {
 
     private ImageCapture.Builder mBuilder;
     private ImageCaptureExtenderImpl mImpl;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
     @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
-            @Extensions.ExtensionMode int effectMode) {
+            @ExtensionMode.Mode int effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
@@ -155,7 +155,7 @@ public abstract class ImageCaptureExtender {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
-            @Extensions.ExtensionMode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
+            @ExtensionMode.Mode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
             @NonNull Context context) {
         CaptureProcessorImpl captureProcessor = impl.getCaptureProcessor();
         if (captureProcessor != null) {
@@ -212,7 +212,7 @@ public abstract class ImageCaptureExtender {
         }
     }
 
-    static void checkPreviewEnabled(@Extensions.ExtensionMode int effectMode,
+    static void checkPreviewEnabled(@ExtensionMode.Mode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isPreviewExtenderEnabled = false;
         boolean isMismatched = false;
@@ -224,11 +224,11 @@ public abstract class ImageCaptureExtender {
 
         for (UseCase useCase : activeUseCases) {
             int previewExtenderMode = useCase.getCurrentConfig().retrieveOption(
-                    PreviewExtender.OPTION_PREVIEW_EXTENDER_MODE, Extensions.EXTENSION_MODE_NONE);
+                    PreviewExtender.OPTION_PREVIEW_EXTENDER_MODE, ExtensionMode.NONE);
 
             if (effectMode == previewExtenderMode) {
                 isPreviewExtenderEnabled = true;
-            } else if (previewExtenderMode != Extensions.EXTENSION_MODE_NONE) {
+            } else if (previewExtenderMode != ExtensionMode.NONE) {
                 isMismatched = true;
             }
         }

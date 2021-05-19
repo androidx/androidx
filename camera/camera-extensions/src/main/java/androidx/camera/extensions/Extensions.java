@@ -18,7 +18,6 @@ package androidx.camera.extensions;
 
 import android.content.Context;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
@@ -42,9 +41,6 @@ import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 /**
  * A class for querying extensions related information.
  *
@@ -65,48 +61,8 @@ import java.lang.annotation.RetentionPolicy;
 public final class Extensions {
     private static final String TAG = "Extensions";
 
-    /** Normal mode without any specific effect applied. */
-    public static final int EXTENSION_MODE_NONE = 0;
-    /** Bokeh mode that is often applied as portrait mode for people pictures. */
-    public static final int EXTENSION_MODE_BOKEH = 1;
-    /**
-     * HDR mode that may get source pictures with different AE settings to generate a best
-     * result.
-     */
-    public static final int EXTENSION_MODE_HDR = 2;
-    /**
-     * Night mode is used for taking better still capture images under low-light situations,
-     * typically at night time.
-     */
-    public static final int EXTENSION_MODE_NIGHT = 3;
-    /**
-     * Beauty mode is used for taking still capture images that incorporate facial changes
-     * like skin tone, geometry, or retouching.
-     */
-    public static final int EXTENSION_MODE_BEAUTY = 4;
-    /**
-     * Auto mode is used for taking still capture images that automatically adjust to the
-     * surrounding scenery.
-     */
-    public static final int EXTENSION_MODE_AUTO = 5;
-
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";
-    /**
-     * The different extension modes that a {@link Camera} can be configured for.
-     *
-     * <p>Not all devices and cameras support the different extension modes. To query whether or
-     * not a specific Camera supports an extension mode use
-     * {@link Extensions#isExtensionAvailable(CameraProvider, CameraSelector, int)}.
-     *
-     * @hide
-     */
-    @IntDef({EXTENSION_MODE_NONE, EXTENSION_MODE_BOKEH, EXTENSION_MODE_HDR, EXTENSION_MODE_NIGHT,
-            EXTENSION_MODE_BEAUTY, EXTENSION_MODE_AUTO})
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @interface ExtensionMode {
-    }
 
     Extensions(@NonNull Context context) {
     }
@@ -127,7 +83,7 @@ public final class Extensions {
     @OptIn(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public CameraSelector getExtensionCameraSelector(@NonNull CameraSelector baseCameraSelector,
-            @ExtensionMode int mode) {
+            @ExtensionMode.Mode int mode) {
         // Checks whether there has been Extensions related CameraConfig set in the base
         // CameraSelector.
         for (CameraFilter cameraFilter : baseCameraSelector.getCameraFilterSet()) {
@@ -153,7 +109,7 @@ public final class Extensions {
     /**
      * Returns the extension mode that is currently set on the camera.
      */
-    @ExtensionMode
+    @ExtensionMode.Mode
     public int getExtension(@NonNull Camera camera) {
         Object extensionsConfigObject = camera.getExtendedConfig();
 
@@ -161,7 +117,7 @@ public final class Extensions {
             ExtensionsConfig extensionsConfig = (ExtensionsConfig) extensionsConfigObject;
             return extensionsConfig.getExtensionMode();
         }
-        return EXTENSION_MODE_NONE;
+        return ExtensionMode.NONE;
     }
 
     /**
@@ -176,7 +132,7 @@ public final class Extensions {
     public boolean isExtensionAvailable(
             @NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector,
-            @ExtensionMode int mode) {
+            @ExtensionMode.Mode int mode) {
         try {
             CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(
                     baseCameraSelector);
@@ -191,33 +147,33 @@ public final class Extensions {
     }
 
     @OptIn(markerClass = ExperimentalCameraFilter.class)
-    private CameraFilter getFilter(@ExtensionMode int mode) {
+    private CameraFilter getFilter(@ExtensionMode.Mode int mode) {
         CameraFilter filter;
         String id = getExtendedCameraConfigProviderId(mode);
 
         try {
             switch (mode) {
-                case EXTENSION_MODE_BOKEH:
+                case ExtensionMode.BOKEH:
                     filter = new ExtensionCameraFilter(id, new BokehPreviewExtenderImpl(),
                             new BokehImageCaptureExtenderImpl());
                     break;
-                case EXTENSION_MODE_HDR:
+                case ExtensionMode.HDR:
                     filter = new ExtensionCameraFilter(id, new HdrPreviewExtenderImpl(),
                             new HdrImageCaptureExtenderImpl());
                     break;
-                case EXTENSION_MODE_NIGHT:
+                case ExtensionMode.NIGHT:
                     filter = new ExtensionCameraFilter(id, new NightPreviewExtenderImpl(),
                             new NightImageCaptureExtenderImpl());
                     break;
-                case EXTENSION_MODE_BEAUTY:
+                case ExtensionMode.BEAUTY:
                     filter = new ExtensionCameraFilter(id, new BeautyPreviewExtenderImpl(),
                             new BeautyImageCaptureExtenderImpl());
                     break;
-                case EXTENSION_MODE_AUTO:
+                case ExtensionMode.AUTO:
                     filter = new ExtensionCameraFilter(id, new AutoPreviewExtenderImpl(),
                             new AutoImageCaptureExtenderImpl());
                     break;
-                case EXTENSION_MODE_NONE:
+                case ExtensionMode.NONE:
                 default:
                     filter = CameraFilters.ANY;
             }
@@ -232,7 +188,7 @@ public final class Extensions {
      * Injects {@link CameraConfigProvider} for specific extension mode to the
      * {@link ExtendedCameraConfigProviderStore}.
      */
-    private void injectExtensionCameraConfig(@ExtensionMode int mode) {
+    private void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
         CameraFilter.Id id = CameraFilter.Id.create(getExtendedCameraConfigProviderId(mode));
 
         if (ExtendedCameraConfigProviderStore.getConfig(id) == CameraConfigProvider.EMPTY) {
@@ -247,26 +203,26 @@ public final class Extensions {
         }
     }
 
-    private String getExtendedCameraConfigProviderId(@ExtensionMode int mode) {
+    private String getExtendedCameraConfigProviderId(@ExtensionMode.Mode int mode) {
         String id;
 
         switch (mode) {
-            case EXTENSION_MODE_BOKEH:
+            case ExtensionMode.BOKEH:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_BOKEH";
                 break;
-            case EXTENSION_MODE_HDR:
+            case ExtensionMode.HDR:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_HDR";
                 break;
-            case EXTENSION_MODE_NIGHT:
+            case ExtensionMode.NIGHT:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_NIGHT";
                 break;
-            case EXTENSION_MODE_BEAUTY:
+            case ExtensionMode.BEAUTY:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_BEAUTY";
                 break;
-            case EXTENSION_MODE_AUTO:
+            case ExtensionMode.AUTO:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_AUTO";
                 break;
-            case EXTENSION_MODE_NONE:
+            case ExtensionMode.NONE:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_NONE";
                 break;
             default:

@@ -39,7 +39,7 @@ import androidx.camera.extensions.BeautyImageCaptureExtender;
 import androidx.camera.extensions.BeautyPreviewExtender;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehPreviewExtender;
-import androidx.camera.extensions.Extensions;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.ExtensionsManager.ExtensionsAvailability;
@@ -91,16 +91,16 @@ public class ExtensionsTestUtil {
     @NonNull
     public static Collection<Object[]> getAllExtensionsLensFacingCombinations() {
         return Arrays.asList(new Object[][]{
-                {Extensions.EXTENSION_MODE_BOKEH, CameraSelector.LENS_FACING_FRONT},
-                {Extensions.EXTENSION_MODE_BOKEH, CameraSelector.LENS_FACING_BACK},
-                {Extensions.EXTENSION_MODE_HDR, CameraSelector.LENS_FACING_FRONT},
-                {Extensions.EXTENSION_MODE_HDR, CameraSelector.LENS_FACING_BACK},
-                {Extensions.EXTENSION_MODE_BEAUTY, CameraSelector.LENS_FACING_FRONT},
-                {Extensions.EXTENSION_MODE_BEAUTY, CameraSelector.LENS_FACING_BACK},
-                {Extensions.EXTENSION_MODE_NIGHT, CameraSelector.LENS_FACING_FRONT},
-                {Extensions.EXTENSION_MODE_NIGHT, CameraSelector.LENS_FACING_BACK},
-                {Extensions.EXTENSION_MODE_AUTO, CameraSelector.LENS_FACING_FRONT},
-                {Extensions.EXTENSION_MODE_AUTO, CameraSelector.LENS_FACING_BACK}
+                {ExtensionMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionMode.BOKEH, CameraSelector.LENS_FACING_BACK},
+                {ExtensionMode.HDR, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionMode.HDR, CameraSelector.LENS_FACING_BACK},
+                {ExtensionMode.BEAUTY, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionMode.BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {ExtensionMode.NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionMode.NIGHT, CameraSelector.LENS_FACING_BACK},
+                {ExtensionMode.AUTO, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionMode.AUTO, CameraSelector.LENS_FACING_BACK}
         });
     }
 
@@ -125,38 +125,38 @@ public class ExtensionsTestUtil {
         return true;
     }
 
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     public static int effectModeToExtensionMode(@NonNull EffectMode effectMode) {
         switch (effectMode) {
             case NORMAL:
-                return Extensions.EXTENSION_MODE_NONE;
+                return ExtensionMode.NONE;
             case BOKEH:
-                return Extensions.EXTENSION_MODE_BOKEH;
+                return ExtensionMode.BOKEH;
             case HDR:
-                return Extensions.EXTENSION_MODE_HDR;
+                return ExtensionMode.HDR;
             case NIGHT:
-                return Extensions.EXTENSION_MODE_NIGHT;
+                return ExtensionMode.NIGHT;
             case BEAUTY:
-                return Extensions.EXTENSION_MODE_BEAUTY;
+                return ExtensionMode.BEAUTY;
             case AUTO:
-                return Extensions.EXTENSION_MODE_AUTO;
+                return ExtensionMode.AUTO;
         }
         throw new IllegalArgumentException("Effect mode not found: " + effectMode);
     }
 
-    public static EffectMode extensionModeToEffectMode(@Extensions.ExtensionMode int mode) {
+    public static EffectMode extensionModeToEffectMode(@ExtensionMode.Mode int mode) {
         switch (mode) {
-            case Extensions.EXTENSION_MODE_NONE:
+            case ExtensionMode.NONE:
                 return EffectMode.NORMAL;
-            case Extensions.EXTENSION_MODE_BOKEH:
+            case ExtensionMode.BOKEH:
                 return EffectMode.BOKEH;
-            case Extensions.EXTENSION_MODE_HDR:
+            case ExtensionMode.HDR:
                 return EffectMode.HDR;
-            case Extensions.EXTENSION_MODE_NIGHT:
+            case ExtensionMode.NIGHT:
                 return EffectMode.NIGHT;
-            case Extensions.EXTENSION_MODE_BEAUTY:
+            case ExtensionMode.BEAUTY:
                 return EffectMode.BEAUTY;
-            case Extensions.EXTENSION_MODE_AUTO:
+            case ExtensionMode.AUTO:
                 return EffectMode.AUTO;
         }
         throw new IllegalArgumentException("Extension mode not found: " + mode);

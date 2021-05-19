@@ -67,7 +67,7 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
 
         VendorHdrImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new HdrImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_HDR);
+            init(builder, mImpl, ExtensionMode.HDR);
         }
     }
 
