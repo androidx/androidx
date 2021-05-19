@@ -32,12 +32,15 @@ import android.opengl.EGLContext
 import android.opengl.EGLDisplay
 import android.opengl.EGLSurface
 import android.opengl.GLES20
+import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
+import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Renderer.CanvasRenderer
@@ -316,13 +319,20 @@ public sealed class Renderer(
         watchState,
         interactiveDrawModeUpdateDelayMillis
     ) {
-        @SuppressWarnings("UnsafeNewApiCall") // We check if the SDK is new enough.
+        @RequiresApi(26)
+        private object Api26Impl {
+            @JvmStatic
+            @DoNotInline
+            fun callLockHardwareCanvas(surfaceHolder: SurfaceHolder): Canvas? =
+                surfaceHolder.lockHardwareCanvas()
+        }
+
         internal override fun renderInternal(
             calendar: Calendar
         ) {
             val canvas = (
-                if (canvasType == CanvasType.HARDWARE && android.os.Build.VERSION.SDK_INT >= 26) {
-                    surfaceHolder.lockHardwareCanvas() // Requires API level 26.
+                if (canvasType == CanvasType.HARDWARE && Build.VERSION.SDK_INT >= 26) {
+                    Api26Impl.callLockHardwareCanvas(surfaceHolder)
                 } else {
                     surfaceHolder.lockCanvas()
                 }
