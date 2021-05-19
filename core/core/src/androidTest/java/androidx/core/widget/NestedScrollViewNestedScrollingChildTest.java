@@ -83,6 +83,7 @@ public class NestedScrollViewNestedScrollingChildTest {
         mNestedScrollView = new NestedScrollView(ApplicationProvider.getApplicationContext());
         mNestedScrollView.setMinimumWidth(1000);
         mNestedScrollView.setMinimumHeight(1000);
+        mNestedScrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         mParentSpy = Mockito.spy(
                 new NestedScrollingSpyView(ApplicationProvider.getApplicationContext()));
