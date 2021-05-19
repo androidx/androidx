@@ -56,7 +56,8 @@ public final class IconsDemoScreen extends Screen {
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 R.drawable.ic_fastfood_white_48dp))
-                                        .build())
+                                        .build(),
+                                Row.IMAGE_TYPE_ICON)
                         .setTitle("A vector drawable, without a tint")
                         .build());
 

@@ -47,7 +47,8 @@ public final class NavigationDemosScreen extends Screen {
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 R.drawable.ic_explore_white_24dp))
-                                        .build())
+                                        .build(),
+                                Row.IMAGE_TYPE_ICON)
                         .setTitle("Navigation Template Demo")
                         .setOnClickListener(
                                 () ->
