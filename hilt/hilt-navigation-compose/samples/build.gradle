@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
     implementation(projectOrArtifact(":hilt:hilt-navigation-compose"))

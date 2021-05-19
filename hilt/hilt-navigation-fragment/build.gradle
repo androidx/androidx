@@ -36,19 +36,19 @@ android {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
     api(project(":hilt:hilt-navigation"))
     api("androidx.navigation:navigation-fragment-ktx:2.3.2")
 
     androidTestImplementation("androidx.fragment:fragment-testing:1.3.0")
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(HILT_ANDROID)
-    androidTestImplementation(HILT_ANDROID_TESTING)
-    kaptAndroidTest(HILT_COMPILER)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.hiltAndroid)
+    androidTestImplementation(libs.hiltAndroidTesting)
+    kaptAndroidTest(libs.hiltCompiler)
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-navigation"), {
         exclude group: 'androidx.navigation', module: 'navigation-common'
