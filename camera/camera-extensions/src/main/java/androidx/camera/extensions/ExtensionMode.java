@@ -62,7 +62,7 @@ public final class ExtensionMode {
      *
      * <p>Not all devices and cameras support the different extension modes. To query whether or
      * not a specific Camera supports an extension mode use
-     * {@link Extensions#isExtensionAvailable(CameraProvider, CameraSelector, int)}.
+     * {@link ExtensionsInfo#isExtensionAvailable(CameraProvider, CameraSelector, int)}.
      *
      * @hide
      */
