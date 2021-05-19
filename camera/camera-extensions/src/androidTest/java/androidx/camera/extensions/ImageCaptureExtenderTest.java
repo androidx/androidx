@@ -329,7 +329,7 @@ public class ImageCaptureExtenderTest {
     final class FakeImageCaptureExtender extends ImageCaptureExtender {
         FakeImageCaptureExtender(ImageCapture.Builder builder,
                 ImageCaptureExtenderImpl impl) {
-            init(builder, impl, Extensions.EXTENSION_MODE_NONE);
+            init(builder, impl, ExtensionMode.NONE);
         }
     }
 

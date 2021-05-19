@@ -47,7 +47,7 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         return mConfig;
     }
 
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     public int getExtensionMode() {
         return retrieveOption(OPTION_EXTENSION_MODE);
     }
@@ -66,7 +66,7 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
             return new ExtensionsConfig(mConfig);
         }
 
-        public Builder setExtensionMode(@Extensions.ExtensionMode int mode) {
+        public Builder setExtensionMode(@ExtensionMode.Mode int mode) {
             mConfig.insertOption(OPTION_EXTENSION_MODE, mode);
             return this;
         }

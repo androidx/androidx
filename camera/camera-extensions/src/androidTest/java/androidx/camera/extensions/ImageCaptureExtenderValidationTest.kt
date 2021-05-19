@@ -23,6 +23,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
+import androidx.camera.extensions.ExtensionMode.Mode
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
@@ -42,7 +43,7 @@ import java.util.concurrent.TimeoutException
 @SmallTest
 @RunWith(Parameterized::class)
 class ImageCaptureExtenderValidationTest(
-    @field:Extensions.ExtensionMode @param:Extensions.ExtensionMode private val extensionMode: Int,
+    @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
     private val context =

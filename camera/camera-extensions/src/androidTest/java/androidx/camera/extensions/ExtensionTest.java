@@ -93,7 +93,7 @@ public class ExtensionTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
     private final EffectMode mEffectMode;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private final int mExtensionMode;
     @CameraSelector.LensFacing
     private final int mLensFacing;

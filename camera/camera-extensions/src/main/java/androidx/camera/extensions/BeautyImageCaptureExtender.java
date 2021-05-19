@@ -68,7 +68,7 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
 
         VendorBeautyImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new BeautyImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_BEAUTY);
+            init(builder, mImpl, ExtensionMode.BEAUTY);
         }
     }
 

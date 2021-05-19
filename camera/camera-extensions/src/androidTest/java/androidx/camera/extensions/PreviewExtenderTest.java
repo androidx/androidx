@@ -401,7 +401,7 @@ public class PreviewExtenderTest {
 
     private class FakePreviewExtender extends PreviewExtender {
         FakePreviewExtender(Preview.Builder builder, PreviewExtenderImpl impl) {
-            init(builder, impl, Extensions.EXTENSION_MODE_NONE);
+            init(builder, impl, ExtensionMode.NONE);
         }
     }
 

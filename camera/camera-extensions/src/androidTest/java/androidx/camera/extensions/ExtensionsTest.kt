@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LensFacing
-import androidx.camera.extensions.Extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionMode.Mode
 import androidx.camera.extensions.ExtensionsManager.EffectMode
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeoutException
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 class ExtensionsTest(
-    @field:ExtensionMode @param:ExtensionMode private val extensionMode: Int,
+    @field:Mode @param:Mode private val extensionMode: Int,
     @field:LensFacing @param:LensFacing private val lensFacing: Int
 ) {
     private val context = ApplicationProvider.getApplicationContext<Context>()
