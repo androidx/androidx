@@ -241,6 +241,15 @@ public class CameraControlDeviceTest {
     }
 
     @Test
+    public void setZoomRatio_futuresCompletes() {
+        assumeTrue(mCamera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio() >= 2.0f);
+
+        // use ratio with fraction because it often causes unable-to-complete issue.
+        ListenableFuture<Void> result = mCamera.getCameraControl().setZoomRatio(1.3640054f);
+        assertFutureCompletes(result);
+    }
+
+    @Test
     public void rebindAndSetZoomRatio_futureCompletes() {
         mInstrumentation.runOnMainSync(() -> {
             try {
