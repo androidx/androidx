@@ -31,6 +31,14 @@ fi
 if [ "$stateDir" != "/dev/null" ]; then
   stateDir="$(cd $stateDir && pwd)"
 fi
+if [ "$OUT_DIR" == "" ]; then
+  OUT_DIR="$checkoutRoot/out"
+else
+  GRADLE_USER_HOME="$OUT_DIR/.gradle"
+fi
+if [ "$DIST_DIR" == "" ]; then
+  DIST_DIR="$OUT_DIR/dist"
+fi
 if [ "$GRADLE_USER_HOME" == "" ]; then
   GRADLE_USER_HOME="$(cd ~ && pwd)/.gradle"
 fi
@@ -47,17 +55,20 @@ function copy() {
     else
       cp --preserve=all -rT "$from" "$to"
     fi
+  else
+    rm "$to" -rf
   fi
 }
 
 function restoreState() {
   backupDir="$1"
   echo "Restoring state from $backupDir"
-  copy "$backupDir/out"              "$checkoutRoot/out"
+  copy "$backupDir/out"              "$OUT_DIR"
+  copy "$backupDir/dist"             "$DIST_DIR"         # might be inside OUT_DIR
+  copy "$backupDir/gradleUserHome"   "$GRADLE_USER_HOME" # might be inside OUT_DIR
   copy "$backupDir/support/.gradle"  "$gradlewDir/.gradle"
   copy "$backupDir/buildSrc/.gradle" "$gradlewDir/buildSrc/.gradle"
   copy "$backupDir/local.properties" "$gradlewDir/local.properties"
-  copy "$backupDir/gradleUserHome"   "$GRADLE_USER_HOME"
 }
 
 restoreState $stateDir
