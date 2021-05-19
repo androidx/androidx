@@ -20,6 +20,7 @@ import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -245,6 +246,14 @@ public final class FragmentContainerView extends FrameLayout {
             }
         }
         return insets;
+    }
+
+    @RequiresApi(20)
+    @Override
+    @SuppressWarnings("deprecation")
+    protected boolean fitSystemWindows(@NonNull Rect insets) {
+        throw new UnsupportedOperationException("FragmentContainerView does not support "
+                + "fitSystemWindows(). Insets should be handled directly by a fragment's view.");
     }
 
     @Override
