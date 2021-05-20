@@ -18,12 +18,14 @@ package androidx.appcompat.app
 
 import android.content.res.Configuration
 import android.os.Build
+import androidx.appcompat.Orientation
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
+import androidx.appcompat.withOrientation
 import androidx.lifecycle.Lifecycle
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -94,19 +96,20 @@ public class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode:
         // Now rotate the device. This should NOT result in a lifecycle event, just a call to
         // onConfigurationChanged.
         nightModeActivity.resetOnConfigurationChange()
-        device.setOrientationLeft()
-        instrumentation.waitForIdleSync()
-        nightModeActivity.expectOnConfigurationChange(5000)
+        device.withOrientation(Orientation.LEFT) {
+            instrumentation.waitForIdleSync()
+            nightModeActivity.expectOnConfigurationChange(5000)
 
-        // Assert that we got the same activity and thus it was not recreated.
-        val rotatedNightModeActivity = activityRule.activity
-        val rotatedConfig = rotatedNightModeActivity.resources.configuration
-        assertSame(nightModeActivity, rotatedNightModeActivity)
-        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
+            // Assert that we got the same activity and thus it was not recreated.
+            val rotatedNightModeActivity = activityRule.activity
+            val rotatedConfig = rotatedNightModeActivity.resources.configuration
+            assertSame(nightModeActivity, rotatedNightModeActivity)
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
 
-        // On API level 26 and below, the configuration object is going to be identical
-        // across configuration changes, so we need to compare against the cached value.
-        assertNotSame(orientation, rotatedConfig.orientation)
+            // On API level 26 and below, the configuration object is going to be identical
+            // across configuration changes, so we need to compare against the cached value.
+            assertNotSame(orientation, rotatedConfig.orientation)
+        }
     }
 
     public companion object {
