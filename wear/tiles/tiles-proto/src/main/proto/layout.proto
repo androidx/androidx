@@ -15,24 +15,24 @@ option java_outer_classname = "LayoutElementProto";
 // The horizontal alignment of an element within its container.
 enum HorizontalAlignment {
   // Horizontal alignment is undefined.
-  HALIGN_UNDEFINED = 0;
+  HORIZONTAL_ALIGN_UNDEFINED = 0;
 
   // Horizontally align to the left.
-  HALIGN_LEFT = 1;
+  HORIZONTAL_ALIGN_LEFT = 1;
 
   // Horizontally align to center.
-  HALIGN_CENTER = 2;
+  HORIZONTAL_ALIGN_CENTER = 2;
 
   // Horizontally align to the right.
-  HALIGN_RIGHT = 3;
+  HORIZONTAL_ALIGN_RIGHT = 3;
 
   // Horizontally align to the content start (left in LTR layouts, right in RTL
   // layouts).
-  HALIGN_START = 4;
+  HORIZONTAL_ALIGN_START = 4;
 
   // Horizontally align to the content end (right in LTR layouts, left in RTL
   // layouts).
-  HALIGN_END = 5;
+  HORIZONTAL_ALIGN_END = 5;
 }
 
 // An extensible HorizontalAlignment property.
@@ -44,16 +44,16 @@ message HorizontalAlignmentProp {
 // The vertical alignment of an element within its container.
 enum VerticalAlignment {
   // Vertical alignment is undefined.
-  VALIGN_UNDEFINED = 0;
+  VERTICAL_ALIGN_UNDEFINED = 0;
 
   // Vertically align to the top.
-  VALIGN_TOP = 1;
+  VERTICAL_ALIGN_TOP = 1;
 
   // Vertically align to center.
-  VALIGN_CENTER = 2;
+  VERTICAL_ALIGN_CENTER = 2;
 
   // Vertically align to the bottom.
-  VALIGN_BOTTOM = 3;
+  VERTICAL_ALIGN_BOTTOM = 3;
 }
 
 // An extensible VerticalAlignment property.
@@ -106,18 +106,18 @@ message FontVariantProp {
 // Spannable.
 enum SpanVerticalAlignment {
   // Alignment is undefined.
-  SPAN_VALIGN_UNDEFINED = 0;
+  SPAN_VERTICAL_ALIGN_UNDEFINED = 0;
 
   // Align to the bottom of the line (descent of the largest text in this line).
   // If there is no text in the line containing this image, this will align to
   // the bottom of the line, where the line height is defined as the height of
   // the largest image in the line.
-  SPAN_VALIGN_BOTTOM = 1;
+  SPAN_VERTICAL_ALIGN_BOTTOM = 1;
 
   // Align to the baseline of the text. Note that if the line in the Spannable
   // which contains this image does not contain any text, the effects of using
   // this alignment are undefined.
-  SPAN_VALIGN_TEXT_BASELINE = 2;
+  SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2;
 }
 
 // An extensible SpanVerticalAlignment property.
@@ -389,11 +389,11 @@ message Box {
   ContainerDimension width = 3;
 
   // The horizontal alignment of the element inside this Box. If not defined,
-  // defaults to HALIGN_CENTER.
+  // defaults to HORIZONTAL_ALIGN_CENTER.
   HorizontalAlignmentProp horizontal_alignment = 4;
 
   // The vertical alignment of the element inside this Box. If not defined,
-  // defaults to VALIGN_CENTER.
+  // defaults to VERTICAL_ALIGN_CENTER.
   VerticalAlignmentProp vertical_alignment = 5;
 
   // Modifiers for this element.
@@ -431,7 +431,7 @@ message SpanImage {
   SpanModifiers modifiers = 4;
 
   // Alignment of this image within the line height of the surrounding
-  // Spannable. If undefined, defaults to SPAN_VALIGN_BOTTOM.
+  // Spannable. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
   SpanVerticalAlignmentProp alignment = 5;
 }
 
@@ -500,7 +500,7 @@ message Column {
 
   // The horizontal alignment of elements inside this column, if they are
   // narrower than the resulting width of the column. If not defined, defaults
-  // to HALIGN_CENTER.
+  // to HORIZONTAL_ALIGN_CENTER.
   HorizontalAlignmentProp horizontal_alignment = 2;
 
   // The width of this column. If not defined, this will size itself to fit
@@ -529,7 +529,7 @@ message Row {
 
   // The vertical alignment of elements inside this row, if they are narrower
   // than the resulting height of the row. If not defined, defaults to
-  // VALIGN_CENTER.
+  // VERTICAL_ALIGN_CENTER.
   VerticalAlignmentProp vertical_alignment = 2;
 
   // The width of this row. If not defined, this will size itself to fit
@@ -569,7 +569,7 @@ message Arc {
   // larger than the thickness of the element being drawn, this controls whether
   // the element should be drawn towards the inner or outer edge of the arc, or
   // drawn in the center.
-  // If not defined, defaults to VALIGN_CENTER
+  // If not defined, defaults to VERTICAL_ALIGN_CENTER
   VerticalAlignmentProp vertical_align = 4;
 
   // Modifiers for this element.

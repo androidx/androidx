@@ -137,8 +137,7 @@ public class TilesTimelineManagerInternal implements AutoCloseable {
 
         if (expiryTime != Long.MAX_VALUE) {
             // This **has** to be an instantiation like this, in order for AlarmManager#cancel to
-            // work
-            // correctly (it doesn't work on method references).
+            // work correctly (it doesn't work on method references).
             mAlarmListener =
                     new OnAlarmListener() {
                         @Override
@@ -148,8 +147,7 @@ public class TilesTimelineManagerInternal implements AutoCloseable {
                     };
 
             // Run on the main thread (targetHandler = null). The update has to be on the main
-            // thread so
-            // it can mutate the layout, so we might as well just do everything there.
+            // thread so it can mutate the layout, so we might as well just do everything there.
             mAlarmManager.set(
                     AlarmManager.RTC, expiryTime, TAG, mAlarmListener, /* targetHandler= */ null);
         }

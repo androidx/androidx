@@ -12,7 +12,7 @@ box {
     expanded_dimension {}
   }
   vertical_alignment {
-    value: VALIGN_BOTTOM
+    value: VERTICAL_ALIGN_BOTTOM
   }
   modifiers {
     background {
