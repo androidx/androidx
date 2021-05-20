@@ -988,6 +988,24 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateThenPopFromNavigator() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(R.id.second_test)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navigator.popCurrent()
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateThenPopToUnknownDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
