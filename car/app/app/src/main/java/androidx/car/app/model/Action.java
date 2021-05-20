@@ -378,9 +378,10 @@ public final class Action {
          *
          * <h4>Requirements</h4>
          *
-         * <p>The host may ignore this color and use the default instead if the color does not
-         * pass the contrast requirements. See the documentation on where the {@link Action} is
-         * added for more details on any other restriction(s) that might apply.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system. See
+         * the documentation on where the {@link Action} is added for more details on any other
+         * restriction(s) that might apply.
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
          *                        CarColor#DEFAULT} to let the host pick a default

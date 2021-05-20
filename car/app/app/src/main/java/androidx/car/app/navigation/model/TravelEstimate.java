@@ -247,7 +247,8 @@ public final class TravelEstimate {
         /**
          * Sets the color of the remaining time text.
          *
-         * <p>The host may ignore this color depending on the capabilities of the target screen.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * <p>If not set, {@link CarColor#DEFAULT} will be used.
          *
@@ -266,7 +267,8 @@ public final class TravelEstimate {
         /**
          * Sets the color of the remaining distance text.
          *
-         * <p>The host may ignore this color depending on the capabilities of the target screen.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * <p>If not set, {@link CarColor#DEFAULT} will be used.
          *
