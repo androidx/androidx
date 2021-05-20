@@ -79,6 +79,7 @@ import androidx.appcompat.view.CollapsibleActionView;
 import androidx.core.view.ViewCompat;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.customview.view.AbsSavedState;
+import androidx.resourceinspection.annotation.Attribute;
 
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
@@ -276,6 +277,8 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 attrs, R.styleable.SearchView, defStyleAttr, 0);
+        ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.SearchView, attrs,
+                a.getWrappedTypeArray(), defStyleAttr, 0);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         final int layoutResId = a.getResourceId(
@@ -448,6 +451,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      *
      * {@link android.R.attr#imeOptions}
      */
+    @Attribute("android:imeOptions")
     public int getImeOptions() {
         return mSearchSrcTextView.getImeOptions();
     }
@@ -613,6 +617,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * @return the displayed query hint text, or {@code null} if none set
      * {@link androidx.appcompat.R.attr#queryHint}
      */
+    @Attribute("androidx.appcompat:queryHint")
     @Nullable
     public CharSequence getQueryHint() {
         final CharSequence hint;
@@ -651,6 +656,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      *
      * {@link androidx.appcompat.R.attr#iconifiedByDefault}
      */
+    @Attribute("androidx.appcompat:iconifiedByDefault")
     public boolean isIconfiedByDefault() {
         return mIconifiedByDefault;
     }
@@ -773,6 +779,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      *
      * {@link android.R.attr#maxWidth}
      */
+    @Attribute("android:maxWidth")
     public int getMaxWidth() {
         return mMaxWidth;
     }

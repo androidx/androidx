@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.TintableBackgroundView;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link MultiAutoCompleteTextView} which supports compatible features on older version of the
@@ -50,6 +51,7 @@ import androidx.core.view.TintableBackgroundView;
  * <p>This will automatically be used when you use {@link MultiAutoCompleteTextView} in your layouts.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextView
         implements TintableBackgroundView {
 

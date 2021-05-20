@@ -48,6 +48,7 @@ import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TintableCompoundDrawablesView;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -78,6 +79,7 @@ import java.util.concurrent.Future;
  * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatTextView extends TextView implements TintableBackgroundView,
         TintableCompoundDrawablesView, AutoSizeableTextView, EmojiCompatConfigurationView {
 
