@@ -206,6 +206,7 @@ public final class AppSearchImpl implements Closeable {
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
         Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(optimizeStrategy);
 
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         InitializeStats.Builder initStatsBuilder = null;
