@@ -504,6 +504,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
+    method public boolean isVisibleToUser();
   }
 
   public final class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {

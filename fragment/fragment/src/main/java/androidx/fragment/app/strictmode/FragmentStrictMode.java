@@ -348,9 +348,10 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
-        Violation violation = new SetUserVisibleHintViolation(fragment);
+    public static void onSetUserVisibleHint(@NonNull Fragment fragment, boolean isVisibleToUser) {
+        Violation violation = new SetUserVisibleHintViolation(fragment, isVisibleToUser);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);

@@ -494,7 +494,6 @@ package androidx.fragment.app.strictmode {
 
   public final class FragmentStrictMode {
     method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onSetUserVisibleHint(androidx.fragment.app.Fragment);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onTargetFragmentUsage(androidx.fragment.app.Fragment);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onWrongFragmentContainer(androidx.fragment.app.Fragment);
     method public static void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
@@ -537,6 +536,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
+    method public boolean isVisibleToUser();
   }
 
   public final class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
