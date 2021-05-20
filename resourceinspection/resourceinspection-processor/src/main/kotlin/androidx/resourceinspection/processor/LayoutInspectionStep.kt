@@ -206,7 +206,6 @@ internal class LayoutInspectionStep(
                 if (getter.returnType.isAssignableTo(COLOR)) {
                     AttributeType.COLOR
                 } else {
-                    // TODO(b/180041034): Validate object types and unbox primitives
                     AttributeType.OBJECT
                 }
             else -> throw IllegalArgumentException("Unexpected attribute type")
