@@ -34,6 +34,12 @@
             android:layout_width="wrap_content"
             android:text="VIEW DOCUMENTS" />
 
+        <Button
+            android:id="@+id/view_schema_types_button"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="VIEW SCHEMA TYPES" />
+
     </LinearLayout>
 
 </RelativeLayout>

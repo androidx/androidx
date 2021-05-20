@@ -27,6 +27,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -174,6 +175,15 @@ public class DebugAppSearchManager implements Closeable {
         return Futures.transformAsync(mAppSearchSessionFuture,
                 session -> Futures.transform(session.getByDocumentId(request),
                         response -> response.getSuccesses().get(id), mExecutor), mExecutor);
+    }
+
+    /**
+     * Gets the schema of the AppSearch database.
+     */
+    @NonNull
+    public ListenableFuture<GetSchemaResponse> getSchema() {
+        return Futures.transformAsync(mAppSearchSessionFuture,
+                session -> session.getSchema(), mExecutor);
     }
 
     /**

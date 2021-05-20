@@ -18,4 +18,14 @@
     <string name="appsearch_no_documents_error">No AppSearch documents found in database. Verify
         that the database name is valid and the correct storage type was selected.
     </string>
+    <string name="appsearch_no_schema_types_error">No AppSearch schema types found. Verify that the
+        database name is valid and the correct storage type was selected.
+    </string>
+
+    <string name="appsearch_documents_loading">Loading AppSearch documents...
+    </string>
+    <string name="appsearch_schema_types_loading">Loading AppSearch schema types...
+    </string>
+
+    <string name="appsearch_schema_version">Schema Version: %d </string>
 </resources>
