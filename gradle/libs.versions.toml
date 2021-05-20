@@ -118,6 +118,7 @@ nullaway = { module = "com.uber.nullaway:nullaway", version = "0.3.7" }
 okhttpMockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version = "3.14.7" }
 playCore = { module = "com.google.android.play:core", version = "1.9.1" }
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
+playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version = "3.4.0" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version = "3.10.0" }
 protobufGradlePlugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.8.16" }

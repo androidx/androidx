@@ -40,7 +40,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
 
-    implementation(libs.playServicesBase)
+    implementation(libs.playServicesBasement)
 }
 
 android {
