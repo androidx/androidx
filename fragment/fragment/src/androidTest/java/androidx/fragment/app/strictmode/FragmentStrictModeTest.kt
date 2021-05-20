@@ -225,12 +225,12 @@ public class FragmentStrictModeTest {
 
         @Suppress("DEPRECATION")
         StrictFragment().retainInstance = true
-        assertThat(violation).isInstanceOf(RetainInstanceUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(SetRetainInstanceUsageViolation::class.java)
 
         violation = null
         @Suppress("DEPRECATION")
         StrictFragment().retainInstance
-        assertThat(violation).isInstanceOf(RetainInstanceUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
     }
 
     @Test
@@ -317,18 +317,35 @@ public class FragmentStrictModeTest {
         @Suppress("DEPRECATION")
         StrictFragment().retainInstance = true
         assertThat(violation).isNotInstanceOf(violationClass1)
-        assertThat(violation).isNotInstanceOf(violationClass2)
+        assertThat(violation).isNotInstanceOf(SetRetainInstanceUsageViolation::class.java)
 
         violation = null
         @Suppress("DEPRECATION")
         StrictFragment().retainInstance
         assertThat(violation).isNotInstanceOf(violationClass1)
-        assertThat(violation).isNotInstanceOf(violationClass2)
+        assertThat(violation).isNotInstanceOf(GetRetainInstanceUsageViolation::class.java)
 
         violation = null
         @Suppress("DEPRECATION")
         StrictFragment().userVisibleHint = true
-        assertThat(violation).isNotInstanceOf(violationClass1)
         assertThat(violation).isNotInstanceOf(violationClass2)
+
+        val policyBuilder2 = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .allowViolation(fragmentClass, SetRetainInstanceUsageViolation::class.java)
+            .penaltyListener { violation = it }
+        FragmentStrictMode.setDefaultPolicy(policyBuilder2.build())
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance = true
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(SetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance
+        assertThat(violation).isInstanceOf(violationClass1)
+        assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
     }
 }

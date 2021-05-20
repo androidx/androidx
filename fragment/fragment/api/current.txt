@@ -494,7 +494,13 @@ package androidx.fragment.app.strictmode {
     method public android.view.ViewGroup? getParentContainer();
   }
 
-  public final class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
+  public final class GetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
+  }
+
+  public abstract class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
+  }
+
+  public final class SetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
