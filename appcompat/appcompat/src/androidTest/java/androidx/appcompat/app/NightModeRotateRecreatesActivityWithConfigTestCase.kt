@@ -36,7 +36,6 @@ import org.junit.After
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,12 +57,6 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
             // Let the test method launch its own activity so that we can ensure it's RESUMED.
             launchActivity = false
         )
-
-    @Before
-    public fun setup() {
-        device.setOrientationNatural()
-        device.waitForIdle(5000)
-    }
 
     @After
     public fun teardown() {

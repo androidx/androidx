@@ -33,7 +33,6 @@ import androidx.testutils.LifecycleOwnerUtils
 import org.junit.After
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,15 +55,10 @@ public class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode:
             launchActivity = false
         )
 
-    @Before
-    public fun setup() {
-        device.setOrientationNatural()
-    }
-
     @After
     public fun teardown() {
-        device.unfreezeRotation()
-        device.waitForIdle()
+        device.setOrientationNatural()
+        device.waitForIdle(5000)
 
         // Clean up after the default mode test.
         if (setMode == NightSetMode.DEFAULT) {
