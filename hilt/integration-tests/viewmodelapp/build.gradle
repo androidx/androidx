@@ -39,14 +39,14 @@ android {
 dependencies {
     implementation("androidx.activity:activity:1.2.0")
     implementation("androidx.fragment:fragment-ktx:1.3.0")
-    implementation(KOTLIN_STDLIB)
-    implementation(HILT_ANDROID)
-    kapt(HILT_COMPILER)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
 
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(HILT_ANDROID_TESTING)
-    kaptAndroidTest(HILT_COMPILER)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.hiltAndroidTesting)
+    kaptAndroidTest(libs.hiltCompiler)
 }
