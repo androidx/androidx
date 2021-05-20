@@ -71,24 +71,48 @@ class NightModeUiModeConfigChangesTestCase(private val setMode: NightSetMode) {
     }
 
     @Test
-    fun testOnConfigurationChangeNotCalledWhenNotStarted() {
+    fun testOnConfigurationChangeCalledWhileStopped() {
+        scenario.moveToState(Lifecycle.State.RESUMED)
         scenario.moveToState(Lifecycle.State.CREATED)
-        // And clear any previous config changes
-        scenario.onActivity { it.lastConfigurationChangeAndClear }
 
         // Set local night mode to YES
         scenario.onActivity { setNightMode(MODE_NIGHT_YES, it, setMode) }
-        // Assert that the onConfigurationChange was not called with a new correct config
+        // Assert that the onConfigurationChange was called with a new correct config
         scenario.onActivity {
-            assertNull(it.lastConfigurationChangeAndClear)
+            val lastConfig = it.lastConfigurationChangeAndClear
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, lastConfig!!)
         }
 
         // Set local night mode back to NO
         scenario.onActivity { setNightMode(MODE_NIGHT_NO, it, setMode) }
-        // Assert that the onConfigurationChange was not called with a new correct config
+        // Assert that the onConfigurationChange was called with a new correct config
         scenario.onActivity {
-            assertNull(it.lastConfigurationChangeAndClear)
+            val lastConfig = it.lastConfigurationChangeAndClear
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO, lastConfig!!)
         }
+    }
+
+    @Test
+    fun testOnConfigurationChangeNotCalledWhileDestroyed() {
+        scenario.moveToState(Lifecycle.State.RESUMED)
+
+        lateinit var activity: NightModeUiModeConfigChangesActivity
+        scenario.onActivity { activity = it }
+
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+
+        // And clear any previous config changes
+        activity.lastConfigurationChangeAndClear
+
+        // Set local night mode to YES
+        setNightMode(MODE_NIGHT_YES, activity, setMode)
+        // Assert that the onConfigurationChange was not called with a new correct config
+        assertNull(activity.lastConfigurationChangeAndClear)
+
+        // Set local night mode back to NO
+        setNightMode(MODE_NIGHT_NO, activity, setMode)
+        // Assert that the onConfigurationChange was not called with a new correct config
+        assertNull(activity.lastConfigurationChangeAndClear)
     }
 
     @Test
@@ -128,7 +152,9 @@ class NightModeUiModeConfigChangesTestCase(private val setMode: NightSetMode) {
     @After
     fun cleanup() {
         // Reset the default night mode
-        scenario.onActivity { setNightMode(MODE_NIGHT_NO, it, NightSetMode.DEFAULT) }
+        if (scenario.state != Lifecycle.State.DESTROYED) {
+            scenario.onActivity { setNightMode(MODE_NIGHT_NO, it, NightSetMode.DEFAULT) }
+        }
         scenario.close()
     }
 
