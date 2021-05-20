@@ -53,6 +53,7 @@ package androidx.camera.view {
     method @UiThread public androidx.camera.view.CameraController? getController();
     method @UiThread public androidx.camera.view.PreviewView.ImplementationMode getImplementationMode();
     method @UiThread public androidx.camera.core.MeteringPointFactory getMeteringPointFactory();
+    method public androidx.camera.view.transform.OutputTransform? getOutputTransform();
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
@@ -80,6 +81,39 @@ package androidx.camera.view {
   public enum PreviewView.StreamState {
     enum_constant public static final androidx.camera.view.PreviewView.StreamState IDLE;
     enum_constant public static final androidx.camera.view.PreviewView.StreamState STREAMING;
+  }
+
+}
+
+package androidx.camera.view.transform {
+
+  public final class CoordinateTransform {
+    ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);
+    method public void getTransform(android.graphics.Matrix);
+    method public void mapPoint(android.graphics.PointF);
+    method public void mapPoints(float[]);
+    method public void mapRect(android.graphics.RectF);
+  }
+
+  public final class FileTransformFactory {
+    ctor public FileTransformFactory();
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(android.content.ContentResolver, android.net.Uri) throws java.io.IOException;
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.File) throws java.io.IOException;
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.InputStream) throws java.io.IOException;
+    method public boolean isUsingExifOrientation();
+    method public void setUsingExifOrientation(boolean);
+  }
+
+  public final class ImageProxyTransformFactory {
+    ctor public ImageProxyTransformFactory();
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(androidx.camera.core.ImageProxy);
+    method public boolean isUsingCropRect();
+    method public boolean isUsingRotationDegrees();
+    method public void setUsingCropRect(boolean);
+    method public void setUsingRotationDegrees(boolean);
+  }
+
+  public final class OutputTransform {
   }
 
 }
