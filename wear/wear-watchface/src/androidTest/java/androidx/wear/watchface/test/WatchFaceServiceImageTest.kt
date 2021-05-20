@@ -215,12 +215,6 @@ public class WatchFaceServiceImageTest {
             engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
                 TimeZone.getTimeZone("UTC")
         }
-        engineWrapper.onSurfaceChanged(
-            surfaceHolder,
-            0,
-            surfaceHolder.surfaceFrame.width(),
-            surfaceHolder.surfaceFrame.height()
-        )
     }
 
     private fun initGles2WatchFace() {
@@ -246,12 +240,6 @@ public class WatchFaceServiceImageTest {
             engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
                 TimeZone.getTimeZone("UTC")
         }
-        engineWrapper.onSurfaceChanged(
-            surfaceHolder,
-            0,
-            surfaceHolder.surfaceFrame.width(),
-            surfaceHolder.surfaceFrame.height()
-        )
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
@@ -602,12 +590,6 @@ public class WatchFaceServiceImageTest {
         )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onSurfaceChanged(
-            surfaceHolder,
-            0,
-            surfaceHolder.surfaceFrame.width(),
-            surfaceHolder.surfaceFrame.height()
-        )
 
         // Make sure init has completed before trying to draw.
         runBlocking {

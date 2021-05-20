@@ -23,6 +23,7 @@ import android.content.Intent
 import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.Icon
 import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
@@ -174,9 +175,7 @@ public class WatchFaceServiceTest {
                     complicationDrawableLeft,
                     watchState,
                     listener
-                ).apply {
-                    loadData(createComplicationData(), false)
-                }
+                )
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -198,9 +197,7 @@ public class WatchFaceServiceTest {
                     complicationDrawableRight,
                     watchState,
                     listener
-                ).apply {
-                    loadData(createComplicationData(), false)
-                }
+                )
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -223,9 +220,7 @@ public class WatchFaceServiceTest {
                     complicationDrawableEdge,
                     watchState,
                     listener
-                ).apply {
-                    loadData(createComplicationData(), false)
-                }
+                )
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -248,9 +243,7 @@ public class WatchFaceServiceTest {
                     complicationDrawableBackground,
                     watchState,
                     listener
-                ).apply {
-                    loadData(createComplicationData(), false)
-                }
+                )
             },
             listOf(
                 ComplicationType.PHOTO_IMAGE
@@ -372,9 +365,27 @@ public class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
 
-        // Trigger watch face creation by sending the SurfceHolder, setting the binder and the
-        // immutable properties.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        // Set some initial complication data.
+        for (complication in complications) {
+            setComplicationViaWallpaperCommand(
+                complication.id,
+                when (complication.defaultProviderType) {
+                    ComplicationType.SHORT_TEXT ->
+                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(ComplicationText.plainText("Initial Short"))
+                            .build()
+
+                    ComplicationType.PHOTO_IMAGE ->
+                        ComplicationData.Builder(ComplicationData.TYPE_LARGE_IMAGE)
+                            .setLargeImage(Icon.createWithContentUri("someuri"))
+                            .build()
+
+                    else -> throw UnsupportedOperationException()
+                }
+            )
+        }
+
+        // Trigger watch face creation by setting the binder and the immutable properties.
         sendBinder(engineWrapper, apiVersion)
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
 
@@ -436,9 +447,6 @@ public class WatchFaceServiceTest {
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
-
-        // The [SurfaceHolder] must be sent before binding.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
@@ -1063,7 +1071,6 @@ public class WatchFaceServiceTest {
 
         // Trigger watch face creation.
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
-        engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
         sendImmutableProperties(engine2, false, false)
 
@@ -1272,12 +1279,16 @@ public class WatchFaceServiceTest {
 
         runPostedTasksFor(0)
 
-        val argument = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
-        verify(iWatchFaceService).setContentDescriptionLabels(argument.capture())
-        assertThat(argument.value.size).isEqualTo(3)
-        assertThat(argument.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
-        assertThat(argument.value[1].bounds).isEqualTo(Rect(20, 40, 40, 60)) // Left complicaiton.
-        assertThat(argument.value[2].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complicaiton.
+        // setContentDescriptionLabels gets called twice in the legacy WSL flow, once initially and
+        // once in response to the complication data wallpaper commands.
+        val arguments = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService, times(2)).setContentDescriptionLabels(arguments.capture())
+
+        val argument = arguments.allValues[1]
+        assertThat(argument.size).isEqualTo(3)
+        assertThat(argument[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(argument[1].bounds).isEqualTo(Rect(20, 40, 40, 60)) // Left complication.
+        assertThat(argument[2].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
     }
 
     @Test
@@ -1504,7 +1515,6 @@ public class WatchFaceServiceTest {
         sendRequestStyle()
 
         // Trigger watch face creation.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
@@ -1728,7 +1738,6 @@ public class WatchFaceServiceTest {
         `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
 
         // Trigger watch face creation.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
@@ -2246,7 +2255,6 @@ public class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
 
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, 1)
 
         // At this stage we haven't sent properties such as isAmbient, we expect it to be
@@ -2391,7 +2399,6 @@ public class WatchFaceServiceTest {
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNotNull()
