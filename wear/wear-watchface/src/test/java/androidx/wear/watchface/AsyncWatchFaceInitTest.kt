@@ -209,7 +209,6 @@ public class AsyncWatchFaceInitTest {
         )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         runPostedTasksFor(0)
 
@@ -287,8 +286,7 @@ public class AsyncWatchFaceInitTest {
             initParams
         )
 
-        val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        service.onCreateEngine() as WatchFaceService.EngineWrapper
         runPostedTasksFor(0)
 
         // Complete the direct boot watch face which should trigger the callback which sets
