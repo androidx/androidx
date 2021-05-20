@@ -58,9 +58,6 @@ package androidx.navigation.ui {
 
   public final class NavigationUI {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.google.android.material.bottomsheet.BottomSheetBehavior<?>? findBottomSheetBehavior(android.view.View view);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.navigation.NavDestination findStartDestination(androidx.navigation.NavGraph graph);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static boolean matchDestination(androidx.navigation.NavDestination destination, @IdRes int destId);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static boolean matchDestinations(androidx.navigation.NavDestination destination, java.util.Set<java.lang.Integer> destinationIds);
     method public static boolean navigateUp(androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
     method public static boolean navigateUp(androidx.navigation.NavController navController, androidx.navigation.ui.AppBarConfiguration configuration);
     method public static boolean onNavDestinationSelected(android.view.MenuItem item, androidx.navigation.NavController navController);

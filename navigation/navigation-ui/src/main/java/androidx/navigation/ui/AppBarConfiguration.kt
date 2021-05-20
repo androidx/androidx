@@ -20,6 +20,7 @@ import android.view.Menu
 import androidx.customview.widget.Openable
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavGraph
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener
 import java.util.HashSet
 
@@ -96,7 +97,7 @@ public class AppBarConfiguration private constructor(
          * start destination of the graph.
          */
         public constructor(navGraph: NavGraph) {
-            topLevelDestinations.add(NavigationUI.findStartDestination(navGraph).id)
+            topLevelDestinations.add(navGraph.findStartDestination().id)
         }
 
         /**
