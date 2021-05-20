@@ -422,6 +422,16 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
   }
 
+  @androidx.car.app.annotations.RequiresCarApi(2) public interface InputCallback {
+    method public void onInputSubmitted(String);
+    method public void onInputTextChanged(String);
+  }
+
+  @androidx.car.app.annotations.RequiresCarApi(2) public interface InputCallbackDelegate {
+    method public void sendInputSubmitted(String, androidx.car.app.OnDoneCallback);
+    method public void sendInputTextChanged(String, androidx.car.app.OnDoneCallback);
+  }
+
   @androidx.car.app.annotations.CarProtocol public interface Item {
   }
 
@@ -753,6 +763,7 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.CarText? getDefaultValue();
     method public androidx.car.app.model.CarText? getErrorMessage();
     method public androidx.car.app.model.CarText? getHint();
+    method public androidx.car.app.model.InputCallbackDelegate getInputCallbackDelegate();
     method public int getInputType();
     method public int getKeyboardType();
     method public androidx.car.app.model.OnInputCompletedDelegate getOnInputCompletedDelegate();
@@ -767,6 +778,7 @@ package androidx.car.app.model.signin {
 
   public static final class InputSignInMethod.Builder {
     ctor public InputSignInMethod.Builder(androidx.car.app.model.OnInputCompletedListener);
+    ctor public InputSignInMethod.Builder(androidx.car.app.model.InputCallback);
     method public androidx.car.app.model.signin.InputSignInMethod build();
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setDefaultValue(String);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setErrorMessage(CharSequence);
