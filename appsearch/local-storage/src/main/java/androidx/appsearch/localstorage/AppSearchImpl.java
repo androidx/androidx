@@ -640,9 +640,8 @@ public final class AppSearchImpl implements Closeable {
 
             // Logging stats
             if (pStatsBuilder != null) {
-                pStatsBuilder.getGeneralStatsBuilder().setStatusCode(
-                        statusProtoToResultCode(putResultProto.getStatus()));
                 pStatsBuilder
+                        .setStatusCode(statusProtoToResultCode(putResultProto.getStatus()))
                         .setGenerateDocumentProtoLatencyMillis(
                                 (int) (generateDocumentProtoEndTimeMillis
                                         - generateDocumentProtoStartTimeMillis))
@@ -659,7 +658,7 @@ public final class AppSearchImpl implements Closeable {
 
             if (logger != null) {
                 long totalEndTimeMillis = SystemClock.elapsedRealtime();
-                pStatsBuilder.getGeneralStatsBuilder().setTotalLatencyMillis(
+                pStatsBuilder.setTotalLatencyMillis(
                         (int) (totalEndTimeMillis - totalStartTimeMillis));
                 logger.logStats(pStatsBuilder.build());
             }
