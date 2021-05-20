@@ -1477,7 +1477,7 @@ public class EditorSessionTest {
         scenario.onActivity { activity ->
             val mockWatchFaceHostApi = mock(WatchFaceHostApi::class.java)
             val mockHandler = mock(Handler::class.java)
-            `when`(mockWatchFaceHostApi.getHandler()).thenReturn(mockHandler)
+            `when`(mockWatchFaceHostApi.getUiThreadHandler()).thenReturn(mockHandler)
             `when`(mockWatchFaceHostApi.getContext()).thenReturn(
                 ApplicationProvider.getApplicationContext<Context>()
             )

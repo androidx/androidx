@@ -34,8 +34,11 @@ public interface WatchFaceHostApi {
     /** Returns the watch face's [Context]. */
     public fun getContext(): Context
 
-    /** Returns the main thread [Handler]. */
-    public fun getHandler(): Handler
+    /** Returns the UI thread [Handler]. */
+    public fun getUiThreadHandler(): Handler
+
+    /** Returns the Worker thread [Handler]. */
+    public fun getBackgroundThreadHandler(): Handler
 
     /** Returns the initial user style stored by the system if there is one or null otherwise. */
     public fun getInitialUserStyle(): UserStyleWireFormat?

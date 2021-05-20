@@ -145,9 +145,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             watchState,
             colorStyleSetting,
             complication
-        ).apply {
-            initOpenGlContext()
-        }
+        )
     ).setLegacyWatchFaceStyle(
         WatchFace.LegacyWatchFaceOverlayStyle(
             0,

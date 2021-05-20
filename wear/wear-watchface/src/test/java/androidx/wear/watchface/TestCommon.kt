@@ -120,7 +120,11 @@ internal class TestWatchFaceService(
             }).setTapListener(tapListener)
     }
 
-    override fun getHandler() = handler
+    override fun getUiThreadHandlerImpl() = handler
+
+    // To make unit tests simpler and non-flaky we run background tasks and ui tasks on the same
+    // handler.
+    override fun getBackgroundThreadHandlerImpl() = handler
 
     override fun getMutableWatchState() = watchState
 

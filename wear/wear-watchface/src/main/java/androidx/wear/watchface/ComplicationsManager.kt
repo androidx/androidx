@@ -26,11 +26,13 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.annotation.WorkerThread
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -82,7 +84,6 @@ public class ComplicationsManager(
     private lateinit var watchFaceHostApi: WatchFaceHostApi
     private lateinit var calendar: Calendar
     internal lateinit var renderer: Renderer
-    private lateinit var pendingUpdate: CancellableUniqueTask
 
     /** A map of complication IDs to complications. */
     public val complications: Map<Int, Complication> =
@@ -156,18 +157,17 @@ public class ComplicationsManager(
         calendar: Calendar,
         renderer: Renderer,
         complicationInvalidateListener: Complication.InvalidateListener
-    ) {
+    ) = TraceEvent("ComplicationsManager.init").use {
         this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
         this.renderer = renderer
-        pendingUpdate = CancellableUniqueTask(watchFaceHostApi.getHandler())
 
         for ((_, complication) in complications) {
             complication.init(complicationInvalidateListener)
         }
 
         // Activate complications.
-        scheduleUpdate()
+        updateComplications()
     }
 
     internal fun applyComplicationsStyleCategoryOption(styleOption: ComplicationsOption) {
@@ -182,18 +182,19 @@ public class ComplicationsManager(
             complication.accessibilityTraversalIndex =
                 override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
         }
+        updateComplications()
     }
 
     /** Returns the [Complication] corresponding to [id], if there is one, or `null`. */
     public operator fun get(id: Int): Complication? = complications[id]
 
-    internal fun scheduleUpdate() {
-        if (this::pendingUpdate.isInitialized && !pendingUpdate.isPending()) {
-            pendingUpdate.postUnique(this::updateComplications)
+    @UiThread
+    internal fun updateComplications() = TraceEvent(
+        "ComplicationsManager.updateComplications"
+    ).use {
+        if (!this::watchFaceHostApi.isInitialized) {
+            return
         }
-    }
-
-    private fun updateComplications() {
         val activeKeys = mutableListOf<Int>()
 
         // Work out what's changed using the dirty flags and issue appropriate watchFaceHostApi
@@ -282,7 +283,7 @@ public class ComplicationsManager(
         complication.setIsHighlighted(true)
 
         val weakRef = WeakReference(this)
-        watchFaceHostApi.getHandler().postDelayed(
+        watchFaceHostApi.getUiThreadHandler().postDelayed(
             {
                 // The watch face might go away before this can run.
                 if (weakRef.get() != null) {
@@ -379,6 +380,12 @@ public class ComplicationsManager(
         writer.decreaseIndent()
     }
 
+    /**
+     * This will be called from a binder thread. That's OK because we don't expect this
+     * ComplicationsManager to be accessed at all from the UiThread in that scenario. See
+     * [androidx.wear.watchface.control.IWatchFaceInstanceServiceStub.getDefaultProviderPolicies].
+     */
+    @WorkerThread
     internal fun getDefaultProviderPolicies(): Array<IdTypeAndDefaultProviderPolicyWireFormat> =
         complications.map {
             IdTypeAndDefaultProviderPolicyWireFormat(

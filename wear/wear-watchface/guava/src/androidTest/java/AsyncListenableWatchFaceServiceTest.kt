@@ -17,8 +17,6 @@
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
-import android.os.Handler
-import android.os.Looper
 import android.view.SurfaceHolder
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationsManager
@@ -55,7 +53,7 @@ private class FakeRenderer(
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
 }
 
-private class TestAsyncListenableWatchFaceService(private val handler: Handler) :
+private class TestAsyncListenableWatchFaceService :
     ListenableWatchFaceService() {
     override fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
@@ -65,7 +63,7 @@ private class TestAsyncListenableWatchFaceService(private val handler: Handler) 
     ): ListenableFuture<WatchFace> {
         val future = SettableFuture.create<WatchFace>()
         // Post a task to resolve the future.
-        handler.post {
+        getUiThreadHandler().post {
             future.set(
                 WatchFace(
                     WatchFaceType.DIGITAL,
@@ -93,8 +91,7 @@ public class AsyncListenableWatchFaceServiceTest {
 
     @Test
     public fun asyncTest() {
-        val handler = Handler(Looper.getMainLooper())
-        val service = TestAsyncListenableWatchFaceService(handler)
+        val service = TestAsyncListenableWatchFaceService()
         val mockSurfaceHolder = Mockito.mock(SurfaceHolder::class.java)
         Mockito.`when`(mockSurfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 100, 100))
 
