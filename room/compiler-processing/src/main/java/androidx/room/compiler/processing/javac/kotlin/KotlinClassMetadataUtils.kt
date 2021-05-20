@@ -215,7 +215,7 @@ internal class KotlinMetadataClassFlags(val classMetadata: KotlinClassMetadata.C
 
     fun isDataClass(): Boolean = Flag.Class.IS_DATA(flags)
 
-    fun isValueClass(): Boolean = Flag.Class.IS_INLINE(flags)
+    fun isValueClass(): Boolean = Flag.Class.IS_VALUE(flags)
 
     fun isFunctionalInterface(): Boolean = Flag.Class.IS_FUN(flags)
 
