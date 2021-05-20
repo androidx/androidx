@@ -66,10 +66,17 @@ class ResourceInspectionProcessorTest {
                 import android.view.inspector.PropertyReader;
                 import androidx.annotation.NonNull;
                 import androidx.annotation.RequiresApi;
+                import androidx.annotation.RestrictTo;
                 import java.lang.Override;
                 import javax.annotation.processing.Generated;
 
+                /**
+                 * Inspection companion for {@link TrivialTestView}.
+                 *
+                 * @hide
+                 */
                 @RequiresApi(29)
+                @RestrictTo(RestrictTo.Scope.LIBRARY)
                 @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                 public final class TrivialTestView${'$'}InspectionCompanion
                         implements InspectionCompanion<TrivialTestView>
@@ -155,10 +162,17 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link TrivialTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class MixedNamespaceTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<MixedNamespaceTestView> {
@@ -329,10 +343,17 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link SimpleTypesTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class SimpleTypesTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<SimpleTypesTestView> {
@@ -499,12 +520,19 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import java.lang.String;
                         import java.util.function.IntFunction;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link IntEnumTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class IntEnumTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<IntEnumTestView> {
@@ -598,6 +626,7 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import java.lang.String;
                         import java.util.HashSet;
@@ -605,7 +634,13 @@ class ResourceInspectionProcessorTest {
                         import java.util.function.IntFunction;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link IntFlagTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class IntFlagTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<IntFlagTestView> {
@@ -895,11 +930,18 @@ class ResourceInspectionProcessorTest {
                     import android.view.inspector.PropertyReader;
                     import androidx.annotation.NonNull;
                     import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
                     import androidx.appcompat.R;
                     import java.lang.Override;
                     import javax.annotation.processing.Generated;
 
+                    /**
+                     * Inspection companion for {@link BackgroundTintTestView}.
+                     *
+                     * @hide
+                     */
                     @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
                     @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                     public final class BackgroundTintTestView${'$'}InspectionCompanion
                             implements InspectionCompanion<BackgroundTintTestView> {
@@ -979,13 +1021,20 @@ class ResourceInspectionProcessorTest {
                     import android.view.inspector.PropertyReader;
                     import androidx.annotation.NonNull;
                     import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
                     import androidx.appcompat.R;
                     import java.lang.Override;
                     import java.lang.String;
                     import java.util.function.IntFunction;
                     import javax.annotation.processing.Generated;
 
+                    /**
+                     * Inspection companion for {@link AutoSizeTestView}.
+                     *
+                     * @hide
+                     */
                     @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
                     @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                     public final class AutoSizeTestView${'$'}InspectionCompanion
                             implements InspectionCompanion<AutoSizeTestView> {
@@ -1089,11 +1138,18 @@ class ResourceInspectionProcessorTest {
                     import android.view.inspector.PropertyReader;
                     import androidx.annotation.NonNull;
                     import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
                     import androidx.appcompat.R;
                     import java.lang.Override;
                     import javax.annotation.processing.Generated;
 
+                    /**
+                     * Inspection companion for {@link CheckMarkTintTestView}.
+                     *
+                     * @hide
+                     */
                     @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
                     @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                     public final class CheckMarkTintTestView${'$'}InspectionCompanion
                         implements InspectionCompanion<CheckMarkTintTestView> {
@@ -1170,11 +1226,18 @@ class ResourceInspectionProcessorTest {
                     import android.view.inspector.PropertyReader;
                     import androidx.annotation.NonNull;
                     import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
                     import androidx.appcompat.R;
                     import java.lang.Override;
                     import javax.annotation.processing.Generated;
 
+                    /**
+                     * Inspection companion for {@link CompoundButtonTintTestView}.
+                     *
+                     * @hide
+                     */
                     @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
                     @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                     public final class CompoundButtonTintTestView${'$'}InspectionCompanion
                             implements InspectionCompanion<CompoundButtonTintTestView> {
@@ -1251,11 +1314,18 @@ class ResourceInspectionProcessorTest {
                     import android.view.inspector.PropertyReader;
                     import androidx.annotation.NonNull;
                     import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
                     import androidx.appcompat.R;
                     import java.lang.Override;
                     import javax.annotation.processing.Generated;
 
+                    /**
+                     * Inspection companion for {@link CompoundDrawablesTestView}.
+                     *
+                     * @hide
+                     */
                     @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
                     @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                     public final class CompoundDrawablesTestView${'$'}InspectionCompanion
                             implements InspectionCompanion<CompoundDrawablesTestView> {
@@ -1332,11 +1402,18 @@ class ResourceInspectionProcessorTest {
                     import android.view.inspector.PropertyReader;
                     import androidx.annotation.NonNull;
                     import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
                     import androidx.appcompat.R;
                     import java.lang.Override;
                     import javax.annotation.processing.Generated;
 
+                    /**
+                     * Inspection companion for {@link ImageTintTestView}.
+                     *
+                     * @hide
+                     */
                     @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
                     @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                     public final class ImageTintTestView${'$'}InspectionCompanion
                             implements InspectionCompanion<ImageTintTestView> {
