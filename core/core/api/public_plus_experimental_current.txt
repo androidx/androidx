@@ -1465,14 +1465,50 @@ package androidx.core.location {
     method public static void setMock(android.location.Location, boolean);
   }
 
+  public interface LocationListenerCompat extends android.location.LocationListener {
+    method public default void onStatusChanged(String, int, android.os.Bundle?);
+  }
+
   public final class LocationManagerCompat {
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
     method public static String? getGnssHardwareModelName(android.location.LocationManager);
     method public static int getGnssYearOfHardware(android.location.LocationManager);
+    method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, java.util.concurrent.Executor, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, androidx.core.location.LocationListenerCompat, android.os.Looper);
     method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
+  }
+
+  public final class LocationRequestCompat {
+    method @IntRange(from=1) public long getDurationMillis();
+    method @IntRange(from=0) public long getIntervalMillis();
+    method @IntRange(from=0) public long getMaxUpdateDelayMillis();
+    method @IntRange(from=1, to=java.lang.Integer.MAX_VALUE) public int getMaxUpdates();
+    method @FloatRange(from=0, to=java.lang.Float.MAX_VALUE) public float getMinUpdateDistanceMeters();
+    method @IntRange(from=0) public long getMinUpdateIntervalMillis();
+    method public int getQuality();
+    field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
+    field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
+    field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64
+    field public static final int QUALITY_LOW_POWER = 104; // 0x68
+  }
+
+  public static final class LocationRequestCompat.Builder {
+    ctor public LocationRequestCompat.Builder(long);
+    ctor public LocationRequestCompat.Builder(androidx.core.location.LocationRequestCompat);
+    method public androidx.core.location.LocationRequestCompat build();
+    method public androidx.core.location.LocationRequestCompat.Builder clearMinUpdateIntervalMillis();
+    method public androidx.core.location.LocationRequestCompat.Builder setDurationMillis(@IntRange(from=1) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdateDelayMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdates(@IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateDistanceMeters(@FloatRange(from=0, to=java.lang.Float.MAX_VALUE) float);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setQuality(int);
   }
 
 }
