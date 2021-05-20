@@ -88,7 +88,7 @@ public final class SchemaToPlatformConverter {
                     .setTokenizerType(stringProperty.getTokenizerType())
                     .build();
         } else if (jetpackProperty instanceof AppSearchSchema.LongPropertyConfig) {
-            return new android.app.appsearch.AppSearchSchema.Int64PropertyConfig.Builder(
+            return new android.app.appsearch.AppSearchSchema.LongPropertyConfig.Builder(
                     jetpackProperty.getName())
                     .setCardinality(jetpackProperty.getCardinality())
                     .build();
@@ -135,7 +135,7 @@ public final class SchemaToPlatformConverter {
                     .setTokenizerType(stringProperty.getTokenizerType())
                     .build();
         } else if (platformProperty
-                instanceof android.app.appsearch.AppSearchSchema.Int64PropertyConfig) {
+                instanceof android.app.appsearch.AppSearchSchema.LongPropertyConfig) {
             return new AppSearchSchema.LongPropertyConfig.Builder(platformProperty.getName())
                     .setCardinality(platformProperty.getCardinality())
                     .build();
