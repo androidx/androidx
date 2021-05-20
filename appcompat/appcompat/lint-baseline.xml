@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -1009,7 +1009,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1063"
+            line="1116"
             column="31"/>
     </issue>
 
@@ -1102,7 +1102,8 @@
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
             line="228"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1128,7 +1129,8 @@
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
             line="182"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1143,7 +1145,8 @@
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
             line="296"
-            column="26"/>
+            column="26"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1158,7 +1161,8 @@
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
             line="130"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1217,7 +1221,8 @@
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
             line="427"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -5425,17 +5430,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T extends View> T findViewById(@IdRes int id) {"
-        errorLine2="                            ~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="258"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void onTitleChanged(CharSequence title, int color) {"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
@@ -5528,7 +5522,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="171"
+            line="177"
             column="35"/>
     </issue>
 
@@ -5539,7 +5533,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="179"
+            line="185"
             column="48"/>
     </issue>
 
@@ -5550,7 +5544,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="185"
+            line="191"
             column="51"/>
     </issue>
 
@@ -5561,7 +5555,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="210"
+            line="216"
             column="34"/>
     </issue>
 
@@ -5572,7 +5566,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="344"
+            line="350"
             column="12"/>
     </issue>
 
@@ -6001,19 +5995,8 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="207"
+            line="213"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
-        errorLine2="                                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="222"
-            column="52"/>
     </issue>
 
     <issue
@@ -6023,7 +6006,7 @@
         errorLine2="                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="285"
+            line="291"
             column="72"/>
     </issue>
 
@@ -6276,7 +6259,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="286"
+            line="267"
             column="34"/>
     </issue>
 
@@ -6287,7 +6270,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="447"
+            line="428"
             column="12"/>
     </issue>
 
@@ -6298,7 +6281,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="459"
+            line="440"
             column="12"/>
     </issue>
 
@@ -6309,7 +6292,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="459"
+            line="440"
             column="52"/>
     </issue>
 
@@ -6320,7 +6303,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="567"
+            line="548"
             column="12"/>
     </issue>
 
@@ -11919,7 +11902,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="324"
+            line="339"
             column="41"/>
     </issue>
 
@@ -11930,7 +11913,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="388"
+            line="406"
             column="35"/>
     </issue>
 
@@ -11941,7 +11924,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="416"
+            line="434"
             column="35"/>
     </issue>
 
@@ -11952,7 +11935,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="504"
+            line="522"
             column="34"/>
     </issue>
 
@@ -11963,7 +11946,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="533"
+            line="551"
             column="12"/>
     </issue>
 
@@ -11974,7 +11957,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="623"
+            line="641"
             column="34"/>
     </issue>
 
@@ -11985,7 +11968,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="654"
+            line="672"
             column="12"/>
     </issue>
 
@@ -11996,7 +11979,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="766"
+            line="784"
             column="12"/>
     </issue>
 
@@ -12007,7 +11990,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="775"
+            line="807"
             column="27"/>
     </issue>
 
@@ -12018,7 +12001,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="790"
+            line="822"
             column="12"/>
     </issue>
 
@@ -12029,7 +12012,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="799"
+            line="844"
             column="28"/>
     </issue>
 
@@ -12040,7 +12023,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="899"
+            line="956"
             column="46"/>
     </issue>
 
@@ -12051,7 +12034,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="940"
+            line="993"
             column="33"/>
     </issue>
 
@@ -12062,7 +12045,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1173"
+            line="1226"
             column="22"/>
     </issue>
 
@@ -12073,7 +12056,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1238"
+            line="1291"
             column="27"/>
     </issue>
 
@@ -12084,7 +12067,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1362"
+            line="1415"
             column="15"/>
     </issue>
 
@@ -12095,7 +12078,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1408"
+            line="1461"
             column="38"/>
     </issue>
 
@@ -12106,7 +12089,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1431"
+            line="1484"
             column="48"/>
     </issue>
 
@@ -12117,7 +12100,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1437"
+            line="1490"
             column="51"/>
     </issue>
 
