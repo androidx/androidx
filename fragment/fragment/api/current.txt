@@ -491,6 +491,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
+    method public android.view.ViewGroup? getParentContainer();
   }
 
   public final class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {

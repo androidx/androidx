@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -303,9 +304,12 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onFragmentTagUsage(@NonNull Fragment fragment) {
-        Violation violation = new FragmentTagUsageViolation(fragment);
+    public static void onFragmentTagUsage(
+            @NonNull Fragment fragment,
+            @Nullable ViewGroup container) {
+        Violation violation = new FragmentTagUsageViolation(fragment, container);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);

@@ -16,13 +16,29 @@
 
 package androidx.fragment.app.strictmode;
 
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 /** See #{@link FragmentStrictMode.Policy.Builder#detectFragmentTagUsage()}. */
 public final class FragmentTagUsageViolation extends Violation {
 
-    FragmentTagUsageViolation(@NonNull Fragment fragment) {
+    @Nullable
+    private ViewGroup mContainer;
+
+    FragmentTagUsageViolation(@NonNull Fragment fragment, @Nullable ViewGroup container) {
         super(fragment);
+        this.mContainer = container;
+    }
+
+    /**
+     * Gets the parent container that the {@link Fragment} causing the Violation
+     * would have been added to.
+     */
+    @Nullable
+    public ViewGroup getParentContainer() {
+        return mContainer;
     }
 }
