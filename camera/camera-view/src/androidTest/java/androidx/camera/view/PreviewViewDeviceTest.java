@@ -49,6 +49,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -89,8 +90,10 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -98,7 +101,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class PreviewViewTest {
+public class PreviewViewDeviceTest {
 
     private static final Size DEFAULT_SURFACE_SIZE = new Size(640, 480);
     private static final Rect DEFAULT_CROP_RECT = new Rect(0, 0, 640, 480);
@@ -113,6 +116,7 @@ public class PreviewViewTest {
     private final List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
     private PreviewView mPreviewView;
     private MeteringPointFactory mMeteringPointFactory;
+    private final UiDevice mUiDevice = UiDevice.getInstance(mInstrumentation);
 
     @Before
     public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
@@ -121,12 +125,13 @@ public class PreviewViewTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
         for (SurfaceRequest surfaceRequest : mSurfaceRequestList) {
             surfaceRequest.willNotProvideSurface();
             // Ensure all successful requests have their returned future finish.
             surfaceRequest.getDeferrableSurface().close();
         }
+        CameraX.shutdown().get(10, TimeUnit.SECONDS);
     }
 
     @Test
@@ -244,8 +249,7 @@ public class PreviewViewTest {
         assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
         // Act: pinch-in 80% in 100 steps.
-        UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0))
-                .pinchIn(80, 100);
+        mUiDevice.findObject(new UiSelector().index(0)).pinchIn(80, 100);
 
         // Assert: pinch-to-zoom is called.
         assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
@@ -279,7 +283,7 @@ public class PreviewViewTest {
         assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView
-        UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0)).click();
+        mUiDevice.findObject(new UiSelector().index(0)).click();
 
         // Assert: tap-to-focus is invoked.
         assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
@@ -301,7 +305,7 @@ public class PreviewViewTest {
         assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView.
-        UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0)).click();
+        mUiDevice.findObject(new UiSelector().index(0)).click();
 
         // Assert: view is clicked.
         assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
