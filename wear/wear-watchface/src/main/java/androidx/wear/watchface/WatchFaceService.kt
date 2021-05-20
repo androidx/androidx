@@ -721,7 +721,6 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var immutableSystemStateDone = false
         internal var immutableChinHeightDone = false
 
-        private var firstOnSurfaceChangedReceived = false
         private var asyncWatchFaceConstructionPending = false
 
         // Stores the initial complications which could get updated before they're applied.
@@ -750,6 +749,10 @@ public abstract class WatchFaceService : WallpaperService() {
             } else {
                 null
             }
+
+        init {
+            maybeCreateWCSApi()
+        }
 
         /** Note this function should only be called once. */
         @SuppressWarnings("NewApi")
@@ -1001,24 +1004,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
             )
-        }
-
-        @UiThread
-        override fun onSurfaceChanged(
-            holder: SurfaceHolder?,
-            format: Int,
-            width: Int,
-            height: Int
-        ): Unit = TraceEvent("EngineWrapper.onSurfaceChanged").use {
-            super.onSurfaceChanged(holder, format, width, height)
-
-            // We can only call maybeCreateWCSApi once. For OpenGL watch faces we need to wait for
-            // onSurfaceChanged before bootstrapping because the surface isn't valid for creating
-            // an EGL context until then.
-            if (!firstOnSurfaceChangedReceived) {
-                maybeCreateWCSApi()
-                firstOnSurfaceChangedReceived = true
-            }
         }
 
         override fun onApplyWindowInsets(
@@ -1555,7 +1540,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
             writer.println("createdBy=$createdBy")
-            writer.println("firstOnSurfaceChanged=$firstOnSurfaceChangedReceived")
             writer.println("watchFaceInitStarted=$wslFlow.watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
 

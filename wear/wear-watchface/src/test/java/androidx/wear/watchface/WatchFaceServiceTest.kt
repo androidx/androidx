@@ -385,9 +385,7 @@ public class WatchFaceServiceTest {
             )
         }
 
-        // Trigger watch face creation by sending the SurfceHolder, setting the binder and the
-        // immutable properties.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        // Trigger watch face creation by setting the binder and the immutable properties.
         sendBinder(engineWrapper, apiVersion)
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
 
@@ -449,9 +447,6 @@ public class WatchFaceServiceTest {
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
-
-        // The [SurfaceHolder] must be sent before binding.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
@@ -1076,7 +1071,6 @@ public class WatchFaceServiceTest {
 
         // Trigger watch face creation.
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
-        engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
         sendImmutableProperties(engine2, false, false)
 
@@ -1521,7 +1515,6 @@ public class WatchFaceServiceTest {
         sendRequestStyle()
 
         // Trigger watch face creation.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
@@ -1745,7 +1738,6 @@ public class WatchFaceServiceTest {
         `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
 
         // Trigger watch face creation.
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
@@ -2263,7 +2255,6 @@ public class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
 
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, 1)
 
         // At this stage we haven't sent properties such as isAmbient, we expect it to be
@@ -2408,7 +2399,6 @@ public class WatchFaceServiceTest {
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNotNull()
