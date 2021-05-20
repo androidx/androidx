@@ -117,8 +117,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final ControlUpdateCallback mControlUpdateCallback;
 
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    volatile Rational mPreviewAspectRatio = null;
     private final FocusMeteringControl mFocusMeteringControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
@@ -234,6 +232,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @NonNull
+    public FocusMeteringControl getFocusMeteringControl() {
+        return mFocusMeteringControl;
+    }
+
+    @NonNull
     public TorchControl getTorchControl() {
         return mTorchControl;
     }
@@ -286,7 +289,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @ExecutedBy("mExecutor")
     public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
-        mPreviewAspectRatio = previewAspectRatio;
+        mFocusMeteringControl.setPreviewAspectRatio(previewAspectRatio);
     }
 
     @NonNull
@@ -298,7 +301,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     new OperationCanceledException("Camera is not active."));
         }
         return Futures.nonCancellationPropagating(
-                mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio));
+                mFocusMeteringControl.startFocusAndMetering(action));
     }
 
     @NonNull

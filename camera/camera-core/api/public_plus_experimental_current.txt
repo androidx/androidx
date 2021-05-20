@@ -36,6 +36,7 @@ package androidx.camera.core {
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
+    method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
   }
 
   public final class CameraInfoUnavailableException extends java.lang.Exception {
