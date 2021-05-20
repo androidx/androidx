@@ -3,6 +3,8 @@ ChangedType: androidx.navigation.fragment.FragmentNavigator.Extras#getSharedElem
     Method androidx.navigation.fragment.FragmentNavigator.Extras.getSharedElements has changed return type from java.util.Map<android.view.View!,java.lang.String!> to java.util.Map<android.view.View,java.lang.String>
 
 
+RemovedMethod: androidx.navigation.fragment.DialogFragmentNavigator#navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination, android.os.Bundle, androidx.navigation.NavOptions, androidx.navigation.Navigator.Extras):
+    Removed method androidx.navigation.fragment.DialogFragmentNavigator.navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination,android.os.Bundle,androidx.navigation.NavOptions,androidx.navigation.Navigator.Extras)
 RemovedMethod: androidx.navigation.fragment.DialogFragmentNavigator#popBackStack():
     Removed method androidx.navigation.fragment.DialogFragmentNavigator.popBackStack()
 RemovedMethod: androidx.navigation.fragment.FragmentNavigator#navigate(androidx.navigation.fragment.FragmentNavigator.Destination, android.os.Bundle, androidx.navigation.NavOptions, androidx.navigation.Navigator.Extras):
