@@ -32,7 +32,6 @@ import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DeleteStatsProto;
@@ -66,7 +65,7 @@ public class AppSearchLoggerTest {
 
         // Give ourselves global query permissions
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
         mLogger = new TestLogger();
     }
 
@@ -295,7 +294,7 @@ public class AppSearchLoggerTest {
         // Create an unused AppSearchImpl to generated an InitializeStats.
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
                 context,
-                VisibilityStore.NO_OP_USER_ID,
+                /*userHandle=*/ null,
                 mLogger,
                 ALWAYS_OPTIMIZE);
 

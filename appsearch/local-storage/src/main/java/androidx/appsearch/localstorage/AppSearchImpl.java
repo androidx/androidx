@@ -27,6 +27,7 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFrom
 import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -198,11 +199,14 @@ public final class AppSearchImpl implements Closeable {
      * <p>Instead, logger instance needs to be passed to each individual method, like create, query
      * and putDocument.
      *
+     * @param callerUserHandle UserHandle of the caller, used for visibility checks. Can be null
+     *                         if there will be no global queries.
      * @param logger collects stats for initialization if provided.
      */
     @NonNull
-    public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context context, int userId,
-            @Nullable AppSearchLogger logger, @NonNull OptimizeStrategy optimizeStrategy)
+    public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context context,
+            @Nullable UserHandle callerUserHandle, @Nullable AppSearchLogger logger,
+            @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
         Preconditions.checkNotNull(context);
@@ -215,7 +219,8 @@ public final class AppSearchImpl implements Closeable {
         }
 
         AppSearchImpl appSearchImpl =
-                new AppSearchImpl(icingDir, context, userId, initStatsBuilder, optimizeStrategy);
+                new AppSearchImpl(icingDir, context, callerUserHandle, initStatsBuilder,
+                        optimizeStrategy);
 
         long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
         appSearchImpl.initializeVisibilityStore();
@@ -237,7 +242,8 @@ public final class AppSearchImpl implements Closeable {
     /**
      * @param initStatsBuilder collects stats for initialization if provided.
      */
-    private AppSearchImpl(@NonNull File icingDir, @NonNull Context context, int userId,
+    private AppSearchImpl(@NonNull File icingDir, @NonNull Context context,
+            @Nullable UserHandle callerUserHandle,
             @Nullable InitializeStats.Builder initStatsBuilder,
             @NonNull OptimizeStrategy optimizeStrategy) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
@@ -254,7 +260,7 @@ public final class AppSearchImpl implements Closeable {
                     ObjectsCompat.hashCode(mIcingSearchEngineLocked));
 
             mVisibilityStoreLocked =
-                    new VisibilityStore(this, context, userId);
+                    new VisibilityStore(this, context, callerUserHandle);
             mOptimizeStrategy = optimizeStrategy;
 
             // The core initialization procedure. If any part of this fails, we bail into
@@ -796,9 +802,9 @@ public final class AppSearchImpl implements Closeable {
      *
      * @param queryExpression   Query String to search.
      * @param searchSpec        Spec for setting filters, raw query etc.
-     * @param callerPackageName Package name of the caller, should belong to the {@code callerUid}.
-     * @param callerPid         Process id of the client making the globalQuery call.
-     * @param callerUid         UID of the client making the globalQuery call.
+     * @param callerPackageName Package name of the caller, should belong to the {@code
+     *                          callerUserHandle}.
+     * @param callerUserHandle  User handle of the client making the globalQuery call.
      * @param logger            logger to collect globalQuery stats
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
@@ -809,8 +815,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @NonNull String callerPackageName,
-            int callerPid,
-            int callerUid,
+            @Nullable UserHandle callerUserHandle,
             @Nullable AppSearchLogger logger) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         SearchStats.Builder sStatsBuilder = null;
@@ -875,8 +880,7 @@ public final class AppSearchImpl implements Closeable {
                             databaseName,
                             prefixedSchema,
                             callerPackageName,
-                            callerPid,
-                            callerUid);
+                            callerUserHandle);
                 }
 
                 if (!allow) {
@@ -1147,10 +1151,10 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to mutate group.
      *
-     * @param packageName     The package name that owns the documents.
-     * @param databaseName    The databaseName the document is in.
-     * @param queryExpression Query String to search.
-     * @param searchSpec      Defines what and how to remove
+     * @param packageName        The package name that owns the documents.
+     * @param databaseName       The databaseName the document is in.
+     * @param queryExpression    Query String to search.
+     * @param searchSpec         Defines what and how to remove
      * @param removeStatsBuilder builder for {@link RemoveStats} to hold stats for remove
      * @throws AppSearchException on IcingSearchEngine error.
      */
@@ -1400,7 +1404,7 @@ public final class AppSearchImpl implements Closeable {
      * Remove all {@link AppSearchSchema}s and {@link GenericDocument}s that doesn't belong to any
      * of the given installed packages
      *
-     * @param installedPackages   The name of all installed package.
+     * @param installedPackages The name of all installed package.
      * @throws AppSearchException if we cannot remove the data.
      */
     public void prunePackageData(@NonNull Set<String> installedPackages) throws AppSearchException {
@@ -1993,7 +1997,7 @@ public final class AppSearchImpl implements Closeable {
         //  go/icing-library-apis.
     }
 
-    /** Triggers {@link IcingSearchEngine#optimize()} directly.   */
+    /** Triggers {@link IcingSearchEngine#optimize()} directly. */
     public void optimize() throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {

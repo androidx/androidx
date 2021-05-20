@@ -28,7 +28,6 @@ import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -282,7 +281,7 @@ public class LocalStorage {
         File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
 
         // There is no global querier for a local storage instance.
-        mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
+        mAppSearchImpl = AppSearchImpl.create(icingDir, context, /*callerUserHandle=*/ null,
                 /*logger=*/ null, new JetpackOptimizeStrategy());
 
         executor.execute(() -> {
