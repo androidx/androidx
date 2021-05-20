@@ -43,10 +43,13 @@ internal fun generateInspectionCompanion(
         addModifiers(Modifier.PUBLIC, Modifier.FINAL)
         addSuperinterface(INSPECTION_COMPANION.parameterized(view.className))
         addAnnotation(REQUIRES_API)
+        addAnnotation(RESTRICT_TO)
 
         generatedAnnotation?.let { addAnnotation(it) }
 
         addOriginatingElement(view.type)
+
+        addJavadoc("Inspection companion for {@link \$T}.\n\n@hide", view.className)
 
         addField(
             FieldSpec.builder(TypeName.BOOLEAN, "mPropertiesMapped", Modifier.PRIVATE).run {
@@ -230,4 +233,13 @@ private const val MIN_SDK = 29
 private val REQUIRES_API: AnnotationSpec =
     AnnotationSpec.builder(ClassName.get("androidx.annotation", "RequiresApi"))
         .addMember("value", "\$L", MIN_SDK)
+        .build()
+
+private val RESTRICT_TO: AnnotationSpec =
+    AnnotationSpec.builder(ClassName.get("androidx.annotation", "RestrictTo"))
+        .addMember(
+            "value",
+            "\$T.LIBRARY",
+            ClassName.get("androidx.annotation", "RestrictTo", "Scope")
+        )
         .build()
