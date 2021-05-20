@@ -20,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 /** See #{@link FragmentStrictMode.Policy.Builder#detectTargetFragmentUsage()}. */
-public abstract class TargetFragmentUsageViolation extends Violation {
+public final class GetTargetFragmentUsageViolation extends TargetFragmentUsageViolation {
 
-    TargetFragmentUsageViolation(@NonNull Fragment fragment) {
+    GetTargetFragmentUsageViolation(@NonNull Fragment fragment) {
         super(fragment);
     }
 }

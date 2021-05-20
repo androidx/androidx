@@ -362,9 +362,42 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onTargetFragmentUsage(@NonNull Fragment fragment) {
-        Violation violation = new TargetFragmentUsageViolation(fragment);
+    public static void onSetTargetFragmentUsage(
+            @NonNull Fragment violatingFragment,
+            @NonNull Fragment targetFragment,
+            int requestCode) {
+        Violation violation = new SetTargetFragmentUsageViolation(
+                violatingFragment, targetFragment, requestCode);
+        logIfDebuggingEnabled(violation);
+
+        Policy policy = getNearestPolicy(violatingFragment);
+        if (policy.mFlags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)
+                && shouldHandlePolicyViolation(
+                policy, violatingFragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onGetTargetFragmentUsage(@NonNull Fragment fragment) {
+        Violation violation = new GetTargetFragmentUsageViolation(fragment);
+        logIfDebuggingEnabled(violation);
+
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.mFlags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)
+                && shouldHandlePolicyViolation(
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onGetTargetFragmentRequestCodeUsage(@NonNull Fragment fragment) {
+        Violation violation = new GetTargetFragmentRequestCodeUsageViolation(fragment);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);

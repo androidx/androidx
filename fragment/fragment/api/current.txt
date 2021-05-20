@@ -497,17 +497,28 @@ package androidx.fragment.app.strictmode {
   public final class GetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
   }
 
+  public final class GetTargetFragmentRequestCodeUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+  }
+
+  public final class GetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+  }
+
   public abstract class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
   }
 
   public final class SetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
   }
 
+  public final class SetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+    method public int getRequestCode();
+    method public androidx.fragment.app.Fragment getTargetFragment();
+  }
+
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
     method public boolean isVisibleToUser();
   }
 
-  public final class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
+  public abstract class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
   }
 
   public abstract class Violation extends java.lang.RuntimeException {
