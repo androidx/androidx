@@ -159,8 +159,16 @@ public class TextViewOnReceiveContentListenerTest {
         ClipData clip = ClipData.newPlainText("test", "ONE");
         clip.addItem(new ClipData.Item("TWO"));
         clip.addItem(new ClipData.Item("THREE"));
-        boolean result = onReceive(mReceiver, clip, SOURCE_CLIPBOARD, 0);
 
+        // Verify the resulting text when pasting a clip that contains multiple text items.
+        boolean result = onReceive(mReceiver, clip, SOURCE_CLIPBOARD, 0);
+        assertThat(result).isTrue();
+        assertTextAndCursorPosition("xONE\nTWO\nTHREEz", 14);
+
+        // Verify the resulting text when inserting the same clip via drag-and-drop. The result
+        // should be the same as when pasting from the clipboard.
+        setTextAndCursor("xz", 1);
+        result = onReceive(mReceiver, clip, SOURCE_DRAG_AND_DROP, 0);
         assertThat(result).isTrue();
         assertTextAndCursorPosition("xONE\nTWO\nTHREEz", 14);
     }
@@ -249,20 +257,6 @@ public class TextViewOnReceiveContentListenerTest {
 
         assertThat(result).isTrue();
         assertTextAndCursorPosition("xyz", 2);
-    }
-
-    @UiThreadTest
-    @Test
-    public void testOnReceive_dragAndDrop_multipleItemsInClipData() throws Exception {
-        setTextAndCursor("xz", 1);
-
-        ClipData clip = ClipData.newPlainText("test", "ONE");
-        clip.addItem(new ClipData.Item("TWO"));
-        clip.addItem(new ClipData.Item("THREE"));
-        boolean result = onReceive(mReceiver, clip, SOURCE_DRAG_AND_DROP, 0);
-
-        assertThat(result).isTrue();
-        assertTextAndCursorPosition("xONETWOTHREEz", 12);
     }
 
     private boolean onReceive(final OnReceiveContentListener receiver, ClipData clip,
