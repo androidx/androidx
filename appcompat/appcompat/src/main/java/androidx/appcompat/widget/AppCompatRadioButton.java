@@ -34,6 +34,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TintableCompoundButton;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link RadioButton} which supports compatible features on older versions of the platform,
@@ -50,6 +51,7 @@ import androidx.core.widget.TintableCompoundButton;
  * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatRadioButton extends RadioButton implements TintableCompoundButton,
         TintableBackgroundView {
 
