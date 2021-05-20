@@ -24,8 +24,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.graphics.PorterDuff.Mode;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
@@ -272,7 +270,7 @@ public final class CarIcon {
             return mIcon.getUri();
         }
 
-        return VERSION.SDK_INT >= VERSION_CODES.M;
+        return type;
     }
 
     private boolean iconCompatEquals(@Nullable IconCompat other) {
@@ -297,11 +295,9 @@ public final class CarIcon {
             return Objects.equals(mIcon.getUri(), other.getUri());
         }
 
-        // Before Android version M, we support a subset of image types (resource or uri), so we
-        // compare the instances' resource info or uri to check for equality. For M or above,
-        // since we support any icon types, we only check for type equality if the type is
+        // Since we support any icon types, we only check for type equality if the type is
         // neither a resource or uri.
-        return VERSION.SDK_INT >= VERSION_CODES.M;
+        return true;
     }
 
     private static CarIcon forStandardType(@CarIconType int type) {
