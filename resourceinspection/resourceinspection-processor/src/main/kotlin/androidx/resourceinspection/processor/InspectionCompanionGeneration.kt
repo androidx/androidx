@@ -60,8 +60,8 @@ internal fun generateInspectionCompanion(
 
         val attributeIdNames = NameAllocator().apply {
             for (attribute in view.attributes) {
-                @Suppress("DEPRECATION") // b/187985877
-                newName("m${attribute.name.capitalize(Locale.US)}Id", attribute)
+                val attributeName = attribute.name.replaceFirstChar { it.uppercase() }
+                newName("m${attributeName}Id", attribute)
             }
         }
 
