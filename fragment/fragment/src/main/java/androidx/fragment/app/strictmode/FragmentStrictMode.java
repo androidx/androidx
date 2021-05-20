@@ -408,9 +408,12 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onWrongFragmentContainer(@NonNull Fragment fragment) {
-        Violation violation = new WrongFragmentContainerViolation(fragment);
+    public static void onWrongFragmentContainer(
+            @NonNull Fragment fragment,
+            @NonNull ViewGroup container) {
+        Violation violation = new WrongFragmentContainerViolation(fragment, container);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);

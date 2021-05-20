@@ -526,6 +526,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
+    method public android.view.ViewGroup getContainer();
   }
 
 }

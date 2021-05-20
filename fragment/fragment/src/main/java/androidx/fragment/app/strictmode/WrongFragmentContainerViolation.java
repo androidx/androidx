@@ -16,13 +16,27 @@
 
 package androidx.fragment.app.strictmode;
 
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 /** See #{@link FragmentStrictMode.Policy.Builder#detectWrongFragmentContainer()}. */
 public final class WrongFragmentContainerViolation extends Violation {
 
-    WrongFragmentContainerViolation(@NonNull Fragment fragment) {
+    private final ViewGroup mContainer;
+
+    WrongFragmentContainerViolation(@NonNull Fragment fragment, @NonNull ViewGroup container) {
         super(fragment);
+        this.mContainer = container;
+    }
+
+    /**
+     * Gets the container that the {@link Fragment} causing the Violation was
+     * being added to.
+     */
+    @NonNull
+    public ViewGroup getContainer() {
+        return mContainer;
     }
 }
