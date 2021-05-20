@@ -289,9 +289,10 @@ public final class FragmentStrictMode {
         return defaultPolicy;
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onFragmentReuse(@NonNull Fragment fragment) {
-        Violation violation = new FragmentReuseViolation(fragment);
+    public static void onFragmentReuse(@NonNull Fragment fragment, @NonNull String previousWho) {
+        Violation violation = new FragmentReuseViolation(fragment, previousWho);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);

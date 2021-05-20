@@ -459,6 +459,7 @@ package androidx.fragment.app {
 package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
+    method public String getPreviousFragmentId();
   }
 
   public final class FragmentStrictMode {
