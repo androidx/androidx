@@ -258,7 +258,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetByDocumentIdRequest build();
   }
 
-  public class GetSchemaResponse {
+  public final class GetSchemaResponse {
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method @IntRange(from=0) public int getVersion();
   }
