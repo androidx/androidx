@@ -56,8 +56,7 @@ public final class TilesTimelineCacheInternal {
                 // Only override a default if there's no more specific entry found.
                 if (currentEntryLength == Long.MAX_VALUE) {
                     // Let's treat an entry with no validity as being a "default", as long as we
-                    // haven't found
-                    // any other valid entries
+                    // haven't found any other valid entries
                     currentEntry = entry;
                 }
             } else {
@@ -190,8 +189,7 @@ public final class TilesTimelineCacheInternal {
             }
 
             // Discard if its start time is greater than the current smallest one we've found. In
-            // that
-            // case, the entry that gave us currentSmallestExpiry would be shown next.
+            // that case, the entry that gave us currentSmallestExpiry would be shown next.
             if (nextEntryValidity.getStartMillis() > currentSmallestExpiry) {
                 continue;
             }
@@ -204,17 +202,13 @@ public final class TilesTimelineCacheInternal {
             }
 
             // Finally, consider whether the length of the validity period is shorter than the
-            // current
-            // one. If this doesn't hold, the current entry would be shown instead (the timeline
-            // entry
-            // with the shortest validity period is always shown if overlapping).
+            // current one. If this doesn't hold, the current entry would be shown instead (the
+            // timeline entry with the shortest validity period is always shown if overlapping).
             //
             // We don't need to deal with the case of shortest validity between this entry, and an
-            // already
-            // chosen candidate time, as if we've got here, the start time of nextEntry is lower
-            // than
-            // the entry that is driving currentSmallestExpiry, so nextEntry would be shown
-            // regardless.
+            // already chosen candidate time, as if we've got here, the start time of nextEntry is
+            // lower than the entry that is driving currentSmallestExpiry, so nextEntry would be
+            // shown regardless.
             long nextEntryValidityLength =
                     nextEntryValidity.getEndMillis() - nextEntryValidity.getStartMillis();
 

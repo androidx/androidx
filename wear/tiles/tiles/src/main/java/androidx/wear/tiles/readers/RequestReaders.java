@@ -36,7 +36,8 @@ public class RequestReaders {
     /** Reader for Tile request parameters. */
     public static class TileRequest {
         private final RequestProto.TileRequest mProto;
-        @SuppressWarnings("UnusedVariable")
+
+        @SuppressWarnings("unused")
         private final int mTileId;
 
         private TileRequest(RequestProto.TileRequest proto, int tileId) {
@@ -75,7 +76,8 @@ public class RequestReaders {
     /** Reader for resource request parameters. */
     public static class ResourcesRequest {
         private final RequestProto.ResourcesRequest mProto;
-        @SuppressWarnings("UnusedVariable")
+
+        @SuppressWarnings("unused")
         private final int mTileId;
 
         private ResourcesRequest(@NonNull RequestProto.ResourcesRequest proto, int tileId) {

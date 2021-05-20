@@ -63,27 +63,34 @@ public final class LayoutElementBuilders {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({HALIGN_UNDEFINED, HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT, HALIGN_START, HALIGN_END})
+    @IntDef({
+        HORIZONTAL_ALIGN_UNDEFINED,
+        HORIZONTAL_ALIGN_LEFT,
+        HORIZONTAL_ALIGN_CENTER,
+        HORIZONTAL_ALIGN_RIGHT,
+        HORIZONTAL_ALIGN_START,
+        HORIZONTAL_ALIGN_END
+    })
     @Retention(RetentionPolicy.SOURCE)
     public @interface HorizontalAlignment {}
 
     /** Horizontal alignment is undefined. */
-    public static final int HALIGN_UNDEFINED = 0;
+    public static final int HORIZONTAL_ALIGN_UNDEFINED = 0;
 
     /** Horizontally align to the left. */
-    public static final int HALIGN_LEFT = 1;
+    public static final int HORIZONTAL_ALIGN_LEFT = 1;
 
     /** Horizontally align to center. */
-    public static final int HALIGN_CENTER = 2;
+    public static final int HORIZONTAL_ALIGN_CENTER = 2;
 
     /** Horizontally align to the right. */
-    public static final int HALIGN_RIGHT = 3;
+    public static final int HORIZONTAL_ALIGN_RIGHT = 3;
 
     /** Horizontally align to the content start (left in LTR layouts, right in RTL layouts). */
-    public static final int HALIGN_START = 4;
+    public static final int HORIZONTAL_ALIGN_START = 4;
 
     /** Horizontally align to the content end (right in LTR layouts, left in RTL layouts). */
-    public static final int HALIGN_END = 5;
+    public static final int HORIZONTAL_ALIGN_END = 5;
 
     /**
      * The vertical alignment of an element within its container.
@@ -91,21 +98,26 @@ public final class LayoutElementBuilders {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({VALIGN_UNDEFINED, VALIGN_TOP, VALIGN_CENTER, VALIGN_BOTTOM})
+    @IntDef({
+        VERTICAL_ALIGN_UNDEFINED,
+        VERTICAL_ALIGN_TOP,
+        VERTICAL_ALIGN_CENTER,
+        VERTICAL_ALIGN_BOTTOM
+    })
     @Retention(RetentionPolicy.SOURCE)
     public @interface VerticalAlignment {}
 
     /** Vertical alignment is undefined. */
-    public static final int VALIGN_UNDEFINED = 0;
+    public static final int VERTICAL_ALIGN_UNDEFINED = 0;
 
     /** Vertically align to the top. */
-    public static final int VALIGN_TOP = 1;
+    public static final int VERTICAL_ALIGN_TOP = 1;
 
     /** Vertically align to center. */
-    public static final int VALIGN_CENTER = 2;
+    public static final int VERTICAL_ALIGN_CENTER = 2;
 
     /** Vertically align to the bottom. */
-    public static final int VALIGN_BOTTOM = 3;
+    public static final int VERTICAL_ALIGN_BOTTOM = 3;
 
     /**
      * The weight to be applied to the font.
@@ -157,26 +169,30 @@ public final class LayoutElementBuilders {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({SPAN_VALIGN_UNDEFINED, SPAN_VALIGN_BOTTOM, SPAN_VALIGN_TEXT_BASELINE})
+    @IntDef({
+        SPAN_VERTICAL_ALIGN_UNDEFINED,
+        SPAN_VERTICAL_ALIGN_BOTTOM,
+        SPAN_VERTICAL_ALIGN_TEXT_BASELINE
+    })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SpanVerticalAlignment {}
 
     /** Alignment is undefined. */
-    public static final int SPAN_VALIGN_UNDEFINED = 0;
+    public static final int SPAN_VERTICAL_ALIGN_UNDEFINED = 0;
 
     /**
      * Align to the bottom of the line (descent of the largest text in this line). If there is no
      * text in the line containing this image, this will align to the bottom of the line, where the
      * line height is defined as the height of the largest image in the line.
      */
-    public static final int SPAN_VALIGN_BOTTOM = 1;
+    public static final int SPAN_VERTICAL_ALIGN_BOTTOM = 1;
 
     /**
      * Align to the baseline of the text. Note that if the line in the {@link Spannable} which
      * contains this image does not contain any text, the effects of using this alignment are
      * undefined.
      */
-    public static final int SPAN_VALIGN_TEXT_BASELINE = 2;
+    public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2;
 
     /**
      * Alignment of a text element.
@@ -1921,7 +1937,7 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets the horizontal alignment of the element inside this {@link Box}. If not defined,
-         * defaults to HALIGN_CENTER. Intended for testing purposes only.
+         * defaults to HORIZONTAL_ALIGN_CENTER. Intended for testing purposes only.
          */
         @Nullable
         public HorizontalAlignmentProp getHorizontalAlignment() {
@@ -1934,7 +1950,7 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets the vertical alignment of the element inside this {@link Box}. If not defined,
-         * defaults to VALIGN_CENTER. Intended for testing purposes only.
+         * defaults to VERTICAL_ALIGN_CENTER. Intended for testing purposes only.
          */
         @Nullable
         public VerticalAlignmentProp getVerticalAlignment() {
@@ -2049,7 +2065,7 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets the horizontal alignment of the element inside this {@link Box}. If not defined,
-             * defaults to HALIGN_CENTER.
+             * defaults to HORIZONTAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setHorizontalAlignment(
@@ -2059,7 +2075,7 @@ public final class LayoutElementBuilders {
             }
             /**
              * Sets the horizontal alignment of the element inside this {@link Box}. If not defined,
-             * defaults to HALIGN_CENTER.
+             * defaults to HORIZONTAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
@@ -2073,7 +2089,7 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets the vertical alignment of the element inside this {@link Box}. If not defined,
-             * defaults to VALIGN_CENTER.
+             * defaults to VERTICAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setVerticalAlignment(@NonNull VerticalAlignmentProp verticalAlignment) {
@@ -2082,7 +2098,7 @@ public final class LayoutElementBuilders {
             }
             /**
              * Sets the vertical alignment of the element inside this {@link Box}. If not defined,
-             * defaults to VALIGN_CENTER.
+             * defaults to VERTICAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
@@ -2316,7 +2332,7 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets alignment of this image within the line height of the surrounding {@link Spannable}.
-         * If undefined, defaults to SPAN_VALIGN_BOTTOM. Intended for testing purposes only.
+         * If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM. Intended for testing purposes only.
          */
         @Nullable
         public SpanVerticalAlignmentProp getAlignment() {
@@ -2425,7 +2441,7 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets alignment of this image within the line height of the surrounding {@link
-             * Spannable}. If undefined, defaults to SPAN_VALIGN_BOTTOM.
+             * Spannable}. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
              */
             @NonNull
             public Builder setAlignment(@NonNull SpanVerticalAlignmentProp alignment) {
@@ -2434,7 +2450,7 @@ public final class LayoutElementBuilders {
             }
             /**
              * Sets alignment of this image within the line height of the surrounding {@link
-             * Spannable}. If undefined, defaults to SPAN_VALIGN_BOTTOM.
+             * Spannable}. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
              */
             @NonNull
             public Builder setAlignment(@SpanVerticalAlignment int alignment) {
@@ -2800,8 +2816,8 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets the horizontal alignment of elements inside this column, if they are narrower than
-         * the resulting width of the column. If not defined, defaults to HALIGN_CENTER. Intended
-         * for testing purposes only.
+         * the resulting width of the column. If not defined, defaults to HORIZONTAL_ALIGN_CENTER.
+         * Intended for testing purposes only.
          */
         @Nullable
         public HorizontalAlignmentProp getHorizontalAlignment() {
@@ -2902,7 +2918,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets the horizontal alignment of elements inside this column, if they are narrower
-             * than the resulting width of the column. If not defined, defaults to HALIGN_CENTER.
+             * than the resulting width of the column. If not defined, defaults to
+             * HORIZONTAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setHorizontalAlignment(
@@ -2912,7 +2929,8 @@ public final class LayoutElementBuilders {
             }
             /**
              * Sets the horizontal alignment of elements inside this column, if they are narrower
-             * than the resulting width of the column. If not defined, defaults to HALIGN_CENTER.
+             * than the resulting width of the column. If not defined, defaults to
+             * HORIZONTAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
@@ -3017,8 +3035,8 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets the vertical alignment of elements inside this row, if they are narrower than the
-         * resulting height of the row. If not defined, defaults to VALIGN_CENTER. Intended for
-         * testing purposes only.
+         * resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER. Intended
+         * for testing purposes only.
          */
         @Nullable
         public VerticalAlignmentProp getVerticalAlignment() {
@@ -3119,7 +3137,7 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets the vertical alignment of elements inside this row, if they are narrower than
-             * the resulting height of the row. If not defined, defaults to VALIGN_CENTER.
+             * the resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setVerticalAlignment(@NonNull VerticalAlignmentProp verticalAlignment) {
@@ -3128,7 +3146,7 @@ public final class LayoutElementBuilders {
             }
             /**
              * Sets the vertical alignment of elements inside this row, if they are narrower than
-             * the resulting height of the row. If not defined, defaults to VALIGN_CENTER.
+             * the resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
@@ -3258,7 +3276,7 @@ public final class LayoutElementBuilders {
          * Gets vertical alignment of elements within the arc. If the {@link Arc}'s thickness is
          * larger than the thickness of the element being drawn, this controls whether the element
          * should be drawn towards the inner or outer edge of the arc, or drawn in the center. If
-         * not defined, defaults to VALIGN_CENTER. Intended for testing purposes only.
+         * not defined, defaults to VERTICAL_ALIGN_CENTER. Intended for testing purposes only.
          */
         @Nullable
         public VerticalAlignmentProp getVerticalAlign() {
@@ -3386,7 +3404,7 @@ public final class LayoutElementBuilders {
              * Sets vertical alignment of elements within the arc. If the {@link Arc}'s thickness is
              * larger than the thickness of the element being drawn, this controls whether the
              * element should be drawn towards the inner or outer edge of the arc, or drawn in the
-             * center. If not defined, defaults to VALIGN_CENTER.
+             * center. If not defined, defaults to VERTICAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setVerticalAlign(@NonNull VerticalAlignmentProp verticalAlign) {
@@ -3397,7 +3415,7 @@ public final class LayoutElementBuilders {
              * Sets vertical alignment of elements within the arc. If the {@link Arc}'s thickness is
              * larger than the thickness of the element being drawn, this controls whether the
              * element should be drawn towards the inner or outer edge of the arc, or drawn in the
-             * center. If not defined, defaults to VALIGN_CENTER.
+             * center. If not defined, defaults to VERTICAL_ALIGN_CENTER.
              */
             @NonNull
             public Builder setVerticalAlign(@VerticalAlignment int verticalAlign) {

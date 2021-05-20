@@ -13,15 +13,15 @@ box {
     expanded_dimension: {}
   }
   vertical_alignment {
-    value: VALIGN_CENTER
+    value: VERTICAL_ALIGN_CENTER
   }
   horizontal_alignment {
-    value: HALIGN_CENTER
+    value: HORIZONTAL_ALIGN_CENTER
   }
   contents {
     column {
       horizontal_alignment {
-        value: HALIGN_LEFT
+        value: HORIZONTAL_ALIGN_LEFT
       }
       contents {
         text {

@@ -2,7 +2,7 @@ column {
   contents {
     column {
       horizontal_alignment {
-        value: HALIGN_START
+        value: HORIZONTAL_ALIGN_START
       }
       contents {
         text {
@@ -24,7 +24,7 @@ column {
   contents {
     column {
       horizontal_alignment {
-        value: HALIGN_CENTER
+        value: HORIZONTAL_ALIGN_CENTER
       }
       contents {
         text {
@@ -46,7 +46,7 @@ column {
   contents {
     column {
       horizontal_alignment {
-        value: HALIGN_END
+        value: HORIZONTAL_ALIGN_END
       }
       contents {
         text {

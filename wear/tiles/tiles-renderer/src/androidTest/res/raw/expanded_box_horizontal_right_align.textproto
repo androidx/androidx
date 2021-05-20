@@ -7,7 +7,7 @@ box {
   contents {
     box {
       horizontal_alignment {
-        value: HALIGN_END
+        value: HORIZONTAL_ALIGN_END
       }
       modifiers {
         background {

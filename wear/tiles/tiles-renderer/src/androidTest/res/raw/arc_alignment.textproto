@@ -15,7 +15,7 @@ box {
         value: 0
       }
       vertical_align {
-        value: VALIGN_TOP
+        value: VERTICAL_ALIGN_TOP
       }
       contents {
         text {
@@ -67,7 +67,7 @@ box {
         value: 90
       }
       vertical_align {
-        value: VALIGN_CENTER
+        value: VERTICAL_ALIGN_CENTER
       }
       contents {
         text {
@@ -119,7 +119,7 @@ box {
         value: 180
       }
       vertical_align {
-        value: VALIGN_BOTTOM
+        value: VERTICAL_ALIGN_BOTTOM
       }
       contents {
         text {

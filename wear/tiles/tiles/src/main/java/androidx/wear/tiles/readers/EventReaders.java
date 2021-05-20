@@ -33,7 +33,7 @@ public class EventReaders {
 
     /** Reader for Tile add event parameters. */
     public static class TileAddEvent {
-        @SuppressWarnings("UnusedVariable")
+        @SuppressWarnings("unused")
         private final EventProto.TileAddEvent mProto;
 
         private TileAddEvent(@NonNull EventProto.TileAddEvent proto) {
@@ -62,7 +62,7 @@ public class EventReaders {
 
     /** Reader for Tile remove event parameters. */
     public static class TileRemoveEvent {
-        @SuppressWarnings("UnusedVariable")
+        @SuppressWarnings("unused")
         private final EventProto.TileRemoveEvent mProto;
 
         private TileRemoveEvent(@NonNull EventProto.TileRemoveEvent proto) {
@@ -91,7 +91,7 @@ public class EventReaders {
 
     /** Reader for Tile enter event parameters. */
     public static class TileEnterEvent {
-        @SuppressWarnings("UnusedVariable")
+        @SuppressWarnings("unused")
         private final EventProto.TileEnterEvent mProto;
 
         private TileEnterEvent(@NonNull EventProto.TileEnterEvent proto) {
@@ -120,7 +120,7 @@ public class EventReaders {
 
     /** Reader for a Tile leave event parameters. */
     public static class TileLeaveEvent {
-        @SuppressWarnings("UnusedVariable")
+        @SuppressWarnings("unused")
         private final EventProto.TileLeaveEvent mProto;
 
         private TileLeaveEvent(@NonNull EventProto.TileLeaveEvent proto) {

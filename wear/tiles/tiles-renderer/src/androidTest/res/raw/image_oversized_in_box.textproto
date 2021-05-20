@@ -3,7 +3,7 @@ column {
     expanded_dimension {}
   }
   horizontal_alignment {
-    value: HALIGN_CENTER
+    value: HORIZONTAL_ALIGN_CENTER
   }
   contents {
     box {
@@ -18,7 +18,7 @@ column {
         }
       }
       horizontal_alignment {
-        value: HALIGN_START
+        value: HORIZONTAL_ALIGN_START
       }
       width {
         linear_dimension {
@@ -63,7 +63,7 @@ column {
         }
       }
       horizontal_alignment {
-        value: HALIGN_CENTER
+        value: HORIZONTAL_ALIGN_CENTER
       }
       width {
         linear_dimension {
@@ -108,7 +108,7 @@ column {
         }
       }
       horizontal_alignment {
-        value: HALIGN_END
+        value: HORIZONTAL_ALIGN_END
       }
       width {
         linear_dimension {

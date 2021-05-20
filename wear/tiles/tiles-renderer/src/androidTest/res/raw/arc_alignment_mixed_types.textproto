@@ -15,17 +15,17 @@ box {
         value: 0
       }
       vertical_align {
-        value: VALIGN_TOP
+        value: VERTICAL_ALIGN_TOP
       }
       contents {
         adapter {
           content {
             box {
               horizontal_alignment {
-                value: HALIGN_CENTER
+                value: HORIZONTAL_ALIGN_CENTER
               }
               vertical_alignment {
-                value: VALIGN_CENTER
+                value: VERTICAL_ALIGN_CENTER
               }
               modifiers {
                 background {
@@ -107,17 +107,17 @@ box {
         value: 90
       }
       vertical_align {
-        value: VALIGN_CENTER
+        value: VERTICAL_ALIGN_CENTER
       }
       contents {
         adapter {
           content {
             box {
               horizontal_alignment {
-                value: HALIGN_CENTER
+                value: HORIZONTAL_ALIGN_CENTER
               }
               vertical_alignment {
-                value: VALIGN_CENTER
+                value: VERTICAL_ALIGN_CENTER
               }
               modifiers {
                 background {
@@ -199,17 +199,17 @@ box {
         value: 180
       }
       vertical_align {
-        value: VALIGN_BOTTOM
+        value: VERTICAL_ALIGN_BOTTOM
       }
       contents {
         adapter {
           content {
             box {
               horizontal_alignment {
-                value: HALIGN_CENTER
+                value: HORIZONTAL_ALIGN_CENTER
               }
               vertical_alignment {
-                value: VALIGN_CENTER
+                value: VERTICAL_ALIGN_CENTER
               }
               modifiers {
                 background {
@@ -295,10 +295,10 @@ box {
           content {
             box {
               horizontal_alignment {
-                value: HALIGN_CENTER
+                value: HORIZONTAL_ALIGN_CENTER
               }
               vertical_alignment {
-                value: VALIGN_CENTER
+                value: VERTICAL_ALIGN_CENTER
               }
               modifiers {
                 background {
