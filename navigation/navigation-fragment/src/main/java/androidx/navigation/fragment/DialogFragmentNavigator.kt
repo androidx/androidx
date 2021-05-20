@@ -48,7 +48,9 @@ public class DialogFragmentNavigator(
         if (event == Lifecycle.Event.ON_STOP) {
             val dialogFragment = source as DialogFragment
             if (!dialogFragment.requireDialog().isShowing) {
-                NavHostFragment.findNavController(dialogFragment).popBackStack()
+                // Update the NavigatorState to indicate that the Dialog was popped
+                val entry = state.backStack.value.first { it.id == dialogFragment.tag }
+                state.pop(entry, false)
             }
         }
     }
