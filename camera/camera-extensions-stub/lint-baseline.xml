@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="22"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="50"
+            line="51"
             column="12"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="55"
+            line="56"
             column="12"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="24"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="41"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="66"
+            line="67"
             column="13"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="86"
+            line="87"
             column="12"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="91"
+            line="92"
             column="12"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="22"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="50"
+            line="51"
             column="12"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="55"
+            line="56"
             column="12"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="24"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="41"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="66"
+            line="67"
             column="13"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="86"
+            line="87"
             column="12"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="91"
+            line="92"
             column="12"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="22"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="50"
+            line="51"
             column="12"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="55"
+            line="56"
             column="12"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="24"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="41"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="66"
+            line="67"
             column="13"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="86"
+            line="87"
             column="12"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="91"
+            line="92"
             column="12"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="22"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -899,7 +899,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="50"
+            line="51"
             column="12"/>
     </issue>
 
@@ -910,7 +910,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="55"
+            line="56"
             column="12"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="24"/>
     </issue>
 
@@ -932,7 +932,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="41"/>
     </issue>
 
@@ -943,7 +943,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="66"
+            line="67"
             column="13"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="86"
+            line="87"
             column="12"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="91"
+            line="92"
             column="12"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="41"
+            line="42"
             column="34"/>
     </issue>
 
@@ -1141,7 +1141,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="41"
+            line="42"
             column="51"/>
     </issue>
 
@@ -1152,7 +1152,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="52"
+            line="53"
             column="15"/>
     </issue>
 
@@ -1163,7 +1163,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="52"
+            line="53"
             column="32"/>
     </issue>
 
@@ -1174,7 +1174,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="57"
+            line="58"
             column="5"/>
     </issue>
 
@@ -1185,7 +1185,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="60"
+            line="61"
             column="5"/>
     </issue>
 
@@ -1196,7 +1196,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="22"/>
     </issue>
 
@@ -1207,7 +1207,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -1218,7 +1218,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="50"
+            line="51"
             column="12"/>
     </issue>
 
@@ -1229,7 +1229,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="55"
+            line="56"
             column="12"/>
     </issue>
 
@@ -1240,7 +1240,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="24"/>
     </issue>
 
@@ -1251,7 +1251,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="65"
+            line="66"
             column="41"/>
     </issue>
 
@@ -1262,7 +1262,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="66"
+            line="67"
             column="13"/>
     </issue>
 
@@ -1273,7 +1273,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -1284,7 +1284,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -1295,7 +1295,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="86"
+            line="87"
             column="12"/>
     </issue>
 
@@ -1306,7 +1306,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="91"
+            line="92"
             column="12"/>
     </issue>
 

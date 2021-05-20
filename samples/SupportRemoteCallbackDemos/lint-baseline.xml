@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.AppTheme_NoActionBar` appears to be unused"
-        errorLine1="    &lt;style name=&quot;AppTheme.NoActionBar&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="28"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.AppTheme_AppBarOverlay` appears to be unused"
-        errorLine1="    &lt;style name=&quot;AppTheme.AppBarOverlay&quot; parent=&quot;ThemeOverlay.AppCompat.Dark.ActionBar&quot;/>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="32"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.AppTheme_PopupOverlay` appears to be unused"
-        errorLine1="    &lt;style name=&quot;AppTheme.PopupOverlay&quot; parent=&quot;ThemeOverlay.AppCompat.Light&quot;/>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="33"
-            column="12"/>
-    </issue>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="UnknownNullness"
