@@ -15,8 +15,6 @@
  */
 package androidx.wear.compose.material
 
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,9 +27,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Surface
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -75,7 +75,6 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the chip
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param onClickLabel Semantic / accessibility label for the [onClick] action
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
@@ -84,9 +83,6 @@ import androidx.compose.ui.unit.dp
  * [Interaction]s for this Chip. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Chip in different [Interaction]s.
- * @param indication Indication to be shown when surface is pressed. By default, indication from
- * [LocalIndication] will be used. Pass `null` to show no indication, or current value from
- * [LocalIndication] to show theme default
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
  */
@@ -96,11 +92,9 @@ fun Chip(
     colors: ChipColors,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    onClickLabel: String? = null,
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.small,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    indication: Indication? = LocalIndication.current,
     role: Role? = Role.Button,
     content: @Composable () -> Unit,
 ) {
@@ -122,10 +116,9 @@ fun Chip(
         val contentBoxModifier = Modifier
             .clickable(
                 enabled = enabled,
-                onClickLabel = onClickLabel,
                 onClick = onClick,
                 role = role,
-                indication = indication,
+                indication = rememberRipple(),
                 interactionSource = interactionSource,
             )
             .padding(contentPadding)
@@ -148,7 +141,7 @@ fun Chip(
 /**
  * Wear Material [Chip] that offers three slots and a specific layout for an icon, label and
  * secondaryLabel. The icon and secondaryLabel are optional. The items are laid out with the icon,
- * if provided, a the start of a row, with a column next containing the two label slots.
+ * if provided, at the start of a row, with a column next containing the two label slots.
  *
  * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
  * of [Typography.button] style. If no secondary label is provided then the label
@@ -167,26 +160,25 @@ fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
- * @param label A slot for providing the chips main label. The contents are expected to be text
+ * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
- * @param secondaryLabel A slot for providing the chips secondary label. The contents are expected
+ * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
  * not. label and secondaryLabel contents should be consistently aligned.
+ * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param onClickLabel Semantic / accessibility label for the [onClick] action
  * @param interactionSource The [MutableInteractionSource] representing the stream of
  * [Interaction]s for this Chip. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Chip in different [Interaction]s.
- * @param indication Indication to be shown when surface is pressed. By default, indication from
- * [LocalIndication] will be used. Pass `null` to show no indication, or current value from
- * [LocalIndication] to show theme default
+
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  */
@@ -199,9 +191,7 @@ fun Chip(
     icon: (@Composable () -> Unit)? = null,
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
-    onClickLabel: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    indication: Indication? = LocalIndication.current,
     contentPadding: PaddingValues = ChipDefaults.contentPadding(icon != null),
 ) {
     Chip(
@@ -209,9 +199,7 @@ fun Chip(
         colors = colors,
         modifier = modifier,
         enabled = enabled,
-        onClickLabel = onClickLabel,
         interactionSource = interactionSource,
-        indication = indication,
         contentPadding = contentPadding
     ) {
         Row(
@@ -242,6 +230,94 @@ fun Chip(
                         content = secondaryLabel
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * A compact Wear Material Chip that offers two slots and a specific layout for an icon and label.
+ * Both the icon and label are optional however it is expected that at least one will be provided.
+ *
+ * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
+ * of text of [Typography.button] style and/or one 24x24 icon. The default max height is
+ * [ChipDefaults.CompactChipHeight].
+ *
+ * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
+ * the text starts next to the icon.
+ *
+ * The items are laid out as follows.
+ *
+ * 1. If a label is provided then the chip will be laid out with the optional icon at the start of a
+ * row followed by the label with a default max height of [ChipDefaults.CompactChipHeight].
+ *
+ * 2. If only an icon is provided it will be laid out vertically and horizontally centered with a
+ * default height of [ChipDefaults.CompactChipHeight] and the default width of
+ * [ChipDefaults.IconOnlyCompactChipWidth]
+ *
+ * The [CompactChip] can have different styles with configurable content colors, background colors
+ * including gradients, these are provided by [ChipColors] implementations.
+ *
+ * The recommended set of [ChipColors] styles can be obtained from [ChipDefaults], e.g.
+ * [ChipDefaults.primaryChipColors] to get a color scheme for a primary [Chip] which by default
+ * will have a solid background of [Colors.primary] and content color of
+ * [Colors.onPrimary].
+ *
+ * Chips can be enabled or disabled. A disabled chip will not respond to click events.
+ *
+ * @param onClick Will be called when the user clicks the chip
+ * @param modifier Modifier to be applied to the chip
+ * @param label A slot for providing the chip's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * @param colors [ChipColors] that will be used to resolve the background and content color for
+ * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
+ * [ChipDefaults.primaryChipColors]
+ * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
+ * be clickable
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Chip. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Chip in different [Interaction]s.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ * content
+ */
+@Composable
+fun CompactChip(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    label: (@Composable () -> Unit)? = null,
+    icon: (@Composable () -> Unit)? = null,
+    colors: ChipColors = ChipDefaults.primaryChipColors(),
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    contentPadding: PaddingValues = ChipDefaults.contentPadding(icon != null),
+) {
+    if (label != null) {
+        Chip(
+            label = label,
+            onClick = onClick,
+            modifier = modifier.height(ChipDefaults.CompactChipHeight),
+            icon = icon,
+            colors = colors,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            contentPadding = contentPadding
+        )
+    } else {
+        Chip(
+            onClick = onClick,
+            modifier = modifier
+                .height(ChipDefaults.CompactChipHeight)
+                .width(ChipDefaults.IconOnlyCompactChipWidth),
+            colors = colors,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            contentPadding = contentPadding
+        ) {
+            if (icon != null) {
+                icon()
             }
         }
     }
@@ -375,6 +451,18 @@ public object ChipDefaults {
      * Note that you can override it by applying Modifier.heightIn directly on [Chip].
      */
     internal val Height = 52.dp
+
+    /**
+     * The height applied for the [CompactChip].
+     * Note that you can override it by applying Modifier.height directly on [CompactChip].
+     */
+    internal val CompactChipHeight = 32.dp
+
+    /**
+     * The default width applied for the [CompactChip] when it has no label provided.
+     * Note that you can override it by applying Modifier.width directly on [CompactChip].
+     */
+    internal val IconOnlyCompactChipWidth = 52.dp
 
     /**
      * The default size of the icon when used inside a [Chip].
