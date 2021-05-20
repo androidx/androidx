@@ -23,11 +23,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
+import android.os.Bundle
+import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Base64
 import android.view.Gravity
@@ -36,13 +39,20 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.data.ComplicationStateWireFormat
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
@@ -126,14 +136,6 @@ public class WatchFace(
     public val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
-
-    init {
-        if (renderer is Renderer.GlesRenderer) {
-            require(renderer.initDone) {
-                "Did you forget to call GlesRenderer.initOpenGLContext?"
-            }
-        }
-    }
 
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
@@ -377,7 +379,7 @@ public class WatchFace(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("SyntheticAccessor")
-public class WatchFaceImpl(
+public class WatchFaceImpl @UiThread constructor(
     watchface: WatchFace,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
@@ -463,7 +465,7 @@ public class WatchFaceImpl(
     public val calendar: Calendar = Calendar.getInstance()
 
     private val pendingUpdateTime: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getHandler())
+        CancellableUniqueTask(watchFaceHostApi.getUiThreadHandler())
 
     internal val componentName =
         ComponentName(
@@ -567,17 +569,19 @@ public class WatchFaceImpl(
         }
     }
 
-    private val visibilityObserver = Observer<Boolean> {
-        if (it) {
-            registerReceivers()
-            // Update time zone in case it changed while we weren't visible.
-            calendar.timeZone = TimeZone.getDefault()
-            watchFaceHostApi.invalidate()
-        } else {
-            unregisterReceivers()
-        }
+    private val visibilityObserver = Observer<Boolean> { isVisible ->
+        TraceEvent("WatchFaceImpl.visibilityObserver").use {
+            if (isVisible) {
+                registerReceivers()
+                // Update time zone in case it changed while we weren't visible.
+                calendar.timeZone = TimeZone.getDefault()
+                watchFaceHostApi.invalidate()
+            } else {
+                unregisterReceivers()
+            }
 
-        scheduleDraw()
+            scheduleDraw()
+        }
     }
 
     // Only installed if Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -602,28 +606,33 @@ public class WatchFaceImpl(
         // persistence, otherwise we need to do our own.
         val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
         if (storedUserStyle != null) {
-            currentUserStyleRepository.userStyle =
-                UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
+            TraceEvent("WatchFaceImpl.init apply userStyle").use {
+                currentUserStyleRepository.userStyle =
+                    UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
+            }
         } else {
-            // The system doesn't support preference persistence we need to do it ourselves.
-            val preferencesFile =
-                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
+            TraceEvent("WatchFaceImpl.init apply userStyle from prefs").use {
+                // The system doesn't support preference persistence we need to do it ourselves.
+                val preferencesFile =
+                    "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
 
-            currentUserStyleRepository.userStyle = UserStyle(
-                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
-                currentUserStyleRepository.schema
-            )
+                currentUserStyleRepository.userStyle = UserStyle(
+                    UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
+                    currentUserStyleRepository.schema
+                )
 
-            currentUserStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
-                    }
-                })
+                currentUserStyleRepository.addUserStyleChangeListener(
+                    object : CurrentUserStyleRepository.UserStyleChangeListener {
+                        @SuppressLint("SyntheticAccessor")
+                        override fun onUserStyleChanged(userStyle: UserStyle) {
+                            writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
+                        }
+                    })
+            }
         }
 
         renderer.watchFaceHostApi = watchFaceHostApi
+        renderer.uiThreadInit()
 
         setIsBatteryLowAndNotChargingFromBatteryStatus(
             IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
@@ -641,7 +650,7 @@ public class WatchFaceImpl(
                 @SuppressWarnings("SyntheticAccessor")
                 override fun onInvalidate() {
                     // This could be called on any thread.
-                    watchFaceHostApi.getHandler().runOnHandlerWithTracing("onInvalidate") {
+                    watchFaceHostApi.getUiThreadHandler().runOnHandlerWithTracing("onInvalidate") {
                         // Ensure we render a frame if the Complication needs rendering, e.g.
                         // because it loaded an image. However if we're animating there's no need
                         // to trigger an extra invalidation.
@@ -774,7 +783,7 @@ public class WatchFaceImpl(
 
     @UiThread
     private fun registerReceivers() {
-        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+        require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
             "registerReceivers must be called the UiThread"
         }
 
@@ -787,7 +796,7 @@ public class WatchFaceImpl(
 
     @UiThread
     private fun unregisterReceivers() {
-        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+        require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
             "unregisterReceivers must be called the UiThread"
         }
         broadcastsReceiver?.onDestroy()
@@ -960,6 +969,122 @@ public class WatchFaceImpl(
                 lastTappedComplicationId = tappedComplication.id
             }
             else -> lastTappedComplicationId = null
+        }
+    }
+
+    @UiThread
+    internal fun getComplicationState() = complicationsManager.complications.map {
+        IdAndComplicationStateWireFormat(
+            it.key,
+            ComplicationStateWireFormat(
+                it.value.computeBounds(renderer.screenBounds),
+                it.value.boundsType,
+                ComplicationType.toWireTypes(it.value.supportedTypes),
+                it.value.defaultProviderPolicy.providersAsList(),
+                it.value.defaultProviderPolicy.systemProviderFallback,
+                it.value.defaultProviderType.toWireComplicationType(),
+                it.value.enabled,
+                it.value.initiallyEnabled,
+                it.value.renderer.getData()?.type?.toWireComplicationType()
+                    ?: ComplicationType.NO_DATA.toWireComplicationType(),
+                it.value.fixedComplicationProvider,
+                it.value.configExtras
+            )
+        )
+    }
+
+    @UiThread
+    @RequiresApi(27)
+    internal fun renderWatchFaceToBitmap(
+        params: WatchFaceRenderParams
+    ): Bundle = TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
+        val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+        params.userStyle?.let {
+            onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
+        }
+
+        val oldComplicationData =
+            complicationsManager.complications.values.associateBy(
+                { it.id },
+                { it.renderer.getData() }
+            )
+
+        params.idAndComplicationDatumWireFormats?.let {
+            for (idAndData in it) {
+                complicationsManager[idAndData.id]!!.renderer
+                    .loadData(idAndData.complicationData.toApiComplicationData(), false)
+            }
+        }
+
+        val bitmap = renderer.takeScreenshot(
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = params.calendarTimeMillis
+            },
+            RenderParameters(params.renderParametersWireFormat)
+        )
+
+        // Restore previous style & complications if required.
+        if (params.userStyle != null) {
+            onSetStyleInternal(UserStyle(oldStyle))
+        }
+
+        if (params.idAndComplicationDatumWireFormats != null) {
+            for ((id, data) in oldComplicationData) {
+                complicationsManager[id]!!.renderer.loadData(data, false)
+            }
+        }
+
+        return SharedMemoryImage.ashmemWriteImageBundle(bitmap)
+    }
+
+    @UiThread
+    @RequiresApi(27)
+    internal fun renderComplicationToBitmap(
+        params: ComplicationRenderParams
+    ): Bundle? = TraceEvent("WatchFaceImpl.renderComplicationToBitmap").use {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = params.calendarTimeMillis
+        }
+        return complicationsManager[params.complicationId]?.let {
+            val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+            val newStyle = params.userStyle
+            if (newStyle != null) {
+                onSetStyleInternal(
+                    UserStyle(UserStyleData(newStyle), currentUserStyleRepository.schema)
+                )
+            }
+
+            val bounds = it.computeBounds(renderer.screenBounds)
+            val complicationBitmap =
+                Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
+
+            var prevData: ComplicationData? = null
+            val screenshotComplicationData = params.complicationData
+            if (screenshotComplicationData != null) {
+                prevData = it.renderer.getData()
+                it.renderer.loadData(
+                    screenshotComplicationData.toApiComplicationData(),
+                    false
+                )
+            }
+
+            it.renderer.render(
+                Canvas(complicationBitmap),
+                Rect(0, 0, bounds.width(), bounds.height()),
+                calendar,
+                RenderParameters(params.renderParametersWireFormat)
+            )
+
+            // Restore previous ComplicationData & style if required.
+            if (params.complicationData != null) {
+                it.renderer.loadData(prevData, false)
+            }
+
+            if (newStyle != null) {
+                onSetStyleInternal(UserStyle(oldStyle))
+            }
+
+            SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
         }
     }
 

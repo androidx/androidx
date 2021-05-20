@@ -38,9 +38,6 @@ import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFo
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runBlockingOnHandlerWithTracing
-import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.io.FileDescriptor
 import java.io.PrintWriter
 
@@ -72,7 +69,9 @@ public open class WatchFaceControlService : Service() {
 
     @VisibleForTesting
     public open fun createServiceStub(): IWatchFaceInstanceServiceStub =
-        IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper()))
+        TraceEvent("WatchFaceControlService.createServiceStub").use {
+            IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper()))
+        }
 
     @VisibleForTesting
     public fun setContext(context: Context) {
@@ -129,12 +128,10 @@ public open class IWatchFaceInstanceServiceStub(
         val engine = createHeadlessEngine(params.watchFaceName, context)
         engine?.let {
             // This is serviced on a background thread so it should be fine to block.
-            runBlocking {
+            uiThreadHandler.runBlockingOnHandlerWithTracing("createHeadlessInstance") {
                 // However the WatchFaceService.createWatchFace method needs to be run on the UI
                 // thread.
-                withContext(uiThreadHandler.asCoroutineDispatcher().immediate) {
-                    it.createHeadlessInstance(params)
-                }
+                it.createHeadlessInstance(params)
             }
         }
     }
@@ -197,16 +194,12 @@ public open class IWatchFaceInstanceServiceStub(
     override fun getDefaultProviderPolicies(
         params: DefaultProviderPoliciesParams
     ): Array<IdTypeAndDefaultProviderPolicyWireFormat>? = TraceEvent(
-        "IWatchFaceInstanceServiceStub.getIdAndDefaultProviderPolicies"
+        "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies"
     ).use {
-        val engine = createHeadlessEngine(params.watchFaceName, context)
-        engine?.let {
-            // This is serviced on a background thread so it should be fine to block.
-            uiThreadHandler.runBlockingOnHandlerWithTracing("getDefaultProviderPolicies") {
-                // However the WatchFaceService.getDefaultProviderPolicies method needs to be run on
-                // the UI thread.
-                it.getDefaultProviderPolicies()
-            }
+        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+            val result = engine.getDefaultProviderPolicies()
+            engine.onDestroy()
+            result
         }
     }
 }
