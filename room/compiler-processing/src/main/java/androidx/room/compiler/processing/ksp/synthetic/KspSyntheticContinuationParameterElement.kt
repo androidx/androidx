@@ -89,7 +89,6 @@ internal class KspSyntheticContinuationParameterElement(
         check(other is KspType)
         val continuation = env.resolver.requireContinuationClass()
         val asMember = containing.declaration.returnTypeAsMemberOf(
-            resolver = env.resolver,
             ksType = other.ksType
         )
         val returnTypeRef = checkNotNull(containing.declaration.returnType) {

@@ -47,7 +47,7 @@ internal class KspFieldElement(
     override val type: KspType by lazy {
         env.wrap(
             originatingReference = declaration.type,
-            ksType = declaration.typeAsMemberOf(env.resolver, containing.type?.ksType)
+            ksType = declaration.typeAsMemberOf(containing.type?.ksType)
         )
     }
 
@@ -56,7 +56,7 @@ internal class KspFieldElement(
             return type
         }
         check(other is KspType)
-        val asMember = declaration.typeAsMemberOf(env.resolver, other.ksType)
+        val asMember = declaration.typeAsMemberOf(other.ksType)
         return env.wrap(
             originatingReference = declaration.type,
             ksType = asMember

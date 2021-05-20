@@ -106,10 +106,8 @@ sealed class KspHasModifiers(
             // Unfortunately, we don't have a way of checking it as KotlinMetadata annotation is not
             // visible via KSP. We approximate it by checking if it is delegated or not.
             when (declaration.origin) {
-                Origin.JAVA -> true
-                Origin.KOTLIN -> declaration.hasJvmFieldAnnotation()
-                // TODO find a better way to check if class is derived from kotlin source or not.
-                Origin.CLASS -> declaration.hasJvmFieldAnnotation() || !declaration.isDelegated()
+                Origin.JAVA, Origin.JAVA_LIB -> true
+                Origin.KOTLIN, Origin.KOTLIN_LIB -> declaration.hasJvmFieldAnnotation()
                 else -> false
             }
         }

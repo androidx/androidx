@@ -296,13 +296,8 @@ class XTypeElementTest {
                 .containsExactly("public", "final", "class", "data")
             assertThat(getModifiers("InlineClass"))
                 .containsExactly("public", "final", "class", "value")
-
-            if (!invocation.isKsp) {
-                // TODO: Enable for ksp too once it supports fun interfaces
-                //  https://github.com/google/ksp/issues/393
-                assertThat(getModifiers("FunInterface"))
-                    .containsExactly("public", "abstract", "interface", "fun")
-            }
+            assertThat(getModifiers("FunInterface"))
+                .containsExactly("public", "abstract", "interface", "fun")
         }
     }
 

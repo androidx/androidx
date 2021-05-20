@@ -63,8 +63,6 @@ internal abstract class KspElement(
     }
 
     override val docComment: String? by lazy {
-        // TODO: Not yet implemented in KSP.
-        // https://github.com/google/ksp/issues/392
-        null
+        (declaration as? KSDeclaration)?.docString
     }
 }

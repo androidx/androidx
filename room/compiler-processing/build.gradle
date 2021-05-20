@@ -42,7 +42,7 @@ dependencies {
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(JUNIT)
     testImplementation(JSR250)
-    testImplementation(KOTLIN_COMPILE_TESTING)
+    testImplementation(KOTLIN_COMPILE_TESTING_KSP)
     testImplementation(libs.ksp)
     testImplementation(project(":room:room-compiler-processing-testing"))
 }

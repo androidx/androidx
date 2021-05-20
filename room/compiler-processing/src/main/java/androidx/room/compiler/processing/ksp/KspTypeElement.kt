@@ -40,7 +40,6 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
-import javax.tools.Diagnostic
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
@@ -50,16 +49,6 @@ internal sealed class KspTypeElement(
     XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE),
     KspMemberContainer {
-
-    /**
-     * The true origin of this class file. This may not match `declaration.origin` when declaration
-     * is coming from a .class file.
-     *
-     * TODO: Remove this field when https://github.com/google/ksp/issues/375 is fixed.
-     */
-    val trueOrigin: Origin by lazy {
-        KspClassFileUtility.findTrueOrigin(declaration) ?: declaration.origin
-    }
 
     override val name: String by lazy {
         declaration.simpleName.asString()
@@ -124,7 +113,7 @@ internal sealed class KspTypeElement(
                 )
             }.let {
                 // only order instance fields, we don't care about the order of companion fields.
-                KspClassFileUtility.orderFields(declaration, it)
+                KspClassFileUtility.orderFields(declaration, it.toList())
             }
 
         val companionProperties = declaration
@@ -275,13 +264,7 @@ internal sealed class KspTypeElement(
     }
 
     override fun isFunctionalInterface(): Boolean {
-        // TODO: Update this once KSP supports it
-        // https://github.com/google/ksp/issues/393
-        env.messager.printMessage(
-            Diagnostic.Kind.WARNING,
-            "XProcessing does not yet support checking for functional interfaces in KSP."
-        )
-        return false
+        return Modifier.FUN in declaration.modifiers
     }
 
     override fun isExpect(): Boolean {
@@ -348,7 +331,7 @@ internal sealed class KspTypeElement(
                 containing = this,
                 declaration = it
             )
-        }
+        }.toList()
     }
 
     override fun getSuperInterfaceElements(): List<XTypeElement> {
