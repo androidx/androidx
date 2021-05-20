@@ -34,26 +34,4 @@
             column="20"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 23"
-        errorLine1="        return VERSION.SDK_INT >= VERSION_CODES.M;"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/CarIcon.java"
-            line="275"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 23"
-        errorLine1="        return VERSION.SDK_INT >= VERSION_CODES.M;"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/CarIcon.java"
-            line="304"
-            column="16"/>
-    </issue>
-
 </issues>
