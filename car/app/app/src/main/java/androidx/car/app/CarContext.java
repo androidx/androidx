@@ -186,6 +186,9 @@ public class CarContext extends ContextWrapper {
      *   <dd>A {@link ScreenManager} for management of {@link Screen}s.
      * </dl>
      *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
+     *
      * @param name The name of the car service requested. This should be one of
      *             {@link #APP_SERVICE},
      *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_SERVICE}
@@ -218,6 +221,9 @@ public class CarContext extends ContextWrapper {
      * <p>Currently supported classes are: {@link AppManager}, {@link NavigationManager}, {@link
      * ScreenManager}.
      *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
+     *
      * @param serviceClass the class of the requested service
      * @throws IllegalArgumentException if {@code serviceClass} is not the class of a supported car
      *                                  service
@@ -230,6 +236,9 @@ public class CarContext extends ContextWrapper {
 
     /**
      * Gets the name of the car service that is represented by the specified class.
+     *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
      *
      * @param serviceClass the class of the requested service
      * @return the car service name to use with {@link #getCarService(String)}
@@ -280,6 +289,9 @@ public class CarContext extends ContextWrapper {
      *       component, the
      *       method will throw a {@link SecurityException}.
      * </dl>
+     *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
      *
      * @param intent the {@link Intent} to send to the target application
      * @throws SecurityException         if the app attempts to start a different app explicitly or
@@ -348,6 +360,9 @@ public class CarContext extends ContextWrapper {
      * to this {@link CarContext} will become {@code State.DESTROYED}.
      *
      * <p>At some point after this call, the OS will destroy your {@link CarAppService}.
+     *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
      */
     public void finishCarApp() {
         mHostDispatcher.dispatch(
@@ -367,6 +382,9 @@ public class CarContext extends ContextWrapper {
      *
      * <p>Whenever the dark mode status changes, you will receive a call to {@link
      * Session#onCarConfigurationChanged}.
+     *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
      */
     public boolean isDarkMode() {
         return (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
@@ -410,8 +428,11 @@ public class CarContext extends ContextWrapper {
      * <p>Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
      * than returned by this method is used at runtime.
      *
-     * <p>Please refer to {@link RequiresCarApi} description for more details on how to
+     * <p>Refer to {@link RequiresCarApi} description for more details on how to
      * implement forward compatibility.
+     *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
      *
      * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
      * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will

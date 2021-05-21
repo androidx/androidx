@@ -176,7 +176,9 @@ public abstract class Session implements LifecycleOwner {
      * Returns the {@link CarContext} for this session.
      *
      * <p><b>The {@link CarContext} is not fully initialized until this session's {@link
-     * Lifecycle.State} is at least {@link Lifecycle.State#CREATED}</b>
+     * Lifecycle.State} is at least {@link Lifecycle.State#CREATED}</b>. Some instance methods
+     * should not be called before this state has been reached. See the documentation in
+     * {@link CarContext} for details on any such restrictions.
      *
      * @see #getLifecycle
      */
