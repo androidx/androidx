@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="ClassVerificationFailure"
@@ -131,39 +131,6 @@
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
             line="565"
             column="42"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.put can only be called from within the same library group (groupId=androidx.work)"
-        errorLine1="                        .put(&quot;sleep_time&quot;, delay)"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="179"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.integer.channel_importance` appears to be unused"
-        errorLine1="    &lt;integer name=&quot;channel_importance&quot;>3&lt;/integer>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/donottranslate-strings.xml"
-            line="45"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.integer.notification_id` appears to be unused"
-        errorLine1="    &lt;integer name=&quot;notification_id&quot;>1&lt;/integer>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/donottranslate-strings.xml"
-            line="48"
-            column="14"/>
     </issue>
 
     <issue
