@@ -55,8 +55,9 @@ public final class GridItem implements Item {
     /**
      * Represents an icon to be displayed in the grid item.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratios.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * icons targeting a 128 x 128 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -66,8 +67,9 @@ public final class GridItem implements Item {
     /**
      * Represents a large image to be displayed in the grid item.
      *
-     * <p>If necessary, these images will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 128 x 128 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
@@ -323,7 +325,7 @@ public final class GridItem implements Item {
          *
          * <p>If the input image's size exceeds the sizing requirements for the given image type in
          * either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving the aspect ratio.
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
