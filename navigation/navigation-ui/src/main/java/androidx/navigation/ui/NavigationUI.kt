@@ -97,6 +97,69 @@ public object NavigationUI {
     }
 
     /**
+     * Attempt to navigate to the [NavDestination] associated with the given MenuItem. This
+     * MenuItem should have been added via one of the helper methods in this class.
+     *
+     * Importantly, it assumes the [menu item id][MenuItem.getItemId] matches a valid
+     * [action id][NavDestination.getAction] or [destination id][NavDestination.id] to be
+     * navigated to.
+     *
+     * By default, the back stack will be popped back to the navigation graph's start destination.
+     * Menu items that have `android:menuCategory="secondary"` will not pop the back
+     * stack.
+     *
+     * @param item The selected MenuItem.
+     * @param navController The NavController that hosts the destination.
+     * @param saveState Whether the NavController should save the back stack state. This must
+     * always be `false`: leave this parameter off entirely to use the non-experimental version
+     * of this API, which saves the state by default.
+     *
+     * @return True if the [NavController] was able to navigate to the destination
+     * associated with the given MenuItem.
+     */
+    @NavigationUiSaveStateControl
+    @JvmStatic
+    public fun onNavDestinationSelected(
+        item: MenuItem,
+        navController: NavController,
+        saveState: Boolean
+    ): Boolean {
+        check(!saveState) {
+            "Leave the saveState parameter out entirely to use the non-experimental version of " +
+                "this API, which saves the state by default"
+        }
+        val builder = NavOptions.Builder().setLaunchSingleTop(true)
+        if (
+            navController.currentDestination!!.parent!!.findNode(item.itemId)
+            is ActivityNavigator.Destination
+        ) {
+            builder.setEnterAnim(R.anim.nav_default_enter_anim)
+                .setExitAnim(R.anim.nav_default_exit_anim)
+                .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
+                .setPopExitAnim(R.anim.nav_default_pop_exit_anim)
+        } else {
+            builder.setEnterAnim(R.animator.nav_default_enter_anim)
+                .setExitAnim(R.animator.nav_default_exit_anim)
+                .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
+                .setPopExitAnim(R.animator.nav_default_pop_exit_anim)
+        }
+        if (item.order and Menu.CATEGORY_SECONDARY == 0) {
+            builder.setPopUpTo(
+                findStartDestination(navController.graph).id,
+                inclusive = false
+            )
+        }
+        val options = builder.build()
+        return try {
+            // TODO provide proper API instead of using Exceptions as Control-Flow.
+            navController.navigate(item.itemId, null, options)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    }
+
+    /**
      * Handles the Up button by delegating its behavior to the given NavController. This should
      * generally be called from [AppCompatActivity.onSupportNavigateUp].
      *
@@ -426,6 +489,75 @@ public object NavigationUI {
     }
 
     /**
+     * Sets up a [NavigationView] for use with a [NavController]. This will call
+     * [onNavDestinationSelected] when a menu item is selected.
+     * The selected item in the NavigationView will automatically be updated when the destination
+     * changes.
+     *
+     * If the [NavigationView] is directly contained with an [Openable] layout,
+     * it will be closed when a menu item is selected.
+     *
+     * Similarly, if the [NavigationView] has a [BottomSheetBehavior] associated with
+     * it (as is the case when using a [com.google.android.material.bottomsheet.BottomSheetDialog]),
+     * the bottom sheet will be hidden when a menu item is selected.
+     *
+     * @param navigationView The NavigationView that should be kept in sync with changes to the
+     * NavController.
+     * @param navController The NavController that supplies the primary and secondary menu.
+     * @param saveState Whether the NavController should save the back stack state. This must
+     * always be `false`: leave this parameter off entirely to use the non-experimental version
+     * of this API, which saves the state by default.
+     *
+     * Navigation actions on this NavController will be reflected in the
+     * selected item in the NavigationView.
+     */
+    @NavigationUiSaveStateControl
+    @JvmStatic
+    public fun setupWithNavController(
+        navigationView: NavigationView,
+        navController: NavController,
+        saveState: Boolean
+    ) {
+        check(!saveState) {
+            "Leave the saveState parameter out entirely to use the non-experimental version of " +
+                "this API, which saves the state by default"
+        }
+        navigationView.setNavigationItemSelectedListener { item ->
+            val handled = onNavDestinationSelected(item, navController, saveState)
+            if (handled) {
+                val parent = navigationView.parent
+                if (parent is Openable) {
+                    parent.close()
+                } else {
+                    val bottomSheetBehavior = findBottomSheetBehavior(navigationView)
+                    if (bottomSheetBehavior != null) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    }
+                }
+            }
+            handled
+        }
+        val weakReference = WeakReference(navigationView)
+        navController.addOnDestinationChangedListener(
+            object : NavController.OnDestinationChangedListener {
+                override fun onDestinationChanged(
+                    controller: NavController,
+                    destination: NavDestination,
+                    arguments: Bundle?
+                ) {
+                    val view = weakReference.get()
+                    if (view == null) {
+                        navController.removeOnDestinationChangedListener(this)
+                        return
+                    }
+                    view.menu.forEach { item ->
+                        item.isChecked = matchDestination(destination, item.itemId)
+                    }
+                }
+            })
+    }
+
+    /**
      * Walks up the view hierarchy, trying to determine if the given View is contained within
      * a bottom sheet.
      */
@@ -470,6 +602,59 @@ public object NavigationUI {
                 item,
                 navController
             )
+        }
+        val weakReference = WeakReference(navigationBarView)
+        navController.addOnDestinationChangedListener(
+            object : NavController.OnDestinationChangedListener {
+                override fun onDestinationChanged(
+                    controller: NavController,
+                    destination: NavDestination,
+                    arguments: Bundle?
+                ) {
+                    val view = weakReference.get()
+                    if (view == null) {
+                        navController.removeOnDestinationChangedListener(this)
+                        return
+                    }
+                    view.menu.forEach { item ->
+                        if (matchDestination(destination, item.itemId)) {
+                            item.isChecked = true
+                        }
+                    }
+                }
+            })
+    }
+
+    /**
+     * Sets up a [NavigationBarView] for use with a [NavController]. This will call
+     * [onNavDestinationSelected] when a menu item is selected. The
+     * selected item in the NavigationBarView will automatically be updated when the destination
+     * changes.
+     *
+     * @param navigationBarView The NavigationBarView ([BottomNavigationView] or
+     * [NavigationRailView])
+     * that should be kept in sync with changes to the NavController.
+     * @param navController The NavController that supplies the primary menu.
+     * @param saveState Whether the NavController should save the back stack state. This must
+     * always be `false`: leave this parameter off entirely to use the non-experimental version
+     * of this API, which saves the state by default.
+     *
+     * Navigation actions on this NavController will be reflected in the
+     * selected item in the NavigationBarView.
+     */
+    @NavigationUiSaveStateControl
+    @JvmStatic
+    public fun setupWithNavController(
+        navigationBarView: NavigationBarView,
+        navController: NavController,
+        saveState: Boolean
+    ) {
+        check(!saveState) {
+            "Leave the saveState parameter out entirely to use the non-experimental version of " +
+                "this API, which saves the state by default"
+        }
+        navigationBarView.setOnItemSelectedListener { item ->
+            onNavDestinationSelected(item, navController, saveState)
         }
         val weakReference = WeakReference(navigationBarView)
         navController.addOnDestinationChangedListener(
