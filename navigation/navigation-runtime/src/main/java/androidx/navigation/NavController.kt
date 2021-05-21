@@ -43,6 +43,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -104,8 +105,7 @@ public open class NavController(
     private val backStackStates = mutableMapOf<String, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
     private var viewModel: NavControllerViewModel? = null
-    private val onDestinationChangedListeners =
-        mutableListOf<OnDestinationChangedListener>()
+    private val onDestinationChangedListeners = CopyOnWriteArrayList<OnDestinationChangedListener>()
 
     private val lifecycleObserver: LifecycleObserver = LifecycleEventObserver { _, event ->
         if (_graph != null) {
