@@ -136,9 +136,115 @@ class ActivityNavigatorDestinationBuilderTest {
             (graph[DESTINATION_ID] as ActivityNavigator.Destination).dataPattern
         )
     }
+
+    @Test
+    fun activityRoute() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity(DESTINATION_ROUTE) {
+                label = LABEL
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Destination should have label set",
+            LABEL,
+            graph[DESTINATION_ROUTE].label
+        )
+    }
+
+    @Test
+    fun activityPackageRoute() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity(DESTINATION_ROUTE) {
+                targetPackage = PACKAGE_NAME
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have package name set")
+            .that((graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).targetPackage)
+            .isEqualTo(PACKAGE_NAME)
+    }
+
+    @Test
+    fun activityClassRoute() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity(DESTINATION_ROUTE) {
+                activityClass = TestActivity::class
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Destination should have ComponentName set",
+            TestActivity::class.java.name,
+            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).component?.className
+        )
+    }
+
+    @Test
+    fun actionRoute() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity(DESTINATION_ROUTE) {
+                action = ACTION
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Destination should have action set",
+            ACTION,
+            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).action
+        )
+    }
+
+    @Test
+    fun dataRoute() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity(DESTINATION_ROUTE) {
+                data = DATA
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Destination should have data set",
+            DATA,
+            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).data
+        )
+    }
+
+    @Test
+    fun dataPatternRoute() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity(DESTINATION_ROUTE) {
+                dataPattern = DATA_PATTERN
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Destination should have data pattern set",
+            DATA_PATTERN,
+            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).dataPattern
+        )
+    }
 }
 
 private const val DESTINATION_ID = 1
+private const val DESTINATION_ROUTE = "destination"
 private const val PACKAGE_NAME = "com.example"
 private const val LABEL = "Test"
 private const val ACTION = "ACTION_TEST"

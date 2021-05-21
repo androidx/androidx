@@ -1962,7 +1962,7 @@ public inline fun NavController.createGraph(
  * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
-public fun NavController.createGraph(
+public inline fun NavController.createGraph(
     startDestination: String,
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
