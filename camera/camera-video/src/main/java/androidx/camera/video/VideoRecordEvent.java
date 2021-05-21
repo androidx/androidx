@@ -16,6 +16,8 @@
 
 package androidx.camera.video;
 
+import android.net.Uri;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -215,17 +217,19 @@ public abstract class VideoRecordEvent {
 
     @NonNull
     static Finalize finalize(@NonNull OutputOptions outputOptions,
-            @NonNull RecordingStats recordingStats) {
-        return new Finalize(outputOptions, recordingStats, ERROR_NONE, null);
+            @NonNull RecordingStats recordingStats,
+            @NonNull Uri uri) {
+        return new Finalize(outputOptions, recordingStats, uri, ERROR_NONE, null);
     }
 
     @NonNull
     static Finalize finalizeWithError(@NonNull OutputOptions outputOptions,
             @NonNull RecordingStats recordingStats,
+            @NonNull Uri uri,
             @VideoRecordError int error,
             @Nullable Throwable cause) {
         Preconditions.checkArgument(error != ERROR_NONE, "An error type is required.");
-        return new Finalize(outputOptions, recordingStats, error, cause);
+        return new Finalize(outputOptions, recordingStats, uri, error, cause);
     }
 
     /**
@@ -241,6 +245,7 @@ public abstract class VideoRecordEvent {
      * file.
      */
     public static final class Finalize extends VideoRecordEvent {
+        private final Uri mOutputUri;
         @VideoRecordError
         private final int mError;
         private final Throwable mCause;
@@ -248,9 +253,11 @@ public abstract class VideoRecordEvent {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         Finalize(@NonNull OutputOptions outputOptions,
                 @NonNull RecordingStats recordingStats,
+                @NonNull Uri outputUri,
                 @VideoRecordError int error,
                 @Nullable Throwable cause) {
             super(outputOptions, recordingStats);
+            mOutputUri = outputUri;
             mError = error;
             mCause = cause;
         }
@@ -260,6 +267,18 @@ public abstract class VideoRecordEvent {
         @Override
         public EventType getEventType() {
             return EventType.FINALIZE;
+        }
+
+        /**
+         * Gets the {@link Uri} of the output.
+         *
+         * <p>Returns the actual {@link Uri} of the output destination if the
+         * {@link OutputOptions} is implemented by {@link MediaStoreOutputOptions}, otherwise
+         * returns {@link Uri#EMPTY}.
+         */
+        @NonNull
+        public Uri getOutputUri() {
+            return mOutputUri;
         }
 
         /**

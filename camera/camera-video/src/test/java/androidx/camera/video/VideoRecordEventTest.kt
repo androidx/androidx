@@ -16,6 +16,7 @@
 
 package androidx.camera.video
 
+import android.net.Uri
 import android.os.Build
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
@@ -31,6 +32,7 @@ private const val INVALID_FILE_PATH = "/invalid/file/path"
 private val TEST_OUTPUT_OPTION =
     FileOutputOptions.builder().setFile(File(INVALID_FILE_PATH)).build()
 private val TEST_RECORDING_STATE = RecordingStats.of(0, 0)
+private val TEST_URI = Uri.EMPTY
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -53,12 +55,14 @@ class VideoRecordEventTest {
     fun canCreateFinalize() {
         val event = VideoRecordEvent.finalize(
             TEST_OUTPUT_OPTION,
-            TEST_RECORDING_STATE
+            TEST_RECORDING_STATE,
+            TEST_URI
         )
 
         assertThat(event.eventType).isEqualTo(VideoRecordEvent.EventType.FINALIZE)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
+        assertThat(event.outputUri).isEqualTo(TEST_URI)
         assertThat(event.hasError()).isFalse()
         assertThat(event.error).isEqualTo(VideoRecordEvent.ERROR_NONE)
         assertThat(event.cause).isNull()
@@ -71,6 +75,7 @@ class VideoRecordEventTest {
         val event = VideoRecordEvent.finalizeWithError(
             TEST_OUTPUT_OPTION,
             TEST_RECORDING_STATE,
+            TEST_URI,
             error,
             cause
         )
@@ -78,6 +83,7 @@ class VideoRecordEventTest {
         assertThat(event.eventType).isEqualTo(VideoRecordEvent.EventType.FINALIZE)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
+        assertThat(event.outputUri).isEqualTo(TEST_URI)
         assertThat(event.hasError()).isTrue()
         assertThat(event.error).isEqualTo(error)
         assertThat(event.cause).isEqualTo(cause)
@@ -89,6 +95,7 @@ class VideoRecordEventTest {
             VideoRecordEvent.finalizeWithError(
                 TEST_OUTPUT_OPTION,
                 TEST_RECORDING_STATE,
+                TEST_URI,
                 VideoRecordEvent.ERROR_NONE,
                 RuntimeException()
             )
