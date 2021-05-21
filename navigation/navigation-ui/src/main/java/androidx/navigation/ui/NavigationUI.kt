@@ -29,15 +29,15 @@ import androidx.customview.widget.Openable
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavGraph
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptions
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationBarView
-import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.navigation.NavigationView
-import java.lang.IllegalArgumentException
+import com.google.android.material.navigationrail.NavigationRailView
 import java.lang.ref.WeakReference
 
 /**
@@ -81,7 +81,7 @@ public object NavigationUI {
         }
         if (item.order and Menu.CATEGORY_SECONDARY == 0) {
             builder.setPopUpTo(
-                findStartDestination(navController.graph).id,
+                navController.graph.findStartDestination().id,
                 inclusive = false,
                 saveState = true
             )
@@ -145,7 +145,7 @@ public object NavigationUI {
         }
         if (item.order and Menu.CATEGORY_SECONDARY == 0) {
             builder.setPopUpTo(
-                findStartDestination(navController.graph).id,
+                navController.graph.findStartDestination().id,
                 inclusive = false
             )
         }
@@ -203,10 +203,8 @@ public object NavigationUI {
         val openableLayout = configuration.openableLayout
         val currentDestination = navController.currentDestination
         val topLevelDestinations = configuration.topLevelDestinations
-        return if (openableLayout != null && currentDestination != null && matchDestinations(
-                currentDestination,
-                topLevelDestinations
-            )
+        return if (openableLayout != null && currentDestination != null &&
+            currentDestination.matchDestinations(topLevelDestinations)
         ) {
             openableLayout.open()
             true
@@ -482,7 +480,7 @@ public object NavigationUI {
                         return
                     }
                     view.menu.forEach { item ->
-                        item.isChecked = matchDestination(destination, item.itemId)
+                        item.isChecked = destination.matchDestination(item.itemId)
                     }
                 }
             })
@@ -551,7 +549,7 @@ public object NavigationUI {
                         return
                     }
                     view.menu.forEach { item ->
-                        item.isChecked = matchDestination(destination, item.itemId)
+                        item.isChecked = destination.matchDestination(item.itemId)
                     }
                 }
             })
@@ -617,7 +615,7 @@ public object NavigationUI {
                         return
                     }
                     view.menu.forEach { item ->
-                        if (matchDestination(destination, item.itemId)) {
+                        if (destination.matchDestination(item.itemId)) {
                             item.isChecked = true
                         }
                     }
@@ -670,7 +668,7 @@ public object NavigationUI {
                         return
                     }
                     view.menu.forEach { item ->
-                        if (matchDestination(destination, item.itemId)) {
+                        if (destination.matchDestination(item.itemId)) {
                             item.isChecked = true
                         }
                     }
@@ -684,14 +682,8 @@ public object NavigationUI {
      * the given id is a parent/grandparent/etc of the destination.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun matchDestination(destination: NavDestination, @IdRes destId: Int): Boolean {
-        var currentDestination: NavDestination? = destination
-        while (currentDestination!!.id != destId && currentDestination.parent != null) {
-            currentDestination = currentDestination.parent
-        }
-        return currentDestination.id == destId
-    }
+    internal fun NavDestination.matchDestination(@IdRes destId: Int): Boolean =
+        hierarchy.any { it.id == destId }
 
     /**
      * Determines whether the given `destinationIds` match the NavDestination. This
@@ -699,22 +691,6 @@ public object NavigationUI {
      * case where the given ids is a parent/grandparent/etc of the destination.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun matchDestinations(destination: NavDestination, destinationIds: Set<Int?>): Boolean =
-        generateSequence(destination) { it.parent }.any { destinationIds.contains(it.id) }
-
-    /**
-     * Finds the actual start destination of the graph, handling cases where the graph's starting
-     * destination is itself a NavGraph.
-     */
-    @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findStartDestination(graph: NavGraph): NavDestination =
-        generateSequence(graph.findNode(graph.startDestinationId)) {
-            if (it is NavGraph) {
-                it.findNode(it.startDestinationId)
-            } else {
-                null
-            }
-        }.last()
+    internal fun NavDestination.matchDestinations(destinationIds: Set<Int?>): Boolean =
+        hierarchy.any { destinationIds.contains(it.id) }
 }

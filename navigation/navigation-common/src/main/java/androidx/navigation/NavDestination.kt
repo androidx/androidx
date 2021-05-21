@@ -594,5 +594,14 @@ public open class NavDestination(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createRoute(route: String?): String =
             if (route != null) "android-app://androidx.navigation/$route" else ""
+
+        /**
+         * Provides a sequence of the NavDestination's hierarchy. The hierarchy starts with this
+         * destination itself and is then followed by this destination's [NavDestination.parent], then that
+         * graph's parent, and up the hierarchy until you've reached the root navigation graph.
+         */
+        @JvmStatic
+        public val NavDestination.hierarchy: Sequence<NavDestination>
+            get() = generateSequence(this) { it.parent }
     }
 }

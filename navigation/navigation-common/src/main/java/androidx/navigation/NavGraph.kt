@@ -370,6 +370,24 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         }
         return sb.toString()
     }
+
+    public companion object {
+        /**
+         * Finds the actual start destination of the graph, handling cases where the graph's starting
+         * destination is itself a NavGraph.
+         *
+         * @return the actual startDestination of the given graph.
+         */
+        @JvmStatic
+        public fun NavGraph.findStartDestination(): NavDestination =
+            generateSequence(findNode(startDestinationId)) {
+                if (it is NavGraph) {
+                    it.findNode(it.startDestinationId)
+                } else {
+                    null
+                }
+            }.last()
+    }
 }
 
 /**
