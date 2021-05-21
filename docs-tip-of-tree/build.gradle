@@ -273,6 +273,7 @@ dependencies {
     docs(project(":wear:wear-watchface-style"))
     docs(project(":webkit:webkit"))
     docs(project(":window:window"))
+    docs(project(":window:window-java"))
     stubs(project(":window:window-sidecar"))
     stubs(project(":window:window-extensions"))
     docs(project(":work:work-gcm"))
