@@ -21,13 +21,13 @@ package androidx.car.app.activity.renderer.surface {
   }
 
   public final class SurfaceWrapper {
-    ctor public SurfaceWrapper(android.os.IBinder?, int, int, int, int, android.view.Surface);
+    ctor public SurfaceWrapper(android.os.IBinder?, @Dimension int, @Dimension int, int, int, android.view.Surface);
     method public int getDensityDpi();
     method public int getDisplayId();
-    method public int getHeight();
+    method @Dimension public int getHeight();
     method public android.os.IBinder? getHostToken();
     method public android.view.Surface getSurface();
-    method public int getWidth();
+    method @Dimension public int getWidth();
   }
 
 }
