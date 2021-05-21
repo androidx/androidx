@@ -262,13 +262,13 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         mPaint.getTextBounds(mText, 0, mText.length(), mBounds);
 
         // Note that ascent is negative.
-        mPathRadius = min(getWidth(), getHeight()) / 2f
+        mPathRadius = min(getMeasuredWidth(), getMeasuredHeight()) / 2f
                 + (mClockwise ? mPaint.getFontMetrics().ascent - getPaddingTop() :
                 -mPaint.getFontMetrics().descent - getPaddingBottom());
         mTextSweepDegrees = min(
@@ -408,8 +408,8 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
             float angle = backgroundStartAngle;
             float x0 = (float) (centerX + radius2 * cos(angle * Math.PI / 180));
             float x1 = (float) (centerX + radius1 * cos(angle * Math.PI / 180));
-            float y0 = (float) (centerX + radius2 * sin(angle * Math.PI / 180));
-            float y1 = (float) (centerX + radius1 * sin(angle * Math.PI / 180));
+            float y0 = (float) (centerY + radius2 * sin(angle * Math.PI / 180));
+            float y1 = (float) (centerY + radius1 * sin(angle * Math.PI / 180));
             angle = backgroundStartAngle + clockwiseFactor * mBackgroundSweepDegrees;
             float x2 = (float) (centerX + radius2 * cos(angle * Math.PI / 180));
             float x3 = (float) (centerX + radius1 * cos(angle * Math.PI / 180));
