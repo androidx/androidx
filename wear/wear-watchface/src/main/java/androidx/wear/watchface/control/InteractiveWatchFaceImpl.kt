@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.control
 
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.WatchFaceImpl
@@ -35,6 +36,10 @@ internal class InteractiveWatchFaceImpl(
     internal var instanceId: String
 ) : IInteractiveWatchFace.Stub() {
 
+    private companion object {
+        const val TAG = "InteractiveWatchFaceImpl"
+    }
+
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
 
     private fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
@@ -44,7 +49,12 @@ internal class InteractiveWatchFaceImpl(
         runBlocking {
             val watchFaceImpl = engine.deferredWatchFaceImpl.await()
             withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                task(watchFaceImpl)
+                try {
+                    task(watchFaceImpl)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Operation failed", e)
+                    throw e
+                }
             }
         }
     }

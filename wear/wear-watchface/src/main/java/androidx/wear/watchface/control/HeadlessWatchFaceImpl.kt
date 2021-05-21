@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.control
 
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.utility.TraceEvent
@@ -37,6 +38,8 @@ internal class HeadlessWatchFaceImpl(
 ) : IHeadlessWatchFace.Stub() {
 
     internal companion object {
+        const val TAG = "HeadlessWatchFaceImpl"
+
         @UiThread
         fun dump(indentingPrintWriter: IndentingPrintWriter) {
             indentingPrintWriter.println("HeadlessWatchFace instances:")
@@ -79,7 +82,12 @@ internal class HeadlessWatchFaceImpl(
             val engineCopy = synchronized(this) { engine!! }
             val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()
             withContext(engineCopy.uiThreadCoroutineScope.coroutineContext) {
-                task(watchFaceImpl)
+                try {
+                    task(watchFaceImpl)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Operation failed", e)
+                    throw e
+                }
             }
         }
     }
