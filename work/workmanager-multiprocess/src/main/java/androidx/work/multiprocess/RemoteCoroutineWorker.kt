@@ -61,9 +61,10 @@ public abstract class RemoteCoroutineWorker(context: Context, parameters: Worker
      * Override this method to define the work that needs to run in the remote process.
      * [Dispatchers.Default] is the coroutine dispatcher being used when this method is called.
      *
-     * A [RemoteCoroutineWorker] is given a maximum of ten minutes to finish its execution and
-     * return a [androidx.work.ListenableWorker.Result]. Note that the 10 minute execution window
-     * also includes the cost of binding to the remote process.
+     * A [RemoteCoroutineWorker] has a well defined
+     * [execution window](https://d.android.com/reference/android/app/job/JobScheduler) to finish
+     * its execution and return a [androidx.work.ListenableWorker.Result]. Note that the
+     * execution window also includes the cost of binding to the remote process.
      */
     public abstract suspend fun doRemoteWork(): Result
 
