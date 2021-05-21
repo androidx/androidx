@@ -613,6 +613,7 @@ includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/te
 includeProject(":webkit:webkit", "webkit/webkit", [BuildType.MAIN])
 includeProject(":window:window", "window/window", [BuildType.MAIN])
 includeProject(":window:window-extensions", "window/window-extensions", [BuildType.MAIN])
+includeProject(":window:window-java", "window/window-java", [BuildType.MAIN])
 includeProject(":window:window-samples", "window/window-samples", [BuildType.MAIN])
 includeProject(":window:window-sidecar", "window/window-sidecar", [BuildType.MAIN])
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp", [BuildType.MAIN])
