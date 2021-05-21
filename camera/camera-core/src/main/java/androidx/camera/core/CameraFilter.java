@@ -28,7 +28,6 @@ import java.util.List;
 /**
  * An interface for filtering cameras.
  */
-@ExperimentalCameraFilter
 public interface CameraFilter {
     /**
      * Filters a list of {@link CameraInfo}s and returns those matching the requirements.

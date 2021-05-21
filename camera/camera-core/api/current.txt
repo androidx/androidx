@@ -22,7 +22,12 @@ package androidx.camera.core {
   public static final class CameraControl.OperationCanceledException extends java.lang.Exception {
   }
 
+  public interface CameraFilter {
+    method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
+  }
+
   public interface CameraInfo {
+    method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
@@ -43,6 +48,7 @@ package androidx.camera.core {
 
   public static final class CameraSelector.Builder {
     ctor public CameraSelector.Builder();
+    method public androidx.camera.core.CameraSelector.Builder addCameraFilter(androidx.camera.core.CameraFilter);
     method public androidx.camera.core.CameraSelector build();
     method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
   }
