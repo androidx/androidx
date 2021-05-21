@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
@@ -41,6 +43,7 @@ dependencies {
     api("androidx.drawerlayout:drawerlayout:1.1.1")
     api("com.google.android.material:material:1.4.0-beta01")
     implementation("androidx.transition:transition:1.3.0")
+    api("androidx.annotation:annotation-experimental:1.1.0")
 
     androidTestImplementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
@@ -59,4 +62,11 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-UI"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }
