@@ -66,23 +66,20 @@ class OutputOptionsTest {
             put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
         }
 
-        val uri = contentResolver.insert(
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
-
-        assertThat(uri).isNotNull()
-
         val mediaStoreOutputOptions = MediaStoreOutputOptions.builder()
             .setContentResolver(contentResolver)
             .setFileSizeLimit(FILE_SIZE_LIMIT)
-            .setUri(uri!!)
+            .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+            .setContentValues(contentValues)
             .build()
 
-        assertThat(mediaStoreOutputOptions.uri).isNotNull()
+        assertThat(mediaStoreOutputOptions.contentResolver).isEqualTo(contentResolver)
+        assertThat(mediaStoreOutputOptions.collection).isEqualTo(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        )
+        assertThat(mediaStoreOutputOptions.contentValues).isEqualTo(contentValues)
         assertThat(mediaStoreOutputOptions.type).isEqualTo(OutputOptions.Type.MEDIA_STORE)
         assertThat(mediaStoreOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
-        contentResolver.delete(uri, null, null)
     }
 
     @Test
@@ -130,18 +127,15 @@ class OutputOptionsTest {
             put(MediaStore.Video.Media.TITLE, fileName)
             put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
         }
-        val uri = contentResolver.insert(
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
+
         val mediaStoreOutputOptions = MediaStoreOutputOptions.builder()
             .setContentResolver(contentResolver)
-            .setUri(uri!!)
+            .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+            .setContentValues(contentValues)
             .build()
 
         assertThat(mediaStoreOutputOptions.fileSizeLimit)
             .isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
-        contentResolver.delete(uri, null, null)
     }
 
     @Test
