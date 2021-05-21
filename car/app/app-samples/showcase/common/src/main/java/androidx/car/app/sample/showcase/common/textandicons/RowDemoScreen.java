@@ -64,7 +64,8 @@ public final class RowDemoScreen extends Screen implements DefaultLifecycleObser
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 R.drawable.ic_fastfood_white_48dp))
-                                        .build())
+                                        .build(),
+                                Row.IMAGE_TYPE_ICON)
                         .build());
 
         listBuilder.addItem(
@@ -76,7 +77,8 @@ public final class RowDemoScreen extends Screen implements DefaultLifecycleObser
                                                 getCarContext(),
                                                 R.drawable
                                                         .ic_emoji_food_beverage_white_48dp))
-                                        .build())
+                                        .build(),
+                                Row.IMAGE_TYPE_ICON)
                         .build());
 
         listBuilder.addItem(
