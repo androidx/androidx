@@ -19,7 +19,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 ext {
     CAMERA_PIPE_DEPS = [
         API : [
-                "androidx.annotation:annotation:1.0.0",
+                "androidx.annotation:annotation:1.2.0",
                 KOTLIN_STDLIB,
                 KOTLIN_COROUTINES_ANDROID,
                 "org.jetbrains.kotlinx:atomicfu:0.13.1"

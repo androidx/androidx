@@ -16,19 +16,174 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.content.Context
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
+import android.os.Handler
+import android.util.Size
+import android.view.Surface
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
+import java.util.concurrent.Executor
+
+@RequiresApi(Build.VERSION_CODES.M)
+internal object Api23Compat {
+    @JvmStatic
+    @DoNotInline
+    @Throws(CameraAccessException::class)
+    @Suppress("deprecation")
+    fun createReprocessableCaptureSession(
+        cameraDevice: CameraDevice,
+        inputConfig: InputConfiguration,
+        outputs: List<Surface>,
+        callback: CameraCaptureSession.StateCallback,
+        handler: Handler?
+    ) {
+        cameraDevice.createReprocessableCaptureSession(inputConfig, outputs, callback, handler)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    @Throws(CameraAccessException::class)
+    @Suppress("deprecation")
+    fun createConstrainedHighSpeedCaptureSession(
+        cameraDevice: CameraDevice,
+        outputs: List<Surface>,
+        stateCallback: CameraCaptureSession.StateCallback,
+        handler: Handler?
+    ) {
+        cameraDevice.createConstrainedHighSpeedCaptureSession(
+            outputs,
+            stateCallback,
+            handler
+        )
+    }
+
+    @JvmStatic
+    @DoNotInline
+    @Throws(CameraAccessException::class)
+    fun createReprocessCaptureRequest(
+        cameraDevice: CameraDevice,
+        inputResult: TotalCaptureResult,
+    ): CaptureRequest.Builder {
+        return cameraDevice.createReprocessCaptureRequest(inputResult)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun isReprocessable(cameraCaptureSession: CameraCaptureSession): Boolean {
+        return cameraCaptureSession.isReprocessable
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getInputSurface(cameraCaptureSession: CameraCaptureSession): Surface? {
+        return cameraCaptureSession.inputSurface
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun newInputConfiguration(width: Int, height: Int, format: Int): InputConfiguration {
+        return InputConfiguration(width, height, format)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun checkSelfPermission(context: Context, permission: String): Int {
+        return context.checkSelfPermission(permission)
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.N)
 internal object Api24Compat {
     @JvmStatic
+    @DoNotInline
+    @Throws(CameraAccessException::class)
+    @Suppress("deprecation")
+    fun createCaptureSessionByOutputConfigurations(
+        cameraDevice: CameraDevice,
+        outputConfig: List<OutputConfiguration?>,
+        stateCallback: CameraCaptureSession.StateCallback,
+        handler: Handler?
+    ) {
+        cameraDevice.createCaptureSessionByOutputConfigurations(
+            outputConfig,
+            stateCallback,
+            handler
+        )
+    }
+
+    @JvmStatic
+    @DoNotInline
+    @Throws(CameraAccessException::class)
+    @Suppress("deprecation")
+    fun createCaptureSessionByOutputConfigurations(
+        cameraDevice: CameraDevice,
+        inputConfig: InputConfiguration,
+        outputs: List<OutputConfiguration?>,
+        stateCallback: CameraCaptureSession.StateCallback,
+        handler: Handler?
+    ) {
+        cameraDevice.createReprocessableCaptureSessionByConfigurations(
+            inputConfig,
+            outputs,
+            stateCallback,
+            handler
+        )
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun getSurfaceGroupId(outputConfiguration: OutputConfiguration): Int {
         return outputConfiguration.surfaceGroupId
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal object Api26Compat {
+    @JvmStatic
+    @DoNotInline
+    @Throws(CameraAccessException::class)
+    fun finalizeOutputConfigurations(
+        cameraCaptureSession: CameraCaptureSession,
+        outputConfiguration: List<OutputConfiguration?>
+    ) {
+        return cameraCaptureSession.finalizeOutputConfigurations(outputConfiguration)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun newOutputConfiguration(size: Size, klass: Class<*>): OutputConfiguration {
+        return OutputConfiguration(size, klass)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun enableSurfaceSharing(outputConfig: OutputConfiguration) {
+        outputConfig.enableSurfaceSharing()
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getSurfaces(outputConfig: OutputConfiguration): List<Surface> {
+        return outputConfig.surfaces
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun addSurfaces(outputConfig: OutputConfiguration, surface: Surface) {
+        return outputConfig.addSurface(surface)
     }
 }
 
@@ -36,6 +191,17 @@ internal object Api24Compat {
 @Suppress("DEPRECATION")
 internal object Api28Compat {
     @JvmStatic
+    @Throws(CameraAccessException::class)
+    @DoNotInline
+    fun createCaptureSession(
+        cameraDevice: CameraDevice,
+        sessionConfig: SessionConfiguration,
+    ) {
+        cameraDevice.createCaptureSession(sessionConfig)
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun getAvailablePhysicalCameraRequestKeys(
         cameraCharacteristics: CameraCharacteristics
     ): List<CaptureRequest.Key<*>>? {
@@ -43,6 +209,7 @@ internal object Api28Compat {
     }
 
     @JvmStatic
+    @DoNotInline
     fun getAvailableSessionKeys(
         cameraCharacteristics: CameraCharacteristics
     ): List<CaptureRequest.Key<*>>? {
@@ -50,9 +217,88 @@ internal object Api28Compat {
     }
 
     @JvmStatic
+    @DoNotInline
+    fun getPhysicalCameraIds(
+        cameraCharacteristics: CameraCharacteristics
+    ): Set<String> {
+        return cameraCharacteristics.physicalCameraIds
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun getPhysicalCaptureResults(
         totalCaptureResult: TotalCaptureResult
     ): Map<String, CaptureResult>? {
         return totalCaptureResult.physicalCameraResults
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun newSessionConfiguration(
+        sessionType: Int,
+        outputs: List<OutputConfiguration?>,
+        executor: Executor,
+        stateCallback: CameraCaptureSession.StateCallback
+    ): SessionConfiguration {
+        return SessionConfiguration(sessionType, outputs, executor, stateCallback)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setInputConfiguration(
+        sessionConfig: SessionConfiguration,
+        inputConfig: InputConfiguration
+    ) {
+        sessionConfig.inputConfiguration = inputConfig
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setSessionParameters(
+        sessionConfig: SessionConfiguration,
+        params: CaptureRequest
+    ) {
+        sessionConfig.sessionParameters = params
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getMaxSharedSurfaceCount(outputConfig: OutputConfiguration): Int {
+        return outputConfig.maxSharedSurfaceCount
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setPhysicalCameraId(outputConfig: OutputConfiguration, cameraId: String?) {
+        outputConfig.setPhysicalCameraId(cameraId)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun removeSurface(outputConfig: OutputConfiguration, surface: Surface) {
+        return outputConfig.removeSurface(surface)
+    }
+
+    @JvmStatic
+    @Throws(CameraAccessException::class)
+    @DoNotInline
+    @RequiresPermission(android.Manifest.permission.CAMERA)
+    fun openCamera(
+        cameraManager: CameraManager,
+        cameraId: String,
+        executor: Executor,
+        callback: CameraDevice.StateCallback
+    ) {
+        cameraManager.openCamera(cameraId, executor, callback)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun registerAvailabilityCallback(
+        cameraManager: CameraManager,
+        executor: Executor,
+        callback: CameraManager.AvailabilityCallback
+    ) {
+        cameraManager.registerAvailabilityCallback(executor, callback)
     }
 }
