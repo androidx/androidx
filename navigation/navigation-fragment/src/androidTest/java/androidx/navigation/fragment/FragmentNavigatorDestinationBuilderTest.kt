@@ -82,8 +82,55 @@ class TestNavigatorDestinationBuilderTest {
             LABEL, graph[DESTINATION_ID].label
         )
     }
+
+    @UiThreadTest
+    @Test fun fragmentRoute() {
+        val navHostFragment = NavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+            fragment<BuilderTestFragment>(DESTINATION_ROUTE)
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Fragment class should be set to BuilderTestFragment",
+            BuilderTestFragment::class.java.name,
+            (graph[DESTINATION_ROUTE] as FragmentNavigator.Destination).className
+        )
+    }
+
+    @UiThreadTest
+    @Test fun fragmentWithBodyRoute() {
+        val navHostFragment = NavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+            fragment<BuilderTestFragment>(DESTINATION_ROUTE) {
+                label = LABEL
+            }
+        }
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ROUTE in graph
+        )
+        assertEquals(
+            "Fragment class should be set to BuilderTestFragment",
+            BuilderTestFragment::class.java.name,
+            (graph[DESTINATION_ROUTE] as FragmentNavigator.Destination).className
+        )
+        assertEquals(
+            "Fragment should have label set",
+            LABEL, graph[DESTINATION_ROUTE].label
+        )
+    }
 }
 
 private const val DESTINATION_ID = 1
+private const val DESTINATION_ROUTE = "destination"
 private const val LABEL = "Test"
 class BuilderTestFragment : Fragment()

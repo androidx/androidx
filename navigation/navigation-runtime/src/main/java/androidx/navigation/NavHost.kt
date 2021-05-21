@@ -58,3 +58,12 @@ public inline fun NavHost.createGraph(
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navController.createGraph(id, startDestination, builder)
+
+/**
+ * Construct a new [NavGraph]
+ */
+public inline fun NavHost.createGraph(
+    startDestination: String,
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navController.createGraph(startDestination, route, builder)
