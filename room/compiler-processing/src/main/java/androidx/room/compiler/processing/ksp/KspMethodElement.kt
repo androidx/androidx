@@ -102,7 +102,6 @@ internal sealed class KspMethodElement(
             val overridee = declaration.findOverridee()
             env.wrap(
                 ksType = declaration.returnTypeAsMemberOf(
-                    resolver = env.resolver,
                     ksType = containing.type?.ksType
                 ),
                 originatingReference = checkNotNull(overridee?.returnType ?: declaration.returnType)

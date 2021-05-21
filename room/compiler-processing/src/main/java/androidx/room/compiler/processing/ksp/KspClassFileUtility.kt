@@ -34,34 +34,8 @@ import java.lang.reflect.Proxy
  *
  * KSP Bugs:
  *  * https://github.com/google/ksp/issues/250
- *  * https://github.com/google/ksp/issues/375
  */
 internal object KspClassFileUtility {
-    /**
-     * Tries to resolve an Origin.CLASS into koltin or java.
-     * see: https://github.com/google/ksp/issues/375
-     */
-    fun findTrueOrigin(
-        ksClassDeclaration: KSClassDeclaration
-    ): Origin? {
-        if (ksClassDeclaration.origin != Origin.CLASS) {
-            return ksClassDeclaration.origin
-        }
-        return try {
-            val typeReferences = ReflectionReferences.getInstance(ksClassDeclaration) ?: return null
-            val descriptor =
-                typeReferences.getDescriptorMethod.invoke(ksClassDeclaration) ?: return null
-            val descriptorCanonicalName = descriptor::class.java.canonicalName
-            when {
-                descriptorCanonicalName.contains("Java") -> Origin.JAVA
-                descriptorCanonicalName.contains("DeserializedClassDescriptor") -> Origin.KOTLIN
-                else -> null
-            }
-        } catch (throwable: Throwable) {
-            null
-        }
-    }
-
     /**
      * Sorts the given fields in the order they are declared in the backing class declaration.
      */
@@ -110,7 +84,7 @@ internal object KspClassFileUtility {
 
     /**
      * Builds a field names comparator from the given class declaration if and only if its origin
-     * is CLASS.
+     * is Kotlin .class.
      * If it fails to find the order, returns null.
      */
     @Suppress("BanUncheckedReflection")
@@ -120,7 +94,9 @@ internal object KspClassFileUtility {
         getName: T.() -> String,
     ): MemberNameComparator<T>? {
         return try {
-            if (ksClassDeclaration.origin != Origin.CLASS) return null
+            // this is needed only for compiled kotlin classes
+            // https://github.com/google/ksp/issues/250#issuecomment-761108924
+            if (ksClassDeclaration.origin != Origin.KOTLIN_LIB) return null
             val typeReferences = ReflectionReferences.getInstance(ksClassDeclaration) ?: return null
             val descriptor = typeReferences.getDescriptorMethod.invoke(ksClassDeclaration)
                 ?: return null

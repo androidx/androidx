@@ -29,7 +29,6 @@ import org.junit.Test
 
 /**
  * see: https://github.com/google/ksp/issues/250
- * see: https://github.com/google/ksp/issues/375
  */
 class KspClassFileUtilityTest {
     @Test
@@ -142,6 +141,8 @@ class KspClassFileUtilityTest {
 
     @Test
     fun trueOrigin() {
+        // this test is kind of testing ksp itself but it is still good to keep it in case it
+        // breaks.
         fun createSources(pkg: String) = listOf(
             Source.java(
                 "$pkg.JavaClass",
@@ -160,7 +161,7 @@ class KspClassFileUtilityTest {
         )
         fun XTestInvocation.findOrigin(
             qName: String
-        ) = (processingEnv.requireTypeElement(qName) as KspTypeElement).trueOrigin
+        ) = (processingEnv.requireTypeElement(qName) as KspTypeElement).declaration.origin
 
         val preCompiled = compileFiles(
             createSources("lib")
@@ -171,10 +172,10 @@ class KspClassFileUtilityTest {
         ) { invocation ->
             assertThat(
                 invocation.findOrigin("lib.JavaClass")
-            ).isEqualTo(Origin.JAVA)
+            ).isEqualTo(Origin.JAVA_LIB)
             assertThat(
                 invocation.findOrigin("lib.KotlinClass")
-            ).isEqualTo(Origin.KOTLIN)
+            ).isEqualTo(Origin.KOTLIN_LIB)
             assertThat(
                 invocation.findOrigin("main.JavaClass")
             ).isEqualTo(Origin.JAVA)

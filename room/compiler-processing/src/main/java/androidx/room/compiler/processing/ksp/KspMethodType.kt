@@ -42,7 +42,7 @@ internal sealed class KspMethodType(
         origin.declaration.typeParameters.map {
             val typeParameterBounds = it.bounds.map {
                 it.typeName(env.resolver)
-            }.toTypedArray()
+            }.toList().toTypedArray()
             TypeVariableName.get(
                 it.name.asString(),
                 *typeParameterBounds
@@ -72,7 +72,6 @@ internal sealed class KspMethodType(
             env.wrap(
                 originatingReference = (overridee?.returnType ?: origin.declaration.returnType)!!,
                 ksType = origin.declaration.returnTypeAsMemberOf(
-                    resolver = env.resolver,
                     ksType = containing?.ksType
                 )
             )
@@ -92,7 +91,6 @@ internal sealed class KspMethodType(
             // suspend functions work w/ continuation so it is always boxed
             return env.wrap(
                 ksType = origin.declaration.returnTypeAsMemberOf(
-                    resolver = env.resolver,
                     ksType = containing?.ksType
                 ),
                 allowPrimitives = false

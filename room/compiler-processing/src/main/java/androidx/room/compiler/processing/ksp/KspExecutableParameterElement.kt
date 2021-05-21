@@ -38,7 +38,6 @@ internal class KspExecutableParameterElement(
 
     override val type: KspType by lazy {
         parameter.typeAsMemberOf(
-            resolver = env.resolver,
             functionDeclaration = method.declaration,
             ksType = method.containing.type?.ksType
         ).let {
@@ -58,7 +57,6 @@ internal class KspExecutableParameterElement(
         }
         check(other is KspType)
         return parameter.typeAsMemberOf(
-            resolver = env.resolver,
             functionDeclaration = method.declaration,
             ksType = other.ksType
         ).let {

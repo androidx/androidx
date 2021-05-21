@@ -61,6 +61,7 @@ class TopLevelMembersTest {
             sources = listOf(appSrc),
             classpath = listOf(classpath)
         ) { invocation ->
+            // b/188822146
             // TODO add lib package here once Room updates to a version that includes the
             //  https://github.com/google/ksp/issues/396 fix (1.5.0-1.0.0-alpha09)
             val declarations = invocation.kspResolver.getDeclarationsFromPackage("app")
