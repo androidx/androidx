@@ -340,9 +340,10 @@ public final class Action {
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * The provided icon should have a maximum size of 36 x 36 dp. If the icon exceeds this
-         * maximum size in either one of the dimensions, it will be scaled down to be centered
-         * inside the bounding box while preserving the aspect ratio.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * icons targeting a 88 x 88 dp bounding box. If the icon exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
