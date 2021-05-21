@@ -302,13 +302,13 @@ public final class TileRendererInternal {
         //
         // A Row (LinearLayout) supports this with width=0 and weight>0. After doing a layout pass,
         // it will assign all remaining space to elements with width=0 and weight>0, biased by the
-        // weight. This causes problems if there are two (or more) "expand" elements in a row,
-        // which is itself set to WRAP_CONTENTS, and one of those elements has a measured width
-        // (e.g. Text). In that case, the LinearLayout will measure the text, then ensure that
-        // all elements with a weight set have their widths set according to the weight. For us,
-        // that means that _all_ elements with expand=true will size themselves to the same width
-        // as the Text, pushing out the bounds of the parent row. This happens on columns too,
-        // but of course regarding height.
+        // weight. This causes problems if there are two (or more) "expand" elements in a row, which
+        // is itself set to WRAP_CONTENTS, and one of those elements has a measured width (e.g.
+        // Text). In that case, the LinearLayout will measure the text, then ensure that all
+        // elements with a weight set have their widths set according to the weight. For us, that
+        // means that _all_ elements with expand=true will size themselves to the same width as the
+        // Text, pushing out the bounds of the parent row. This happens on columns too, but of
+        // course regarding height.
         //
         // To get around this, if an element with expand=true is added to a row that is WRAP_CONTENT
         // (e.g. a row with no explicit width, that is not expanded), we ignore the expand=true, and
@@ -459,10 +459,10 @@ public final class TileRendererInternal {
     private static boolean isBold(FontStyle fontStyle) {
         // Although this method could be a simple equality check against FONT_WEIGHT_BOLD, we list
         // all current cases here so that this will become a compile time error as soon as a new
-        // FontWeight value is added to the schema. If this fails to build, then this means that
-        // an int typeface style is no longer enough to represent all FontWeight values and a
-        // customizable, per-weight text style must be introduced to TileRendererInternal to
-        // handle this. See b/176980535
+        // FontWeight value is added to the schema. If this fails to build, then this means that an
+        // int typeface style is no longer enough to represent all FontWeight values and a
+        // customizable, per-weight text style must be introduced to TileRendererInternal to handle
+        // this. See b/176980535
         switch (fontStyle.getWeight().getValue()) {
             case FONT_WEIGHT_BOLD:
                 return true;
@@ -538,8 +538,8 @@ public final class TileRendererInternal {
 
     private void applyFontStyle(FontStyle style, TextView textView) {
         // Need to supply typefaceStyle when creating the typeface (will select specialist
-        // bold/italic typefaces), *and* when setting the typeface (will set synthetic
-        // bold/italic flags in Paint if they're not supported by the given typeface).
+        // bold/italic typefaces), *and* when setting the typeface (will set synthetic bold/italic
+        // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
         int currentPaintFlags = textView.getPaintFlags();
@@ -932,17 +932,17 @@ public final class TileRendererInternal {
 
         // HACK: FrameLayout has a bug in it. If we add one WRAP_CONTENT child, and one MATCH_PARENT
         // child, the expected behaviour is that the FrameLayout sizes itself to fit the
-        // WRAP_CONTENT child (e.g. a TextView), then the MATCH_PARENT child is forced to the
-        // same size as the outer FrameLayout (and hence, the size of the TextView, after
-        // accounting for padding etc). Because of a bug though, this doesn't happen; instead,
-        // the MATCH_PARENT child will just keep its intrinsic size. This is because FrameLayout
-        // only forces MATCH_PARENT children to a given size if there are _more than one_ of them
-        // (see the bottom of FrameLayout#onMeasure).
+        // WRAP_CONTENT child (e.g. a TextView), then the MATCH_PARENT child is forced to the same
+        // size as the outer FrameLayout (and hence, the size of the TextView, after accounting for
+        // padding etc). Because of a bug though, this doesn't happen; instead, the MATCH_PARENT
+        // child will just keep its intrinsic size. This is because FrameLayout only forces
+        // MATCH_PARENT children to a given size if there are _more than one_ of them (see the
+        // bottom of FrameLayout#onMeasure).
         //
         // To work around this (without copying the whole of FrameLayout just to change a "1" to
-        // "0"), we add a Space element in if there is one MATCH_PARENT child. This has a tiny
-        // cost to the measure pass, and negligible cost to layout/draw (since it doesn't take
-        // part in those passes).
+        // "0"), we add a Space element in if there is one MATCH_PARENT child. This has a tiny cost
+        // to the measure pass, and negligible cost to layout/draw (since it doesn't take part in
+        // those passes).
         int numMatchParentChildren = 0;
         for (int i = 0; i < frame.getChildCount(); i++) {
             LayoutParams lp = frame.getChildAt(i).getLayoutParams();
@@ -1889,9 +1889,9 @@ public final class TileRendererInternal {
         private static Typeface loadTypeface(TypedArray array, int styleableResId) {
             // Resources are a little nasty; we can't just check if resType =
             // TypedValue.TYPE_REFERENCE, because it never is (if you use @font/foo inside of
-            // styles.xml, the value will be a string of the form res/font/foo.ttf). Instead, see
-            // if there's a resource ID at all, and use that, otherwise assume it's a well known
-            // font family.
+            // styles.xml, the value will be a string of the form res/font/foo.ttf). Instead, see if
+            // there's a resource ID at all, and use that, otherwise assume it's a well known font
+            // family.
             int resType = array.getType(styleableResId);
 
             if (array.getResourceId(styleableResId, -1) != -1

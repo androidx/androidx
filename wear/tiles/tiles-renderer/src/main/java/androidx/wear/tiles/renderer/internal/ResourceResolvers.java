@@ -179,11 +179,9 @@ public class ResourceResolvers {
                         "Can't find resolver for image resource " + protoResourceId));
     }
 
-    /** Returns whether an image can be tinted or not. */
     public boolean canImageBeTinted(@NonNull String protoResourceId) {
         // Only Android image resources can be tinted for now. This is because we don't really know
-        // what
-        // is in an inline image.
+        // what is in an inline image.
         ResourceProto.ImageResource imageResource =
                 mProtoResources.getIdToImageMap().get(protoResourceId);
 

@@ -370,8 +370,8 @@ public final class ModifiersBuilders {
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
              */
-            @NonNull
             @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
             public Builder setRtlAware(boolean rtlAware) {
                 mImpl.setRtlAware(TypesProto.BoolProp.newBuilder().setValue(rtlAware));
                 return this;
