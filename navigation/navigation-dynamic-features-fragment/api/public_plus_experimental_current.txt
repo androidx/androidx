@@ -16,6 +16,7 @@ package androidx.navigation.dynamicfeatures.fragment {
 
   @androidx.navigation.NavDestinationDsl public final class DynamicFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
     ctor public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, @IdRes int id, String fragmentClassName);
+    ctor public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, String route, String fragmentClassName);
     method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination build();
     method public String? getModuleName();
     method public void setModuleName(String? p);
@@ -24,8 +25,11 @@ package androidx.navigation.dynamicfeatures.fragment {
 
   public final class DynamicFragmentNavigatorDestinationBuilderKt {
     method public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
   }
 
   public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {

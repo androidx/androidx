@@ -16,6 +16,7 @@ package androidx.navigation.dynamicfeatures {
 
   @androidx.navigation.NavDestinationDsl public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
     ctor public DynamicActivityNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.DynamicActivityNavigator activityNavigator, @IdRes int id);
+    ctor public DynamicActivityNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.DynamicActivityNavigator activityNavigator, String route);
     method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination build();
     method public String? getAction();
     method public String? getActivityClassName();
@@ -39,6 +40,7 @@ package androidx.navigation.dynamicfeatures {
 
   public final class DynamicActivityNavigatorDestinationBuilderKt {
     method public static inline void activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class DynamicExtras implements androidx.navigation.Navigator.Extras {
@@ -86,6 +88,7 @@ package androidx.navigation.dynamicfeatures {
 
   @androidx.navigation.NavDestinationDsl public final class DynamicIncludeNavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
     ctor public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, @IdRes int id, String moduleName, String graphResourceName);
+    ctor public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, String route, String moduleName, String graphResourceName);
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph build();
     method public String? getGraphPackage();
     method public void setGraphPackage(String? p);
@@ -95,6 +98,8 @@ package androidx.navigation.dynamicfeatures {
   public final class DynamicIncludeNavGraphBuilderKt {
     method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName);
     method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String moduleName, String graphResourceName);
+    method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String moduleName, String graphResourceName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public class DynamicInstallManager {
@@ -116,21 +121,28 @@ package androidx.navigation.dynamicfeatures {
 
   @androidx.navigation.NavDestinationDsl public final class DynamicNavGraphBuilder extends androidx.navigation.NavGraphBuilder {
     ctor public DynamicNavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
+    ctor public DynamicNavGraphBuilder(androidx.navigation.NavigatorProvider provider, String startDestination, optional String? route);
     method public String? getModuleName();
     method public int getProgressDestination();
+    method public String? getProgressDestinationRoute();
     method public void setModuleName(String? p);
     method public void setProgressDestination(int p);
+    method public void setProgressDestinationRoute(String? progDestRoute);
     property public final String? moduleName;
     property public final int progressDestination;
+    property public final String? progressDestinationRoute;
   }
 
   public final class DynamicNavGraphBuilderKt {
     method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
     method public static inline void navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline void navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String startDestination, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavControllerKt {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavHostKt {
