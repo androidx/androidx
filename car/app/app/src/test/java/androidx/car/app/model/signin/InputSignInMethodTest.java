@@ -27,6 +27,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.model.InputCallback;
+import androidx.car.app.model.InputCallbackDelegate;
 import androidx.car.app.model.OnInputCompletedDelegate;
 import androidx.car.app.model.OnInputCompletedListener;
 
@@ -48,6 +50,8 @@ public class InputSignInMethodTest {
 
     @Mock
     OnInputCompletedListener mListener;
+    @Mock
+    InputCallback mCallback;
 
     @Test
     public void create_defaultValues() {
@@ -64,6 +68,30 @@ public class InputSignInMethodTest {
         delegate.sendInputCompleted("ABC", onDoneCallback);
 
         verify(mListener).onInputCompleted("ABC");
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
+    public void inputSubmittedCallback() {
+        InputSignInMethod signIn = new InputSignInMethod.Builder(mCallback).build();
+
+        InputCallbackDelegate delegate = signIn.getInputCallbackDelegate();
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        delegate.sendInputSubmitted("ABC", onDoneCallback);
+
+        verify(mCallback).onInputSubmitted("ABC");
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
+    public void inputTextChangedCallback() {
+        InputSignInMethod signIn = new InputSignInMethod.Builder(mCallback).build();
+
+        InputCallbackDelegate delegate = signIn.getInputCallbackDelegate();
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        delegate.sendInputTextChanged("ABC", onDoneCallback);
+
+        verify(mCallback).onInputTextChanged("ABC");
         verify(onDoneCallback).onSuccess(null);
     }
 
