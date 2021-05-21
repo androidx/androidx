@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
@@ -25,7 +24,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 /**
  * Returns the type of a property as if it is member of the given [ksType].
  */
-internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType?): KSType {
+internal fun KSPropertyDeclaration.typeAsMemberOf(ksType: KSType?): KSType {
     val resolved = type.resolve()
     if (isStatic()) {
         // calling as member with a static would throw as it might be a member of the companion
@@ -41,14 +40,12 @@ internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KS
     if (resolved.isError) {
         return resolved
     }
-    return resolver.asMemberOf(
-        property = this,
+    return this.asMemberOf(
         containing = ksType
     )
 }
 
 internal fun KSValueParameter.typeAsMemberOf(
-    resolver: Resolver,
     functionDeclaration: KSFunctionDeclaration,
     ksType: KSType?
 ): KSType {
@@ -67,8 +64,7 @@ internal fun KSValueParameter.typeAsMemberOf(
     if (ksType == null) {
         return resolved
     }
-    val asMember = resolver.asMemberOf(
-        function = functionDeclaration,
+    val asMember = functionDeclaration.asMemberOf(
         containing = ksType
     )
     // TODO b/173224718
@@ -78,7 +74,6 @@ internal fun KSValueParameter.typeAsMemberOf(
 }
 
 internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
-    resolver: Resolver,
     ksType: KSType?
 ): KSType {
     val resolved = returnType?.resolve()
@@ -91,8 +86,7 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
             // object
             resolved
         }
-        else -> resolver.asMemberOf(
-            function = this,
+        else -> this.asMemberOf(
             containing = ksType
         ).returnType
     } ?: error("cannot find return type for $this")

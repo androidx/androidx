@@ -54,8 +54,8 @@ private class DelegatingTypeReference(
 private class NoLocationTypeReference(
     val resolved: KSType
 ) : KSTypeReference {
-    override val annotations: List<KSAnnotation>
-        get() = emptyList()
+    override val annotations: Sequence<KSAnnotation>
+        get() = emptySequence()
     override val element: KSReferenceElement?
         get() = null
     override val location: Location
