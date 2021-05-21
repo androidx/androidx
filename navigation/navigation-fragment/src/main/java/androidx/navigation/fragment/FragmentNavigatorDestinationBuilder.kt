@@ -46,14 +46,50 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 )
 
 /**
+ * Construct a new [FragmentNavigator.Destination]
+ */
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+    route: String
+): Unit = fragment<F>(route) {}
+
+/**
+ * Construct a new [FragmentNavigator.Destination]
+ */
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+    route: String,
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    FragmentNavigatorDestinationBuilder(
+        provider[FragmentNavigator::class],
+        route,
+        F::class
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [FragmentNavigator.Destination]
  */
 @NavDestinationDsl
-public class FragmentNavigatorDestinationBuilder(
-    navigator: FragmentNavigator,
-    @IdRes id: Int,
-    private val fragmentClass: KClass<out Fragment>
-) : NavDestinationBuilder<FragmentNavigator.Destination>(navigator, id) {
+public class FragmentNavigatorDestinationBuilder :
+    NavDestinationBuilder<FragmentNavigator.Destination> {
+
+    private var fragmentClass: KClass<out Fragment>
+
+    public constructor(
+        navigator: FragmentNavigator,
+        @IdRes id: Int,
+        fragmentClass: KClass<out Fragment>
+    ) : super(navigator, id) {
+        this.fragmentClass = fragmentClass
+    }
+
+    public constructor(
+        navigator: FragmentNavigator,
+        route: String,
+        fragmentClass: KClass<out Fragment>
+    ) : super(navigator, route) {
+        this.fragmentClass = fragmentClass
+    }
 
     override fun build(): FragmentNavigator.Destination =
         super.build().also { destination ->

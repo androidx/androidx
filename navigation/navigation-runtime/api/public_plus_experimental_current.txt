@@ -62,6 +62,7 @@ package androidx.navigation {
 
   @androidx.navigation.NavDestinationDsl public final class ActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
     ctor public ActivityNavigatorDestinationBuilder(androidx.navigation.ActivityNavigator navigator, @IdRes int id);
+    ctor public ActivityNavigatorDestinationBuilder(androidx.navigation.ActivityNavigator navigator, String route);
     method public androidx.navigation.ActivityNavigator.Destination build();
     method public String? getAction();
     method public kotlin.reflect.KClass<? extends android.app.Activity>? getActivityClass();
@@ -82,6 +83,7 @@ package androidx.navigation {
 
   public final class ActivityNavigatorDestinationBuilderKt {
     method public static inline void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void activity(androidx.navigation.NavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class ActivityNavigatorExtrasKt {
@@ -165,7 +167,7 @@ package androidx.navigation {
 
   public final class NavControllerKt {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
-    method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavDeepLinkBuilder {
@@ -202,6 +204,7 @@ package androidx.navigation {
 
   public final class NavHostKt {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavInflater {
