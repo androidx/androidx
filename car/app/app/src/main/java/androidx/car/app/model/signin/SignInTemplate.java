@@ -16,6 +16,7 @@
 
 package androidx.car.app.model.signin;
 
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 
@@ -300,15 +301,16 @@ public final class SignInTemplate implements Template {
         /**
          * Adds an {@link Action} to display alongside the sign-in content.
          *
-         * <p>By default, no actions are displayed.
-         *
          * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
          * instances, any other spans will be ignored by the host.
          *
          * <h4>Requirements</h4>
          *
-         * The action must use a {@link androidx.car.app.model.ParkedOnlyOnClickListener}, and any
-         * actions above the maximum limit of 2 will be ignored.
+         * This template allows up to 2 {@link Action}s in its body, and they must use a
+         * {@link androidx.car.app.model.ParkedOnlyOnClickListener}.
+         *
+         * <p>Each action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances, any other spans will be ignored by the host.
          *
          * @throws NullPointerException  if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} does not meet the requirements
@@ -322,6 +324,7 @@ public final class SignInTemplate implements Template {
             }
 
             mActionList.add(action);
+            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mActionList);
             return this;
         }
 

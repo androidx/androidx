@@ -50,6 +50,16 @@ public class SignInTemplateTest {
     }
 
     @Test
+    public void moreThanTwoActions_throws() {
+        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new SignInTemplate.Builder(signInMethod)
+                        .addAction(mAction)
+                        .addAction(mAction)
+                        .addAction(mAction));
+    }
+
+    @Test
     public void createInstance_defaultValues() {
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)

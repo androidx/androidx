@@ -78,6 +78,15 @@ public class MessageTemplateTest {
     }
 
     @Test
+    public void moreThanTwoActions_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new MessageTemplate.Builder(mMessage)
+                        .addAction(mAction)
+                        .addAction(mAction)
+                        .addAction(mAction));
+    }
+
+    @Test
     public void createDefault_valuesAreNull() {
         MessageTemplate template = new MessageTemplate.Builder(mMessage).setTitle(mTitle).build();
         assertThat(template.getMessage().toString()).isEqualTo(mMessage);
