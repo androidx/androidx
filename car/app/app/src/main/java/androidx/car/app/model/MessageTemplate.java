@@ -16,6 +16,7 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 
 import static java.util.Objects.hash;
@@ -292,17 +293,19 @@ public final class MessageTemplate implements Template {
         /**
          * Adds an {@link Action} to display along with the message.
          *
-         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
-         * instances, any other spans will be ignored by the host.
+         * <h4>Requirements</h4>
          *
-         * <p>Any actions above the maximum limit of 2 will be ignored.
+         * This template allows up to 2 {@link Action}s in its body. The action's title color can
+         * be customized with {@link ForegroundCarColorSpan} instances, any other spans will be
+         * ignored by the host.
          *
-         * @throws NullPointerException if {@code action} is {@code null}
+         * @throws NullPointerException     if {@code action} is {@code null}
+         * @throws IllegalArgumentException if {@code action} does not meet the requirements
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
-            requireNonNull(action);
-            mActionList.add(action);
+            mActionList.add(requireNonNull(action));
+            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mActionList);
             return this;
         }
 
