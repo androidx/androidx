@@ -300,8 +300,8 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets the background color to use for the navigation information.
          *
-         * <p>The host may ignore this color and use a default color instead if the color does
-         * not pass the contrast requirements.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         *  factors, the color may be ignored by the host or overridden by the vehicle system.
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
