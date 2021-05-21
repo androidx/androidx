@@ -27,6 +27,7 @@ import android.util.Xml
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.content.res.use
+import androidx.core.content.withStyledAttributes
 import androidx.navigation.common.R
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -280,26 +281,22 @@ public class NavInflater(
         parser: XmlResourceParser,
         graphResId: Int
     ) {
-        res.obtainAttributes(attrs, R.styleable.NavAction).use { array ->
-            val id = array.getResourceId(R.styleable.NavAction_android_id, 0)
-            val destId = array.getResourceId(R.styleable.NavAction_destination, 0)
+        context.withStyledAttributes(attrs, R.styleable.NavAction) {
+            val id = getResourceId(R.styleable.NavAction_android_id, 0)
+            val destId = getResourceId(R.styleable.NavAction_destination, 0)
             val action = NavAction(destId)
             val builder = NavOptions.Builder()
-            builder.setLaunchSingleTop(
-                array.getBoolean(R.styleable.NavAction_launchSingleTop, false)
-            )
-            builder.setRestoreState(
-                array.getBoolean(R.styleable.NavAction_restoreState, false)
-            )
+            builder.setLaunchSingleTop(getBoolean(R.styleable.NavAction_launchSingleTop, false))
+            builder.setRestoreState(getBoolean(R.styleable.NavAction_restoreState, false))
             builder.setPopUpTo(
-                array.getResourceId(R.styleable.NavAction_popUpTo, -1),
-                array.getBoolean(R.styleable.NavAction_popUpToInclusive, false),
-                array.getBoolean(R.styleable.NavAction_popUpToSaveState, false)
+                getResourceId(R.styleable.NavAction_popUpTo, -1),
+                getBoolean(R.styleable.NavAction_popUpToInclusive, false),
+                getBoolean(R.styleable.NavAction_popUpToSaveState, false)
             )
-            builder.setEnterAnim(array.getResourceId(R.styleable.NavAction_enterAnim, -1))
-            builder.setExitAnim(array.getResourceId(R.styleable.NavAction_exitAnim, -1))
-            builder.setPopEnterAnim(array.getResourceId(R.styleable.NavAction_popEnterAnim, -1))
-            builder.setPopExitAnim(array.getResourceId(R.styleable.NavAction_popExitAnim, -1))
+            builder.setEnterAnim(getResourceId(R.styleable.NavAction_enterAnim, -1))
+            builder.setExitAnim(getResourceId(R.styleable.NavAction_exitAnim, -1))
+            builder.setPopEnterAnim(getResourceId(R.styleable.NavAction_popEnterAnim, -1))
+            builder.setPopExitAnim(getResourceId(R.styleable.NavAction_popExitAnim, -1))
             action.navOptions = builder.build()
             val args = Bundle()
             val innerDepth = parser.depth + 1
