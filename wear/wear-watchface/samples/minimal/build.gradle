@@ -42,6 +42,15 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
+
+    buildTypes {
+	release {
+	    minifyEnabled true
+	    shrinkResources true
+	    proguardFiles getDefaultProguardFile('proguard-android.txt')
+	}
+    }
+
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
