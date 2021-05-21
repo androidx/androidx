@@ -50,14 +50,21 @@ public final class PlaceMarker {
     /**
      * Represents a marker icon.
      *
-     * <p>Icons always have a tint applied to them.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 64 x 64 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
+     *
+     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
+     * default tint color as determined by the host will be applied.
      */
     public static final int TYPE_ICON = 0;
 
     /**
      * Represents a marker image.
      *
-     * <p>No background will be applied.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 72 x 72 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      */
     public static final int TYPE_IMAGE = 1;
 
@@ -180,18 +187,9 @@ public final class PlaceMarker {
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * <ul>
-         *   <li>For {@link #TYPE_IMAGE}, the provided image should be 36 x 36 dp. The host
-         *       applies 4 dp rounded corners before the icon is rendered on either the map or
-         *       the list.
-         *   <li>For {@link #TYPE_ICON}, the provided icon should be 32 x 32 dp and have its tint
-         *       value set via {@link CarIcon.Builder#setTint}. Otherwise, a default tint color as
-         *       determined by the host will be applied.
-         * </ul>
-         *
-         * <p>If the size of the provided icon exceeds the size requirements described above in
-         * either one of the dimensions, it will be scaled down and centered inside the bounding
-         * box while preserving the aspect ratio.
+         * If the input icon's size exceeds the sizing requirements for the given icon type in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
