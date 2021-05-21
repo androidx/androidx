@@ -201,6 +201,7 @@ package androidx.fragment.app {
     ctor public FragmentContainerView(android.content.Context);
     ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?);
     ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?, int);
+    method @RequiresApi(20) protected boolean fitSystemWindows(android.graphics.Rect);
     method public <F extends androidx.fragment.app.Fragment> F? getFragment();
   }
 
