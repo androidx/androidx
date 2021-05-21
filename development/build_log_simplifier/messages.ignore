@@ -1128,3 +1128,5 @@ Type information in locals\-table is inconsistent\. Cannot constrain type: @Null
 # > Task :compose:foundation:foundation:integration-tests:foundation-demos:reportLibraryMetrics
 Stripped invalid locals information from [0-9]+ method\.
 java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+# > Task :compose:runtime:runtime-saveable-lint:compileKotlin
+at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$GradleKotlinCompilerWorkAction\.execute\(GradleCompilerRunnerWithWorkers\.kt\:[0-9]+\)
