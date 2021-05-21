@@ -41,7 +41,7 @@ public final class TaskRestrictionDemoScreen extends Screen {
     private final int mStep;
     private boolean mIsBackOperation = false;
     private boolean mToggleState = false;
-    private int mImageSize = Row.IMAGE_TYPE_SMALL;
+    private int mImageType = Row.IMAGE_TYPE_ICON;
 
     public TaskRestrictionDemoScreen(int step, @NonNull CarContext carContext) {
         super(carContext);
@@ -110,13 +110,13 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                                         getCarContext(),
                                                         R.drawable.ic_fastfood_white_48dp))
                                                 .build(),
-                                        mImageSize)
+                                        mImageType)
                                 .setOnClickListener(
                                         () -> {
-                                            mImageSize =
-                                                    mImageSize == Row.IMAGE_TYPE_SMALL
+                                            mImageType =
+                                                    mImageType == Row.IMAGE_TYPE_ICON
                                                             ? Row.IMAGE_TYPE_LARGE
-                                                            : Row.IMAGE_TYPE_SMALL;
+                                                            : Row.IMAGE_TYPE_ICON;
                                             invalidate();
                                         })
                                 .build());

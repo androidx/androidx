@@ -53,7 +53,8 @@ public final class SelectableListsDemoScreen extends Screen {
                                                                 getCarContext(),
                                                                 R.drawable
                                                                         .ic_fastfood_white_48dp))
-                                                        .build())
+                                                        .build(),
+                                                Row.IMAGE_TYPE_ICON)
                                         .setTitle("Option 1")
                                         .addText("Some additional text")
                                         .build())
