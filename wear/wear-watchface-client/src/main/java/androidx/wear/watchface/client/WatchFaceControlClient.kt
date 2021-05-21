@@ -81,14 +81,17 @@ public interface WatchFaceControlClient : AutoCloseable {
             intent: Intent
         ): WatchFaceControlClient {
             val deferredService = CompletableDeferred<IWatchFaceControlService>()
+            val traceEvent = AsyncTraceEvent("WatchFaceControlClientImpl.bindService")
             val serviceConnection = object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                    traceEvent.close()
                     deferredService.complete(IWatchFaceControlService.Stub.asInterface(binder))
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
                     // Note if onServiceConnected is called first completeExceptionally will do
                     // nothing because the CompletableDeferred is already completed.
+                    traceEvent.close()
                     deferredService.completeExceptionally(ServiceStartFailureException())
                 }
             }
@@ -98,6 +101,7 @@ public interface WatchFaceControlClient : AutoCloseable {
                     Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT
                 )
             ) {
+                traceEvent.close()
                 throw ServiceNotBoundException()
             }
             return WatchFaceControlClientImpl(
