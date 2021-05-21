@@ -1210,17 +1210,20 @@ public final class TileRendererInternal {
         parent.addView(wrappedView, ratioWrapperLayoutParams);
 
         ListenableFuture<Drawable> drawableFuture = mResourceResolvers.getDrawable(protoResId);
-        if (drawableFuture.isDone()) {
+        boolean isImageSet = false;
+        if (drawableFuture.isDone() && !drawableFuture.isCancelled()) {
             // If the future is done, immediately draw.
-            setImageDrawable(imageView, drawableFuture, protoResId);
-        } else {
+            isImageSet = setImageDrawable(imageView, drawableFuture, protoResId);
+        }
+
+        if (!isImageSet) {
             // Is there a placeholder to use in the meantime?
             try {
                 if (mResourceResolvers.hasPlaceholderDrawable(protoResId)) {
                     imageView.setImageDrawable(
                             mResourceResolvers.getPlaceholderDrawableOrThrow(protoResId));
                 }
-            } catch (ResourceAccessException ex) {
+            } catch (ResourceAccessException | IllegalArgumentException ex) {
                 Log.e(TAG, "Exception loading placeholder for resource " + protoResId, ex);
             }
 
@@ -1255,13 +1258,15 @@ public final class TileRendererInternal {
         return wrappedView;
     }
 
-    private static void setImageDrawable(
+    private static boolean setImageDrawable(
             ImageView imageView, Future<Drawable> drawableFuture, String protoResId) {
         try {
             imageView.setImageDrawable(drawableFuture.get());
+            return true;
         } catch (ExecutionException | InterruptedException e) {
             Log.w(TAG, "Could not get drawable for image " + protoResId);
         }
+        return false;
     }
 
     @Nullable
