@@ -527,6 +527,7 @@ includeProject(":room:room-compiler-processing-testing", "room/compiler-processi
 includeProject(":room:room-guava", "room/guava", [BuildType.MAIN])
 includeProject(":room:room-ktx", "room/ktx", [BuildType.MAIN])
 includeProject(":room:room-migration", "room/migration", [BuildType.MAIN])
+includeProject(":room:room-paging", "room/room-paging", [BuildType.MAIN])
 includeProject(":room:room-runtime", "room/runtime", [BuildType.MAIN])
 includeProject(":room:room-rxjava2", "room/rxjava2", [BuildType.MAIN])
 includeProject(":room:room-rxjava3", "room/rxjava3", [BuildType.MAIN])
