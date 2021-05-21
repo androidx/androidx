@@ -73,10 +73,6 @@ internal class RenderBufferTexture(
     @Px
     private val height: Int
 ) {
-    private companion object {
-        private const val RENDER_TEXTURE_UNIT = 1
-    }
-
     val framebuffer = IntArray(1)
     val textureId = IntArray(1)
 
