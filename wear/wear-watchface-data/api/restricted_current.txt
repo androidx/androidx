@@ -24,7 +24,6 @@ package android.support.wearable.watchface {
     field public static final String EXTRA_INTERRUPTION_FILTER = "interruption_filter";
     field public static final String EXTRA_NOTIFICATION_COUNT = "notification_count";
     field public static final String EXTRA_UNREAD_COUNT = "unread_count";
-    field public static final String EXTRA_WATCH_FACE_COMMAND_BINDER = "watch_face_command_binder";
     field public static final String EXTRA_WATCH_FACE_COMPONENT = "android.support.wearable.watchface.extra.WATCH_FACE_COMPONENT";
     field public static final String EXTRA_WATCH_FACE_VISIBLE = "watch_face_visible";
     field public static final String KEY_ACCENT_COLOR = "accentColor";
@@ -46,12 +45,7 @@ package android.support.wearable.watchface {
     field public static final String PERMISSION_BIND_WATCH_FACE_CONTROL = "com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL";
     field public static final String PROPERTY_BURN_IN_PROTECTION = "burn_in_protection";
     field public static final String PROPERTY_LOW_BIT_AMBIENT = "low_bit_ambient";
-    field public static final String STATUS_AIRPLANE_MODE = "airplane_mode";
-    field public static final String STATUS_CHARGING = "charging";
-    field public static final String STATUS_CONNECTED = "connected";
-    field public static final String STATUS_GPS_ACTIVE = "gps_active";
     field public static final String STATUS_KEYGUARD_LOCKED = "keyguard_locked";
-    field public static final String STATUS_THEATER_MODE = "theater_mode";
   }
 
   public static final class Constants.Companion {
