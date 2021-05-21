@@ -68,6 +68,13 @@ public class MessageTemplateTest {
     }
 
     @Test
+    public void isLoadingWithIcon_throws() {
+        assertThrows(
+                IllegalStateException.class,
+                () -> new MessageTemplate.Builder("hello").setLoading(true).setIcon(mIcon).build());
+    }
+
+    @Test
     public void noHeaderTitleOrAction_throws() {
         assertThrows(IllegalStateException.class,
                 () -> new MessageTemplate.Builder(mMessage).build());

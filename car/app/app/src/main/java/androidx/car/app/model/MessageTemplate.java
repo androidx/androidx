@@ -28,6 +28,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -48,6 +49,8 @@ import java.util.Objects;
 @CarProtocol
 public final class MessageTemplate implements Template {
     @Keep
+    private final boolean mIsLoading;
+    @Keep
     @Nullable
     private final CarText mTitle;
     @Keep
@@ -64,6 +67,16 @@ public final class MessageTemplate implements Template {
     private final Action mHeaderAction;
     @Keep
     private final List<Action> mActionList;
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    @RequiresCarApi(2)
+    public boolean isLoading() {
+        return mIsLoading;
+    }
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -95,7 +108,6 @@ public final class MessageTemplate implements Template {
     public CarText getMessage() {
         return requireNonNull(mMessage);
     }
-
 
     /**
      * Returns a debug message to display in the template or {@code null} if not set.
@@ -136,7 +148,7 @@ public final class MessageTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return hash(mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
+        return hash(mIsLoading, mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
     }
 
     @Override
@@ -149,7 +161,8 @@ public final class MessageTemplate implements Template {
         }
         MessageTemplate otherTemplate = (MessageTemplate) other;
 
-        return Objects.equals(mTitle, otherTemplate.mTitle)
+        return mIsLoading == otherTemplate.mIsLoading
+                && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mMessage, otherTemplate.mMessage)
                 && Objects.equals(mDebugMessage, otherTemplate.mDebugMessage)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
@@ -158,6 +171,7 @@ public final class MessageTemplate implements Template {
     }
 
     MessageTemplate(Builder builder) {
+        mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mMessage = builder.mMessage;
         mDebugMessage = builder.mDebugMessage;
@@ -168,6 +182,7 @@ public final class MessageTemplate implements Template {
 
     /** Constructs an empty instance, used by serialization code. */
     private MessageTemplate() {
+        mIsLoading = false;
         mTitle = null;
         mMessage = null;
         mDebugMessage = null;
@@ -178,6 +193,7 @@ public final class MessageTemplate implements Template {
 
     /** A builder of {@link MessageTemplate}. */
     public static final class Builder {
+        boolean mIsLoading;
         @Nullable
         CarText mTitle;
         CarText mMessage;
@@ -192,6 +208,21 @@ public final class MessageTemplate implements Template {
         Throwable mDebugCause;
         @Nullable
         String mDebugString;
+
+        /**
+         * Sets whether the template is in a loading state.
+         *
+         * <p>If set to {@code true}, the UI shows a loading indicator where the icon
+         * would be otherwise. The caller is expected to call
+         * {@link androidx.car.app.Screen#invalidate()} and send the new template content to the
+         * host once the data is ready.
+         */
+        @RequiresCarApi(2)
+        @NonNull
+        public Builder setLoading(boolean isLoading) {
+            mIsLoading = isLoading;
+            return this;
+        }
 
         /**
          * Sets the title of the template.
@@ -319,11 +350,16 @@ public final class MessageTemplate implements Template {
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
-         * @throws IllegalStateException if the message is empty, or if the template does not have
-         *                               either a title or header {@link Action} set
+         * @throws IllegalStateException if the message is empty, if the template does not have
+         *                               either a title or header {@link Action} set, or if the
+         *                               template is in loading state and an icon is specified.
          */
         @NonNull
         public MessageTemplate build() {
+            if (mIsLoading && mIcon != null) {
+                throw new IllegalStateException(
+                        "Template in a loading state can not have an icon");
+            }
             if (mMessage.isEmpty()) {
                 throw new IllegalStateException("Message cannot be empty");
             }
