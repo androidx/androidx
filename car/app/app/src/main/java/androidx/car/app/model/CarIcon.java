@@ -353,13 +353,14 @@ public final class CarIcon {
          * Sets the tint of the icon to the given {@link CarColor}.
          *
          * <p>This tint overrides the tint set through {@link IconCompat#setTint(int)} in the
-         * backing {@link IconCompat} with a {@link CarColor} tint.The tint set through {@link
+         * backing {@link IconCompat} with a {@link CarColor} tint. The tint set through {@link
          * IconCompat#setTint(int)} is not guaranteed to be applied if the {@link CarIcon} tint
          * is not set.
          *
          * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
          *
-         * <p>By default, no tint is set unless one is specified with this method.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         *  factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * @throws NullPointerException if {@code tin} is {@code null}
          * @see CarColor
