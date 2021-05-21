@@ -958,15 +958,4 @@
             column="65"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 14"
-        errorLine1="            } else if (Build.VERSION.SDK_INT >= 14) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="3403"
-            column="24"/>
-    </issue>
-
 </issues>
