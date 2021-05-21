@@ -18,6 +18,7 @@ package androidx.navigation.ui
 
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphNavigator
+import androidx.navigation.ui.NavigationUI.matchDestinations
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
@@ -36,6 +37,6 @@ class NavigationUITest {
             parent = NavGraph(NavGraphNavigator(TestNavigatorProvider()))
         }
 
-        assertThat(NavigationUI.matchDestinations(destination, setOf(1, 2))).isTrue()
+        assertThat(destination.matchDestinations(setOf(1, 2))).isTrue()
     }
 }
