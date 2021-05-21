@@ -180,7 +180,6 @@ public interface CameraInfo {
      *
      * @return {@link CameraSelector} unique to this camera.
      */
-    @ExperimentalCameraFilter
     @NonNull
     CameraSelector getCameraSelector();
 

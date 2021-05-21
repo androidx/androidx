@@ -17,7 +17,6 @@
 package androidx.camera.core
 
 import android.os.Build
-import androidx.annotation.OptIn
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.testing.fakes.FakeCamera
@@ -98,7 +97,6 @@ public class CameraSelectorTest {
         cameraSelectorBuilder.build().lensFacing
     }
 
-    @OptIn(ExperimentalCameraFilter::class)
     @Test
     public fun canAppendFilters() {
         val filter0 = Mockito.mock(
@@ -147,7 +145,6 @@ public class CameraSelectorTest {
         assertThat(cameraSelector.select(mCameras)).isEqualTo(mFrontCamera)
     }
 
-    @OptIn(ExperimentalCameraFilter::class)
     @Test(expected = IllegalArgumentException::class)
     public fun exception_extraOutputCamera() {
         val cameraSelectorBuilder = CameraSelector.Builder()
@@ -161,7 +158,6 @@ public class CameraSelectorTest {
         cameraSelectorBuilder.build().select(mCameras)
     }
 
-    @OptIn(ExperimentalCameraFilter::class)
     @Test(expected = UnsupportedOperationException::class)
     public fun exception_extraInputCamera() {
         val cameraSelectorBuilder = CameraSelector.Builder()
