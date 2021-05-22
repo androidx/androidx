@@ -505,6 +505,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.CarText getMessage();
     method public androidx.car.app.model.CarText? getTitle();
+    method @androidx.car.app.annotations.RequiresCarApi(2) public boolean isLoading();
   }
 
   public static final class MessageTemplate.Builder {
@@ -516,6 +517,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String);
     method public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate.Builder setIcon(androidx.car.app.model.CarIcon);
+    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
   }
 
