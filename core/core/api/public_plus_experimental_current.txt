@@ -3314,7 +3314,8 @@ package androidx.core.view.inputmethod {
   public final class InputConnectionCompat {
     ctor @Deprecated public InputConnectionCompat();
     method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle?);
-    method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    method @Deprecated public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    method public static android.view.inputmethod.InputConnection createWrapper(android.view.View, android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo);
     field public static final int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 1; // 0x1
   }
 
