@@ -274,6 +274,7 @@ dependencies {
     docs(project(":webkit:webkit"))
     docs(project(":window:window"))
     docs(project(":window:window-java"))
+    docs(project(":window:window-rxjava2"))
     stubs(project(":window:window-sidecar"))
     stubs(project(":window:window-extensions"))
     docs(project(":work:work-gcm"))
