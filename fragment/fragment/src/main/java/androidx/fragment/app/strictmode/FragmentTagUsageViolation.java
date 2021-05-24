@@ -41,4 +41,11 @@ public final class FragmentTagUsageViolation extends Violation {
     public ViewGroup getParentContainer() {
         return mContainer;
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to use <fragment> tag to add fragment " + mFragment + " to container "
+                + mContainer;
+    }
 }
