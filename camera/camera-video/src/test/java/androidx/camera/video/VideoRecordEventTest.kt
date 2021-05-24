@@ -26,13 +26,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import java.io.File
-import java.lang.RuntimeException
 
 private const val INVALID_FILE_PATH = "/invalid/file/path"
 private val TEST_OUTPUT_OPTION =
     FileOutputOptions.builder().setFile(File(INVALID_FILE_PATH)).build()
 private val TEST_RECORDING_STATE = RecordingStats.of(0, 0)
-private val TEST_URI = Uri.EMPTY
+private val TEST_OUTPUT_RESULT = OutputResults.of(Uri.EMPTY)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -56,13 +55,13 @@ class VideoRecordEventTest {
         val event = VideoRecordEvent.finalize(
             TEST_OUTPUT_OPTION,
             TEST_RECORDING_STATE,
-            TEST_URI
+            TEST_OUTPUT_RESULT
         )
 
         assertThat(event.eventType).isEqualTo(VideoRecordEvent.EventType.FINALIZE)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
-        assertThat(event.outputUri).isEqualTo(TEST_URI)
+        assertThat(event.outputResults).isEqualTo(TEST_OUTPUT_RESULT)
         assertThat(event.hasError()).isFalse()
         assertThat(event.error).isEqualTo(VideoRecordEvent.ERROR_NONE)
         assertThat(event.cause).isNull()
@@ -75,7 +74,7 @@ class VideoRecordEventTest {
         val event = VideoRecordEvent.finalizeWithError(
             TEST_OUTPUT_OPTION,
             TEST_RECORDING_STATE,
-            TEST_URI,
+            TEST_OUTPUT_RESULT,
             error,
             cause
         )
@@ -83,7 +82,7 @@ class VideoRecordEventTest {
         assertThat(event.eventType).isEqualTo(VideoRecordEvent.EventType.FINALIZE)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
-        assertThat(event.outputUri).isEqualTo(TEST_URI)
+        assertThat(event.outputResults).isEqualTo(TEST_OUTPUT_RESULT)
         assertThat(event.hasError()).isTrue()
         assertThat(event.error).isEqualTo(error)
         assertThat(event.cause).isEqualTo(cause)
@@ -95,7 +94,7 @@ class VideoRecordEventTest {
             VideoRecordEvent.finalizeWithError(
                 TEST_OUTPUT_OPTION,
                 TEST_RECORDING_STATE,
-                TEST_URI,
+                TEST_OUTPUT_RESULT,
                 VideoRecordEvent.ERROR_NONE,
                 RuntimeException()
             )
