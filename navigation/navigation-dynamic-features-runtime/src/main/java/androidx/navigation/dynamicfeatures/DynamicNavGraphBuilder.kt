@@ -17,6 +17,7 @@
 package androidx.navigation.dynamicfeatures
 
 import androidx.annotation.IdRes
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
@@ -61,18 +62,64 @@ public inline fun DynamicNavGraphBuilder.navigation(
 )
 
 /**
- * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
+ * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
  *
- * @param provider [NavigatorProvider] to use.
- * @param id NavGraph id.
- * @param startDestination Id start destination in the graph
+ * @param route NavGraph route.
+ * @param startDestination route start destination in the graph
+ * @param builder Another builder for chaining.
+ */
+public inline fun NavigatorProvider.navigation(
+    startDestination: String,
+    route: String? = null,
+    builder: DynamicNavGraphBuilder.() -> Unit
+): NavGraph = DynamicNavGraphBuilder(
+    this,
+    startDestination,
+    route
+).apply(builder).build()
+
+/**
+ * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param route NavGraph route.
+ * @param startDestination route start destination in the graph
+ * @param builder Another builder for chaining.
+ */
+public inline fun DynamicNavGraphBuilder.navigation(
+    startDestination: String,
+    route: String,
+    builder: DynamicNavGraphBuilder.() -> Unit
+): Unit = destination(
+    DynamicNavGraphBuilder(
+        provider,
+        startDestination,
+        route
+    ).apply(builder)
+)
+
+/**
+ * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
  */
 @NavDestinationDsl
-public class DynamicNavGraphBuilder(
-    provider: NavigatorProvider,
-    @IdRes id: Int,
-    @IdRes private var startDestination: Int
-) : NavGraphBuilder(provider, id, startDestination) {
+public class DynamicNavGraphBuilder : NavGraphBuilder {
+    @IdRes private var startDestinationId: Int = 0
+    private var startDestinationRoute: String? = null
+
+    public constructor(
+        provider: NavigatorProvider,
+        @IdRes id: Int,
+        @IdRes startDestination: Int
+    ) : super(provider, id, startDestination) {
+        this.startDestinationId = startDestination
+    }
+
+    public constructor(
+        provider: NavigatorProvider,
+        startDestination: String,
+        route: String? = null
+    ) : super(provider, startDestination, route) {
+        this.startDestinationRoute = startDestination
+    }
 
     /**
      * The module name of this [Destination]'s dynamic feature module. This has to be the
@@ -80,12 +127,42 @@ public class DynamicNavGraphBuilder(
      */
     public var moduleName: String? = null
 
+    private var _progressDestination: Int = 0
     /**
      * ID of the destination displayed during module installation. This generally does
      * not need to be set, but is instead filled in by the NavHost via
      * [DynamicGraphNavigator.installDefaultProgressDestination].
+     *
+     * Setting this clears any previously set [progressDestinationRoute].
      */
-    public var progressDestination: Int = 0
+    public var progressDestination: Int
+        get() = _progressDestination
+        set(p) {
+            if (progressDestinationRoute != null) {
+                progressDestinationRoute = null
+            }
+            _progressDestination = p
+        }
+
+    /**
+     * Route of the destination displayed during module installation. This generally does
+     * not need to be set, but is instead filled in by the NavHost via
+     * [DynamicGraphNavigator.installDefaultProgressDestination].
+     *
+     * Setting this overrides any previously set [progressDestination].
+     */
+    public var progressDestinationRoute: String? = null
+        set(progDestRoute) {
+            _progressDestination = if (progDestRoute == null) {
+                0
+            } else {
+                require(progDestRoute.isNotBlank()) {
+                    "Cannot have an empty progress destination route"
+                }
+                NavDestination.createRoute(progressDestinationRoute).hashCode()
+            }
+            field = progDestRoute
+        }
 
     /**
      * @return The [DynamicGraphNavigator.DynamicNavGraph].
@@ -94,7 +171,12 @@ public class DynamicNavGraphBuilder(
         super.build().also { navGraph ->
             if (navGraph is DynamicGraphNavigator.DynamicNavGraph) {
                 navGraph.moduleName = moduleName
-                navGraph.progressDestination = progressDestination
+                if (navGraph.route != null) {
+                    navGraph.progressDestination =
+                        NavDestination.createRoute(progressDestinationRoute).hashCode()
+                } else {
+                    navGraph.progressDestination = progressDestination
+                }
                 if (progressDestination == 0) {
                     val navGraphNavigator: DynamicGraphNavigator =
                         provider[DynamicGraphNavigator::class]

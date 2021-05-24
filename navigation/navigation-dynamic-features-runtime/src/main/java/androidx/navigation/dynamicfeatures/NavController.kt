@@ -28,3 +28,12 @@ public inline fun NavController.createGraph(
     @IdRes startDestination: Int,
     builder: DynamicNavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
+
+/**
+ * Construct a new [androidx.navigation.NavGraph] that supports dynamic navigation destinations
+ */
+public inline fun NavController.createGraph(
+    startDestination: String,
+    route: String? = null,
+    builder: DynamicNavGraphBuilder.() -> Unit
+): NavGraph = navigatorProvider.navigation(startDestination, route, builder)

@@ -64,22 +64,75 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
 )
 
 /**
- * DSL for constructing a new [DynamicIncludeGraphNavigator.DynamicIncludeNavGraph]
+ * Construct a new [DynamicIncludeGraphNavigator.DynamicIncludeNavGraph].
  *
- * @param dynamicIncludeGraphNavigator [DynamicIncludeGraphNavigator] to use.
- * @param id NavGraph id.
+ * @param route NavGraph route.
  * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
  * This must not be an empty string.
  * @param graphResourceName Graph's resource name without the `navigation` qualifier. This
  * must not be an empty string.
  */
+public inline fun DynamicNavGraphBuilder.includeDynamic(
+    route: String,
+    moduleName: String,
+    graphResourceName: String
+): Unit = includeDynamic(route, moduleName, graphResourceName) {}
+
+/**
+ * Construct a new [DynamicIncludeGraphNavigator.DynamicIncludeNavGraph].
+ *
+ * @param route NavGraph route.
+ * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
+ * This must not be an empty string.
+ * @param graphResourceName Graph's resource name without the `navigation` qualifier. This
+ * must not be an empty string.
+ * @param builder Another builder for chaining.
+ */
+public inline fun DynamicNavGraphBuilder.includeDynamic(
+    route: String,
+    moduleName: String,
+    graphResourceName: String,
+    builder: DynamicIncludeNavGraphBuilder.() -> Unit
+): Unit = destination(
+    DynamicIncludeNavGraphBuilder(
+        provider[DynamicIncludeGraphNavigator::class],
+        route,
+        moduleName,
+        graphResourceName
+    ).apply(builder)
+)
+
+/**
+ * DSL for constructing a new [DynamicIncludeGraphNavigator.DynamicIncludeNavGraph]
+ */
 @NavDestinationDsl
-public class DynamicIncludeNavGraphBuilder(
-    private val dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
-    @IdRes id: Int,
-    private val moduleName: String,
-    private val graphResourceName: String
-) : NavDestinationBuilder<DynamicIncludeNavGraph>(dynamicIncludeGraphNavigator, id) {
+public class DynamicIncludeNavGraphBuilder : NavDestinationBuilder<DynamicIncludeNavGraph> {
+
+    private var dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator
+    private var moduleName: String
+    private var graphResourceName: String
+
+    public constructor(
+        dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
+        @IdRes id: Int,
+        moduleName: String,
+        graphResourceName: String
+    ) : super(dynamicIncludeGraphNavigator, id) {
+        this.dynamicIncludeGraphNavigator = dynamicIncludeGraphNavigator
+        this.moduleName = moduleName
+        this.graphResourceName = graphResourceName
+    }
+
+    public constructor(
+        dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
+        route: String,
+        moduleName: String,
+        graphResourceName: String
+    ) : super(dynamicIncludeGraphNavigator, route) {
+        this.dynamicIncludeGraphNavigator = dynamicIncludeGraphNavigator
+        this.moduleName = moduleName
+        this.graphResourceName = graphResourceName
+    }
 
     /**
      * Destination NavGraph's resource package as defined in the module's
