@@ -16,8 +16,6 @@
 
 package androidx.camera.video;
 
-import android.net.Uri;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -218,18 +216,18 @@ public abstract class VideoRecordEvent {
     @NonNull
     static Finalize finalize(@NonNull OutputOptions outputOptions,
             @NonNull RecordingStats recordingStats,
-            @NonNull Uri uri) {
-        return new Finalize(outputOptions, recordingStats, uri, ERROR_NONE, null);
+            @NonNull OutputResults outputResults) {
+        return new Finalize(outputOptions, recordingStats, outputResults, ERROR_NONE, null);
     }
 
     @NonNull
     static Finalize finalizeWithError(@NonNull OutputOptions outputOptions,
             @NonNull RecordingStats recordingStats,
-            @NonNull Uri uri,
+            @NonNull OutputResults outputResults,
             @VideoRecordError int error,
             @Nullable Throwable cause) {
         Preconditions.checkArgument(error != ERROR_NONE, "An error type is required.");
-        return new Finalize(outputOptions, recordingStats, uri, error, cause);
+        return new Finalize(outputOptions, recordingStats, outputResults, error, cause);
     }
 
     /**
@@ -245,7 +243,7 @@ public abstract class VideoRecordEvent {
      * file.
      */
     public static final class Finalize extends VideoRecordEvent {
-        private final Uri mOutputUri;
+        private final OutputResults mOutputResults;
         @VideoRecordError
         private final int mError;
         private final Throwable mCause;
@@ -253,11 +251,11 @@ public abstract class VideoRecordEvent {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         Finalize(@NonNull OutputOptions outputOptions,
                 @NonNull RecordingStats recordingStats,
-                @NonNull Uri outputUri,
+                @NonNull OutputResults outputResults,
                 @VideoRecordError int error,
                 @Nullable Throwable cause) {
             super(outputOptions, recordingStats);
-            mOutputUri = outputUri;
+            mOutputResults = outputResults;
             mError = error;
             mCause = cause;
         }
@@ -270,15 +268,11 @@ public abstract class VideoRecordEvent {
         }
 
         /**
-         * Gets the {@link Uri} of the output.
-         *
-         * <p>Returns the actual {@link Uri} of the output destination if the
-         * {@link OutputOptions} is implemented by {@link MediaStoreOutputOptions}, otherwise
-         * returns {@link Uri#EMPTY}.
+         * Gets the {@link OutputResults}.
          */
         @NonNull
-        public Uri getOutputUri() {
-            return mOutputUri;
+        public OutputResults getOutputResults() {
+            return mOutputResults;
         }
 
         /**
