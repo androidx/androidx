@@ -18,8 +18,10 @@
 package androidx.appsearch.localstorage.visibilitystore;
 
 import android.content.Context;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.PackageIdentifier;
@@ -38,10 +40,6 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityStore {
-
-    /** No-op user id that won't have any visibility settings. */
-    public static final int NO_OP_USER_ID = -1;
-
     /**
      * These cannot have any of the special characters used by AppSearchImpl (e.g. {@code
      * AppSearchImpl#PACKAGE_DELIMITER} or {@code AppSearchImpl#DATABASE_DELIMITER}.
@@ -54,7 +52,7 @@ public class VisibilityStore {
 
     /** No-op implementation in local storage. */
     public VisibilityStore(@NonNull AppSearchImpl appSearchImpl, @NonNull Context context,
-            int userId) {
+            @Nullable UserHandle callerUserHandle) {
     }
 
     /** No-op implementation in local storage. */
@@ -76,8 +74,7 @@ public class VisibilityStore {
             @NonNull String databaseName,
             @NonNull String prefixedSchema,
             @NonNull String callerPackageName,
-            int callerPid,
-            int callerUid) {
+            @NonNull UserHandle callerUserHandle) {
         return false;
     }
 

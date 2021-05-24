@@ -16,8 +16,6 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
-import android.os.Process;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
@@ -87,7 +85,7 @@ class SearchResultsImpl implements SearchResults {
                 } else if (mDatabaseName == null) {
                     // Global queries aren't restricted to a single database
                     searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec,
-                            mPackageName, Process.myPid(), Process.myUid(), /*logger=*/ null);
+                            mPackageName, /*callerUserHandle=*/ null, /*logger=*/ null);
                 } else {
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(

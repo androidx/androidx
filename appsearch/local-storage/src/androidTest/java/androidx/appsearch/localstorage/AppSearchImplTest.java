@@ -25,7 +25,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
-import android.os.Process;
 
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -39,7 +38,6 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
@@ -88,7 +86,8 @@ public class AppSearchImplTest {
 
         // Give ourselves global query permissions.
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null,
+                ALWAYS_OPTIMIZE);
     }
 
     /**
@@ -393,7 +392,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         // Insert schema
         List<AppSearchSchema> schemas = ImmutableList.of(
@@ -423,8 +422,7 @@ public class AppSearchImplTest {
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 context.getPackageName(),
-                Process.myPid(),
-                VisibilityStore.NO_OP_USER_ID,
+                /*callerUserHandle=*/ null,
                 /*logger=*/ null);
         assertThat(results.getResults()).hasSize(1);
         assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
@@ -454,7 +452,7 @@ public class AppSearchImplTest {
         appSearchImpl = AppSearchImpl.create(
                 appsearchDir,
                 context,
-                VisibilityStore.NO_OP_USER_ID,
+                /*userHandle=*/ null,
                 testLogger,
                 ALWAYS_OPTIMIZE);
 
@@ -483,8 +481,7 @@ public class AppSearchImplTest {
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 context.getPackageName(),
-                Process.myPid(),
-                VisibilityStore.NO_OP_USER_ID,
+                /*callerUserHandle=*/ null,
                 /*logger=*/ null);
         assertThat(results.getResults()).isEmpty();
 
@@ -510,8 +507,7 @@ public class AppSearchImplTest {
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 context.getPackageName(),
-                Process.myPid(),
-                VisibilityStore.NO_OP_USER_ID,
+                /*callerUserHandle=*/ null,
                 /*logger=*/ null);
         assertThat(results.getResults()).hasSize(1);
         assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
@@ -717,7 +713,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec,
-                /*callerPackageName=*/ "", /*callerPid=*/ 1, /*callerUid=*/ 0, /*logger=*/ null);
+                /*callerPackageName=*/ "", /*callerUserHandle=*/ null, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
 
@@ -1332,7 +1328,7 @@ public class AppSearchImplTest {
     public void testThrowsExceptionIfClosed() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         // Initial check that we could do something at first.
         List<AppSearchSchema> schemas =
@@ -1376,7 +1372,7 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.globalQuery("query",
                     new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build(),
-                    "package", /*callerPid=*/ 1, /*callerUid=*/ 1, /*logger=*/ null);
+                    "package", /*callerUserHandle=*/ null, /*logger=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {
@@ -1421,7 +1417,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1443,7 +1439,7 @@ public class AppSearchImplTest {
 
         // That document should be visible even from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
         getResult = appSearchImpl2.getDocument("package", "database", "namespace1",
                 "id1",
                 Collections.emptyMap());
@@ -1456,7 +1452,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1498,7 +1494,7 @@ public class AppSearchImplTest {
 
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
         assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
                 "database",
                 "namespace1",
@@ -1516,7 +1512,7 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1560,7 +1556,7 @@ public class AppSearchImplTest {
 
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
+                context, /*userHandle=*/ null, /*logger=*/ null, ALWAYS_OPTIMIZE);
         assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
                 "database",
                 "namespace1",
