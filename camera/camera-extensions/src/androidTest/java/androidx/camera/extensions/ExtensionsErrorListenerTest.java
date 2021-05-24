@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
 import static androidx.camera.extensions.util.ExtensionsTestUtil.effectModeToExtensionMode;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -122,6 +123,7 @@ public final class ExtensionsErrorListenerTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
+        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
 
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(

@@ -16,11 +16,13 @@
 
 package androidx.camera.extensions
 
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
@@ -28,6 +30,11 @@ import java.util.concurrent.TimeUnit
 class ExtensionsManagerTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
+
+    @Before
+    fun setUp() {
+        ExtensionsTestUtil.assumeCompatibleDevice()
+    }
 
     @After
     fun teardown() {

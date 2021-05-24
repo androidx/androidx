@@ -57,6 +57,7 @@ class ImageCaptureExtenderValidationTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
+        ExtensionsTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         Assume.assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
@@ -84,7 +85,9 @@ class ImageCaptureExtenderValidationTest(
         TimeoutException::class
     )
     fun cleanUp() {
-        cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS)
+        }
         ExtensionsManager.deinit()[10000, TimeUnit.MILLISECONDS]
     }
 

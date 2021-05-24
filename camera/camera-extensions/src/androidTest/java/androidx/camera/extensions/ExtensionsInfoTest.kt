@@ -63,6 +63,7 @@ class ExtensionsInfoTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
+        ExtensionsTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.deviceHasCamera())
 
         cameraProvider =
@@ -84,7 +85,9 @@ class ExtensionsInfoTest(
         TimeoutException::class
     )
     fun cleanUp() {
-        cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS)
+        }
         ExtensionsManager.deinit().get(10000, TimeUnit.MILLISECONDS)
     }
 
