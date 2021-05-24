@@ -59,7 +59,8 @@ public class FragmentStrictModeTest {
 
         var violation: Violation? = null
         try {
-            FragmentStrictMode.onPolicyViolation(StrictFragment(), object : Violation() {})
+            val fragment = StrictFragment()
+            FragmentStrictMode.onPolicyViolation(object : Violation(fragment) {})
         } catch (thrown: Violation) {
             violation = thrown
         }
@@ -69,7 +70,6 @@ public class FragmentStrictModeTest {
     @Test
     public fun policyHierarchy() {
         var lastTriggeredPolicy = ""
-        val violation = object : Violation() {}
 
         fun policy(name: String) = FragmentStrictMode.Policy.Builder()
             .penaltyListener { lastTriggeredPolicy = name }
@@ -90,18 +90,20 @@ public class FragmentStrictModeTest {
                 .commit()
             executePendingTransactions()
 
+            val violation = object : Violation(childFragment) {}
+
             FragmentStrictMode.setDefaultPolicy(policy("Default policy"))
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Default policy")
 
             fragmentManager.strictModePolicy = policy("Parent policy")
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Parent policy")
 
             parentFragment.childFragmentManager.strictModePolicy = policy("Child policy")
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Child policy")
         }
@@ -125,7 +127,7 @@ public class FragmentStrictModeTest {
                 .commit()
             executePendingTransactions()
 
-            FragmentStrictMode.onPolicyViolation(fragment, object : Violation() {})
+            FragmentStrictMode.onPolicyViolation(object : Violation(fragment) {})
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(thread).isEqualTo(Looper.getMainLooper().thread)
         }

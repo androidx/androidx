@@ -16,6 +16,13 @@
 
 package androidx.fragment.app.strictmode;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 /** See #{@link FragmentStrictMode.Policy.Builder#detectWrongFragmentContainer()}. */
 public final class WrongFragmentContainerViolation extends Violation {
+
+    WrongFragmentContainerViolation(@NonNull Fragment fragment) {
+        super(fragment);
+    }
 }

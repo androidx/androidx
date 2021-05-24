@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -289,107 +290,110 @@ public final class FragmentStrictMode {
         return defaultPolicy;
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onFragmentReuse(@NonNull Fragment fragment) {
-        Violation violation = new FragmentReuseViolation();
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+    public static void onFragmentReuse(@NonNull Fragment fragment, @NonNull String previousWho) {
+        Violation violation = new FragmentReuseViolation(fragment, previousWho);
+        logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
         if (policy.mFlags.contains(Flag.DETECT_FRAGMENT_REUSE)
                 && shouldHandlePolicyViolation(
-                fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onFragmentTagUsage(@NonNull Fragment fragment) {
-        Violation violation = new FragmentTagUsageViolation();
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+    public static void onFragmentTagUsage(
+            @NonNull Fragment fragment,
+            @Nullable ViewGroup container) {
+        Violation violation = new FragmentTagUsageViolation(fragment, container);
+        logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
         if (policy.mFlags.contains(Flag.DETECT_FRAGMENT_TAG_USAGE)
                 && shouldHandlePolicyViolation(
-                fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onRetainInstanceUsage(@NonNull Fragment fragment) {
-        Violation violation = new RetainInstanceUsageViolation();
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+        Violation violation = new RetainInstanceUsageViolation(fragment);
+        logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
         if (policy.mFlags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)
                 && shouldHandlePolicyViolation(
-                fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
-        Violation violation = new SetUserVisibleHintViolation();
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+        Violation violation = new SetUserVisibleHintViolation(fragment);
+        logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
         if (policy.mFlags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)
                 && shouldHandlePolicyViolation(
-                fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onTargetFragmentUsage(@NonNull Fragment fragment) {
-        Violation violation = new TargetFragmentUsageViolation();
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+        Violation violation = new TargetFragmentUsageViolation(fragment);
+        logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
         if (policy.mFlags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)
                 && shouldHandlePolicyViolation(
-                fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onWrongFragmentContainer(@NonNull Fragment fragment) {
-        Violation violation = new WrongFragmentContainerViolation();
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+        Violation violation = new WrongFragmentContainerViolation(fragment);
+        logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
         if (policy.mFlags.contains(Flag.DETECT_WRONG_FRAGMENT_CONTAINER)
                 && shouldHandlePolicyViolation(
-                fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
     @VisibleForTesting
-    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull Violation violation) {
-        logIfDebuggingEnabled(fragment.getClass().getName(), violation);
+    static void onPolicyViolation(@NonNull Violation violation) {
+        logIfDebuggingEnabled(violation);
 
+        Fragment fragment = violation.getFragment();
         Policy policy = getNearestPolicy(fragment);
-        if (shouldHandlePolicyViolation(fragment.getClass(), policy, violation.getClass())) {
-            handlePolicyViolation(fragment, policy, violation);
+        if (shouldHandlePolicyViolation(policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
         }
     }
 
-    private static void logIfDebuggingEnabled(
-            @NonNull String fragmentName,
-            @NonNull final Violation violation
-    ) {
+    private static void logIfDebuggingEnabled(@NonNull final Violation violation) {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-            Log.d(FragmentManager.TAG, "StrictMode violation in " + fragmentName,
+            Log.d(FragmentManager.TAG,
+                    "StrictMode violation in " + violation.getFragment().getClass().getName(),
                     violation);
         }
     }
 
     private static boolean shouldHandlePolicyViolation(
-            @NonNull Class<? extends Fragment> fragmentClass,
             @NonNull final Policy policy,
+            @NonNull Class<? extends Fragment> fragmentClass,
             @NonNull Class<? extends Violation> violationClass) {
         Set<Class<? extends Violation>> violationsToBypass =
                 policy.mAllowedViolations.get(fragmentClass);
@@ -397,10 +401,10 @@ public final class FragmentStrictMode {
     }
 
     private static void handlePolicyViolation(
-            @NonNull Fragment fragment,
             @NonNull final Policy policy,
             @NonNull final Violation violation
     ) {
+        final Fragment fragment = violation.getFragment();
         final String fragmentName = fragment.getClass().getName();
 
         if (policy.mFlags.contains(Flag.PENALTY_LOG)) {
