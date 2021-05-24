@@ -16,14 +16,15 @@
 
 package androidx.appcompat.view
 
-import androidx.appcompat.getMinSdk
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.LayoutDetector
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.XmlContext
+import com.android.tools.lint.detector.api.minSdkLessThan
 import org.w3c.dom.Attr
 
 @Suppress("UnstableApiUsage")
@@ -40,7 +41,7 @@ class OnClickXmlDetector : LayoutDetector() {
         )
     }
 
-    override fun getApplicableAttributes(): Collection<String>? = listOf("onClick")
+    override fun getApplicableAttributes(): Collection<String> = listOf("onClick")
 
     override fun visitAttribute(context: XmlContext, attribute: Attr) {
         val onClickValue = attribute.value ?: return
@@ -49,14 +50,12 @@ class OnClickXmlDetector : LayoutDetector() {
             // versions
             return
         }
-        if (context.getMinSdk() < 23) {
-            // The resolution is not guaranteed to work on pre-23 versions of the platform
-            context.report(
-                USING_ON_CLICK_IN_XML,
-                attribute,
-                context.getLocation(attribute),
-                "Use databinding or explicit wiring of click listener in code"
-            )
-        }
+
+        // The resolution is not guaranteed to work on pre-23 versions of the platform
+        val incident = Incident(context)
+            .issue(USING_ON_CLICK_IN_XML)
+            .at(attribute)
+            .message("Use databinding or explicit wiring of click listener in code")
+        context.report(incident, minSdkLessThan(23))
     }
 }

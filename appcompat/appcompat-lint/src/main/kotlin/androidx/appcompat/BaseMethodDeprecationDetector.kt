@@ -16,8 +16,9 @@
 
 package androidx.appcompat
 
-import com.android.tools.lint.detector.api.Context
+import com.android.tools.lint.detector.api.Constraint
 import com.android.tools.lint.detector.api.Detector
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -33,51 +34,11 @@ abstract class BaseMethodDeprecationDetector(
     vararg val conditions: DeprecationCondition
 ) : Detector(), SourceCodeScanner {
 
-    // Collect unique method names from all deprecation conditions defined in this detector
+    // Collect unique method names from all deprecation conditions defined in this detector.
     private val applicableMethods = conditions.map { it.methodLocation.methodName }.distinct()
 
     interface Predicate {
         fun matches(context: JavaContext, node: UCallExpression, method: PsiMethod): Boolean
-    }
-
-    class ApiAtOrAbove(private val sdkLevel: Int) : Predicate {
-        override fun matches(
-            context: JavaContext,
-            node: UCallExpression,
-            method: PsiMethod
-        ): Boolean {
-            return context.getMinSdk() >= sdkLevel
-        }
-    }
-
-    class ApiAbove(private val sdkLevel: Int) : Predicate {
-        override fun matches(
-            context: JavaContext,
-            node: UCallExpression,
-            method: PsiMethod
-        ): Boolean {
-            return context.getMinSdk() > sdkLevel
-        }
-    }
-
-    class ApiAtOrBelow(private val sdkLevel: Int) : Predicate {
-        override fun matches(
-            context: JavaContext,
-            node: UCallExpression,
-            method: PsiMethod
-        ): Boolean {
-            return context.getMinSdk() <= sdkLevel
-        }
-    }
-
-    class ApiBelow(private val sdkLevel: Int) : Predicate {
-        override fun matches(
-            context: JavaContext,
-            node: UCallExpression,
-            method: PsiMethod
-        ): Boolean {
-            return context.getMinSdk() < sdkLevel
-        }
     }
 
     class SubClassOf(private val superClass: String) : Predicate {
@@ -103,15 +64,15 @@ abstract class BaseMethodDeprecationDetector(
             method: PsiMethod
         ): Boolean {
             if (!context.evaluator.isMemberInClass(method, className)) {
-                // Method is not in the right class
+                // Method is not in the right class.
                 return false
             }
             if (method.name != methodName) {
-                // Method name does not match
+                // Method name does not match.
                 return false
             }
             if (!context.evaluator.methodMatches(method, className, true, *params)) {
-                // Method signature does not match
+                // Method signature does not match.
                 return false
             }
             return true
@@ -121,7 +82,8 @@ abstract class BaseMethodDeprecationDetector(
     class DeprecationCondition(
         val methodLocation: MethodLocation,
         val message: String,
-        private vararg val predicates: Predicate
+        private vararg val predicates: Predicate,
+        val constraint: Constraint? = null,
     ) : Predicate {
         override fun matches(
             context: JavaContext,
@@ -129,13 +91,13 @@ abstract class BaseMethodDeprecationDetector(
             method: PsiMethod
         ): Boolean {
             if (!methodLocation.matches(context, node, method)) {
-                // Method location does not match. The whole condition is not applicable
+                // Method location does not match. The whole condition is not applicable.
                 return false
             }
 
             for (predicate in predicates) {
                 if (!predicate.matches(context, node, method)) {
-                    // The predicate does not match. The whole condition is not applicable
+                    // The predicate does not match. The whole condition is not applicable.
                     return false
                 }
             }
@@ -145,33 +107,32 @@ abstract class BaseMethodDeprecationDetector(
 
     // Mark final so that extending classes are forced to only use the constructor-level
     // configuration APIs
-    final override fun getApplicableMethodNames(): List<String>? = applicableMethods
+    final override fun getApplicableMethodNames(): List<String> = applicableMethods
 
     // Mark final so that extending classes are forced to only use the constructor-level
-    // configuration APIs
+    // configuration APIs.
     final override fun visitMethodCall(
         context: JavaContext,
         node: UCallExpression,
         method: PsiMethod
     ) {
-        // Find the first condition that matches and report the issue
-        for (condition in conditions) {
+        // Find the first condition that matches and report the issue.
+        conditions.find { condition ->
             if (condition.matches(context, node, method)) {
-                context.report(issue, context.getLocation(node), condition.message)
-                return
-            }
-        }
-    }
-}
+                val incident = Incident(context)
+                    .issue(issue)
+                    .at(node)
+                    .message(condition.message)
+                condition.constraint?.let { constraint ->
+                    context.report(incident, constraint)
+                } ?: context.report(incident)
 
-// Copied from ApiDetector.kt
-@Suppress("UnstableApiUsage")
-fun Context.getMinSdk(): Int {
-    val useProject = if (isGlobalAnalysis()) mainProject else project
-    return if (!useProject.isAndroidProject) {
-        // Don't flag API checks in non-Android projects
-        Integer.MAX_VALUE
-    } else {
-        useProject.minSdkVersion.featureLevel
+                // We matched and we're not waiting on any constraints.
+                if (condition.constraint == null) {
+                    return@find true
+                }
+            }
+            return@find false
+        }
     }
 }
