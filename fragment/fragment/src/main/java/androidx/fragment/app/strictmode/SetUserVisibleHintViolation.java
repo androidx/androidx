@@ -16,6 +16,13 @@
 
 package androidx.fragment.app.strictmode;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 /** See #{@link FragmentStrictMode.Policy.Builder#detectSetUserVisibleHint()}. */
 public final class SetUserVisibleHintViolation extends Violation {
+
+    SetUserVisibleHintViolation(@NonNull Fragment fragment) {
+        super(fragment);
+    }
 }

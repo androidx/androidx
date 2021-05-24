@@ -489,13 +489,11 @@ package androidx.fragment.app {
 package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public FragmentReuseViolation();
+    method public String getPreviousFragmentId();
   }
 
   public final class FragmentStrictMode {
     method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onFragmentReuse(androidx.fragment.app.Fragment);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onFragmentTagUsage(androidx.fragment.app.Fragment);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onRetainInstanceUsage(androidx.fragment.app.Fragment);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onSetUserVisibleHint(androidx.fragment.app.Fragment);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onTargetFragmentUsage(androidx.fragment.app.Fragment);
@@ -527,27 +525,23 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public FragmentTagUsageViolation();
+    method public android.view.ViewGroup? getParentContainer();
   }
 
   public final class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public RetainInstanceUsageViolation();
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public SetUserVisibleHintViolation();
   }
 
   public final class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public TargetFragmentUsageViolation();
   }
 
   public abstract class Violation extends java.lang.RuntimeException {
-    ctor public Violation();
+    method public androidx.fragment.app.Fragment getFragment();
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
-    ctor public WrongFragmentContainerViolation();
   }
 
 }
