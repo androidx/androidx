@@ -18,7 +18,9 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -30,10 +32,9 @@ import java.lang.annotation.RetentionPolicy;
  * <p>This class can set which stats to log for both batch and non-batch
  * {@link androidx.appsearch.app.AppSearchSession} calls.
  *
- * <p>Some function calls like
- * {@link androidx.appsearch.app.AppSearchSession#setSchema} have their own
- * detailed stats class {@link placeholder}. However, {@link CallStats} can still be used along with
- * the detailed stats class for easy aggregation/analysis with other function calls.
+ * <p>Some function calls may have their own detailed stats class like {@link PutDocumentStats}.
+ * However, {@link CallStats} can still be used along with the detailed stats class for easy
+ * aggregation/analysis with other function calls.
  *
  * @hide
  */
@@ -76,8 +77,18 @@ public class CallStats {
     public static final int CALL_TYPE_REMOVE_DOCUMENTS_BY_SEARCH = 13;
     public static final int CALL_TYPE_REMOVE_DOCUMENT_BY_SEARCH = 14;
 
-    @NonNull
-    private final GeneralStats mGeneralStats;
+    @Nullable
+    private final String mPackageName;
+    @Nullable
+    private final String mDatabase;
+    /**
+     * The status code returned by {@link AppSearchResult#getResultCode()} for the call or
+     * internal state.
+     */
+    @AppSearchResult.ResultCode
+    private final int mStatusCode;
+    private final int mTotalLatencyMillis;
+
     @CallType
     private final int mCallType;
     private final int mEstimatedBinderLatencyMillis;
@@ -86,17 +97,37 @@ public class CallStats {
 
     CallStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
-        mGeneralStats = Preconditions.checkNotNull(builder.mGeneralStatsBuilder).build();
+        mPackageName = builder.mPackageName;
+        mDatabase = builder.mDatabase;
+        mStatusCode = builder.mStatusCode;
+        mTotalLatencyMillis = builder.mTotalLatencyMillis;
         mCallType = builder.mCallType;
         mEstimatedBinderLatencyMillis = builder.mEstimatedBinderLatencyMillis;
         mNumOperationsSucceeded = builder.mNumOperationsSucceeded;
         mNumOperationsFailed = builder.mNumOperationsFailed;
     }
 
-    /** Returns general information for the call. */
-    @NonNull
-    public GeneralStats getGeneralStats() {
-        return mGeneralStats;
+    /** Returns calling package name. */
+    @Nullable
+    public String getPackageName() {
+        return mPackageName;
+    }
+
+    /** Returns calling database name. */
+    @Nullable
+    public String getDatabase() {
+        return mDatabase;
+    }
+
+    /** Returns status code for this api call. */
+    @AppSearchResult.ResultCode
+    public int getStatusCode() {
+        return mStatusCode;
+    }
+
+    /** Returns total latency of this api call in millis. */
+    public int getTotalLatencyMillis() {
+        return mTotalLatencyMillis;
     }
 
     /** Returns type of the call. */
@@ -145,25 +176,45 @@ public class CallStats {
 
     /** Builder for {@link CallStats}. */
     public static class Builder {
-        @NonNull
-        final GeneralStats.Builder mGeneralStatsBuilder;
+        @Nullable
+        String mPackageName;
+        @Nullable
+        String mDatabase;
+        @AppSearchResult.ResultCode
+        int mStatusCode;
+        int mTotalLatencyMillis;
         @CallType
         int mCallType;
         int mEstimatedBinderLatencyMillis;
         int mNumOperationsSucceeded;
         int mNumOperationsFailed;
 
-        /** Builder takes {@link GeneralStats.Builder}. */
-        public Builder(@NonNull String packageName, @NonNull String database) {
-            Preconditions.checkNotNull(packageName);
-            Preconditions.checkNotNull(database);
-            mGeneralStatsBuilder = new GeneralStats.Builder(packageName, database);
+        /** Sets the PackageName used by the session. */
+        @NonNull
+        public Builder setPackageName(@NonNull String packageName) {
+            mPackageName = Preconditions.checkNotNull(packageName);
+            return this;
         }
 
-        /** Returns {@link GeneralStats.Builder}. */
+        /** Sets the database used by the session. */
         @NonNull
-        public GeneralStats.Builder getGeneralStatsBuilder() {
-            return mGeneralStatsBuilder;
+        public Builder setDatabase(@NonNull String database) {
+            mDatabase = Preconditions.checkNotNull(database);
+            return this;
+        }
+
+        /** Sets the status code. */
+        @NonNull
+        public Builder setStatusCode(@AppSearchResult.ResultCode int statusCode) {
+            mStatusCode = statusCode;
+            return this;
+        }
+
+        /** Sets total latency in millis. */
+        @NonNull
+        public Builder setTotalLatencyMillis(int totalLatencyMillis) {
+            mTotalLatencyMillis = totalLatencyMillis;
+            return this;
         }
 
         /** Sets type of the call. */

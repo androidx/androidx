@@ -329,9 +329,9 @@ public class AppSearchLoggerTest {
 
         PutDocumentStats pStats = mLogger.mPutDocumentStats;
         assertThat(pStats).isNotNull();
-        assertThat(pStats.getGeneralStats().getPackageName()).isEqualTo(testPackageName);
-        assertThat(pStats.getGeneralStats().getDatabase()).isEqualTo(testDatabase);
-        assertThat(pStats.getGeneralStats().getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(pStats.getPackageName()).isEqualTo(testPackageName);
+        assertThat(pStats.getDatabase()).isEqualTo(testDatabase);
+        assertThat(pStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
         // The rest of native stats have been tested in testCopyNativeStats
         assertThat(pStats.getNativeDocumentSizeBytes()).isGreaterThan(0);
     }
