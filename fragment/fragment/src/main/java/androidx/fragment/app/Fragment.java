@@ -278,8 +278,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     // Holds the unique ID for the previous instance of the fragment if it had already been
     // added to a FragmentManager and has since been removed.
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
-    String mPreviousWho;
+    public String mPreviousWho;
 
     // Max Lifecycle state this Fragment can achieve.
     Lifecycle.State mMaxState = Lifecycle.State.RESUMED;

@@ -37,4 +37,10 @@ public final class FragmentReuseViolation extends Violation {
     public String getPreviousFragmentId() {
         return mPreviousWho;
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to reuse fragment " + mFragment + " with previous ID " + mPreviousWho;
+    }
 }

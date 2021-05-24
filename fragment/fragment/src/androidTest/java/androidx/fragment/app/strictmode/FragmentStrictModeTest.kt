@@ -163,6 +163,9 @@ public class FragmentStrictModeTest {
 
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to reuse fragment $fragment with previous ID ${fragment.mPreviousWho}"
+            )
         }
     }
 
@@ -196,6 +199,9 @@ public class FragmentStrictModeTest {
 
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to reuse fragment $fragment with previous ID ${fragment.mPreviousWho}"
+            )
         }
     }
 
