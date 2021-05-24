@@ -24,13 +24,13 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.renderer.R;
+import androidx.wear.widget.ArcLayout;
 
 /**
  * A lightweight curved widget that represents space between elements inside an Arc. This does no
- * rendering; it simply causes the parent {@link WearArcLayout} to advance by {@code
- * sweepAngleDegrees}.
+ * rendering; it simply causes the parent {@link ArcLayout} to advance by {@code sweepAngleDegrees}.
  */
-public class WearCurvedSpacer extends View implements WearArcLayout.ArcLayoutWidget {
+public class WearCurvedSpacer extends View implements ArcLayout.Widget {
 
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0f;
     private static final int DEFAULT_THICKNESS_PX = 0;
@@ -75,26 +75,26 @@ public class WearCurvedSpacer extends View implements WearArcLayout.ArcLayoutWid
         return mSweepAngleDegrees;
     }
 
+    @Override
+    public int getThickness() {
+        return mThicknessPx;
+    }
+
     /** Sets the sweep angle of this spacer, in degrees. */
     public void setSweepAngleDegrees(float sweepAngleDegrees) {
         this.mSweepAngleDegrees = sweepAngleDegrees;
     }
 
-    @Override
-    public int getThicknessPx() {
-        return mThicknessPx;
-    }
-
     /** Sets the thickness of this spacer, in DP. */
-    public void setThicknessPx(int thicknessPx) {
-        this.mThicknessPx = thicknessPx;
+    public void setThickness(int thickness) {
+        this.mThicknessPx = thickness;
     }
 
     @Override
     public void checkInvalidAttributeAsChild() {}
 
     @Override
-    public boolean insideClickArea(float x, float y) {
+    public boolean isPointInsideClickArea(float x, float y) {
         return false;
     }
 }

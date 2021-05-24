@@ -117,7 +117,8 @@ import androidx.wear.tiles.proto.ModifiersProto.SpanModifiers;
 import androidx.wear.tiles.proto.StateProto.State;
 import androidx.wear.tiles.renderer.R;
 import androidx.wear.tiles.renderer.internal.ResourceResolvers.ResourceAccessException;
-import androidx.wear.tiles.renderer.internal.WearArcLayout.ArcLayoutWidget;
+import androidx.wear.widget.ArcLayout;
+import androidx.wear.widget.CurvedTextView;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -142,9 +143,9 @@ public final class TileRendererInternal {
     private static final int TEXT_ALIGN_DEFAULT = Gravity.CENTER_HORIZONTAL;
     private static final ScaleType IMAGE_DEFAULT_SCALE_TYPE = ScaleType.FIT_CENTER;
 
-    @WearArcLayout.LayoutParams.VerticalAlignment
+    @ArcLayout.LayoutParams.VerticalAlignment
     private static final int ARC_VERTICAL_ALIGN_DEFAULT =
-            WearArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER;
+            ArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER;
 
     private static final int SPAN_VERTICAL_ALIGN_DEFAULT = ImageSpan.ALIGN_BOTTOM;
 
@@ -162,8 +163,7 @@ public final class TileRendererInternal {
                     .setWrappedDimension(WrappedDimensionProp.getDefaultInstance())
                     .build();
 
-    @WearArcLayout.AnchorType
-    private static final int ARC_ANCHOR_DEFAULT = WearArcLayout.ANCHOR_CENTER;
+    @ArcLayout.AnchorType private static final int ARC_ANCHOR_DEFAULT = ArcLayout.ANCHOR_CENTER;
 
     // White
     private static final int LINE_COLOR_DEFAULT = 0xFFFFFFFF;
@@ -403,15 +403,15 @@ public final class TileRendererInternal {
         return VERTICAL_ALIGN_DEFAULT_GRAVITY;
     }
 
-    @WearArcLayout.LayoutParams.VerticalAlignment
+    @ArcLayout.LayoutParams.VerticalAlignment
     private static int verticalAlignmentToArcVAlign(VerticalAlignmentProp alignment) {
         switch (alignment.getValue()) {
             case VERTICAL_ALIGN_TOP:
-                return WearArcLayout.LayoutParams.VERTICAL_ALIGN_OUTER;
+                return ArcLayout.LayoutParams.VERTICAL_ALIGN_OUTER;
             case VERTICAL_ALIGN_CENTER:
-                return WearArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER;
+                return ArcLayout.LayoutParams.VERTICAL_ALIGN_CENTER;
             case VERTICAL_ALIGN_BOTTOM:
-                return WearArcLayout.LayoutParams.VERTICAL_ALIGN_INNER;
+                return ArcLayout.LayoutParams.VERTICAL_ALIGN_INNER;
             case UNRECOGNIZED:
             case VERTICAL_ALIGN_UNDEFINED:
                 return ARC_VERTICAL_ALIGN_DEFAULT;
@@ -564,22 +564,15 @@ public final class TileRendererInternal {
         textView.setTextColor(extractTextColorArgb(style));
     }
 
-    private void applyFontStyle(FontStyle style, WearCurvedTextView textView) {
+    private void applyFontStyle(FontStyle style, CurvedTextView textView) {
         // Need to supply typefaceStyle when creating the typeface (will select specialist
-        // bold/italic typefaces), *and* when setting the typeface (will set synthetic
-        // bold/italic flags in Paint if they're not supported by the given typeface).
+        // bold/italic typefaces), *and* when setting the typeface (will set synthetic bold/italic
+        // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
-        int currentPaintFlags = textView.getPaintFlags();
-
-        // Remove the bits we're setting
-        currentPaintFlags &= ~Paint.UNDERLINE_TEXT_FLAG;
-
-        if (style.hasUnderline() && style.getUnderline().getValue()) {
-            currentPaintFlags |= Paint.UNDERLINE_TEXT_FLAG;
-        }
-
-        textView.setPaintFlags(currentPaintFlags);
+        // TODO(b/188801917): Implement underline. CurvedTextView (well, drawTextOnArc) doesn't
+        // support underline. We can implement this later by drawing a line under the text ourselves
+        // though.
 
         if (style.hasSize()) {
             textView.setTextSize(toPx(style.getSize()));
@@ -716,14 +709,14 @@ public final class TileRendererInternal {
         return view;
     }
 
-    // This is a little nasty; ArcLayoutWidget is just an interface, so we have no guarantee that
-    // the instance also extends View (as it should). Instead, just take a View in and rename
-    // this, and check that it's an ArcLayoutWidget internally.
+    // This is a little nasty; ArcLayout.Widget is just an interface, so we have no guarantee that
+    // the instance also extends View (as it should). Instead, just take a View in and rename this,
+    // and check that it's an ArcLayout.Widget internally.
     private View applyModifiersToArcLayoutView(View view, ArcModifiers modifiers) {
-        if (!(view instanceof ArcLayoutWidget)) {
+        if (!(view instanceof ArcLayout.Widget)) {
             Log.e(
                     TAG,
-                    "applyModifiersToArcLayoutView should only be called with an ArcLayoutWidget");
+                    "applyModifiersToArcLayoutView should only be called with an ArcLayout.Widget");
             return view;
         }
 
@@ -770,15 +763,15 @@ public final class TileRendererInternal {
         return TEXT_OVERFLOW_DEFAULT;
     }
 
-    @WearArcLayout.AnchorType
+    @ArcLayout.AnchorType
     private static int anchorTypeToAnchorPos(ArcAnchorTypeProp type) {
         switch (type.getValue()) {
             case ARC_ANCHOR_START:
-                return WearArcLayout.ANCHOR_START;
+                return ArcLayout.ANCHOR_START;
             case ARC_ANCHOR_CENTER:
-                return WearArcLayout.ANCHOR_CENTER;
+                return ArcLayout.ANCHOR_CENTER;
             case ARC_ANCHOR_END:
-                return WearArcLayout.ANCHOR_END;
+                return ArcLayout.ANCHOR_END;
             case ARC_ANCHOR_UNDEFINED:
             case UNRECOGNIZED:
                 return ARC_ANCHOR_DEFAULT;
@@ -1015,7 +1008,7 @@ public final class TileRendererInternal {
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
         space.setSweepAngleDegrees(lengthDegrees);
-        space.setThicknessPx(thicknessPx);
+        space.setThickness(thicknessPx);
 
         View wrappedView = applyModifiersToArcLayoutView(space, spacer.getModifiers());
         parent.addView(wrappedView, layoutParams);
@@ -1067,8 +1060,8 @@ public final class TileRendererInternal {
     }
 
     private View inflateArcText(ViewGroup parent, ArcText text) {
-        WearCurvedTextView textView =
-                new WearCurvedTextView(
+        CurvedTextView textView =
+                new CurvedTextView(
                         mAppContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
@@ -1293,7 +1286,7 @@ public final class TileRendererInternal {
             lineColor = line.getColor().getArgb();
         }
 
-        lineView.setThicknessPx(thicknessPx);
+        lineView.setThickness(thicknessPx);
         lineView.setSweepAngleDegrees(lengthDegrees);
         lineView.setColor(lineColor);
 
@@ -1305,7 +1298,7 @@ public final class TileRendererInternal {
 
     @Nullable
     private View inflateArc(ViewGroup parent, Arc arc) {
-        WearArcLayout arcLayout = new WearArcLayout(mAppContext);
+        ArcLayout arcLayout = new ArcLayout(mAppContext);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
         layoutParams.width = LayoutParams.MATCH_PARENT;
@@ -1318,15 +1311,15 @@ public final class TileRendererInternal {
         for (ArcLayoutElement child : arc.getContentsList()) {
             @Nullable View childView = inflateArcLayoutElement(arcLayout, child);
             if (childView != null) {
-                WearArcLayout.LayoutParams childLayoutParams =
-                        (WearArcLayout.LayoutParams) childView.getLayoutParams();
+                ArcLayout.LayoutParams childLayoutParams =
+                        (ArcLayout.LayoutParams) childView.getLayoutParams();
                 boolean rotate = false;
                 if (child.hasAdapter()) {
                     rotate = child.getAdapter().getRotateContents().getValue();
                 }
 
                 // Apply rotation and gravity.
-                childLayoutParams.setRotate(rotate);
+                childLayoutParams.setRotated(rotate);
                 childLayoutParams.setVerticalAlignment(
                         verticalAlignmentToArcVAlign(arc.getVerticalAlign()));
             }

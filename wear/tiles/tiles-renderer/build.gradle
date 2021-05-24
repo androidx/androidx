@@ -33,6 +33,8 @@ dependencies {
 
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.core:core:1.3.2"
+    implementation "androidx.wear:wear:1.2.0-alpha09"
+
     implementation(project(":wear:tiles:tiles"))
     implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
     implementation(libs.kotlinCoroutinesCore)
