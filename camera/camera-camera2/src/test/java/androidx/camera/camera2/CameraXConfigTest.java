@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = 29)
 public class CameraXConfigTest {
     @Test
     public void canInitializeWithGetAvailableCamerasLimiterWhenNoCamera() throws Exception {

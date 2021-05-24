@@ -65,6 +65,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,15 +73,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-
 /**
  * Unit tests for {@link ExcludedSupportedSizesContainer}'s usage within
  * {@link SupportedSurfaceCombination}.
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = 29)
 public class SupportedSizeConstraintsTest {
 
     private static final String BACK_CAMERA_ID = "0";
