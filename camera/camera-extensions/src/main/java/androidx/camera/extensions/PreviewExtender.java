@@ -47,6 +47,8 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
 import androidx.camera.extensions.internal.AdaptingPreviewProcessor;
 import androidx.camera.extensions.internal.AdaptingRequestUpdateProcessor;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Consumer;
 
 import java.util.Collection;

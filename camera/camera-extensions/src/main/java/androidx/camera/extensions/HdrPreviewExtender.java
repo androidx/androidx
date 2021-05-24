@@ -21,6 +21,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
 
 /**
  * Load the OEM extension Preview implementation for HDR effect type.

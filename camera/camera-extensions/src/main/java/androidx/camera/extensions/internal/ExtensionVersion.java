@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
+import androidx.annotation.Nullable;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
 /**
  * Provides interfaces to check the extension version.
  */
-abstract class ExtensionVersion {
+public abstract class ExtensionVersion {
     private static final String TAG = "ExtenderVersion";
 
     private static volatile ExtensionVersion sExtensionVersion;
@@ -51,7 +52,7 @@ abstract class ExtensionVersion {
      * @return true if OEM returned a major version is matched with the current version, false
      * otherwise.
      */
-    static boolean isExtensionVersionSupported() {
+    public static boolean isExtensionVersionSupported() {
         return getInstance().getVersionObject() != null;
     }
 
@@ -63,7 +64,8 @@ abstract class ExtensionVersion {
      * <tt>null</tt> if the OEM library didn't implement the version checking method or the
      * version is not compatible with CameraX.
      */
-    static Version getRuntimeVersion() {
+    @Nullable
+    public static Version getRuntimeVersion() {
         return getInstance().getVersionObject();
     }
 
