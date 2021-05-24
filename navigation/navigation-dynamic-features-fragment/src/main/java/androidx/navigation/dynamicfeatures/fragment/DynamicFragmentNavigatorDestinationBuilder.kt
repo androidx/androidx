@@ -60,14 +60,63 @@ public inline fun DynamicNavGraphBuilder.fragment(
 )
 
 /**
+ * Construct a new [DynamicFragmentNavigator.Destination]
+ * @param route Destination route.
+ */
+public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
+    route: String
+): Unit = fragment<F>(route) {}
+
+/**
+ * Construct a new [DynamicFragmentNavigator.Destination]
+ * @param route Destination route.
+ */
+public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
+    route: String,
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = fragment(route, F::class.java.name, builder)
+
+/**
+ * Construct a new [DynamicFragmentNavigator.Destination]
+ * @param route Destination route.
+ * @param fragmentClassName Fully qualified class name of destination Fragment.
+ */
+public inline fun DynamicNavGraphBuilder.fragment(
+    route: String,
+    fragmentClassName: String,
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    DynamicFragmentNavigatorDestinationBuilder(
+        provider[DynamicFragmentNavigator::class],
+        route,
+        fragmentClassName
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [DynamicFragmentNavigator.Destination]
  */
 @NavDestinationDsl
-public class DynamicFragmentNavigatorDestinationBuilder(
-    navigator: DynamicFragmentNavigator,
-    @IdRes id: Int,
-    private val fragmentClassName: String
-) : NavDestinationBuilder<FragmentNavigator.Destination>(navigator, id) {
+public class DynamicFragmentNavigatorDestinationBuilder :
+    NavDestinationBuilder<FragmentNavigator.Destination> {
+
+    private var fragmentClassName: String
+
+    public constructor(
+        navigator: DynamicFragmentNavigator,
+        @IdRes id: Int,
+        fragmentClassName: String
+    ) : super(navigator, id) {
+        this.fragmentClassName = fragmentClassName
+    }
+
+    public constructor(
+        navigator: DynamicFragmentNavigator,
+        route: String,
+        fragmentClassName: String
+    ) : super(navigator, route) {
+        this.fragmentClassName = fragmentClassName
+    }
 
     public var moduleName: String? = null
 
