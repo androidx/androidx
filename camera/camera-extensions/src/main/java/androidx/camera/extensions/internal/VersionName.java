@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.camera.extensions.BuildConfig;
 
 /**
  * The version of CameraX extension releases.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VersionName {
     /* The current version of the CameraX extension. */
     private static final VersionName CURRENT = new VersionName(BuildConfig.CAMERA_VERSION);
 
     @NonNull
-    static VersionName getCurrentVersion() {
+    public static VersionName getCurrentVersion() {
         return CURRENT;
     }
 
     private final Version mVersion;
 
+    @NonNull
     public Version getVersion() {
         return mVersion;
     }
@@ -53,6 +51,7 @@ public class VersionName {
      *
      * @return the string of the version in a form of MAJOR.MINOR.PATCH-description.
      */
+    @NonNull
     public String toVersionString() {
         return mVersion.toString();
     }
