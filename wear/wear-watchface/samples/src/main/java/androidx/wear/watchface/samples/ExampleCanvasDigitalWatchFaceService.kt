@@ -469,36 +469,36 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     // Lazy because the context isn't initialized til later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 
-    private val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-        UserStyleSetting.Id(COLOR_STYLE_SETTING),
-        getString(R.string.colors_style_setting),
-        getString(R.string.colors_style_setting_description),
-        icon = null,
-        options = listOf(
-            UserStyleSetting.ListUserStyleSetting.ListOption(
-                Option.Id(RED_STYLE),
-                getString(R.string.colors_style_red),
-                Icon.createWithResource(this, R.drawable.red_style)
+    private val colorStyleSetting by lazy {
+        UserStyleSetting.ListUserStyleSetting(
+            UserStyleSetting.Id(COLOR_STYLE_SETTING),
+            getString(R.string.colors_style_setting),
+            getString(R.string.colors_style_setting_description),
+            icon = null,
+            options = listOf(
+                UserStyleSetting.ListUserStyleSetting.ListOption(
+                    Option.Id(RED_STYLE),
+                    getString(R.string.colors_style_red),
+                    Icon.createWithResource(this, R.drawable.red_style)
+                ),
+                UserStyleSetting.ListUserStyleSetting.ListOption(
+                    Option.Id(GREEN_STYLE),
+                    getString(R.string.colors_style_green),
+                    Icon.createWithResource(this, R.drawable.green_style)
+                ),
+                UserStyleSetting.ListUserStyleSetting.ListOption(
+                    Option.Id(BLUE_STYLE),
+                    getString(R.string.colors_style_blue),
+                    Icon.createWithResource(this, R.drawable.blue_style)
+                )
             ),
-            UserStyleSetting.ListUserStyleSetting.ListOption(
-                Option.Id(GREEN_STYLE),
-                getString(R.string.colors_style_green),
-                Icon.createWithResource(this, R.drawable.green_style)
-            ),
-            UserStyleSetting.ListUserStyleSetting.ListOption(
-                Option.Id(BLUE_STYLE),
-                getString(R.string.colors_style_blue),
-                Icon.createWithResource(this, R.drawable.blue_style)
+            listOf(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
             )
-        ),
-        listOf(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
         )
-    )
-
-    private val userStyleSchema = UserStyleSchema(listOf(colorStyleSetting))
+    }
 
     private val canvasComplicationFactory =
         CanvasComplicationFactory { watchState, listener ->
@@ -608,7 +608,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         DefaultComplicationProviderPolicy()
     ).build()
 
-    override fun createUserStyleSchema() = userStyleSchema
+    override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
     override fun createComplicationsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
