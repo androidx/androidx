@@ -1956,6 +1956,27 @@ class NavControllerTest {
         assertThat(backPressedIntercepted).isTrue()
     }
 
+    @UiThreadTest
+    @Test
+    fun testOnDestinationChangedListenerConcurrentModification() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+
+        val listener = object : NavController.OnDestinationChangedListener {
+            override fun onDestinationChanged(
+                controller: NavController,
+                destination: NavDestination,
+                arguments: Bundle?
+            ) {
+                navController.removeOnDestinationChangedListener(this)
+            }
+        }
+
+        navController.addOnDestinationChangedListener(listener)
+        navController.addOnDestinationChangedListener { _, _, _ -> }
+        navController.navigate(R.id.second_test)
+    }
+
     @Test
     fun createGraph() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
