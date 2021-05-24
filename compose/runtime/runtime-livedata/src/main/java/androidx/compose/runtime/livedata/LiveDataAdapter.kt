@@ -51,9 +51,12 @@ fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
  * @sample androidx.compose.runtime.livedata.samples.LiveDataWithInitialSample
  */
 @Composable
-fun <R, T : R> LiveData<T>.observeAsState(initial: R): State<R> {
+fun <R, T : R> LiveData<T>.observeAsState(
+    initial: R,
+    policy: SnapshotMutationPolicy<R> = structuralEqualityPolicy()
+): State<R> {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val state = remember { mutableStateOf(initial) }
+    val state = remember { mutableStateOf(initial, policy) }
     DisposableEffect(this, lifecycleOwner) {
         val observer = Observer<T> { state.value = it }
         observe(lifecycleOwner, observer)
