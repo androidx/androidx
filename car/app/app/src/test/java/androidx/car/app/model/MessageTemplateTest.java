@@ -47,6 +47,7 @@ public class MessageTemplateTest {
     private final String mMessage = "foo";
     private final Action mAction = Action.BACK;
     private final CarIcon mIcon = CarIcon.ALERT;
+    private final ActionStrip mActionStrip = new ActionStrip.Builder().addAction(mAction).build();
 
     @Test
     public void emptyMessage_throws() {
@@ -101,6 +102,7 @@ public class MessageTemplateTest {
         assertThat(template.getIcon()).isNull();
         assertThat(template.getHeaderAction()).isNull();
         assertThat(template.getActions()).isEmpty();
+        assertThat(template.getActionStrip()).isNull();
         assertThat(template.getDebugMessage()).isNull();
     }
 
@@ -131,6 +133,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(exception)
                         .setIcon(icon)
                         .addAction(action)
+                        .setActionStrip(mActionStrip)
                         .build();
 
         assertThat(template.getMessage().toString()).isEqualTo(mMessage);
@@ -140,6 +143,7 @@ public class MessageTemplateTest {
         assertThat(template.getIcon()).isEqualTo(icon);
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
         assertThat(template.getActions()).containsExactly(action);
+        assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
     }
 
     @Test
@@ -170,6 +174,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mCause)
                         .setHeaderAction(Action.BACK)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -179,6 +184,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mCause)
                         .setHeaderAction(Action.BACK)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
 
@@ -193,6 +199,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -201,6 +208,7 @@ public class MessageTemplateTest {
                         .setDebugMessage("yo")
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
 
@@ -215,6 +223,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -223,6 +232,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(new IllegalStateException("something else bad"))
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
 
@@ -237,6 +247,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -245,6 +256,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
 
@@ -260,6 +272,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mCause)
                         .setHeaderAction(Action.BACK)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -269,6 +282,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mCause)
                         .setHeaderAction(Action.APP_ICON)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
 
@@ -283,6 +297,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -292,6 +307,34 @@ public class MessageTemplateTest {
                         .setDebugMessage(mCause)
                         .addAction(mAction)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
+                        .setIcon(mIcon)
+                        .build();
+
+        assertThat(template1).isNotEqualTo(template2);
+    }
+
+    @Test
+    public void notEquals_differentActionStrip() {
+        MessageTemplate template1 =
+                new MessageTemplate.Builder(mMessage)
+                        .setTitle(mTitle)
+                        .setDebugMessage(mDebugMessage)
+                        .setDebugMessage(mCause)
+                        .addAction(mAction)
+                        .setActionStrip(mActionStrip)
+                        .setIcon(mIcon)
+                        .build();
+        MessageTemplate template2 =
+                new MessageTemplate.Builder(mMessage)
+                        .setTitle(mTitle)
+                        .setDebugMessage(mDebugMessage)
+                        .setDebugMessage(mCause)
+                        .addAction(mAction)
+                        .setActionStrip(new ActionStrip.Builder()
+                                .addAction(Action.BACK)
+                                .addAction(Action.APP_ICON)
+                                .build())
                         .setIcon(mIcon)
                         .build();
 
@@ -306,6 +349,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -314,6 +358,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(CarIcon.ERROR)
                         .build();
 
@@ -328,6 +373,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
@@ -336,6 +382,7 @@ public class MessageTemplateTest {
                         .setDebugMessage(mDebugMessage)
                         .setDebugMessage(mCause)
                         .addAction(mAction)
+                        .setActionStrip(mActionStrip)
                         .setIcon(mIcon)
                         .build();
 
