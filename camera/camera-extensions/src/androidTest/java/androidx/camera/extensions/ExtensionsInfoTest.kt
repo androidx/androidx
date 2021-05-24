@@ -21,7 +21,6 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LensFacing
 import androidx.camera.extensions.ExtensionMode.Mode
-import androidx.camera.extensions.ExtensionsManager.EffectMode
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -54,7 +53,7 @@ class ExtensionsInfoTest(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
-    private val effectMode: EffectMode =
+    private val effectMode: ExtensionsManager.EffectMode =
         ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
 
     private lateinit var extensionsInfo: ExtensionsInfo
