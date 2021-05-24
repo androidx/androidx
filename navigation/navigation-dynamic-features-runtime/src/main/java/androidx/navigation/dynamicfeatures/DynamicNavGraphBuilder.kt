@@ -32,6 +32,14 @@ import androidx.navigation.get
  * @param startDestination Id start destination in the graph
  * @param builder Another builder for chaining.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DynamicNavGraph instead",
+    ReplaceWith(
+        "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
@@ -49,6 +57,14 @@ public inline fun NavigatorProvider.navigation(
  * @param startDestination Id start destination in the graph
  * @param builder Another builder for chaining.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DynamicNavGraph instead",
+    ReplaceWith(
+        "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun DynamicNavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
@@ -105,6 +121,14 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
     @IdRes private var startDestinationId: Int = 0
     private var startDestinationRoute: String? = null
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to create your DynamicNavGraphBuilder instead",
+        ReplaceWith(
+            "DynamicNavGraphBuilder(provider, startDestination = startDestination.toString(), " +
+                "route = id.toString())"
+        )
+    )
     public constructor(
         provider: NavigatorProvider,
         @IdRes id: Int,

@@ -37,6 +37,7 @@ class TestNavigatorDestinationBuilderTest {
     val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test fun fragment() {
         val navHostFragment = NavHostFragment()
@@ -57,6 +58,7 @@ class TestNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test fun fragmentWithBody() {
         val navHostFragment = NavHostFragment()

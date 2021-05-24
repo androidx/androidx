@@ -53,6 +53,14 @@ public interface NavHost {
 /**
  * Construct a new [NavGraph]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your NavGraph instead",
+    ReplaceWith(
+        "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavHost.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,

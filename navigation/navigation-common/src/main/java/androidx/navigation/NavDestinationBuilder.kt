@@ -51,6 +51,10 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
      *
      * @return the newly constructed [NavDestination]
      */
+    @Deprecated(
+        "Use routes to build your NavDestination instead",
+        ReplaceWith("NavDestinationBuilder(navigator, route = id.toString())")
+    )
     public constructor(navigator: Navigator<out D>, @IdRes id: Int) :
         this(navigator, id, null)
 

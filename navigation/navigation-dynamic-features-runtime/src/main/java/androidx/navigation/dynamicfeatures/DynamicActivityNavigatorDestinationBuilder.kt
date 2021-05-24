@@ -30,6 +30,11 @@ import androidx.navigation.get
  * Construct a new [DynamicActivityNavigator.Destination]
  * @param id Destination id.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to build your DynamicActivityDestination instead",
+    ReplaceWith("activity(route = id.toString()) { builder.invoke() }")
+)
 public inline fun DynamicNavGraphBuilder.activity(
     @IdRes id: Int,
     builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
@@ -62,6 +67,13 @@ public class DynamicActivityNavigatorDestinationBuilder :
     NavDestinationBuilder<ActivityNavigator.Destination> {
     private var activityNavigator: DynamicActivityNavigator
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your DynamicActivityDestination instead",
+        ReplaceWith(
+            "DynamicActivityNavigatorDestinationBuilder(activityNavigator, route = id.toString())"
+        )
+    )
     public constructor(
         activityNavigator: DynamicActivityNavigator,
         @IdRes id: Int

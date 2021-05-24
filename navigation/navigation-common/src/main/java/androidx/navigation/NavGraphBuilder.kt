@@ -27,6 +27,14 @@ import androidx.annotation.IdRes
  *
  * @return the newly constructed NavGraph
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to build your NavGraph instead",
+    ReplaceWith(
+        "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
@@ -58,6 +66,14 @@ public inline fun NavigatorProvider.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to build your nested NavGraph instead",
+    ReplaceWith(
+        "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
@@ -100,6 +116,14 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your NavGraph instead",
+        ReplaceWith(
+            "NavGraphBuilder(provider, startDestination = startDestination.toString(), " +
+                "route = id.toString())"
+        )
+    )
     public constructor(
         provider: NavigatorProvider,
         @IdRes id: Int,

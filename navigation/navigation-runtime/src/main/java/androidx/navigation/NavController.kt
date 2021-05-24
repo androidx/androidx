@@ -1949,6 +1949,14 @@ public open class NavController(
  * @param startDestination the route for the start destination
  * @param builder the builder used to construct the graph
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your NavGraph instead",
+    ReplaceWith(
+        "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavController.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,

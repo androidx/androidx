@@ -124,6 +124,7 @@ private const val ACTION_ARGUMENT_VALUE = "VALUE"
  * a NavDestination directly to allow for testing NavDestinationBuilder in
  * isolation.
  */
+@Suppress("DEPRECATION")
 fun NavigatorProvider.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit

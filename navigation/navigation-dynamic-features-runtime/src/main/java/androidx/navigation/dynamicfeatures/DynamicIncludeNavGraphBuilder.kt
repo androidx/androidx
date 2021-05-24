@@ -33,6 +33,11 @@ import androidx.navigation.get
  * @param graphResourceName Graph's resource name without the `navigation` qualifier. This
  * must not be an empty string.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to include your DynamicNavGraph instead",
+    ReplaceWith("includeDynamic(route = id.toString(), moduleName, graphResourceName)")
+)
 public inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
@@ -49,6 +54,13 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
  * must not be an empty string.
  * @param builder Another builder for chaining.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to include your DynamicNavGraph instead",
+    ReplaceWith(
+        "includeDynamic(route = id.toString(), moduleName, graphResourceName) { builder.invoke() }"
+    )
+)
 public inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
@@ -112,6 +124,14 @@ public class DynamicIncludeNavGraphBuilder : NavDestinationBuilder<DynamicInclud
     private var moduleName: String
     private var graphResourceName: String
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to create your DynamicIncludeNavGraphBuilder instead",
+        ReplaceWith(
+            "DynamicIncludeNavGraphBuilder(dynamicIncludeGraphNavigator, route = id.toString(), " +
+                "moduleName, graphResourceName)"
+        )
+    )
     public constructor(
         dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
         @IdRes id: Int,

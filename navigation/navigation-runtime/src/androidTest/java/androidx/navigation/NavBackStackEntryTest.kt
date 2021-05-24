@@ -42,6 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryTest {
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwner() {
@@ -61,6 +62,7 @@ class NavBackStackEntryTest {
         assertThat(store).isNotNull()
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerAndroidViewModel() {
@@ -81,6 +83,7 @@ class NavBackStackEntryTest {
         assertThat(viewModel).isNotNull()
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerSavedStateViewModel() {
@@ -116,6 +119,7 @@ class NavBackStackEntryTest {
         assertThat(restoredState).isEqualTo("test")
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testSaveRestoreGetViewModelStoreOwner() {
@@ -165,6 +169,7 @@ class NavBackStackEntryTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerSameGraph() {
@@ -188,6 +193,7 @@ class NavBackStackEntryTest {
         assertThat(sameGraphOwner.viewModelStore).isSameInstanceAs(viewStore)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetSavedStateHandleRestored() {
@@ -278,6 +284,7 @@ class NavBackStackEntryTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testOnClearedWhenHostCleared() {
@@ -304,6 +311,7 @@ class NavBackStackEntryTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testOnClearedWhenPopped() {
@@ -338,6 +346,7 @@ class NavBackStackEntryTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testOnClearedWhenHostClearedAfterSaveState() {

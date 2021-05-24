@@ -263,7 +263,7 @@ package androidx.navigation {
   }
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
-    ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
+    ctor @Deprecated public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, String? route);
     method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
     method public final void argument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> argumentBuilder);
@@ -322,7 +322,7 @@ package androidx.navigation {
   }
 
   @androidx.navigation.NavDestinationDsl public class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {
-    ctor public NavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
+    ctor @Deprecated public NavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
     ctor public NavGraphBuilder(androidx.navigation.NavigatorProvider provider, String startDestination, String? route);
     method public final void addDestination(androidx.navigation.NavDestination destination);
     method public androidx.navigation.NavGraph build();
@@ -333,9 +333,9 @@ package androidx.navigation {
   }
 
   public final class NavGraphBuilderKt {
-    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method @Deprecated public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
-    method public static inline void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method @Deprecated public static inline void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline void navigation(androidx.navigation.NavGraphBuilder, String startDestination, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
