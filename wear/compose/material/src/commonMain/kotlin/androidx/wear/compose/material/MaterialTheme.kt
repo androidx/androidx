@@ -24,10 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.ui.text.TextStyle
 
 // TODO: Provide references to the Wear material design specs.
 /**
@@ -112,27 +109,4 @@ private object MaterialRippleTheme : RippleTheme {
         contentColor = LocalContentColor.current,
         lightTheme = false
     )
-}
-
-/**
- * CompositionLocal containing the preferred [TextStyle] that will be used by [Text] components by
- * default. To set the value for this CompositionLocal, see [ProvideTextStyle] which will merge any
- * missing [TextStyle] properties with the existing [TextStyle] set in this CompositionLocal.
- *
- * @see ProvideTextStyle
- */
-val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
-
-// TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
-/**
- * This function is used to set the current value of [LocalTextStyle], merging the given style
- * with the current style values for any missing attributes. Any [Text] components included in
- * this component's [content] will be styled with this style unless styled explicitly.
- *
- * @see LocalTextStyle
- */
-@Composable
-fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
-    val mergedStyle = LocalTextStyle.current.merge(value)
-    CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
 }
