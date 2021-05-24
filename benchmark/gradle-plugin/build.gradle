@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.BuildOnServerKt
-import androidx.build.BuildServerConfigurationKt
-import androidx.build.LibraryGroups
-import androidx.build.LibraryType
-import androidx.build.SdkResourceGenerator
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.*
 
 plugins {
     id("AndroidXPlugin")
@@ -34,13 +28,13 @@ dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
     implementation("com.android.tools.build:gradle:4.0.0-beta04")
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(KOTLIN_TEST)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
 }
 
 SdkResourceGenerator.generateForHostTest(project)
