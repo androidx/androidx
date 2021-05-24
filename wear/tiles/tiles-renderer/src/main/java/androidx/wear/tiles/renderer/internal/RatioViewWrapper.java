@@ -16,7 +16,6 @@
 
 package androidx.wear.tiles.renderer.internal;
 
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -113,8 +112,7 @@ public class RatioViewWrapper extends ViewGroup {
         }
 
         // If both are MeasureSpec.EXACTLY, we can't do anything else. Set our dimensions to be the
-        // same
-        // and exit.
+        // same and exit.
         if (widthMeasureMode == MeasureSpec.EXACTLY && heightMeasureMode == MeasureSpec.EXACTLY) {
             setMeasuredDimension(childView.getMeasuredWidth(), childView.getMeasuredHeight());
             return;
@@ -133,16 +131,13 @@ public class RatioViewWrapper extends ViewGroup {
                 && (heightMeasureMode == MeasureSpec.AT_MOST
                         || heightMeasureMode == MeasureSpec.UNSPECIFIED)) {
             // Generally, this happens if this view has both width/height=WRAP_CONTENT. This can
-            // also
-            // happen though if this view has both dimensions as MATCH_CONTENT, but the parent view
-            // is
-            // WRAP_CONTENT. In that case, the parent will run a first view pass to get the size of
-            // the
-            // children, then calculate its size and re-size this widget with EXACTLY MeasureSpecs.
+            // also happen though if this view has both dimensions as MATCH_CONTENT, but the parent
+            // view is WRAP_CONTENT. In that case, the parent will run a first view pass to get the
+            // size of the children, then calculate its size and re-size this widget with EXACTLY
+            // MeasureSpecs.
             //
             // In this case, let's just assume that the child has reached the maximum size that it
-            // wants,
-            // so rescale the dimension that will make it _smaller_.
+            // wants, so rescale the dimension that will make it _smaller_.
             float targetWidth = childView.getMeasuredHeight() * mAspectRatio;
             float targetHeight = childView.getMeasuredWidth() / mAspectRatio;
 
@@ -170,7 +165,7 @@ public class RatioViewWrapper extends ViewGroup {
                 // This should have been picked up by the aspect ratio check above...
                 throw new IllegalStateException(
                         "Neither target width nor target height was smaller than measured"
-                            + " width/height");
+                                + " width/height");
             }
         } else if (widthMeasureMode == MeasureSpec.EXACTLY) {
             // Can't change the width, but can change height.
@@ -182,10 +177,8 @@ public class RatioViewWrapper extends ViewGroup {
 
             childView.measure(childWidth, childHeight);
 
-            // We're pulling some hacks here.
-            // We get an AT_MOST constraint, but if we oversize ourselves, the parent container
-            // should
-            // do appropriate clipping.
+            // We're pulling some hacks here. We get an AT_MOST constraint, but if we oversize
+            // ourselves, the parent container should do appropriate clipping.
             setMeasuredDimension(childView.getMeasuredWidth(), childView.getMeasuredHeight());
         } else if (heightMeasureMode == MeasureSpec.EXACTLY) {
             // Can't change height, change width.
@@ -200,12 +193,9 @@ public class RatioViewWrapper extends ViewGroup {
             setMeasuredDimension(childView.getMeasuredWidth(), childView.getMeasuredHeight());
         } else {
             // This should never happen; the first if checks that both MeasureSpecs are either
-            // AT_MOST
-            // or UNSPECIFIED. If that branch isn't taken, one of the MeasureSpecs must be EXACTLY.
-            // It's
-            // technically possible to smash the flag bits though (mode == 3 is invalid), so if we
-            // get
-            // here, that must have happened.
+            // AT_MOST or UNSPECIFIED. If that branch isn't taken, one of the MeasureSpecs must be
+            // EXACTLY. It's technically possible to smash the flag bits though (mode == 3 is
+            // invalid), so if we get here, that must have happened.
             throw new IllegalArgumentException("Unknown measure mode bits in given MeasureSpecs");
         }
     }
@@ -215,16 +205,13 @@ public class RatioViewWrapper extends ViewGroup {
         View childView = getChildAt(0);
 
         // Place the child view within the bounds. If the child is greater than the bounds (i.e. one
-        // of
-        // the constraints was MATCH_PARENT, and the other was free), then just align the top-left
-        // for
-        // now.
+        // of the constraints was MATCH_PARENT, and the other was free), then just align the
+        // top-left for now.
         childView.layout(0, 0, childView.getMeasuredWidth(), childView.getMeasuredHeight());
     }
 
     // setPadding(Relative) should just pass straight through to the child; this View should just be
-    // a
-    // wrapper, so should not itself introduce any extra spacing.
+    // a wrapper, so should not itself introduce any extra spacing.
     //
     // We don't override the getters, since nothing in the layout tree should actually use them.
     @Override

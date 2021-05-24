@@ -195,8 +195,7 @@ public final class TilesTimelineCacheInternal {
             }
 
             // Discard if it's less than "fromTime". This prevents accidentally returning valid
-            // times in
-            // the past.
+            // times in the past.
             if (nextEntryValidity.getStartMillis() < fromTimeMillis) {
                 continue;
             }
