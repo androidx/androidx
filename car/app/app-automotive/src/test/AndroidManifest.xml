@@ -15,5 +15,5 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app">
+    package="androidx.car.app.automotive">
 </manifest>

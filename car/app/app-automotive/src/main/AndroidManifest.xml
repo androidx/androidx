@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app"
+    package="androidx.car.app.automotive"
     android:versionCode="1"
     android:versionName="0.1">
     <queries>
@@ -30,7 +30,7 @@
     -->
     <application>
         <activity
-            android:name=".activity.CarAppActivity"
+            android:name="androidx.car.app.activity.CarAppActivity"
             android:theme="@android:style/Theme.NoTitleBar"
             android:exported="false"
             android:windowSoftInputMode="adjustResize">

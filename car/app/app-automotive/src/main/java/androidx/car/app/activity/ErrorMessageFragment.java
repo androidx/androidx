@@ -33,7 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.R;
+import androidx.car.app.automotive.R;
 import androidx.fragment.app.Fragment;
 
 import java.util.List;

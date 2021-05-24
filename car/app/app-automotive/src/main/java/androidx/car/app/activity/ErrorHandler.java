@@ -21,7 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
-import androidx.car.app.R;
+import androidx.car.app.automotive.R;
 
 /**
  * Error handling abstraction
