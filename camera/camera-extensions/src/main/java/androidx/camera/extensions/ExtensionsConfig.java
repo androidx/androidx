@@ -17,7 +17,6 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraFilter;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -68,13 +67,6 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
 
         public Builder setExtensionMode(@ExtensionMode.Mode int mode) {
             mConfig.insertOption(OPTION_EXTENSION_MODE, mode);
-            return this;
-        }
-
-        @NonNull
-        @Override
-        public Builder setCameraFilter(@NonNull CameraFilter cameraFilter) {
-            mConfig.insertOption(OPTION_CAMERA_FILTER, cameraFilter);
             return this;
         }
 

@@ -186,7 +186,7 @@ public final class ExtensionsInfo {
     private void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
         CameraFilter.Id id = CameraFilter.Id.create(getExtendedCameraConfigProviderId(mode));
 
-        if (ExtendedCameraConfigProviderStore.getConfig(id) == CameraConfigProvider.EMPTY) {
+        if (ExtendedCameraConfigProviderStore.getConfigProvider(id) == CameraConfigProvider.EMPTY) {
             ExtendedCameraConfigProviderStore.addConfig(id, (cameraInfo, context) -> {
                 ExtensionsUseCaseConfigFactory factory = new
                         ExtensionsUseCaseConfigFactory(mode, cameraInfo, context);

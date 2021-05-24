@@ -66,7 +66,7 @@ public interface CameraFilter {
      * means a camera filter's {@link Id} can be mapped to a unique {@link CameraConfig}. An
      * example of this is extension modes, where a camera filter can represent an extension mode,
      * and each extension mode adds a set of camera configurations to the camera that supports it
-     * . {@link ExtendedCameraConfigProviderStore#getConfig(Object)} allows retrieving the
+     * . {@link ExtendedCameraConfigProviderStore#getConfigProvider(Object)} allows retrieving the
      * {@link CameraConfig} of an extension mode given the {@link CameraFilter.Id} of its camera
      * filter.
      *

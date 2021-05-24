@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 
 /**
@@ -26,11 +27,11 @@ import androidx.camera.core.CameraInfo;
  */
 public interface CameraConfigProvider {
 
-    CameraConfigProvider EMPTY = (cameraInfo, context) -> CameraConfigs.emptyConfig();
+    CameraConfigProvider EMPTY = (cameraInfo, context) -> null;
 
     /**
      * Returns a camera config according to the input camera info.
      */
-    @NonNull
+    @Nullable
     CameraConfig getConfig(@NonNull CameraInfo cameraInfo, @NonNull Context context);
 }
