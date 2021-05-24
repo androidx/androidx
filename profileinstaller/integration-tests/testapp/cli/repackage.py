@@ -14,13 +14,13 @@ from zipfile import ZipFile
 PATH_TO_APKSIGNER = 'apksigner'
 
 SCRIPT_PATH = Path(__file__).parent.absolute()
-SUPPORT_PATH = (SCRIPT_PATH / Path("../../../../..")).resolve()
+SUPPORT_PATH = (SCRIPT_PATH / Path("../../../..")).resolve()
 ROOT_DIR = (SUPPORT_PATH / Path("../..")).resolve()
 BUILD_OUT_DIR = (Path(SUPPORT_PATH) / Path(
-    "../../out/androidx/profileinstaller/profileinstaller/integration-tests/"
+    "../../out/androidx/profileinstaller/integration-tests/"
     "testapp/build/outputs/apk/")).resolve()
 MAPPING_OUT_PATH = (Path(SUPPORT_PATH) / Path(
-    "../../out/androidx/profileinstaller/profileinstaller/integration-tests/"
+    "../../out/androidx/profileinstaller/integration-tests/"
     "testapp/build/outputs/mapping/release/mapping.txt")).resolve()
 
 APK_PREFIX = "testapp"
@@ -119,6 +119,8 @@ def repackage_jar(apk_src, profile, apk_dest, tmp_dir, apksigner):
     working_dir.mkdir()
     working_apk = working_dir / Path("working.apk")
     shutil.copyfile(apk_src, working_apk)
+    print(f"copying to {SUPPORT_PATH / Path('baseline.prof')}")
+    shutil.copyfile(profile, SUPPORT_PATH / Path("baseline.prof"))
     with ZipFile(working_apk, 'a') as zip:
         profile_destination = Path('assets/dexopt/') / Path(APK_PROFILE_FILE)
         if str(profile_destination) in [it.filename for it in zip.infolist()]:
