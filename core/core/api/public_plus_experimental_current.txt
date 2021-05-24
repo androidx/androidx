@@ -1540,6 +1540,7 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.Q) public static boolean isAtLeastQ();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
     method @ChecksSdkIntAtLeast(codename="S") public static boolean isAtLeastS();
+    method @ChecksSdkIntAtLeast(codename="T") public static boolean isAtLeastT();
   }
 
   public final class CancellationSignal {
