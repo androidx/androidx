@@ -24,10 +24,10 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -67,7 +67,7 @@ import java.util.concurrent.Executors;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class AppSearchDebugActivity extends AppCompatActivity {
+public class AppSearchDebugActivity extends FragmentActivity {
     private static final String TAG = "AppSearchDebugActivity";
     public static final String DB_INTENT_KEY = "databaseName";
     public static final String STORAGE_TYPE_INTENT_KEY = "storageType";
