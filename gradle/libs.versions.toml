@@ -22,7 +22,6 @@ incap = "0.2"
 kotlin = "1.5.0"
 kotlinCompileTesting = "1.4.0"
 kotlinCoroutines = "1.4.3"
-kotlinPoet = "1.4.0"
 ksp = "1.5.0-1.0.0-alpha10"
 leakcanary = "2.2"
 mockito = "2.25.0"
@@ -99,10 +98,7 @@ kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common", version
 kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlinPoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinPoet" }
-kotlinPoetMetadata = { module = "com.squareup:kotlinpoet-metadata", version.ref = "kotlinPoet" }
-kotlinPoetMetadataSpecs = { module = "com.squareup:kotlinpoet-metadata-specs", version.ref = "kotlinPoet" }
-kotlinPoetClassinspector = { module = "com.squareup:kotlinpoet-classinspector-elements", version.ref = "kotlinPoet" }
+kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.8.0" }
 kgpLeakPatcher = { module = "dev.zacsweers:kgp-150-leak-patcher", version="1.1.0" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
