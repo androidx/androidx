@@ -140,9 +140,8 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
                         }
 
                         // This is a little suboptimal, as if an update is requested in this lock,
-                        // we'll
-                        // unbind, then immediately rebind. That said, this class should be used
-                        // pretty rarely
+                        // we'll unbind, then immediately rebind. That said, this class should be
+                        // used pretty rarely
                         // (and it'll be rare to have two in-flight update requests at once
                         // regardless), so
                         // it's probably fine.

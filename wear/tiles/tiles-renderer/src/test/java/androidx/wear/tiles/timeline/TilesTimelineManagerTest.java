@@ -71,8 +71,8 @@ public class TilesTimelineManagerTest {
                 (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
 
         // Sync the clock with the current time. This is really just to ensure that the test times
-        // we're going to use are in the future, which prevents AlarmManager (which always uses
-        // the system time :( ) from immediately firing all our alarms.
+        // we're going to use are in the future, which prevents AlarmManager (which always uses the
+        // system time :( ) from immediately firing all our alarms.
         mCurrentTime = System.currentTimeMillis();
 
         mTimelineManager = null;
@@ -280,8 +280,7 @@ public class TilesTimelineManagerTest {
     public void timelineManager_minDelayUsesCorrectEntry() {
         // This has three entries, one initial one, one that happens after MIN_DELAY/2, and one that
         // happens after MIN_DELAY. This should totally skip the middle entry, and only show the
-        // first
-        // and last entries.
+        // first and last entries.
         List<Layout> returnedLayouts = new ArrayList<>();
 
         final long cutover1Millis =

@@ -41,9 +41,8 @@ class UpdateScheduler implements AlarmManager.OnAlarmListener {
     private long mScheduledUpdateTimeMillis = NO_SCHEDULED_UPDATE;
 
     // Last time at which we updated the tile, measured by the device uptime. This needs to be
-    // device
-    // uptime to prevent issues when time changes (e.g. time jumps caused by syncs with NTP or
-    // similar).
+    // device uptime to prevent issues when time changes (e.g. time jumps caused by syncs with NTP
+    // or similar).
     private long mLastUpdateRealtimeMillis = 0;
 
     UpdateScheduler(AlarmManager alarmManager, Clock clock) {
@@ -99,8 +98,7 @@ class UpdateScheduler implements AlarmManager.OnAlarmListener {
                 fireUpdate();
             } else {
                 // "Schedule" an update. This is just so enableUpdates will definitely trigger the
-                // update
-                // when called.
+                // update when called.
                 mScheduledUpdateTimeMillis = nowMillis;
             }
         }
@@ -125,8 +123,7 @@ class UpdateScheduler implements AlarmManager.OnAlarmListener {
 
         if (mScheduledUpdateTimeMillis != Long.MAX_VALUE) {
             // If the schedule update is in the past, then fire now, otherwise schedule for the
-            // given
-            // time.
+            // given time.
             long now = mClock.getElapsedTimeMillis();
 
             if (now >= mScheduledUpdateTimeMillis) {

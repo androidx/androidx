@@ -113,8 +113,7 @@ public class TilesTimelineCacheTest {
     @Test
     public void timelineCache_overlappingEntryWithDefault() {
         // Test that with a default, and an entry "on top", the entry is shown for its validity
-        // period,
-        // and the default for all other times. As an example
+        // period, and the default for all other times. As an example
         //              +---------------------+
         //              |         E1          |
         //  ...---------+---------------------+----------------...
@@ -484,8 +483,7 @@ public class TilesTimelineCacheTest {
         TilesTimelineCache timelineCache = new TilesTimelineCache(timeline);
 
         // This is really undefined behaviour at the moment, but, well, let's keep this as the
-        // assumed behaviour for now.
-        // Should just pick entry1 in this case.
+        // assumed behaviour for now. Should just pick entry1 in this case.
         expectTimelineEntryEqual(timelineCache.findTimelineEntryForTime(0L), null);
         expectTimelineEntryEqual(timelineCache.findClosestTimelineEntry(0L), entry1);
         expect.that(timelineCache.findCurrentTimelineEntryExpiry(entry1, 0L))

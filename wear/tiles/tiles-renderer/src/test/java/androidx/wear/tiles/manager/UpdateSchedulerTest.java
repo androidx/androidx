@@ -54,9 +54,9 @@ public class UpdateSchedulerTest {
     public void setUp() {
         mFired = new ArrayList<>();
 
-        // Set the current time to the min interval. This is because the "last update time" inits
-        // to zero, so we can get some weird results if the starting time is lower than the min
-        // update interval (i.e. alarms being postponed where they shouldn't be)
+        // Set the current time to the min interval. This is because the "last update time" inits to
+        // zero, so we can get some weird results if the starting time is lower than the min update
+        // interval (i.e. alarms being postponed where they shouldn't be)
         mCurrentTime = MIN_INTER_UPDATE_INTERVAL_MILLIS;
 
         AlarmManager alarmManager = getApplicationContext().getSystemService(AlarmManager.class);
