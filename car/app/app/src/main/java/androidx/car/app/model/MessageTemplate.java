@@ -18,6 +18,7 @@ package androidx.car.app.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
@@ -67,6 +68,9 @@ public final class MessageTemplate implements Template {
     private final Action mHeaderAction;
     @Keep
     private final List<Action> mActionList;
+    @Keep
+    @Nullable
+    private final ActionStrip mActionStrip;
 
     /**
      * Returns whether the template is loading.
@@ -97,6 +101,17 @@ public final class MessageTemplate implements Template {
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
+    }
+
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
+    @RequiresCarApi(2)
+    @Nullable
+    public ActionStrip getActionStrip() {
+        return mActionStrip;
     }
 
     /**
@@ -148,7 +163,8 @@ public final class MessageTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return hash(mIsLoading, mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
+        return hash(mIsLoading, mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon,
+                mActionStrip);
     }
 
     @Override
@@ -167,7 +183,8 @@ public final class MessageTemplate implements Template {
                 && Objects.equals(mDebugMessage, otherTemplate.mDebugMessage)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionList, otherTemplate.mActionList)
-                && Objects.equals(mIcon, otherTemplate.mIcon);
+                && Objects.equals(mIcon, otherTemplate.mIcon)
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
     MessageTemplate(Builder builder) {
@@ -177,6 +194,7 @@ public final class MessageTemplate implements Template {
         mDebugMessage = builder.mDebugMessage;
         mIcon = builder.mIcon;
         mHeaderAction = builder.mHeaderAction;
+        mActionStrip = builder.mActionStrip;
         mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
     }
 
@@ -188,6 +206,7 @@ public final class MessageTemplate implements Template {
         mDebugMessage = null;
         mIcon = null;
         mHeaderAction = null;
+        mActionStrip = null;
         mActionList = Collections.emptyList();
     }
 
@@ -203,6 +222,8 @@ public final class MessageTemplate implements Template {
         CarIcon mIcon;
         @Nullable
         Action mHeaderAction;
+        @Nullable
+        ActionStrip mActionStrip;
         List<Action> mActionList = new ArrayList<>();
         @Nullable
         Throwable mDebugCause;
@@ -319,6 +340,29 @@ public final class MessageTemplate implements Template {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
+            return this;
+        }
+
+        /**
+         * Sets the {@link ActionStrip} for this template or {@code null} to not display an {@link
+         * ActionStrip}.
+         *
+         * <p>Unless set with this method, the template will not have an action strip.
+         *
+         * <h4>Requirements</h4>
+         *
+         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
+         * {@link Action}s, one of them can contain a title as set via
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         *
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         */
+        @RequiresCarApi(2)
+        @NonNull
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
             return this;
         }
 
