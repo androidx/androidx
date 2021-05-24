@@ -33,6 +33,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.renderer.R;
+import androidx.wear.widget.ArcLayout;
 
 /**
  * A line, drawn inside an arc.
@@ -41,7 +42,7 @@ import androidx.wear.tiles.renderer.R;
  * the color to draw with. This widget will then draw an arc, with the specified thickness, around
  * its parent arc. The sweep angle is specified in degrees, clockwise.
  */
-public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutWidget {
+public class WearCurvedLineView extends View implements ArcLayout.Widget {
     private static final int DEFAULT_THICKNESS_PX = 0;
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0;
     @ColorInt private static final int DEFAULT_COLOR = 0xFFFFFFFF;
@@ -133,18 +134,13 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
         updatePathAndPaint();
     }
 
-    @Override
-    public int getThicknessPx() {
-        return mThicknessPx;
-    }
-
     /** Sets the thickness of this arc in pixels. */
-    public void setThicknessPx(int thicknessPx) {
-        if (thicknessPx < 0) {
-            thicknessPx = 0;
+    public void setThickness(int thickness) {
+        if (thickness < 0) {
+            thickness = 0;
         }
 
-        this.mThicknessPx = thicknessPx;
+        this.mThicknessPx = thickness;
         updatePathAndPaint();
         invalidate();
     }
@@ -152,6 +148,11 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
     @Override
     public float getSweepAngleDegrees() {
         return mSweepAngleDegrees;
+    }
+
+    @Override
+    public int getThickness() {
+        return mThicknessPx;
     }
 
     /** Sets the sweep angle of this arc in degrees. */
@@ -185,7 +186,7 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
     }
 
     @Override
-    public boolean insideClickArea(float x, float y) {
+    public boolean isPointInsideClickArea(float x, float y) {
         // Stolen from WearCurvedTextView...
         float radius2 = min(getWidth(), getHeight()) / 2f - getPaddingTop();
         float radius1 = radius2 - mThicknessPx;
