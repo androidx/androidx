@@ -124,8 +124,10 @@ class SystemJobInfoConverter {
             builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());
             builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());
         }
-
-        if (BuildCompat.isAtLeastS() && workSpec.expedited) {
+        // Retries cannot be expedited jobs, given they will occur at some point in the future.
+        boolean isRetry = workSpec.runAttemptCount > 0;
+        if (BuildCompat.isAtLeastS() && workSpec.expedited && !isRetry) {
+            //noinspection NewApi
             builder.setExpedited(true);
         }
         return builder.build();
