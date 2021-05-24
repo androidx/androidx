@@ -16,10 +16,15 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextLayoutResult
@@ -98,11 +103,8 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    // Wear Compose Material Text is currently a wrapper around the Compose Material Text.
-    // This ensures that default parameter values (such as LocalTextStyle)
-    // are taken from the Wear MaterialTheme.
-    androidx.compose.material.Text(
-        text,
+    Text(
+        AnnotatedString(text),
         modifier,
         color,
         fontSize,
@@ -116,6 +118,7 @@ fun Text(
         overflow,
         softWrap,
         maxLines,
+        emptyMap(),
         onTextLayout,
         style
     )
@@ -190,26 +193,55 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    // Wear Compose Material Text is currently a wrapper around the Compose Material Text.
-    // This ensures that default parameter values (such as LocalTextStyle)
-    // are taken from the Wear MaterialTheme.
-    androidx.compose.material.Text(
+    val textColor = color.takeOrElse {
+        style.color.takeOrElse {
+            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+        }
+    }
+    val mergedStyle = style.merge(
+        TextStyle(
+            color = textColor,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+            fontFamily = fontFamily,
+            textDecoration = textDecoration,
+            fontStyle = fontStyle,
+            letterSpacing = letterSpacing
+        )
+    )
+    BasicText(
         text,
         modifier,
-        color,
-        fontSize,
-        fontStyle,
-        fontWeight,
-        fontFamily,
-        letterSpacing,
-        textDecoration,
-        textAlign,
-        lineHeight,
+        mergedStyle,
+        onTextLayout,
         overflow,
         softWrap,
         maxLines,
-        inlineContent,
-        onTextLayout,
-        style
+        inlineContent
     )
+}
+
+/**
+ * CompositionLocal containing the preferred [TextStyle] that will be used by [Text] components by
+ * default. To set the value for this CompositionLocal, see [ProvideTextStyle] which will merge any
+ * missing [TextStyle] properties with the existing [TextStyle] set in this CompositionLocal.
+ *
+ * @see ProvideTextStyle
+ */
+val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
+
+// TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
+/**
+ * This function is used to set the current value of [LocalTextStyle], merging the given style
+ * with the current style values for any missing attributes. Any [Text] components included in
+ * this component's [content] will be styled with this style unless styled explicitly.
+ *
+ * @see LocalTextStyle
+ */
+@Composable
+fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
+    val mergedStyle = LocalTextStyle.current.merge(value)
+    CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
 }
