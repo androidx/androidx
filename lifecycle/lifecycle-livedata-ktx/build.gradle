@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -38,19 +35,19 @@ tasks.withType(KotlinCompile).configureEach {
 dependencies {
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-livedata-core-ktx"))
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_CORE)
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesCore)
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
 }
 
 androidx {

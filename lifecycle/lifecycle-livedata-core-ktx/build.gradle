@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -30,13 +27,13 @@ plugins {
 
 dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
     testImplementation(project(":lifecycle:lifecycle-runtime"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-    testImplementation(KOTLIN_COROUTINES_TEST)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 
     lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
 }

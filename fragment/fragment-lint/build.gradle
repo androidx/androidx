@@ -25,14 +25,14 @@ plugins {
 }
 
 dependencies {
-    compileOnly(LINT_API_MIN)
-    compileOnly(KOTLIN_STDLIB)
+    compileOnly(libs.androidLintMinApi)
+    compileOnly(libs.kotlinStdlib)
 
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(LINT_CORE)
-    testImplementation(LINT_TESTS)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintTests)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {
