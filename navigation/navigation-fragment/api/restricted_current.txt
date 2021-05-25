@@ -24,12 +24,15 @@ package androidx.navigation.fragment {
 
   @androidx.navigation.NavDestinationDsl public final class DialogFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {
     ctor public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, @IdRes int id, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
+    ctor public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, String route, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
     method public androidx.navigation.fragment.DialogFragmentNavigator.Destination build();
   }
 
   public final class DialogFragmentNavigatorDestinationBuilderKt {
     method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id);
     method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
+    method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, String route);
+    method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
   }
 
   public final class FragmentKt {
