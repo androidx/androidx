@@ -19,20 +19,20 @@ DEBUG=false
 
 SCRIPT=`realpath $0`
 SCRIPT_DIR=`dirname $SCRIPT`
-SUPPORT_DIR=$SCRIPT_DIR/../../../../../
+SUPPORT_DIR=$SCRIPT_DIR/../../../../
 TMP_DIR=`mktemp -d`
 
 pushd $SUPPORT_DIR
 
 echo "===START=== Rebuilding apk..."
 ANDROIDX_PROJECTS=COMPOSE ./gradlew \
-  :profileinstaller:profileinstaller:integration-tests:testapp:clean
+  :profileinstaller:integration-tests:testapp:clean
 if [ $DEBUG = true ]; then
   ANDROIDX_PROJECTS=COMPOSE ./gradlew \
-    :profileinstaller:profileinstaller:integration-tests:testapp:assembleDebug
+    :profileinstaller:integration-tests:testapp:assembleDebug
 else
   ANDROIDX_PROJECTS=COMPOSE ./gradlew \
-    :profileinstaller:profileinstaller:integration-tests:testapp:assembleRelease
+    :profileinstaller:integration-tests:testapp:assembleRelease
 fi
 echo "===/DONE=== Rebuilding apk..."
 
