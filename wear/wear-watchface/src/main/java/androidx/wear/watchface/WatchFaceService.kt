@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -35,6 +36,7 @@ import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.util.Base64
 import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
@@ -79,8 +81,9 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.io.FileDescriptor
+import java.io.FileNotFoundException
+import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.util.concurrent.CountDownLatch
 
@@ -155,7 +158,8 @@ public annotation class TapType {
  * [UserStyleSetting]. To enable support for styling override [createUserStyleSchema].
  *
  * WatchFaces are initially constructed on a background thread before being used exclusively on
- * the ui thread afterwards.
+ * the ui thread afterwards. There is a memory barrier between construction and rendering so no
+ * special threading primitives are required.
  *
  * To aid debugging watch face animations, WatchFaceService allows you to speed up or slow down
  * time, and to loop between two instants.  This is controlled by MOCK_TIME_INTENT intents
@@ -281,7 +285,8 @@ public abstract class WatchFaceService : WallpaperService() {
      * library on the UiThread. If possible any expensive initialization should be done on a
      * background thread to avoid blocking the UiThread. This will be called from a background
      * thread but the [WatchFace] and its [Renderer] should be accessed exclusively from the
-     * UiThread afterwards.
+     * UiThread afterwards. There is a memory barrier between construction and rendering so no
+     * special threading primitives are required.
      *
      * Warning watch face initialization will fail if createWatchFace takes longer than
      * [MAX_CREATE_WATCHFACE_TIME_MILLIS] milliseconds.
@@ -358,6 +363,10 @@ public abstract class WatchFaceService : WallpaperService() {
         attachBaseContext(context)
     }
 
+    /**
+     * Reads WallpaperInteractiveWatchFaceInstanceParams from a file. This is only used in the
+     * android R flow.
+     */
     internal open fun readDirectBootPrefs(
         context: Context,
         fileName: String
@@ -375,6 +384,10 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
+    /**
+     * Writes WallpaperInteractiveWatchFaceInstanceParams to a file. This is only used in the
+     * android R flow.
+     */
     internal open fun writeDirectBootPrefs(
         context: Context,
         fileName: String,
@@ -384,6 +397,37 @@ public abstract class WatchFaceService : WallpaperService() {
         val writer = directBootContext.openFileOutput(fileName, Context.MODE_PRIVATE)
         writer.use {
             ParcelUtils.toOutputStream(prefs, writer)
+        }
+    }
+
+    /** Reads user style from a file. This is only used in the pre-android R flow. */
+    internal fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
+        val hashMap = HashMap<String, ByteArray>()
+        try {
+            val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
+            reader.use {
+                while (true) {
+                    val key = reader.readLine() ?: break
+                    val value = reader.readLine() ?: break
+                    hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
+                }
+            }
+        } catch (e: FileNotFoundException) {
+            // We don't need to do anything special here.
+        }
+        return UserStyleWireFormat(hashMap)
+    }
+
+    /** Reads the user style to a file. This is only used in the pre-android R flow. */
+    internal fun writePrefs(context: Context, fileName: String, style: UserStyle) {
+        val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
+        writer.use {
+            for ((key, value) in style.selectedOptions) {
+                writer.write(key.id.value)
+                writer.newLine()
+                writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
+                writer.newLine()
+            }
         }
     }
 
@@ -1293,9 +1337,12 @@ public abstract class WatchFaceService : WallpaperService() {
                             "milliseconds."
                     }
 
+                    val calendar = Calendar.getInstance()
+                    val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
+
                     // WatchFaceImpl (which registers broadcast observers) needs to be constructed
                     // on the UIThread.
-                    withContext(uiThreadCoroutineScope.coroutineContext) {
+                    uiThreadCoroutineScope.launch {
                         pendingInitialComplications?.let {
                             for (idAndData in it) {
                                 complicationsManager.onComplicationDataUpdate(
@@ -1305,25 +1352,102 @@ public abstract class WatchFaceService : WallpaperService() {
                             }
                         }
 
-                        require(getUiThreadHandler().looper.isCurrentThread)
                         TraceEvent("WatchFaceImpl.init").use {
-                            deferredWatchFaceImpl.complete(
-                                WatchFaceImpl(
-                                    watchFace,
-                                    this@EngineWrapper,
-                                    watchState,
-                                    currentUserStyleRepository,
-                                    complicationsManager
-                                )
+                            val watchFaceImpl = WatchFaceImpl(
+                                watchFace,
+                                this@EngineWrapper,
+                                watchState,
+                                currentUserStyleRepository,
+                                complicationsManager,
+                                calendar
                             )
+
+                            // Make sure no UI thread rendering (a consequence of completing
+                            // deferredWatchFaceImpl) occurs before initStyleAndComplications has
+                            // executed. NB usually we won't have to wait at all.
+                            initStyleAndComplicationsDone.await()
+                            deferredWatchFaceImpl.complete(watchFaceImpl)
                             asyncWatchFaceConstructionPending = false
                         }
                     }
+
+                    // Perform more initialization on the background thread.
+                    initStyleAndComplications(
+                        complicationsManager,
+                        currentUserStyleRepository,
+                        watchFace.renderer,
+                        calendar
+                    )
+
+                    // Now init has completed, it's OK to complete deferredWatchFaceImpl.
+                    initStyleAndComplicationsDone.complete(Unit)
                 } catch (e: Exception) {
                     Log.e(TAG, "WatchFace crashed during init", e)
                     deferredWatchFaceImpl.completeExceptionally(e)
                 }
             }
+        }
+
+        /**
+         * It is OK to call this from a worker thread because we carefully ensure there's no
+         * concurrent writes to the ComplicationsManager. No UI thread rendering can be done until
+         * after this has completed.
+         */
+        @WorkerThread
+        internal fun initStyleAndComplications(
+            complicationsManager: ComplicationsManager,
+            currentUserStyleRepository: CurrentUserStyleRepository,
+            renderer: Renderer,
+            calendar: Calendar
+        ) = TraceEvent("initStyleAndComplications").use {
+            // If the system has a stored user style then Home/SysUI is in charge of style
+            // persistence, otherwise we need to do our own.
+            val storedUserStyle = getInitialUserStyle()
+            if (storedUserStyle != null) {
+                TraceEvent("WatchFaceImpl.init apply userStyle").use {
+                    currentUserStyleRepository.userStyle =
+                        UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
+                }
+            } else {
+                TraceEvent("WatchFaceImpl.init apply userStyle from prefs").use {
+                    // The system doesn't support preference persistence we need to do it ourselves.
+                    val preferencesFile = "watchface_prefs_${_context.javaClass.name}.txt"
+
+                    currentUserStyleRepository.userStyle = UserStyle(
+                        UserStyleData(readPrefs(_context, preferencesFile)),
+                        currentUserStyleRepository.schema
+                    )
+
+                    currentUserStyleRepository.addUserStyleChangeListener(
+                        object : CurrentUserStyleRepository.UserStyleChangeListener {
+                            @SuppressLint("SyntheticAccessor")
+                            override fun onUserStyleChanged(userStyle: UserStyle) {
+                                writePrefs(_context, preferencesFile, userStyle)
+                            }
+                        }
+                    )
+                }
+            }
+
+            // We need to inhibit an immediate callback during initialization because members are
+            // not fully constructed and it will fail. It's also superfluous because we're going
+            // to render soon anyway.
+            var initFinished = false
+            complicationsManager.init(
+                this, calendar, renderer,
+                object : Complication.InvalidateListener {
+                    @SuppressWarnings("SyntheticAccessor")
+                    override fun onInvalidate() {
+                        // This could be called on any thread.
+                        uiThreadHandler.runOnHandlerWithTracing("onInvalidate") {
+                            if (initFinished) {
+                                getWatchFaceImplOrNull()?.invalidateIfNotAnimating()
+                            }
+                        }
+                    }
+                }
+            )
+            initFinished = true
         }
 
         override fun onVisibilityChanged(visible: Boolean): Unit = TraceEvent(
