@@ -20,7 +20,6 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -68,35 +67,31 @@ public class ProcessCameraProviderTest {
     }
 
     @Test
-    public fun uninitializedGetInstance_throwsISE() {
-        runBlocking {
-            assertThrows<IllegalStateException> {
-                ProcessCameraProvider.getInstance(context).await()
-            }
-        }
-    }
-
-    @Test
-    public fun canGetInstance_fromResources(): Unit = runBlocking {
-        // Wrap the context with a TestAppContextWrapper. This returns customized resources which
-        // will provide a CameraXConfig.Provider.
+    public fun canGetInstance_fromMetaData(): Unit = runBlocking {
+        // Check the static invocation count for the test CameraXConfig.Provider which is defined
+        // in the instrumentation test's AndroidManfiest.xml. It should be incremented after
+        // retrieving the ProcessCameraProvider.
+        val initialInvokeCount = TestMetaDataConfigProvider.invokeCount
         val contextWrapper = TestAppContextWrapper(context)
         provider = ProcessCameraProvider.getInstance(contextWrapper).await()
         assertThat(provider).isNotNull()
-        assertThat(contextWrapper.testResources.defaultProviderRetrieved).isTrue()
+        assertThat(TestMetaDataConfigProvider.invokeCount).isGreaterThan(initialInvokeCount)
     }
 
     @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
-    public fun configuredGetInstance_doesNotUseResources() {
+    public fun configuredGetInstance_doesNotUseMetaData() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking {
-            // Wrap the context with a TestAppContextWrapper. This returns customized resources
-            // which we can check whether a default config provider was provided.
+            // Check the static invocation count for the test CameraXConfig.Provider which is defined
+            // in the instrumentation test's AndroidManfiest.xml. It should NOT be incremented after
+            // retrieving the ProcessCameraProvider since the ProcessCameraProvider is explicitly
+            // configured.
+            val initialInvokeCount = TestMetaDataConfigProvider.invokeCount
             val contextWrapper = TestAppContextWrapper(context)
             provider = ProcessCameraProvider.getInstance(contextWrapper).await()
             assertThat(provider).isNotNull()
-            assertThat(contextWrapper.testResources.defaultProviderRetrieved).isFalse()
+            assertThat(TestMetaDataConfigProvider.invokeCount).isEqualTo(initialInvokeCount)
         }
     }
 
@@ -585,14 +580,8 @@ public class ProcessCameraProviderTest {
 private class TestAppContextWrapper(base: Context, val app: Application? = null) :
     ContextWrapper(base) {
 
-    val testResources = TestResources(base.resources)
-
-    override fun getApplicationContext(): Context? {
+    override fun getApplicationContext(): Context {
         return app ?: this
-    }
-
-    override fun getResources(): Resources {
-        return testResources
     }
 
     override fun createAttributionContext(attributionTag: String?): Context {
@@ -616,25 +605,5 @@ private class TestApplication(val pm: PackageManager) : Application(), CameraXCo
 
     override fun createAttributionContext(attributionTag: String?): Context {
         return this
-    }
-}
-
-@Suppress("DEPRECATION")
-private class TestResources(base: Resources) : Resources(
-    base.assets, base.displayMetrics,
-    base
-        .configuration
-) {
-
-    private val retrieved = atomic(false)
-    val defaultProviderRetrieved: Boolean
-        get() = retrieved.value
-
-    override fun getString(id: Int): String {
-        if (id == androidx.camera.core.R.string.androidx_camera_default_config_provider) {
-            retrieved.value = true
-            return FakeAppConfig.DefaultProvider::class.java.name
-        }
-        return super.getString(id)
     }
 }
