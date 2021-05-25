@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class DynamicNavGraphBuilderTest {
+public class DynamicNavGraphBuilderTest {
 
     private val provider = NavigatorProvider().apply {
         addNavigator(
@@ -46,7 +46,7 @@ class DynamicNavGraphBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun navigation() {
+    public fun navigation() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             moduleName = MODULE_NAME
             navDestination(DESTINATION_ID) {}
@@ -61,7 +61,7 @@ class DynamicNavGraphBuilderTest {
     }
 
     @Suppress("DEPRECATION")
-    fun navigation_emptyModuleName() {
+    public fun navigation_emptyModuleName() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
         }
         assertWithMessage("Without a moduleName the graph should be a NavGraph")
@@ -70,7 +70,7 @@ class DynamicNavGraphBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun progressDestination() {
+    public fun progressDestination() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             moduleName = MODULE_NAME
             progressDestination = PROGRESS_DESTINATION_ID
@@ -88,7 +88,7 @@ class DynamicNavGraphBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun progressDestination_notSet() {
+    public fun progressDestination_notSet() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             moduleName = MODULE_NAME
         } as DynamicGraphNavigator.DynamicNavGraph
@@ -99,7 +99,7 @@ class DynamicNavGraphBuilderTest {
     }
 
     @Test
-    fun navigationRoute() {
+    public fun navigationRoute() {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
             moduleName = MODULE_NAME
             navDestination(DESTINATION_ROUTE) {}
@@ -113,7 +113,7 @@ class DynamicNavGraphBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
-    fun navigation_emptyModuleNameRoute() {
+    public fun navigation_emptyModuleNameRoute() {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
         }
         assertWithMessage("Without a moduleName the graph should be a NavGraph")
@@ -121,7 +121,7 @@ class DynamicNavGraphBuilderTest {
     }
 
     @Test
-    fun progressDestinationRoute() {
+    public fun progressDestinationRoute() {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
             moduleName = MODULE_NAME
             progressDestinationRoute = PROGRESS_DESTINATION_ROUTE
@@ -138,7 +138,7 @@ class DynamicNavGraphBuilderTest {
     }
 
     @Test
-    fun progressDestination_notSetRoute() {
+    public fun progressDestination_notSetRoute() {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
             moduleName = MODULE_NAME
         } as DynamicGraphNavigator.DynamicNavGraph
@@ -160,16 +160,16 @@ private const val MODULE_NAME = "myModule"
  * added to a NavGraph (hence why this is not in the common-ktx library)
  */
 @Suppress("DEPRECATION")
-fun DynamicNavGraphBuilder.navDestination(
+public fun DynamicNavGraphBuilder.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
-) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(builder))
+): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(builder))
 
 /**
  * Create a base NavDestination. Generally, only subtypes of NavDestination should be
  * added to a NavGraph (hence why this is not in the common-ktx library)
  */
-fun DynamicNavGraphBuilder.navDestination(
+public fun DynamicNavGraphBuilder.navDestination(
     route: String,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
-) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))
+): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))
