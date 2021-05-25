@@ -77,6 +77,8 @@ dependencies {
     api(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(GUAVA_ANDROID)
     implementation(ESPRESSO_IDLING_RESOURCE)
+    // MLKit library: Barcode scanner
+    implementation(MLKIT_GMS_BARCODE, excludes.mlkit)
 
     // 3P library
     debugImplementation(LEAKCANARY)
