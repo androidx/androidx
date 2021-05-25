@@ -255,7 +255,9 @@ public final class TestAppAuthenticatorBuilder {
             @NonNull String packageName,
             @NonNull String certDigest) {
         mTestPolicy = POLICY_CUSTOM;
-        mAppSignatureVerifierBuilder.setSigningIdentityForPackage(packageName, certDigest);
+        mAppSignatureVerifierBuilder.setSigningIdentityForPackage(packageName,
+                AppAuthenticator.normalizeCertDigest(certDigest))
+        ;
         return this;
     }
 

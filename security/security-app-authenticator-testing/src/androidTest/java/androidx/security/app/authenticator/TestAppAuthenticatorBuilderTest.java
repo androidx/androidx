@@ -324,4 +324,21 @@ public class TestAppAuthenticatorBuilderTest {
         assertThrows(SecurityException.class, () ->
                 appAuthenticatorFromInputStream.enforceAppIdentity(EXPECTED_IDENTITY_PACKAGE));
     }
+
+    @Test
+    public void setSigningIdentityForPackage_digestCaseMismatch_returnsMatch() throws Exception {
+        // The TestAppAuthenticatorBuilder supports specifying a signing identity for a package
+        // under test; while the AppAuthenticator will normalize the digest in the config file to
+        // match the case output by the AppAuthenticatorUtils#computeDigest, the signing identity
+        // provided to the TestAppAuthenticatorBuilder#setSigningIdentityForPackage can be
+        // specified in either case. This test ensures regardless of the case provided to this
+        // method the value is normalized and a match can be successfully verified.
+        AppAuthenticator appAuthenticator =
+                mBuilderFromResource.setSigningIdentityForPackage(EXPECTED_IDENTITY_PACKAGE,
+                        "6A8B96E278E58F62CFE3584022CEC1D0527FCB85A9E5D2E1694EB0405BE5B599")
+                        .build();
+
+        assertEquals(AppAuthenticator.SIGNATURE_MATCH,
+                appAuthenticator.checkAppIdentity(EXPECTED_IDENTITY_PACKAGE));
+    }
 }
