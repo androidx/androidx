@@ -179,16 +179,6 @@ public final class VideoCapture extends UseCase {
             CamcorderProfile.QUALITY_720P,
             CamcorderProfile.QUALITY_480P
     };
-    /**
-     * Audio encoding
-     *
-     * <p>the result of PCM_8BIT and PCM_FLOAT are not good. Set PCM_16BIT as the first option.
-     */
-    private static final short[] sAudioEncoding = {
-            AudioFormat.ENCODING_PCM_16BIT,
-            AudioFormat.ENCODING_PCM_8BIT,
-            AudioFormat.ENCODING_PCM_FLOAT
-    };
 
     private final BufferInfo mVideoBufferInfo = new BufferInfo();
     private final Object mMuxerLock = new Object();
@@ -949,52 +939,50 @@ public final class VideoCapture extends UseCase {
     /** Create a AudioRecord object to get raw data */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureConfig config) {
-        for (short audioFormat : sAudioEncoding) {
+        // Use channel count to determine stereo vs mono
+        int channelConfig =
+                mAudioChannelCount == 1
+                        ? AudioFormat.CHANNEL_IN_MONO
+                        : AudioFormat.CHANNEL_IN_STEREO;
+        int source = config.getAudioRecordSource();
 
-            // Use channel count to determine stereo vs mono
-            int channelConfig =
-                    mAudioChannelCount == 1
-                            ? AudioFormat.CHANNEL_IN_MONO
-                            : AudioFormat.CHANNEL_IN_STEREO;
-            int source = config.getAudioRecordSource();
+        try {
+            // Use only ENCODING_PCM_16BIT because it mandatory supported.
+            int bufferSize =
+                    AudioRecord.getMinBufferSize(mAudioSampleRate, channelConfig,
+                            AudioFormat.ENCODING_PCM_16BIT);
 
-            try {
-                int bufferSize =
-                        AudioRecord.getMinBufferSize(mAudioSampleRate, channelConfig, audioFormat);
-
-                if (bufferSize <= 0) {
-                    bufferSize = config.getAudioMinBufferSize();
-                }
-
-                AudioRecord recorder =
-                        new AudioRecord(
-                                source,
-                                mAudioSampleRate,
-                                channelConfig,
-                                audioFormat,
-                                bufferSize * 2);
-
-                if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-                    mAudioBufferSize = bufferSize;
-                    Logger.i(
-                            TAG,
-                            "source: "
-                                    + source
-                                    + " audioSampleRate: "
-                                    + mAudioSampleRate
-                                    + " channelConfig: "
-                                    + channelConfig
-                                    + " audioFormat: "
-                                    + audioFormat
-                                    + " bufferSize: "
-                                    + bufferSize);
-                    return recorder;
-                }
-            } catch (Exception e) {
-                Logger.e(TAG, "Exception, keep trying.", e);
+            if (bufferSize <= 0) {
+                bufferSize = config.getAudioMinBufferSize();
             }
-        }
 
+            AudioRecord recorder =
+                    new AudioRecord(
+                            source,
+                            mAudioSampleRate,
+                            channelConfig,
+                            AudioFormat.ENCODING_PCM_16BIT,
+                            bufferSize * 2);
+
+            if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
+                mAudioBufferSize = bufferSize;
+                Logger.i(
+                        TAG,
+                        "source: "
+                                + source
+                                + " audioSampleRate: "
+                                + mAudioSampleRate
+                                + " channelConfig: "
+                                + channelConfig
+                                + " audioFormat: "
+                                + AudioFormat.ENCODING_PCM_16BIT
+                                + " bufferSize: "
+                                + bufferSize);
+                return recorder;
+            }
+        } catch (Exception e) {
+            Logger.e(TAG, "Exception, keep trying.", e);
+        }
         return null;
     }
 
@@ -1147,7 +1135,7 @@ public final class VideoCapture extends UseCase {
         private static final int DEFAULT_AUDIO_MIN_BUFFER_SIZE = 1024;
         /** Current max resolution of VideoCapture is set as FHD */
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
-        /** Surface occupancy prioirty to this use case */
+        /** Surface occupancy priority to this use case */
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 3;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_16_9;
 
