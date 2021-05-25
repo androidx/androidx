@@ -19,7 +19,7 @@ dexmaker = "2.25.0"
 espresso = "3.3.0"
 hilt = "2.35"
 incap = "0.2"
-kotlin = "1.5.0"
+kotlin = "1.5.10"
 kotlinCompileTesting = "1.4.0"
 kotlinCoroutines = "1.4.3"
 ksp = "1.5.0-1.0.0-alpha10"
@@ -99,7 +99,6 @@ kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.r
 kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.8.0" }
-kgpLeakPatcher = { module = "dev.zacsweers:kgp-150-leak-patcher", version="1.1.0" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 kspGradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
