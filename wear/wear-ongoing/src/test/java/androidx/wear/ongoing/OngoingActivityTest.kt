@@ -34,6 +34,7 @@ open class OngoingActivityTest {
     )
     private val NotificationId = 4321
     private val ChannelId = "ChannelId"
+    private val Title = "AppTitle"
 
     private lateinit var context: Context
     private lateinit var notificationManager: NotificationManager
@@ -78,6 +79,7 @@ open class OngoingActivityTest {
             .setOngoingActivityId(OaId)
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
+            .setTitle(Title)
             .build()
         oa.apply(context)
 
@@ -91,6 +93,7 @@ open class OngoingActivityTest {
         assertEquals(OaId, received.ongoingActivityId)
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
+        assertEquals(Title, received.title)
     }
 
     @Test
@@ -103,6 +106,7 @@ open class OngoingActivityTest {
             .setOngoingActivityId(OaId)
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
+            .setTitle(Title)
             .build()
         oa.apply(context)
         notificationManager.notify(NotificationId, builder.build())
@@ -126,6 +130,7 @@ open class OngoingActivityTest {
         assertEquals(OaId, received.ongoingActivityId)
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
+        assertEquals(Title, received.title)
 
         notificationManager.cancel(NotificationId)
     }
@@ -193,6 +198,7 @@ open class OngoingActivityTest {
             .setOngoingActivityId(OaId)
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
+            .setTitle(Title)
             .build()
         oa.apply(context)
         val notification = builder.build()
@@ -209,6 +215,7 @@ open class OngoingActivityTest {
         assertEquals(OaId, received.ongoingActivityId)
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
+        assertEquals(Title, received.title)
     }
 
     @Test

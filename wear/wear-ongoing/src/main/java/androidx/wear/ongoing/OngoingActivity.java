@@ -106,6 +106,7 @@ public final class OngoingActivity {
         private LocusIdCompat mLocusId;
         private int mOngoingActivityId = DEFAULT_ID;
         private String mCategory;
+        private String mTitle;
 
         static final int DEFAULT_ID = -1;
 
@@ -242,6 +243,16 @@ public final class OngoingActivity {
         }
 
         /**
+         * Sets the Title of this {@link OngoingActivity}, this could be used by the launcher to
+         * override the app's title.
+         */
+        @NonNull
+        public Builder setTitle(@NonNull String title) {
+            mTitle = title;
+            return this;
+        }
+
+        /**
          * Combine all options provided and the information in the notification if needed,
          * return a new {@link OngoingActivity} object.
          *
@@ -288,7 +299,8 @@ public final class OngoingActivity {
                         locusId == null ? null : locusId.getId(),
                         mOngoingActivityId,
                         category,
-                        SystemClock.elapsedRealtime()
+                        SystemClock.elapsedRealtime(),
+                        mTitle
                     ));
         }
     }
@@ -381,6 +393,14 @@ public final class OngoingActivity {
      */
     public long getTimestamp() {
         return mData.getTimestamp();
+    }
+
+    /**
+     * Get the title of this {@link OngoingActivity} if set.
+     */
+    @Nullable
+    public String getTitle() {
+        return mData.getTitle();
     }
 
     /**
