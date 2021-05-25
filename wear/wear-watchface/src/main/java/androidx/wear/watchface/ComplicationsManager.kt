@@ -33,6 +33,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.CurrentUserStyleRepository
