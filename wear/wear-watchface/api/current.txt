@@ -21,7 +21,7 @@ package androidx.wear.watchface {
   }
 
   public interface CanvasComplicationFactory {
-    method @UiThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
+    method @WorkerThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
   }
 
   public final class Complication {
@@ -121,20 +121,20 @@ package androidx.wear.watchface {
     enum_constant public static final androidx.wear.watchface.DrawMode MUTE;
   }
 
-  public final class MutableObservableWatchData<T> extends androidx.wear.watchface.ObservableWatchData<T> {
-    ctor public MutableObservableWatchData(T? initialValue);
-    ctor public MutableObservableWatchData();
-    method @UiThread public void setValue(T v);
-    property @UiThread public T value;
-  }
-
-  public class ObservableWatchData<T> {
+  public abstract sealed class ObservableWatchData<T> {
     method @UiThread public final void addObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread public T getValue();
     method @UiThread public final T getValueOr(T p);
     method @UiThread public final boolean hasValue();
     method @UiThread public final void removeObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread protected void setValue(T v);
+    property @UiThread public T value;
+  }
+
+  public static final class ObservableWatchData.MutableObservableWatchData<T> extends androidx.wear.watchface.ObservableWatchData<T> {
+    ctor public ObservableWatchData.MutableObservableWatchData(T? initialValue);
+    ctor public ObservableWatchData.MutableObservableWatchData();
+    method @UiThread public void setValue(T v);
     property @UiThread public T value;
   }
 

@@ -17,7 +17,7 @@
 package androidx.wear.watchface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
 
 /**
  * Factory for creating a CanvasComplication. This decouples construction of Complications and
@@ -26,7 +26,9 @@ import androidx.annotation.UiThread;
 // TODO(b/188035300): Put links into the comments.
 public interface CanvasComplicationFactory {
     /**
-     * Creates a CanvasComplication.
+     * Creates a CanvasComplication. This will be called on a background thread, however all
+     * CanvasComplication rendering will be done on the UI thread and there's a memory barrier
+     * between construction and usage so no special threading primitives are required.
      *
      * @param watchState The current WatchState
      * @param invalidateCallback The CanvasComplication.InvalidateCallback the constructed
@@ -36,7 +38,7 @@ public interface CanvasComplicationFactory {
      * @return The constructed CanvasComplication.
      */
     @NonNull
-    @UiThread
+    @WorkerThread
     @SuppressWarnings("ExecutorRegistration") // This is UI thread only.
     CanvasComplication create(
             @NonNull WatchState watchState,

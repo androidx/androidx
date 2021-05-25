@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package android.support.wearable.watchface {
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) android.support.wearable.watchface {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Constants {
     field public static final String ACTION_REQUEST_STATE = "com.google.android.wearable.watchfaces.action.REQUEST_STATE";
@@ -93,7 +93,7 @@ package android.support.wearable.watchface {
 
 }
 
-package android.support.wearable.watchface.accessibility {
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) android.support.wearable.watchface.accessibility {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class AccessibilityUtils {
     method public static android.support.wearable.complications.TimeDependentText generateContentDescription(android.content.Context, android.support.wearable.complications.ComplicationData);

@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package android.support.wearable.complications {
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) android.support.wearable.complications {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationData implements android.os.Parcelable {
     method public int describeContents();
