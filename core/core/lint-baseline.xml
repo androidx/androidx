@@ -46,39 +46,6 @@
     </issue>
 
     <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/core/widget/ContentLoadingProgressBar.java"
-            line="92"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/core/widget/ContentLoadingProgressBar.java"
-            line="118"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    private synchronized static File createFilesDir(File file) {"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="602"
-            column="5"/>
-    </issue>
-
-    <issue
         id="BanUncheckedReflection"
         message="Calling Method.invoke without an SDK check"
         errorLine1="                    requestRelaunchActivityMethod.invoke(activityThread,"
