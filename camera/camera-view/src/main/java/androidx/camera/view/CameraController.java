@@ -272,7 +272,7 @@ public abstract class CameraController {
      * Gets a {@link ListenableFuture} that completes when camera initialization completes.
      *
      * <p> This future may fail with an {@link InitializationException} and associated cause that
-     * can be retrieved by {@link Throwable#getCause()). The cause will be a
+     * can be retrieved by {@link Throwable#getCause()}. The cause will be a
      * {@link CameraUnavailableException} if it fails to access any camera during initialization.
      *
      * <p> In the rare case that the future fails with {@link CameraUnavailableException}, the
