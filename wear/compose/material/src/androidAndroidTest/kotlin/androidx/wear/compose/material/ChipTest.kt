@@ -19,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -45,6 +47,7 @@ import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -254,6 +257,108 @@ class ChipSizeTest {
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
 
+    @Test
+    fun icon_only_compact_chip_has_correct_default_width_and_height() {
+        val iconTag = "TestIcon"
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactChip(
+                    onClick = {},
+                    modifier = Modifier.testTag(chipTag),
+                    icon = { CreateImage(iconTag) }
+                )
+            }
+
+        rule.onRoot().assertWidthIsEqualTo(52.dp).assertHeightIsEqualTo(32.dp)
+    }
+
+    @Test
+    fun label_only_compact_chip_has_correct_default_height() {
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactChip(
+                    onClick = {},
+                    modifier = Modifier.testTag(chipTag),
+                    label = { Text("Test") }
+                )
+            }
+
+        rule.onRoot().assertHeightIsEqualTo(32.dp)
+    }
+
+    @Test
+    fun no_content_compact_chip_has_correct_default_width_and_height() {
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactChip(
+                    onClick = {},
+                    modifier = Modifier.testTag(chipTag),
+                )
+            }
+
+        rule.onRoot().assertWidthIsEqualTo(52.dp).assertHeightIsEqualTo(32.dp)
+    }
+
+    @Test
+    fun icon_only_compact_chip_can_have_width_overridden() {
+        val iconTag = "TestIcon"
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactChip(
+                    onClick = {},
+                    modifier = Modifier.testTag(chipTag).width(100.dp),
+                    icon = { CreateImage(iconTag) }
+                )
+            }
+
+        rule.onRoot().assertWidthIsEqualTo(100.dp)
+    }
+
+    @Test
+    fun has_icon_in_correct_location_when_compact_chip() {
+        val iconTag = "TestIcon"
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactChip(
+                    onClick = {},
+                    label = { Text("Blue green orange") },
+                    icon = { CreateImage(iconTag) },
+                    modifier = Modifier.testTag(chipTag)
+                )
+            }
+        val itemBounds = rule.onNodeWithTag(chipTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(iconTag, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+
+        rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
+            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+
+    @Test
+    fun has_icon_in_correct_location_when_icon_only_chip() {
+        val iconTag = "TestIcon"
+        val chipTag = "chip"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactChip(
+                    onClick = {},
+                    modifier = Modifier.testTag(chipTag),
+                    icon = { CreateImage(iconTag) }
+                )
+            }
+        val itemBounds = rule.onNodeWithTag(chipTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(iconTag, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+
+        rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
+            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+
     private fun verifyHeight(expectedHeight: Dp) {
         rule.verifyHeight(expectedHeight) {
             Chip(
@@ -281,13 +386,25 @@ class ChipColorTest {
 
     @Test
     fun three_slot_layout_gives_primary_enabled_colors() =
-        verifyThreeSlotColors(
+        verifySlotColors(
             TestChipColors.Primary,
             ChipStatus.Enabled,
             { MaterialTheme.colors.primary },
             { MaterialTheme.colors.onPrimary },
             { MaterialTheme.colors.onPrimary },
             { MaterialTheme.colors.onPrimary }
+        )
+
+    @Test
+    fun compact_chip_gives_primary_enabled_colors() =
+        verifySlotColors(
+            TestChipColors.Primary,
+            ChipStatus.Enabled,
+            { MaterialTheme.colors.primary },
+            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.onPrimary },
+            compactChip = true
         )
 
     @Test
@@ -301,7 +418,7 @@ class ChipColorTest {
 
     @Test
     fun three_slot_layout_gives_primary_disabled_colors() =
-        verifyThreeSlotColors(
+        verifySlotColors(
             TestChipColors.Primary,
             ChipStatus.Disabled,
             { MaterialTheme.colors.primary },
@@ -321,7 +438,7 @@ class ChipColorTest {
 
     @Test
     fun three_slot_layout_gives_secondary_enabled_colors() =
-        verifyThreeSlotColors(
+        verifySlotColors(
             TestChipColors.Secondary,
             ChipStatus.Enabled,
             { MaterialTheme.colors.surface },
@@ -341,13 +458,25 @@ class ChipColorTest {
 
     @Test
     fun three_slot_layout_gives_secondary_disabled_colors() =
-        verifyThreeSlotColors(
+        verifySlotColors(
             TestChipColors.Secondary,
             ChipStatus.Enabled,
             { MaterialTheme.colors.surface },
             { MaterialTheme.colors.onSurface },
             { MaterialTheme.colors.onSurface },
             { MaterialTheme.colors.onSurface }
+        )
+
+    @Test
+    fun compact_chip_gives_secondary_disabled_colors() =
+        verifySlotColors(
+            TestChipColors.Secondary,
+            ChipStatus.Enabled,
+            { MaterialTheme.colors.surface },
+            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.onSurface },
+            compactChip = true
         )
 
     @Test
@@ -531,13 +660,14 @@ class ChipColorTest {
         }
     }
 
-    private fun verifyThreeSlotColors(
+    private fun verifySlotColors(
         testChipColors: TestChipColors,
         status: ChipStatus,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
         secondaryContentColor: @Composable () -> Color,
-        iconColor: @Composable () -> Color
+        iconColor: @Composable () -> Color,
+        compactChip: Boolean = false
     ) {
         var expectedBackground = Color.Transparent
         var expectedContent = Color.Transparent
@@ -559,28 +689,43 @@ class ChipColorTest {
                     .fillMaxSize()
                     .background(expectedBackground)
             ) {
-                Chip(
-                    onClick = {},
-                    colors = testChipColors.chipColors(),
-                    label = { actualContent = LocalContentColor.current },
-                    secondaryLabel = { actualSecondaryContent = LocalContentColor.current },
-                    icon = { actualIcon = LocalContentColor.current },
-                    enabled = status.enabled(),
-                    modifier = Modifier.testTag("test-item")
-                )
+                if (compactChip) {
+                    CompactChip(
+                        onClick = {},
+                        colors = testChipColors.chipColors(),
+                        label = { actualContent = LocalContentColor.current },
+                        icon = { actualIcon = LocalContentColor.current },
+                        enabled = status.enabled(),
+                        modifier = Modifier.testTag("test-item")
+                    )
+                } else {
+                    Chip(
+                        onClick = {},
+                        colors = testChipColors.chipColors(),
+                        label = { actualContent = LocalContentColor.current },
+                        secondaryLabel = { actualSecondaryContent = LocalContentColor.current },
+                        icon = { actualIcon = LocalContentColor.current },
+                        enabled = status.enabled(),
+                        modifier = Modifier.testTag("test-item")
+                    )
+                }
             }
         }
 
         if (status.enabled()) {
             assertEquals(expectedContent, actualContent)
-            assertEquals(expectedSecondaryContent, actualSecondaryContent)
+            if (! compactChip) {
+                assertEquals(expectedSecondaryContent, actualSecondaryContent)
+            }
             assertEquals(expectedIcon, actualIcon)
         } else {
             assertEquals(expectedContent.copy(alpha = expectedAlpha), actualContent)
-            assertEquals(
-                expectedSecondaryContent.copy(alpha = expectedAlpha),
-                actualSecondaryContent
-            )
+            if (! compactChip) {
+                assertEquals(
+                    expectedSecondaryContent.copy(alpha = expectedAlpha),
+                    actualSecondaryContent
+                )
+            }
             assertEquals(expectedIcon.copy(alpha = expectedAlpha), actualIcon)
         }
 
