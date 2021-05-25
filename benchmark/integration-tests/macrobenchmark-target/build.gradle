@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
 
 plugins {
     id("AndroidXPlugin")
@@ -33,10 +33,10 @@ android {
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
-    implementation(MATERIAL)
+    implementation(libs.material)
 }
