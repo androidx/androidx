@@ -35,6 +35,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -3338,6 +3339,7 @@ class PageFetcherSnapshotTest {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun pageEventSentAfterChannelClosed() {
         val pager = PageFetcherSnapshot(

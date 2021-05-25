@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -73,6 +74,7 @@ internal class Controller3AUpdate3ATest {
         assertThat(result.getCompletionExceptionOrNull() is CancellationException)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfModeUpdate(): Unit = runBlocking {
         initGraphProcessor()
@@ -100,6 +102,7 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAeModeUpdate(): Unit = runBlocking {
         initGraphProcessor()
@@ -128,6 +131,7 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAwbModeUpdate(): Unit = runBlocking {
         initGraphProcessor()
@@ -156,6 +160,7 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfRegionsUpdate(): Unit = runBlocking {
         initGraphProcessor()
@@ -184,6 +189,7 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAeRegionsUpdate(): Unit = runBlocking {
         initGraphProcessor()
@@ -212,6 +218,7 @@ internal class Controller3AUpdate3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAwbRegionsUpdate(): Unit = runBlocking {
         initGraphProcessor()

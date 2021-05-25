@@ -36,6 +36,7 @@ import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.functions.Cancellable
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -343,6 +344,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
         return buildObservable().toFlowable(backpressureStrategy)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Suppress("DEPRECATION")
     internal class PagingObservableOnSubscribe<Key : Any, Value : Any>(
         initialLoadKey: Key?,

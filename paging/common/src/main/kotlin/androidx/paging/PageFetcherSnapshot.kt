@@ -100,7 +100,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         // Wrap collection behind a RendezvousChannel to prevent the RetryChannel from buffering
         // retry signals.
         val retryChannel = Channel<Unit>(Channel.RENDEZVOUS)
-        launch { retryFlow.collect { retryChannel.offer(it) } }
+        launch { retryFlow.collect { retryChannel.trySend(it) } }
 
         // Start collection on retry signals.
         launch {

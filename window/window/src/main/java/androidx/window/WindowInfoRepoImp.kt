@@ -100,7 +100,7 @@ internal class WindowInfoRepoImp(
      */
     override val windowLayoutInfo: Flow<WindowLayoutInfo>
         get() = callbackFlow {
-            val callback = Consumer<WindowLayoutInfo> { info -> offer(info) }
+            val callback = Consumer<WindowLayoutInfo> { info -> trySend(info) }
             windowBackend.registerLayoutChangeCallback(activity, Runnable::run, callback)
             awaitClose { windowBackend.unregisterLayoutChangeCallback(callback) }
         }.buffer(capacity = UNLIMITED)

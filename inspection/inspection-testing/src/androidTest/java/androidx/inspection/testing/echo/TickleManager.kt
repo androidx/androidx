@@ -33,6 +33,6 @@ object TickleManager {
     }
 
     fun tickle() {
-        channel.offer(Unit)
+        channel.trySend(Unit)
     }
 }

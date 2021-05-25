@@ -24,6 +24,7 @@ import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -372,6 +373,7 @@ class AudioEncoderTest {
         private val started = AtomicBoolean(false)
         private var job: Job? = null
 
+        @OptIn(DelicateCoroutinesApi::class)
         fun start() {
             if (started.getAndSet(true)) {
                 return

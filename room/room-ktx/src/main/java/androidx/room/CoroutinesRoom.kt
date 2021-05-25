@@ -21,6 +21,7 @@ import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.sqlite.db.SupportSQLiteCompat
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
@@ -65,6 +66,7 @@ public class CoroutinesRoom private constructor() {
             }
         }
 
+        @OptIn(DelicateCoroutinesApi::class)
         @JvmStatic
         public suspend fun <R> execute(
             db: RoomDatabase,
@@ -110,10 +112,10 @@ public class CoroutinesRoom private constructor() {
                 val observerChannel = Channel<Unit>(Channel.CONFLATED)
                 val observer = object : InvalidationTracker.Observer(tableNames) {
                     override fun onInvalidated(tables: MutableSet<String>) {
-                        observerChannel.offer(Unit)
+                        observerChannel.trySend(Unit)
                     }
                 }
-                observerChannel.offer(Unit) // Initial signal to perform first query.
+                observerChannel.trySend(Unit) // Initial signal to perform first query.
                 val queryContext = coroutineContext[TransactionElement]?.transactionDispatcher
                     ?: if (inTransaction) db.transactionDispatcher else db.queryDispatcher
                 val resultChannel = Channel<R>()
