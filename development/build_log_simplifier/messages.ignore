@@ -169,6 +169,7 @@ Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work 
 Please consult deprecation warnings for more details\.
 See https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/userguide\/command_line_interface\.html\#sec\:command_line_warnings
 BUILD SUCCESSFUL in .*
+The remote build cache was disabled during the build due to errors\.
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
@@ -181,6 +182,7 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
+\$OUT_DIR/androidx/profileinstaller/profileinstaller\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -1130,3 +1132,7 @@ Stripped invalid locals information from [0-9]+ method\.
 java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 # > Task :compose:runtime:runtime-saveable-lint:compileKotlin
 at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$GradleKotlinCompilerWorkAction\.execute\(GradleCompilerRunnerWithWorkers\.kt\:[0-9]+\)
+# > Task :buildSrc:jetpad-integration:compileJava
+Could not store entry [0-9a-f]{32} in remote build cache: Storing entry at 'http://gradle\-remote\-cache\.uplink\.goog:[0-9]+/cache/[0-9a-f]{32}' response status [0-9]+: Uplink Bad Gateway
+# > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:

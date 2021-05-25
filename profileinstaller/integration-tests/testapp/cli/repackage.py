@@ -119,8 +119,6 @@ def repackage_jar(apk_src, profile, apk_dest, tmp_dir, apksigner):
     working_dir.mkdir()
     working_apk = working_dir / Path("working.apk")
     shutil.copyfile(apk_src, working_apk)
-    print(f"copying to {SUPPORT_PATH / Path('baseline.prof')}")
-    shutil.copyfile(profile, SUPPORT_PATH / Path("baseline.prof"))
     with ZipFile(working_apk, 'a') as zip:
         profile_destination = Path('assets/dexopt/') / Path(APK_PROFILE_FILE)
         if str(profile_destination) in [it.filename for it in zip.infolist()]:

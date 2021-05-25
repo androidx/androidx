@@ -507,6 +507,7 @@ includeProject(":profileinstaller:profileinstaller", "profileinstaller/profilein
 includeProject(":profileinstaller:integration-tests:init-macrobenchmark", "profileinstaller/integration-tests/init-macrobenchmark", [BuildType.MAIN])
 includeProject(":profileinstaller:integration-tests:init-macrobenchmark-target", "profileinstaller/integration-tests/init-macrobenchmark-target", [BuildType.MAIN])
 includeProject(":profileinstaller:integration-tests:testapp", "profileinstaller/integration-tests/testapp", [BuildType.COMPOSE])
+includeProject(":profileinstaller:profileinstaller-benchmark", "profileinstaller/profileinstaller-benchmark", [BuildType.MAIN])
 includeProject(":recommendation:recommendation", "recommendation/recommendation", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview", "recyclerview/recyclerview", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview-benchmark", "recyclerview/recyclerview-benchmark", [BuildType.MAIN])
