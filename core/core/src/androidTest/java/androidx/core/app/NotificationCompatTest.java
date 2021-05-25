@@ -556,6 +556,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void testNotificationBuilder_foregroundServiceBehavior() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
+        assertEquals(NotificationCompat.FOREGROUND_SERVICE_DEFAULT,
+                builder.getForegroundServiceBehavior());
+        builder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);
+        assertEquals(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE,
+                builder.getForegroundServiceBehavior());
+
+        // TODO: validate the built Notifications once there's testing API there
+    }
+
+    @Test
     public void testNotificationBuilder_createContentView() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
         assertNull(builder.getContentView());
