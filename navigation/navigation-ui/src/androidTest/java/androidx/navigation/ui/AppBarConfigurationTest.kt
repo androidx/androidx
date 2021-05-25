@@ -42,6 +42,7 @@ class AppBarConfigurationTest {
         context = InstrumentationRegistry.getInstrumentation().targetContext
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testTopLevelFromGraph() {
         val navGraph = NavController(context).apply {

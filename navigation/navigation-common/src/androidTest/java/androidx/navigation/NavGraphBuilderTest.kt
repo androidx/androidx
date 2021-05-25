@@ -32,6 +32,7 @@ class NavGraphBuilderTest {
         addNavigator(NoOpNavigator())
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navigation() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -54,6 +55,7 @@ class NavGraphBuilderTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navigationUnaryPlus() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -80,6 +82,7 @@ class NavGraphBuilderTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navigationAddDestination() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -108,6 +111,7 @@ class NavGraphBuilderTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test(expected = IllegalStateException::class)
     fun navigationMissingStartDestination() {
         provider.navigation(startDestination = 0) {
@@ -124,6 +128,7 @@ class NavGraphBuilderTest {
         fail("NavGraph should throw IllegalStateException if no startDestinationRoute is set")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navigationNested() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -158,6 +163,7 @@ private const val SECOND_DESTINATION_ROUTE = "second"
  * Create a base NavDestination. Generally, only subtypes of NavDestination should be
  * added to a NavGraph (hence why this is not in the common-ktx library)
  */
+@Suppress("DEPRECATION")
 fun NavGraphBuilder.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit

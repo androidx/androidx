@@ -37,6 +37,7 @@ inline fun NavGraphBuilder.test(route: String) = test(route) {}
 /**
  * Construct a new [TestNavigator.Destination]
  */
+@Suppress("DEPRECATION")
 inline fun NavGraphBuilder.test(
     @IdRes id: Int,
     builder: TestNavigatorDestinationBuilder.() -> Unit
@@ -62,6 +63,7 @@ inline fun NavGraphBuilder.test(
  */
 @NavDestinationDsl
 class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Destination> {
+    @Suppress("DEPRECATION")
     constructor(navigator: TestNavigator, @IdRes id: Int = 0) : super(navigator, id)
     constructor(navigator: TestNavigator, route: String) : super(navigator, route)
 }

@@ -27,6 +27,11 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DialogFragmentDestination instead",
+    ReplaceWith("dialog<F>(route = id.toString())")
+)
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int
 ): Unit = dialog<F>(id) {}
@@ -34,6 +39,11 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DialogFragmentDestination instead",
+    ReplaceWith("dialog<F>(route = id.toString()) { builder.invoke() }")
+)
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
@@ -74,6 +84,14 @@ public class DialogFragmentNavigatorDestinationBuilder :
 
     private var fragmentClass: KClass<out DialogFragment>
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your DialogFragmentNavigatorDestination instead",
+        ReplaceWith(
+            "DialogFragmentNavigatorDestinationBuilder(navigator, route = id.toString(), " +
+                "fragmentClass) "
+        )
+    )
     public constructor(
         navigator: DialogFragmentNavigator,
         @IdRes id: Int,

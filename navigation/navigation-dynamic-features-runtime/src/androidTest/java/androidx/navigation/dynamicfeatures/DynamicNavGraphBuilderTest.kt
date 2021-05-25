@@ -44,6 +44,7 @@ class DynamicNavGraphBuilderTest {
         addNavigator(NoOpNavigator())
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navigation() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -59,6 +60,7 @@ class DynamicNavGraphBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     fun navigation_emptyModuleName() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
         }
@@ -66,6 +68,7 @@ class DynamicNavGraphBuilderTest {
             .that(graph !is DynamicGraphNavigator.DynamicNavGraph)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun progressDestination() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -83,6 +86,7 @@ class DynamicNavGraphBuilderTest {
             .isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun progressDestination_notSet() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -155,6 +159,7 @@ private const val MODULE_NAME = "myModule"
  * Create a base NavDestination. Generally, only subtypes of NavDestination should be
  * added to a NavGraph (hence why this is not in the common-ktx library)
  */
+@Suppress("DEPRECATION")
 fun DynamicNavGraphBuilder.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit

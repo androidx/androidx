@@ -43,6 +43,7 @@ class NavBackStackEntryLifecycleTest {
     /**
      * Test that navigating between siblings correctly stops the previous sibling.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycle() {
@@ -105,6 +106,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from a sibling to a FloatingWindow sibling leaves the previous
      * destination started.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleWithDialog() {
@@ -167,6 +169,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNested() {
@@ -232,6 +235,7 @@ class NavBackStackEntryLifecycleTest {
      * FloatingWindow siblings correctly moves both the previous destination and its graph to
      * started.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedWithDialog() {
@@ -299,6 +303,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedOrdering() {
@@ -394,6 +399,7 @@ class NavBackStackEntryLifecycleTest {
      * FloatingWindow siblings correctly moves both the previous destination and its graph to
      * started.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedOrderingWithDialog() {
@@ -476,6 +482,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that popping the last destination in a graph while navigating to a new
      * destination in that graph keeps the graph around
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleReplaceLastDestination() {
@@ -533,6 +540,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that popping the last destination in a graph while navigating correctly
      * cleans up the previous navigation graph
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleOrphanedGraph() {
@@ -590,6 +598,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph leaves the previous instance in its
      * current state.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeated() {
@@ -663,6 +672,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph back to back with its previous
      * instance creates a brand new graph instance
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedBackToBack() {
@@ -722,6 +732,7 @@ class NavBackStackEntryLifecycleTest {
      * last destination from the previous instance of the graph correctly cleans up
      * the orphaned graph and creates a new graph instance.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedBackToBackWithOrphanedGraph() {
@@ -789,6 +800,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph via a deep link to a FloatingWindow
      * destination leaves the previous instance in its current state.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedWithDialog() {
@@ -861,6 +873,7 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleToDestroyedWhenInitialized() {

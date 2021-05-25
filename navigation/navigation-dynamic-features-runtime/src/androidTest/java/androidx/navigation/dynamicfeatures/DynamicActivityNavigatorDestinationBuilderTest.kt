@@ -46,6 +46,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
             )
         }
 
+    @Suppress("DEPRECATION")
     @Test
     fun module() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -60,6 +61,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun noModule() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -71,6 +73,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
         ).isNull()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun activity() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -90,6 +93,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun noActivity() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -102,6 +106,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
         ).isNull()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun modulePackage() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {

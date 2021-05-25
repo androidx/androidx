@@ -44,6 +44,7 @@ class DynamicIncludeNavGraphBuilderTest {
         navigatorProvider += NoOpNavigator()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun includeDynamic() {
         val graph = navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
@@ -65,6 +66,7 @@ class DynamicIncludeNavGraphBuilderTest {
             .isEqualTo(GRAPH_RESOURCE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     fun includeDynamic_emptyModuleName() {
         navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
             try {
@@ -76,6 +78,7 @@ class DynamicIncludeNavGraphBuilderTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun includeDynamic_graphPackage_null() {
         val graph = navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
@@ -87,6 +90,7 @@ class DynamicIncludeNavGraphBuilderTest {
             .that(includeDynamic.graphPackage).isEqualTo("${context.packageName}.$MODULE_NAME")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun includeDynamic_graphPackage_empty() {
         navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
@@ -101,6 +105,7 @@ class DynamicIncludeNavGraphBuilderTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun includeDynamic_graphResourceName_empty() {
         navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {

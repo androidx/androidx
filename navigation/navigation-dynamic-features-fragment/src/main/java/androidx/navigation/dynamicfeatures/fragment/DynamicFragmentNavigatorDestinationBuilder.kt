@@ -29,6 +29,11 @@ import androidx.navigation.get
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DynamicFragmentDestination instead",
+    ReplaceWith("fragment(route = id.toString())")
+)
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int
 ): Unit = fragment<F>(id) {}
@@ -37,6 +42,11 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DynamicFragmentDestination instead",
+    ReplaceWith("fragment(route = id.toString()) { builder.invoke() }")
+)
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
@@ -47,6 +57,11 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
  * @param id Destination id.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DynamicFragmentDestination instead",
+    ReplaceWith("fragment(route = id.toString(), fragmentClassName) { builder.invoke() }")
+)
 public inline fun DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     fragmentClassName: String,
@@ -102,6 +117,14 @@ public class DynamicFragmentNavigatorDestinationBuilder :
 
     private var fragmentClassName: String
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to create your DynamicFragmentDestinationBuilder instead",
+        ReplaceWith(
+            "DynamicFragmentNavigatorDestinationBuilder(navigator, route = id.toString(), " +
+                "fragmentClassName)"
+        )
+    )
     public constructor(
         navigator: DynamicFragmentNavigator,
         @IdRes id: Int,
