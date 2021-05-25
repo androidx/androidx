@@ -56,6 +56,7 @@ class NavGraphViewModelLazyTest {
             navigatorProvider += TestNavigator()
         }
 
+    @Suppress("DEPRECATION")
     @Test
     fun vmInitialization() {
         val scenario = launchFragmentInContainer<TestVMFragment>()

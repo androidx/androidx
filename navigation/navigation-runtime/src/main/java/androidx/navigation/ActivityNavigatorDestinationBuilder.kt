@@ -28,6 +28,11 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [ActivityNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to build your ActivityDestination instead",
+    ReplaceWith("activity(route = id.toString()) { builder.invoke() }")
+)
 public inline fun NavGraphBuilder.activity(
     @IdRes id: Int,
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
@@ -59,6 +64,11 @@ public class ActivityNavigatorDestinationBuilder :
     NavDestinationBuilder<ActivityNavigator.Destination> {
     private var context: Context
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to create your ActivityNavigatorDestinationBuilder instead",
+        ReplaceWith("ActivityNavigatorDestinationBuilder(navigator, route = id.toString())")
+    )
     public constructor(navigator: ActivityNavigator, @IdRes id: Int) : super(navigator, id) {
         context = navigator.context
     }

@@ -32,6 +32,7 @@ class ActivityNavigatorDestinationBuilderTest {
     private val navController =
         NavController(ApplicationProvider.getApplicationContext() as android.content.Context)
 
+    @Suppress("DEPRECATION")
     @Test
     fun activity() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -50,6 +51,7 @@ class ActivityNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun activityPackage() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -65,6 +67,7 @@ class ActivityNavigatorDestinationBuilderTest {
             .isEqualTo(PACKAGE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun activityClass() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -83,6 +86,7 @@ class ActivityNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun action() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -101,6 +105,7 @@ class ActivityNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun data() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -119,6 +124,7 @@ class ActivityNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun dataPattern() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {

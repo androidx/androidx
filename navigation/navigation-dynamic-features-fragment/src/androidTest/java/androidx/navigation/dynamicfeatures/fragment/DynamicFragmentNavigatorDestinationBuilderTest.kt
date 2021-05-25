@@ -40,6 +40,7 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
     )
     private val fragmentManager get() = rule.withActivity { supportFragmentManager }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     public fun reified() {
@@ -56,6 +57,7 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(TestFragment::class.java.name)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     public fun moduleName() {
@@ -77,6 +79,7 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     public fun no_moduleName() {

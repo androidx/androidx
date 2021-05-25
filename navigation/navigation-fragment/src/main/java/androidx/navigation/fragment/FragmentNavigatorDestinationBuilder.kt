@@ -27,6 +27,11 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [FragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your FragmentDestination instead",
+    ReplaceWith("fragment<F>(route = id.toString())")
+)
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int
 ): Unit = fragment<F>(id) {}
@@ -34,6 +39,11 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 /**
  * Construct a new [FragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your FragmentDestination instead",
+    ReplaceWith("fragment<F>(route = id.toString()) { builder.invoke() }")
+)
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
@@ -75,6 +85,13 @@ public class FragmentNavigatorDestinationBuilder :
 
     private var fragmentClass: KClass<out Fragment>
 
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your FragmentNavigatorDestination instead",
+        ReplaceWith(
+            "FragmentNavigatorDestinationBuilder(navigator, route = id.toString(), fragmentClass) "
+        )
+    )
     public constructor(
         navigator: FragmentNavigator,
         @IdRes id: Int,
