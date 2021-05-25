@@ -45,6 +45,7 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import java.util.Locale
 import javax.lang.model.element.Modifier
 
 const val L = "\$L"
@@ -362,8 +363,12 @@ private class ClassWithArgsSpecs(
     ).initializer("new $T()", HASHMAP_CLASSNAME).build()
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
-        @Suppress("DEPRECATION") // b/187985877
-        MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
+        val capitalizedName = arg.sanitizedName.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }
+        MethodSpec.methodBuilder("set$capitalizedName").apply {
             addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
             addAnnotation(suppressAnnotationSpec)
             addModifiers(Modifier.PUBLIC)
@@ -516,9 +521,14 @@ private class ClassWithArgsSpecs(
         returns(TypeName.BOOLEAN)
     }.build()
 
-    private fun getterFromArgName(sanitizedName: String, suffix: String = "") =
-        @Suppress("DEPRECATION") // b/187985877
-        "get${sanitizedName.capitalize()}$suffix"
+    private fun getterFromArgName(sanitizedName: String, suffix: String = ""): String {
+        val capitalizedName = sanitizedName.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.getDefault()
+            ) else it.toString()
+        }
+        return "get${capitalizedName}$suffix"
+    }
 
     fun hashCodeMethod(
         additionalCode: CodeBlock? = null
