@@ -26,7 +26,7 @@ import androidx.fragment.app.Fragment;
 public final class FragmentTagUsageViolation extends Violation {
 
     @Nullable
-    private ViewGroup mContainer;
+    private final ViewGroup mContainer;
 
     FragmentTagUsageViolation(@NonNull Fragment fragment, @Nullable ViewGroup container) {
         super(fragment);

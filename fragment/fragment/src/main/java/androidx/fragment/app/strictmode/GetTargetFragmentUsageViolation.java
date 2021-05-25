@@ -19,21 +19,10 @@ package androidx.fragment.app.strictmode;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-/** See #{@link FragmentStrictMode.Policy.Builder#detectSetUserVisibleHint()}. */
-public final class SetUserVisibleHintViolation extends Violation {
+/** See #{@link FragmentStrictMode.Policy.Builder#detectTargetFragmentUsage()}. */
+public final class GetTargetFragmentUsageViolation extends TargetFragmentUsageViolation {
 
-    private final boolean mIsVisibleToUser;
-
-    SetUserVisibleHintViolation(@NonNull Fragment fragment, boolean isVisibleToUser) {
+    GetTargetFragmentUsageViolation(@NonNull Fragment fragment) {
         super(fragment);
-        this.mIsVisibleToUser = isVisibleToUser;
-    }
-
-    /**
-     * Indicates what the {@code isVisibleToUser} field for the {@link Fragment} causing the
-     * Violation was being set to.
-     */
-    public boolean isVisibleToUser() {
-        return mIsVisibleToUser;
     }
 }

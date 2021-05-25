@@ -320,9 +320,10 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onRetainInstanceUsage(@NonNull Fragment fragment) {
-        Violation violation = new RetainInstanceUsageViolation(fragment);
+    public static void onSetRetainInstanceUsage(@NonNull Fragment fragment) {
+        Violation violation = new SetRetainInstanceUsageViolation(fragment);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
@@ -333,9 +334,24 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
-        Violation violation = new SetUserVisibleHintViolation(fragment);
+    public static void onGetRetainInstanceUsage(@NonNull Fragment fragment) {
+        Violation violation = new GetRetainInstanceUsageViolation(fragment);
+        logIfDebuggingEnabled(violation);
+
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.mFlags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)
+                && shouldHandlePolicyViolation(
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onSetUserVisibleHint(@NonNull Fragment fragment, boolean isVisibleToUser) {
+        Violation violation = new SetUserVisibleHintViolation(fragment, isVisibleToUser);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
@@ -346,9 +362,42 @@ public final class FragmentStrictMode {
         }
     }
 
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onTargetFragmentUsage(@NonNull Fragment fragment) {
-        Violation violation = new TargetFragmentUsageViolation(fragment);
+    public static void onSetTargetFragmentUsage(
+            @NonNull Fragment violatingFragment,
+            @NonNull Fragment targetFragment,
+            int requestCode) {
+        Violation violation = new SetTargetFragmentUsageViolation(
+                violatingFragment, targetFragment, requestCode);
+        logIfDebuggingEnabled(violation);
+
+        Policy policy = getNearestPolicy(violatingFragment);
+        if (policy.mFlags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)
+                && shouldHandlePolicyViolation(
+                policy, violatingFragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onGetTargetFragmentUsage(@NonNull Fragment fragment) {
+        Violation violation = new GetTargetFragmentUsageViolation(fragment);
+        logIfDebuggingEnabled(violation);
+
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.mFlags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)
+                && shouldHandlePolicyViolation(
+                policy, fragment.getClass(), violation.getClass())) {
+            handlePolicyViolation(policy, violation);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onGetTargetFragmentRequestCodeUsage(@NonNull Fragment fragment) {
+        Violation violation = new GetTargetFragmentRequestCodeUsageViolation(fragment);
         logIfDebuggingEnabled(violation);
 
         Policy policy = getNearestPolicy(fragment);
@@ -397,7 +446,16 @@ public final class FragmentStrictMode {
             @NonNull Class<? extends Violation> violationClass) {
         Set<Class<? extends Violation>> violationsToBypass =
                 policy.mAllowedViolations.get(fragmentClass);
-        return violationsToBypass == null || !violationsToBypass.contains(violationClass);
+        if (violationsToBypass == null) {
+            return true;
+        }
+
+        if (violationClass.getSuperclass() != Violation.class) {
+            if (violationsToBypass.contains(violationClass.getSuperclass())) {
+                return false;
+            }
+        }
+        return !violationsToBypass.contains(violationClass);
     }
 
     private static void handlePolicyViolation(
