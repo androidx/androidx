@@ -494,7 +494,6 @@ package androidx.fragment.app.strictmode {
 
   public final class FragmentStrictMode {
     method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onWrongFragmentContainer(androidx.fragment.app.Fragment);
     method public static void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
   }
 
@@ -557,6 +556,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
+    method public android.view.ViewGroup getContainer();
   }
 
 }
