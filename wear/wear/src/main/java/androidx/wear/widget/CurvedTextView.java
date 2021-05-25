@@ -40,6 +40,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
@@ -907,6 +909,18 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     public void setFontVariationSettings(@Nullable String value) {
         mFontVariationSettings = value;
         doUpdate();
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        info.setText(mText);
+    }
+
+    @Override
+    public void onPopulateAccessibilityEvent(@NonNull AccessibilityEvent event) {
+        super.onPopulateAccessibilityEvent(event);
+        event.getText().add(mText);
     }
 
     /**
