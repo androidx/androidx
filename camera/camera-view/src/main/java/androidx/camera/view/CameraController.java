@@ -205,7 +205,7 @@ public abstract class CameraController {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @NonNull
-    final SensorRotationListener mSensorRotationListener;
+    final RotationReceiver mRotationReceiver;
 
     @Nullable
     private final DisplayRotationListener mDisplayRotationListener;
@@ -242,7 +242,7 @@ public abstract class CameraController {
 
         // Listen to motion sensor reading and set target rotation for ImageCapture and
         // VideoCapture.
-        mSensorRotationListener = new SensorRotationListener(mAppContext) {
+        mRotationReceiver = new RotationReceiver(mAppContext) {
             @Override
             public void onRotationChanged(int rotation) {
                 mImageAnalysis.setTargetRotation(rotation);
@@ -419,14 +419,14 @@ public abstract class CameraController {
     private void startListeningToRotationEvents() {
         getDisplayManager().registerDisplayListener(mDisplayRotationListener,
                 new Handler(Looper.getMainLooper()));
-        if (mSensorRotationListener.canDetectOrientation()) {
-            mSensorRotationListener.enable();
+        if (mRotationReceiver.canDetectOrientation()) {
+            mRotationReceiver.enable();
         }
     }
 
     private void stopListeningToRotationEvents() {
         getDisplayManager().unregisterDisplayListener(mDisplayRotationListener);
-        mSensorRotationListener.disable();
+        mRotationReceiver.disable();
     }
 
     private DisplayManager getDisplayManager() {
