@@ -27,7 +27,6 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageInfoProcessor;
-import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
@@ -37,7 +36,7 @@ import androidx.core.util.Preconditions;
  * A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation.
  */
 public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
-        PreviewExtender.CloseableProcessor {
+        CloseableProcessor {
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final RequestUpdateProcessorImpl mProcessorImpl;
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();

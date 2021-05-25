@@ -47,6 +47,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
 import androidx.camera.extensions.internal.AdaptingPreviewProcessor;
 import androidx.camera.extensions.internal.AdaptingRequestUpdateProcessor;
+import androidx.camera.extensions.internal.CloseableProcessor;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Consumer;
@@ -145,11 +146,8 @@ public abstract class PreviewExtender {
 
     /**
      * Update extension related configs to the builder.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void updateBuilderConfig(@NonNull Preview.Builder builder,
+    private static void updateBuilderConfig(@NonNull Preview.Builder builder,
             @ExtensionMode.Mode int effectMode, @NonNull PreviewExtenderImpl impl,
             @NonNull Context context) {
         PreviewExtenderAdapter previewExtenderAdapter;
@@ -393,16 +391,5 @@ public abstract class PreviewExtender {
 
             return null;
         }
-    }
-
-    /**
-     * A processor that can be closed so that the underlying processing implementation is skipped,
-     * if it has been closed.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public interface CloseableProcessor {
-        void close();
     }
 }

@@ -51,7 +51,6 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
@@ -93,7 +92,7 @@ public class ExtensionTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
-    private final EffectMode mEffectMode;
+    private final ExtensionsManager.EffectMode mEffectMode;
     @ExtensionMode.Mode
     private final int mExtensionMode;
     @CameraSelector.LensFacing
@@ -104,7 +103,8 @@ public class ExtensionTest {
     private CameraSelector mBaseCameraSelector;
     private CameraSelector mExtensionsCameraSelector;
 
-    public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
+    public ExtensionTest(ExtensionsManager.EffectMode effectMode,
+            @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mExtensionMode = ExtensionsTestUtil.effectModeToExtensionMode(mEffectMode);
         mLensFacing = lensFacing;
