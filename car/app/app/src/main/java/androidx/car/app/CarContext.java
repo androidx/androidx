@@ -450,25 +450,10 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
-     * Requests the provided {@code permissions} from the user.
+     * Requests the provided {@code permissions} from the user, calling the provided {@code
+     * callback} in the main thread.
      *
-     * <p>When the result is available, the {@code callback} provided will be called on the main
-     * thread.
-     *
-     * <p>This method should be called using a parked only listener.
-     *
-     * <p>If this method is calle while the host deems it is unsafe (for example, when the user
-     * is driving), the permission(s) may not be requested from the user, automatically rejecting
-     * the permissions requested.
-     *
-     * <p>If the Session is destroyed before the user accepts or rejects the permissions, the
-     * callback will not be executed.
-     *
-     * @param permissions the runtime permissions to request from the user
-     * @param callback    callback that will be notified when the user takes action on the
-     *                    permission request
-     * @throws NullPointerException if either {@code permissions} or {@code callback} are {@code
-     *                              null}
+     * @see CarContext#requestPermissions(List, Executor, OnRequestPermissionsCallback)
      */
     public void requestPermissions(@NonNull List<String> permissions,
             @NonNull OnRequestPermissionsCallback callback) {
@@ -481,14 +466,26 @@ public class CarContext extends ContextWrapper {
      * <p>When the result is available, the {@code callback} provided will be called using the
      * {@link Executor} provided.
      *
-     * <p>This method should be called using a parked only listener.
+     * <p>This method should be called using a
+     * {@link androidx.car.app.model.ParkedOnlyOnClickListener}.
      *
-     * <p>If this method is calle while the host deems it is unsafe (for example, when the user
-     * is driving), the permission(s) may not be requested from the user, automatically rejecting
-     * the permissions requested.
+     * <p>If this method is called while the host deems it is unsafe (for example, when the user
+     * is driving), the permission(s) will not be requested from the user.
      *
-     * <p>If the Session is destroyed before the user accepts or rejects the permissions, the
-     * callback will not be executed.
+     * <p>If the {@link Session} is destroyed before the user accepts or rejects the permissions,
+     * the callback will not be executed.
+     *
+     * <h4>Platform Considerations</h4>
+     *
+     * Using this method allows the app to work across all platforms supported by the library with
+     * the same API (e.g. Android Auto on mobile devices and Android Automotive OS on native car
+     * heads unit). On a mobile platform, this method will start an activity that will display the
+     * platform's permissions UI over it. You can choose to not
+     * use this method and instead implement your own activity and code to request the
+     * permissions in that platform. On Automotive OS however, distraction-optimized activities
+     * other than {@link androidx.car.app.activity.CarAppActivity} are not allowed and may be
+     * rejected during app submission. See {@link androidx.car.app.activity.CarAppActivity} for
+     * more details.
      *
      * @param permissions the runtime permissions to request from the user
      * @param executor    the executor that will be used for calling the {@code callback} provided

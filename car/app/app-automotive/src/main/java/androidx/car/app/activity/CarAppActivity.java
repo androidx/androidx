@@ -84,9 +84,14 @@ import androidx.lifecycle.ViewModelProvider;
  * <p>Note the name of the alias should be unique and resemble a fully qualified class name, but
  * unlike the name of the target activity, the alias name is arbitrary; it does not refer to an
  * actual class.
+ *
+ * <h4>Distraction-optimized Activities</h4>
+ *
+ * <p>The activity must be the {@code distractionOptimized} meta-data set to {@code true}, in order
+ * for it to be displayed while driving. This is the only activity that can have this meta-data
+ * set to {@code true}, any other activities marked this way may cause the app to be rejected
+ * during app submission.
  */
-// TODO(b/179225768): Remove distractionOptimized from the javadoc above if we can make that
-// implicit for car apps.
 @SuppressLint({"ForbiddenSuperClass"})
 public final class CarAppActivity extends FragmentActivity {
     @VisibleForTesting
