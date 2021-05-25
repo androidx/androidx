@@ -90,17 +90,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.animation.PathUtils is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return path.approximate(precision);"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PathUtils.java"
-            line="34"
-            column="25"/>
-    </issue>
-
-    <issue
         id="KotlinPropertyAccess"
         message="The getter return type (`PropertyValuesHolder[]`) and setter parameter type (`PropertyValuesHolder...`) getter and setter methods for property `values` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public PropertyValuesHolder[] getValues() {"
