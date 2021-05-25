@@ -75,5 +75,13 @@ package androidx.camera.view {
     enum_constant public static final androidx.camera.view.PreviewView.StreamState STREAMING;
   }
 
+  public abstract class RotationReceiver {
+    ctor public RotationReceiver(android.content.Context);
+    method public boolean canDetectOrientation();
+    method public void disable();
+    method public void enable();
+    method public abstract void onRotationChanged(int);
+  }
+
 }
 

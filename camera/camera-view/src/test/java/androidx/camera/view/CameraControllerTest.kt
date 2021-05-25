@@ -64,7 +64,7 @@ public class CameraControllerTest {
         val controller = LifecycleCameraController(context)
 
         // Act.
-        controller.mSensorRotationListener.onRotationChanged(Surface.ROTATION_180)
+        controller.mRotationReceiver.onRotationChanged(Surface.ROTATION_180)
 
         // Assert.
         assertThat(controller.mImageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_180)
