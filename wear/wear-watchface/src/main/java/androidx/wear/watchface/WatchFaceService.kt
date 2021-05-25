@@ -321,8 +321,6 @@ public abstract class WatchFaceService : WallpaperService() {
     /** This is open for testing. */
     internal open fun getUiThreadHandlerImpl(): Handler = Handler(Looper.getMainLooper())
 
-    internal var backgroundThread: HandlerThread? = null
-
     /**
      * Returns the lazily constructed background thread [Handler]. During initialization
      * [createUserStyleSchema], [createComplicationsManager] and [createWatchFace] are posted on
@@ -330,15 +328,14 @@ public abstract class WatchFaceService : WallpaperService() {
      */
     public fun getBackgroundThreadHandler(): Handler = getBackgroundThreadHandlerImpl()
 
-    /** This is open for testing. */
-    internal open fun getBackgroundThreadHandlerImpl(): Handler {
-        if (backgroundThread == null) {
-            backgroundThread = HandlerThread("WatchFaceBackground").apply {
-                start()
-            }
-        }
-        return Handler(backgroundThread!!.looper)
+    internal val backgroundThread = lazy {
+        HandlerThread("WatchFaceBackground").apply { start() }
     }
+
+    private val _backgroundThreadHandler by lazy { Handler(backgroundThread.value.looper) }
+
+    /** This is open for testing. */
+    internal open fun getBackgroundThreadHandlerImpl() = _backgroundThreadHandler
 
     /** This is open to allow mocking. */
     internal open fun getMutableWatchState() = MutableWatchState()
@@ -1076,7 +1073,9 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         internal fun quitBackgroundThreadIfCreated() {
-            backgroundThread?.quitSafely()
+            if (backgroundThread.isInitialized()) {
+                backgroundThread.value.quitSafely()
+            }
         }
 
         @UiThread
