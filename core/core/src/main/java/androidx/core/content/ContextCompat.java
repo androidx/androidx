@@ -158,6 +158,9 @@ public class ContextCompat {
 
     private static final Object sLock = new Object();
 
+    // Lock that provides similar functionality to ContextImpl.mSync.
+    private static final Object sSync = new Object();
+
     private static TypedValue sTempValue;
 
     /**
@@ -599,18 +602,23 @@ public class ContextCompat {
         }
     }
 
-    private synchronized static File createFilesDir(File file) {
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                if (file.exists()) {
-                    // spurious failure; probably racing with another process for this app
+    private static File createFilesDir(File file) {
+        // In the platform, all operations on Context that involve creating files (codeCacheDir,
+        // noBackupFilesDir, etc.) are synchronized on a single lock owned by the Context. So, if
+        // we lock on a single static lock owned by ContextCompat then we're a bit too broad but
+        // at least we'll provide similar guarantees.
+        synchronized (sSync) {
+            if (!file.exists()) {
+                if (file.mkdirs()) {
                     return file;
+                } else {
+                    // There used to be another check for file.exists() here, but that was a
+                    // side-effect of improper synchronization.
+                    Log.w(TAG, "Unable to create files subdir " + file.getPath());
                 }
-                Log.w(TAG, "Unable to create files subdir " + file.getPath());
-                return null;
             }
+            return file;
         }
-        return file;
     }
 
     /**
