@@ -55,7 +55,6 @@ buildscript {
     dependencies {
         classpath(libs.androidGradlePlugin)
         classpath(libs.kotlinGradlePlugin)
-        classpath(libs.kgpLeakPatcher)
         classpath(libs.kspGradlePlugin)
         classpath(libs.gson)
         classpath "androidx.build:gradle-plugin:0.1.0"
