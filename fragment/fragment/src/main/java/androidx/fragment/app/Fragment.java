@@ -804,7 +804,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @SuppressWarnings("ReferenceEquality, deprecation")
     @Deprecated
     public void setTargetFragment(@Nullable Fragment fragment, int requestCode) {
-        FragmentStrictMode.onTargetFragmentUsage(this);
+        if (fragment != null) {
+            FragmentStrictMode.onSetTargetFragmentUsage(this, fragment, requestCode);
+        }
         // Don't allow a caller to set a target fragment in another FragmentManager,
         // but there's a snag: people do set target fragments before fragments get added.
         // We'll have the FragmentManager check that for validity when we move
@@ -818,7 +820,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
 
         // Don't let someone create a cycle.
-        for (Fragment check = fragment; check != null; check = check.getTargetFragment()) {
+        for (Fragment check = fragment; check != null; check = check.getTargetFragment(false)) {
             if (check.equals(this)) {
                 throw new IllegalArgumentException("Setting " + fragment + " as the target of "
                         + this + " would create a target cycle");
@@ -852,7 +854,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable
     @Deprecated
     final public Fragment getTargetFragment() {
-        FragmentStrictMode.onTargetFragmentUsage(this);
+        return getTargetFragment(true);
+    }
+
+    /**
+     * Use with {@param logViolations} set to {@code false} for all internal calls instead of the
+     * public {@link #getTargetFragment}.
+     */
+    @Nullable
+    private Fragment getTargetFragment(boolean logViolations) {
+        if (logViolations) {
+            FragmentStrictMode.onGetTargetFragmentUsage(this);
+        }
+
         if (mTarget != null) {
             // Ensure that any Fragment set with setTargetFragment is immediately
             // available here
@@ -875,7 +889,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     final public int getTargetRequestCode() {
-        FragmentStrictMode.onTargetFragmentUsage(this);
+        FragmentStrictMode.onGetTargetFragmentRequestCodeUsage(this);
         return mTargetRequestCode;
     }
 
@@ -1224,7 +1238,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     public void setRetainInstance(boolean retain) {
-        FragmentStrictMode.onRetainInstanceUsage(this);
+        FragmentStrictMode.onSetRetainInstanceUsage(this);
         mRetainInstance = retain;
         if (mFragmentManager != null) {
             if (retain) {
@@ -1251,7 +1265,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     final public boolean getRetainInstance() {
-        FragmentStrictMode.onRetainInstanceUsage(this);
+        FragmentStrictMode.onGetRetainInstanceUsage(this);
         return mRetainInstance;
     }
 
@@ -1313,7 +1327,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     public void setUserVisibleHint(boolean isVisibleToUser) {
-        FragmentStrictMode.onSetUserVisibleHint(this);
+        FragmentStrictMode.onSetUserVisibleHint(this, isVisibleToUser);
         if (!mUserVisibleHint && isVisibleToUser && mState < STARTED
                 && mFragmentManager != null && isAdded() && mIsCreated) {
             mFragmentManager.performPendingDeferredStart(
@@ -2826,7 +2840,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print(prefix); writer.print("mSavedViewRegistryState=");
                     writer.println(mSavedViewRegistryState);
         }
-        Fragment target = getTargetFragment();
+        Fragment target = getTargetFragment(false);
         if (target != null) {
             writer.print(prefix); writer.print("mTarget="); writer.print(target);
                     writer.print(" mTargetRequestCode=");

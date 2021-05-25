@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 /** See #{@link FragmentStrictMode.Policy.Builder#detectRetainInstanceUsage()}. */
-public final class RetainInstanceUsageViolation extends Violation {
+public abstract class RetainInstanceUsageViolation extends Violation {
 
     RetainInstanceUsageViolation(@NonNull Fragment fragment) {
         super(fragment);
