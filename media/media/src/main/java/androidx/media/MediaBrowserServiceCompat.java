@@ -322,19 +322,23 @@ public abstract class MediaBrowserServiceCompat extends Service {
             mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
-                    if (!mRootExtrasList.isEmpty()) {
-                        IMediaSession extraBinder = token.getExtraBinder();
-                        if (extraBinder != null) {
-                            for (Bundle rootExtras : mRootExtrasList) {
-                                BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
-                                        extraBinder.asBinder());
-                            }
-                        }
-                        mRootExtrasList.clear();
-                    }
-                    mServiceFwk.setSessionToken((MediaSession.Token) token.getToken());
+                    setSessionTokenOnHandler(token);
                 }
             });
+        }
+
+        void setSessionTokenOnHandler(MediaSessionCompat.Token token) {
+            if (!mRootExtrasList.isEmpty()) {
+                IMediaSession extraBinder = token.getExtraBinder();
+                if (extraBinder != null) {
+                    for (Bundle rootExtras : mRootExtrasList) {
+                        BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                                extraBinder.asBinder());
+                    }
+                }
+                mRootExtrasList.clear();
+            }
+            mServiceFwk.setSessionToken((MediaSession.Token) token.getToken());
         }
 
         @Override
@@ -490,6 +494,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             return mCurConnection.browserInfo;
         }
 
+        @RequiresApi(21)
         class MediaBrowserServiceApi21 extends MediaBrowserService {
             MediaBrowserServiceApi21(Context context) {
                 attachBaseContext(context);

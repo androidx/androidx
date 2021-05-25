@@ -126,6 +126,7 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
         return "AudioAttributesCompat: audioattributes=" + mAudioAttributes;
     }
 
+    @RequiresApi(21)
     static class Builder implements AudioAttributesImpl.Builder {
         final AudioAttributes.Builder mFwkBuilder;
 

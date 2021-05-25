@@ -30,6 +30,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
@@ -208,8 +209,8 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
-                builder.getBuilder().setStyle(
-                        fillInMediaStyle(new Notification.MediaStyle()));
+                Api21Impl.setStyle(builder.getBuilder(),
+                        fillInMediaStyle(Api21Impl.createMediaStyle()));
             } else if (mShowCancelButton) {
                 builder.getBuilder().setOngoing(true);
             }
@@ -218,10 +219,10 @@ public class NotificationCompat {
         @RequiresApi(21)
         Notification.MediaStyle fillInMediaStyle(Notification.MediaStyle style) {
             if (mActionsToShowInCompact != null) {
-                style.setShowActionsInCompactView(mActionsToShowInCompact);
+                Api21Impl.setShowActionsInCompactView(style, mActionsToShowInCompact);
             }
             if (mToken != null) {
-                style.setMediaSession((MediaSession.Token) mToken.getToken());
+                Api21Impl.setMediaSession(style, (MediaSession.Token) mToken.getToken());
             }
             return style;
         }
@@ -285,7 +286,7 @@ public class NotificationCompat {
                 button.setOnClickPendingIntent(R.id.action0, action.getActionIntent());
             }
             if (Build.VERSION.SDK_INT >= 15) {
-                button.setContentDescription(R.id.action0, action.getTitle());
+                Api15Impl.setContentDescription(button, R.id.action0, action.getTitle());
             }
             return button;
         }
@@ -386,8 +387,8 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                builder.getBuilder().setStyle(
-                        fillInMediaStyle(new Notification.DecoratedMediaCustomViewStyle()));
+                Api21Impl.setStyle(builder.getBuilder(),
+                        fillInMediaStyle(Api24Impl.createDecoratedMediaCustomViewStyle()));
             } else {
                 super.apply(builder);
             }
@@ -498,6 +499,52 @@ public class NotificationCompat {
                     : mBuilder.mContext.getResources().getColor(
                             R.color.notification_material_background_media_default_color);
             views.setInt(R.id.status_bar_latest_event_content, "setBackgroundColor", color);
+        }
+    }
+
+    @RequiresApi(15)
+    private static class Api15Impl {
+        private Api15Impl() {}
+
+        @DoNotInline
+        static void setContentDescription(RemoteViews remoteViews, int viewId,
+                CharSequence contentDescription) {
+            remoteViews.setContentDescription(viewId, contentDescription);
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {}
+
+        @DoNotInline
+        static void setStyle(Notification.Builder builder, Notification.Style style) {
+            builder.setStyle(style);
+        }
+
+        @DoNotInline
+        static Notification.MediaStyle createMediaStyle() {
+            return new Notification.MediaStyle();
+        }
+
+        @DoNotInline
+        static void setShowActionsInCompactView(Notification.MediaStyle style, int... actions) {
+            style.setShowActionsInCompactView(actions);
+        }
+
+        @DoNotInline
+        static void setMediaSession(Notification.MediaStyle style, MediaSession.Token token) {
+            style.setMediaSession(token);
+        }
+    }
+
+    @RequiresApi(24)
+    private static class Api24Impl {
+        private Api24Impl() {}
+
+        @DoNotInline
+        static Notification.DecoratedMediaCustomViewStyle createDecoratedMediaCustomViewStyle() {
+            return new Notification.DecoratedMediaCustomViewStyle();
         }
     }
 }
