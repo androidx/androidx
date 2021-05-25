@@ -40,6 +40,10 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityStore {
+
+    /** No-op user id that won't have any visibility settings. */
+    public static final int NO_OP_UID = -1;
+
     /**
      * These cannot have any of the special characters used by AppSearchImpl (e.g. {@code
      * AppSearchImpl#PACKAGE_DELIMITER} or {@code AppSearchImpl#DATABASE_DELIMITER}.
@@ -74,7 +78,7 @@ public class VisibilityStore {
             @NonNull String databaseName,
             @NonNull String prefixedSchema,
             @NonNull String callerPackageName,
-            @NonNull UserHandle callerUserHandle) {
+            int callerUid) {
         return false;
     }
 

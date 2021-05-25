@@ -803,7 +803,7 @@ public final class AppSearchImpl implements Closeable {
      * @param searchSpec        Spec for setting filters, raw query etc.
      * @param callerPackageName Package name of the caller, should belong to the {@code
      *                          callerUserHandle}.
-     * @param callerUserHandle  User handle of the client making the globalQuery call.
+     * @param callerUid         UID of the client making the globalQuery call.
      * @param logger            logger to collect globalQuery stats
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
@@ -814,7 +814,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @NonNull String callerPackageName,
-            @Nullable UserHandle callerUserHandle,
+            int callerUid,
             @Nullable AppSearchLogger logger) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         SearchStats.Builder sStatsBuilder = null;
@@ -879,7 +879,7 @@ public final class AppSearchImpl implements Closeable {
                             databaseName,
                             prefixedSchema,
                             callerPackageName,
-                            callerUserHandle);
+                            callerUid);
                 }
 
                 if (!allow) {
