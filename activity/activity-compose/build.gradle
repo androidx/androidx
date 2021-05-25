@@ -15,12 +15,8 @@
  */
 
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -32,7 +28,7 @@ plugins {
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
     api projectOrArtifact(":compose:runtime:runtime")
     api projectOrArtifact(":compose:runtime:runtime-saveable")
     api(projectOrArtifact(":activity:activity-ktx"))
@@ -42,10 +38,10 @@ dependencies {
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation projectOrArtifact(":compose:test-utils")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_EXT_KTX)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunitKtx)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {

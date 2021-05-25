@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -37,15 +35,15 @@ dependencies {
     api("androidx.savedstate:savedstate-ktx:1.1.0") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.activity", module: "activity"
     })
