@@ -18,8 +18,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -31,36 +29,36 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation(AUTO_VALUE_ANNOTATIONS)
+    implementation(libs.guavaListenableFuture)
+    implementation(libs.autoValueAnnotations)
 
-    annotationProcessor(AUTO_VALUE)
+    annotationProcessor(libs.autoValue)
 
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation("androidx.annotation:annotation-experimental:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation(project(":camera:camera-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -38,22 +37,22 @@ dependencies {
     api(CAMERA_PIPE_DEPS.API)
     implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
-    kapt(DAGGER_COMPILER)
+    kapt(libs.dagger)
 
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":internal-testutils-truth"))
 
-    kaptTest(DAGGER_COMPILER)
+    kaptTest(libs.dagger)
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 android {
