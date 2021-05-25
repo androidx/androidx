@@ -1008,8 +1008,22 @@ public final class MetadataHolderService {
 
 ## Dependencies {#dependencies}
 
-Generally, Jetpack libraries should avoid dependencies that negatively impact
-developers without providing substantial benefit.
+### Specification types {#dependencies-spec}
+
+-   Project `project(":core:core")` uses the tip-of-tree sources for the
+    `androidx.core:core` library and requires that they be loaded in the
+    workspace.
+-   Playground `projectOrArtifact(":core:core")` is used for
+    [Playground](playground.md) projects and will use tip-of-tree sources, if
+    present in the workspace, or `SNAPSHOT` prebuilt artifacts from
+    [androidx.dev](http://androidx.dev) otherwise.
+-   Explicit `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires
+    that it be checked in to the `prebuilts/androidx/internal` local Maven
+    repository.
+
+Libraries should prefer explicit dependencies with the lowest possible versions
+that include the APIs or behaviors required by the library, using project or
+Playground specs only in cases where tip-of-tree APIs or behaviors are required.
 
 ### System health {#dependencies-health}
 
