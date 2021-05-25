@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+import android.os.Process;
 
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -38,7 +39,6 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
@@ -423,7 +423,7 @@ public class AppSearchImplTest {
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 context.getPackageName(),
-                VisibilityStore.NO_OP_UID,
+                Process.INVALID_UID,
                 /*logger=*/ null);
         assertThat(results.getResults()).hasSize(1);
         assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
@@ -482,7 +482,7 @@ public class AppSearchImplTest {
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 context.getPackageName(),
-                VisibilityStore.NO_OP_UID,
+                Process.INVALID_UID,
                 /*logger=*/ null);
         assertThat(results.getResults()).isEmpty();
 
@@ -508,7 +508,7 @@ public class AppSearchImplTest {
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 context.getPackageName(),
-                VisibilityStore.NO_OP_UID,
+                Process.INVALID_UID,
                 /*logger=*/ null);
         assertThat(results.getResults()).hasSize(1);
         assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
@@ -714,7 +714,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec,
-                /*callerPackageName=*/ "", VisibilityStore.NO_OP_UID, /*logger=*/ null);
+                /*callerPackageName=*/ "", Process.INVALID_UID, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
 
@@ -1373,7 +1373,7 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.globalQuery("query",
                     new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build(),
-                    "package", VisibilityStore.NO_OP_UID, /*logger=*/ null);
+                    "package", Process.INVALID_UID, /*logger=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {
