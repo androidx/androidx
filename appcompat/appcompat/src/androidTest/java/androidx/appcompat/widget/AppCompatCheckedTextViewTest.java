@@ -31,6 +31,7 @@ import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.CheckedTextViewCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -113,7 +114,7 @@ public class AppCompatCheckedTextViewTest extends AppCompatBaseViewTest<
         assertNotNull(checkMark);
     }
 
-    @Test
+    @UiThreadTest
     public void testSetCustomSelectionActionModeCallback() {
         final AppCompatCheckedTextView view = new AppCompatCheckedTextView(mActivity);
         final ActionMode.Callback callback = new ActionMode.Callback() {

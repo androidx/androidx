@@ -200,7 +200,7 @@ public class AppCompatEditTextTest {
 
     private static class NoOpTextClassifier implements TextClassifier {}
 
-    @Test
+    @UiThreadTest
     public void testSetCustomSelectionActionModeCallback() {
         final AppCompatEditText view = new AppCompatEditText(mActivityTestRule.getActivity());
         final ActionMode.Callback callback = new ActionMode.Callback() {

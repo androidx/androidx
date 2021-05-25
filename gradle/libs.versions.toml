@@ -12,8 +12,8 @@ androidStudio = "2021.1.1.1"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "26.3.0"
-androidxTest = "1.3.0"
-androidxTestExt = "1.1.2"
+androidxTest = "1.4.0-beta01"
+androidxTestExt = "1.1.3-beta01"
 autoService = "1.0-rc6"
 autoValue = "1.6.3"
 dexmaker = "2.25.0"

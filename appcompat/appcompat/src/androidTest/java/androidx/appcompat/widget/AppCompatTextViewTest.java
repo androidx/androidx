@@ -1221,7 +1221,7 @@ public class AppCompatTextViewTest
                 true);
     }
 
-    @Test
+    @UiThreadTest
     public void testSetCustomSelectionActionModeCallback() {
         final AppCompatTextView view = new AppCompatTextView(mActivity);
         final ActionMode.Callback callback = new ActionMode.Callback() {
