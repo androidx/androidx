@@ -42,4 +42,11 @@ public final class SetTargetFragmentUsageViolation extends TargetFragmentUsageVi
     public int getRequestCode() {
         return mRequestCode;
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to set target fragment " + mTargetFragment + " with request code "
+                + mRequestCode + " for fragment " + mFragment;
+    }
 }
