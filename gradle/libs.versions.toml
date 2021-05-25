@@ -108,6 +108,7 @@ kspGradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-p
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
+mlkitBarcode = { module = "com.google.android.gms:play-services-mlkit-barcode-scanning", version = "16.1.4" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
 mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version = "2.1.0" }
