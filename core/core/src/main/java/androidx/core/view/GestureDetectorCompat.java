@@ -59,7 +59,6 @@ public final class GestureDetectorCompat {
         private int mMinimumFlingVelocity;
         private int mMaximumFlingVelocity;
 
-        private static final int LONGPRESS_TIMEOUT = ViewConfiguration.getLongPressTimeout();
         private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
         private static final int DOUBLE_TAP_TIMEOUT = ViewConfiguration.getDoubleTapTimeout();
 
@@ -319,7 +318,7 @@ public final class GestureDetectorCompat {
                     if (mIsLongpressEnabled) {
                         mHandler.removeMessages(LONG_PRESS);
                         mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()
-                                + TAP_TIMEOUT + LONGPRESS_TIMEOUT);
+                                + TAP_TIMEOUT + ViewConfiguration.getLongPressTimeout());
                     }
                     mHandler.sendEmptyMessageAtTime(SHOW_PRESS,
                             mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);
