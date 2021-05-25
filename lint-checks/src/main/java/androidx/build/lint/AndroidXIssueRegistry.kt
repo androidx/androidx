@@ -36,7 +36,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanConcurrentHashMap.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
                 BanKeepAnnotation.ISSUE,
-                BanTargetApiAnnotation.ISSUE,
+                TargetApiAnnotationUsageDetector.ISSUE,
                 SampledAnnotationEnforcer.MISSING_SAMPLED_ANNOTATION,
                 SampledAnnotationEnforcer.OBSOLETE_SAMPLED_ANNOTATION,
                 SampledAnnotationEnforcer.MISSING_SAMPLES_DIRECTORY,

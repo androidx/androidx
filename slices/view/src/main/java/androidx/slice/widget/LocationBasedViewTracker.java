@@ -18,7 +18,6 @@ package androidx.slice.widget;
 
 import static android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
@@ -26,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityManager;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class LocationBasedViewTracker implements Runnable, View.OnLayoutChangeLi
         }
     };
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private static final SelectionLogic A11Y_FOCUS = new SelectionLogic() {
         @Override
         public void selectView(View view) {
