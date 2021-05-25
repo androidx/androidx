@@ -39,7 +39,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
@@ -91,7 +90,7 @@ public final class ExtensionsErrorListenerTest {
 
     private ExtensionsInfo mExtensionsInfo;
     private CameraSelector mCameraSelector;
-    private EffectMode mEffectMode;
+    private ExtensionsManager.EffectMode mEffectMode;
     @ExtensionMode.Mode
     private int mExtensionMode;
     @CameraSelector.LensFacing
@@ -111,7 +110,7 @@ public final class ExtensionsErrorListenerTest {
         }
     };
 
-    public ExtensionsErrorListenerTest(EffectMode effectMode,
+    public ExtensionsErrorListenerTest(ExtensionsManager.EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mExtensionMode = effectModeToExtensionMode(effectMode);
@@ -165,8 +164,8 @@ public final class ExtensionsErrorListenerTest {
 
         ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
                 mLensFacing);
-        Preview noEffectPreview = ExtensionsTestUtil.createPreviewWithEffect(EffectMode.NORMAL,
-                mLensFacing);
+        Preview noEffectPreview = ExtensionsTestUtil.createPreviewWithEffect(
+                ExtensionsManager.EffectMode.NORMAL, mLensFacing);
         mErrorCode.set(null);
 
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageCapture,
@@ -197,8 +196,8 @@ public final class ExtensionsErrorListenerTest {
     public void receiveErrorCode_whenOnlyEnablePreview_ByExtenderAPI() throws InterruptedException {
         ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
 
-        ImageCapture noEffectImageCapture =
-                ExtensionsTestUtil.createImageCaptureWithEffect(EffectMode.NORMAL, mLensFacing);
+        ImageCapture noEffectImageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(
+                ExtensionsManager.EffectMode.NORMAL, mLensFacing);
         Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
         mErrorCode.set(null);
 
@@ -248,16 +247,16 @@ public final class ExtensionsErrorListenerTest {
     @Test
     public void receiveErrorCode_whenEnableMismatchedImageCapturePreview_ByExtenderAPI()
             throws InterruptedException, CameraAccessException, CameraInfoUnavailableException {
-        EffectMode mismatchedEffectMode;
+        ExtensionsManager.EffectMode mismatchedEffectMode;
 
-        if (mEffectMode != EffectMode.BOKEH) {
-            assumeTrue(ExtensionsManager.isExtensionAvailable(EffectMode.BOKEH,
+        if (mEffectMode != ExtensionsManager.EffectMode.BOKEH) {
+            assumeTrue(ExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.BOKEH,
                     mLensFacing));
-            mismatchedEffectMode = EffectMode.BOKEH;
+            mismatchedEffectMode = ExtensionsManager.EffectMode.BOKEH;
         } else {
-            assumeTrue(ExtensionsManager.isExtensionAvailable(EffectMode.HDR,
+            assumeTrue(ExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.HDR,
                     mLensFacing));
-            mismatchedEffectMode = EffectMode.HDR;
+            mismatchedEffectMode = ExtensionsManager.EffectMode.HDR;
         }
 
         assumeTrue(canSupportImageCaptureTogetherWithPreview(mEffectMode, mismatchedEffectMode));
@@ -340,7 +339,8 @@ public final class ExtensionsErrorListenerTest {
     }
 
     private boolean canSupportImageCaptureTogetherWithPreview(
-            @NonNull EffectMode imageCaptureEffectMode, @NonNull EffectMode previewEffectMode)
+            @NonNull ExtensionsManager.EffectMode imageCaptureEffectMode,
+            @NonNull ExtensionsManager.EffectMode previewEffectMode)
             throws CameraAccessException, CameraInfoUnavailableException {
 
         CameraUseCaseAdapter camera = CameraUtil.createCameraUseCaseAdapter(mContext,
