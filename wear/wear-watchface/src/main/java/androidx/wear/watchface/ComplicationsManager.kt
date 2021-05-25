@@ -152,6 +152,7 @@ public class ComplicationsManager(
     }
 
     /** Finish initialization. */
+    @WorkerThread
     internal fun init(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
@@ -164,6 +165,9 @@ public class ComplicationsManager(
 
         for ((_, complication) in complications) {
             complication.init(complicationInvalidateListener)
+
+            // Force lazy construction of renderers.
+            complication.renderer
         }
 
         // Activate complications.

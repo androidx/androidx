@@ -21,7 +21,7 @@ package androidx.wear.watchface {
   }
 
   public interface CanvasComplicationFactory {
-    method @UiThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
+    method @WorkerThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
   }
 
   public final class Complication {

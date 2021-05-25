@@ -102,7 +102,8 @@ private val HIGHLIGHT_LAYER_COMPOSITE_PAINT = Paint().apply {
 
 /**
  * The base class for [CanvasRenderer] and [GlesRenderer]. Renderers are constructed on a background
- * thread but all rendering is done on the UiThread.
+ * thread but all rendering is done on the UiThread. There is a memory barrier between construction
+ * and rendering so no special threading primitives are required.
  *
  * @param surfaceHolder The [SurfaceHolder] that [renderInternal] will draw into.
  * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
@@ -306,7 +307,9 @@ public sealed class Renderer @WorkerThread constructor(
      *
      * A CanvasRenderer is expected to be constructed on the background thread associated with
      * [WatchFaceService.getBackgroundThreadHandler] inside a call to
-     * [WatchFaceService.createWatchFace]. All rendering is be done on the UiThread.
+     * [WatchFaceService.createWatchFace]. All rendering is be done on the UiThread. There is a
+     * memory barrier between construction and rendering so no special threading primitives are
+     * required.
      *
      * @param surfaceHolder The [SurfaceHolder] from which a [Canvas] to will be obtained and passed
      * into [render].
@@ -463,7 +466,9 @@ public sealed class Renderer @WorkerThread constructor(
      *
      * A GlesRenderer is expected to be constructed on the background thread associated with
      * [WatchFaceService.getBackgroundThreadHandler] inside a call to
-     * [WatchFaceService.createWatchFace]. All rendering is be done on the UiThread.
+     * [WatchFaceService.createWatchFace]. All rendering is be done on the UiThread. There is a
+     * memory barrier between construction and rendering so no special threading primitives are
+     * required.
      *
      * Two linked [EGLContext]s are created [eglBackgroundThreadContext] and [eglUiThreadContext]
      * which are associated with background and UiThread respectively. OpenGL objects created on

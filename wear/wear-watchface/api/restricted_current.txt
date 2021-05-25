@@ -21,7 +21,7 @@ package androidx.wear.watchface {
   }
 
   public interface CanvasComplicationFactory {
-    method @UiThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
+    method @WorkerThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
   }
 
   public final class Complication {
@@ -368,7 +368,7 @@ package androidx.wear.watchface {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WatchFaceImpl {
-    ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationsManager complicationsManager);
+    ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationsManager complicationsManager, android.icu.util.Calendar calendar);
     method public long getPreviewReferenceTimeMillis();
     property public final long previewReferenceTimeMillis;
   }

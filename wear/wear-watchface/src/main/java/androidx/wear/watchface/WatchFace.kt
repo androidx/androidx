@@ -19,7 +19,6 @@ package androidx.wear.watchface
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
@@ -32,7 +31,6 @@ import android.os.Build
 import android.os.Bundle
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
-import android.util.Base64
 import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.annotation.ColorInt
@@ -41,7 +39,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
@@ -58,10 +55,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
-import java.io.FileNotFoundException
-import java.io.InputStreamReader
 import java.security.InvalidParameterException
 import kotlin.math.max
 
@@ -91,35 +85,6 @@ public annotation class WatchFaceType {
 
         /* The WatchFace has a digital time display. */
         public const val DIGITAL: Int = 1
-    }
-}
-
-private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
-    val hashMap = HashMap<String, ByteArray>()
-    try {
-        val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
-        reader.use {
-            while (true) {
-                val key = reader.readLine() ?: break
-                val value = reader.readLine() ?: break
-                hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
-            }
-        }
-    } catch (e: FileNotFoundException) {
-        // We don't need to do anything special here.
-    }
-    return UserStyleWireFormat(hashMap)
-}
-
-private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
-    val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
-    writer.use {
-        for ((key, value) in style.selectedOptions) {
-            writer.write(key.id.value)
-            writer.newLine()
-            writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
-            writer.newLine()
-        }
     }
 }
 
@@ -241,7 +206,7 @@ public class WatchFace(
      * Interface for getting the current system time.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
         public fun getSystemTimeMillis(): Long
@@ -370,7 +335,7 @@ public class WatchFace(
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
         this.systemTimeProvider = systemTimeProvider
     }
@@ -384,7 +349,12 @@ public class WatchFaceImpl @UiThread constructor(
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
     internal val currentUserStyleRepository: CurrentUserStyleRepository,
-    internal var complicationsManager: ComplicationsManager
+    internal var complicationsManager: ComplicationsManager,
+
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public val calendar: Calendar
 ) {
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
@@ -458,11 +428,6 @@ public class WatchFaceImpl @UiThread constructor(
     // True if 'Do Not Disturb' mode is on.
     private var muteMode = false
     private var nextDrawTimeMillis: Long = 0
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public val calendar: Calendar = Calendar.getInstance()
 
     private val pendingUpdateTime: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getUiThreadHandler())
@@ -602,69 +567,12 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     init {
-        // If the system has a stored user style then Home/SysUI is in charge of style
-        // persistence, otherwise we need to do our own.
-        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
-        if (storedUserStyle != null) {
-            TraceEvent("WatchFaceImpl.init apply userStyle").use {
-                currentUserStyleRepository.userStyle =
-                    UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
-            }
-        } else {
-            TraceEvent("WatchFaceImpl.init apply userStyle from prefs").use {
-                // The system doesn't support preference persistence we need to do it ourselves.
-                val preferencesFile =
-                    "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
-
-                currentUserStyleRepository.userStyle = UserStyle(
-                    UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
-                    currentUserStyleRepository.schema
-                )
-
-                currentUserStyleRepository.addUserStyleChangeListener(
-                    object : CurrentUserStyleRepository.UserStyleChangeListener {
-                        @SuppressLint("SyntheticAccessor")
-                        override fun onUserStyleChanged(userStyle: UserStyle) {
-                            writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
-                        }
-                    })
-            }
-        }
-
         renderer.watchFaceHostApi = watchFaceHostApi
         renderer.uiThreadInit()
 
         setIsBatteryLowAndNotChargingFromBatteryStatus(
             IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
                 watchFaceHostApi.getContext().registerReceiver(null, iFilter)
-            }
-        )
-
-        // We need to inhibit an immediate callback during initialization because members are not
-        // fully constructed and it will fail. It's also superfluous because we're going to render
-        // anyway.
-        var initFinished = false
-        complicationsManager.init(
-            watchFaceHostApi, calendar, renderer,
-            object : Complication.InvalidateListener {
-                @SuppressWarnings("SyntheticAccessor")
-                override fun onInvalidate() {
-                    // This could be called on any thread.
-                    watchFaceHostApi.getUiThreadHandler().runOnHandlerWithTracing("onInvalidate") {
-                        // Ensure we render a frame if the Complication needs rendering, e.g.
-                        // because it loaded an image. However if we're animating there's no need
-                        // to trigger an extra invalidation.
-                        if (initFinished && (
-                            !renderer.shouldAnimate() || computeDelayTillNextFrame(
-                                    nextDrawTimeMillis,
-                                    systemTimeProvider.getSystemTimeMillis()
-                                ) > MIN_PERCEPTABLE_DELAY_MILLIS
-                            )
-                        ) {
-                            watchFaceHostApi.invalidate()
-                        }
-                    }
-                }
             }
         )
 
@@ -678,8 +586,19 @@ public class WatchFaceImpl @UiThread constructor(
         }
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
         watchState.isVisible.addObserver(visibilityObserver)
+    }
 
-        initFinished = true
+    internal fun invalidateIfNotAnimating() {
+        // Ensure we render a frame if the Complication needs rendering, e.g.
+        // because it loaded an image. However if we're animating there's no need
+        // to trigger an extra invalidation.
+        if (!renderer.shouldAnimate() || computeDelayTillNextFrame(
+                nextDrawTimeMillis,
+                systemTimeProvider.getSystemTimeMillis()
+            ) > MIN_PERCEPTABLE_DELAY_MILLIS
+        ) {
+            watchFaceHostApi.invalidate()
+        }
     }
 
     internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate

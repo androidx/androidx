@@ -1514,7 +1514,8 @@ public class EditorSessionTest {
                 mockWatchFaceHostApi,
                 watchState,
                 currentUserStyleRepository,
-                ComplicationsManager(emptyList(), currentUserStyleRepository)
+                ComplicationsManager(emptyList(), currentUserStyleRepository),
+                Calendar.getInstance()
             )
 
             assertThat(activity.onCreateException).isInstanceOf(IllegalStateException::class.java)
