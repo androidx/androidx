@@ -22,10 +22,12 @@ import static org.junit.Assert.assertTrue;
 import android.app.Dialog;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.test.R;
+import androidx.fragment.app.DialogFragment;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,26 +35,22 @@ import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class DialogTestCase {
+public class AppCompatDialogFragmentTest {
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<WindowDecorAppCompatActivity> mActivityTestRule =
-            new ActivityTestRule<>(WindowDecorAppCompatActivity.class);
+    public final androidx.test.rule.ActivityTestRule<WindowDecorAppCompatActivity> mTestRule =
+            new androidx.test.rule.ActivityTestRule<>(WindowDecorAppCompatActivity.class);
 
-    private TestDialogFragment mFragment;
+    private DialogFragment mFragment;
 
     @Test
     public void testDialogFragmentShows() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mFragment = new TestDialogFragment();
-                    }
-                }
+                () -> mFragment = new TestDialogFragment()
         );
-        mFragment.show(mActivityTestRule.getActivity().getSupportFragmentManager(), null);
+        mFragment.show(mTestRule.getActivity().getSupportFragmentManager(), null);
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
@@ -63,10 +61,31 @@ public class DialogTestCase {
         mFragment.dismissAllowingStateLoss();
     }
 
+    @Test
+    public void testDialogFragmentWithLayout() {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mFragment = new AppCompatDialogFragment(R.layout.dialog_layout)
+        );
+        mFragment.show(mTestRule.getActivity().getSupportFragmentManager(), null);
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        assertNotNull("Dialog is not null", mFragment.getDialog());
+        assertTrue("Dialog is showing", mFragment.getDialog().isShowing());
+        assertNotNull("Dialog is using custom layout",
+                mFragment.getDialog().findViewById(R.id.dialog_content));
+
+        // And make sure we dismiss the dialog
+        mFragment.dismissAllowingStateLoss();
+    }
+
     public static class TestDialogFragment extends AppCompatDialogFragment {
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return new AlertDialog.Builder(getContext())
+            return new AlertDialog.Builder(requireContext())
                     .setTitle("Test")
                     .setMessage("Message")
                     .setPositiveButton("Button", null)
