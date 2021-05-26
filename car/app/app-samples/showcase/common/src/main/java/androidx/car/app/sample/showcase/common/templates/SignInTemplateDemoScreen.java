@@ -260,6 +260,8 @@ public class SignInTemplateDemoScreen extends Screen {
 //                        .setClass(getCarContext(), SignInWithGoogleActivity.class)
 //                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //                        .putExtras(extras));
+        CarToast.makeText(getCarContext(), "Sign-in with Google starts here", LENGTH_LONG)
+                .show();
     }
 
     private MessageTemplate getSignInCompletedMessageTemplate() {
