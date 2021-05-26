@@ -195,15 +195,15 @@ package androidx.core.app {
   @IntDef(flag=true, value={androidx.core.app.FrameMetricsAggregator.TOTAL_DURATION, androidx.core.app.FrameMetricsAggregator.INPUT_DURATION, androidx.core.app.FrameMetricsAggregator.LAYOUT_MEASURE_DURATION, androidx.core.app.FrameMetricsAggregator.DRAW_DURATION, androidx.core.app.FrameMetricsAggregator.SYNC_DURATION, androidx.core.app.FrameMetricsAggregator.COMMAND_DURATION, androidx.core.app.FrameMetricsAggregator.SWAP_DURATION, androidx.core.app.FrameMetricsAggregator.DELAY_DURATION, androidx.core.app.FrameMetricsAggregator.ANIMATION_DURATION, androidx.core.app.FrameMetricsAggregator.EVERY_DURATION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FrameMetricsAggregator.MetricType {
   }
 
-  public abstract class JobIntentService extends android.app.Service {
-    ctor public JobIntentService();
-    method public static void enqueueWork(android.content.Context, Class<?>, int, android.content.Intent);
-    method public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
-    method public boolean isStopped();
-    method public android.os.IBinder! onBind(android.content.Intent);
-    method protected abstract void onHandleWork(android.content.Intent);
-    method public boolean onStopCurrentWork();
-    method public void setInterruptIfStopped(boolean);
+  @Deprecated public abstract class JobIntentService extends android.app.Service {
+    ctor @Deprecated public JobIntentService();
+    method @Deprecated public static void enqueueWork(android.content.Context, Class<?>, int, android.content.Intent);
+    method @Deprecated public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
+    method @Deprecated public boolean isStopped();
+    method @Deprecated public android.os.IBinder! onBind(android.content.Intent);
+    method @Deprecated protected abstract void onHandleWork(android.content.Intent);
+    method @Deprecated public boolean onStopCurrentWork();
+    method @Deprecated public void setInterruptIfStopped(boolean);
   }
 
   public final class NavUtils {
