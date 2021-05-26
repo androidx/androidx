@@ -51,9 +51,9 @@ import java.util.Objects;
  * <p>Similar to Android devices, car screens cover a wide range of sizes and densities. To
  * ensure that icons and images render well across all car screens, use vector assets whenever
  * possible to avoid scaling issues. If your app relies on bitmaps or other non-vector
- * assets, you should ensure that you have resources that address multiple size and  pixel density
- * buckets using configuration qualifiers in your resource folders (e.g. "large", "xlarge", "mdpi",
- * "hdpi", etc). See {@link androidx.car.app.CarContext} for more details.
+ * assets, you should ensure that you have resources that address multiple pixel density
+ * buckets using configuration qualifiers in your resource folders (e.g. "mdpi", "hdpi", etc).
+ * See {@link androidx.car.app.CarContext} for more details.
  *
  * <h4>Themed Drawables</h4>
  *
