@@ -59,6 +59,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * from a remote server.)
  */
 public open class NavController(
+    /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: Context
 ) {
@@ -1065,6 +1066,7 @@ public open class NavController(
             return currentBackStackEntry?.destination
         }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findDestination(@IdRes destinationId: Int): NavDestination? {
         if (_graph == null) {
@@ -1085,6 +1087,7 @@ public open class NavController(
         return currentGraph.findNode(destinationId)
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findDestination(destinationRoute: String): NavDestination? {
         if (_graph == null) {
@@ -1757,6 +1760,7 @@ public open class NavController(
         deepLinkHandled = navState.getBoolean(KEY_DEEP_LINK_HANDLED)
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setLifecycleOwner(owner: LifecycleOwner) {
         if (owner == lifecycleOwner) {
@@ -1767,6 +1771,7 @@ public open class NavController(
         owner.lifecycle.addObserver(lifecycleObserver)
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setOnBackPressedDispatcher(dispatcher: OnBackPressedDispatcher) {
         checkNotNull(lifecycleOwner) {
@@ -1785,6 +1790,7 @@ public open class NavController(
         }
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun enableOnBackPressed(enabled: Boolean) {
         enableOnBackPressedCallback = enabled
@@ -1797,6 +1803,7 @@ public open class NavController(
             )
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setViewModelStore(viewModelStore: ViewModelStore) {
         if (viewModel == NavControllerViewModel.getInstance(viewModelStore)) {
@@ -1922,14 +1929,18 @@ public open class NavController(
             "android-support-nav:controller:backStackStates"
         private const val KEY_BACK_STACK_STATES_PREFIX =
             "android-support-nav:controller:backStackStates:"
+        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_IDS: String = "android-support-nav:controller:deepLinkIds"
+        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_ARGS: String = "android-support-nav:controller:deepLinkArgs"
+        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("IntentName")
         public const val KEY_DEEP_LINK_EXTRAS: String =
             "android-support-nav:controller:deepLinkExtras"
+        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_HANDLED: String =
             "android-support-nav:controller:deepLinkHandled"
