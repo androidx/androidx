@@ -32,10 +32,10 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class DynamicNavGraphTest {
+public class DynamicNavGraphTest {
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    public val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val progressId = 1
     private lateinit var provider: NavigatorProvider
@@ -46,7 +46,7 @@ class DynamicNavGraphTest {
     private lateinit var noOpNavigator: NoOpNavigator
 
     @Before
-    fun setup() {
+    public fun setup() {
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
         navigator = DynamicGraphNavigator(
@@ -60,12 +60,12 @@ class DynamicNavGraphTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun testGetOrThrow_NoParent() {
+    public fun testGetOrThrow_NoParent() {
         DynamicNavGraph.getOrThrow(noOpNavigator.createDestination())
     }
 
     @Test
-    fun testGetOrThrow_CorrectParent() {
+    public fun testGetOrThrow_CorrectParent() {
         setupProgressDestination(
             noOpNavigator.createDestination().apply {
                 id = progressId
@@ -81,13 +81,13 @@ class DynamicNavGraphTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun testNavigateToProgressDestination_withoutProgressDestination() {
+    public fun testNavigateToProgressDestination_withoutProgressDestination() {
         setupProgressDestination(null)
         navigator.navigateToProgressDestination(dynamicNavGraph, null)
     }
 
     @Test
-    fun testNavigateToProgressDestination_withProviderAndDestination() {
+    public fun testNavigateToProgressDestination_withProviderAndDestination() {
         setupProgressDestination(
             noOpNavigator.createDestination().apply {
                 id = progressId

@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 
 @RunWith(JUnit4::class)
-class DynamicGraphNavigatorTest {
+public class DynamicGraphNavigatorTest {
 
     private val navigator =
         DynamicGraphNavigator(
@@ -36,12 +36,12 @@ class DynamicGraphNavigatorTest {
         )
 
     @Test
-    fun testCreateDestination() {
+    public fun testCreateDestination() {
         assertNotNull(navigator.createDestination())
     }
 
     @Test
-    fun testInstallDefaultProgressDestination() {
+    public fun testInstallDefaultProgressDestination() {
         val navDestination = mock(NavDestination::class.java)
         navigator.installDefaultProgressDestination { navDestination }
         assertEquals(navDestination, navigator.defaultProgressDestinationSupplier!!.invoke())

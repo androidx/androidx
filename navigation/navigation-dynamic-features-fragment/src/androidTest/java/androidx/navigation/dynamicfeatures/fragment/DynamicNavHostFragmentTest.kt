@@ -35,9 +35,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class DynamicNavHostFragmentTest {
 
-    @Suppress("DEPRECATION")
     @get:Rule
-    public val activityTestRule: ActivityScenarioRule<NavigationActivity> = ActivityScenarioRule(
+    public val rule: ActivityScenarioRule<NavigationActivity> = ActivityScenarioRule(
         NavigationActivity::class.java
     )
 
