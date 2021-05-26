@@ -88,6 +88,7 @@ class NavDestinationTest {
             .isEqualTo(123)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navDestinationAction() {
         val destination = provider.navDestination(DESTINATION_ID) {
