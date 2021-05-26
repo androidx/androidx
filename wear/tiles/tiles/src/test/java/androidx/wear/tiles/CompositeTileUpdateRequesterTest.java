@@ -24,7 +24,6 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.wear.tiles.readers.RequestReaders;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -75,7 +74,7 @@ public class CompositeTileUpdateRequesterTest {
         @NonNull
         @Override
         protected ListenableFuture<TileBuilders.Tile> onTileRequest(
-                @NonNull RequestReaders.TileRequest requestParams) {
+                @NonNull RequestBuilders.TileRequest requestParams) {
             ResolvableFuture<TileBuilders.Tile> f = ResolvableFuture.create();
             f.set(null);
             return f;
@@ -84,7 +83,7 @@ public class CompositeTileUpdateRequesterTest {
         @NonNull
         @Override
         protected ListenableFuture<ResourceBuilders.Resources> onResourcesRequest(
-                @NonNull RequestReaders.ResourcesRequest requestParams) {
+                @NonNull RequestBuilders.ResourcesRequest requestParams) {
             ResolvableFuture<ResourceBuilders.Resources> f = ResolvableFuture.create();
             f.set(null);
             return f;

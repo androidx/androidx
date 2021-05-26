@@ -25,17 +25,17 @@ import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.wear.tiles.EventBuilders.TileAddEvent;
+import androidx.wear.tiles.EventBuilders.TileEnterEvent;
+import androidx.wear.tiles.EventBuilders.TileLeaveEvent;
+import androidx.wear.tiles.EventBuilders.TileRemoveEvent;
+import androidx.wear.tiles.RequestBuilders.ResourcesRequest;
+import androidx.wear.tiles.RequestBuilders.TileRequest;
 import androidx.wear.tiles.TileBuilders.Version;
 import androidx.wear.tiles.proto.EventProto;
 import androidx.wear.tiles.proto.RequestProto;
 import androidx.wear.tiles.proto.ResourceProto.Resources;
 import androidx.wear.tiles.proto.TileProto.Tile;
-import androidx.wear.tiles.readers.EventReaders.TileAddEvent;
-import androidx.wear.tiles.readers.EventReaders.TileEnterEvent;
-import androidx.wear.tiles.readers.EventReaders.TileLeaveEvent;
-import androidx.wear.tiles.readers.EventReaders.TileRemoveEvent;
-import androidx.wear.tiles.readers.RequestReaders.ResourcesRequest;
-import androidx.wear.tiles.readers.RequestReaders.TileRequest;
 
 import com.google.common.truth.Expect;
 import com.google.common.util.concurrent.Futures;

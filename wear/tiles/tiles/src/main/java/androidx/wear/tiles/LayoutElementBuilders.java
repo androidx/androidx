@@ -28,6 +28,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
+import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DegreesProp;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
@@ -43,7 +44,6 @@ import androidx.wear.tiles.TypeBuilders.Int32Prop;
 import androidx.wear.tiles.TypeBuilders.StringProp;
 import androidx.wear.tiles.proto.LayoutElementProto;
 import androidx.wear.tiles.proto.TypesProto;
-import androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

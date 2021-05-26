@@ -526,28 +526,28 @@ package androidx.wear.tiles {
 
   public static class LayoutElementBuilders.FontStyles {
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder body2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder button(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder caption2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder display3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3();
-    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
-    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyles withDeviceParameters(androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters);
+    method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyles withDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
   }
 
   public static final class LayoutElementBuilders.FontWeightProp {
@@ -1055,12 +1055,12 @@ package androidx.wear.tiles {
     ctor public TileProviderService();
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
-    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.readers.RequestReaders.ResourcesRequest);
-    method @MainThread protected void onTileAddEvent(androidx.wear.tiles.readers.EventReaders.TileAddEvent);
-    method @MainThread protected void onTileEnterEvent(androidx.wear.tiles.readers.EventReaders.TileEnterEvent);
-    method @MainThread protected void onTileLeaveEvent(androidx.wear.tiles.readers.EventReaders.TileLeaveEvent);
-    method @MainThread protected void onTileRemoveEvent(androidx.wear.tiles.readers.EventReaders.TileRemoveEvent);
-    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> onTileRequest(androidx.wear.tiles.readers.RequestReaders.TileRequest);
+    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
+    method @MainThread protected void onTileAddEvent(androidx.wear.tiles.EventBuilders.TileAddEvent);
+    method @MainThread protected void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent);
+    method @MainThread protected void onTileLeaveEvent(androidx.wear.tiles.EventBuilders.TileLeaveEvent);
+    method @MainThread protected void onTileRemoveEvent(androidx.wear.tiles.EventBuilders.TileRemoveEvent);
+    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest);
     field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
     field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
@@ -1151,55 +1151,6 @@ package androidx.wear.tiles {
   public static final class TypeBuilders.StringProp.Builder {
     method public androidx.wear.tiles.TypeBuilders.StringProp build();
     method public androidx.wear.tiles.TypeBuilders.StringProp.Builder setValue(String);
-  }
-
-}
-
-package androidx.wear.tiles.readers {
-
-  public class DeviceParametersReaders {
-    field public static final int DEVICE_PLATFORM_UNDEFINED = 0; // 0x0
-    field public static final int DEVICE_PLATFORM_WEAR_OS = 1; // 0x1
-    field public static final int SCREEN_SHAPE_RECT = 2; // 0x2
-    field public static final int SCREEN_SHAPE_ROUND = 1; // 0x1
-    field public static final int SCREEN_SHAPE_UNDEFINED = 0; // 0x0
-  }
-
-  public static class DeviceParametersReaders.DeviceParameters {
-    method public int getDevicePlatform();
-    method @FloatRange(from=0.0, fromInclusive=false) public float getScreenDensity();
-    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenHeightDp();
-    method public int getScreenShape();
-    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenWidthDp();
-  }
-
-  public class EventReaders {
-  }
-
-  public static class EventReaders.TileAddEvent {
-  }
-
-  public static class EventReaders.TileEnterEvent {
-  }
-
-  public static class EventReaders.TileLeaveEvent {
-  }
-
-  public static class EventReaders.TileRemoveEvent {
-  }
-
-  public class RequestReaders {
-  }
-
-  public static class RequestReaders.ResourcesRequest {
-    method public androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters getDeviceParameters();
-    method public java.util.List<java.lang.String!> getResourceIds();
-    method public String getVersion();
-  }
-
-  public static class RequestReaders.TileRequest {
-    method public androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters getDeviceParameters();
-    method public androidx.wear.tiles.StateBuilders.State getState();
   }
 
 }

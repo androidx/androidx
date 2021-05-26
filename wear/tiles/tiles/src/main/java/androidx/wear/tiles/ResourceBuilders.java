@@ -365,8 +365,9 @@ public final class ResourceBuilders {
          * resources.
          *
          * <p>This value must match the version of the resources required by the tile for the tile
-         * to render successfully, and must match the resource version specified in ResourcesRequest
-         * which triggered this request. Intended for testing purposes only.
+         * to render successfully, and must match the resource version specified in {@link
+         * androidx.wear.tiles.RequestBuilders.ResourcesRequest} which triggered this request.
+         * Intended for testing purposes only.
          */
         @NonNull
         public String getVersion() {
@@ -422,8 +423,8 @@ public final class ResourceBuilders {
              * the resources.
              *
              * <p>This value must match the version of the resources required by the tile for the
-             * tile to render successfully, and must match the resource version specified in
-             * ResourcesRequest which triggered this request.
+             * tile to render successfully, and must match the resource version specified in {@link
+             * androidx.wear.tiles.RequestBuilders.ResourcesRequest} which triggered this request.
              */
             @NonNull
             public Builder setVersion(@NonNull String version) {
