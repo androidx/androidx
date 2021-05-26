@@ -22,6 +22,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.isEntityElement
 import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
@@ -117,6 +118,17 @@ class RawQueryMethodProcessor(
         if (extractParams.size == 1 && !executableElement.isVarArgs()) {
             val param = extractParams.first().asMemberOf(containing)
             val processingEnv = context.processingEnv
+            if (param.nullability == XNullability.NULLABLE) {
+                context.logger.e(
+                    element = extractParams.first(),
+                    msg = ProcessorErrors.parameterCannotBeNullable(
+                        parameterName = extractParams.first().name
+                    )
+                )
+            }
+            // use nullable type to catch bad nullability. Because it is non-null by default in
+            // KSP, assignability will fail and we'll print a generic error instead of a specific
+            // one
             val supportQueryType = processingEnv.requireType(SupportDbTypeNames.QUERY)
             val isSupportSql = supportQueryType.isAssignableFrom(param)
             if (isSupportSql) {
