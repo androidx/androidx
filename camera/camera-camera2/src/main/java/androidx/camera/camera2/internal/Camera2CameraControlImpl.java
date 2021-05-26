@@ -43,7 +43,6 @@ import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisable
 import androidx.camera.camera2.interop.Camera2CameraControl;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -420,7 +419,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(

@@ -14,6 +14,7 @@ package androidx.camera.core {
   public interface CameraControl {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelFocusAndMetering();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> setExposureCompensationIndex(int);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(@FloatRange(from=0.0f, to=1.0f) float);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.FocusMeteringResult!> startFocusAndMetering(androidx.camera.core.FocusMeteringAction);
@@ -29,6 +30,7 @@ package androidx.camera.core {
   public interface CameraInfo {
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
+    method public androidx.camera.core.ExposureState getExposureState();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
@@ -120,6 +122,13 @@ package androidx.camera.core {
 
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
+  }
+
+  public interface ExposureState {
+    method public int getExposureCompensationIndex();
+    method public android.util.Range<java.lang.Integer!> getExposureCompensationRange();
+    method public android.util.Rational getExposureCompensationStep();
+    method public boolean isExposureCompensationSupported();
   }
 
   public interface ExtendableBuilder<T> {

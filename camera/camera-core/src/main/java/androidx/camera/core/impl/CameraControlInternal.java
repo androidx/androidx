@@ -22,7 +22,6 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture.FlashMode;
@@ -82,7 +81,6 @@ public interface CameraControlInternal extends CameraControl {
      */
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
 
     /**
@@ -157,7 +155,6 @@ public interface CameraControlInternal extends CameraControl {
 
         @NonNull
         @Override
-        @ExperimentalExposureCompensation
         public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
             return Futures.immediateFuture(0);
         }

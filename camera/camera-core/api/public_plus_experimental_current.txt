@@ -14,7 +14,7 @@ package androidx.camera.core {
   public interface CameraControl {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelFocusAndMetering();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
-    method @androidx.camera.core.ExperimentalExposureCompensation public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> setExposureCompensationIndex(int);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> setExposureCompensationIndex(int);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(@FloatRange(from=0.0f, to=1.0f) float);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.FocusMeteringResult!> startFocusAndMetering(androidx.camera.core.FocusMeteringAction);
@@ -30,7 +30,7 @@ package androidx.camera.core {
   public interface CameraInfo {
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
-    method @androidx.camera.core.ExperimentalExposureCompensation public androidx.camera.core.ExposureState getExposureState();
+    method public androidx.camera.core.ExposureState getExposureState();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
@@ -135,9 +135,6 @@ package androidx.camera.core {
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalExposureCompensation {
-  }
-
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
@@ -147,7 +144,7 @@ package androidx.camera.core {
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroup {
   }
 
-  @androidx.camera.core.ExperimentalExposureCompensation public interface ExposureState {
+  public interface ExposureState {
     method public int getExposureCompensationIndex();
     method public android.util.Range<java.lang.Integer!> getExposureCompensationRange();
     method public android.util.Rational getExposureCompensationStep();

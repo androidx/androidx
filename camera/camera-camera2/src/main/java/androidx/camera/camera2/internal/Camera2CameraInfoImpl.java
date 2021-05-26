@@ -31,7 +31,6 @@ import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
@@ -294,7 +293,6 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ExposureState getExposureState() {
         synchronized (mLock) {
             if (mCamera2CameraControlImpl == null) {
