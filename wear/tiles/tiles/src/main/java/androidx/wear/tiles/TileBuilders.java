@@ -41,9 +41,9 @@ public final class TileBuilders {
 
         /**
          * Gets the resource version required for these tiles. This can be any developer-defined
-         * string; it is only used to cache resources, and is passed in ResourcesRequest if the
-         * system does not have a copy of the specified resource version. Intended for testing
-         * purposes only.
+         * string; it is only used to cache resources, and is passed in {@link
+         * androidx.wear.tiles.RequestBuilders.ResourcesRequest} if the system does not have a copy
+         * of the specified resource version. Intended for testing purposes only.
          */
         @NonNull
         public String getResourcesVersion() {
@@ -108,8 +108,9 @@ public final class TileBuilders {
 
             /**
              * Sets the resource version required for these tiles. This can be any developer-defined
-             * string; it is only used to cache resources, and is passed in ResourcesRequest if the
-             * system does not have a copy of the specified resource version.
+             * string; it is only used to cache resources, and is passed in {@link
+             * androidx.wear.tiles.RequestBuilders.ResourcesRequest} if the system does not have a
+             * copy of the specified resource version.
              */
             @NonNull
             public Builder setResourcesVersion(@NonNull String resourcesVersion) {
