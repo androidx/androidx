@@ -29,6 +29,7 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.resources.Compatibility;
 import androidx.core.content.res.ResourcesCompat;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -238,7 +239,7 @@ class ResourcesWrapper extends Resources {
     @Override
     public void getValueForDensity(int id, int density, TypedValue outValue, boolean resolveRefs)
             throws NotFoundException {
-        mResources.getValueForDensity(id, density, outValue, resolveRefs);
+        Compatibility.Api15Impl.getValueForDensity(mResources, id, density, outValue, resolveRefs);
     }
 
     @Override
