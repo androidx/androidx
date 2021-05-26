@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
@@ -59,12 +60,14 @@ public class LocalStorage {
         final Context mContext;
         final String mDatabaseName;
         final Executor mExecutor;
+        final AppSearchLogger mLogger;
 
         SearchContext(@NonNull Context context, @NonNull String databaseName,
-                @NonNull Executor executor) {
+                @NonNull Executor executor, @Nullable AppSearchLogger logger) {
             mContext = Preconditions.checkNotNull(context);
             mDatabaseName = Preconditions.checkNotNull(databaseName);
             mExecutor = Preconditions.checkNotNull(executor);
+            mLogger = logger;
         }
 
         /**
@@ -95,6 +98,7 @@ public class LocalStorage {
             private final Context mContext;
             private final String mDatabaseName;
             private Executor mExecutor;
+            private AppSearchLogger mLogger;
 
             /**
              * Creates a {@link SearchContext.Builder} instance.
@@ -131,13 +135,29 @@ public class LocalStorage {
                 return this;
             }
 
+
+            /**
+             * Sets the custom logger used to get the details stats from AppSearch.
+             *
+             * <p>If no logger is provided, nothing would be returned/logged. There is no default
+             * logger implementation in AppSearch.
+             *
+             * @hide
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @NonNull
+            public Builder setLogger(@NonNull AppSearchLogger logger) {
+                mLogger = Preconditions.checkNotNull(logger);
+                return this;
+            }
+
             /** Builds a {@link SearchContext} instance. */
             @NonNull
             public SearchContext build() {
                 if (mExecutor == null) {
                     mExecutor = EXECUTOR;
                 }
-                return new SearchContext(mContext, mDatabaseName, mExecutor);
+                return new SearchContext(mContext, mDatabaseName, mExecutor, mLogger);
             }
         }
     }
@@ -228,7 +248,8 @@ public class LocalStorage {
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
-            LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor);
+            LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor,
+                    context.mLogger);
             return instance.doCreateSearchSession(context);
         });
     }
@@ -247,7 +268,8 @@ public class LocalStorage {
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
-            LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor);
+            LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor,
+                    /*logger=*/ null);
             return instance.doCreateGlobalSearchSession(context);
         });
     }
@@ -261,13 +283,14 @@ public class LocalStorage {
     @NonNull
     @WorkerThread
     @VisibleForTesting
-    static LocalStorage getOrCreateInstance(@NonNull Context context, @NonNull Executor executor)
+    static LocalStorage getOrCreateInstance(@NonNull Context context, @NonNull Executor executor,
+            @Nullable AppSearchLogger logger)
             throws AppSearchException {
         Preconditions.checkNotNull(context);
         if (sInstance == null) {
             synchronized (LocalStorage.class) {
                 if (sInstance == null) {
-                    sInstance = new LocalStorage(context, executor);
+                    sInstance = new LocalStorage(context, executor, logger);
                 }
             }
         }
@@ -275,14 +298,15 @@ public class LocalStorage {
     }
 
     @WorkerThread
-    private LocalStorage(@NonNull Context context, @NonNull Executor executor)
+    private LocalStorage(@NonNull Context context, @NonNull Executor executor,
+            @Nullable AppSearchLogger logger)
             throws AppSearchException {
         Preconditions.checkNotNull(context);
         File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
 
         // There is no global querier for a local storage instance.
-        mAppSearchImpl = AppSearchImpl.create(icingDir, context, /*callerUserHandle=*/ null,
-                /*logger=*/ null, new JetpackOptimizeStrategy());
+        mAppSearchImpl = AppSearchImpl.create(icingDir, context, /*callerUserHandle=*/ null, logger,
+                new JetpackOptimizeStrategy());
 
         executor.execute(() -> {
             try {
@@ -296,7 +320,7 @@ public class LocalStorage {
     @NonNull
     private AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
         return new SearchSessionImpl(mAppSearchImpl, context.mExecutor,
-                context.mContext.getPackageName(), context.mDatabaseName, /*logger=*/ null);
+                context.mContext.getPackageName(), context.mDatabaseName, context.mLogger);
     }
 
     @NonNull
