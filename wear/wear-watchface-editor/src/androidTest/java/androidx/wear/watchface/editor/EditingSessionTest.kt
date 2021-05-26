@@ -32,6 +32,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
+import android.support.wearable.watchface.Constants
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.activity.ComponentActivity
@@ -403,7 +404,8 @@ public class EditorSessionTest {
         previewReferenceTimeMillis: Long = 12345,
         providerInfoRetrieverProvider: ProviderInfoRetrieverProvider =
             TestProviderInfoRetrieverProvider(),
-        shouldTimeout: Boolean = false
+        shouldTimeout: Boolean = false,
+        preRFlow: Boolean = false
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
@@ -437,6 +439,18 @@ public class EditorSessionTest {
         }
 
         OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider = providerInfoRetrieverProvider
+
+        if (preRFlow) {
+            return ActivityScenario.launch(
+                Intent().apply {
+                    putExtra(Constants.EXTRA_WATCH_FACE_COMPONENT, testComponentName)
+                    component = ComponentName(
+                        ApplicationProvider.getApplicationContext<Context>(),
+                        OnWatchFaceEditingTestActivity::class.java
+                    )
+                }
+            )
+        }
 
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
@@ -1261,6 +1275,53 @@ public class EditorSessionTest {
             .isEqualTo(redStyleOption.id.value)
         assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
             .isEqualTo(classicStyleOption.id.value)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @Test
+    public fun commitChanges_preRFlow() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList(),
+            preRFlow = true
+        )
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+        scenario.onActivity { activity ->
+            runBlocking {
+                assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+                    .isEqualTo(redStyleOption.id.value)
+                assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+                    .isEqualTo(classicStyleOption.id.value)
+
+                // Select [blueStyleOption] and [gothicStyleOption].
+                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                    styleMap[userStyleSetting] = userStyleSetting.options.last()
+                }
+                activity.editorSession.userStyle = UserStyle(styleMap)
+
+                activity.editorSession.close()
+                activity.finish()
+            }
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertThat(result.userStyle.userStyleMap[colorStyleSetting.id.value])
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
+            .isEqualTo(gothicStyleOption.id.value)
+        assertTrue(result.shouldCommitChanges)
+
+        // Changes should be applied to the delegate too.
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(gothicStyleOption.id.value)
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
