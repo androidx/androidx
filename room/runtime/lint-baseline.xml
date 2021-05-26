@@ -57,6 +57,72 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mDelegate.setNotificationUris(cr, uris);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="706"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mDelegate.getNotificationUri();"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="713"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mDelegate.getNotificationUris();"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="721"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.room.AutoClosingRoomOpenHelper.KeepAliveCursor is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mDelegate.setExtras(extras);"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.java"
+            line="733"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.room.util.DBUtil is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return new CancellationSignal();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.java"
+            line="168"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.room.RoomDatabase.JournalMode is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                return activityManager.isLowRamDevice();"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="782"
+            column="40"/>
+    </issue>
+
+    <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class is missing private constructor"
         errorLine1="public class Room {"

@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
@@ -166,7 +165,7 @@ public class DBUtil {
     @Nullable
     public static CancellationSignal createCancellationSignal() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return SupportSQLiteCompat.Api16Impl.createCancellationSignal();
+            return new CancellationSignal();
         }
         return null;
     }
