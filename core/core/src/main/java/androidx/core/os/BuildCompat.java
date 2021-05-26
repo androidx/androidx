@@ -139,21 +139,6 @@ public class BuildCompat {
      */
     @ChecksSdkIntAtLeast(codename = "S")
     public static boolean isAtLeastS() {
-        return VERSION.CODENAME.equals("S") || VERSION.CODENAME.equals("T");
-    }
-
-    /**
-     * Checks if the device is running on a pre-release version of Android T or a release version of
-     * Android T or newer.
-     * <p>
-     * <strong>Note:</strong> When Android T is finalized for release, this method will be
-     * deprecated and all calls should be replaced with {@code Build.VERSION.SDK_INT >=
-     * Build.VERSION_CODES.T}.
-     *
-     * @return {@code true} if T APIs are available for use, {@code false} otherwise
-     */
-    @ChecksSdkIntAtLeast(codename = "T")
-    public static boolean isAtLeastT() {
-        return VERSION.CODENAME.equals("T");
+        return VERSION.CODENAME.equals("S");
     }
 }
