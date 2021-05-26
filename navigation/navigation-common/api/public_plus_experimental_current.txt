@@ -265,7 +265,7 @@ package androidx.navigation {
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
     ctor @Deprecated public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, String? route);
-    method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
+    method @Deprecated public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
     method public final void argument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> argumentBuilder);
     method public D build();
     method public final void deepLink(String uriPattern);
