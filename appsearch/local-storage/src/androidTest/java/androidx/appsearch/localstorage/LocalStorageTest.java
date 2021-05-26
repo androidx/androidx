@@ -32,9 +32,9 @@ public class LocalStorageTest {
     public void testSameInstance() throws Exception {
         Executor executor = Executors.newCachedThreadPool();
         LocalStorage b1 = LocalStorage.getOrCreateInstance(
-                ApplicationProvider.getApplicationContext(), executor);
+                ApplicationProvider.getApplicationContext(), executor, /*logger=*/ null);
         LocalStorage b2 = LocalStorage.getOrCreateInstance(
-                ApplicationProvider.getApplicationContext(), executor);
+                ApplicationProvider.getApplicationContext(), executor, /*logger=*/ null);
         assertThat(b1).isSameInstanceAs(b2);
     }
 
