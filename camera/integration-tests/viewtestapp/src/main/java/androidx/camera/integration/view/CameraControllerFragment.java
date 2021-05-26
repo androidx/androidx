@@ -57,10 +57,15 @@ import androidx.camera.view.video.OnVideoSavedCallback;
 import androidx.camera.view.video.OutputFileOptions;
 import androidx.camera.view.video.OutputFileResults;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -88,6 +93,7 @@ public class CameraControllerFragment extends Fragment {
     private ToggleButton mPinchToZoomToggle;
     private ToggleButton mTapToFocusToggle;
     private TextView mZoomStateText;
+    private TextView mFocusResultText;
     private TextView mTorchStateText;
     private SensorRotationReceiver mSensorRotationReceiver;
     private TextView mLuminance;
@@ -135,7 +141,6 @@ public class CameraControllerFragment extends Fragment {
         // Use compatible mode so StreamState is accurate.
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.setController(mCameraController);
-        mPreviewView.setOnClickListener(v -> toast("PreviewView clicked."));
 
         // Set up the button to add and remove the PreviewView
         mContainer = view.findViewById(R.id.container);
@@ -306,6 +311,13 @@ public class CameraControllerFragment extends Fragment {
         mCameraController.getZoomState().observe(getViewLifecycleOwner(),
                 this::updateZoomStateText);
 
+        mFocusResultText = view.findViewById(R.id.focus_result_text);
+        LiveData<Integer> focusMeteringResult =
+                mCameraController.getTapToFocusState();
+        updateFocusStateText(Objects.requireNonNull(focusMeteringResult.getValue()));
+        focusMeteringResult.observe(getViewLifecycleOwner(),
+                this::updateFocusStateText);
+
         mTorchStateText = view.findViewById(R.id.torch_state_text);
         updateTorchStateText(mCameraController.getTorchState().getValue());
         mCameraController.getTorchState().observe(getViewLifecycleOwner(),
@@ -354,6 +366,30 @@ public class CameraControllerFragment extends Fragment {
         } else {
             mZoomStateText.setText(zoomState.toString());
         }
+    }
+
+    private void updateFocusStateText(@NonNull Integer tapToFocusState) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String text = "";
+        switch (tapToFocusState) {
+            case CameraController.TAP_TO_FOCUS_NOT_STARTED:
+                text = "not started";
+                break;
+            case CameraController.TAP_TO_FOCUS_STARTED:
+                text = "started";
+                break;
+            case CameraController.TAP_TO_FOCUS_SUCCESSFUL:
+                text = "successful";
+                break;
+            case CameraController.TAP_TO_FOCUS_UNSUCCESSFUL:
+                text = "unsuccessful";
+                break;
+            case CameraController.TAP_TO_FOCUS_FAILED:
+                text = "failed";
+                break;
+        }
+        mFocusResultText.setText(
+                "Focus state: " + text + " time: " + dateFormat.format(new Date()));
     }
 
     private void updateTorchStateText(@Nullable Integer torchState) {

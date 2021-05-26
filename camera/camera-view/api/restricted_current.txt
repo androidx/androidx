@@ -17,6 +17,7 @@ package androidx.camera.view {
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getImageCaptureTargetSize();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> getInitializationFuture();
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
+    method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getVideoCaptureTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
@@ -46,6 +47,11 @@ package androidx.camera.view {
     method @MainThread public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
     field public static final int IMAGE_CAPTURE = 1; // 0x1
+    field public static final int TAP_TO_FOCUS_FAILED = 4; // 0x4
+    field public static final int TAP_TO_FOCUS_NOT_STARTED = 0; // 0x0
+    field public static final int TAP_TO_FOCUS_STARTED = 1; // 0x1
+    field public static final int TAP_TO_FOCUS_SUCCESSFUL = 2; // 0x2
+    field public static final int TAP_TO_FOCUS_UNSUCCESSFUL = 3; // 0x3
   }
 
   public static class CameraController.OutputSize {
