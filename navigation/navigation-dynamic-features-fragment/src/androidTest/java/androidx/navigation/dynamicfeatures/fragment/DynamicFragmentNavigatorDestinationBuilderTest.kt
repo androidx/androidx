@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class DynamicFragmentNavigatorDestinationBuilderTest {
-    @Suppress("DEPRECATION")
+
     @get:Rule
     public val rule: ActivityScenarioRule<TestActivity> = ActivityScenarioRule(
         TestActivity::class.java

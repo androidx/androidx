@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class DynamicActivityNavigatorDestinationBuilderTest {
+public class DynamicActivityNavigatorDestinationBuilderTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -48,7 +48,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun module() {
+    public fun module() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             activity(DESTINATION_ID) {
                 moduleName = MODULE_NAME
@@ -63,7 +63,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun noModule() {
+    public fun noModule() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             activity(DESTINATION_ID) {
             }
@@ -75,7 +75,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun activity() {
+    public fun activity() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             activity(DESTINATION_ID) {
                 moduleName = MODULE_NAME
@@ -95,7 +95,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun noActivity() {
+    public fun noActivity() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             activity(DESTINATION_ID) {
             }
@@ -108,7 +108,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun modulePackage() {
+    public fun modulePackage() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             activity(DESTINATION_ID) {
                 moduleName = MODULE_NAME
@@ -121,7 +121,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
     }
 
     @Test
-    fun moduleRoute() {
+    public fun moduleRoute() {
         val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
             activity(DESTINATION_ROUTE) {
                 moduleName = MODULE_NAME
@@ -135,7 +135,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
     }
 
     @Test
-    fun noModuleRoute() {
+    public fun noModuleRoute() {
         val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
             activity(DESTINATION_ROUTE) {
             }
@@ -146,7 +146,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
     }
 
     @Test
-    fun activityRoute() {
+    public fun activityRoute() {
         val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
             activity(DESTINATION_ROUTE) {
                 moduleName = MODULE_NAME
@@ -165,7 +165,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
     }
 
     @Test
-    fun noActivityRoute() {
+    public fun noActivityRoute() {
         val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
             activity(DESTINATION_ROUTE) {
             }
@@ -177,7 +177,7 @@ class DynamicActivityNavigatorDestinationBuilderTest {
     }
 
     @Test
-    fun modulePackageRoute() {
+    public fun modulePackageRoute() {
         val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
             activity(DESTINATION_ROUTE) {
                 moduleName = MODULE_NAME
