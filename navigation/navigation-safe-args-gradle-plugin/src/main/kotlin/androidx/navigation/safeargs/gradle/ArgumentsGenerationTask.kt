@@ -24,11 +24,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.resources.TextResource
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.ChangeType
@@ -44,11 +43,8 @@ open class ArgumentsGenerationTask @Inject constructor(private val projectLayout
     @get:Input
     lateinit var rFilePackage: Provider<String>
 
-    @get:Internal
-    var applicationIdResource: TextResource? = null // null on AGP 3.2.1 and below
-
-    @get:Internal
-    var applicationId: String? = null // null on AGP 3.3.0 and above
+    @get:Input
+    val applicationId: Property<String> = project.objects.property(String::class.java)
 
     @get:Input
     var useAndroidX: Boolean = true
@@ -66,18 +62,10 @@ open class ArgumentsGenerationTask @Inject constructor(private val projectLayout
     @get:OutputDirectory
     lateinit var incrementalFolder: File
 
-    /**
-     * Gets the app id from either the [applicationIdResource] if available or [applicationId].
-     * The availability from which the app id string is retrieved from is based on the Android
-     * Gradle Plugin version of the project.
-     */
-    @Input
-    fun getApplicationIdResourceString() = applicationIdResource?.asString() ?: applicationId
-
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
         val output = SafeArgsGenerator(
             rFilePackage = rFilePackage.get(),
-            applicationId = getApplicationIdResourceString() ?: "",
+            applicationId = applicationId.get() ?: "",
             navigationXml = file,
             outputDir = out,
             useAndroidX = useAndroidX,
