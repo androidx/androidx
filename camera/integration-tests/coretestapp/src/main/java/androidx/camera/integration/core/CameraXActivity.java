@@ -195,7 +195,6 @@ public class CameraXActivity extends AppCompatActivity {
     private FutureCallback<Integer> mEVFutureCallback = new FutureCallback<Integer>() {
 
         @Override
-        @OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
         public void onSuccess(@Nullable Integer result) {
             CameraInfo cameraInfo = getCameraInfo();
             if (cameraInfo != null) {
@@ -324,7 +323,6 @@ public class CameraXActivity extends AppCompatActivity {
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
     }
 
-    @OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
     private boolean isExposureCompensationSupported() {
         CameraInfo cameraInfo = getCameraInfo();
         return cameraInfo != null
@@ -469,7 +467,6 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
-    @OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
     private void setUpEVButton() {
         mPlusEV.setOnClickListener(v -> {
             Objects.requireNonNull(getCameraInfo());

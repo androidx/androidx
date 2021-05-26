@@ -41,12 +41,10 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -94,7 +92,6 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@OptIn(markerClass = ExperimentalExposureCompensation.class)
 public class ExposureDeviceTest {
 
     @CameraSelector.LensFacing

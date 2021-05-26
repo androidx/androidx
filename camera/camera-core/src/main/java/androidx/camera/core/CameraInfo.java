@@ -138,7 +138,6 @@ public interface CameraInfo {
      * <p>The {@link ExposureState} contains the current exposure related information.
      */
     @NonNull
-    @ExperimentalExposureCompensation
     ExposureState getExposureState();
 
     /**
