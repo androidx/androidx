@@ -631,9 +631,10 @@ public final class ActionBuilders {
         }
 
         /**
-         * Gets the state to load the next tile with. This will be included in the TileRequest sent
-         * after this action is invoked by a {@link
-         * androidx.wear.tiles.ModifiersBuilders.Clickable}. Intended for testing purposes only.
+         * Gets the state to load the next tile with. This will be included in the {@link
+         * androidx.wear.tiles.RequestBuilders.TileRequest} sent after this action is invoked by a
+         * {@link androidx.wear.tiles.ModifiersBuilders.Clickable}. Intended for testing purposes
+         * only.
          */
         @Nullable
         public State getRequestState() {
@@ -680,9 +681,9 @@ public final class ActionBuilders {
             Builder() {}
 
             /**
-             * Sets the state to load the next tile with. This will be included in the TileRequest
-             * sent after this action is invoked by a {@link
-             * androidx.wear.tiles.ModifiersBuilders.Clickable}.
+             * Sets the state to load the next tile with. This will be included in the {@link
+             * androidx.wear.tiles.RequestBuilders.TileRequest} sent after this action is invoked by
+             * a {@link androidx.wear.tiles.ModifiersBuilders.Clickable}.
              */
             @NonNull
             public Builder setRequestState(@NonNull State requestState) {
@@ -691,9 +692,9 @@ public final class ActionBuilders {
             }
 
             /**
-             * Sets the state to load the next tile with. This will be included in the TileRequest
-             * sent after this action is invoked by a {@link
-             * androidx.wear.tiles.ModifiersBuilders.Clickable}.
+             * Sets the state to load the next tile with. This will be included in the {@link
+             * androidx.wear.tiles.RequestBuilders.TileRequest} sent after this action is invoked by
+             * a {@link androidx.wear.tiles.ModifiersBuilders.Clickable}.
              */
             @NonNull
             public Builder setRequestState(@NonNull State.Builder requestStateBuilder) {

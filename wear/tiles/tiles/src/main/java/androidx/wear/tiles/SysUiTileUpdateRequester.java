@@ -143,8 +143,7 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
                         // we'll unbind, then immediately rebind. That said, this class should be
                         // used pretty rarely
                         // (and it'll be rare to have two in-flight update requests at once
-                        // regardless), so
-                        // it's probably fine.
+                        // regardless), so it's probably fine.
                         TileUpdateRequesterService updateRequesterService =
                                 TileUpdateRequesterService.Stub.asInterface(service);
 
