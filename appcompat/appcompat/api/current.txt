@@ -317,6 +317,7 @@ package androidx.appcompat.app {
 
   public class AppCompatDialogFragment extends androidx.fragment.app.DialogFragment {
     ctor public AppCompatDialogFragment();
+    ctor public AppCompatDialogFragment(@LayoutRes int);
   }
 
   public class AppCompatViewInflater {
