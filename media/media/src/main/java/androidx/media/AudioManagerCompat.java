@@ -16,11 +16,14 @@
 
 package androidx.media;
 
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat.StreamType;
 
 /** Compatibility library for {@link AudioManager} with fallbacks for older platforms. */
@@ -88,7 +91,7 @@ public final class AudioManagerCompat {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return audioManager.requestAudioFocus(focusRequest.getAudioFocusRequest());
+            return Api26Impl.requestAudioFocus(audioManager, focusRequest.getAudioFocusRequest());
         } else {
             return audioManager.requestAudioFocus(
                     focusRequest.getOnAudioFocusChangeListener(),
@@ -117,7 +120,8 @@ public final class AudioManagerCompat {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return audioManager.abandonAudioFocusRequest(focusRequest.getAudioFocusRequest());
+            return Api26Impl.abandonAudioFocusRequest(audioManager,
+                    focusRequest.getAudioFocusRequest());
         } else {
             return audioManager.abandonAudioFocus(focusRequest.getOnAudioFocusChangeListener());
         }
@@ -145,11 +149,37 @@ public final class AudioManagerCompat {
     public static int getStreamMinVolume(@NonNull AudioManager audioManager,
             @StreamType int streamType) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return audioManager.getStreamMinVolume(streamType);
+            return Api28Impl.getStreamMinVolume(audioManager, streamType);
         } else {
             return 0;
         }
     }
 
     private AudioManagerCompat() {}
+
+    @RequiresApi(26)
+    private static class Api26Impl {
+        private Api26Impl() {}
+
+        @DoNotInline
+        static int abandonAudioFocusRequest(AudioManager audioManager,
+                AudioFocusRequest focusRequest) {
+            return audioManager.abandonAudioFocusRequest(focusRequest);
+        }
+
+        @DoNotInline
+        static int requestAudioFocus(AudioManager audioManager, AudioFocusRequest focusRequest) {
+            return audioManager.requestAudioFocus(focusRequest);
+        }
+    }
+
+    @RequiresApi(28)
+    private static class Api28Impl {
+        private Api28Impl() {}
+
+        @DoNotInline
+        static int getStreamMinVolume(AudioManager audioManager, int streamType) {
+            return audioManager.getStreamMinVolume(streamType);
+        }
+    }
 }

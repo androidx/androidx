@@ -50,6 +50,7 @@ public class AudioAttributesImplApi26 extends AudioAttributesImplApi21 {
         return mAudioAttributes.getVolumeControlStream();
     }
 
+    @RequiresApi(26)
     static class Builder extends AudioAttributesImplApi21.Builder {
         Builder() {
             super();

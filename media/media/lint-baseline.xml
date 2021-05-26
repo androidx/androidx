@@ -2,1135 +2,13 @@
 <issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder = new AudioAttributes.Builder();"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="133"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder = new AudioAttributes.Builder((AudioAttributes) aa);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="137"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return new AudioAttributesImplApi21(mFwkBuilder.build());"
-        errorLine2="                                                            ~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="143"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder.setUsage(usage);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="153"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder.setContentType(contentType);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="160"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder.setFlags(flags);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="167"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi21.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder.setLegacyStreamType(streamType);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
-            line="174"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi26.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return new AudioAttributesImplApi26(mFwkBuilder.build());"
-        errorLine2="                                                            ~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi26.java"
-            line="65"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.AudioAttributesImplApi26.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mFwkBuilder.setUsage(usage);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi26.java"
-            line="71"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    new AudioFocusRequest.Builder(mFocusGain)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="84"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            .setAudioAttributes(getAudioAttributes())"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="85"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            .setWillPauseWhenDucked(mPauseOnDuck)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="86"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            .setOnAudioFocusChangeListener("
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="87"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioFocusRequestCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            .build();"
-        errorLine2="                             ~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="89"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioManagerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return audioManager.requestAudioFocus(focusRequest.getAudioFocusRequest());"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioManagerCompat.java"
-            line="91"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.AudioManagerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return audioManager.abandonAudioFocusRequest(focusRequest.getAudioFocusRequest());"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioManagerCompat.java"
-            line="120"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.media.AudioManagerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return audioManager.getStreamMinVolume(streamType);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioManagerCompat.java"
-            line="148"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaBrowserCompat.MediaItem is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int flags = itemFwk.getFlags();"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="499"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaBrowserCompat.MediaItem is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    MediaDescriptionCompat.fromMediaDescription(itemFwk.getDescription());"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="501"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mServiceFwk.setSessionToken((MediaSession.Token) token.getToken());"
-        errorLine2="                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="335"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.MediaBrowserServiceCompat.MediaBrowserServiceImplApi21.MediaBrowserServiceApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return browserRootCompat == null ? null : new MediaBrowserService.BrowserRoot("
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="506"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media.session.MediaButtonReceiver is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            context.startForegroundService(intent);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="301"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                controllerFwk = new MediaController(activity, (MediaSession.Token) sessionTokenObj);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="169"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.setMediaController(controllerFwk);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="171"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            MediaController controllerFwk = activity.getMediaController();"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="192"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaControllerCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="196"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class android.support.v4.media.session.MediaControllerCompat.MediaControllerImplApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mSessionInfo = mControllerFwk.getSessionInfo();"
-        errorLine2="                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2270"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mControlsFwk.prepare();"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2394"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mControlsFwk.prepareFromMediaId(mediaId, extras);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2403"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mControlsFwk.prepareFromSearch(query, extras);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2415"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mControlsFwk.prepareFromUri(uri, extras);"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2427"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mControlsFwk.setPlaybackSpeed(speed);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2495"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mControlsFwk.playFromUri(uri, extras);"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="2537"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        MediaDescription.Builder bob = new MediaDescription.Builder();"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="339"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setMediaId(mMediaId);"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="340"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setTitle(mTitle);"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="341"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setSubtitle(mSubtitle);"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="342"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setDescription(mDescription);"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="343"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setIconBitmap(mIcon);"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="344"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setIconUri(mIconUri);"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="345"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bob.setExtras(extras);"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="358"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setMediaUri(mMediaUri);"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="360"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mDescriptionFwk = bob.build();"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="362"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setMediaId(description.getMediaId());"
-        errorLine2="                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="383"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setTitle(description.getTitle());"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="384"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setSubtitle(description.getSubtitle());"
-        errorLine2="                                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="385"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setDescription(description.getDescription());"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="386"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setIconBitmap(description.getIconBitmap());"
-        errorLine2="                                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="387"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bob.setIconUri(description.getIconUri());"
-        errorLine2="                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="388"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Bundle extras = description.getExtras();"
-        errorLine2="                                        ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="389"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class android.support.v4.media.MediaDescriptionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                bob.setMediaUri(description.getMediaUri());"
-        errorLine2="                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="415"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class android.support.v4.media.session.MediaSessionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return new MediaSession(context, tag, sessionInfo);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="613"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return new MediaSession(context, tag);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="615"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mItemFwk = new MediaSession.QueueItem("
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2231"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Object descriptionObj = queueItemObj.getDescription();"
-        errorLine2="                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2252"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            long id = queueItemObj.getQueueId();"
-        errorLine2="                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2255"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 22; however, the containing class android.support.v4.media.session.MediaSessionCompat.MediaSessionImplApi21 is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mSessionFwk.setRatingType(type);"
-        errorLine2="                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="3974"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.getBuilder().setStyle("
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="211"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        fillInMediaStyle(new Notification.MediaStyle()));"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="212"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                style.setShowActionsInCompactView(mActionsToShowInCompact);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="221"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                style.setMediaSession((MediaSession.Token) mToken.getToken());"
-        errorLine2="                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="224"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 15; however, the containing class androidx.media.app.NotificationCompat.MediaStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                button.setContentDescription(R.id.action0, action.getTitle());"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="288"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.getBuilder().setStyle("
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="389"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        fillInMediaStyle(new Notification.DecoratedMediaCustomViewStyle()));"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="390"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            List&lt;PlaybackState.CustomAction> customActionFwks = stateFwk.getCustomActions();"
-        errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="809"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 22; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                extras = stateFwk.getExtras();"
-        errorLine2="                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="819"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getState(),"
-        errorLine2="                             ~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="825"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getPosition(),"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="826"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getBufferedPosition(),"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="827"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getPlaybackSpeed(),"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="828"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getActions(),"
-        errorLine2="                             ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="829"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getErrorMessage(),"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="831"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getLastPositionUpdateTime(),"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="832"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    stateFwk.getActiveQueueItemId(),"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="834"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            PlaybackState.Builder builder = new PlaybackState.Builder();"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="853"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setState(mState, mPosition, mSpeed, mUpdateTime);"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="854"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setBufferedPosition(mBufferedPosition);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="855"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setActions(mActions);"
-        errorLine2="                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="856"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setErrorMessage(mErrorMessage);"
-        errorLine2="                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="857"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.addCustomAction("
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="859"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setActiveQueueItemId(mActiveItemId);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="862"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 22; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.setExtras(mExtras);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="864"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mStateFwk = builder.build();"
-        errorLine2="                                ~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="866"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Bundle extras = customActionFwk.getExtras();"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="945"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            customActionFwk.getAction(),"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="949"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            customActionFwk.getName(),"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="950"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            customActionFwk.getIcon(),"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="951"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            PlaybackState.CustomAction.Builder builder = new PlaybackState.CustomAction.Builder("
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="972"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setExtras(mExtras);"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="974"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return builder.build();"
-        errorLine2="                           ~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="975"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            final int ratingStyle = ((Rating) ratingObj).getRatingStyle();"
-        errorLine2="                                                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="334"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (((Rating) ratingObj).isRated()) {"
-        errorLine2="                                     ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="336"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        rating = newHeartRating(((Rating) ratingObj).hasHeart());"
-        errorLine2="                                                                     ~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="339"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        rating = newThumbRating(((Rating) ratingObj).isThumbUp());"
-        errorLine2="                                                                     ~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="342"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                ((Rating) ratingObj).getStarRating());"
-        errorLine2="                                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="348"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                ((Rating) ratingObj).getPercentRating());"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="352"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mRatingObj = Rating.newHeartRating(hasHeart());"
-        errorLine2="                                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="380"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mRatingObj = Rating.newThumbRating(isThumbUp());"
-        errorLine2="                                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="383"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mRatingObj = Rating.newStarRating(mRatingStyle,"
-        errorLine2="                                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="388"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mRatingObj = Rating.newPercentageRating(getPercentRating());"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="392"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class android.support.v4.media.RatingCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mRatingObj = Rating.newUnratedRating(mRatingStyle);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="398"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media.VolumeProviderCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            volumeProviderFwk.setCurrentVolume(currentVolume);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/VolumeProviderCompat.java"
-            line="146"
-            column="31"/>
-    </issue>
-
-    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.media.AudioFocusRequestCompat.Builder.setOnAudioFocusChangeListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="                @NonNull OnAudioFocusChangeListener listener, @NonNull Handler handler) {"
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="310"
+            line="306"
             column="63"/>
     </issue>
 
@@ -1229,7 +107,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
-            line="370"
+            line="366"
             column="16"/>
     </issue>
 
@@ -1240,7 +118,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="190"
+            line="192"
             column="31"/>
     </issue>
 
@@ -1251,7 +129,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="190"
+            line="192"
             column="48"/>
     </issue>
 
@@ -1262,7 +140,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="191"
+            line="193"
             column="13"/>
     </issue>
 
@@ -1273,7 +151,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="191"
+            line="193"
             column="42"/>
     </issue>
 
@@ -1284,7 +162,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="410"
+            line="412"
             column="59"/>
     </issue>
 
@@ -1295,7 +173,7 @@
         errorLine2="                                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="432"
+            line="434"
             column="58"/>
     </issue>
 
@@ -1306,7 +184,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="494"
+            line="496"
             column="23"/>
     </issue>
 
@@ -1317,7 +195,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="494"
+            line="496"
             column="47"/>
     </issue>
 
@@ -1328,7 +206,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="515"
+            line="517"
             column="23"/>
     </issue>
 
@@ -1339,7 +217,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="515"
+            line="517"
             column="57"/>
     </issue>
 
@@ -1350,7 +228,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="557"
+            line="559"
             column="35"/>
     </issue>
 
@@ -1361,7 +239,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="883"
+            line="885"
             column="34"/>
     </issue>
 
@@ -1372,7 +250,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="922"
+            line="924"
             column="59"/>
     </issue>
 
@@ -1383,7 +261,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="933"
+            line="935"
             column="52"/>
     </issue>
 
@@ -1394,7 +272,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="949"
+            line="951"
             column="38"/>
     </issue>
 
@@ -1405,7 +283,7 @@
         errorLine2="                                                    ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="949"
+            line="951"
             column="53"/>
     </issue>
 
@@ -1416,7 +294,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="949"
+            line="951"
             column="68"/>
     </issue>
 
@@ -1427,7 +305,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="959"
+            line="961"
             column="30"/>
     </issue>
 
@@ -1438,7 +316,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="959"
+            line="961"
             column="45"/>
     </issue>
 
@@ -1449,7 +327,7 @@
         errorLine2="                                                           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="959"
+            line="961"
             column="60"/>
     </issue>
 
@@ -1460,7 +338,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="970"
+            line="972"
             column="29"/>
     </issue>
 
@@ -1471,7 +349,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="970"
+            line="972"
             column="44"/>
     </issue>
 
@@ -1482,7 +360,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
-            line="970"
+            line="972"
             column="59"/>
     </issue>
 
@@ -1537,7 +415,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1306"
+            line="1311"
             column="37"/>
     </issue>
 
@@ -1548,7 +426,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1328"
+            line="1333"
             column="12"/>
     </issue>
 
@@ -1559,7 +437,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1328"
+            line="1333"
             column="27"/>
     </issue>
 
@@ -1570,7 +448,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1333"
+            line="1338"
             column="22"/>
     </issue>
 
@@ -1581,7 +459,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1333"
+            line="1338"
             column="41"/>
     </issue>
 
@@ -1592,7 +470,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1333"
+            line="1338"
             column="61"/>
     </issue>
 
@@ -1603,7 +481,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1424"
+            line="1429"
             column="29"/>
     </issue>
 
@@ -1614,7 +492,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1424"
+            line="1429"
             column="40"/>
     </issue>
 
@@ -1625,7 +503,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1434"
+            line="1439"
             column="31"/>
     </issue>
 
@@ -1636,7 +514,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1455"
+            line="1460"
             column="28"/>
     </issue>
 
@@ -1647,7 +525,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1481"
+            line="1486"
             column="49"/>
     </issue>
 
@@ -1658,7 +536,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1506"
+            line="1511"
             column="56"/>
     </issue>
 
@@ -1669,7 +547,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1519"
+            line="1524"
             column="33"/>
     </issue>
 
@@ -1680,7 +558,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1554"
+            line="1559"
             column="18"/>
     </issue>
 
@@ -1691,7 +569,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1962"
+            line="1967"
             column="16"/>
     </issue>
 
@@ -1702,7 +580,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1969"
+            line="1974"
             column="16"/>
     </issue>
 
@@ -1713,7 +591,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="106"
+            line="107"
             column="27"/>
     </issue>
 
@@ -1724,7 +602,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="106"
+            line="107"
             column="44"/>
     </issue>
 
@@ -1735,7 +613,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="191"
+            line="192"
             column="19"/>
     </issue>
 
@@ -1746,7 +624,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="191"
+            line="192"
             column="41"/>
     </issue>
 
@@ -1757,7 +635,7 @@
         errorLine2="                                                                               ~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="191"
+            line="192"
             column="80"/>
     </issue>
 
@@ -1768,7 +646,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="224"
+            line="225"
             column="19"/>
     </issue>
 
@@ -1779,7 +657,7 @@
         errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="224"
+            line="225"
             column="63"/>
     </issue>
 
@@ -1790,7 +668,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="258"
+            line="259"
             column="19"/>
     </issue>
 
@@ -1801,7 +679,7 @@
         errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="258"
+            line="259"
             column="63"/>
     </issue>
 
@@ -1812,7 +690,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="259"
+            line="260"
             column="13"/>
     </issue>
 
@@ -1823,7 +701,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="283"
+            line="284"
             column="19"/>
     </issue>
 
@@ -1834,7 +712,7 @@
         errorLine2="                                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="283"
+            line="284"
             column="65"/>
     </issue>
 
@@ -1856,7 +734,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="186"
+            line="181"
             column="19"/>
     </issue>
 
@@ -1867,7 +745,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="235"
+            line="224"
             column="34"/>
     </issue>
 
@@ -1878,7 +756,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="254"
+            line="245"
             column="34"/>
     </issue>
 
@@ -1889,7 +767,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="272"
+            line="263"
             column="12"/>
     </issue>
 
@@ -1900,7 +778,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="283"
+            line="274"
             column="45"/>
     </issue>
 
@@ -1911,7 +789,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="300"
+            line="291"
             column="12"/>
     </issue>
 
@@ -1922,7 +800,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="309"
+            line="300"
             column="12"/>
     </issue>
 
@@ -1933,7 +811,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="319"
+            line="310"
             column="12"/>
     </issue>
 
@@ -1944,7 +822,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="335"
+            line="326"
             column="30"/>
     </issue>
 
@@ -1955,7 +833,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="355"
+            line="346"
             column="30"/>
     </issue>
 
@@ -1966,7 +844,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="372"
+            line="363"
             column="33"/>
     </issue>
 
@@ -1977,7 +855,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="402"
+            line="393"
             column="12"/>
     </issue>
 
@@ -1988,7 +866,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="409"
+            line="400"
             column="12"/>
     </issue>
 
@@ -1999,7 +877,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="489"
+            line="480"
             column="12"/>
     </issue>
 
@@ -2010,7 +888,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="499"
+            line="490"
             column="12"/>
     </issue>
 
@@ -2021,7 +899,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="508"
+            line="499"
             column="12"/>
     </issue>
 
@@ -2032,7 +910,7 @@
         errorLine2="                                                             ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="576"
+            line="567"
             column="62"/>
     </issue>
 
@@ -2043,7 +921,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="654"
+            line="645"
             column="12"/>
     </issue>
 
@@ -2054,7 +932,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="684"
+            line="675"
             column="12"/>
     </issue>
 
@@ -2065,7 +943,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="729"
+            line="720"
             column="36"/>
     </issue>
 
@@ -2076,7 +954,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="729"
+            line="720"
             column="50"/>
     </issue>
 
@@ -2087,7 +965,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="737"
+            line="728"
             column="44"/>
     </issue>
 
@@ -2098,7 +976,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="746"
+            line="737"
             column="39"/>
     </issue>
 
@@ -2109,7 +987,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="757"
+            line="748"
             column="36"/>
     </issue>
 
@@ -2120,7 +998,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="767"
+            line="758"
             column="41"/>
     </issue>
 
@@ -2131,7 +1009,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="776"
+            line="767"
             column="37"/>
     </issue>
 
@@ -2142,7 +1020,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="784"
+            line="775"
             column="40"/>
     </issue>
 
@@ -2153,7 +1031,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="823"
+            line="814"
             column="16"/>
     </issue>
 
@@ -2164,7 +1042,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1174"
+            line="1165"
             column="49"/>
     </issue>
 
@@ -2175,7 +1053,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1174"
+            line="1165"
             column="65"/>
     </issue>
 
@@ -2186,7 +1064,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1186"
+            line="1177"
             column="48"/>
     </issue>
 
@@ -2197,7 +1075,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1186"
+            line="1177"
             column="62"/>
     </issue>
 
@@ -2208,7 +1086,7 @@
         errorLine2="                                            ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1197"
+            line="1188"
             column="45"/>
     </issue>
 
@@ -2219,7 +1097,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1197"
+            line="1188"
             column="54"/>
     </issue>
 
@@ -2230,7 +1108,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1211"
+            line="1202"
             column="46"/>
     </issue>
 
@@ -2241,7 +1119,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1211"
+            line="1202"
             column="62"/>
     </issue>
 
@@ -2252,7 +1130,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1222"
+            line="1213"
             column="45"/>
     </issue>
 
@@ -2263,7 +1141,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1222"
+            line="1213"
             column="59"/>
     </issue>
 
@@ -2274,7 +1152,7 @@
         errorLine2="                                         ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1231"
+            line="1222"
             column="42"/>
     </issue>
 
@@ -2285,7 +1163,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1231"
+            line="1222"
             column="51"/>
     </issue>
 
@@ -2296,7 +1174,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1287"
+            line="1278"
             column="40"/>
     </issue>
 
@@ -2307,7 +1185,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1301"
+            line="1292"
             column="40"/>
     </issue>
 
@@ -2318,7 +1196,7 @@
         errorLine2="                                                            ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1301"
+            line="1292"
             column="61"/>
     </issue>
 
@@ -2329,7 +1207,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1347"
+            line="1338"
             column="47"/>
     </issue>
 
@@ -2340,7 +1218,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1348"
+            line="1339"
             column="17"/>
     </issue>
 
@@ -2351,7 +1229,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1366"
+            line="1357"
             column="47"/>
     </issue>
 
@@ -2362,7 +1240,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
-            line="1366"
+            line="1357"
             column="62"/>
     </issue>
 
@@ -2373,7 +1251,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="304"
+            line="306"
             column="31"/>
     </issue>
 
@@ -2384,7 +1262,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="335"
+            line="337"
             column="12"/>
     </issue>
 
@@ -2395,7 +1273,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="379"
+            line="381"
             column="19"/>
     </issue>
 
@@ -2406,7 +1284,7 @@
         errorLine2="                                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="379"
+            line="381"
             column="63"/>
     </issue>
 
@@ -2417,7 +1295,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="468"
+            line="470"
             column="16"/>
     </issue>
 
@@ -2428,7 +1306,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="479"
+            line="481"
             column="16"/>
     </issue>
 
@@ -2439,7 +1317,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="490"
+            line="492"
             column="16"/>
     </issue>
 
@@ -2450,7 +1328,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="502"
+            line="504"
             column="16"/>
     </issue>
 
@@ -2461,7 +1339,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="514"
+            line="516"
             column="16"/>
     </issue>
 
@@ -2472,7 +1350,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="526"
+            line="528"
             column="16"/>
     </issue>
 
@@ -2483,7 +1361,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="537"
+            line="539"
             column="16"/>
     </issue>
 
@@ -2494,7 +1372,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="548"
+            line="550"
             column="16"/>
     </issue>
 
@@ -2505,7 +1383,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
-            line="559"
+            line="561"
             column="16"/>
     </issue>
 
@@ -2890,7 +1768,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="629"
+            line="619"
             column="29"/>
     </issue>
 
@@ -2901,7 +1779,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="645"
+            line="635"
             column="29"/>
     </issue>
 
@@ -2912,7 +1790,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="645"
+            line="635"
             column="48"/>
     </issue>
 
@@ -2923,7 +1801,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="661"
+            line="651"
             column="36"/>
     </issue>
 
@@ -2934,7 +1812,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="678"
+            line="668"
             column="40"/>
     </issue>
 
@@ -2945,7 +1823,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="720"
+            line="710"
             column="37"/>
     </issue>
 
@@ -2956,7 +1834,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="764"
+            line="754"
             column="34"/>
     </issue>
 
@@ -2967,7 +1845,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="764"
+            line="754"
             column="48"/>
     </issue>
 
@@ -2978,7 +1856,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="794"
+            line="784"
             column="12"/>
     </issue>
 
@@ -2989,7 +1867,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="804"
+            line="794"
             column="12"/>
     </issue>
 
@@ -3000,7 +1878,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="813"
+            line="803"
             column="34"/>
     </issue>
 
@@ -3011,7 +1889,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="825"
+            line="815"
             column="29"/>
     </issue>
 
@@ -3022,7 +1900,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="841"
+            line="831"
             column="26"/>
     </issue>
 
@@ -3033,7 +1911,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="865"
+            line="855"
             column="31"/>
     </issue>
 
@@ -3044,7 +1922,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="934"
+            line="924"
             column="27"/>
     </issue>
 
@@ -3055,7 +1933,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="948"
+            line="938"
             column="12"/>
     </issue>
 
@@ -3066,7 +1944,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="962"
+            line="952"
             column="12"/>
     </issue>
 
@@ -3077,7 +1955,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="998"
+            line="988"
             column="12"/>
     </issue>
 
@@ -3088,7 +1966,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1009"
+            line="999"
             column="43"/>
     </issue>
 
@@ -3099,7 +1977,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1022"
+            line="1012"
             column="46"/>
     </issue>
 
@@ -3110,7 +1988,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1045"
+            line="1035"
             column="19"/>
     </issue>
 
@@ -3121,7 +1999,7 @@
         errorLine2="                                                      ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1045"
+            line="1035"
             column="55"/>
     </issue>
 
@@ -3132,7 +2010,7 @@
         errorLine2="                                                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1045"
+            line="1035"
             column="72"/>
     </issue>
 
@@ -3143,7 +2021,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1178"
+            line="1168"
             column="31"/>
     </issue>
 
@@ -3154,7 +2032,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1178"
+            line="1168"
             column="47"/>
     </issue>
 
@@ -3165,7 +2043,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1178"
+            line="1168"
             column="62"/>
     </issue>
 
@@ -3176,7 +2054,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1192"
+            line="1182"
             column="43"/>
     </issue>
 
@@ -3187,7 +2065,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1285"
+            line="1275"
             column="42"/>
     </issue>
 
@@ -3198,7 +2076,7 @@
         errorLine2="                                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1285"
+            line="1275"
             column="58"/>
     </issue>
 
@@ -3209,7 +2087,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1295"
+            line="1285"
             column="41"/>
     </issue>
 
@@ -3220,7 +2098,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1295"
+            line="1285"
             column="55"/>
     </issue>
 
@@ -3231,7 +2109,7 @@
         errorLine2="                                     ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1303"
+            line="1293"
             column="38"/>
     </issue>
 
@@ -3242,7 +2120,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1303"
+            line="1293"
             column="47"/>
     </issue>
 
@@ -3253,7 +2131,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1316"
+            line="1306"
             column="39"/>
     </issue>
 
@@ -3264,7 +2142,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1316"
+            line="1306"
             column="55"/>
     </issue>
 
@@ -3275,7 +2153,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1325"
+            line="1315"
             column="38"/>
     </issue>
 
@@ -3286,7 +2164,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1325"
+            line="1315"
             column="52"/>
     </issue>
 
@@ -3297,7 +2175,7 @@
         errorLine2="                                  ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1331"
+            line="1321"
             column="35"/>
     </issue>
 
@@ -3308,7 +2186,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1331"
+            line="1321"
             column="44"/>
     </issue>
 
@@ -3319,7 +2197,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1390"
+            line="1380"
             column="33"/>
     </issue>
 
@@ -3330,7 +2208,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1399"
+            line="1389"
             column="33"/>
     </issue>
 
@@ -3341,7 +2219,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1399"
+            line="1389"
             column="54"/>
     </issue>
 
@@ -3352,7 +2230,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1470"
+            line="1460"
             column="36"/>
     </issue>
 
@@ -3363,7 +2241,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1470"
+            line="1460"
             column="51"/>
     </issue>
 
@@ -3374,7 +2252,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1480"
+            line="1470"
             column="36"/>
     </issue>
 
@@ -3385,7 +2263,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1492"
+            line="1482"
             column="36"/>
     </issue>
 
@@ -3396,7 +2274,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1503"
+            line="1493"
             column="39"/>
     </issue>
 
@@ -3407,7 +2285,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1964"
+            line="1954"
             column="23"/>
     </issue>
 
@@ -3418,7 +2296,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1964"
+            line="1954"
             column="39"/>
     </issue>
 
@@ -3429,7 +2307,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1982"
+            line="1972"
             column="23"/>
     </issue>
 
@@ -3440,7 +2318,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1982"
+            line="1972"
             column="39"/>
     </issue>
 
@@ -3451,7 +2329,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1982"
+            line="1972"
             column="53"/>
     </issue>
 
@@ -3462,7 +2340,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1999"
+            line="1989"
             column="35"/>
     </issue>
 
@@ -3473,7 +2351,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2043"
+            line="2033"
             column="16"/>
     </issue>
 
@@ -3484,7 +2362,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2051"
+            line="2041"
             column="16"/>
     </issue>
 
@@ -3495,7 +2373,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2061"
+            line="2051"
             column="36"/>
     </issue>
 
@@ -3506,7 +2384,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2071"
+            line="2061"
             column="16"/>
     </issue>
 
@@ -3517,7 +2395,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2081"
+            line="2071"
             column="38"/>
     </issue>
 
@@ -3528,7 +2406,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2091"
+            line="2081"
             column="16"/>
     </issue>
 
@@ -3539,7 +2417,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2113"
+            line="2103"
             column="23"/>
     </issue>
 
@@ -3550,7 +2428,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2113"
+            line="2103"
             column="40"/>
     </issue>
 
@@ -3561,7 +2439,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2168"
+            line="2158"
             column="26"/>
     </issue>
 
@@ -3572,7 +2450,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2195"
+            line="2185"
             column="16"/>
     </issue>
 
@@ -3583,7 +2461,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2207"
+            line="2197"
             column="35"/>
     </issue>
 
@@ -3594,7 +2472,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2227"
+            line="2217"
             column="16"/>
     </issue>
 
@@ -3605,7 +2483,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2247"
+            line="2237"
             column="23"/>
     </issue>
 
@@ -3616,7 +2494,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2247"
+            line="2237"
             column="47"/>
     </issue>
 
@@ -3627,7 +2505,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2269"
+            line="2259"
             column="23"/>
     </issue>
 
@@ -3638,7 +2516,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2269"
+            line="2259"
             column="57"/>
     </issue>
 
@@ -3660,7 +2538,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="101"
+            line="102"
             column="23"/>
     </issue>
 
@@ -3671,7 +2549,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="101"
+            line="102"
             column="64"/>
     </issue>
 
@@ -3682,7 +2560,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="138"
+            line="139"
             column="27"/>
     </issue>
 
@@ -3693,7 +2571,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="148"
+            line="149"
             column="16"/>
     </issue>
 
@@ -3704,7 +2582,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="148"
+            line="149"
             column="55"/>
     </issue>
 
@@ -3715,7 +2593,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="157"
+            line="158"
             column="16"/>
     </issue>
 
@@ -3726,7 +2604,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="157"
+            line="158"
             column="43"/>
     </issue>
 
@@ -3737,7 +2615,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="186"
+            line="187"
             column="16"/>
     </issue>
 
@@ -3748,7 +2626,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="199"
+            line="200"
             column="16"/>
     </issue>
 
@@ -3759,7 +2637,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="199"
+            line="200"
             column="49"/>
     </issue>
 
@@ -3770,7 +2648,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="209"
+            line="210"
             column="27"/>
     </issue>
 
@@ -3781,7 +2659,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="234"
+            line="235"
             column="16"/>
     </issue>
 
@@ -3792,7 +2670,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="234"
+            line="235"
             column="44"/>
     </issue>
 
@@ -3803,7 +2681,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="302"
+            line="303"
             column="16"/>
     </issue>
 
@@ -3814,7 +2692,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="302"
+            line="303"
             column="47"/>
     </issue>
 
@@ -3825,7 +2703,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="387"
+            line="388"
             column="27"/>
     </issue>
 
@@ -3836,7 +2714,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="401"
+            line="402"
             column="16"/>
     </issue>
 
@@ -3847,7 +2725,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="401"
+            line="402"
             column="44"/>
     </issue>
 
@@ -3858,7 +2736,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="443"
+            line="444"
             column="16"/>
     </issue>
 
@@ -3869,7 +2747,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="443"
+            line="444"
             column="47"/>
     </issue>
 
@@ -3880,7 +2758,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="475"
+            line="476"
             column="16"/>
     </issue>
 
@@ -3891,7 +2769,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/app/NotificationCompat.java"
-            line="475"
+            line="476"
             column="51"/>
     </issue>
 
@@ -3924,7 +2802,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="616"
+            line="618"
             column="31"/>
     </issue>
 
@@ -3935,7 +2813,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="677"
+            line="679"
             column="36"/>
     </issue>
 
@@ -3946,7 +2824,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="739"
+            line="741"
             column="12"/>
     </issue>
 
@@ -3957,7 +2835,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="772"
+            line="774"
             column="12"/>
     </issue>
 
@@ -3968,7 +2846,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="806"
+            line="808"
             column="19"/>
     </issue>
 
@@ -3979,7 +2857,7 @@
         errorLine2="                                                        ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="806"
+            line="808"
             column="57"/>
     </issue>
 
@@ -3990,7 +2868,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="851"
+            line="854"
             column="12"/>
     </issue>
 
@@ -4001,7 +2879,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="915"
+            line="918"
             column="35"/>
     </issue>
 
@@ -4012,7 +2890,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="938"
+            line="941"
             column="23"/>
     </issue>
 
@@ -4023,7 +2901,7 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="938"
+            line="941"
             column="73"/>
     </issue>
 
@@ -4034,7 +2912,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="967"
+            line="970"
             column="16"/>
     </issue>
 
@@ -4045,7 +2923,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="997"
+            line="1000"
             column="16"/>
     </issue>
 
@@ -4056,7 +2934,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1006"
+            line="1009"
             column="16"/>
     </issue>
 
@@ -4067,7 +2945,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1029"
+            line="1032"
             column="16"/>
     </issue>
 
@@ -4078,7 +2956,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1063"
+            line="1066"
             column="28"/>
     </issue>
 
@@ -4089,7 +2967,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1063"
+            line="1066"
             column="43"/>
     </issue>
 
@@ -4100,7 +2978,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1090"
+            line="1093"
             column="20"/>
     </issue>
 
@@ -4111,7 +2989,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1090"
+            line="1093"
             column="38"/>
     </issue>
 
@@ -4122,7 +3000,7 @@
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1101"
+            line="1104"
             column="20"/>
     </issue>
 
@@ -4133,7 +3011,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1136"
+            line="1139"
             column="24"/>
     </issue>
 
@@ -4144,7 +3022,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1183"
+            line="1186"
             column="16"/>
     </issue>
 
@@ -4155,7 +3033,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1221"
+            line="1224"
             column="16"/>
     </issue>
 
@@ -4166,7 +3044,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1237"
+            line="1240"
             column="16"/>
     </issue>
 
@@ -4177,7 +3055,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1272"
+            line="1275"
             column="16"/>
     </issue>
 
@@ -4188,7 +3066,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1297"
+            line="1300"
             column="16"/>
     </issue>
 
@@ -4199,7 +3077,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1297"
+            line="1300"
             column="40"/>
     </issue>
 
@@ -4210,7 +3088,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1297"
+            line="1300"
             column="55"/>
     </issue>
 
@@ -4221,7 +3099,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1312"
+            line="1315"
             column="16"/>
     </issue>
 
@@ -4232,7 +3110,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1312"
+            line="1315"
             column="40"/>
     </issue>
 
@@ -4243,7 +3121,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1328"
+            line="1331"
             column="16"/>
     </issue>
 
@@ -4254,7 +3132,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1341"
+            line="1344"
             column="16"/>
     </issue>
 
@@ -4265,7 +3143,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1341"
+            line="1344"
             column="40"/>
     </issue>
 
@@ -4276,7 +3154,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1354"
+            line="1357"
             column="16"/>
     </issue>
 
@@ -4287,7 +3165,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1354"
+            line="1357"
             column="66"/>
     </issue>
 
@@ -4298,7 +3176,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1366"
+            line="1369"
             column="16"/>
     </issue>
 
@@ -4309,7 +3187,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1366"
+            line="1369"
             column="34"/>
     </issue>
 
@@ -4320,7 +3198,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
-            line="1374"
+            line="1377"
             column="16"/>
     </issue>
 
@@ -4331,7 +3209,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="126"
+            line="128"
             column="31"/>
     </issue>
 
@@ -4342,7 +3220,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="158"
+            line="160"
             column="19"/>
     </issue>
 
@@ -4353,7 +3231,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="179"
+            line="181"
             column="19"/>
     </issue>
 
@@ -4364,7 +3242,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="190"
+            line="192"
             column="19"/>
     </issue>
 
@@ -4375,7 +3253,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="206"
+            line="208"
             column="19"/>
     </issue>
 
@@ -4386,7 +3264,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="237"
+            line="239"
             column="19"/>
     </issue>
 
@@ -4397,7 +3275,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="332"
+            line="334"
             column="19"/>
     </issue>
 
@@ -4408,7 +3286,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="332"
+            line="334"
             column="43"/>
     </issue>
 
@@ -4419,7 +3297,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/RatingCompat.java"
-            line="375"
+            line="377"
             column="12"/>
     </issue>
 
@@ -4430,7 +3308,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media/VolumeProviderCompat.java"
-            line="188"
+            line="190"
             column="29"/>
     </issue>
 
@@ -4441,7 +3319,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media/VolumeProviderCompat.java"
-            line="200"
+            line="202"
             column="12"/>
     </issue>
 
@@ -4452,7 +3330,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/VolumeProviderCompat.java"
-            line="236"
+            line="238"
             column="46"/>
     </issue>
 

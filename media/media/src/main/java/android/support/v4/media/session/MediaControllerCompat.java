@@ -163,12 +163,7 @@ public final class MediaControllerCompat {
         activity.getWindow().getDecorView().setTag(
                 R.id.media_controller_compat_view_tag, mediaController);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            MediaController controllerFwk = null;
-            if (mediaController != null) {
-                Object sessionTokenObj = mediaController.getSessionToken().getToken();
-                controllerFwk = new MediaController(activity, (MediaSession.Token) sessionTokenObj);
-            }
-            activity.setMediaController(controllerFwk);
+            MediaControllerImplApi21.setMediaController(activity, mediaController);
         }
     }
 
@@ -189,13 +184,7 @@ public final class MediaControllerCompat {
         if (tag instanceof MediaControllerCompat) {
             return (MediaControllerCompat) tag;
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
-            MediaController controllerFwk = activity.getMediaController();
-            if (controllerFwk == null) {
-                return null;
-            }
-            MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();
-            return new MediaControllerCompat(activity,
-                    MediaSessionCompat.Token.fromToken(sessionTokenFwk));
+            return MediaControllerImplApi21.getMediaController(activity);
         }
         return null;
     }
@@ -238,7 +227,9 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            mImpl = new MediaControllerImplApi29(context, mToken);
+        } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, mToken);
         } else {
             mImpl = new MediaControllerImplBase(mToken);
@@ -2027,7 +2018,7 @@ public final class MediaControllerCompat {
 
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
 
-        private Bundle mSessionInfo;
+        protected Bundle mSessionInfo;
 
         final MediaSessionCompat.Token mSessionToken;
 
@@ -2090,7 +2081,16 @@ public final class MediaControllerCompat {
 
         @Override
         public TransportControls getTransportControls() {
-            return new TransportControlsApi21(mControllerFwk.getTransportControls());
+            MediaController.TransportControls controlsFwk = mControllerFwk.getTransportControls();
+            if (Build.VERSION.SDK_INT >= 29) {
+                return new TransportControlsApi29(controlsFwk);
+            } else if (Build.VERSION.SDK_INT >= 24) {
+                return new TransportControlsApi24(controlsFwk);
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                return new TransportControlsApi23(controlsFwk);
+            } else {
+                return new TransportControlsApi21(controlsFwk);
+            }
         }
 
         @Override
@@ -2265,10 +2265,7 @@ public final class MediaControllerCompat {
                 return new Bundle(mSessionInfo);
             }
 
-            // Get the info from the connected session.
-            if (Build.VERSION.SDK_INT >= 29) {
-                mSessionInfo = mControllerFwk.getSessionInfo();
-            } else if (mSessionToken.getExtraBinder() != null) {
+            if (mSessionToken.getExtraBinder() != null) {
                 try {
                     mSessionInfo = mSessionToken.getExtraBinder().getSessionInfo();
                 } catch (RemoteException e) {
@@ -2308,6 +2305,27 @@ public final class MediaControllerCompat {
                 callback.postToHandler(Callback.MessageHandler.MSG_SESSION_READY, null, null);
             }
             mPendingCallbacks.clear();
+        }
+
+        static void setMediaController(@NonNull Activity activity,
+                @Nullable MediaControllerCompat mediaControllerCompat) {
+            MediaController controllerFwk = null;
+            if (mediaControllerCompat != null) {
+                Object sessionTokenObj = mediaControllerCompat.getSessionToken().getToken();
+                controllerFwk = new MediaController(activity, (MediaSession.Token) sessionTokenObj);
+            }
+            activity.setMediaController(controllerFwk);
+        }
+
+        @Nullable
+        static MediaControllerCompat getMediaController(@NonNull Activity activity) {
+            MediaController controllerFwk = activity.getMediaController();
+            if (controllerFwk == null) {
+                return null;
+            }
+            MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();
+            return new MediaControllerCompat(activity,
+                    MediaSessionCompat.Token.fromToken(sessionTokenFwk));
         }
 
         private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
@@ -2380,6 +2398,23 @@ public final class MediaControllerCompat {
         }
     }
 
+    @RequiresApi(29)
+    static class MediaControllerImplApi29 extends MediaControllerImplApi21 {
+        MediaControllerImplApi29(Context context, MediaSessionCompat.Token sessionToken) {
+            super(context, sessionToken);
+        }
+
+        @Override
+        public Bundle getSessionInfo() {
+            if (mSessionInfo != null) {
+                return new Bundle(mSessionInfo);
+            }
+            mSessionInfo = mControllerFwk.getSessionInfo();
+            mSessionInfo = MediaSessionCompat.unparcelWithClassLoader(mSessionInfo);
+            return mSessionInfo == null ? Bundle.EMPTY : new Bundle(mSessionInfo);
+        }
+    }
+
     @RequiresApi(21)
     static class TransportControlsApi21 extends TransportControls {
         protected final MediaController.TransportControls mControlsFwk;
@@ -2390,19 +2425,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void prepare() {
-            if (Build.VERSION.SDK_INT >= 24) {
-                mControlsFwk.prepare();
-                return;
-            }
             sendCustomAction(MediaSessionCompat.ACTION_PREPARE, null);
         }
 
         @Override
         public void prepareFromMediaId(String mediaId, Bundle extras) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                mControlsFwk.prepareFromMediaId(mediaId, extras);
-                return;
-            }
             Bundle bundle = new Bundle();
             bundle.putString(MediaSessionCompat.ACTION_ARGUMENT_MEDIA_ID, mediaId);
             bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
@@ -2411,10 +2438,6 @@ public final class MediaControllerCompat {
 
         @Override
         public void prepareFromSearch(String query, Bundle extras) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                mControlsFwk.prepareFromSearch(query, extras);
-                return;
-            }
             Bundle bundle = new Bundle();
             bundle.putString(MediaSessionCompat.ACTION_ARGUMENT_QUERY, query);
             bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
@@ -2423,10 +2446,6 @@ public final class MediaControllerCompat {
 
         @Override
         public void prepareFromUri(Uri uri, Bundle extras) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                mControlsFwk.prepareFromUri(uri, extras);
-                return;
-            }
             Bundle bundle = new Bundle();
             bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_URI, uri);
             bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
@@ -2491,10 +2510,6 @@ public final class MediaControllerCompat {
             if (speed == 0.0f) {
                 throw new IllegalArgumentException("speed must not be zero");
             }
-            if (Build.VERSION.SDK_INT >= 29) {
-                mControlsFwk.setPlaybackSpeed(speed);
-                return;
-            }
             Bundle bundle = new Bundle();
             bundle.putFloat(MediaSessionCompat.ACTION_ARGUMENT_PLAYBACK_SPEED, speed);
             sendCustomAction(MediaSessionCompat.ACTION_SET_PLAYBACK_SPEED, bundle);
@@ -2533,10 +2548,6 @@ public final class MediaControllerCompat {
 
         @Override
         public void playFromUri(Uri uri, Bundle extras) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                mControlsFwk.playFromUri(uri, extras);
-                return;
-            }
             if (uri == null || Uri.EMPTY.equals(uri)) {
                 throw new IllegalArgumentException(
                         "You must specify a non-empty Uri for playFromUri.");
@@ -2562,6 +2573,60 @@ public final class MediaControllerCompat {
         public void sendCustomAction(String action, Bundle args) {
             validateCustomAction(action, args);
             mControlsFwk.sendCustomAction(action, args);
+        }
+    }
+
+    @RequiresApi(23)
+    static class TransportControlsApi23 extends TransportControlsApi21 {
+        TransportControlsApi23(MediaController.TransportControls controlsFwk) {
+            super(controlsFwk);
+        }
+
+        @Override
+        public void playFromUri(Uri uri, Bundle extras) {
+            mControlsFwk.playFromUri(uri, extras);
+        }
+    }
+
+    @RequiresApi(24)
+    static class TransportControlsApi24 extends TransportControlsApi23 {
+        TransportControlsApi24(MediaController.TransportControls controlsFwk) {
+            super(controlsFwk);
+        }
+
+        @Override
+        public void prepare() {
+            mControlsFwk.prepare();
+        }
+
+        @Override
+        public void prepareFromMediaId(String mediaId, Bundle extras) {
+            mControlsFwk.prepareFromMediaId(mediaId, extras);
+        }
+
+        @Override
+        public void prepareFromSearch(String query, Bundle extras) {
+            mControlsFwk.prepareFromSearch(query, extras);
+        }
+
+        @Override
+        public void prepareFromUri(Uri uri, Bundle extras) {
+            mControlsFwk.prepareFromUri(uri, extras);
+        }
+    }
+
+    @RequiresApi(29)
+    static class TransportControlsApi29 extends TransportControlsApi24 {
+        TransportControlsApi29(MediaController.TransportControls controlsFwk) {
+            super(controlsFwk);
+        }
+
+        @Override
+        public void setPlaybackSpeed(float speed) {
+            if (speed == 0.0f) {
+                throw new IllegalArgumentException("speed must not be zero");
+            }
+            mControlsFwk.setPlaybackSpeed(speed);
         }
     }
 }
