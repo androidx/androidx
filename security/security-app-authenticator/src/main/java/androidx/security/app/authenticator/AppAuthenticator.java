@@ -38,6 +38,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -591,10 +592,25 @@ public class AppAuthenticator {
                         + "on line " + parser.getLineNumber() + " must have non-empty text "
                         + "containing the certificate digest of the signer");
             }
-            allowedCertDigests.add(digest);
+            allowedCertDigests.add(normalizeCertDigest(digest));
             eventType = parser.nextTag();
         }
         return allowedCertDigests;
+    }
+
+    /**
+     * Normalizes the provided {@code certDigest} to ensure it is in the proper form for {@code
+     * Collection} membership checks when comparing a package's signing certificate digest against
+     * those provided to the {@code AppAuthenticator}.
+     *
+     * @param certDigest the digest to be normalized
+     * @return a normalized form of the provided digest that can be used in subsequent {@code
+     * Collection} membership checks
+     */
+    static String normalizeCertDigest(String certDigest) {
+        // The AppAuthenticatorUtils#computeDigest method uses lower case characters to compute the
+        // digest.
+        return certDigest.toLowerCase(Locale.US);
     }
 
     /**
