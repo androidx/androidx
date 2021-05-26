@@ -322,4 +322,22 @@ public final class AppAuthenticatorTest {
                 "d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469"));
         assertEquals("SHA-256", config.getDigestAlgorithm());
     }
+
+    @Test
+    public void createConfigFromParser_upperCaseDigestInConfig_returnsMatch() throws Exception {
+        // The digest computed by the AppAuthenticatorUtils is in lower case, but the
+        // AppAuthenticator supports matching digests provided in upper case as well.
+        // This test does not directly verify the digest of a package's signing certificate
+        // but instead uses the bytes from the package name in the identity; this test ensures
+        // the AppAuthenticator properly normalizes the provided digest so that it matches the
+        // digest returned by AppAuthenticatorUtils.
+        final String packageName = "com.example.app";
+        AppAuthenticator.AppAuthenticatorConfig config = AppAuthenticator.createConfigFromParser(
+                mResources.getXml(R.xml.upper_case_digest));
+        Set<String> expectedPackageIdentities = config.getExpectedIdentities().get(packageName);
+
+        assertTrue(expectedPackageIdentities.contains(
+                AppAuthenticatorUtils.computeDigest(AppAuthenticator.DEFAULT_DIGEST_ALGORITHM,
+                        packageName.getBytes())));
+    }
 }
