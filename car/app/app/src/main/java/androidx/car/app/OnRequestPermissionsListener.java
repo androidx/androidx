@@ -16,18 +16,20 @@
 
 package androidx.car.app;
 
+import androidx.annotation.NonNull;
+
+import java.util.List;
+
 /**
- * A callback with the results from a permissions request.
- *
- * <p>This callback is sent between the {@link CarAppService} and {@link CarAppInternalActivity}
- * and therefore runs entirely on the client process.
- *
- * @hide
+ * A listener with the results from a permissions request.
  */
-interface IOnRequestPermissionsCallback {
+public interface OnRequestPermissionsListener {
     /**
-     * Provides the permission request's results to the caller.
+     * Provides which permissions were approved and which were rejected by the user.
+     *
+     * @param grantedPermissions  the permissions that the user granted
+     * @param rejectedPermissions the permissions that the user rejected
      */
-    void onRequestPermissionsResult(in String[] approvedPermissions, in String[]
-            rejectedPermissions) = 1;
+    void onRequestPermissionsResult(@NonNull List<String> grantedPermissions,
+            @NonNull List<String> rejectedPermissions);
 }

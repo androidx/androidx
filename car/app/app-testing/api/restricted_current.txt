@@ -47,7 +47,7 @@ package androidx.car.app.testing {
   }
 
   public static class TestCarContext.PermissionRequestInfo {
-    method public androidx.car.app.OnRequestPermissionsCallback getCallback();
+    method public androidx.car.app.OnRequestPermissionsListener getListener();
     method public java.util.List<java.lang.String!> getPermissionsRequested();
   }
 

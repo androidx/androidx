@@ -155,8 +155,8 @@ public class CarContext extends ContextWrapper {
     /**
      * Key for binder extra for permission result callback.
      */
-    static final String EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY =
-            "androidx.car.app.action.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY";
+    static final String EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY =
+            "androidx.car.app.action.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY";
 
     /**
      * Holds an exception to be thrown when accessing {@link CarHardwareManager} if there is an
@@ -473,19 +473,19 @@ public class CarContext extends ContextWrapper {
 
     /**
      * Requests the provided {@code permissions} from the user, calling the provided {@code
-     * callback} in the main thread.
+     * listener} in the main thread.
      *
-     * @see CarContext#requestPermissions(List, Executor, OnRequestPermissionsCallback)
+     * @see CarContext#requestPermissions(List, Executor, OnRequestPermissionsListener)=
      */
     public void requestPermissions(@NonNull List<String> permissions,
-            @NonNull OnRequestPermissionsCallback callback) {
-        requestPermissions(permissions, ContextCompat.getMainExecutor(this), callback);
+            @NonNull OnRequestPermissionsListener listener) {
+        requestPermissions(permissions, ContextCompat.getMainExecutor(this), listener);
     }
 
     /**
      * Requests the provided {@code permissions} from the user.
      *
-     * <p>When the result is available, the {@code callback} provided will be called using the
+     * <p>When the result is available, the {@code listener} provided will be called using the
      * {@link Executor} provided.
      *
      * <p>This method should be called using a
@@ -511,31 +511,31 @@ public class CarContext extends ContextWrapper {
      *
      * @param permissions the runtime permissions to request from the user
      * @param executor    the executor that will be used for calling the {@code callback} provided
-     * @param callback    callback that will be notified when the user takes action on the
+     * @param listener    listener that will be notified when the user takes action on the
      *                    permission request
      * @throws NullPointerException if any of {@code executor}, {@code permissions} or
      *                              {@code callback} are {@code null}
      */
     public void requestPermissions(@NonNull List<String> permissions,
             @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnRequestPermissionsCallback callback) {
+            @NonNull OnRequestPermissionsListener listener) {
         requireNonNull(executor);
         requireNonNull(permissions);
-        requireNonNull(callback);
+        requireNonNull(listener);
 
         ComponentName appActivityComponent = new ComponentName(this, CarAppInternalActivity.class);
 
         Lifecycle lifecycle = mLifecycle;
         Bundle extras = new Bundle(2);
-        extras.putBinder(EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY,
-                new IOnRequestPermissionsCallback.Stub() {
+        extras.putBinder(EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY,
+                new IOnRequestPermissionsListener.Stub() {
                     @Override
                     public void onRequestPermissionsResult(String[] approvedPermissions,
                             String[] rejectedPermissions) {
                         if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
                             List<String> approved = Arrays.asList(approvedPermissions);
                             List<String> rejected = Arrays.asList(rejectedPermissions);
-                            executor.execute(() -> callback.onRequestPermissionsResult(approved,
+                            executor.execute(() -> listener.onRequestPermissionsResult(approved,
                                     rejected));
                         }
                     }

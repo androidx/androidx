@@ -57,7 +57,8 @@ public final class SearchTemplate implements Template {
          *
          * @param searchText the current search text that the user has typed
          */
-        void onSearchTextChanged(@NonNull String searchText);
+        default void onSearchTextChanged(@NonNull String searchText) {
+        }
 
         /**
          * Notifies that the user has submitted the search and the given {@code searchText} is
@@ -65,7 +66,8 @@ public final class SearchTemplate implements Template {
          *
          * @param searchText the search text that the user typed
          */
-        void onSearchSubmitted(@NonNull String searchText);
+        default void onSearchSubmitted(@NonNull String searchText) {
+        }
     }
 
     @Keep
