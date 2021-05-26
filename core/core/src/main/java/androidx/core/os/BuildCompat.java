@@ -49,8 +49,9 @@ public class BuildCompat {
             return false;
         }
 
-        // Otherwise lexically compare them.
-        return codename.compareTo(buildCodename) >= 0;
+        // Otherwise lexically compare them.  Return true if the build codename is equal to or
+        // greater than the requested codename.
+        return buildCodename.compareTo(codename) >= 0;
     }
 
     /**
