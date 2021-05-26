@@ -37,7 +37,6 @@ import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SimpleSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteQuery;
@@ -735,7 +734,7 @@ public abstract class RoomDatabase {
     /**
      * Journal modes for SQLite database.
      *
-     * @see Builder#setJournalMode(JournalMode)
+     * @see RoomDatabase.Builder#setJournalMode(JournalMode)
      */
     public enum JournalMode {
 
@@ -780,7 +779,7 @@ public abstract class RoomDatabase {
 
         private static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
             if (Build.VERSION.SDK_INT >= 19) {
-                return SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager);
+                return activityManager.isLowRamDevice();
             }
             return false;
         }
