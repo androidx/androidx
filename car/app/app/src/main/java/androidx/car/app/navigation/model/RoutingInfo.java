@@ -162,7 +162,7 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * Images in the cue of the {@link Step} object, set with {@link Step.Builder#setCue}, can
          * contain image spans. To minimize scaling artifacts across a wide range of car screens,
-         * apps should provide images targeting a 250 x 83 dp bounding box. If necessary, those
+         * apps should provide images targeting a 216 x 72 dp bounding box. If necessary, those
          * images in the spans will be scaled down to fit the bounding box while preserving their
          * aspect ratios.
          *
@@ -189,7 +189,7 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * Images in the cue of the {@link Step} object, set with {@link Step.Builder#setCue}, can
          * contain image spans. To minimize scaling artifacts across a wide range of car screens,
-         * apps should provide images targeting a 250 x 83 dp bounding box. If necessary, those
+         * apps should provide images targeting a 216 x 72 dp bounding box. If necessary, those
          * images in the spans will be scaled down to fit the bounding box while preserving their
          * aspect ratios.
          *
