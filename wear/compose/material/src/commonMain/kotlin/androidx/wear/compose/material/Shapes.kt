@@ -32,13 +32,13 @@ public class Shapes(
     /**
      * Buttons and Chips use this shape
      */
-    val small: CornerBasedShape = RoundedCornerShape(corner = CornerSize(50)),
+    public val small: CornerBasedShape = RoundedCornerShape(corner = CornerSize(50)),
 
-    val medium: CornerBasedShape = RoundedCornerShape(4.dp),
+    public val medium: CornerBasedShape = RoundedCornerShape(4.dp),
     /**
      * Cards use this shape
      */
-    val large: CornerBasedShape = RoundedCornerShape(24.dp),
+    public val large: CornerBasedShape = RoundedCornerShape(24.dp),
 ) {
 
     /**
