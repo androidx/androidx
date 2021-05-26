@@ -27,6 +27,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -310,7 +311,9 @@ class ChipSizeTest {
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
                 CompactChip(
                     onClick = {},
-                    modifier = Modifier.testTag(chipTag).width(100.dp),
+                    modifier = Modifier
+                        .testTag(chipTag)
+                        .width(100.dp),
                     icon = { CreateImage(iconTag) }
                 )
             }
@@ -381,7 +384,7 @@ class ChipColorTest {
             TestChipColors.Primary,
             ChipStatus.Enabled,
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary }
+            { MaterialTheme.colors.onPrimary },
         )
 
     @Test
@@ -413,7 +416,7 @@ class ChipColorTest {
             TestChipColors.Primary,
             ChipStatus.Disabled,
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary }
+            { MaterialTheme.colors.onPrimary },
         )
 
     @Test
@@ -626,16 +629,22 @@ class ChipColorTest {
         var expectedBackground = Color.Transparent
         var expectedContent = Color.Transparent
         var actualContent = Color.Transparent
-        var expectedAlpha = 0.0f
+        val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedBackground = backgroundColor()
-            expectedContent = contentColor()
-            expectedAlpha = ContentAlpha.disabled
+            if (status.enabled()) {
+                expectedBackground = backgroundColor()
+                expectedContent = contentColor()
+            } else {
+                expectedBackground =
+                    backgroundColor().copy(alpha = ContentAlpha.disabled)
+                        .compositeOver(testBackground)
+                expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(expectedBackground)
+                    .background(testBackground)
             ) {
                 Chip(
                     onClick = {},
@@ -647,17 +656,14 @@ class ChipColorTest {
             }
         }
 
-        if (status.enabled()) {
-            assertEquals(expectedContent, actualContent)
-        } else {
-            assertEquals(expectedContent.copy(alpha = expectedAlpha), actualContent)
-        }
+        assertEquals(expectedContent, actualContent)
 
-        if (expectedBackground != Color.Transparent) {
-            rule.onNodeWithTag("test-item").onChildAt(0)
-                .captureToImage()
-                .assertContainsColor(expectedBackground, 50.0f)
-        }
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertContainsColor(
+                if (expectedBackground != Color.Transparent) expectedBackground else testBackground,
+                50.0f
+            )
     }
 
     private fun verifySlotColors(
@@ -676,18 +682,27 @@ class ChipColorTest {
         var actualContent = Color.Transparent
         var actualSecondaryContent = Color.Transparent
         var actualIcon = Color.Transparent
-        var expectedAlpha = 0.0f
+        val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedBackground = backgroundColor()
-            expectedContent = contentColor()
-            expectedSecondaryContent = secondaryContentColor()
-            expectedIcon = iconColor()
-            expectedAlpha = ContentAlpha.disabled
+            if (status.enabled()) {
+                expectedBackground = backgroundColor()
+                expectedContent = contentColor()
+                expectedSecondaryContent = secondaryContentColor()
+                expectedIcon = iconColor()
+            } else {
+                expectedBackground =
+                    backgroundColor().copy(alpha = ContentAlpha.disabled)
+                        .compositeOver(testBackground)
+                expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+                expectedSecondaryContent = secondaryContentColor()
+                    .copy(alpha = ContentAlpha.disabled)
+                expectedIcon = iconColor().copy(alpha = ContentAlpha.disabled)
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(expectedBackground)
+                    .background(testBackground)
             ) {
                 if (compactChip) {
                     CompactChip(
@@ -712,28 +727,18 @@ class ChipColorTest {
             }
         }
 
-        if (status.enabled()) {
-            assertEquals(expectedContent, actualContent)
-            if (! compactChip) {
-                assertEquals(expectedSecondaryContent, actualSecondaryContent)
-            }
-            assertEquals(expectedIcon, actualIcon)
-        } else {
-            assertEquals(expectedContent.copy(alpha = expectedAlpha), actualContent)
-            if (! compactChip) {
-                assertEquals(
-                    expectedSecondaryContent.copy(alpha = expectedAlpha),
-                    actualSecondaryContent
-                )
-            }
-            assertEquals(expectedIcon.copy(alpha = expectedAlpha), actualIcon)
+        assertEquals(expectedContent, actualContent)
+        if (! compactChip) {
+            assertEquals(expectedSecondaryContent, actualSecondaryContent)
         }
+        assertEquals(expectedIcon, actualIcon)
 
-        if (expectedBackground != Color.Transparent) {
-            rule.onNodeWithTag("test-item").onChildAt(0)
-                .captureToImage()
-                .assertContainsColor(expectedBackground, 50.0f)
-        }
+        rule.onNodeWithTag("test-item")
+            .captureToImage()
+            .assertContainsColor(
+                if (expectedBackground != Color.Transparent) expectedBackground else testBackground,
+                50.0f
+            )
     }
 }
 

@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,8 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Surface
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -98,11 +98,11 @@ fun Chip(
     role: Role? = Role.Button,
     content: @Composable () -> Unit,
 ) {
-    Surface(
+    Box(
         modifier = modifier
-            .height(ChipDefaults.Height),
-        color = Color.Transparent,
-        shape = shape,
+            .height(ChipDefaults.Height)
+            .clip(shape = shape)
+            .background(color = Color.Transparent, shape = shape)
     ) {
         // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
         //  box contents. As a result we need to have stacked boxes to enable us to paint the
@@ -121,6 +121,7 @@ fun Chip(
                 indication = rememberRipple(),
                 interactionSource = interactionSource,
             )
+            .fillMaxSize()
             .padding(contentPadding)
 
         Box(
@@ -132,6 +133,7 @@ fun Chip(
             CompositionLocalProvider(
                 LocalContentColor provides colors.contentColor(enabled = enabled).value,
                 LocalTextStyle provides MaterialTheme.typography.button,
+                LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
                 content = content
             )
         }
@@ -212,6 +214,8 @@ fun Chip(
                 ) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.iconTintColor(enabled).value,
+                        LocalContentAlpha provides
+                            colors.iconTintColor(enabled = enabled).value.alpha,
                         content = icon
                     )
                 }
@@ -221,12 +225,15 @@ fun Chip(
                 CompositionLocalProvider(
                     LocalContentColor provides colors.contentColor(enabled).value,
                     LocalTextStyle provides MaterialTheme.typography.button,
+                    LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
                     content = label
                 )
                 if (secondaryLabel != null) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.secondaryContentColor(enabled).value,
                         LocalTextStyle provides MaterialTheme.typography.button,
+                        LocalContentAlpha provides
+                            colors.secondaryContentColor(enabled = enabled).value.alpha,
                         content = secondaryLabel
                     )
                 }
@@ -508,7 +515,7 @@ public object ChipDefaults {
         disabledContentColor: Color = contentColor.copy(alpha = ContentAlpha.disabled),
         disabledSecondaryContentColor: Color =
             secondaryContentColor.copy(alpha = ContentAlpha.disabled),
-        disabledIconTintColor: Color = disabledContentColor,
+        disabledIconTintColor: Color = iconTintColor.copy(alpha = ContentAlpha.disabled),
     ): ChipColors = DefaultChipColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
