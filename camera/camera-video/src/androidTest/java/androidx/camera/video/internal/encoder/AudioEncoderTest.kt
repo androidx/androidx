@@ -33,8 +33,10 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.never
@@ -260,6 +262,34 @@ class AudioEncoderTest {
     }
 
     @Test
+    fun pauseResumeEncoder_getChronologicalData() {
+        // Arrange.
+        fakeAudioLoop.start()
+        val dataList = ArrayList<EncodedData>()
+
+        // Act.
+        encoder.start()
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        encoder.pause()
+        verify(encoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+
+        // Save all values before clear invocations
+        var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(encoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
+        dataList.addAll(startCaptor.allValues)
+        clearInvocations(encoderCallback)
+
+        encoder.start()
+        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(resumeCaptor.capture())
+        dataList.addAll(resumeCaptor.allValues)
+
+        // Assert.
+        verifyDataInChronologicalOrder(dataList)
+    }
+
+    @Test
     fun bufferProvider_canAcquireBuffer() {
         // Arrange.
         encoder.start()
@@ -327,6 +357,14 @@ class AudioEncoderTest {
         // Assert.
         assertThat(lock.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
         assertThat(stateRef.get()).isEqualTo(State.INACTIVE)
+    }
+
+    private fun verifyDataInChronologicalOrder(encodedDataList: List<EncodedData>) {
+        // For each item indexed by n and n+1, verify that the timestamp of n is less than n+1.
+        encodedDataList.take(encodedDataList.size - 1).forEachIndexed { index, _ ->
+            assertThat(encodedDataList[index].presentationTimeUs)
+                .isLessThan(encodedDataList[index + 1].presentationTimeUs)
+        }
     }
 
     private class FakeAudioLoop(private val bufferProvider: BufferProvider<InputBuffer>) {
