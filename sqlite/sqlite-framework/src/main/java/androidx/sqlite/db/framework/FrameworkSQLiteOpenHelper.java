@@ -22,8 +22,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
@@ -74,17 +72,13 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                         && mName != null
                         && mUseNoBackupDirectory) {
-                    File file = new File(
-                            SupportSQLiteCompat.Api21Impl.getNoBackupFilesDir(mContext),
-                            mName
-                    );
+                    File file = new File(mContext.getNoBackupFilesDir(), mName);
                     mDelegate = new OpenHelper(mContext, file.getAbsolutePath(), dbRef, mCallback);
                 } else {
                     mDelegate = new OpenHelper(mContext, mName, dbRef, mCallback);
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    SupportSQLiteCompat.Api16Impl.setWriteAheadLoggingEnabled(mDelegate,
-                            mWriteAheadLoggingEnabled);
+                    mDelegate.setWriteAheadLoggingEnabled(mWriteAheadLoggingEnabled);
                 }
             }
             return mDelegate;
@@ -97,11 +91,11 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void setWriteAheadLoggingEnabled(boolean enabled) {
         synchronized (mLock) {
             if (mDelegate != null) {
-                SupportSQLiteCompat.Api16Impl.setWriteAheadLoggingEnabled(mDelegate, enabled);
+                mDelegate.setWriteAheadLoggingEnabled(enabled);
             }
             mWriteAheadLoggingEnabled = enabled;
         }
