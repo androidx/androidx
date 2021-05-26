@@ -57,12 +57,11 @@ public class DynamicFragmentNavigator(
         navigatorExtras: Navigator.Extras?
     ) {
         val destination = entry.destination
-        val args = entry.arguments
         val extras = navigatorExtras as? DynamicExtras
         if (destination is Destination) {
             val moduleName = destination.moduleName
             if (moduleName != null && installManager.needsInstall(moduleName)) {
-                installManager.performInstall(destination, args, extras, moduleName)
+                installManager.performInstall(entry, extras, moduleName)
                 return
             }
         }

@@ -22,8 +22,8 @@ import android.os.Bundle
 import android.util.AttributeSet
 import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
-import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
 import androidx.navigation.NavInflater.Companion.APPLICATION_ID_PLACEHOLDER
 import androidx.navigation.NavOptions
@@ -59,26 +59,60 @@ public class DynamicIncludeGraphNavigator(
     }
 
     /**
+     * @throws Resources.NotFoundException if one of the [entries] does not have a valid
+     * `graphResourceName` and `graphPackage`.
+     * @throws IllegalStateException if one of the [entries] does not have a parent.
+     */
+    override fun navigate(
+        entries: List<NavBackStackEntry>,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    /**
      * @throws Resources.NotFoundException if the [destination] does not have a valid
      * `graphResourceName` and `graphPackage`.
      * @throws IllegalStateException if the [destination] does not have a parent.
      */
+    @Deprecated("Use NavBackStackEntry version of this method instead")
     override fun navigate(
         destination: DynamicIncludeNavGraph,
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ): NavDestination? {
+        val entry = NavBackStackEntry.create(null, destination, args)
+        navigate(entry, navOptions, navigatorExtras)
+        return null
+    }
+
+    /**
+     * @throws Resources.NotFoundException if the [entry] does not have a valid
+     * `graphResourceName` and `graphPackage`.
+     * @throws IllegalStateException if the [entry] does not have a parent.
+     */
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        val destination = entry.destination as DynamicIncludeNavGraph
         val extras = navigatorExtras as? DynamicExtras
 
         val moduleName = destination.moduleName
 
-        return if (moduleName != null && installManager.needsInstall(moduleName)) {
-            installManager.performInstall(destination, args, extras, moduleName)
+        if (moduleName != null && installManager.needsInstall(moduleName)) {
+            installManager.performInstall(entry, extras, moduleName)
         } else {
             val includedNav = replaceWithIncludedNav(destination)
-            val navigator: Navigator<NavDestination> = navigatorProvider[includedNav.navigatorName]
-            navigator.navigate(includedNav, args, navOptions, navigatorExtras)
+            val navigator: Navigator<NavDestination> = navigatorProvider[
+                includedNav.destination.navigatorName
+            ]
+            navigator.navigate(listOf(includedNav), navOptions, navigatorExtras)
         }
     }
 
@@ -87,7 +121,7 @@ public class DynamicIncludeGraphNavigator(
      *
      * @return the newly inflated included navigation graph
      */
-    private fun replaceWithIncludedNav(destination: DynamicIncludeNavGraph): NavGraph {
+    private fun replaceWithIncludedNav(destination: DynamicIncludeNavGraph): NavBackStackEntry {
         val graphId = context.resources.getIdentifier(
             destination.graphResourceName, "navigation",
             destination.graphPackage
@@ -112,7 +146,7 @@ public class DynamicIncludeGraphNavigator(
         outerNav.addDestination(includedNav)
         // Avoid calling replaceWithIncludedNav() on the same destination more than once
         createdDestinations.remove(destination)
-        return includedNav
+        return NavBackStackEntry.create(context, includedNav)
     }
 
     override fun popBackStack(): Boolean = true
