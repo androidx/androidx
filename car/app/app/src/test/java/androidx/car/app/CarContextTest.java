@@ -42,6 +42,7 @@ import android.util.DisplayMetrics;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
+import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
@@ -69,6 +70,7 @@ public class CarContextTest {
     private static final String APP_SERVICE = "app";
     private static final String NAVIGATION_SERVICE = "navigation";
     private static final String SCREEN_SERVICE = "screen";
+    private static final String HARDWARE_SERVICE = "hardware";
 
     @Mock
     private ICarHost mMockCarHost;
@@ -144,6 +146,12 @@ public class CarContextTest {
     }
 
     @Test
+    public void getCarService_hardwareManager() {
+        assertThrows(IllegalStateException.class, () ->
+                mCarContext.getCarService(CarContext.HARDWARE_SERVICE));
+    }
+
+    @Test
     public void getCarService_unknown_throws() {
         assertThrows(IllegalArgumentException.class, () -> mCarContext.getCarService("foo"));
     }
@@ -170,6 +178,12 @@ public class CarContextTest {
     public void getCarServiceName_screenManager() {
         assertThat(mCarContext.getCarServiceName(ScreenManager.class)).isEqualTo(
                 SCREEN_SERVICE);
+    }
+
+    @Test
+    public void getCarServiceName_hardwareManager_throws() {
+        assertThat(mCarContext.getCarServiceName(CarHardwareManager.class)).isEqualTo(
+                HARDWARE_SERVICE);
     }
 
     @Test
