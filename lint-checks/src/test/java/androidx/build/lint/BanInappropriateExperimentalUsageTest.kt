@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "GroovyUnusedAssignment")
 
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.TestFile
-import com.android.tools.lint.checks.infrastructure.TestFiles
-import com.android.tools.lint.checks.infrastructure.TestFiles.gradle
-import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import com.android.tools.lint.checks.infrastructure.ProjectDescription
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanInappropriateExperimentalUsageTest {
+class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
+    useDetector = BanInappropriateExperimentalUsage(),
+    useIssues = listOf(BanInappropriateExperimentalUsage.ISSUE),
+    stubs = arrayOf(Stubs.OptIn),
+) {
 
     @Test
     fun `Test within-module Experimental usage via Gradle model`() {
@@ -42,24 +44,23 @@ class BanInappropriateExperimentalUsageTest {
                     group=sample.annotation.provider
                     """
                 ).indented(),
-                OPT_IN_KT,
             )
 
-        lint()
-            .projects(provider)
-            .issues(BanInappropriateExperimentalUsage.ISSUE)
-            .run()
-            .expect(
-                """
-                No warnings.
-                """.trimIndent()
-            )
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(provider).expect(expected)
     }
 
+    @Ignore("b/188814760")
     @Test
     fun `Test cross-module Experimental usage via Gradle model`() {
         val provider = project()
             .name("provider")
+            .type(ProjectDescription.Type.LIBRARY)
             .report(false)
             .files(
                 ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
@@ -70,11 +71,11 @@ class BanInappropriateExperimentalUsageTest {
                     group=sample.annotation.provider
                     """
                 ).indented(),
-                OPT_IN_KT,
             )
 
         val consumer = project()
             .name("consumer")
+            .type(ProjectDescription.Type.LIBRARY)
             .dependsOn(provider)
             .files(
                 ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
@@ -83,69 +84,18 @@ class BanInappropriateExperimentalUsageTest {
                     apply plugin: 'com.android.library'
                     group=androidx.sample.consumer
                     """
-                ).indented()
+                ).indented(),
             )
 
-        lint()
-            .projects(provider, consumer)
-            .issues(BanInappropriateExperimentalUsage.ISSUE)
-            .run()
-            .expect(
-                /* ktlint-enable max-line-length */
-                """
-                src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:25: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-                    @ExperimentalSampleAnnotationJava
-                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                1 errors, 0 warnings
-                """.trimIndent()
-                /* ktlint-enable max-line-length */
-            )
+        /* ktlint-disable max-line-length */
+        val expected = """
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:25: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @ExperimentalSampleAnnotationJava
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(provider, consumer).expect(expected)
     }
 }
-
-/* ktlint-disable max-line-length */
-
-/**
- * [TestFile] containing OptIn.kt from the Kotlin standard library.
- *
- * This is a workaround for the Kotlin standard library used by the Lint test harness not
- * including the Experimental annotation by default.
- */
-private val OPT_IN_KT: TestFile = TestFiles.kotlin(
-    """
-    package kotlin
-
-    import kotlin.annotation.AnnotationRetention.BINARY
-    import kotlin.annotation.AnnotationRetention.SOURCE
-    import kotlin.annotation.AnnotationTarget.*
-    import kotlin.internal.RequireKotlin
-    import kotlin.internal.RequireKotlinVersionKind
-    import kotlin.reflect.KClass
-
-    @Target(ANNOTATION_CLASS)
-    @Retention(BINARY)
-    @SinceKotlin("1.3")
-    @RequireKotlin("1.3.70", versionKind = RequireKotlinVersionKind.COMPILER_VERSION)
-    public annotation class RequiresOptIn(
-        val message: String = "",
-        val level: Level = Level.ERROR
-    ) {
-        public enum class Level {
-            WARNING,
-            ERROR,
-        }
-    }
-
-    @Target(
-        CLASS, PROPERTY, LOCAL_VARIABLE, VALUE_PARAMETER, CONSTRUCTOR, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, EXPRESSION, FILE, TYPEALIAS
-    )
-    @Retention(SOURCE)
-    @SinceKotlin("1.3")
-    @RequireKotlin("1.3.70", versionKind = RequireKotlinVersionKind.COMPILER_VERSION)
-    public annotation class OptIn(
-        vararg val markerClass: KClass<out Annotation>
-    )
-    """.trimIndent()
-)
-
-/* ktlint-enable max-line-length */

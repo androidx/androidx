@@ -23,22 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class IdeaSuppressionDetectorTest : AbstractLintDetectorTest(
-    useDetector = IdeaSuppressionDetector(),
-    useIssues = listOf(IdeaSuppressionDetector.ISSUE),
+class BanConcurrentHashMapTest : AbstractLintDetectorTest(
+    useDetector = BanConcurrentHashMap(),
+    useIssues = listOf(BanConcurrentHashMap.ISSUE),
 ) {
 
     @Test
-    fun `Detection of IDEA-specific suppression in Java sources`() {
+    fun `Detection of ConcurrentHashMap usage in Java sources`() {
         val input = arrayOf(
-            javaSample("androidx.IdeaSuppressionJava")
+            javaSample("androidx.ConcurrentHashMapUsageJava"),
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/androidx/ConcurrentHashMapUsageJava.java:22: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+import java.util.concurrent.ConcurrentHashMap;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */

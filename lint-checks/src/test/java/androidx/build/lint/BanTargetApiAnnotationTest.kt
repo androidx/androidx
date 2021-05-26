@@ -23,23 +23,26 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class IdeaSuppressionDetectorTest : AbstractLintDetectorTest(
-    useDetector = IdeaSuppressionDetector(),
-    useIssues = listOf(IdeaSuppressionDetector.ISSUE),
+class BanTargetApiAnnotationTest : AbstractLintDetectorTest(
+    useDetector = BanTargetApiAnnotation(),
+    useIssues = listOf(BanTargetApiAnnotation.ISSUE),
 ) {
 
     @Test
-    fun `Detection of IDEA-specific suppression in Java sources`() {
+    fun `Detection of TargetApi usage in Java sources`() {
         val input = arrayOf(
-            javaSample("androidx.IdeaSuppressionJava")
+            javaSample("androidx.TargetApiUsageJava"),
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+src/androidx/TargetApiUsageJava.java:22: Error: Uses @TargetApi annotation [BanTargetApiAnnotation]
+@TargetApi(29)
+~~~~~~~~~~~~~~
+src/androidx/TargetApiUsageJava.java:25: Error: Uses @TargetApi annotation [BanTargetApiAnnotation]
+    @TargetApi(30)
+    ~~~~~~~~~~~~~~
+2 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 

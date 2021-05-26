@@ -16,6 +16,7 @@
 @file:Suppress("UnstableApiUsage")
 
 package androidx.build.lint
+
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -23,47 +24,55 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.checks.VersionChecks.Companion.isWithinVersionCheckConditional
-import com.android.sdklib.SdkVersionInfo
+import com.android.sdklib.SdkVersionInfo.HIGHEST_KNOWN_API
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
-const val METHOD_REFLECTION_CLASS = "java.lang.reflect.Method"
-class BanUncheckedReflection : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames() = listOf("invoke")
-    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        // We are not really monitoring if the reflection call is within the right API check
-        // we leave that to the user, and so we check for any API check really. That means
-        // any check with an upper bound of the highest known API or a with a lower bound of 1
-        // (which should technically include every check) is good enough.
-        // Return if not reflection
-        if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
-        // If not within an SDK check, flag
-        if (!isWithinVersionCheckConditional(
-                context, node, SdkVersionInfo.HIGHEST_KNOWN_API, false
-            ) && !isWithinVersionCheckConditional(
-                    context, node, 1, true
-                )
-        ) {
 
+class BanUncheckedReflection : Detector(), SourceCodeScanner {
+
+    override fun getApplicableMethodNames() = listOf(
+        METHOD_INVOKE_NAME
+    )
+
+    override fun visitMethodCall(
+        context: JavaContext,
+        node: UCallExpression,
+        method: PsiMethod
+    ) {
+        // We don't care if the invocation is correct -- there's another lint for that. We're
+        // just enforcing the "all reflection on the platform SDK must be gated on SDK_INT checks"
+        // policy. Also -- since we're not actually checking whether the invocation is on the
+        // platform SDK -- we're discouraging reflection in general.
+
+        // Skip if this isn't a call to `Method.invoke`.
+        if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
+
+        // Flag if the call isn't inside an SDK_INT check.
+        if (!isWithinVersionCheckConditional(context, node, HIGHEST_KNOWN_API, false) &&
+            !isWithinVersionCheckConditional(context, node, 1, true)
+        ) {
             context.report(
                 ISSUE, node, context.getLocation(node),
-                "Calling Method.invoke without an SDK check"
+                "Calling `Method.invoke` without an SDK check"
             )
         }
     }
+
     companion object {
         val ISSUE = Issue.create(
             "BanUncheckedReflection",
             "Reflection that is not within an SDK check",
-            "Use of reflection can be risky and there is never a" +
-                " reason to use reflection without" +
-                " having to check for the device's SDK (either through SDK_INT comparison or " +
-                "methods such as isAtLeastP etc...)" +
-                ". Please surround the Method.invoke" +
-                " call with the appropriate SDK_INT check.",
+            "Jetpack policy discourages reflection. In cases where reflection is used on " +
+                "platform SDK classes, it must be used within an `SDK_INT` check that delegates " +
+                "to an equivalent public API on the latest version of the platform. If no " +
+                "equivalent public API exists, reflection must not be used.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(BanUncheckedReflection::class.java, Scope.JAVA_FILE_SCOPE)
         )
+
+        const val METHOD_REFLECTION_CLASS = "java.lang.reflect.Method"
+        const val METHOD_INVOKE_NAME = "invoke"
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("KDocUnresolvedReference")
+@file:Suppress("KDocUnresolvedReference", "UnstableApiUsage")
 
 package androidx.build.lint
 

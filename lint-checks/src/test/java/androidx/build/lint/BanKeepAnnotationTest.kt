@@ -14,55 +14,36 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.LintDetectorTest
-import com.android.tools.lint.checks.infrastructure.TestFiles.java
-import com.android.tools.lint.checks.infrastructure.TestLintResult
-import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import com.android.tools.lint.detector.api.Detector
-import com.android.tools.lint.detector.api.Issue
-
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-class BanKeepAnnotationTest : LintDetectorTest() {
-    override fun getDetector(): Detector = BanKeepAnnotation()
+@RunWith(JUnit4::class)
+class BanKeepAnnotationTest : AbstractLintDetectorTest(
+    useDetector = BanKeepAnnotation(),
+    useIssues = listOf(BanKeepAnnotation.ISSUE),
+    stubs = arrayOf(Stubs.Keep),
+) {
 
-    override fun getIssues(): List<Issue> = listOf(
-        BanKeepAnnotation.ISSUE
-    )
-
-    private fun check(code: String): TestLintResult {
-        return lint().files(
-            java(annotationSource),
-            java(code)
+    @Test
+    fun `Detection of Keep annotation in Java sources`() {
+        val input = arrayOf(
+            javaSample("androidx.KeepAnnotationUsageJava"),
         )
-            .run()
-    }
 
-    private val annotationSource = """
-        package androidx.annotation;
-
-        public @interface Keep {
-        }
-    """
-
-    @Test fun testAnnotatedUnreferencedClass() {
-        val input = """
-            package androidx.sample;
-
-            import androidx.annotation.Keep;
-            @Keep
-            public class SampleClass {
-            }
-        """
+        /* ktlint-disable max-line-length */
         val expected = """
-            src/androidx/sample/SampleClass.java:4: Error: Uses @Keep annotation [BanKeepAnnotation]
-            @Keep
-            ~~~~~
-            1 errors, 0 warnings
-        """
-        check(input.trimIndent())
-            .expect(expected.trimIndent())
+src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanKeepAnnotation]
+@Keep
+~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
     }
 }
