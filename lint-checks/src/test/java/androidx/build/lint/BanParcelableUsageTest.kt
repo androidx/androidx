@@ -23,22 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class IdeaSuppressionDetectorTest : AbstractLintDetectorTest(
-    useDetector = IdeaSuppressionDetector(),
-    useIssues = listOf(IdeaSuppressionDetector.ISSUE),
+class BanParcelableUsageTest : AbstractLintDetectorTest(
+    useDetector = BanParcelableUsage(),
+    useIssues = listOf(BanParcelableUsage.ISSUE),
 ) {
 
     @Test
-    fun `Detection of IDEA-specific suppression in Java sources`() {
+    fun `Detection of Parcelable usage in Java sources`() {
         val input = arrayOf(
-            javaSample("androidx.IdeaSuppressionJava")
+            javaSample("androidx.ParcelableUsageJava"),
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/androidx/ParcelableUsageJava.java:25: Error: Class implements android.os.Parcelable [BanParcelableUsage]
+public class ParcelableUsageJava implements Parcelable {
+             ~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */

@@ -23,22 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class IdeaSuppressionDetectorTest : AbstractLintDetectorTest(
-    useDetector = IdeaSuppressionDetector(),
-    useIssues = listOf(IdeaSuppressionDetector.ISSUE),
+class BanSynchronizedMethodsTest : AbstractLintDetectorTest(
+    useDetector = BanSynchronizedMethods(),
+    useIssues = listOf(BanSynchronizedMethods.ISSUE),
 ) {
 
     @Test
-    fun `Detection of IDEA-specific suppression in Java sources`() {
+    fun `Detection of synchronized methods in Java sources`() {
         val input = arrayOf(
-            javaSample("androidx.IdeaSuppressionJava")
+            javaSample("androidx.SynchronizedMethodJava"),
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/androidx/SynchronizedMethodJava.java:22: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
+    public synchronized void someMethod() {
+    ^
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
