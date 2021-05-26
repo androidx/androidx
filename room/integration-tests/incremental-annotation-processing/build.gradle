@@ -41,4 +41,6 @@ tasks.findByPath("test").dependsOn(
         tasks.findByPath(":room:room-migration:publish"),
         tasks.findByPath(":room:room-compiler:publish"),
         tasks.findByPath(":room:room-compiler-processing:publish"),
+        tasks.findByPath(":sqlite:sqlite:publish"),
+        tasks.findByPath(":sqlite:sqlite-framework:publish"),
 )
