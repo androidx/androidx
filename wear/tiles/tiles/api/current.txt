@@ -124,6 +124,32 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
   }
 
+  public final class DeviceParametersBuilders {
+    field public static final int DEVICE_PLATFORM_UNDEFINED = 0; // 0x0
+    field public static final int DEVICE_PLATFORM_WEAR_OS = 1; // 0x1
+    field public static final int SCREEN_SHAPE_RECT = 2; // 0x2
+    field public static final int SCREEN_SHAPE_ROUND = 1; // 0x1
+    field public static final int SCREEN_SHAPE_UNDEFINED = 0; // 0x0
+  }
+
+  public static final class DeviceParametersBuilders.DeviceParameters {
+    method public static androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder builder();
+    method public int getDevicePlatform();
+    method @FloatRange(from=0.0, fromInclusive=false, toInclusive=false) public float getScreenDensity();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenHeightDp();
+    method public int getScreenShape();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getScreenWidthDp();
+  }
+
+  public static final class DeviceParametersBuilders.DeviceParameters.Builder {
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters build();
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setDevicePlatform(int);
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenDensity(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenHeightDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenShape(int);
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder setScreenWidthDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+  }
+
   public final class DimensionBuilders {
     method public static androidx.wear.tiles.DimensionBuilders.DegreesProp degrees(float);
     method public static androidx.wear.tiles.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
@@ -220,6 +246,41 @@ package androidx.wear.tiles {
 
   public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.tiles.DimensionBuilders.ContainerDimension.Builder {
     method public androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp build();
+  }
+
+  public final class EventBuilders {
+  }
+
+  public static final class EventBuilders.TileAddEvent {
+    method public static androidx.wear.tiles.EventBuilders.TileAddEvent.Builder builder();
+  }
+
+  public static final class EventBuilders.TileAddEvent.Builder {
+    method public androidx.wear.tiles.EventBuilders.TileAddEvent build();
+  }
+
+  public static final class EventBuilders.TileEnterEvent {
+    method public static androidx.wear.tiles.EventBuilders.TileEnterEvent.Builder builder();
+  }
+
+  public static final class EventBuilders.TileEnterEvent.Builder {
+    method public androidx.wear.tiles.EventBuilders.TileEnterEvent build();
+  }
+
+  public static final class EventBuilders.TileLeaveEvent {
+    method public static androidx.wear.tiles.EventBuilders.TileLeaveEvent.Builder builder();
+  }
+
+  public static final class EventBuilders.TileLeaveEvent.Builder {
+    method public androidx.wear.tiles.EventBuilders.TileLeaveEvent build();
+  }
+
+  public static final class EventBuilders.TileRemoveEvent {
+    method public static androidx.wear.tiles.EventBuilders.TileRemoveEvent.Builder builder();
+  }
+
+  public static final class EventBuilders.TileRemoveEvent.Builder {
+    method public androidx.wear.tiles.EventBuilders.TileRemoveEvent build();
   }
 
   public final class LayoutElementBuilders {
@@ -868,6 +929,38 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers build();
     method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable);
     method public androidx.wear.tiles.ModifiersBuilders.SpanModifiers.Builder setClickable(androidx.wear.tiles.ModifiersBuilders.Clickable.Builder);
+  }
+
+  public final class RequestBuilders {
+  }
+
+  public static final class RequestBuilders.ResourcesRequest {
+    method public static androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder builder();
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
+    method public java.util.List<java.lang.String!> getResourceIds();
+    method public String getVersion();
+  }
+
+  public static final class RequestBuilders.ResourcesRequest.Builder {
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder addResourceId(String);
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest build();
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder);
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setVersion(String);
+  }
+
+  public static final class RequestBuilders.TileRequest {
+    method public static androidx.wear.tiles.RequestBuilders.TileRequest.Builder builder();
+    method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
+    method public androidx.wear.tiles.StateBuilders.State? getState();
+  }
+
+  public static final class RequestBuilders.TileRequest.Builder {
+    method public androidx.wear.tiles.RequestBuilders.TileRequest build();
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder);
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State);
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State.Builder);
   }
 
   public final class ResourceBuilders {
