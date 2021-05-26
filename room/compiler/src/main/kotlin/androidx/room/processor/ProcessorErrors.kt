@@ -624,7 +624,13 @@ object ProcessorErrors {
     val INVALID_TABLE_NAME = "Invalid table name. Room does not allow using ` or \" in table names"
 
     val RAW_QUERY_BAD_PARAMS = "RawQuery methods should have 1 and only 1 parameter with type" +
-        " String or SupportSQLiteQuery"
+        " SupportSQLiteQuery"
+
+    fun parameterCannotBeNullable(
+        parameterName: String
+    ) = """
+        Parameter `$parameterName` cannot be nullable.
+    """.trimIndent()
 
     val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
 
