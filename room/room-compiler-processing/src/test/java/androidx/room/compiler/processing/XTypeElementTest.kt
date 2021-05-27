@@ -962,7 +962,7 @@ class XTypeElementTest {
                         containsNoneOf("VAL1", "VAL2")
                     }
                 assertWithMessage("$qName can return enum constants")
-                    .that((typeElement as XEnumTypeElement).enumConstantNames)
+                    .that((typeElement as XEnumTypeElement).entries.map { it.name })
                     .containsExactly("VAL1", "VAL2")
                 assertWithMessage("$qName  does not report enum constants in fields")
                     .that(typeElement.getAllFieldNames())

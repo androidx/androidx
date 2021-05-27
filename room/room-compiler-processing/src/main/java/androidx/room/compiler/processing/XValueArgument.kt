@@ -16,18 +16,17 @@
 
 package androidx.room.compiler.processing
 
-import kotlin.contracts.contract
-
 /**
- * Type elements that represent Enum declarations.
+ * This wraps information about an argument in an annotation.
  */
-interface XEnumTypeElement : XTypeElement {
-    val entries: Set<XEnumEntry>
-}
+interface XValueArgument {
+    /**
+     * The property name.
+     */
+    val name: String
 
-fun XTypeElement.isEnum(): Boolean {
-    contract {
-        returns(true) implies (this@isEnum is XEnumTypeElement)
-    }
-    return this is XEnumTypeElement
+    /**
+     * The value set on the annotation property, or the default value if it was not explicitly set.
+     */
+    val value: Any?
 }

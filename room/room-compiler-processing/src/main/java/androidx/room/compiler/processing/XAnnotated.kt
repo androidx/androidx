@@ -36,6 +36,8 @@ interface XAnnotated {
         annotation: KClass<T>
     ): List<XAnnotationBox<T>>
 
+    fun getAllAnnotations(): List<XAnnotation>
+
     /**
      * Returns `true` if this element is annotated with the given [annotation].
      *
@@ -52,6 +54,7 @@ interface XAnnotated {
      * Returns `true` if this element has an annotation that is declared in the given package.
      */
     // a very sad method but helps avoid abstraction annotation
+    // Possibly deprecate in favor of `getAllAnnotations`?
     fun hasAnnotationWithPackage(pkg: String): Boolean
 
     /**

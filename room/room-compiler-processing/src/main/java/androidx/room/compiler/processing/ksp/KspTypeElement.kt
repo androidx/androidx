@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
@@ -356,12 +357,13 @@ internal sealed class KspTypeElement(
         env: KspProcessingEnv,
         declaration: KSClassDeclaration
     ) : KspTypeElement(env, declaration), XEnumTypeElement {
-        override val enumConstantNames: Set<String> by lazy {
-            declaration.declarations.filter {
-                it is KSClassDeclaration && it.classKind == ClassKind.ENUM_ENTRY
-            }.mapTo(mutableSetOf()) {
-                it.simpleName.asString()
-            }
+        override val entries: Set<XEnumEntry> by lazy {
+            declaration.declarations
+                .filterIsInstance<KSClassDeclaration>()
+                .filter { it.classKind == ClassKind.ENUM_ENTRY }
+                .mapTo(mutableSetOf()) {
+                    KspEnumEntry(env, it, this)
+                }
         }
     }
 

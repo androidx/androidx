@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
@@ -179,11 +180,11 @@ internal sealed class JavacTypeElement(
             check(element.kind == ElementKind.ENUM)
         }
 
-        override val enumConstantNames: Set<String> by lazy {
+        override val entries: Set<XEnumEntry> by lazy {
             element.enclosedElements.filter {
                 it.kind == ElementKind.ENUM_CONSTANT
             }.mapTo(mutableSetOf()) {
-                it.simpleName.toString()
+                JavacEnumEntry(env, it, this)
             }
         }
     }
