@@ -713,7 +713,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 }
             }
         } else {
-            if (!transitioningViews.contains(view)) {
+            if (!transitioningViews.contains(view)
+                    && ViewCompat.getTransitionName(view) != null) {
                 transitioningViews.add(view);
             }
         }
