@@ -17,7 +17,6 @@
 package androidx.profileinstaller;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.util.Log;
@@ -28,18 +27,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Install ahead of time tracing profiles to configure ART to precompile bundled libraries.
@@ -267,7 +257,7 @@ public class ProfileInstaller {
      */
     @ResultCode public static final int RESULT_PARSE_EXCEPTION = 7;
 
-    private static boolean shouldSkipInstall(
+    static boolean shouldSkipInstall(
             @NonNull Diagnostics diagnostics,
             long baselineLength,
             boolean curExists,
@@ -334,139 +324,29 @@ public class ProfileInstaller {
             @NonNull String packageName,
             @NonNull Diagnostics diagnostics
     ) {
-        byte[] version = desiredVersion();
-        if (version == null) {
-            diagnostics.result(RESULT_UNSUPPORTED_ART_VERSION, Build.VERSION.SDK_INT);
-            return;
-        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            diagnostics.result(RESULT_UNSUPPORTED_ART_VERSION, null);
+            diagnostics.result(ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION, null);
             return;
         }
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
-
-        boolean canWrite = curProfile.canWrite();
-        if (!canWrite) {
-            // It's possible that some OEMs might not allow writing to this directory. If this is
-            // the case, there's not really anything we can do, so we should quit before doing
-            // any unnecessary work.
-            diagnostics.result(RESULT_NOT_WRITABLE, null);
-            return;
-        }
-
         File refProfile = new File(new File(PROFILE_REF_BASE_DIR, packageName), PROFILE_FILE);
-        try (AssetFileDescriptor fd = assets.openFd(PROFILE_SOURCE_LOCATION)) {
-            long baselineLength = fd.getLength();
-            long curLength = curProfile.length();
-            long refLength = refProfile.length();
-            boolean curExists = curProfile.exists();
-            boolean refExists = refProfile.exists();
 
-            try (InputStream is = fd.createInputStream()) {
-                byte[] baselineVersion = ProfileTranscoder.readHeader(is);
-                // TODO: this is assuming that the baseline version is the P format. We should
-                //  consider whether or not we want to also check for "future" formats, and
-                //  assume that if a future format ended up in this file location, that the
-                //  platform probably supports it and go ahead and move it to the cur profile
-                //  location without parsing anything. For now, a "future" format will just fail
-                //  below in the readProfile step.
-                boolean transcodingNeeded = !Arrays.equals(baselineVersion, version);
+        DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets, diagnostics,
+                PROFILE_SOURCE_LOCATION, curProfile, refProfile);
 
-                // NOTE: If transcoding is needed, then it isn't meaningful to compare the
-                // lengths of the baseline profile with the cur/ref profiles. As a result, we
-                // split logic here.
-                if (!transcodingNeeded) {
-                    if (shouldSkipInstall(diagnostics,
-                            baselineLength,
-                            curExists,
-                            curLength,
-                            refExists,
-                            refLength)) {
-                        return;
-                    }
-
-                    try (OutputStream os = new FileOutputStream(curProfile)) {
-                        ProfileTranscoder.writeHeader(os, version);
-                        Encoding.writeAll(is, os);
-                    }
-                } else {
-                    // If transcoding into a different format, we first parse the baseline
-                    // profile and then transcode it into a byte array so we can get the
-                    // resulting length of the profile we want to write to disk. Then, based on
-                    // that size, we determine if we want to actually "install" it or not.
-                    Map<String, DexProfileData> profile =
-                            ProfileTranscoder.readProfile(is, baselineVersion);
-                    byte[] result;
-                    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                        ProfileTranscoder.writeHeader(os, version);
-                        boolean success = ProfileTranscoder.transcodeAndWriteBody(
-                                os,
-                                version,
-                                profile
-                        );
-
-                        if (!success) {
-                            diagnostics.result(RESULT_DESIRED_FORMAT_UNSUPPORTED, null);
-                            return;
-                        }
-
-                        result = os.toByteArray();
-                    }
-
-                    long transcodedLength = result.length;
-
-                    if (shouldSkipInstall(diagnostics,
-                            transcodedLength,
-                            curExists,
-                            curLength,
-                            refExists,
-                            refLength)) {
-                        return;
-                    }
-
-                    try (
-                            InputStream bis = new ByteArrayInputStream(result);
-                            OutputStream os = new FileOutputStream(curProfile)
-                    ) {
-                        // result already has the header in it, so we don't write the header
-                        // here like we did above
-                        Encoding.writeAll(bis, os);
-                    }
-                }
-                diagnostics.result(RESULT_INSTALL_SUCCESS, null);
-            }
-        } catch (FileNotFoundException e) {
-            diagnostics.result(RESULT_BASELINE_PROFILE_NOT_FOUND, e);
-        } catch (IOException e) {
-            diagnostics.result(RESULT_IO_EXCEPTION, e);
-        } catch (IllegalStateException e) {
-            diagnostics.result(RESULT_PARSE_EXCEPTION, e);
-        }
-    }
-
-    private static @Nullable byte[] desiredVersion() {
-        // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
-            return null;
+        if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
+            return; /* nothing else to do here */
         }
 
-        switch (Build.VERSION.SDK_INT) {
-            case Build.VERSION_CODES.N:
-            case Build.VERSION_CODES.N_MR1:
-                return ProfileVersion.V001_N;
+        DeviceProfileWriter.SkipStrategy skipStrategy =
+                (newProfileLength, existingProfileState) -> shouldSkipInstall(
+                        diagnostics, newProfileLength,
+                        existingProfileState.hasCurFile(), existingProfileState.getCurLength(),
+                        existingProfileState.hasRefFile(), existingProfileState.getRefLength());
 
-            case Build.VERSION_CODES.O:
-            case Build.VERSION_CODES.O_MR1:
-                return ProfileVersion.V005_O;
-
-            case Build.VERSION_CODES.P:
-            case Build.VERSION_CODES.Q:
-            case Build.VERSION_CODES.R:
-                return ProfileVersion.V010_P;
-
-            default:
-                return null;
-        }
+        deviceProfileWriter.copyProfileOrRead(skipStrategy)
+                .transcodeIfNeeded()
+                .writeIfNeeded(skipStrategy);
     }
 
     /**
