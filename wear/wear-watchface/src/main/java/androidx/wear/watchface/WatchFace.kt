@@ -612,7 +612,6 @@ public class WatchFaceImpl @UiThread constructor(
             get() = currentUserStyleRepository.userStyle
             set(value) {
                 currentUserStyleRepository.userStyle = value
-                watchFaceHostApi.onUserStyleChanged()
             }
 
         override val complicationsManager: ComplicationsManager

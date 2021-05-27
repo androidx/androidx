@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.support.wearable.watchface.Constants
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
@@ -227,30 +228,35 @@ public abstract class EditorSession : AutoCloseable {
         ).use {
             val coroutineScope =
                 CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
-            return EditorRequest.createFromIntent(editIntent).let { editorRequest ->
-                // We need to respect the lifecycle and register the ActivityResultListener now.
-                val session = OnWatchFaceEditorSessionImpl(
-                    activity,
-                    editorRequest.watchFaceComponentName,
-                    editorRequest.watchFaceId,
-                    editorRequest.initialUserStyle,
-                    providerInfoRetrieverProvider,
-                    coroutineScope
-                )
-
-                // But full initialization has to be deferred because
-                // [WatchFace.getOrCreateEditorDelegate] is async.
-                // Resolve only after init has been completed.
-                withContext(coroutineScope.coroutineContext) {
-                    withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
-                        session.setEditorDelegate(
-                            WatchFace.getOrCreateEditorDelegate(
-                                editorRequest.watchFaceComponentName
-                            ).await()
-                        )
-                        // Resolve only after init has been completed.
-                        session
-                    }
+            var isRFlow = true
+            val editorRequest = editIntent.getParcelableExtra<ComponentName>(
+                Constants.EXTRA_WATCH_FACE_COMPONENT
+            )?.let {
+                isRFlow = false
+                EditorRequest(it, "", null)
+            } ?: EditorRequest.createFromIntent(editIntent)
+            // We need to respect the lifecycle and register the ActivityResultListener now.
+            val session = OnWatchFaceEditorSessionImpl(
+                activity,
+                editorRequest.watchFaceComponentName,
+                editorRequest.watchFaceId,
+                editorRequest.initialUserStyle,
+                providerInfoRetrieverProvider,
+                coroutineScope,
+                isRFlow
+            )
+            // But full initialization has to be deferred because
+            // [WatchFace.getOrCreateEditorDelegate] is async.
+            // Resolve only after init has been completed.
+            withContext(coroutineScope.coroutineContext) {
+                withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
+                    session.setEditorDelegate(
+                        WatchFace.getOrCreateEditorDelegate(
+                            editorRequest.watchFaceComponentName
+                        ).await()
+                    )
+                    // Resolve only after init has been completed.
+                    session
                 }
             }
         }
@@ -601,7 +607,8 @@ internal class OnWatchFaceEditorSessionImpl(
     override val watchFaceId: WatchFaceId,
     private val initialEditorUserStyle: UserStyleData?,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    private val isRFlow: Boolean
 ) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
@@ -669,11 +676,13 @@ internal class OnWatchFaceEditorSessionImpl(
         if (this::editorDelegate.isInitialized) {
             editorDelegate.onDestroy()
         }
-        // Revert any changes to the user style that was set during the editing session. The
-        // system will update the user style and communicate it to the active watch face if
-        // needed. This guarantees that the system is always the source of truth for the current
-        // style.
-        if (this::previousWatchFaceUserStyle.isInitialized) {
+        // In android R flow we always revert any changes to the user style that was set during the
+        // editing session. The system will update the user style and communicate it to the active
+        // watch  face if needed. This guarantees that the system is always the source of truth
+        // for the current style.
+        // Pre android R the watch face is the source of truth and we only revert if
+        // commitChangesOnClose is false.
+        if ((isRFlow || !commitChangesOnClose) && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
         }
     }
@@ -702,7 +711,7 @@ internal class HeadlessEditorSession(
     override val watchFaceId: WatchFaceId,
     initialUserStyle: UserStyleData,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope
 ) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
