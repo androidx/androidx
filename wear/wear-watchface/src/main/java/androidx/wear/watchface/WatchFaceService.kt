@@ -878,32 +878,6 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
-        override fun onUserStyleChanged() {
-            val params = directBootParams
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            // The only caller is [WatchFaceImpl.WFEditorDelegate] so we don't expect watchFaceImpl
-            // to ever be null in practice. If it was null then any changes would be picked up when
-            // the watch face init has completed.
-            if (watchFaceImpl == null || params == null) {
-                return
-            }
-
-            val currentStyle = watchFaceImpl.currentUserStyleRepository.userStyle.toWireFormat()
-            if (params.userStyle.equals(currentStyle)) {
-                return
-            }
-            params.userStyle = currentStyle
-            // We don't want to display complications in direct boot mode so replace with an
-            // empty list. NB we can't actually serialise complications anyway so that's just as
-            // well...
-            params.idAndComplicationDataWireFormats = emptyList()
-
-            backgroundThreadHandler.post {
-                writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
-            }
-        }
-
-        @UiThread
         internal fun ambientTickUpdate(): Unit = TraceEvent("EngineWrapper.ambientTickUpdate").use {
             if (mutableWatchState.isAmbient.value) {
                 ambientUpdateWakelock.acquire()
@@ -940,7 +914,22 @@ public abstract class WatchFaceService : WallpaperService() {
             watchFaceImpl.onSetStyleInternal(
                 UserStyle(UserStyleData(userStyle), watchFaceImpl.currentUserStyleRepository.schema)
             )
-            onUserStyleChanged()
+
+            // Update direct boot params if we have any.
+            val params = directBootParams ?: return
+            val currentStyle = watchFaceImpl.currentUserStyleRepository.userStyle.toWireFormat()
+            if (params.userStyle.equals(currentStyle)) {
+                return
+            }
+            params.userStyle = currentStyle
+            // We don't want to display complications in direct boot mode so replace with an
+            // empty list. NB we can't actually serialise complications anyway so that's just as
+            // well...
+            params.idAndComplicationDataWireFormats = emptyList()
+
+            backgroundThreadHandler.post {
+                writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
+            }
         }
 
         @UiThread

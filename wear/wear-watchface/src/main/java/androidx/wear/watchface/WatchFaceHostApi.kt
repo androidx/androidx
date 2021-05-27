@@ -117,7 +117,4 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
-
-    /** Signals a style change has occurred. */
-    public fun onUserStyleChanged()
 }
