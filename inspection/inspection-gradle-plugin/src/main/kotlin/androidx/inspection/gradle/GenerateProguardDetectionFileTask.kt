@@ -97,7 +97,7 @@ fun Project.registerGenerateProguardDetectionFileTask(variant: BaseVariant) {
         it.mavenArtifactId.set(mavenArtifactId)
         it.targetLanguage.set(if (plugins.hasPlugin("kotlin-android")) KOTLIN else JAVA)
     }
-    variant.registerJavaGeneratingTask(task.get(), outputDir)
+    variant.registerJavaGeneratingTask(task, outputDir)
 }
 
 /**

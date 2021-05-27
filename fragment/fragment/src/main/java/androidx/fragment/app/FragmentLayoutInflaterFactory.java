@@ -131,7 +131,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
                         + "re-attached via the <fragment> tag: id=0x" + Integer.toHexString(id));
             }
         }
-        FragmentStrictMode.onFragmentTagUsage(fragment);
+        FragmentStrictMode.onFragmentTagUsage(fragment, (ViewGroup) parent);
 
         // Explicitly set the container for the fragment as we already know
         // the parent that the fragment will be added to by the LayoutInflater

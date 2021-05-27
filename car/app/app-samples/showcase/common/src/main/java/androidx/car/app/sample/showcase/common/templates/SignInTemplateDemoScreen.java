@@ -17,7 +17,6 @@
 package androidx.car.app.sample.showcase.common.templates;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
-import static androidx.car.app.CarToast.LENGTH_SHORT;
 
 import android.graphics.Color;
 
@@ -62,7 +61,7 @@ public class SignInTemplateDemoScreen extends Screen {
     private String mErrorMessage;
 
     private final CharSequence mAdditionalText = Utils.clickable("Please review our terms of "
-            + "service", 18, 16,
+                    + "service", 18, 16,
             () -> getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext())));
 
     private final Action mProviderSignInAction = new Action.Builder()
@@ -227,12 +226,7 @@ public class SignInTemplateDemoScreen extends Screen {
                                 .setTint(noTint)
                                 .build())
                         .setOnClickListener(ParkedOnlyOnClickListener.create(
-                                () -> CarToast.makeText(
-                                        getCarContext(),
-                                        "Sign-in with Google starts here",
-                                        LENGTH_SHORT)
-                                        .show()))
-                        .build()
+                                this::performSignInWithGoogleFlow)).build()
         ).build();
 
         return new SignInTemplate.Builder(providerSignInMethod)
@@ -241,6 +235,33 @@ public class SignInTemplateDemoScreen extends Screen {
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
+    }
+
+    private void performSignInWithGoogleFlow() {
+        // This is here for demonstration purposes, if the APK is not signed with a signature
+        // that has been registered for sign in with Google flow, the sign in will fail at runtime.
+
+//        Bundle extras = new Bundle(1);
+//        extras.putBinder(BINDER_KEY, new SignInWithGoogleActivity.OnSignInComplete() {
+//            @Override
+//            public void onSignInComplete(@Nullable GoogleSignInAccount account) {
+//                if (account == null) {
+//                    CarToast.makeText(getCarContext(), "Error signing in", LENGTH_LONG).show();
+//                    return;
+//                }
+//
+//                // Use the account
+//                CarToast.makeText(getCarContext(),
+//                        account.getGivenName() + " signed in", LENGTH_LONG).show();
+//            }
+//        });
+//        getCarContext().startActivity(
+//                new Intent()
+//                        .setClass(getCarContext(), SignInWithGoogleActivity.class)
+//                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                        .putExtras(extras));
+        CarToast.makeText(getCarContext(), "Sign-in with Google starts here", LENGTH_LONG)
+                .show();
     }
 
     private MessageTemplate getSignInCompletedMessageTemplate() {
@@ -256,4 +277,5 @@ public class SignInTemplateDemoScreen extends Screen {
                         .build())
                 .build();
     }
+
 }

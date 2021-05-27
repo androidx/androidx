@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: View.VISIBLE, View.INVISIBLE, View.GONE"
+        errorLine1="        mChildVisibility = -1;"
+        errorLine2="                           ~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GridLayoutManager.java"
+            line="728"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: PlaybackBannerControlGlue.PLAYBACK_SPEED_INVALID, PlaybackBannerControlGlue.PLAYBACK_SPEED_PAUSED, PlaybackBannerControlGlue.PLAYBACK_SPEED_NORMAL, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L0, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L1, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L2, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L3, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L4"
+        errorLine1="                mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
+            line="431"
+            column="34"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"
@@ -894,7 +916,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public class FocusHighlightHelper {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -948,7 +970,8 @@
         <location
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
             line="87"
-            column="23"/>
+            column="23"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -963,7 +986,8 @@
         <location
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
             line="103"
-            column="23"/>
+            column="23"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -2465,17 +2489,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                              RowPresenter.ViewHolder rowViewHolder, T row);"
-        errorLine2="                                                                     ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseOnItemViewClickedListener.java"
-            line="29"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2504,17 +2517,6 @@
             file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
             line="48"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                               RowPresenter.ViewHolder rowViewHolder, T row);"
-        errorLine2="                                                                      ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
-            line="48"
-            column="71"/>
     </issue>
 
     <issue
@@ -3092,28 +3094,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentAdapter(T fragment) {"
-        errorLine2="                                   ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="408"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="412"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public final FragmentHost getFragmentHost() {"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
@@ -3142,28 +3122,6 @@
             file="src/main/java/androidx/leanback/app/BrowseFragment.java"
             line="514"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentRowsAdapter(T fragment) {"
-        errorLine2="                                       ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="527"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="534"
-            column="22"/>
     </issue>
 
     <issue
@@ -3219,17 +3177,6 @@
             file="src/main/java/androidx/leanback/app/BrowseFragment.java"
             line="580"
             column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract T createFragment(Object row);"
-        errorLine2="                        ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="666"
-            column="25"/>
     </issue>
 
     <issue
@@ -3917,28 +3864,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentAdapter(T fragment) {"
-        errorLine2="                                   ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="397"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="401"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public final FragmentHost getFragmentHost() {"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
@@ -3967,28 +3892,6 @@
             file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
             line="499"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentRowsAdapter(T fragment) {"
-        errorLine2="                                       ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="510"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="517"
-            column="22"/>
     </issue>
 
     <issue
@@ -4044,17 +3947,6 @@
             file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
             line="563"
             column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract T createFragment(Object row);"
-        errorLine2="                        ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="647"
-            column="25"/>
     </issue>
 
     <issue
@@ -8163,67 +8055,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B clickAction(long id) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="196"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B id(long id) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="224"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B title(CharSequence title) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="234"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B title(CharSequence title) {"
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="234"
             column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B title(@StringRes int titleResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="244"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editTitle(CharSequence editTitle) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="254"
-            column="16"/>
     </issue>
 
     <issue
@@ -8240,28 +8077,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editTitle(@StringRes int editTitleResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="265"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B description(CharSequence description) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="275"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B description(CharSequence description) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
@@ -8273,56 +8088,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B description(@StringRes int descriptionResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="285"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editDescription(CharSequence description) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="295"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B editDescription(CharSequence description) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="295"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editDescription(@StringRes int descriptionResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="306"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B intent(Intent intent) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="316"
-            column="16"/>
     </issue>
 
     <issue
@@ -8340,33 +8111,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B icon(Drawable icon) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="325"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B icon(Drawable icon) {"
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="325"
             column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B iconResourceId(@DrawableRes int iconResourceId, Context context) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="339"
-            column="16"/>
     </issue>
 
     <issue
@@ -8383,210 +8132,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B icon(@DrawableRes int iconResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="349"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editable(boolean editable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="358"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B descriptionEditable(boolean editable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="376"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B hasEditableActivatorView(boolean editable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="394"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B inputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="413"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B descriptionInputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="423"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editInputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="434"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B descriptionEditInputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="444"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B checked(boolean checked) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="457"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B checkSetId(int checkSetId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="472"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B multilineDescription(boolean multilineDescription) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="485"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B hasNext(boolean hasNext) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="495"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B infoOnly(boolean infoOnly) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="504"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B enabled(boolean enabled) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="513"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B focusable(boolean focusable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="523"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B subActions(List&lt;GuidedAction> subActions) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="533"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B subActions(List&lt;GuidedAction> subActions) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="533"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B autoSaveRestoreEnabled(boolean autoSaveRestoreEnabled) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="545"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B autofillHints(String... hints) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="555"
-            column="16"/>
     </issue>
 
     <issue
@@ -9946,55 +9497,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B datePickerFormat(String format) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="59"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B datePickerFormat(String format) {"
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
             line="59"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B date(long date) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="69"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B minDate(long minDate) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="79"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B maxDate(long maxDate) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="89"
-            column="16"/>
     </issue>
 
     <issue
@@ -14323,28 +13830,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PropertyMarkerValue(PropertyT property) {"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="87"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PropertyT getProperty() {"
-        errorLine2="               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="94"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public IntProperty(String name, int index) {"
         errorLine2="                           ~~~~~~">
         <location
@@ -14610,17 +14095,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final PropertyT addProperty(String name) {"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="452"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final PropertyT addProperty(String name) {"
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
@@ -14637,17 +14111,6 @@
             file="src/main/java/androidx/leanback/widget/Parallax.java"
             line="558"
             column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract PropertyT createProperty(String name, int index);"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="569"
-            column="21"/>
     </issue>
 
     <issue
@@ -14846,17 +14309,6 @@
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
             line="179"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final &lt;T, V extends Number> ParallaxEffect target(T targetObject,"
-        errorLine2="                                                             ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
-            line="179"
-            column="62"/>
     </issue>
 
     <issue
@@ -15467,17 +14919,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            T impl) {"
-        errorLine2="            ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
-            line="235"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public PlaybackBannerControlGlue(Context context,"
         errorLine2="                                     ~~~~~~~">
         <location
@@ -15505,17 +14946,6 @@
         <location
             file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
             line="251"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                                    T impl) {"
-        errorLine2="                                    ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
-            line="252"
             column="37"/>
     </issue>
 
@@ -15594,28 +15024,6 @@
             file="src/main/java/androidx/leanback/media/PlaybackBaseControlGlue.java"
             line="212"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PlaybackBaseControlGlue(Context context, T impl) {"
-        errorLine2="                                                    ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBaseControlGlue.java"
-            line="212"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final T getPlayerAdapter() {"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBaseControlGlue.java"
-            line="218"
-            column="18"/>
     </issue>
 
     <issue
@@ -17618,17 +17026,6 @@
             file="src/main/java/androidx/leanback/media/PlaybackTransportControlGlue.java"
             line="123"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PlaybackTransportControlGlue(Context context, T impl) {"
-        errorLine2="                                                         ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackTransportControlGlue.java"
-            line="123"
-            column="58"/>
     </issue>
 
     <issue

@@ -27,6 +27,11 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [FragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your FragmentDestination instead",
+    ReplaceWith("fragment<F>(route = id.toString())")
+)
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int
 ): Unit = fragment<F>(id) {}
@@ -34,6 +39,11 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 /**
  * Construct a new [FragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your FragmentDestination instead",
+    ReplaceWith("fragment<F>(route = id.toString()) { builder.invoke() }")
+)
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
@@ -46,14 +56,57 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 )
 
 /**
+ * Construct a new [FragmentNavigator.Destination]
+ */
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+    route: String
+): Unit = fragment<F>(route) {}
+
+/**
+ * Construct a new [FragmentNavigator.Destination]
+ */
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+    route: String,
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    FragmentNavigatorDestinationBuilder(
+        provider[FragmentNavigator::class],
+        route,
+        F::class
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [FragmentNavigator.Destination]
  */
 @NavDestinationDsl
-public class FragmentNavigatorDestinationBuilder(
-    navigator: FragmentNavigator,
-    @IdRes id: Int,
-    private val fragmentClass: KClass<out Fragment>
-) : NavDestinationBuilder<FragmentNavigator.Destination>(navigator, id) {
+public class FragmentNavigatorDestinationBuilder :
+    NavDestinationBuilder<FragmentNavigator.Destination> {
+
+    private var fragmentClass: KClass<out Fragment>
+
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your FragmentNavigatorDestination instead",
+        ReplaceWith(
+            "FragmentNavigatorDestinationBuilder(navigator, route = id.toString(), fragmentClass) "
+        )
+    )
+    public constructor(
+        navigator: FragmentNavigator,
+        @IdRes id: Int,
+        fragmentClass: KClass<out Fragment>
+    ) : super(navigator, id) {
+        this.fragmentClass = fragmentClass
+    }
+
+    public constructor(
+        navigator: FragmentNavigator,
+        route: String,
+        fragmentClass: KClass<out Fragment>
+    ) : super(navigator, route) {
+        this.fragmentClass = fragmentClass
+    }
 
     override fun build(): FragmentNavigator.Destination =
         super.build().also { destination ->

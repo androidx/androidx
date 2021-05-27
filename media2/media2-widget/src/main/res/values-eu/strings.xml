@@ -20,7 +20,7 @@
     <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"Desaktibatuta"</string>
     <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"Audio-pista"</string>
     <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"Bat ere ez"</string>
-    <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"Erreprodukzioaren abiadura"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"Erreprodukzio-abiadura"</string>
     <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"Normala"</string>
     <string name="MediaControlView_time_placeholder" msgid="6734584158942500617">"00:00:00"</string>
     <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"<xliff:g id="TRACK_NUMBER">%1$d</xliff:g>. pista"</string>

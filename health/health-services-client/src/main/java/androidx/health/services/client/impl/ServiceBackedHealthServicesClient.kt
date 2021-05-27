@@ -21,7 +21,7 @@ import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.MeasureClient
 import androidx.health.services.client.PassiveMonitoringClient
-import androidx.health.services.client.impl.internal.WhsConnectionManager
+import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 
 /**
@@ -36,7 +36,7 @@ internal constructor(context: Context, connectionManager: ConnectionManager) :
     private val applicationContext: Context = context.applicationContext
     private val ipcClient: HealthServicesIpcClient = HealthServicesIpcClient(connectionManager)
 
-    public constructor(context: Context) : this(context, WhsConnectionManager.getInstance(context))
+    public constructor(context: Context) : this(context, HsConnectionManager.getInstance(context))
 
     override val exerciseClient: ExerciseClient
         get() = ServiceBackedExerciseClient.getClient(applicationContext)

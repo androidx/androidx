@@ -244,10 +244,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private boolean mLongPressBackDown;
 
     private boolean mBaseContextAttached;
+    // true after the first call to onCreated.
     private boolean mCreated;
-    private boolean mStarted;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean mIsDestroyed;
+    // true after the first (and only) call to onDestroyed.
+    boolean mDestroyed;
 
     /**
      * The configuration from the most recent call to either onConfigurationChanged or onCreate.
@@ -669,8 +669,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onStart() {
-        mStarted = true;
-
         // This will apply day/night if the time has changed, it will also call through to
         // setupAutoNightModeIfNeeded()
         applyDayNight();
@@ -678,8 +676,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onStop() {
-        mStarted = false;
-
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.setShowHideAnimationEnabled(false);
@@ -743,8 +739,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
         }
 
-        mStarted = false;
-        mIsDestroyed = true;
+        mDestroyed = true;
 
         if (mLocalNightMode != MODE_NIGHT_UNSPECIFIED
                 && mHost instanceof Activity
@@ -844,7 +839,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // A pending invalidation will typically be resolved before the posted message
             // would run normally in order to satisfy instance state restoration.
             PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, false);
-            if (!mIsDestroyed && (st == null || st.menu == null)) {
+            if (!mDestroyed && (st == null || st.menu == null)) {
                 invalidatePanelMenu(FEATURE_SUPPORT_ACTION_BAR);
             }
         }
@@ -1185,7 +1180,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @Override
     public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
         final Window.Callback cb = getWindowCallback();
-        if (cb != null && !mIsDestroyed) {
+        if (cb != null && !mDestroyed) {
             final PanelFeatureState panel = findMenuPanel(menu.getRootMenu());
             if (panel != null) {
                 return cb.onMenuItemSelected(panel.featureId, item);
@@ -1247,7 +1242,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         ActionMode mode = null;
-        if (mAppCompatCallback != null && !mIsDestroyed) {
+        if (mAppCompatCallback != null && !mDestroyed) {
             try {
                 mode = mAppCompatCallback.onWindowStartingSupportActionMode(callback);
             } catch (AbstractMethodError ame) {
@@ -1653,7 +1648,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private void openPanel(final PanelFeatureState st, KeyEvent event) {
         // Already open, return
-        if (st.isOpen || mIsDestroyed) {
+        if (st.isOpen || mDestroyed) {
             return;
         }
 
@@ -1765,7 +1760,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             final Window.Callback cb = getWindowCallback();
 
             if (!mDecorContentParent.isOverflowMenuShowing() || !toggleMenuMode) {
-                if (cb != null && !mIsDestroyed) {
+                if (cb != null && !mDestroyed) {
                     // If we have a menu invalidation pending, do it now.
                     if (mInvalidatePanelMenuPosted &&
                             (mInvalidatePanelMenuFeatures & (1 << FEATURE_OPTIONS_PANEL)) != 0) {
@@ -1785,7 +1780,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 }
             } else {
                 mDecorContentParent.hideOverflowMenu();
-                if (!mIsDestroyed) {
+                if (!mDestroyed) {
                     final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
                     cb.onPanelClosed(FEATURE_SUPPORT_ACTION_BAR, st.menu);
                 }
@@ -1866,7 +1861,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     private boolean preparePanel(PanelFeatureState st, KeyEvent event) {
-        if (mIsDestroyed) {
+        if (mDestroyed) {
             return false;
         }
 
@@ -1977,7 +1972,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         mClosingActionMenu = true;
         mDecorContentParent.dismissPopups();
         Window.Callback cb = getWindowCallback();
-        if (cb != null && !mIsDestroyed) {
+        if (cb != null && !mDestroyed) {
             cb.onPanelClosed(FEATURE_SUPPORT_ACTION_BAR, menu);
         }
         mClosingActionMenu = false;
@@ -2041,7 +2036,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 mDecorContentParent.canShowOverflowMenu() &&
                 !ViewConfiguration.get(mContext).hasPermanentMenuKey()) {
             if (!mDecorContentParent.isOverflowMenuShowing()) {
-                if (!mIsDestroyed && preparePanel(st, event)) {
+                if (!mDestroyed && preparePanel(st, event)) {
                     handled = mDecorContentParent.showOverflowMenu();
                 }
             } else {
@@ -2104,7 +2099,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return;
         }
 
-        if (!mIsDestroyed) {
+        if (!mDestroyed) {
             // We need to be careful which callback we dispatch the call to. We can not dispatch
             // this to the Window's callback since that will call back into this method and cause a
             // crash. Instead we need to dispatch down to the original Activity/Dialog/etc.
@@ -2385,7 +2380,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @SuppressWarnings("deprecation")
     private boolean applyDayNight(final boolean allowRecreation) {
-        if (mIsDestroyed) {
+        if (mDestroyed) {
             if (DEBUG) {
                 Log.d(TAG, "applyDayNight. Skipping because host is destroyed");
             }
@@ -2614,14 +2609,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (callOnConfigChange && mHost instanceof Activity) {
             final Activity activity = (Activity) mHost;
             if (activity instanceof LifecycleOwner) {
-                // If the Activity is a LifecyleOwner, check that it is at least started
+                // If the Activity is a LifecyleOwner, check that it is after onCreate() and
+                // before onDestroy(), which includes STOPPED.
                 Lifecycle lifecycle = ((LifecycleOwner) activity).getLifecycle();
-                if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
                     activity.onConfigurationChanged(conf);
                 }
             } else {
-                // Otherwise we'll fallback to our internal started flag.
-                if (mStarted) {
+                // Otherwise, we'll fallback to our internal created and destroyed flags.
+                if (mCreated && !mDestroyed) {
                     activity.onConfigurationChanged(conf);
                 }
             }
@@ -2777,7 +2773,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // Only dispatch for the root menu
             if (subMenu == subMenu.getRootMenu() && mHasActionBar) {
                 Window.Callback cb = getWindowCallback();
-                if (cb != null && !mIsDestroyed) {
+                if (cb != null && !mDestroyed) {
                     cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, subMenu);
                 }
             }

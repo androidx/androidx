@@ -47,17 +47,8 @@ internal sealed class KspTypeElement(
 ) : KspElement(env, declaration),
     XTypeElement,
     XHasModifiers by KspHasModifiers.create(declaration),
-    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE) {
-
-    /**
-     * The true origin of this class file. This may not match `declaration.origin` when declaration
-     * is coming from a .class file.
-     *
-     * TODO: Remove this field when https://github.com/google/ksp/issues/375 is fixed.
-     */
-    val trueOrigin: Origin by lazy {
-        KspClassFileUtility.findTrueOrigin(declaration) ?: declaration.origin
-    }
+    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE),
+    KspMemberContainer {
 
     override val name: String by lazy {
         declaration.simpleName.asString()
@@ -68,7 +59,8 @@ internal sealed class KspTypeElement(
     }
 
     override val enclosingTypeElement: XTypeElement? by lazy {
-        declaration.findEnclosingTypeElement(env)
+        // if it is a file, don't return it
+        declaration.findEnclosingMemberContainer(env) as? XTypeElement
     }
 
     override val equalityItems: Array<out Any?> by lazy {
@@ -121,7 +113,7 @@ internal sealed class KspTypeElement(
                 )
             }.let {
                 // only order instance fields, we don't care about the order of companion fields.
-                KspClassFileUtility.orderFields(declaration, it)
+                KspClassFileUtility.orderFields(declaration, it.toList())
             }
 
         val companionProperties = declaration
@@ -251,6 +243,34 @@ internal sealed class KspTypeElement(
         return declaration.classKind == ClassKind.OBJECT
     }
 
+    override fun isCompanionObject(): Boolean {
+        return declaration.isCompanionObject
+    }
+
+    override fun isAnnotationClass(): Boolean {
+        return declaration.classKind == ClassKind.ANNOTATION_CLASS
+    }
+
+    override fun isClass(): Boolean {
+        return declaration.classKind == ClassKind.CLASS
+    }
+
+    override fun isDataClass(): Boolean {
+        return Modifier.DATA in declaration.modifiers
+    }
+
+    override fun isValueClass(): Boolean {
+        return Modifier.INLINE in declaration.modifiers
+    }
+
+    override fun isFunctionalInterface(): Boolean {
+        return Modifier.FUN in declaration.modifiers
+    }
+
+    override fun isExpect(): Boolean {
+        return Modifier.EXPECT in declaration.modifiers
+    }
+
     override fun isFinal(): Boolean {
         // workaround for https://github.com/android/kotlin/issues/128
         return !isInterface() && !declaration.isOpen()
@@ -311,7 +331,7 @@ internal sealed class KspTypeElement(
                 containing = this,
                 declaration = it
             )
-        }
+        }.toList()
     }
 
     override fun getSuperInterfaceElements(): List<XTypeElement> {

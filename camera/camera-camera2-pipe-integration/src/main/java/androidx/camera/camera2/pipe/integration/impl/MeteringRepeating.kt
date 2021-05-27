@@ -72,6 +72,13 @@ class MeteringRepeating(
         deferrableSurface = null
     }
 
+    /** Sets up the use case's session configuration, mainly its [DeferrableSurface]. */
+    fun setupSession() {
+        // The suggested resolution passed to `updateSuggestedResolution` doesn't matter since
+        // this use case uses the min preview size.
+        updateSuggestedResolution(DEFAULT_PREVIEW_SIZE)
+    }
+
     private fun createPipeline(): SessionConfig.Builder {
         val surfaceTexture = SurfaceTexture(0).apply {
             setDefaultBufferSize(meteringSurfaceSize.width, meteringSurfaceSize.height)

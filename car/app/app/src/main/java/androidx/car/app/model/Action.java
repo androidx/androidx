@@ -340,9 +340,10 @@ public final class Action {
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * The provided icon should have a maximum size of 36 x 36 dp. If the icon exceeds this
-         * maximum size in either one of the dimensions, it will be scaled down to be centered
-         * inside the bounding box while preserving the aspect ratio.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * icons targeting a 88 x 88 dp bounding box. If the icon exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -378,9 +379,10 @@ public final class Action {
          *
          * <h4>Requirements</h4>
          *
-         * <p>The host may ignore this color and use the default instead if the color does not
-         * pass the contrast requirements. See the documentation on where the {@link Action} is
-         * added for more details on any other restriction(s) that might apply.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system. See
+         * the documentation on where the {@link Action} is added for more details on any other
+         * restriction(s) that might apply.
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
          *                        CarColor#DEFAULT} to let the host pick a default

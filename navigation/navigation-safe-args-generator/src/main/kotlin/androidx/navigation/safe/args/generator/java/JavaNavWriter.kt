@@ -362,6 +362,7 @@ private class ClassWithArgsSpecs(
     ).initializer("new $T()", HASHMAP_CLASSNAME).build()
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
+        @Suppress("DEPRECATION") // b/187985877
         MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
             addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
             addAnnotation(suppressAnnotationSpec)
@@ -516,6 +517,7 @@ private class ClassWithArgsSpecs(
     }.build()
 
     private fun getterFromArgName(sanitizedName: String, suffix: String = "") =
+        @Suppress("DEPRECATION") // b/187985877
         "get${sanitizedName.capitalize()}$suffix"
 
     fun hashCodeMethod(

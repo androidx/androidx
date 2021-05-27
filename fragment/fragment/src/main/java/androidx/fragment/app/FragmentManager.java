@@ -93,7 +93,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class FragmentManager implements FragmentResultOwner {
     private static boolean DEBUG = false;
-    static final String TAG = "FragmentManager";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String TAG = "FragmentManager";
 
     /**
      * Control whether the framework's internal fragment manager debugging
@@ -108,7 +111,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
         FragmentManager.DEBUG = enabled;
     }
 
-    static boolean isLoggingEnabled(int level) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static boolean isLoggingEnabled(int level) {
         return DEBUG || Log.isLoggable(TAG, level);
     }
 
@@ -1356,8 +1361,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     FragmentStateManager addFragment(@NonNull Fragment fragment) {
-        if (fragment.mRemoved) {
-            FragmentStrictMode.onFragmentReuse(fragment);
+        if (fragment.mPreviousWho != null) {
+            FragmentStrictMode.onFragmentReuse(fragment, fragment.mPreviousWho);
         }
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);
         FragmentStateManager fragmentStateManager = createOrGetFragmentStateManager(fragment);

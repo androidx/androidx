@@ -64,6 +64,7 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.ViewCompat;
 import androidx.customview.view.AbsSavedState;
+import androidx.resourceinspection.annotation.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -376,6 +377,8 @@ public class Toolbar extends ViewGroup {
      *         0 if menus are inflated against the toolbar theme
      * @see #setPopupTheme(int)
      */
+    @Attribute("androidx.appcompat:popupTheme")
+    @StyleRes
     public int getPopupTheme() {
         return mPopupTheme;
     }
@@ -407,6 +410,7 @@ public class Toolbar extends ViewGroup {
      * @see #setTitleMarginStart(int)
      * {@link androidx.appcompat.R.attr#titleMarginStart}
      */
+    @Attribute("androidx.appcompat:titleMarginStart")
     public int getTitleMarginStart() {
         return mTitleMarginStart;
     }
@@ -429,6 +433,7 @@ public class Toolbar extends ViewGroup {
      * @see #setTitleMarginTop(int)
      * {@link androidx.appcompat.R.attr#titleMarginTop}
      */
+    @Attribute("androidx.appcompat:titleMarginTop")
     public int getTitleMarginTop() {
         return mTitleMarginTop;
     }
@@ -451,6 +456,7 @@ public class Toolbar extends ViewGroup {
      * @see #setTitleMarginEnd(int)
      * {@link androidx.appcompat.R.attr#titleMarginEnd}
      */
+    @Attribute("androidx.appcompat:titleMarginEnd")
     public int getTitleMarginEnd() {
         return mTitleMarginEnd;
     }
@@ -473,6 +479,7 @@ public class Toolbar extends ViewGroup {
      * @see #setTitleMarginBottom(int)
      * {@link androidx.appcompat.R.attr#titleMarginBottom}
      */
+    @Attribute("androidx.appcompat:titleMarginBottom")
     public int getTitleMarginBottom() {
         return mTitleMarginBottom;
     }
@@ -650,6 +657,7 @@ public class Toolbar extends ViewGroup {
      * @see #setLogo(int)
      * @see #setLogo(android.graphics.drawable.Drawable)
      */
+    @Attribute("androidx.appcompat:logo")
     public Drawable getLogo() {
         return mLogoView != null ? mLogoView.getDrawable() : null;
     }
@@ -688,6 +696,7 @@ public class Toolbar extends ViewGroup {
      *
      * @return A description of the logo
      */
+    @Attribute("androidx.appcompat:logoDescription")
     public CharSequence getLogoDescription() {
         return mLogoView != null ? mLogoView.getContentDescription() : null;
     }
@@ -735,6 +744,7 @@ public class Toolbar extends ViewGroup {
      *
      * @return The current title.
      */
+    @Attribute("androidx.appcompat:title")
     public CharSequence getTitle() {
         return mTitleText;
     }
@@ -791,6 +801,7 @@ public class Toolbar extends ViewGroup {
      *
      * @return The current subtitle
      */
+    @Attribute("androidx.appcompat:subtitle")
     public CharSequence getSubtitle() {
         return mSubtitleText;
     }
@@ -913,6 +924,7 @@ public class Toolbar extends ViewGroup {
      *
      * {@link androidx.appcompat.R.attr#navigationContentDescription}
      */
+    @Attribute("androidx.appcompat:navigationContentDescription")
     @Nullable
     public CharSequence getNavigationContentDescription() {
         return mNavButtonView != null ? mNavButtonView.getContentDescription() : null;
@@ -1005,6 +1017,7 @@ public class Toolbar extends ViewGroup {
      *
      * {@link androidx.appcompat.R.attr#navigationIcon}
      */
+    @Attribute("androidx.appcompat:navigationIcon")
     @Nullable
     public Drawable getNavigationIcon() {
         return mNavButtonView != null ? mNavButtonView.getDrawable() : null;
@@ -1033,6 +1046,7 @@ public class Toolbar extends ViewGroup {
      *
      * {@link androidx.appcompat.R.attr#collapseContentDescription}
      */
+    @Attribute("androidx.appcompat:collapseContentDescription")
     @Nullable
     public CharSequence getCollapseContentDescription() {
         return mCollapseButtonView != null ? mCollapseButtonView.getContentDescription() : null;
@@ -1078,6 +1092,7 @@ public class Toolbar extends ViewGroup {
      *
      * {@link androidx.appcompat.R.attr#collapseIcon}
      */
+    @Attribute("androidx.appcompat:collapseIcon")
     @Nullable
     public Drawable getCollapseIcon() {
         return mCollapseButtonView != null ? mCollapseButtonView.getDrawable() : null;
@@ -1125,6 +1140,7 @@ public class Toolbar extends ViewGroup {
      * @return The toolbar's Menu
      * {@link androidx.appcompat.R.attr#menu}
      */
+    @Attribute("androidx.appcompat:menu")
     public Menu getMenu() {
         ensureMenu();
         return mMenuView.getMenu();
@@ -1245,6 +1261,7 @@ public class Toolbar extends ViewGroup {
      * @see #getContentInsetRight()
      * {@link androidx.appcompat.R.attr#contentInsetStart}
      */
+    @Attribute("androidx.appcompat:contentInsetStart")
     public int getContentInsetStart() {
         return mContentInsets != null ? mContentInsets.getStart() : 0;
     }
@@ -1265,6 +1282,7 @@ public class Toolbar extends ViewGroup {
      * @see #getContentInsetRight()
      * {@link androidx.appcompat.R.attr#contentInsetEnd}
      */
+    @Attribute("androidx.appcompat:contentInsetEnd")
     public int getContentInsetEnd() {
         return mContentInsets != null ? mContentInsets.getEnd() : 0;
     }
@@ -1308,6 +1326,7 @@ public class Toolbar extends ViewGroup {
      * @see #getContentInsetRight()
      * {@link androidx.appcompat.R.attr#contentInsetLeft}
      */
+    @Attribute("androidx.appcompat:contentInsetLeft")
     public int getContentInsetLeft() {
         return mContentInsets != null ? mContentInsets.getLeft() : 0;
     }
@@ -1328,6 +1347,7 @@ public class Toolbar extends ViewGroup {
      * @see #getContentInsetLeft()
      * {@link androidx.appcompat.R.attr#contentInsetRight}
      */
+    @Attribute("androidx.appcompat:contentInsetRight")
     public int getContentInsetRight() {
         return mContentInsets != null ? mContentInsets.getRight() : 0;
     }
@@ -1344,6 +1364,7 @@ public class Toolbar extends ViewGroup {
      * @see #setContentInsetStartWithNavigation(int)
      * {@link androidx.appcompat.R.attr#contentInsetStartWithNavigation}
      */
+    @Attribute("androidx.appcompat:contentInsetStartWithNavigation")
     public int getContentInsetStartWithNavigation() {
         return mContentInsetStartWithNavigation != RtlSpacingHelper.UNDEFINED
                 ? mContentInsetStartWithNavigation
@@ -1387,6 +1408,7 @@ public class Toolbar extends ViewGroup {
      * @see #setContentInsetEndWithActions(int)
      * {@link androidx.appcompat.R.attr#contentInsetEndWithActions}
      */
+    @Attribute("androidx.appcompat:contentInsetEndWithActions")
     public int getContentInsetEndWithActions() {
         return mContentInsetEndWithActions != RtlSpacingHelper.UNDEFINED
                 ? mContentInsetEndWithActions

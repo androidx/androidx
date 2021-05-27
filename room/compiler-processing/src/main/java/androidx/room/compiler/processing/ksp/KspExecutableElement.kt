@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -28,7 +27,7 @@ import com.google.devtools.ksp.symbol.Modifier
 
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
-    val containing: KspTypeElement,
+    open val containing: KspMemberContainer,
     override val declaration: KSFunctionDeclaration
 ) : KspElement(
     env = env,
@@ -46,8 +45,8 @@ internal abstract class KspExecutableElement(
         arrayOf(containing, declaration)
     }
 
-    override val enclosingElement: XTypeElement by lazy {
-        declaration.requireEnclosingTypeElement(env)
+    override val enclosingElement: KspMemberContainer by lazy {
+        declaration.requireEnclosingMemberContainer(env)
     }
 
     override val parameters: List<XExecutableParameterElement> by lazy {
@@ -74,9 +73,9 @@ internal abstract class KspExecutableElement(
             env: KspProcessingEnv,
             declaration: KSFunctionDeclaration
         ): KspExecutableElement {
-            val enclosingType = declaration.findEnclosingTypeElement(env)
+            val enclosingContainer = declaration.findEnclosingMemberContainer(env)
 
-            checkNotNull(enclosingType) {
+            checkNotNull(enclosingContainer) {
                 "XProcessing does not currently support annotations on top level " +
                     "functions with KSP. Cannot process $declaration."
             }
@@ -85,14 +84,16 @@ internal abstract class KspExecutableElement(
                 declaration.isConstructor() -> {
                     KspConstructorElement(
                         env = env,
-                        containing = enclosingType,
+                        containing = enclosingContainer as? KspTypeElement ?: error(
+                            "The container for $declaration should be a type element"
+                        ),
                         declaration = declaration
                     )
                 }
                 else -> {
                     KspMethodElement.create(
                         env = env,
-                        containing = enclosingType,
+                        containing = enclosingContainer,
                         declaration = declaration
                     )
                 }

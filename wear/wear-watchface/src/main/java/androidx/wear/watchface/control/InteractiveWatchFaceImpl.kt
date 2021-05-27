@@ -16,76 +16,101 @@
 
 package androidx.wear.watchface.control
 
-import android.os.Handler
-import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.WatchFaceImpl
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
-import androidx.wear.watchface.runBlockingOnHandlerWithTracing
-import androidx.wear.watchface.runOnHandlerWithTracing
+import androidx.wear.watchface.runBlockingWithTracing
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /** An interactive watch face instance with SysUI and WCS facing interfaces.*/
 @RequiresApi(27)
 internal class InteractiveWatchFaceImpl(
     internal val engine: WatchFaceService.EngineWrapper,
-    internal var instanceId: String,
-    private val uiThreadHandler: Handler
+    internal var instanceId: String
 ) : IInteractiveWatchFace.Stub() {
+
+    private companion object {
+        const val TAG = "InteractiveWatchFaceImpl"
+    }
 
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
 
-    override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
-        uiThreadHandler.runOnHandlerWithTracing("InteractiveWatchFaceImpl.sendTouchEvent") {
-            engine.sendTouchEvent(xPos, yPos, tapType)
+    private fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+        traceName: String,
+        task: (watchFaceImpl: WatchFaceImpl) -> R
+    ): R = TraceEvent(traceName).use {
+        runBlocking {
+            val watchFaceImpl = engine.deferredWatchFaceImpl.await()
+            withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                try {
+                    task(watchFaceImpl)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Operation failed", e)
+                    throw e
+                }
+            }
         }
     }
 
-    override fun getContentDescriptionLabels(): Array<ContentDescriptionLabel> =
-        uiThreadHandler.runBlockingOnHandlerWithTracing(
+    override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.sendTouchEvent"
+        ) { watchFaceImpl -> watchFaceImpl.onTapCommand(tapType, xPos, yPos) }
+
+    override fun getContentDescriptionLabels() =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
-        ) {
-            engine.contentDescriptionLabels
-        }
+        ) { engine.contentDescriptionLabels }
 
     override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
-        uiThreadHandler.runBlockingOnHandlerWithTracing(
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.renderWatchFaceToBitmap"
-        ) {
-            engine.renderWatchFaceToBitmap(params)
-        }
+        ) { watchFaceImpl -> watchFaceImpl.renderWatchFaceToBitmap(params) }
 
-    override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
+    override fun getPreviewReferenceTimeMillis() =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
+        ) { watchFaceImpl -> watchFaceImpl.previewReferenceTimeMillis }
 
-    override fun setWatchUiState(watchUiState: WatchUiState) {
-        uiThreadHandler.runOnHandlerWithTracing("InteractiveWatchFaceImpl.setSystemState") {
-            engine.setWatchUiState(watchUiState)
-        }
-    }
+    override fun setWatchUiState(watchUiState: WatchUiState) =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.setWatchUiState"
+        ) { engine.setWatchUiState(watchUiState) }
 
     override fun getInstanceId(): String = instanceId
 
     override fun ambientTickUpdate() {
-        uiThreadHandler.runOnHandlerWithTracing("InteractiveWatchFaceImpl.ambientTickUpdate") {
-            engine.ambientTickUpdate()
-        }
+        engine.uiThreadCoroutineScope.runBlockingWithTracing(
+            "InteractiveWatchFaceImpl.ambientTickUpdate"
+        ) { engine.ambientTickUpdate() }
     }
 
-    override fun release() {
-        uiThreadHandler.runOnHandlerWithTracing("InteractiveWatchFaceImpl.release") {
-            InteractiveInstanceManager.releaseInstance(instanceId)
+    override fun release() = TraceEvent("InteractiveWatchFaceImpl.release").use {
+        runBlocking {
+            try {
+                engine.deferredWatchFaceImpl.await()
+            } catch (e: Exception) {
+                // deferredWatchFaceImpl may have completed with an exception. This will have
+                // already been reported so we can ignore it.
+            }
+            withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                InteractiveInstanceManager.releaseInstance(instanceId)
+            }
         }
     }
 
     override fun updateComplicationData(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
-    ) {
-        uiThreadHandler.runOnHandlerWithTracing("InteractiveWatchFaceImpl.updateComplicationData") {
-            engine.setComplicationDataList(complicationDatumWireFormats)
-        }
-    }
+    ) = engine.uiThreadCoroutineScope.runBlockingWithTracing(
+        "InteractiveWatchFaceImpl.updateComplicationData"
+    ) { engine.setComplicationDataList(complicationDatumWireFormats) }
 
     override fun updateWatchfaceInstance(
         newInstanceId: String,
@@ -95,7 +120,9 @@ internal class InteractiveWatchFaceImpl(
          * This is blocking to ensure ordering with respect to any subsequent [getInstanceId] and
          * [getPreviewReferenceTimeMillis] calls.
          */
-        uiThreadHandler.runBlockingOnHandlerWithTracing("InteractiveWatchFaceImpl.updateInstance") {
+        engine.uiThreadCoroutineScope.runBlockingWithTracing(
+            "InteractiveWatchFaceImpl.updateWatchfaceInstance"
+        ) {
             if (instanceId != newInstanceId) {
                 InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
@@ -106,24 +133,18 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun getComplicationDetails() =
-        uiThreadHandler.runBlockingOnHandlerWithTracing(
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getComplicationDetails"
-        ) {
-            engine.getComplicationState()
-        }
+        ) { watchFaceImpl -> watchFaceImpl.getComplicationState() }
 
     override fun getUserStyleSchema() =
-        uiThreadHandler.runBlockingOnHandlerWithTracing(
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getUserStyleSchema"
-        ) {
-            engine.watchFaceImpl.userStyleRepository.schema.toWireFormat()
-        }
+        ) { watchFaceImpl -> watchFaceImpl.currentUserStyleRepository.schema.toWireFormat() }
 
     override fun bringAttentionToComplication(id: Int) {
-        uiThreadHandler.runOnHandlerWithTracing(
-            "InteractiveWatchFaceImpl.bringAttentionToComplication"
-        ) {
-            engine.watchFaceImpl.complicationsManager.displayPressedAnimation(id)
-        }
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.getUserStyleSchema"
+        ) { watchFaceImpl -> watchFaceImpl.complicationsManager.displayPressedAnimation(id) }
     }
 }

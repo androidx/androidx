@@ -46,7 +46,8 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
-import androidx.camera.extensions.Extensions;
+import androidx.camera.extensions.ExtensionMode;
+import androidx.camera.extensions.ExtensionsInfo;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -96,7 +97,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     ProcessCameraProvider mCameraProvider;
 
     Camera mCamera;
-    Extensions mExtensions;
+    ExtensionsInfo mExtensionsInfo;
 
     enum ImageCaptureType {
 
@@ -119,10 +120,59 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Sets up the appropriate UseCases.
-     */
-    private void bindUseCases() {
+    void setupButtons() {
+        Button btnToggleMode = findViewById(R.id.PhotoToggle);
+        Button btnSwitchCamera = findViewById(R.id.Switch);
+        btnToggleMode.setOnClickListener(view -> bindUseCasesWithNextExtension());
+        btnSwitchCamera.setOnClickListener(view -> switchCameras());
+    }
+
+    void switchCameras() {
+        mCameraProvider.unbindAll();
+        mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        bindUseCasesWithExtension(mCurrentImageCaptureType);
+    }
+
+    @ExtensionMode.Mode
+    int extensionModeFrom(ImageCaptureType imageCaptureType) {
+        switch (imageCaptureType) {
+            case IMAGE_CAPTURE_TYPE_HDR:
+                return ExtensionMode.HDR;
+            case IMAGE_CAPTURE_TYPE_BOKEH:
+                return ExtensionMode.BOKEH;
+            case IMAGE_CAPTURE_TYPE_NIGHT:
+                return ExtensionMode.NIGHT;
+            case IMAGE_CAPTURE_TYPE_BEAUTY:
+                return ExtensionMode.BEAUTY;
+            case IMAGE_CAPTURE_TYPE_AUTO:
+                return ExtensionMode.AUTO;
+            case IMAGE_CAPTURE_TYPE_DEFAULT:
+                return ExtensionMode.NONE;
+            default:
+                throw new IllegalArgumentException(
+                        "ImageCaptureType does not exist: " + imageCaptureType);
+        }
+    }
+
+    void bindUseCasesWithNextExtension() {
+        do {
+            mCurrentImageCaptureType = mCurrentImageCaptureType.getNextType();
+        } while (!bindUseCasesWithExtension(mCurrentImageCaptureType));
+    }
+
+    // TODO(b/162875208) Suppress until new extensions API made public
+    @SuppressLint("RestrictedAPI")
+    boolean bindUseCasesWithExtension(ImageCaptureType imageCaptureType) {
+        // Check that extension can be enabled and if so enable it
+        @ExtensionMode.Mode
+        int extensionMode = extensionModeFrom(imageCaptureType);
+
+        if (!mExtensionsInfo.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
+                extensionMode)) {
+            return false;
+        }
+
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
                 "ImageCapture");
         mImageCapture = imageCaptureBuilder.build();
@@ -132,70 +182,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview = previewBuilder.build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
-        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
-                mImageCapture, mPreview);
-    }
-
-    void setupButtons() {
-        Button btnToggleMode = findViewById(R.id.PhotoToggle);
-        Button btnSwitchCamera = findViewById(R.id.Switch);
-        btnToggleMode.setOnClickListener(view -> enableNextExtension());
-        btnSwitchCamera.setOnClickListener(view -> switchCameras());
-    }
-
-    void switchCameras() {
-        mCameraProvider.unbindAll();
-        mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
-                ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
-        bindUseCases();
-        enableExtension(mCurrentImageCaptureType);
-    }
-
-    @Extensions.ExtensionMode
-    int extensionModeFrom(ImageCaptureType imageCaptureType) {
-        switch (imageCaptureType) {
-            case IMAGE_CAPTURE_TYPE_HDR:
-                return Extensions.EXTENSION_MODE_HDR;
-            case IMAGE_CAPTURE_TYPE_BOKEH:
-                return Extensions.EXTENSION_MODE_BOKEH;
-            case IMAGE_CAPTURE_TYPE_NIGHT:
-                return Extensions.EXTENSION_MODE_NIGHT;
-            case IMAGE_CAPTURE_TYPE_BEAUTY:
-                return Extensions.EXTENSION_MODE_BEAUTY;
-            case IMAGE_CAPTURE_TYPE_AUTO:
-                return Extensions.EXTENSION_MODE_AUTO;
-            case IMAGE_CAPTURE_TYPE_DEFAULT:
-                return Extensions.EXTENSION_MODE_NONE;
-            default:
-                throw new IllegalArgumentException(
-                        "ImageCaptureType does not exist: " + imageCaptureType);
-        }
-    }
-
-    void enableNextExtension() {
-        do {
-            mCurrentImageCaptureType = mCurrentImageCaptureType.getNextType();
-        } while (!enableExtension(mCurrentImageCaptureType));
-    }
-
-    // TODO(b/162875208) Suppress until new extensions API made public
-    @SuppressLint("RestrictedAPI")
-    boolean enableExtension(ImageCaptureType imageCaptureType) {
-        // Check that extension can be enabled and if so enable it
-        @Extensions.ExtensionMode
-        int extensionMode = extensionModeFrom(imageCaptureType);
-
-        if (!mExtensions.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
-                extensionMode)) {
-            return false;
-        }
-
-        CameraSelector cameraSelector = mExtensions.getExtensionCameraSelector(
+        CameraSelector cameraSelector = mExtensionsInfo.getExtensionCameraSelector(
                 mCurrentCameraSelector, extensionMode);
 
         mCameraProvider.unbindAll();
-
-        mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
+        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
 
         // Update the UI and save location for ImageCapture
         Button toggleButton = findViewById(R.id.PhotoToggle);
@@ -269,13 +260,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         return true;
     }
 
-    /** Creates all the use cases. */
-    void createUseCases() {
-        ExtensionsManager.setExtensionsErrorListener((errorCode) ->
-                Log.d(TAG, "Extensions error in error code: " + errorCode));
-        bindUseCases();
-    }
-
     @SuppressWarnings("UnstableApiUsage")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -337,10 +321,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         switch (availability) {
                             case LIBRARY_AVAILABLE:
                             case NONE:
-                                mExtensions = ExtensionsManager.getExtensions(
+                                mExtensionsInfo = ExtensionsManager.getExtensionsInfo(
                                         getApplicationContext());
-                                createUseCases();
-                                enableNextExtension();
+                                ExtensionsManager.setExtensionsErrorListener((errorCode) ->
+                                        Log.d(TAG, "Extensions error in error code: " + errorCode));
+                                bindUseCasesWithNextExtension();
                                 setupButtons();
                                 break;
                             case LIBRARY_UNAVAILABLE_ERROR_LOADING:
@@ -407,9 +392,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 motionEvent.getX(), motionEvent.getY());
 
                 mCamera.getCameraControl().startFocusAndMetering(
-                        new FocusMeteringAction.Builder(point).build())
-                        .addListener(() -> {},
-                                ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+                        new FocusMeteringAction.Builder(point).build()).addListener(() -> {},
+                        ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
             }
             return true;
         });

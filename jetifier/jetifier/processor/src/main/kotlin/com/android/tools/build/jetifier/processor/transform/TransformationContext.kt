@@ -119,4 +119,8 @@ class TransformationContext(
             )
         }
     }
+
+    fun reportUnreadableKotlinModule(tag: String, filePath: Path) {
+        Log.e(tag, "Unreadable kotlin module medata file: %s", filePath)
+    }
 }

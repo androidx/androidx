@@ -25,8 +25,8 @@ import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.MeasureCapabilities
 import androidx.health.services.client.impl.MeasureCallbackStub.MeasureCallbackCache
 import androidx.health.services.client.impl.MeasureIpcClient.Companion.getServiceInterface
+import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.internal.StatusCallback
-import androidx.health.services.client.impl.internal.WhsConnectionManager
 import androidx.health.services.client.impl.ipc.ServiceOperation
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.CapabilitiesRequest
@@ -38,7 +38,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 
 /**
- * [MeasureClient] that interacts with WHS via IPC.
+ * [MeasureClient] implementation that is backed by Health Services.
  *
  * @hide
  */
@@ -107,7 +107,7 @@ public class ServiceBackedMeasureClient(
     internal companion object {
         @JvmStatic
         fun getClient(context: Context): ServiceBackedMeasureClient {
-            return ServiceBackedMeasureClient(context, WhsConnectionManager.getInstance(context))
+            return ServiceBackedMeasureClient(context, HsConnectionManager.getInstance(context))
         }
     }
 }

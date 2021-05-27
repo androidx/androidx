@@ -16,6 +16,7 @@
 
 package androidx.viewpager2.widget
 
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.SwipeTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
@@ -34,6 +35,7 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
 
 @RunWith(Parameterized::class)
 @LargeTest
+@FlakyTest(bugId = 187830562)
 class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
     @Test
     fun test() {

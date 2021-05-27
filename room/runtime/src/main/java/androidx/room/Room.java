@@ -19,6 +19,7 @@ package androidx.room;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * Utility class for Room.
@@ -75,7 +76,9 @@ public class Room {
 
     @SuppressWarnings({"TypeParameterUnusedInFormals", "ClassNewInstance"})
     @NonNull
-    static <T, C> T getGeneratedImplementation(Class<C> klass, String suffix) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static <T, C> T getGeneratedImplementation(@NonNull Class<C> klass,
+            @NonNull String suffix) {
         final String fullPackage = klass.getPackage().getName();
         String name = klass.getCanonicalName();
         final String postPackageName = fullPackage.isEmpty()

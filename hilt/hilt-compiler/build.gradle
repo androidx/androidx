@@ -29,19 +29,19 @@ plugins {
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
-    compileOnly(AUTO_SERVICE_ANNOTATIONS)
-    kapt(AUTO_SERVICE_PROCESSOR)
-    compileOnly(GRADLE_INCAP_HELPER)
-    kapt(GRADLE_INCAP_HELPER_PROCESSOR)
-    implementation(AUTO_COMMON)
-    implementation(JAVAPOET)
+    implementation(libs.kotlinStdlib)
+    compileOnly(libs.autoServiceAnnotations)
+    kapt(libs.autoService)
+    compileOnly(libs.gradleIncapHelper)
+    kapt(libs.gradleIncapHelperProcessor)
+    implementation(libs.autoCommon)
+    implementation(libs.javapoet)
 
     testImplementation(project(":hilt:hilt-common"))
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(HILT_CORE)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.hiltCore)
     testImplementation(fileTree(
             dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
             include : "*.jar"))

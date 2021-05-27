@@ -22,6 +22,9 @@ import com.google.devtools.ksp.processing.Resolver
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
+internal val XTestInvocation.kspProcessingEnv: KspProcessingEnv
+    get() = (processingEnv as KspProcessingEnv)
+
 val XTestInvocation.kspResolver: Resolver
     get() = (processingEnv as KspProcessingEnv).resolver
 

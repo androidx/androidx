@@ -42,6 +42,7 @@ package androidx.room {
   public class Room {
     ctor @Deprecated public Room();
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> databaseBuilder(android.content.Context, Class<T!>, String);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T, C> T getGeneratedImplementation(Class<C!>, String);
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> inMemoryDatabaseBuilder(android.content.Context, Class<T!>);
     field public static final String MASTER_TABLE_NAME = "room_master_table";
   }
@@ -55,7 +56,6 @@ package androidx.room {
     method protected abstract androidx.room.InvalidationTracker createInvalidationTracker();
     method protected abstract androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration!);
     method @Deprecated public void endTransaction();
-    method protected java.util.List<androidx.room.migration.Migration!> getAutoMigrations();
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();

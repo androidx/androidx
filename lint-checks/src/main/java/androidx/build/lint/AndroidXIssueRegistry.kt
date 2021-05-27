@@ -24,7 +24,7 @@ import com.android.tools.lint.detector.api.Issue
 
 class AndroidXIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
-    override val api = 8
+    override val api = 10
     override val issues get(): List<Issue> {
         return Issues
     }
@@ -50,8 +50,9 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 ObsoleteBuildCompatUsageDetector.ISSUE,
                 BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
-                PrivateConstructorForUtilityClass.ISSUE,
-                ClassVerificationFailureDetector.ISSUE
+                PrivateConstructorForUtilityClassDetector.ISSUE,
+                ClassVerificationFailureDetector.ISSUE,
+                IdeaSuppressionDetector.ISSUE,
             )
         }
     }

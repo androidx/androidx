@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.test.filters.FlakyTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
@@ -36,6 +37,7 @@ class TransactionExecutorTest {
         testExecutor.shutdownNow()
     }
 
+    @FlakyTest(bugId = 187828770)
     @Test
     @Throws(InterruptedException::class)
     fun testSerialExecution() {

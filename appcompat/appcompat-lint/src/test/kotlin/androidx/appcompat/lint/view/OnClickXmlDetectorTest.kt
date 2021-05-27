@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.appcompat.lint.view
 
 import androidx.appcompat.lint.Stubs
@@ -22,6 +24,7 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 
 class OnClickXmlDetectorTest {
@@ -62,6 +65,7 @@ class OnClickXmlDetectorTest {
         """
         ).indented().within("res")
 
+        @Suppress("RedundantVisibilityModifier")
         val activityWithClick = kotlin(
             "com/example/CustomActivity.kt",
             """
@@ -116,6 +120,7 @@ class OnClickXmlDetectorTest {
             layoutWithCoreClick,
             activityWithClick
         ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
+            .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expect(
                 """
@@ -158,6 +163,7 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
             layoutWithCoreClick,
             activityWithClick
         ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
+            .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expectClean()
     }
@@ -193,6 +199,7 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
             layoutWithDataBindingClick,
             activityWithClick
         ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
+            .addTestModes(TestMode.DEFAULT, TestMode.PARTIAL)
             .run()
             .expectClean()
     }

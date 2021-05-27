@@ -95,7 +95,7 @@ class QueryVisitor(
         if (ctx.parent is SQLiteParser.ExprContext) {
             val parentExpr = ctx.parent as SQLiteParser.ExprContext
             val functionName = parentExpr.function_name() ?: return false
-            return fixedParamFunctions.contains(functionName.text.toLowerCase(Locale.US))
+            return fixedParamFunctions.contains(functionName.text.lowercase(Locale.US))
         } else {
             return false
         }

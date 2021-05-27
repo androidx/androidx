@@ -21,7 +21,7 @@ import android.os.Parcelable
 import androidx.health.services.client.data.MeasureCapabilities
 
 /**
- * Response containing the capabilities of WHS client on the device.
+ * Response containing the [MeasureCapabilities] of the device.
  *
  * @hide
  */

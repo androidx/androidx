@@ -24,7 +24,7 @@ import androidx.annotation.UiThread
  * @param T The type of data held by this instance.
  * @param _value The initial value or `null` if there isn't an initial value.
  */
-public open class ObservableWatchData<T : Any> internal constructor(internal var _value: T?) {
+public sealed class ObservableWatchData<T : Any> constructor(internal var _value: T?) {
 
     private var iterating = false
     private val observers = ArrayList<Observer<T>>()
@@ -104,26 +104,26 @@ public open class ObservableWatchData<T : Any> internal constructor(internal var
             "<unset>"
         }
     }
-}
-
-/**
- * [ObservableWatchData] which publicly exposes [setValue(T)] method.
- *
- * @param T The type of data held by this instance
- */
-public class MutableObservableWatchData<T : Any>(initialValue: T?) :
-    ObservableWatchData<T>(initialValue) {
-    public constructor() : this(null)
 
     /**
-     * Mutable observable value. Assigning a different value will trigger [Observer.onChanged]
-     * callbacks.
+     * [ObservableWatchData] which publicly exposes [setValue(T)] method.
+     *
+     * @param T The type of data held by this instance
      */
-    override var value: T
-        @UiThread
-        get() = _value!!
-        @UiThread
-        public set(v) {
-            super.value = v
-        }
+    public class MutableObservableWatchData<T : Any>(initialValue: T?) :
+        ObservableWatchData<T>(initialValue) {
+        public constructor() : this(null)
+
+        /**
+         * Mutable observable value. Assigning a different value will trigger [Observer.onChanged]
+         * callbacks.
+         */
+        override var value: T
+            @UiThread
+            get() = _value!!
+            @UiThread
+            public set(v) {
+                super.value = v
+            }
+    }
 }

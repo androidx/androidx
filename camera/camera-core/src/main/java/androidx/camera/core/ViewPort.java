@@ -42,7 +42,7 @@ import java.util.concurrent.Executor;
  *
  * <p> If the {@link ViewPort} is used with a {@link ImageCapture} and
  * {@link ImageCapture#takePicture(
- * ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)} is called,
+ *ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)} is called,
  * the image may be cropped before saving to disk which introduces an additional
  * latency. To avoid the latency and get the uncropped image, please use the in-memory method
  * {@link ImageCapture#takePicture(Executor, ImageCapture.OnImageCapturedCallback)}.
@@ -54,7 +54,6 @@ import java.util.concurrent.Executor;
  * a way that only the area defined by the crop rect is visible to end users. Once the crop rect
  * is applied, all the use cases will produce the same image with possibly different resolutions.
  */
-@ExperimentalUseCaseGroup
 public final class ViewPort {
 
     /**
@@ -63,9 +62,9 @@ public final class ViewPort {
      * @hide
      * @see android.util.LayoutDirection
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef({android.util.LayoutDirection.LTR, android.util.LayoutDirection.RTL})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface LayoutDirection {
     }
 
@@ -74,9 +73,9 @@ public final class ViewPort {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef({FILL_START, FILL_CENTER, FILL_END, FIT})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface ScaleType {
     }
 
@@ -191,11 +190,8 @@ public final class ViewPort {
 
     /**
      * Gets the layout direction of the {@link ViewPort}.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @ScaleType
+    @LayoutDirection
     public int getLayoutDirection() {
         return mLayoutDirection;
     }
@@ -203,7 +199,6 @@ public final class ViewPort {
     /**
      * Builder for {@link ViewPort}.
      */
-    @ExperimentalUseCaseGroup
     public static final class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;
@@ -253,14 +248,11 @@ public final class ViewPort {
         }
 
         /**
-         * Sets the {@link ScaleType} of the {@link ViewPort}.
+         * Sets the scale type of the {@link ViewPort}.
          *
-         * <p> The value is used by {@link UseCase} to calculate the
-         * {@link UseCase#getViewPortCropRect()}.
+         * <p> The value is used by {@link UseCase} to calculate the crop rect.
          *
          * <p> The default value is {@link #FILL_CENTER} if not set.
-         *
-         * @hide
          */
         @NonNull
         public Builder setScaleType(@ScaleType int scaleType) {
@@ -271,12 +263,10 @@ public final class ViewPort {
         /**
          * Sets the layout direction of the {@link ViewPort}.
          *
-         * <p> The {@link LayoutDirection} decides the start and the end of the crop rect if
-         * the {@link ScaleType} is {@link #FILL_END} or {@link #FILL_START}.
+         * <p> The layout direction decides the start and the end of the crop rect if
+         * the scale type is {@link #FILL_END} or {@link #FILL_START}.
          *
          * <p> The default value is {@link android.util.LayoutDirection#LTR} if not set.
-         *
-         * @hide
          */
         @NonNull
         public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {

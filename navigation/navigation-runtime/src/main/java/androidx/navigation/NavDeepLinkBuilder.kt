@@ -43,10 +43,6 @@ import androidx.navigation.NavDestination.Companion.createRoute
  *
  * You can construct an instance directly with [NavDeepLinkBuilder] or build one
  * using an existing [NavController] via [NavController.createDeepLink].
- */
-public class NavDeepLinkBuilder
-/**
- * Construct a new NavDeepLinkBuilder.
  *
  * If the context passed in here is not an [Activity], this method will use
  * [android.content.pm.PackageManager.getLaunchIntentForPackage] as the
@@ -55,7 +51,7 @@ public class NavDeepLinkBuilder
  * @param context Context used to create deep links
  * @see NavDeepLinkBuilder.setComponentName
  */
-constructor(private val context: Context) {
+public class NavDeepLinkBuilder(private val context: Context) {
     private class DeepLinkDestination constructor(
         val destinationId: Int,
         val arguments: Bundle?
@@ -120,7 +116,7 @@ constructor(private val context: Context) {
      *
      * If you do not have access to a [NavController], you can create a
      * [NavigatorProvider] and use that to programmatically construct a navigation
-     * graph or use [NavInflater][NavInflater.NavInflater].
+     * graph or use [NavInflater][NavInflater].
      *
      * @param navGraph The [NavGraph] containing the deep link destination
      * @return this object for chaining

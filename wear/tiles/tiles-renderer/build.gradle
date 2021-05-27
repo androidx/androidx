@@ -16,8 +16,6 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
@@ -31,32 +29,34 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api(GUAVA_LISTENABLE_FUTURE)
+    api(libs.guavaListenableFuture)
 
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.core:core:1.3.2"
+    implementation "androidx.wear:wear:1.2.0-alpha09"
+
     implementation(project(":wear:tiles:tiles"))
     implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
-    implementation(KOTLIN_COROUTINES_CORE)
-    implementation(KOTLIN_COROUTINES_ANDROID)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinCoroutinesAndroid)
 
     androidTestImplementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
     androidTestImplementation(project(":test-screenshot"))
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
 
-    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    testImplementation(ANDROIDX_TEST_EXT_TRUTH)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(KOTLIN_COROUTINES_TEST)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(TRUTH)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.truth)
 }
 
 android {

@@ -82,7 +82,7 @@ public abstract class NavType<T> internal constructor(
     }
 
     /**
-     * Returns the name of this type.
+     * The name of this type.
      *
      * This is the same value that is used in Navigation XML `argType` attribute.
      *

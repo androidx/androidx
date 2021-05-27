@@ -43,5 +43,13 @@
             android:layout_height="wrap_content"
             app:emojiCompatEnabled="false" />
 
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/not_focusable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Not focusable" />
+
     </LinearLayout>
 </ScrollView>

@@ -16,10 +16,10 @@
 
 package androidx.health.services.client
 
-import androidx.health.services.client.data.PassiveActivityState
+import androidx.health.services.client.data.PassiveMonitoringUpdate
 
 /** A callback for receiving passive monitoring updates. */
 public interface PassiveMonitoringCallback {
-    /** Called when new state is available. */
-    public fun onPassiveActivityState(state: PassiveActivityState)
+    /** Called when a new update is available. */
+    public fun onPassiveMonitoringUpdate(update: PassiveMonitoringUpdate)
 }

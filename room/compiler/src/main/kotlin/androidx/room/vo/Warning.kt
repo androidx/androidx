@@ -50,7 +50,7 @@ enum class Warning(val publicKey: String) {
     companion object {
         val PUBLIC_KEY_MAP = values().associateBy { it.publicKey }
         fun fromPublicKey(publicKey: String): Warning? {
-            return PUBLIC_KEY_MAP[publicKey.toUpperCase(Locale.US)]
+            return PUBLIC_KEY_MAP[publicKey.uppercase(Locale.US)]
         }
     }
 }

@@ -35,7 +35,6 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -48,6 +47,9 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
 import androidx.camera.extensions.internal.AdaptingPreviewProcessor;
 import androidx.camera.extensions.internal.AdaptingRequestUpdateProcessor;
+import androidx.camera.extensions.internal.CloseableProcessor;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Consumer;
 
 import java.util.Collection;
@@ -63,13 +65,12 @@ public abstract class PreviewExtender {
 
     private Preview.Builder mBuilder;
     private PreviewExtenderImpl mImpl;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(Preview.Builder builder, PreviewExtenderImpl implementation,
-            @Extensions.ExtensionMode int effectMode) {
+            @ExtensionMode.Mode int effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
@@ -91,7 +92,6 @@ public abstract class PreviewExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
@@ -116,7 +116,6 @@ public abstract class PreviewExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {
@@ -147,12 +146,9 @@ public abstract class PreviewExtender {
 
     /**
      * Update extension related configs to the builder.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void updateBuilderConfig(@NonNull Preview.Builder builder,
-            @Extensions.ExtensionMode int effectMode, @NonNull PreviewExtenderImpl impl,
+    private static void updateBuilderConfig(@NonNull Preview.Builder builder,
+            @ExtensionMode.Mode int effectMode, @NonNull PreviewExtenderImpl impl,
             @NonNull Context context) {
         PreviewExtenderAdapter previewExtenderAdapter;
 
@@ -218,7 +214,7 @@ public abstract class PreviewExtender {
         }
     }
 
-    static void checkImageCaptureEnabled(@Extensions.ExtensionMode int effectMode,
+    static void checkImageCaptureEnabled(@ExtensionMode.Mode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isImageCaptureExtenderEnabled = false;
         boolean isMismatched = false;
@@ -231,11 +227,11 @@ public abstract class PreviewExtender {
         for (UseCase useCase : activeUseCases) {
             int imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
                     ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE,
-                    Extensions.EXTENSION_MODE_NONE);
+                    ExtensionMode.NONE);
 
             if (effectMode == imageCaptureExtenderMode) {
                 isImageCaptureExtenderEnabled = true;
-            } else if (imageCaptureExtenderMode != Extensions.EXTENSION_MODE_NONE) {
+            } else if (imageCaptureExtenderMode != ExtensionMode.NONE) {
                 isMismatched = true;
             }
         }
@@ -395,16 +391,5 @@ public abstract class PreviewExtender {
 
             return null;
         }
-    }
-
-    /**
-     * A processor that can be closed so that the underlying processing implementation is skipped,
-     * if it has been closed.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public interface CloseableProcessor {
-        void close();
     }
 }

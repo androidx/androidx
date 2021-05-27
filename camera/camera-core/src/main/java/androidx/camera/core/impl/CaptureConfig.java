@@ -224,20 +224,16 @@ public final class CaptureConfig {
 
         /**
          * Adds a {@link CameraCaptureSession.StateCallback} callback.
-         *
-         * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
             if (mCameraCaptureCallbacks.contains(cameraCaptureCallback)) {
-                throw new IllegalArgumentException("duplicate camera capture callback");
+                return;
             }
             mCameraCaptureCallbacks.add(cameraCaptureCallback);
         }
 
         /**
          * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
-         *
-         * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllCameraCaptureCallbacks(
                 @NonNull Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
@@ -313,14 +309,14 @@ public final class CaptureConfig {
 
         /** Gets a tag's value by a key. */
         @Nullable
-        public Integer getTag(@NonNull String key) {
+        public Object getTag(@NonNull String key) {
             return mMutableTagBundle.getTag(key);
         }
 
         /**
          * Sets a tag with a key to CaptureConfig.
          */
-        public void addTag(@NonNull String key, @NonNull Integer tag) {
+        public void addTag(@NonNull String key, @NonNull Object tag) {
             mMutableTagBundle.putTag(key, tag);
         }
 

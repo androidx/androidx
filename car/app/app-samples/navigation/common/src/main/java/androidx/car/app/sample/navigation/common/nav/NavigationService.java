@@ -570,6 +570,6 @@ public class NavigationService extends Service {
     private PendingIntent createMainActivityPendingIntent() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
-        return PendingIntent.getActivity(this, 0, intent, 0);
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 }

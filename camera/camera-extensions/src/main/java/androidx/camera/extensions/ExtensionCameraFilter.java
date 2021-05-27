@@ -25,7 +25,6 @@ import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
@@ -38,7 +37,6 @@ import java.util.List;
  * A filter that filters camera based on extender implementation. If the implementation is
  * unavailable, the camera will be considered available.
  */
-@OptIn(markerClass = ExperimentalCameraFilter.class)
 public final class ExtensionCameraFilter implements CameraFilter {
     private final Id mId;
     private final PreviewExtenderImpl mPreviewExtenderImpl;

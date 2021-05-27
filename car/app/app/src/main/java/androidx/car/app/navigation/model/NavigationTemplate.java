@@ -58,6 +58,46 @@ import java.util.Objects;
  * <p>See {@link androidx.car.app.notification.CarAppExtender} for how to show
  * alerts with notifications. Frequent alert notifications distract the driver and are discouraged.
  *
+ * <h4>Pan and Zoom</h4>
+ *
+ * This template allows an app to provide pan and zoom functionality. To support pan and zoom,
+ * respond to the user input in {@link SurfaceCallback} methods, such as:
+ *
+ * <ul>
+ *     <li>{@link SurfaceCallback#onScroll(float, float)}</li>
+ *     <li>{@link SurfaceCallback#onFling(float, float)}</li>
+ *     <li>{@link SurfaceCallback#onScale(float, float, float)}</li>
+ * </ul>
+ *
+ * In order to receive the callbacks, add an {@link Action#PAN} button in a map
+ * {@link ActionStrip} via the {@link Builder#setMapActionStrip(ActionStrip)} method:
+ *
+ * <pre>{@code
+ * ...
+ * Action panAction = new Action.Builder(Action.PAN).setIcon(myPanIcon).build();
+ * ActionStrip mapActionStrip = new ActionStrip.Builder().addAction(panAction).build();
+ * NavigationTemplate.Builder builder = new NavigationTemplate.Builder();
+ * builder.setMapActionStrip(mapActionStrip);
+ * ...
+ * }</pre>
+ *
+ * When the user presses the {@link Action#PAN} button, the host enters the pan mode. In this
+ * mode, the host translates the user input from non-touch input devices, such as rotary controllers
+ * and touchpads, and calls the appropriate {@link SurfaceCallback} methods. Respond to the user
+ * action to enter or exit the pan mode via {@link Builder#setPanModeListener(PanModeListener)}.
+ *
+ * If the app does not include this button in the map {@link ActionStrip}, the app will not
+ * receive the user input for panning gestures from {@link SurfaceCallback} methods, and the host
+ * will exit any previously activated pan mode.
+ *
+ * The host may hide the pan button in some head units in which the user does not need it. Also, the
+ * host may hide other UI components in the template while the user is in the pan mode.
+ *
+ * Note that not all head units support touch gestures, and not all touch screens support
+ * multi-touch gestures. Therefore, some {@link SurfaceCallback} methods may not be called in
+ * some cars. In order to support different head units, use the buttons in the map action strip
+ * to provide necessary functionality, such as the zoom-in and zoom-out buttons.
+ *
  * <h4>Template Restrictions</h4>
  *
  * In regard to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
@@ -98,6 +138,9 @@ public final class NavigationTemplate implements Template {
     @Keep
     @Nullable
     private final Toggle mPanModeToggle;
+    @Keep
+    @Nullable
+    private final PanModeDelegate mPanModeDelegate;
 
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
@@ -120,11 +163,27 @@ public final class NavigationTemplate implements Template {
         return mMapActionStrip;
     }
 
-    /** Returns whether this template is in the pan mode. */
+    /**
+     * Returns whether this template is in the pan mode.
+     *
+     * @deprecated use {@link #getPanModeDelegate()}
+     */
+    // TODO(b/187989940): remove after hosts switch over to using getPanModeDelegate/
+    @Deprecated
     @RequiresCarApi(2)
     @Nullable
     public Toggle getPanModeToggle() {
         return mPanModeToggle;
+    }
+
+    /**
+     * Returns the {@link PanModeDelegate} that should be called when the user interacts with
+     * pan mode on this template, or {@code null} if a {@link PanModeListener} was not set.
+     */
+    @RequiresCarApi(2)
+    @Nullable
+    public PanModeDelegate getPanModeDelegate() {
+        return mPanModeDelegate;
     }
 
     /**
@@ -163,7 +222,7 @@ public final class NavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mNavigationInfo, mBackgroundColor, mDestinationTravelEstimate,
-                mActionStrip, mMapActionStrip, mPanModeToggle);
+                mActionStrip, mMapActionStrip, mPanModeToggle, mPanModeDelegate == null);
     }
 
     @Override
@@ -182,7 +241,8 @@ public final class NavigationTemplate implements Template {
                 otherTemplate.mDestinationTravelEstimate)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
-                && Objects.equals(mPanModeToggle, otherTemplate.mPanModeToggle);
+                && Objects.equals(mPanModeToggle, otherTemplate.mPanModeToggle)
+                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null);
     }
 
     NavigationTemplate(Builder builder) {
@@ -192,6 +252,7 @@ public final class NavigationTemplate implements Template {
         mActionStrip = builder.mActionStrip;
         mMapActionStrip = builder.mMapActionStrip;
         mPanModeToggle = builder.mPanModeToggle;
+        mPanModeDelegate = builder.mPanModeDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -202,6 +263,7 @@ public final class NavigationTemplate implements Template {
         mActionStrip = null;
         mMapActionStrip = null;
         mPanModeToggle = null;
+        mPanModeDelegate = null;
     }
 
     /** A builder of {@link NavigationTemplate}. */
@@ -218,6 +280,9 @@ public final class NavigationTemplate implements Template {
         ActionStrip mMapActionStrip;
         @Nullable
         Toggle mPanModeToggle;
+        @Nullable
+        PanModeDelegate mPanModeDelegate;
+
 
         /**
          * Sets the navigation information to display on the template.
@@ -235,8 +300,8 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets the background color to use for the navigation information.
          *
-         * <p>The host may ignore this color and use a default color instead if the color does
-         * not pass the contrast requirements.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         *  factors, the color may be ignored by the host or overridden by the vehicle system.
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
@@ -325,6 +390,7 @@ public final class NavigationTemplate implements Template {
             mPanModeToggle =
                     new Toggle.Builder(
                             (isInPanMode) -> panModeListener.onPanModeChanged(isInPanMode)).build();
+            mPanModeDelegate = PanModeDelegateImpl.create(panModeListener);
             return this;
         }
 

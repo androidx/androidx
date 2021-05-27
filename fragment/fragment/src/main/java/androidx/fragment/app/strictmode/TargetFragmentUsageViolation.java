@@ -16,6 +16,13 @@
 
 package androidx.fragment.app.strictmode;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 /** See #{@link FragmentStrictMode.Policy.Builder#detectTargetFragmentUsage()}. */
-public final class TargetFragmentUsageViolation extends Violation {
+public abstract class TargetFragmentUsageViolation extends Violation {
+
+    TargetFragmentUsageViolation(@NonNull Fragment fragment) {
+        super(fragment);
+    }
 }

@@ -18,85 +18,100 @@ package androidx.health.services.client.data
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.data.ExerciseType.Companion.fromId
 
-/** Provides exercise specific capabilities data. */
+/**
+ * A place holder class that represents the capabilities of the
+ * [androidx.health.services.client.ExerciseClient] on the device.
+ */
 public data class ExerciseCapabilities(
-    val supportedDataTypes: Set<DataType>,
-    val supportedGoals: Map<DataType, Set<ComparisonType>>,
-    val supportedMilestones: Map<DataType, Set<ComparisonType>>,
-    val supportsAutoPauseAndResume: Boolean,
-    val supportsLaps: Boolean,
+    /**
+     * Mapping for each supported [ExerciseType] to its [ExerciseTypeCapabilities] on this device.
+     */
+    val typeToCapabilities: Map<ExerciseType, ExerciseTypeCapabilities>,
 ) : Parcelable {
-    override fun describeContents(): Int = 0
+
+    override fun describeContents(): Int {
+        return 0
+    }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(supportedDataTypes.size)
-        dest.writeTypedArray(supportedDataTypes.toTypedArray(), flags)
+        writeTypeToCapabilities(dest, flags)
+    }
 
-        writeSupportedDataTypes(supportedGoals, dest, flags)
-        writeSupportedDataTypes(supportedMilestones, dest, flags)
+    /** Set of supported [ExerciseType] s on this device. */
+    public val supportedExerciseTypes: Set<ExerciseType>
+        get() = typeToCapabilities.keys
 
-        dest.writeInt(if (supportsAutoPauseAndResume) 1 else 0)
-        dest.writeInt(if (supportsLaps) 1 else 0)
+    /**
+     * Returns the supported [ExerciseTypeCapabilities] for a requested [ExerciseType].
+     *
+     * @throws IllegalArgumentException if the [exercise] is not supported
+     */
+    public fun getExerciseTypeCapabilities(exercise: ExerciseType): ExerciseTypeCapabilities {
+        return typeToCapabilities[exercise]
+            ?: throw IllegalArgumentException(
+                String.format("%s exercise type is not supported", exercise)
+            )
+    }
+
+    /** Returns the set of [ExerciseType] s that support auto pause and resume on this device. */
+    public val autoPauseAndResumeEnabledExercises: Set<ExerciseType>
+        get() {
+            return typeToCapabilities
+                .entries
+                .filter { it.value.supportsAutoPauseAndResume }
+                .map { it.key }
+                .toSet()
+        }
+
+    private fun writeTypeToCapabilities(dest: Parcel, flags: Int) {
+        dest.writeInt(typeToCapabilities.size)
+        for ((key1, value) in typeToCapabilities) {
+            val key = key1.id
+            dest.writeInt(key)
+            dest.writeParcelable(value, flags)
+        }
     }
 
     public companion object {
+
         @JvmField
         public val CREATOR: Parcelable.Creator<ExerciseCapabilities> =
             object : Parcelable.Creator<ExerciseCapabilities> {
-                override fun createFromParcel(source: Parcel): ExerciseCapabilities? {
-                    val supportedDataTypesArray = Array<DataType?>(source.readInt()) { null }
-                    source.readTypedArray(supportedDataTypesArray, DataType.CREATOR)
-
-                    val supportedGoals = readSupportedDataTypes(source) ?: return null
-                    val supportedMilestones = readSupportedDataTypes(source) ?: return null
-                    val supportsAutoPauseAndResume = source.readInt() == 1
-                    val supportsLaps = source.readInt() == 1
-
+                override fun createFromParcel(parcel: Parcel): ExerciseCapabilities {
+                    val typeToCapabilitiesFromParcel = getTypeToCapabilityMap(parcel)
                     return ExerciseCapabilities(
-                        supportedDataTypesArray.filterNotNull().toSet(),
-                        supportedGoals,
-                        supportedMilestones,
-                        supportsAutoPauseAndResume,
-                        supportsLaps
+                        typeToCapabilitiesFromParcel,
                     )
                 }
 
-                override fun newArray(size: Int): Array<ExerciseCapabilities?> {
-                    return arrayOfNulls(size)
-                }
+                override fun newArray(size: Int): Array<ExerciseCapabilities?> = arrayOfNulls(size)
             }
 
-        private fun writeSupportedDataTypes(
-            supportedDataTypes: Map<DataType, Set<ComparisonType>>,
-            dest: Parcel,
-            flags: Int
-        ) {
-            dest.writeInt(supportedDataTypes.size)
-            for ((dataType, comparisonTypeSet) in supportedDataTypes) {
-                dest.writeParcelable(dataType, flags)
-                dest.writeInt(comparisonTypeSet.size)
-                dest.writeIntArray(comparisonTypeSet.map { it.id }.toIntArray())
-            }
+        private fun readDataTypeSet(parcel: Parcel): Set<DataType> {
+            return parcel.createTypedArray(DataType.CREATOR)!!.toSet()
         }
 
-        private fun readSupportedDataTypes(source: Parcel): Map<DataType, Set<ComparisonType>>? {
-            val supportedDataTypes = HashMap<DataType, Set<ComparisonType>>()
+        private fun writeDataTypeSet(out: Parcel, flags: Int, dataTypes: Set<DataType>) {
+            out.writeTypedArray(dataTypes.toTypedArray(), flags)
+        }
 
-            val numSupportedDataTypes = source.readInt()
-            repeat(numSupportedDataTypes) {
-                val dataType: DataType =
-                    source.readParcelable(DataType::class.java.classLoader) ?: return null
-
-                val comparisonTypeIntArray = IntArray(source.readInt())
-                source.readIntArray(comparisonTypeIntArray)
-                val comparisonTypeSet =
-                    comparisonTypeIntArray.map { ComparisonType.fromId(it) }.filterNotNull().toSet()
-
-                supportedDataTypes[dataType] = comparisonTypeSet
+        private fun getTypeToCapabilityMap(
+            parcel: Parcel
+        ): Map<ExerciseType, ExerciseTypeCapabilities> {
+            val map = HashMap<ExerciseType, ExerciseTypeCapabilities>()
+            val mapSize = parcel.readInt()
+            for (i in 0 until mapSize) {
+                val key = fromId(parcel.readInt())
+                val value =
+                    parcel.readParcelable<Parcelable>(
+                        ExerciseTypeCapabilities::class.java.classLoader
+                    ) as
+                        ExerciseTypeCapabilities
+                map[key] = value
             }
-
-            return supportedDataTypes
+            return map
         }
     }
 }

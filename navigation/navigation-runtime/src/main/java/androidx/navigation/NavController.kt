@@ -43,6 +43,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -68,29 +69,20 @@ public open class NavController(
     private var inflater: NavInflater? = null
 
     private var _graph: NavGraph? = null
+    /**
+     * The topmost navigation graph associated with this NavController.
+     *
+     * When this is set any current navigation graph data (including back stack) will be replaced.
+     *
+     * @see NavController.setGraph
+     * @throws IllegalStateException if called before `setGraph()`.
+     */
     public open var graph: NavGraph
-        /**
-         * Gets the topmost navigation graph associated with this NavController.
-         *
-         * @see NavController.setGraph
-         * @throws IllegalStateException if called before `setGraph()`.
-         */
         @MainThread
         get() {
             checkNotNull(_graph) { "You must call setGraph() before calling getGraph()" }
             return _graph as NavGraph
         }
-
-        /**
-         * Sets the [navigation graph][NavGraph] to the specified graph.
-         * Any current navigation graph data (including back stack) will be replaced.
-         *
-         * The graph can be retrieved later via [getGraph].
-         *
-         * @param graph graph to set
-         * @see NavController.setGraph
-         * @see NavController.getGraph
-         */
         @MainThread
         @CallSuper
         set(graph) {
@@ -113,8 +105,7 @@ public open class NavController(
     private val backStackStates = mutableMapOf<String, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
     private var viewModel: NavControllerViewModel? = null
-    private val onDestinationChangedListeners =
-        mutableListOf<OnDestinationChangedListener>()
+    private val onDestinationChangedListeners = CopyOnWriteArrayList<OnDestinationChangedListener>()
 
     private val lifecycleObserver: LifecycleObserver = LifecycleEventObserver { _, event ->
         if (_graph != null) {
@@ -134,11 +125,11 @@ public open class NavController(
 
     /**
      * OnDestinationChangedListener receives a callback when the
-     * [getCurrentDestination] or its arguments change.
+     * [currentDestination] or its arguments change.
      */
     public fun interface OnDestinationChangedListener {
         /**
-         * Callback for when the [getCurrentDestination] or its arguments change.
+         * Callback for when the [currentDestination] or its arguments change.
          * This navigation may be to a destination that has not been seen before, or one that
          * was previously on the back stack. This method is called after navigation is complete,
          * but associated transitions may still be playing.
@@ -156,24 +147,21 @@ public open class NavController(
 
     private var _navigatorProvider = NavigatorProvider()
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * The NavController's [NavigatorProvider]. All [Navigators][Navigator] used
+     * to construct the [navigation graph][NavGraph] for this nav controller should be added
+     * to this navigator provider before the graph is constructed.
+     *
+     * This can only be set before the graph is set via `setGraph()`.
+     *
+     * Generally, the Navigators are set for you by the [NavHost] hosting this NavController
+     * and you do not need to manually interact with the navigator provider.
+     *
+     * @throws IllegalStateException If this set called after `setGraph()`
+     */
     public open var navigatorProvider: NavigatorProvider
-        /**
-         * Retrieve the NavController's [NavigatorProvider]. All [Navigators][Navigator] used
-         * to construct the [navigation graph][NavGraph] for this nav controller should be added
-         * to this navigator provider before the graph is constructed.
-         *
-         * Generally, the Navigators are set for you by the [NavHost] hosting this NavController
-         * and you do not need to manually interact with the navigator provider.
-         *
-         * @return The [NavigatorProvider] used by this NavController.
-         */
         get() = _navigatorProvider
         /**
-         * Sets the [navigator provider][NavigatorProvider] to the specified provider. This can
-         * only be called before the graph is set via `setGraph()`.
-         *
-         * @param navigatorProvider [NavigatorProvider] to set
-         * @throws IllegalStateException If this is called after `setGraph()`
          * @hide
          */
         set(navigatorProvider) {
@@ -264,12 +252,9 @@ public open class NavController(
                     handler(popUpTo)
                     super.pop(popUpTo, saveState)
                 } else {
-                    // TODO handle the Navigator calling pop() outside of a call to popBackStack()
-                    Log.i(
-                        TAG,
-                        "Ignoring pop of destination ${popUpTo.destination} " +
-                            "outside of the call to popBackStack(). "
-                    )
+                    popBackStackFromNavigator(popUpTo) {
+                        super.pop(popUpTo, saveState)
+                    }
                 }
             } else {
                 navigatorState[destinationNavigator]!!.pop(popUpTo, saveState)
@@ -301,7 +286,7 @@ public open class NavController(
 
     /**
      * Adds an [OnDestinationChangedListener] to this controller to receive a callback
-     * whenever the [getCurrentDestination] or its arguments change.
+     * whenever the [currentDestination] or its arguments change.
      *
      * The current destination, if any, will be immediately sent to your listener.
      *
@@ -521,10 +506,46 @@ public open class NavController(
         return popped
     }
 
+    /**
+     * Trigger a popBackStack() that originated from a Navigator specifically calling
+     * [NavigatorState.pop] outside of a call to [popBackStack] (e.g., in response to some
+     * user interaction that caused that destination to no longer be needed such as
+     * dismissing a dialog destination).
+     *
+     * This method is responsible for popping all destinations above the given [popUpTo] entry and
+     * popping the entry itself and removing it from the back stack before calling the
+     * [onComplete] callback. Only after the processing here is done and the [onComplete]
+     * callback completes does this method dispatch the destination change event.
+     */
+    internal fun popBackStackFromNavigator(popUpTo: NavBackStackEntry, onComplete: () -> Unit) {
+        val popIndex = backQueue.indexOf(popUpTo)
+        if (popIndex < 0) {
+            Log.i(
+                TAG,
+                "Ignoring pop of $popUpTo as it was not found on the current back stack"
+            )
+            return
+        }
+        if (popIndex + 1 != backQueue.size) {
+            // There's other destinations stacked on top of this destination that
+            // we need to pop first
+            popBackStackInternal(
+                backQueue[popIndex + 1].destination.id,
+                inclusive = true,
+                saveState = false
+            )
+        }
+        // Now record the pop of the actual entry - we don't use popBackStackInternal
+        // here since we're being called from the Navigator already
+        popEntryFromBackStack(popUpTo)
+        onComplete()
+        dispatchOnDestinationChanged()
+    }
+
     private fun popEntryFromBackStack(
         popUpTo: NavBackStackEntry,
-        saveState: Boolean,
-        savedState: ArrayDeque<NavBackStackEntryState>
+        saveState: Boolean = false,
+        savedState: ArrayDeque<NavBackStackEntryState> = ArrayDeque()
     ) {
         val entry = backQueue.last()
         check(entry == popUpTo) {
@@ -714,7 +735,7 @@ public open class NavController(
     }
 
     /**
-     * Returns the [inflater][NavInflater] for this controller.
+     * The [inflater][NavInflater] for this controller.
      *
      * @return inflater for loading navigation resources
      */
@@ -726,13 +747,13 @@ public open class NavController(
      * Sets the [navigation graph][NavGraph] to the specified resource.
      * Any current navigation graph data (including back stack) will be replaced.
      *
-     * The inflated graph can be retrieved via [getGraph].
+     * The inflated graph can be retrieved via [graph].
      *
      * @param graphResId resource id of the navigation graph to inflate
      *
-     * @see NavController.getNavInflater
+     * @see NavController.navInflater
      * @see NavController.setGraph
-     * @see NavController.getGraph
+     * @see NavController.graph
      */
     @MainThread
     @CallSuper
@@ -744,14 +765,14 @@ public open class NavController(
      * Sets the [navigation graph][NavGraph] to the specified resource.
      * Any current navigation graph data (including back stack) will be replaced.
      *
-     * The inflated graph can be retrieved via [getGraph].
+     * The inflated graph can be retrieved via [graph].
      *
      * @param graphResId resource id of the navigation graph to inflate
      * @param startDestinationArgs arguments to send to the start destination of the graph
      *
-     * @see NavController.getNavInflater
+     * @see NavController.navInflater
      * @see NavController.setGraph
-     * @see NavController.getGraph
+     * @see NavController.graph
      */
     @MainThread
     @CallSuper
@@ -763,11 +784,11 @@ public open class NavController(
      * Sets the [navigation graph][NavGraph] to the specified graph.
      * Any current navigation graph data (including back stack) will be replaced.
      *
-     * The graph can be retrieved later via [getGraph].
+     * The graph can be retrieved later via [graph].
      *
      * @param graph graph to set
      * @see NavController.setGraph
-     * @see NavController.getGraph
+     * @see NavController.graph
      */
     @MainThread
     @CallSuper
@@ -861,7 +882,7 @@ public open class NavController(
      * against the Uri patterns in the [NavDeepLinks][NavDeepLink] added via
      * [NavDestination.addDeepLink].
      *
-     * The [navigation graph][getGraph] should be set before calling this method.
+     * The [navigation graph][graph] should be set before calling this method.
      * @param intent The Intent that may contain a valid deep link
      * @return True if the navigation controller found a valid deep link and navigated to it.
      * @throws IllegalStateException if deep link cannot be accessed from the current destination
@@ -1037,7 +1058,7 @@ public open class NavController(
     }
 
     /**
-     * Gets the current destination.
+     * The current destination.
      */
     public open val currentDestination: NavDestination?
         get() {
@@ -1203,7 +1224,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given deep link [Uri].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][graph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1218,7 +1239,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given deep link [Uri].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][graph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1234,7 +1255,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given deep link [Uri].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][graph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1255,7 +1276,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given [NavDeepLinkRequest].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][graph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1271,7 +1292,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given [NavDeepLinkRequest].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][graph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1288,7 +1309,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given [NavDeepLinkRequest].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][graph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1810,8 +1831,8 @@ public open class NavController(
     /**
      * Gets the topmost [NavBackStackEntry] for a destination id.
      *
-     * This is always safe to use with [the current destination][getCurrentDestination] or
-     * [its parent][NavDestination.getParent] or grandparent navigation graphs as these
+     * This is always safe to use with [the current destination][currentDestination] or
+     * [its parent][NavDestination.parent] or grandparent navigation graphs as these
      * destinations are guaranteed to be on the back stack.
      *
      * @param destinationId ID of a destination that exists on the back stack
@@ -1829,10 +1850,10 @@ public open class NavController(
     }
 
     /**
-     * Gets the topmost {@link NavBackStackEntry} for a route.
-     * <p>
-     * This is always safe to use with {@link #getCurrentDestination() the current destination} or
-     * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
+     * Gets the topmost [NavBackStackEntry] for a route.
+     *
+     * This is always safe to use with [the current destination][currentDestination] or
+     * [its parent][NavDestination.parent] or grandparent navigation graphs as these
      * destinations are guaranteed to be on the back stack.
      *
      * @param route route of a destination that exists on the back stack
@@ -1850,7 +1871,7 @@ public open class NavController(
     }
 
     /**
-     * Gets the topmost [NavBackStackEntry].
+     * The topmost [NavBackStackEntry].
      *
      * @return the topmost entry on the back stack or null if the back stack is empty
      */
@@ -1861,14 +1882,14 @@ public open class NavController(
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     /**
-     * Returns a [Flow] that will emit the currently active [NavBackStackEntry] whenever it
-     * changes. If there is no active [NavBackStackEntry], no item will be emitted.
+     * A [Flow] that will emit the currently active [NavBackStackEntry] whenever it changes. If
+     * there is no active [NavBackStackEntry], no item will be emitted.
      */
     public val currentBackStackEntryFlow: Flow<NavBackStackEntry> =
         _currentBackStackEntryFlow.asSharedFlow()
 
     /**
-     * Gets the previous visible [NavBackStackEntry].
+     * The previous visible [NavBackStackEntry].
      *
      * This skips over any [NavBackStackEntry] that is associated with a [NavGraph].
      *
@@ -1923,7 +1944,19 @@ public open class NavController(
 
 /**
  * Construct a new [NavGraph]
+ *
+ * @param id the graph's unique id
+ * @param startDestination the route for the start destination
+ * @param builder the builder used to construct the graph
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your NavGraph instead",
+    ReplaceWith(
+        "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavController.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
@@ -1933,11 +1966,11 @@ public inline fun NavController.createGraph(
 /**
  * Construct a new [NavGraph]
  *
- * @param route the route for the graph
  * @param startDestination the route for the start destination
+ * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
-public fun NavController.createGraph(
+public inline fun NavController.createGraph(
     startDestination: String,
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit

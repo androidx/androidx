@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.javac.JavacTypeElement.JavacEnumTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -58,8 +57,6 @@ internal sealed class JavacTypeElement(
         element.enclosingType(env)
     }
 
-    override fun isInterface() = element.kind == ElementKind.INTERFACE
-
     private val _allFieldsIncludingPrivateSupers by lazy {
         element.getAllFieldsIncludingPrivateSupers(
             env.elementUtils
@@ -77,6 +74,24 @@ internal sealed class JavacTypeElement(
     }
 
     override fun isKotlinObject() = kotlinMetadata?.isObject() == true
+    override fun isCompanionObject() = kotlinMetadata?.isCompanionObject() == true
+    override fun isDataClass() = kotlinMetadata?.isDataClass() == true
+    override fun isValueClass() = kotlinMetadata?.isValueClass() == true
+    override fun isFunctionalInterface() = kotlinMetadata?.isFunctionalInterface() == true
+    override fun isExpect() = kotlinMetadata?.isExpect() == true
+
+    override fun isAnnotationClass(): Boolean {
+        return kotlinMetadata?.isAnnotationClass()
+            ?: (element.kind == ElementKind.ANNOTATION_TYPE)
+    }
+
+    override fun isClass(): Boolean {
+        return kotlinMetadata?.isClass() ?: (element.kind == ElementKind.CLASS)
+    }
+
+    override fun isInterface(): Boolean {
+        return kotlinMetadata?.isInterface() ?: (element.kind == ElementKind.INTERFACE)
+    }
 
     override fun findPrimaryConstructor(): JavacConstructorElement? {
         val primarySignature = kotlinMetadata?.findPrimaryConstructorSignature() ?: return null

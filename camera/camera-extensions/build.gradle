@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
+
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -27,32 +27,32 @@ plugins {
 }
 
 dependencies {
-    api(GUAVA_LISTENABLE_FUTURE)
+    api(libs.guavaListenableFuture)
     api(project(":camera:camera-core"))
     implementation(project(":camera:camera-camera2"))
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation(AUTO_VALUE_ANNOTATIONS)
-    annotationProcessor(AUTO_VALUE)
+    implementation(libs.autoValueAnnotations)
+    annotationProcessor(libs.autoValue)
 
     compileOnly(project(":camera:camera-extensions-stub"))
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(TRUTH)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
     testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":camera:camera-extensions-stub"))
     // To use the extensions-stub for testing directly.
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":internal-testutils-truth"))

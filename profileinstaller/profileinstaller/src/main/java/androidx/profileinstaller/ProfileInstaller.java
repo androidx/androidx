@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -39,10 +40,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Install ahead of time tracing profiles to configure ART to precompile bundled libraries.
@@ -102,6 +99,65 @@ public class ProfileInstaller {
         @Override
         public void result(int code, @Nullable Object data) {
             // do nothing
+        }
+    };
+
+    @SuppressWarnings("unused")
+    @NonNull
+    public static final Diagnostics LOG_DIAGNOSTICS = new Diagnostics() {
+        static final String TAG = "ProfileInstaller";
+        @Override
+        public void diagnostic(int code, @Nullable Object data) {
+            String msg = "";
+            switch (code) {
+                case DIAGNOSTIC_CURRENT_PROFILE_EXISTS:
+                    msg = "DIAGNOSTIC_CURRENT_PROFILE_EXISTS";
+                    break;
+                case DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST:
+                    msg = "DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST";
+                    break;
+                case DIAGNOSTIC_REF_PROFILE_EXISTS:
+                    msg = "DIAGNOSTIC_REF_PROFILE_EXISTS";
+                    break;
+                case DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST:
+                    msg = "DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST";
+                    break;
+            }
+            Log.d(TAG, msg);
+        }
+
+        @Override
+        public void result(int code, @Nullable Object data) {
+            String msg = "";
+            switch (code) {
+                case RESULT_INSTALL_SUCCESS: msg = "RESULT_INSTALL_SUCCESS";
+                    break;
+                case RESULT_ALREADY_INSTALLED: msg = "RESULT_ALREADY_INSTALLED";
+                    break;
+                case RESULT_UNSUPPORTED_ART_VERSION: msg = "RESULT_UNSUPPORTED_ART_VERSION";
+                    break;
+                case RESULT_NOT_WRITABLE: msg = "RESULT_NOT_WRITABLE";
+                    break;
+                case RESULT_DESIRED_FORMAT_UNSUPPORTED: msg = "RESULT_DESIRED_FORMAT_UNSUPPORTED";
+                    break;
+                case RESULT_BASELINE_PROFILE_NOT_FOUND: msg = "RESULT_BASELINE_PROFILE_NOT_FOUND";
+                    break;
+                case RESULT_IO_EXCEPTION: msg = "RESULT_IO_EXCEPTION";
+                    break;
+                case RESULT_PARSE_EXCEPTION: msg = "RESULT_PARSE_EXCEPTION";
+                    break;
+            }
+
+            switch (code) {
+                case RESULT_BASELINE_PROFILE_NOT_FOUND:
+                case RESULT_IO_EXCEPTION:
+                case RESULT_PARSE_EXCEPTION:
+                    Log.e(TAG, msg, (Throwable) data);
+                    break;
+                default:
+                    Log.d(TAG, msg);
+                    break;
+            }
         }
     };
 
@@ -280,7 +336,7 @@ public class ProfileInstaller {
     ) {
         byte[] version = desiredVersion();
         if (version == null) {
-            diagnostics.result(RESULT_UNSUPPORTED_ART_VERSION, null);
+            diagnostics.result(RESULT_UNSUPPORTED_ART_VERSION, Build.VERSION.SDK_INT);
             return;
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -319,7 +375,7 @@ public class ProfileInstaller {
                 // NOTE: If transcoding is needed, then it isn't meaningful to compare the
                 // lengths of the baseline profile with the cur/ref profiles. As a result, we
                 // split logic here.
-                if (transcodingNeeded) {
+                if (!transcodingNeeded) {
                     if (shouldSkipInstall(diagnostics,
                             baselineLength,
                             curExists,
@@ -395,65 +451,82 @@ public class ProfileInstaller {
         }
 
         switch (Build.VERSION.SDK_INT) {
-            case Build.VERSION_CODES.N_MR1:
             case Build.VERSION_CODES.N:
+            case Build.VERSION_CODES.N_MR1:
                 return ProfileVersion.V001_N;
 
-            case Build.VERSION_CODES.O_MR1:
             case Build.VERSION_CODES.O:
+            case Build.VERSION_CODES.O_MR1:
                 return ProfileVersion.V005_O;
-        }
 
-        // we default back to P+, assuming that this will work for future releases
-        return ProfileVersion.V010_P;
+            case Build.VERSION_CODES.P:
+            case Build.VERSION_CODES.Q:
+            case Build.VERSION_CODES.R:
+                return ProfileVersion.V010_P;
+
+            default:
+                return null;
+        }
     }
 
     /**
-     * Try to install the profile from assets into the ART aot profile directory.
+     * Try to write the profile from assets into the ART aot profile directory.
+     *
+     * You do not need to call this method if {@link ProfileInstallerInitializer} is enabled for
+     * your application.
+     *
+     * If you disable the initializer, you should <b>call this method within 5-10 seconds</b> of
+     * app launch, to ensure that art can use the generated profile.
      *
      * This should always be called after the first screen is shown to the user, to avoid
      * delaying application startup to install AOT profiles.
+     *
+     * It is encouraged that you call this method during <b>every</b> app startup to ensure
+     * profiles are written correctly after app upgrades, or if the profile failed to write on the
+     * previous launch.
+     *
+     * Profiles will be correctly formatted based on the current API level of the device, and only
+     * installed if profileinstaller can determine that it is safe to do so.
+     *
+     * If the profile is not written, no action needs to be taken.
      *
      * @param context context to read assets from
      */
     @WorkerThread
-    public static void tryInstallSync(@NonNull Context context) {
-        tryInstallSync(context, EMPTY_DIAGNOSTICS);
+    public static void writeProfile(@NonNull Context context) {
+        writeProfile(context, EMPTY_DIAGNOSTICS);
     }
 
     /**
-     * Try to install the profile from assets into the ART aot profile directory.
+     * Try to write the profile from assets into the ART aot profile directory.
+     *
+     * You do not need to call this method if {@link ProfileInstallerInitializer} is enabled for
+     * your application.
+     *
+     * If you disable the initializer, you should call this method within 5-10 seconds of app
+     * launch, to ensure that art can use the generated profile.
      *
      * This should always be called after the first screen is shown to the user, to avoid
      * delaying application startup to install AOT profiles.
+     *
+     * It is encouraged that you call this method during <b>every</b> app startup to ensure
+     * profiles are written correctly after app upgrades, or if the profile failed to write on the
+     * previous launch.
+     *
+     * Profiles will be correctly formatted based on the current API level of the device, and only
+     * installed if profileinstaller can determine that it is safe to do so.
+     *
+     * If the profile is not written, no action needs to be taken.
+
      *
      * @param context context to read assets from
      * @param diagnostics an object which will receive diagnostic information about the installation
      */
     @WorkerThread
-    public static void tryInstallSync(@NonNull Context context, @NonNull Diagnostics diagnostics) {
+    public static void writeProfile(@NonNull Context context, @NonNull Diagnostics diagnostics) {
         Context appContext = context.getApplicationContext();
         String packageName = appContext.getPackageName();
         AssetManager assetManager = appContext.getAssets();
         transcodeAndWrite(assetManager, packageName, diagnostics);
-    }
-
-    /**
-     * Creates a new thread and calls {@link ProfileInstaller#tryInstallSync(Context)} on it.
-     *
-     * Thread will be destroyed after the call completes.
-     *
-     * Warning: *Never* call this during app initialization as it will create a thread and
-     * start disk read/write immediately.
-     */
-    static void tryInstallInBackground(@NonNull Context context) {
-        Executor executor = new ThreadPoolExecutor(
-                /* corePoolSize = */0,
-                /* maximumPoolSize = */1,
-                /* keepAliveTime = */0,
-                /* unit = */TimeUnit.MILLISECONDS,
-                /* workQueue = */new LinkedBlockingQueue<>()
-        );
-        executor.execute(() -> tryInstallSync(context));
     }
 }

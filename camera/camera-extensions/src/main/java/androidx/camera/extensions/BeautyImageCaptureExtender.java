@@ -21,6 +21,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
 
 /**
  * Load the OEM extension implementation for beauty effect type.
@@ -68,7 +69,7 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
 
         VendorBeautyImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new BeautyImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_BEAUTY);
+            init(builder, mImpl, ExtensionMode.BEAUTY);
         }
     }
 

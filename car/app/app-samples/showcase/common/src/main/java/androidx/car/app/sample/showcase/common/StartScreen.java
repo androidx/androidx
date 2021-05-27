@@ -71,7 +71,8 @@ public final class StartScreen extends Screen {
                                         IconCompat.createWithResource(
                                                 getCarContext(),
                                                 R.drawable.ic_map_white_48dp))
-                                        .build())
+                                        .build(),
+                                Row.IMAGE_TYPE_ICON)
                         .setTitle("Navigation Demos")
                         .setOnClickListener(
                                 () -> getScreenManager()

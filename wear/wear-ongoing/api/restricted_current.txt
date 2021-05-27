@@ -12,6 +12,7 @@ package androidx.wear.ongoing {
     method public androidx.wear.ongoing.Status? getStatus();
     method public String? getTag();
     method public long getTimestamp();
+    method public String? getTitle();
     method public android.app.PendingIntent getTouchIntent();
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivity!>);
     method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context);
@@ -31,6 +32,7 @@ package androidx.wear.ongoing {
     method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon);
     method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(@DrawableRes int);
     method public androidx.wear.ongoing.OngoingActivity.Builder setStatus(androidx.wear.ongoing.Status);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setTitle(String);
     method public androidx.wear.ongoing.OngoingActivity.Builder setTouchIntent(android.app.PendingIntent);
   }
 

@@ -13,10 +13,10 @@ arc {
       content {
         box {
           horizontal_alignment {
-            value: HALIGN_CENTER
+            value: HORIZONTAL_ALIGN_CENTER
           }
           vertical_alignment {
-            value: VALIGN_CENTER
+            value: VERTICAL_ALIGN_CENTER
           }
           modifiers {
             background {
@@ -74,10 +74,10 @@ arc {
       content {
         box {
           horizontal_alignment {
-            value: HALIGN_CENTER
+            value: HORIZONTAL_ALIGN_CENTER
           }
           vertical_alignment {
-            value: VALIGN_CENTER
+            value: VERTICAL_ALIGN_CENTER
           }
           modifiers {
             background {
@@ -132,10 +132,10 @@ arc {
       content {
         box {
           horizontal_alignment {
-            value: HALIGN_CENTER
+            value: HORIZONTAL_ALIGN_CENTER
           }
           vertical_alignment {
-            value: VALIGN_CENTER
+            value: VERTICAL_ALIGN_CENTER
           }
           modifiers {
             background {
@@ -193,10 +193,10 @@ arc {
       content {
         box {
           horizontal_alignment {
-            value: HALIGN_CENTER
+            value: HORIZONTAL_ALIGN_CENTER
           }
           vertical_alignment {
-            value: VALIGN_CENTER
+            value: VERTICAL_ALIGN_CENTER
           }
           modifiers {
             background {
@@ -255,10 +255,10 @@ arc {
       content {
         box {
           horizontal_alignment {
-            value: HALIGN_CENTER
+            value: HORIZONTAL_ALIGN_CENTER
           }
           vertical_alignment {
-            value: VALIGN_CENTER
+            value: VERTICAL_ALIGN_CENTER
           }
           modifiers {
             background {
@@ -317,10 +317,10 @@ arc {
       content {
         box {
           horizontal_alignment {
-            value: HALIGN_CENTER
+            value: HORIZONTAL_ALIGN_CENTER
           }
           vertical_alignment {
-            value: VALIGN_CENTER
+            value: VERTICAL_ALIGN_CENTER
           }
           modifiers {
             background {

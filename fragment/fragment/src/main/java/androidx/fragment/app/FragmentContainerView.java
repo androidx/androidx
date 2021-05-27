@@ -20,6 +20,7 @@ import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -37,6 +38,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
+
 /**
  * FragmentContainerView is a customized Layout designed specifically for Fragments. It extends
  * {@link FrameLayout}, so it can reliably handle Fragment Transactions, and it also has additional
@@ -235,7 +237,7 @@ public final class FragmentContainerView extends FrameLayout {
         WindowInsetsCompat insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets);
         WindowInsetsCompat dispatchInsets = mApplyWindowInsetsListener != null
                 ? WindowInsetsCompat.toWindowInsetsCompat(
-                        mApplyWindowInsetsListener.onApplyWindowInsets(this, insets)
+                Api20Impl.onApplyWindowInsets(mApplyWindowInsetsListener, this, insets)
         ) : ViewCompat.onApplyWindowInsets(this, insetsCompat);
         if (!dispatchInsets.isConsumed()) {
             int count = getChildCount();
@@ -244,6 +246,14 @@ public final class FragmentContainerView extends FrameLayout {
             }
         }
         return insets;
+    }
+
+    @RequiresApi(20)
+    @Override
+    @SuppressWarnings("deprecation")
+    protected boolean fitSystemWindows(@NonNull Rect insets) {
+        throw new UnsupportedOperationException("FragmentContainerView does not support "
+                + "fitSystemWindows(). Insets should be handled directly by a fragment's view.");
     }
 
     @Override
@@ -413,5 +423,18 @@ public final class FragmentContainerView extends FrameLayout {
     // automatically thrown if the given type of F is wrong
     public <F extends Fragment> F getFragment() {
         return (F) FragmentManager.findFragmentManager(this).findFragmentById(this.getId());
+    }
+
+    @RequiresApi(20)
+    static class Api20Impl {
+        private Api20Impl() { }
+
+        static WindowInsets onApplyWindowInsets(
+                @NonNull OnApplyWindowInsetsListener onApplyWindowInsetsListener,
+                @NonNull View v,
+                @NonNull WindowInsets insets
+        ) {
+            return onApplyWindowInsetsListener.onApplyWindowInsets(v, insets);
+        }
     }
 }

@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
@@ -138,7 +137,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ExposureState getExposureState() {
         return new ExposureState() {
             @Override

@@ -424,7 +424,7 @@ public class WebViewClientCompatTest {
         });
 
         mWebViewOnUiThread.loadUrl("about:blank");
-        Assert.assertEquals(WebkitUtils.waitForFuture(pageCommitVisibleFuture), "about:blank");
+        Assert.assertEquals("about:blank", WebkitUtils.waitForFuture(pageCommitVisibleFuture));
     }
 
     @Test
@@ -449,7 +449,7 @@ public class WebViewClientCompatTest {
         };
         mWebViewOnUiThread.setWebViewClient(compatClient); // reset to the new client
         mWebViewOnUiThread.loadUrl("about:blank");
-        Assert.assertEquals(WebkitUtils.waitForFuture(pageCommitVisibleFuture), "about:blank");
+        Assert.assertEquals("about:blank", WebkitUtils.waitForFuture(pageCommitVisibleFuture));
     }
 
     @Test
@@ -471,7 +471,7 @@ public class WebViewClientCompatTest {
         };
         mWebViewOnUiThread.setWebViewClient(nonCompatClient); // reset to the new client
         mWebViewOnUiThread.loadUrl("about:blank");
-        Assert.assertEquals(WebkitUtils.waitForFuture(pageFinishedFuture), "about:blank");
+        Assert.assertEquals("about:blank", WebkitUtils.waitForFuture(pageFinishedFuture));
     }
 
     private class MockWebViewClient extends WebViewOnUiThread.WaitForLoadedClient {

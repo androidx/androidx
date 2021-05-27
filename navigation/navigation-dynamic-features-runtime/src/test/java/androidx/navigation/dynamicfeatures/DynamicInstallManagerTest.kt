@@ -30,7 +30,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 
 @RunWith(JUnit4::class)
-class DynamicInstallManagerTest {
+public class DynamicInstallManagerTest {
 
     private val splitInstallManager = mock(SplitInstallManager::class.java)
     private var manager = DynamicInstallManager(
@@ -39,13 +39,13 @@ class DynamicInstallManagerTest {
     )
 
     @Test
-    fun testNeedsInstall_InstallNeeded() {
+    public fun testNeedsInstall_InstallNeeded() {
         mockWhen(splitInstallManager.installedModules).thenReturn(setOf("not-module"))
         assertTrue(manager.needsInstall("module"))
     }
 
     @Test
-    fun testNeedsInstall_NoInstallNeeded() {
+    public fun testNeedsInstall_NoInstallNeeded() {
         mockWhen(splitInstallManager.installedModules).thenReturn(setOf("module"))
         assertFalse(manager.needsInstall("module"))
     }

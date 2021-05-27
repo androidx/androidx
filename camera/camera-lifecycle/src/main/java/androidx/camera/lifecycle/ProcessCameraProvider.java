@@ -23,7 +23,6 @@ import android.os.Handler;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
@@ -33,8 +32,6 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExperimentalCameraFilter;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
@@ -43,7 +40,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraConfig;
-import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.utils.ContextUtil;
@@ -155,7 +151,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     public static ListenableFuture<ProcessCameraProvider> getInstance(
             @NonNull Context context) {
         Preconditions.checkNotNull(context);
-        return Futures.transform(CameraX.getOrCreateInstance(context), cameraX ->  {
+        return Futures.transform(CameraX.getOrCreateInstance(context), cameraX -> {
             sAppInstance.setCameraX(cameraX);
             sAppInstance.setContext(ContextUtil.getApplicationContext(context));
             return sAppInstance;
@@ -280,10 +276,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
      */
-    @SuppressWarnings({"lambdaLast", "deprecation"})
+    @SuppressWarnings({"lambdaLast"})
     @MainThread
     @NonNull
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
@@ -302,8 +297,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * the {@link UseCaseGroup} in the latest
      * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      */
-    @ExperimentalUseCaseGroup
-    @SuppressWarnings({"lambdaLast", "deprecation"})
+    @SuppressWarnings({"lambdaLast"})
     @MainThread
     @NonNull
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
@@ -369,14 +363,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *                                  or method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
-     * @hide
      */
-    @SuppressWarnings({"lambdaLast", "unused", "deprecation"})
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @ExperimentalUseCaseGroup
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
+    @SuppressWarnings({"lambdaLast", "unused"})
     @NonNull
-    public Camera bindToLifecycle(
+    Camera bindToLifecycle(
             @NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @Nullable ViewPort viewPort,
@@ -431,32 +421,29 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                                     mCameraX.getDefaultConfigFactory()));
         }
 
-        CameraConfig cameraConfig = CameraConfigs.emptyConfig();
+        CameraConfig cameraConfig = null;
 
         // Retrieves extended camera configs from ExtendedCameraConfigProviderStore
         for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
             if (cameraFilter.getId() != CameraFilter.Id.DEFAULT) {
-                CameraConfig extendedCameraConfig = ExtendedCameraConfigProviderStore.getConfig(
-                        cameraFilter.getId()).getConfig(lifecycleCameraToBind.getCameraInfo(),
-                        mContext);
+                CameraConfig extendedCameraConfig =
+                        ExtendedCameraConfigProviderStore.getConfigProvider(cameraFilter.getId())
+                                .getConfig(lifecycleCameraToBind.getCameraInfo(), mContext);
+                if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
+                    continue;
+                }
 
                 // Only allows one camera config now.
-                if (extendedCameraConfig != CameraConfigs.emptyConfig()
-                        && cameraConfig != CameraConfigs.emptyConfig()) {
+                if (cameraConfig != null) {
                     throw new IllegalArgumentException(
                             "Cannot apply multiple extended camera configs at the same time.");
-                } else {
-                    cameraConfig = extendedCameraConfig;
                 }
+                cameraConfig = extendedCameraConfig;
             }
         }
 
         // Applies extended camera configs to the camera
-        try {
-            lifecycleCameraToBind.setExtendedConfig(cameraConfig);
-        } catch (CameraUseCaseAdapter.CameraException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        lifecycleCameraToBind.setExtendedConfig(cameraConfig);
 
         if (useCases.length == 0) {
             return lifecycleCameraToBind;
@@ -535,7 +522,20 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         return true;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Returns {@link CameraInfo} instances of the available cameras.
+     *
+     * <p>The available cameras include all the available cameras on the device, or only those
+     * selected through
+     * {@link androidx.camera.core.CameraXConfig.Builder#setAvailableCamerasLimiter(CameraSelector)}
+     *
+     * <p>While iterating through all the available {@link CameraInfo}, if one of them meets some
+     * predefined requirements, a {@link CameraSelector} that uniquely identifies its camera
+     * can be retrieved using {@link CameraInfo#getCameraSelector()}, which can then be used to bind
+     * {@linkplain UseCase use cases} to that camera.
+     *
+     * @return A list of {@link CameraInfo} instances for the available cameras.
+     */
     @NonNull
     @Override
     public List<CameraInfo> getAvailableCameraInfos() {

@@ -174,14 +174,14 @@ public data class MetadataTransform(
  * A [RequestTemplate] indicates which preset set list of parameters will be applied to a request by
  * default. These values are defined by camera2.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class RequestTemplate(public val value: Int)
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
  * to the Camera.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class RequestNumber(public val value: Long)
 
 /**
@@ -189,7 +189,7 @@ public inline class RequestNumber(public val value: Long)
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class FrameNumber(public val value: Long)
 
 /**
@@ -203,7 +203,7 @@ public inline class FrameNumber(public val value: Long)
  * operate based on a real-time clock, while audio/visual systems commonly operate based on a
  * monotonic clock.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class CameraTimestamp(public val value: Long)
 
 /**

@@ -210,7 +210,7 @@ class AppSignatureVerifier {
      * The {@code query} can either be a permission or {@code EXPECTED_IDENTITY_QUERY} when
      * verifying the identity of another app before establishing communication.
      */
-    private boolean verifySigningIdentityForQuery(String packageName, String query,
+    boolean verifySigningIdentityForQuery(String packageName, String query,
             Set<String> packageCertDigests, Set<String> allPackagesCertDigests) {
         AppSigningInfo appSigningInfo;
         try {

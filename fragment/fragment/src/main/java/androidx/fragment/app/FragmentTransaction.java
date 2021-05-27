@@ -295,8 +295,8 @@ public abstract class FragmentTransaction {
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
-        if (fragment.mRemoved) {
-            FragmentStrictMode.onFragmentReuse(fragment);
+        if (fragment.mPreviousWho != null) {
+            FragmentStrictMode.onFragmentReuse(fragment, fragment.mPreviousWho);
         }
         final Class<?> fragmentClass = fragment.getClass();
         final int modifiers = fragmentClass.getModifiers();

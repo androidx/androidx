@@ -235,7 +235,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         builder.setSmallIcon(R.drawable.ic_bug_report_24px)
                 .setContentTitle(title + " (phone)")
                 .setContentText(text + " (phone)")
-                .setColor(getCarContext().getColor(R.color.carColorGreen))
+                .setColor(getCarContext().getColor(androidx.car.app.R.color.carColorGreen))
                 .setColorized(true)
                 .setLargeIcon(
                         BitmapFactory.decodeResource(
@@ -340,7 +340,8 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
     /** Returns a pending intent with the provided intent action. */
     private PendingIntent createPendingIntent(String intentAction) {
         Intent intent = new Intent(intentAction);
-        return PendingIntent.getBroadcast(getCarContext(), intentAction.hashCode(), intent, 0);
+        return PendingIntent.getBroadcast(getCarContext(), intentAction.hashCode(), intent,
+                PendingIntent.FLAG_IMMUTABLE);
     }
 
     final class HandlerCallback implements Handler.Callback {

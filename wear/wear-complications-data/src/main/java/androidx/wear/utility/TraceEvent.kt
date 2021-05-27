@@ -19,6 +19,8 @@ package androidx.wear.utility
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Trace
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -57,17 +59,32 @@ public class AsyncTraceEvent(private val traceName: String) : Closeable {
         internal fun getTraceId() = synchronized(lock) { nextTraceId++ }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private object Api29Impl {
+        @JvmStatic
+        @DoNotInline
+        fun callBeginAsyncSection(traceName: String, traceId: Int) {
+            Trace.beginAsyncSection(traceName, traceId)
+        }
+
+        @JvmStatic
+        @DoNotInline
+        fun callEndAsyncSection(traceName: String, traceId: Int) {
+            Trace.endAsyncSection(traceName, traceId)
+        }
+    }
+
     private val traceId = getTraceId()
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Trace.beginAsyncSection(traceName, traceId)
+            Api29Impl.callBeginAsyncSection(traceName, traceId)
         }
     }
 
     public override fun close() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Trace.endAsyncSection(traceName, traceId)
+            Api29Impl.callEndAsyncSection(traceName, traceId)
         }
     }
 }

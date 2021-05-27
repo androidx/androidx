@@ -43,7 +43,6 @@ import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECU
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -69,10 +68,12 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -216,6 +217,8 @@ public final class VideoCapture extends UseCase {
     private MediaCodec mAudioEncoder;
     @Nullable
     private ListenableFuture<Void> mRecordingFuture = null;
+    @NonNull
+    private SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -334,6 +337,8 @@ public final class VideoCapture extends UseCase {
         }
 
         setupEncoder(getCameraId(), suggestedResolution);
+        // VideoCapture has to be active to apply SessionConfig's template type.
+        notifyActive();
         return suggestedResolution;
     }
 
@@ -447,7 +452,12 @@ public final class VideoCapture extends UseCase {
         mEndOfAudioVideoSignal.set(false);
         mIsRecording = true;
 
-        notifyActive();
+        // Attach Surface to repeating request.
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addSurface(mDeferrableSurface);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        notifyUpdated();
+
         mAudioHandler.post(() -> audioEncode(postListener));
 
         String cameraId = getCameraId();
@@ -479,7 +489,11 @@ public final class VideoCapture extends UseCase {
             return;
         }
         Logger.i(TAG, "stopRecording");
-        notifyInactive();
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        notifyUpdated();
+
         if (!mEndOfAudioVideoSignal.get() && mIsRecording) {
             // stop audio encoder thread, and wait video encoder and muxer stop.
             mEndOfAudioStreamSignal.set(true);
@@ -609,7 +623,7 @@ public final class VideoCapture extends UseCase {
         Surface cameraSurface = mVideoEncoder.createInputSurface();
         mCameraSurface = cameraSurface;
 
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        mSessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
@@ -619,9 +633,9 @@ public final class VideoCapture extends UseCase {
                 cameraSurface::release, CameraXExecutors.mainThreadExecutor()
         );
 
-        sessionConfigBuilder.addSurface(mDeferrableSurface);
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
-        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+        mSessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
             @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
@@ -637,7 +651,7 @@ public final class VideoCapture extends UseCase {
             }
         });
 
-        updateSessionConfig(sessionConfigBuilder.build());
+        updateSessionConfig(mSessionConfigBuilder.build());
 
         // audio encoder setup
         setAudioParametersByCamcorderProfile(resolution, cameraId);
@@ -1018,7 +1032,6 @@ public final class VideoCapture extends UseCase {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
@@ -1036,7 +1049,7 @@ public final class VideoCapture extends UseCase {
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -1063,7 +1076,8 @@ public final class VideoCapture extends UseCase {
                     mParcelFileDescriptor =
                             outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
-                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                    mediaMuxer = Api26Impl.createMediaMuxer(
+                            mParcelFileDescriptor.getFileDescriptor(),
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {
@@ -1876,6 +1890,23 @@ public final class VideoCapture extends UseCase {
                 return new OutputFileOptions(mFile, mFileDescriptor, mContentResolver,
                         mSaveCollection, mContentValues, mMetadata);
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 8.0 (API 26).
+     */
+    @RequiresApi(26)
+    private static class Api26Impl {
+
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static MediaMuxer createMediaMuxer(@NonNull FileDescriptor fileDescriptor, int format)
+                throws IOException {
+            return new MediaMuxer(fileDescriptor, format);
         }
     }
 }

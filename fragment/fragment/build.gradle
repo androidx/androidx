@@ -1,6 +1,4 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -15,12 +13,6 @@ android {
             includeAndroidResources = true
         }
     }
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // disable code coverage for robolectric test
-        }
-    }
-
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -36,7 +28,7 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api("androidx.activity:activity:1.2.2")
+    api("androidx.activity:activity:1.2.3")
     api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
@@ -47,27 +39,27 @@ dependencies {
         exclude group: "androidx.fragment", module: "fragment"
         exclude group: "androidx.activity", module: "activity"
     })
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(MULTIDEX)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
 
     testImplementation(project(":fragment:fragment"))
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 
     lintPublish(project(":fragment:fragment-lint"))
 }

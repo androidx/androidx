@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
@@ -76,7 +75,6 @@ public interface CameraInfoInternal extends CameraInfo {
     CamcorderProfileProvider getCamcorderProfileProvider();
 
     /** {@inheritDoc} */
-    @ExperimentalCameraFilter
     @NonNull
     @Override
     default CameraSelector getCameraSelector() {

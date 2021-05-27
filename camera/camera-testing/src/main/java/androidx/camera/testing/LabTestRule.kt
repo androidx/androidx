@@ -27,14 +27,16 @@ import org.junit.runners.model.Statement
  * throws the AssumptionViolatedException to ignore the test if the test environment is not in the
  * lab. Useful for the tests not needed to run on the PostSubmit.
  *
- * To use this [TestRule] do the following. <br></br><br></br>
+ * To use this [TestRule], do the following. <br></br><br></br>
  *
  * Add the Rule to your JUnit test. <br></br><br></br>
  * `LabTestRule mLabTestRule = new LabTestRule();
 ` *
  * <br></br><br></br>
  *
- * Add the [LabTestOnly] annotation to your test case. <br></br><br></br>
+ * Add only one of [LabTestOnly], [LabTestFrontCamera] or, [LabTestRearCamera] annotation to your
+ * test case.
+ * <br></br><br></br>
  * `public void yourTestCase() {
  *
  * }
@@ -50,6 +52,22 @@ class LabTestRule : TestRule {
     @Retention(AnnotationRetention.RUNTIME)
     annotation class LabTestOnly()
 
+    /**
+     * The annotation for tests that only want to run on the CameraX lab environment with
+     * enabling front camera.
+     */
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class LabTestFrontCamera()
+
+    /**
+     * The annotation for tests that only want to run on the CameraX lab environment with
+     * enabling rear camera.
+     */
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class LabTestRearCamera()
+
     class LabTestStatement(private val statement: Statement) :
         Statement() {
 
@@ -63,9 +81,38 @@ class LabTestRule : TestRule {
         }
     }
 
+    class LabTestFrontCameraStatement(private val statement: Statement) :
+        Statement() {
+
+        @Throws(Throwable::class)
+        override fun evaluate() {
+            // Only test in CameraX lab environment and the loggable tag will be set when running
+            // the CameraX e2e test with enabling front camera.
+            assumeTrue(Log.isLoggable("frontCameraE2E", Log.DEBUG))
+            statement.evaluate()
+        }
+    }
+
+    class LabTestRearCameraStatement(private val statement: Statement) :
+        Statement() {
+
+        @Throws(Throwable::class)
+        override fun evaluate() {
+            // Only test in CameraX lab environment and the loggable tag will be set when running
+            // the CameraX e2e test with enabling rear camera.
+            assumeTrue(Log.isLoggable("rearCameraE2E", Log.DEBUG))
+            statement.evaluate()
+        }
+    }
+
     override fun apply(base: Statement, description: Description): Statement {
+
         return if (description.getAnnotation(LabTestOnly::class.java) != null) {
             LabTestStatement(base)
+        } else if (description.getAnnotation(LabTestFrontCamera::class.java) != null) {
+            LabTestFrontCameraStatement(base)
+        } else if (description.getAnnotation(LabTestRearCamera::class.java) != null) {
+            LabTestRearCameraStatement(base)
         } else {
             base
         }

@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -51,6 +53,8 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
@@ -88,6 +92,7 @@ public class ImageCaptureExtenderTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
+        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
 
         CameraX.initialize(mContext, Camera2Config.defaultConfig()).get();
@@ -329,7 +334,7 @@ public class ImageCaptureExtenderTest {
     final class FakeImageCaptureExtender extends ImageCaptureExtender {
         FakeImageCaptureExtender(ImageCapture.Builder builder,
                 ImageCaptureExtenderImpl impl) {
-            init(builder, impl, Extensions.EXTENSION_MODE_NONE);
+            init(builder, impl, ExtensionMode.NONE);
         }
     }
 

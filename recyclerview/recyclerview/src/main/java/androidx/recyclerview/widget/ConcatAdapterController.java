@@ -389,21 +389,24 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
     }
 
     public void onViewRecycled(ViewHolder holder) {
-        NestedAdapterWrapper wrapper = mBinderLookup.remove(holder);
+        NestedAdapterWrapper wrapper = mBinderLookup.get(holder);
         if (wrapper == null) {
             throw new IllegalStateException("Cannot find wrapper for " + holder
                     + ", seems like it is not bound by this adapter: " + this);
         }
         wrapper.adapter.onViewRecycled(holder);
+        mBinderLookup.remove(holder);
     }
 
     public boolean onFailedToRecycleView(ViewHolder holder) {
-        NestedAdapterWrapper wrapper = mBinderLookup.remove(holder);
+        NestedAdapterWrapper wrapper = mBinderLookup.get(holder);
         if (wrapper == null) {
             throw new IllegalStateException("Cannot find wrapper for " + holder
                     + ", seems like it is not bound by this adapter: " + this);
         }
-        return wrapper.adapter.onFailedToRecycleView(holder);
+        final boolean result = wrapper.adapter.onFailedToRecycleView(holder);
+        mBinderLookup.remove(holder);
+        return result;
     }
 
     @NonNull

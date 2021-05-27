@@ -148,7 +148,7 @@
     <issue
         id="ClassVerificationFailure"
         severity="Error"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
+        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
         category="Correctness"
         priority="5"
         summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
@@ -164,7 +164,7 @@
     <issue
         id="ClassVerificationFailure"
         severity="Error"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
+        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
         category="Correctness"
         priority="5"
         summary="Even in cases where references to new APIs are gated on SDK_INT checks, run-time class verification will still fail on references to APIs that may not be available at run time, including platform APIs introduced after a library&apos;s minSdkVersion."
@@ -175,6 +175,54 @@
             file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/core/widget/ListViewCompat.java"
             line="69"
             column="29"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        severity="Error"
+        message="Utility class is missing private constructor"
+        category="Correctness"
+        priority="5"
+        summary="Utility classes should have a private constructor"
+        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
+        errorLine1="    static class DefaultInnerClass {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="37"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        severity="Error"
+        message="Utility class is missing private constructor"
+        category="Correctness"
+        priority="5"
+        summary="Utility classes should have a private constructor"
+        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
+        errorLine1="    protected static class ProtectedInnerClass {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="46"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        severity="Error"
+        message="Utility class is missing private constructor"
+        category="Correctness"
+        priority="5"
+        summary="Utility classes should have a private constructor"
+        explanation="Classes which are not intended to be instantiated should be made non-instantiable with a private constructor. This includes utility classes (classes with only static members), and the main class."
+        errorLine1="    public static class PublicInnerClass {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="55"
+            column="25"/>
     </issue>
 
     <issue

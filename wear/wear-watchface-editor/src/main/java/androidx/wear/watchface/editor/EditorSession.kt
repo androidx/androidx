@@ -68,6 +68,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlin.jvm.Throws
 
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
@@ -76,7 +77,10 @@ private typealias WireComplicationProviderInfo =
  * Interface for manipulating watch face state during an editing session for a watch face editing
  * session. The editor should adjust [userStyle] and call [openComplicationProviderChooser] to
  * configure the watch face and call [close] when done. This reports the updated [EditorState] to
- * the [EditorListener]s registered via [EditorServiceClient.addListener].
+ * the [EditorListener]s registered via [EditorServiceClient.addListener]. Style changes applied
+ * during the editor session are temporary and will be reverted when the editor session completes.
+ * In the event that the editor sessions results in a new watch face configuration that will be
+ * subsequently reapplied when the new configuration is provided by the system.
  */
 public abstract class EditorSession : AutoCloseable {
     /** The [ComponentName] of the watch face being edited. */
@@ -90,7 +94,8 @@ public abstract class EditorSession : AutoCloseable {
     @get:RequiresApi(Build.VERSION_CODES.R)
     public abstract val watchFaceId: WatchFaceId
 
-    /** The current [UserStyle]. Assigning to this will cause the style to update. */
+    /** The current [UserStyle]. Assigning to this will cause the style to update. However, styling
+     * changes to the watch face will be reverted upon exit. */
     public abstract var userStyle: UserStyle
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
@@ -112,10 +117,10 @@ public abstract class EditorSession : AutoCloseable {
      * because there are circumstances where [ComponentActivity.onStop] doesn't get called but the
      * UX requires us to commit changes.
      *
-     * If false upon exit for an on watch face editor, the original UserStyle is restored. Note we
-     * need SysUI's help to revert any complication provider changes. Caveat some providers have
-     * their own config (e.g. the world clock has a timezone setting) and that config currently
-     * can't be reverted.
+     * Regardless of the value, on completion of the editor session, the original UserStyle is
+     * restored. Note we need SysUI's help to revert any complication provider changes. Caveat
+     * some providers have their own config (e.g. the world clock has a timezone setting) and
+     * that config currently can't be reverted.
      */
     @get:UiThread
     @get:JvmName("isCommitChangesOnClose")
@@ -193,14 +198,17 @@ public abstract class EditorSession : AutoCloseable {
          * @param editIntent The [Intent] sent by SysUI to launch the editing session.
          * @return Deferred<EditorSession?> which is resolved with either the [EditorSession] or
          * `null` if it can't be constructed.
+         * @throws [TimeoutCancellationException] if it takes more than
+         * [EDITING_SESSION_TIMEOUT_MILLIS] milliseconds to create a watch face editor.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
+        @Throws(TimeoutCancellationException::class)
         public suspend fun createOnWatchEditingSession(
             activity: ComponentActivity,
             editIntent: Intent
-        ): EditorSession? = createOnWatchEditingSessionImpl(
+        ): EditorSession = createOnWatchEditingSessionImpl(
             activity,
             editIntent,
             object : ProviderInfoRetrieverProvider {
@@ -209,16 +217,17 @@ public abstract class EditorSession : AutoCloseable {
         )
 
         // Used by tests.
+        @Throws(TimeoutCancellationException::class)
         internal suspend fun createOnWatchEditingSessionImpl(
             activity: ComponentActivity,
             editIntent: Intent,
             providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-        ): EditorSession? = TraceEvent(
+        ): EditorSession = TraceEvent(
             "EditorSession.createOnWatchEditingSessionAsyncImpl"
         ).use {
             val coroutineScope =
                 CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
-            return EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
+            return EditorRequest.createFromIntent(editIntent).let { editorRequest ->
                 // We need to respect the lifecycle and register the ActivityResultListener now.
                 val session = OnWatchFaceEditorSessionImpl(
                     activity,
@@ -233,14 +242,15 @@ public abstract class EditorSession : AutoCloseable {
                 // [WatchFace.getOrCreateEditorDelegate] is async.
                 // Resolve only after init has been completed.
                 withContext(coroutineScope.coroutineContext) {
-                    session.setEditorDelegate(
-                        WatchFace.getOrCreateEditorDelegate(
-                            editorRequest.watchFaceComponentName
-                        ).await()
-                    )
-
-                    // Resolve only after init has been completed.
-                    session
+                    withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
+                        session.setEditorDelegate(
+                            WatchFace.getOrCreateEditorDelegate(
+                                editorRequest.watchFaceComponentName
+                            ).await()
+                        )
+                        // Resolve only after init has been completed.
+                        session
+                    }
                 }
             }
         }
@@ -260,8 +270,8 @@ public abstract class EditorSession : AutoCloseable {
             activity: ComponentActivity,
             editIntent: Intent,
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): EditorSession? = TraceEvent("EditorSession.createHeadlessEditingSession").use {
-            EditorRequest.createFromIntent(editIntent)?.let {
+        ): EditorSession = TraceEvent("EditorSession.createHeadlessEditingSession").use {
+            EditorRequest.createFromIntent(editIntent).let {
                 HeadlessEditorSession(
                     activity,
                     headlessWatchFaceClient,
@@ -277,6 +287,9 @@ public abstract class EditorSession : AutoCloseable {
                 )
             }
         }
+
+        /** Timeout allowed for waiting for creating the watch face editing session. */
+        public const val EDITING_SESSION_TIMEOUT_MILLIS: Long = 4000L
     }
 }
 
@@ -656,8 +669,11 @@ internal class OnWatchFaceEditorSessionImpl(
         if (this::editorDelegate.isInitialized) {
             editorDelegate.onDestroy()
         }
-        // Revert any changes to the UserStyle if needed.
-        if (!commitChangesOnClose && this::previousWatchFaceUserStyle.isInitialized) {
+        // Revert any changes to the user style that was set during the editing session. The
+        // system will update the user style and communicate it to the active watch face if
+        // needed. This guarantees that the system is always the source of truth for the current
+        // style.
+        if (this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
         }
     }

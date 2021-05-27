@@ -29,41 +29,27 @@ import androidx.annotation.IdRes
  *
  * Actions should be added via [NavDestination.putAction] or
  * [NavDestination.putAction].
- */
-public class NavAction
-/**
- * Creates a new NavAction for the given destination.
  *
  * @param destinationId the ID of the destination that should be navigated to when this
  * action is used.
  * @param navOptions special options for this action that should be used by default
  * @param defaultArguments argument bundle to be used by default
  */
-@JvmOverloads
-constructor(
+public class NavAction @JvmOverloads constructor(
     /**
-     * Gets the ID of the destination that should be navigated to when this action is used
+     * The ID of the destination that should be navigated to when this action is used
      */
     @field:IdRes
     @param:IdRes
     public val destinationId: Int,
     /**
-     * Gets the NavOptions to be used by default when navigating to this action.
-     */
-    /**
-     * Sets the NavOptions to be used by default when navigating to this action.
-     *
-     * @param navOptions special options for this action that should be used by default
+     * The NavOptions to be used by default when navigating to this action.
      */
     public var navOptions: NavOptions? = null,
     /**
-     * Gets the argument bundle to be used by default when navigating to this action.
-     * @return bundle of default argument values
-     */
-    /**
-     * Sets the argument bundle to be used by default when navigating to this action.
+     * The argument bundle to be used by default when navigating to this action.
      *
-     * @param defaultArguments argument bundle that should be used by default
+     * @return bundle of default argument values
      */
     public var defaultArguments: Bundle? = null
 )

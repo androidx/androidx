@@ -9,7 +9,7 @@ package androidx.camera.lifecycle {
 
   public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCase!...);
-    method @MainThread @androidx.camera.core.ExperimentalUseCaseGroup public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup);
+    method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup);
     method @androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration public static void configureInstance(androidx.camera.core.CameraXConfig);
     method public java.util.List<androidx.camera.core.CameraInfo!> getAvailableCameraInfos();
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.ProcessCameraProvider!> getInstance(android.content.Context);

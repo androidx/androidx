@@ -68,11 +68,11 @@ androidx {
 
     license {
         name = "SIL Open Font License, Version 1.1"
-        url = "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
+        url = "https://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
     license {
         name = "Unicode, Inc. License"
-        url = "http://www.unicode.org/copyright.html#License"
+        url = "https://www.unicode.org/license.html"
     }
 }

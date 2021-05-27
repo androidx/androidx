@@ -16,7 +16,6 @@
 package androidx.navigation.fragment
 
 import android.content.Context
-import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import androidx.annotation.CallSuper
@@ -26,11 +25,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.FloatingWindow
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-import androidx.navigation.NavigatorState
 import androidx.navigation.NavigatorProvider
+import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.DialogFragmentNavigator.Destination
 
 /**
@@ -43,49 +43,65 @@ public class DialogFragmentNavigator(
     private val context: Context,
     private val fragmentManager: FragmentManager
 ) : Navigator<Destination>() {
-    private var dialogCount = 0
-    private val restoredTagsAwaitingAttach = mutableSetOf<String?>()
+    private val restoredTagsAwaitingAttach = mutableSetOf<String>()
     private val observer = LifecycleEventObserver { source, event ->
         if (event == Lifecycle.Event.ON_STOP) {
             val dialogFragment = source as DialogFragment
             if (!dialogFragment.requireDialog().isShowing) {
-                NavHostFragment.findNavController(dialogFragment).popBackStack()
+                // Update the NavigatorState to indicate that the Dialog was popped
+                val entry = state.backStack.value.first { it.id == dialogFragment.tag }
+                state.pop(entry, false)
             }
         }
     }
 
-    public override fun popBackStack(): Boolean {
-        if (dialogCount == 0) {
-            return false
-        }
+    override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG, "Ignoring popBackStack() call: FragmentManager has already saved its state"
             )
-            return false
+            return
         }
-        val existingFragment = fragmentManager.findFragmentByTag(DIALOG_TAG + --dialogCount)
-        if (existingFragment != null) {
-            existingFragment.lifecycle.removeObserver(observer)
-            (existingFragment as DialogFragment).dismiss()
+        val beforePopList = state.backStack.value
+        // Get the set of entries that are going to be popped
+        val poppedList = beforePopList.subList(
+            beforePopList.indexOf(popUpTo),
+            beforePopList.size
+        )
+        // Now go through the list in reversed order (i.e., starting from the most recently added)
+        // and dismiss each dialog
+        for (entry in poppedList.reversed()) {
+            val existingFragment = fragmentManager.findFragmentByTag(entry.id)
+            if (existingFragment != null) {
+                existingFragment.lifecycle.removeObserver(observer)
+                (existingFragment as DialogFragment).dismiss()
+            }
         }
-        return true
+        state.pop(popUpTo, savedState)
     }
 
     public override fun createDestination(): Destination {
         return Destination(this)
     }
 
-    public override fun navigate(
-        destination: Destination,
-        args: Bundle?,
+    override fun navigate(
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ): NavDestination? {
+    ) {
         if (fragmentManager.isStateSaved) {
             Log.i(TAG, "Ignoring navigate() call: FragmentManager has already saved its state")
-            return null
+            return
         }
+        for (entry in entries) {
+            navigate(entry)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry
+    ) {
+        val destination = entry.destination as Destination
         var className = destination.className
         if (className[0] == '.') {
             className = context.packageName + className
@@ -97,33 +113,20 @@ public class DialogFragmentNavigator(
             "Dialog destination ${destination.className} is not an instance of DialogFragment"
         }
         val dialogFragment = frag as DialogFragment
-        dialogFragment.arguments = args
+        dialogFragment.arguments = entry.arguments
         dialogFragment.lifecycle.addObserver(observer)
-        dialogFragment.show(fragmentManager, DIALOG_TAG + dialogCount++)
-        return destination
-    }
-
-    public override fun onSaveState(): Bundle? {
-        if (dialogCount == 0) {
-            return null
-        }
-        val b = Bundle()
-        b.putInt(KEY_DIALOG_COUNT, dialogCount)
-        return b
-    }
-
-    public override fun onRestoreState(savedState: Bundle) {
-        dialogCount = savedState.getInt(KEY_DIALOG_COUNT, 0)
-        for (index in 0 until dialogCount) {
-            val fragment = fragmentManager
-                .findFragmentByTag(DIALOG_TAG + index) as DialogFragment?
-            fragment?.lifecycle?.addObserver(observer)
-                ?: restoredTagsAwaitingAttach.add(DIALOG_TAG + index)
-        }
+        dialogFragment.show(fragmentManager, entry.id)
+        state.add(entry)
     }
 
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
+        for (entry in state.backStack.value) {
+            val fragment = fragmentManager
+                .findFragmentByTag(entry.id) as DialogFragment?
+            fragment?.lifecycle?.addObserver(observer)
+                ?: restoredTagsAwaitingAttach.add(entry.id)
+        }
         fragmentManager.addFragmentOnAttachListener { _, childFragment ->
             val needToAddObserver = restoredTagsAwaitingAttach.remove(childFragment.tag)
             if (needToAddObserver) {
@@ -134,10 +137,7 @@ public class DialogFragmentNavigator(
 
     /**
      * NavDestination specific to [DialogFragmentNavigator].
-     */
-    @NavDestination.ClassType(DialogFragment::class)
-    public open class Destination
-    /**
+     *
      * Construct a new fragment destination. This destination is not valid until you set the
      * Fragment via [setClassName].
      *
@@ -145,11 +145,13 @@ public class DialogFragmentNavigator(
      *                          associated with. Generally retrieved via a [NavController]'s
      *                          [NavigatorProvider.getNavigator] method.
      */
+    @NavDestination.ClassType(DialogFragment::class)
+    public open class Destination
     public constructor(fragmentNavigator: Navigator<out Destination>) :
         NavDestination(fragmentNavigator), FloatingWindow {
         private var _className: String? = null
         /**
-         * Gets the DialogFragment's class name associated with this destination
+         * The DialogFragment's class name associated with this destination
          *
          * @throws IllegalStateException when no DialogFragment class was set.
          */
@@ -196,7 +198,5 @@ public class DialogFragmentNavigator(
 
     private companion object {
         private const val TAG = "DialogFragmentNavigator"
-        private const val KEY_DIALOG_COUNT = "androidx-nav-dialogfragment:navigator:count"
-        private const val DIALOG_TAG = "androidx-nav-fragment:navigator:dialog:"
     }
 }

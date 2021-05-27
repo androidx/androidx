@@ -1,6 +1,6 @@
 spannable {
   multiline_alignment {
-    value: HALIGN_START
+    value: HORIZONTAL_ALIGN_START
   }
   spans {
     text {

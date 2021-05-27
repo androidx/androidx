@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package android.support.wearable.complications {
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) android.support.wearable.complications {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationData implements android.os.Parcelable {
     method public int describeContents();
@@ -165,7 +165,7 @@ package androidx.wear.complications {
     property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
+  @RequiresApi(android.os.Build.VERSION_CODES.N) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public ComplicationHelperActivity();
     method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
     method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>, String?);
@@ -253,7 +253,6 @@ package androidx.wear.complications {
     field public static final int PROVIDER_DAY_AND_DATE = 16; // 0x10
     field public static final int PROVIDER_DAY_OF_WEEK = 13; // 0xd
     field public static final int PROVIDER_FAVORITE_CONTACT = 14; // 0xe
-    field public static final int PROVIDER_MOST_RECENT_APP = 15; // 0xf
     field public static final int PROVIDER_NEXT_EVENT = 9; // 0x9
     field public static final int PROVIDER_RETAIL_CHAT = 11; // 0xb
     field public static final int PROVIDER_RETAIL_STEP_COUNT = 10; // 0xa
@@ -268,7 +267,7 @@ package androidx.wear.complications {
   public static final class SystemProviders.Companion {
   }
 
-  @IntDef({androidx.wear.complications.SystemProviders.NO_PROVIDER, androidx.wear.complications.SystemProviders.PROVIDER_WATCH_BATTERY, androidx.wear.complications.SystemProviders.PROVIDER_DATE, androidx.wear.complications.SystemProviders.PROVIDER_TIME_AND_DATE, androidx.wear.complications.SystemProviders.PROVIDER_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_WORLD_CLOCK, androidx.wear.complications.SystemProviders.PROVIDER_APP_SHORTCUT, androidx.wear.complications.SystemProviders.PROVIDER_UNREAD_NOTIFICATION_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_NEXT_EVENT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_CHAT, androidx.wear.complications.SystemProviders.PROVIDER_SUNRISE_SUNSET, androidx.wear.complications.SystemProviders.PROVIDER_DAY_OF_WEEK, androidx.wear.complications.SystemProviders.PROVIDER_FAVORITE_CONTACT, androidx.wear.complications.SystemProviders.PROVIDER_MOST_RECENT_APP, androidx.wear.complications.SystemProviders.PROVIDER_DAY_AND_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public static @interface SystemProviders.ProviderId {
+  @IntDef({androidx.wear.complications.SystemProviders.NO_PROVIDER, androidx.wear.complications.SystemProviders.PROVIDER_WATCH_BATTERY, androidx.wear.complications.SystemProviders.PROVIDER_DATE, androidx.wear.complications.SystemProviders.PROVIDER_TIME_AND_DATE, androidx.wear.complications.SystemProviders.PROVIDER_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_WORLD_CLOCK, androidx.wear.complications.SystemProviders.PROVIDER_APP_SHORTCUT, androidx.wear.complications.SystemProviders.PROVIDER_UNREAD_NOTIFICATION_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_NEXT_EVENT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_STEP_COUNT, androidx.wear.complications.SystemProviders.PROVIDER_RETAIL_CHAT, androidx.wear.complications.SystemProviders.PROVIDER_SUNRISE_SUNSET, androidx.wear.complications.SystemProviders.PROVIDER_DAY_OF_WEEK, androidx.wear.complications.SystemProviders.PROVIDER_FAVORITE_CONTACT, androidx.wear.complications.SystemProviders.PROVIDER_DAY_AND_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public static @interface SystemProviders.ProviderId {
   }
 
 }

@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraFilter;
 
 /**
  * Configuration for a {@link androidx.camera.core.Camera}.
@@ -26,29 +25,9 @@ public interface CameraConfig extends ReadableConfig {
 
     // Option Declarations:
     // *********************************************************************************************
-
-    /**
-     * Option: camerax.core.camera.cameraFilter
-     */
-    Option<CameraFilter> OPTION_CAMERA_FILTER =
-            Option.create("camerax.core.camera.cameraFilter", CameraFilter.class);
-
     Option<UseCaseConfigFactory> OPTION_USECASE_CONFIG_FACTORY =
             Option.create("camerax.core.camera.useCaseConfigFactory",
                     UseCaseConfigFactory.class);
-
-    /**
-     * Retrieves the camera filter from this configuration.
-     *
-     * <p> This filter is used to filter out additional cameras.
-     *
-     * @return The stored value, if it exists in this configuration. Otherwise a filter that does
-     * not filter out any cameras.
-     */
-    @NonNull
-    default CameraFilter getCameraFilter() {
-        return retrieveOption(OPTION_CAMERA_FILTER, CameraFilters.ANY);
-    }
 
     /**
      * Retrieves the use case config factory instance.
@@ -61,18 +40,6 @@ public interface CameraConfig extends ReadableConfig {
      * @param <B> the top level builder type for which this builder is composed with.
      */
     interface Builder<B> {
-        /**
-         * Sets the {@link CameraFilter} to apply.
-         *
-         * <p> The filter which will be additionally applied to
-         * {@link androidx.camera.core.CameraSelector} when selecting a camera.
-         *
-         * @param cameraFilter the {@link CameraFilter} to apply.
-         * @return The current Builder.
-         */
-        @NonNull
-        B setCameraFilter(@NonNull CameraFilter cameraFilter);
-
         @NonNull
         B setUseCaseConfigFactory(@NonNull UseCaseConfigFactory factory);
     }

@@ -36,7 +36,7 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
 
-    androidTestImplementation("androidx.core:core:1.5.0-alpha01")
+    androidTestImplementation("androidx.core:core:1.5.0-rc02")
     androidTestImplementation(project(":compose:ui:ui-test-font"))
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

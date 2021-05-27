@@ -16,11 +16,13 @@
 
 package androidx.camera.extensions
 
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
@@ -28,6 +30,11 @@ import java.util.concurrent.TimeUnit
 class ExtensionsManagerTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
+
+    @Before
+    fun setUp() {
+        ExtensionsTestUtil.assumeCompatibleDevice()
+    }
 
     @After
     fun teardown() {
@@ -41,13 +48,13 @@ class ExtensionsManagerTest {
         when (availabilityFuture.get(5000, TimeUnit.MILLISECONDS)!!) {
             ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE,
             ExtensionsManager.ExtensionsAvailability.NONE ->
-                assertThat(ExtensionsManager.getExtensions(context)).isNotNull()
+                assertThat(ExtensionsManager.getExtensionsInfo(context)).isNotNull()
 
             ExtensionsManager.ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
             ExtensionsManager.ExtensionsAvailability
                 .LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION ->
                 assertThrows<IllegalStateException> {
-                    ExtensionsManager.getExtensions(context)
+                    ExtensionsManager.getExtensionsInfo(context)
                 }
         }
     }
@@ -55,7 +62,7 @@ class ExtensionsManagerTest {
     @Test
     fun exceptionThrownIfNotInit() {
         assertThrows<IllegalStateException> {
-            ExtensionsManager.getExtensions(context)
+            ExtensionsManager.getExtensionsInfo(context)
         }
     }
 }

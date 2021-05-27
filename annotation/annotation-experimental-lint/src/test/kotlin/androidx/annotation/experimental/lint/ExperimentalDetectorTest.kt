@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
@@ -26,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("UnstableApiUsage")
 @RunWith(JUnit4::class)
 class ExperimentalDetectorTest {
 

@@ -45,6 +45,9 @@ internal class KotlinMetadataElement(
     private val functionList: List<KmFunction> by lazy { classMetadata.readFunctions() }
     private val constructorList: List<KmConstructor> by lazy { classMetadata.readConstructors() }
     private val propertyList: List<KmProperty> by lazy { classMetadata.readProperties() }
+    private val classFlags: KotlinMetadataClassFlags by lazy {
+        KotlinMetadataClassFlags(classMetadata)
+    }
 
     private val ExecutableElement.descriptor: String
         get() = descriptor()
@@ -53,7 +56,15 @@ internal class KotlinMetadataElement(
         it.isPrimary()
     }?.descriptor
 
-    fun isObject(): Boolean = classMetadata.isObject()
+    fun isObject(): Boolean = classFlags.isObject()
+    fun isCompanionObject(): Boolean = classFlags.isCompanionObject()
+    fun isAnnotationClass(): Boolean = classFlags.isAnnotationClass()
+    fun isClass(): Boolean = classFlags.isClass()
+    fun isInterface(): Boolean = classFlags.isInterface()
+    fun isDataClass(): Boolean = classFlags.isDataClass()
+    fun isValueClass(): Boolean = classFlags.isValueClass()
+    fun isFunctionalInterface(): Boolean = classFlags.isFunctionalInterface()
+    fun isExpect(): Boolean = classFlags.isExpect()
 
     fun getFunctionMetadata(method: ExecutableElement): KmFunction? {
         check(method.kind == ElementKind.METHOD) {
@@ -88,7 +99,6 @@ internal class KotlinMetadataElement(
                 KotlinClassHeader(
                     kind = kind,
                     metadataVersion = metadataVersion,
-                    bytecodeVersion = bytecodeVersion,
                     data1 = data1,
                     data2 = data2,
                     extraString = extraString,

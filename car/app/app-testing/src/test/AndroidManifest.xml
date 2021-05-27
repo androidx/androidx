@@ -16,7 +16,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app.testing">
+    package="androidx.car.app.test">
     <application>
         <service android:name="androidx.car.app.CarAppService" >
             <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"

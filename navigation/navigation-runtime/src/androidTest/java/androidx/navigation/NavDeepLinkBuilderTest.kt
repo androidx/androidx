@@ -105,6 +105,7 @@ class NavDeepLinkBuilderTest {
         assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun fromContextSetGraphProgrammatic() {
         val deepLinkBuilder = NavDeepLinkBuilder(targetContext)

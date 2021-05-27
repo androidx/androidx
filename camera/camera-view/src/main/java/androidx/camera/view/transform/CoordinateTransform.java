@@ -19,9 +19,10 @@ package androidx.camera.view.transform;
 import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
 
 import android.graphics.Matrix;
+import android.graphics.PointF;
+import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -29,35 +30,45 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.TransformExperimental;
+import androidx.core.util.Preconditions;
 
 /**
  * This class represents the transform from one {@link OutputTransform} to another.
  *
  * <p> This class can be used to map the coordinates of one {@link OutputTransform} to another,
- * given that they are both from the same {@link UseCaseGroup}. {@link OutputTransform} can
+ * given that they are associated with the same {@link ViewPort}. {@link OutputTransform} can
  * represent the output of a {@link UseCase} or {@link PreviewView}. For example, mapping the
  * coordinates of detected objects from {@link ImageAnalysis} output to the drawing location in
  * {@link PreviewView}.
  *
- * TODO(b/179827713): add code samples when more {@link OutputTransform} subclasses are available.
- * TODO(b/179827713): unhide this class once all transform utils are done.
+ * <pre><code>
+ * // imageProxy the output of an ImageAnalysis.
+ * OutputTransform source = ImageProxyTransformFactory().getOutputTransform(imageProxy);
+ * OutputTransform target = previewView.getOutputTransform();
  *
- * @hide
+ * // Build the transform from ImageAnalysis to PreviewView
+ * CoordinateTransform coordinateTransform = new CoordinateTransform(source, target);
+ *
+ * // Detect face in ImageProxy and transform the coordinates to PreviewView.
+ * // The value of faceBox can be used to highlight the face in PreviewView.
+ * RectF faceBox = detectFaceInImageProxy(imageProxy);
+ * coordinateTransform.mapRect(faceBox);
+ *
+ * </code></pre>
  */
 @TransformExperimental
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CoordinateTransform {
+public final class CoordinateTransform {
 
     private static final String TAG = "CoordinateTransform";
     private static final String MISMATCH_MSG = "The source viewport (%s) does not match the target "
-            + "viewport (%s). Please make sure they are from the same UseCaseGroup.";
+            + "viewport (%s). Please make sure they are associated with the same Viewport.";
 
     private final Matrix mMatrix;
 
     /**
      * Creates the transform between the {@code source} and the {@code target}.
      *
-     * <p> The source and the target must be from the same {@link UseCaseGroup}.
+     * <p> The source and the target must be associated with the same {@link ViewPort}.
      *
      * @param source the source
      * @see UseCaseGroup
@@ -73,14 +84,15 @@ public class CoordinateTransform {
         if (!isAspectRatioMatchingWithRoundingError(
                 source.getViewPortSize(), /* isAccurate1= */ false,
                 target.getViewPortSize(), /* isAccurate2= */ false)) {
-            // Mismatched aspect ratio means the outputs are not from the same UseCaseGroup
+            // Mismatched aspect ratio means the outputs are not associated with the same Viewport.
             Logger.w(TAG, String.format(MISMATCH_MSG, source.getViewPortSize(),
                     target.getViewPortSize()));
         }
 
         // Concatenate the source transform with the target transform.
         mMatrix = new Matrix();
-        source.getMatrix().invert(mMatrix);
+        Preconditions.checkState(source.getMatrix().invert(mMatrix),
+                "The source transform cannot be inverted");
         mMatrix.postConcat(target.getMatrix());
     }
 
@@ -105,5 +117,27 @@ public class CoordinateTransform {
         mMatrix.mapPoints(points);
     }
 
-    // TODO(b/179827713): add overloading mapPoints method for other data types.
+    /**
+     * Apply this transform to the {@link PointF}, and write the transformed points back into
+     * the array
+     *
+     * @param point The point to transform.
+     */
+    public void mapPoint(@NonNull PointF point) {
+        float[] pointArray = new float[]{point.x, point.y};
+        mMatrix.mapPoints(pointArray);
+        point.x = pointArray[0];
+        point.y = pointArray[1];
+    }
+
+    /**
+     * Apply this transform to the rectangle, and write the transformed rectangle back into it.
+     * This is accomplished by transforming the 4 corners of rect, and then setting it to the
+     * bounds of those points.
+     *
+     * @param rect The rectangle to transform.
+     */
+    public void mapRect(@NonNull RectF rect) {
+        mMatrix.mapRect(rect);
+    }
 }

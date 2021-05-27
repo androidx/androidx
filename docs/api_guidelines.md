@@ -581,7 +581,8 @@ Alternatively, in Kotlin sources:
 
 ```kotlin {.good}
 @RequiresApi(29)
-object Api25 {
+private object Api29Impl {
+  @JvmStatic
   @DoNotInline
   fun saveAttributeDataForStyleable(view: View, ...) { ... }
 }

@@ -34,5 +34,5 @@ interface IHealthServicesApiService {
      * <p> Can be used by client to detect version of the API on the service
      * side. Returned version should be always > 0.
      */
-    int getApiVersion() = 1;
+    int getApiVersion() = 0;
 }

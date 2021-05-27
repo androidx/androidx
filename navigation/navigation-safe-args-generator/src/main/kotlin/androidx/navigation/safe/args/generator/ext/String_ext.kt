@@ -19,6 +19,7 @@ package androidx.navigation.safe.args.generator.ext
 fun String.toCamelCase(): String {
     val split = this.split("_")
     if (split.size == 0) return ""
+    @Suppress("DEPRECATION") // b/187985877
     if (split.size == 1) return split[0].capitalize()
     return split.joinToCamelCase()
 }

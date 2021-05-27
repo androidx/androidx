@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.annotation.NonNull
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
@@ -130,7 +131,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         val scope = CodeGenScope(this)
         return MethodSpec.methodBuilder("getRequiredAutoMigrationSpecs").apply {
             addAnnotation(Override::class.java)
-            addModifiers(PROTECTED)
+            addModifiers(PUBLIC)
             returns(
                 ParameterizedTypeName.get(
                     CommonTypeNames.SET,
@@ -277,7 +278,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 }
                 addStatement(
                     "$L.put($S, $L)", viewTablesVar,
-                    view.viewName.toLowerCase(Locale.US), tablesVar
+                    view.viewName.lowercase(Locale.US), tablesVar
                 )
             }
             addStatement(
@@ -349,13 +350,27 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
 
     private fun getAutoMigrations(): MethodSpec {
         return MethodSpec.methodBuilder("getAutoMigrations").apply {
-            addModifiers(PROTECTED)
+            addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
+            addParameter(
+                ParameterSpec.builder(
+                    ParameterizedTypeName.get(
+                        CommonTypeNames.MAP,
+                        ParameterizedTypeName.get(
+                            ClassName.get(Class::class.java),
+                            WildcardTypeName.subtypeOf(RoomTypeNames.AUTO_MIGRATION_SPEC)
+                        ),
+                        RoomTypeNames.AUTO_MIGRATION_SPEC
+                    ),
+                    "autoMigrationSpecsMap"
+                ).addAnnotation(NonNull::class.java).build()
+            )
+
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
             val autoMigrationsList = database.autoMigrations.map { autoMigrationResult ->
                 if (autoMigrationResult.isSpecProvided) {
                     CodeBlock.of(
-                        "new $T(mAutoMigrationSpecs.get($T.class))",
+                        "new $T(autoMigrationSpecsMap.get($T.class))",
                         autoMigrationResult.implTypeName,
                         autoMigrationResult.specClassName
                     )

@@ -27,6 +27,11 @@ import androidx.annotation.RestrictTo;
 /**
  * Interface which allows a {@link android.widget.TextView} to receive background auto-sizing calls
  * from {@link TextViewCompat} when running on API v26 devices or lower.
+ * <p>
+ * When used on a View annotated with
+ * {@link androidx.resourceinspection.annotation.AppCompatShadowedAttributes}, this interface
+ * implies that AppCompat shadows the platform's auto-size attributes. See
+ * {@link androidx.resourceinspection.processor} for more details and a full mapping of attributes.
  *
  * @hide Internal use only
  */

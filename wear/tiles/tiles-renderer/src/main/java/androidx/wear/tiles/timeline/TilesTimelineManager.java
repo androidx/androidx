@@ -20,8 +20,8 @@ import android.app.AlarmManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.wear.tiles.builders.LayoutElementBuilders;
-import androidx.wear.tiles.builders.TimelineBuilders;
+import androidx.wear.tiles.LayoutElementBuilders;
+import androidx.wear.tiles.TimelineBuilders;
 import androidx.wear.tiles.timeline.internal.TilesTimelineManagerInternal;
 
 import java.util.concurrent.Executor;

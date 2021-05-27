@@ -26,8 +26,8 @@ import androidx.wear.tiles.ResourcesRequestData
 import androidx.wear.tiles.TileCallback
 import androidx.wear.tiles.TileData
 import androidx.wear.tiles.TileRequestData
-import androidx.wear.tiles.builders.ResourceBuilders
-import androidx.wear.tiles.builders.TileBuilders
+import androidx.wear.tiles.ResourceBuilders
+import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.proto.RequestProto
 import androidx.wear.tiles.proto.ResourceProto
 import androidx.wear.tiles.proto.TileProto

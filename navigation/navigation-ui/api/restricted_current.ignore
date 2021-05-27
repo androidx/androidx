@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 ChangedType: androidx.navigation.ui.AppBarConfiguration#getTopLevelDestinations():
     Method androidx.navigation.ui.AppBarConfiguration.getTopLevelDestinations has changed return type from java.util.Set<java.lang.Integer!> to java.util.Set<java.lang.Integer>
+
+
+RemovedMethod: androidx.navigation.ui.NavigationUI#setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView, androidx.navigation.NavController):
+    Removed method androidx.navigation.ui.NavigationUI.setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView,androidx.navigation.NavController)

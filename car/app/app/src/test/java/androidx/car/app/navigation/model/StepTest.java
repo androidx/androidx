@@ -77,6 +77,43 @@ public class StepTest {
     }
 
     @Test
+    public void createInstance_noCue() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+
+        Step step =
+                new Step.Builder()
+                    .addLane(lane)
+                    .build();
+
+        assertThat(step.getCue()).isNull();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createInstance_cueIsNullInBuilder() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+        CharSequence charSequence = null;
+
+        Step step =
+                new Step.Builder(charSequence)
+                    .addLane(lane)
+                    .build();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createInstance_cueIsNullInSetter() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+
+        Step step =
+                new Step.Builder()
+                    .setCue(null)
+                    .addLane(lane)
+                    .build();
+    }
+
+    @Test
     public void createInstance_lanesImage_no_lanes_throws() {
         String cue = "Left at State street.";
 

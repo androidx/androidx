@@ -165,7 +165,15 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the image to display along with the message.
          *
-         * <p>Unless set with this method, the message will not have an image.
+         * <h4>Image Sizing Guidance</h4>
+         *
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * images targeting a 128 x 128 dp bounding box. If the image exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving the aspect ratio.
+         *
+         * <p>See {@link CarIcon} for more details related to providing icon and image resources
+         * that work with different car screen pixel densities.
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */

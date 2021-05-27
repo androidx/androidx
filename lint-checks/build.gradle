@@ -39,6 +39,7 @@ dependencies {
     testImplementation(KOTLIN_STDLIB)
     testImplementation(LINT_CORE)
     testImplementation(LINT_TESTS)
+    testImplementation(JUNIT)
 }
 
 androidx {

@@ -259,7 +259,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
  */
 internal fun String.decapitalize(locale: Locale): String {
     return if (isNotEmpty() && !this[0].isLowerCase()) {
-        substring(0, 1).toLowerCase(locale) + substring(1)
+        substring(0, 1).lowercase(locale) + substring(1)
     } else {
         this
     }
@@ -274,11 +274,11 @@ internal fun String.capitalize(locale: Locale): String {
         val firstChar = this[0]
         if (firstChar.isLowerCase()) {
             return buildString {
-                val titleChar = firstChar.toTitleCase()
-                if (titleChar != firstChar.toUpperCase()) {
+                val titleChar = firstChar.titlecaseChar()
+                if (titleChar != firstChar.uppercaseChar()) {
                     append(titleChar)
                 } else {
-                    append(this@capitalize.substring(0, 1).toUpperCase(locale))
+                    append(this@capitalize.substring(0, 1).uppercase(locale))
                 }
                 append(this@capitalize.substring(1))
             }

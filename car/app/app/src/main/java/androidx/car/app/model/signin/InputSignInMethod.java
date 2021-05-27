@@ -28,8 +28,12 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.InputCallback;
+import androidx.car.app.model.InputCallbackDelegate;
+import androidx.car.app.model.InputCallbackDelegateImpl;
 import androidx.car.app.model.OnInputCompletedDelegate;
 import androidx.car.app.model.OnInputCompletedDelegateImpl;
 import androidx.car.app.model.OnInputCompletedListener;
@@ -126,6 +130,8 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     @Keep
     @Nullable
     private final OnInputCompletedDelegate mOnInputCompletedDelegate;
+    @Nullable
+    private final InputCallbackDelegate mInputCallbackDelegate;
     @Keep
     private final boolean mShowKeyboardByDefault;
 
@@ -194,6 +200,18 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     }
 
     /**
+     * Returns the {@link InputCallbackDelegate} for input callbacks.
+     *
+     * @see Builder#Builder(InputCallback)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    @NonNull
+    public InputCallbackDelegate getInputCallbackDelegate() {
+        return requireNonNull(mInputCallbackDelegate);
+    }
+
+    /**
      * Returns whether to show the keyboard by default or not.
      *
      * @see Builder#setShowKeyboardByDefault
@@ -240,6 +258,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         mErrorMessage = builder.mErrorMessage;
         mKeyboardType = builder.mKeyboardType;
         mOnInputCompletedDelegate = builder.mOnInputCompletedDelegate;
+        mInputCallbackDelegate = builder.mInputCallbackDelegate;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
     }
 
@@ -251,12 +270,14 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         mErrorMessage = null;
         mKeyboardType = KEYBOARD_DEFAULT;
         mOnInputCompletedDelegate = null;
+        mInputCallbackDelegate = null;
         mShowKeyboardByDefault = false;
     }
 
     /** A builder of {@link InputSignInMethod}. */
     public static final class Builder {
-        final OnInputCompletedDelegate mOnInputCompletedDelegate;
+        @Nullable final OnInputCompletedDelegate mOnInputCompletedDelegate;
+        @Nullable final InputCallbackDelegate mInputCallbackDelegate;
         @Nullable
         CarText mHint;
         @Nullable
@@ -385,7 +406,26 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull OnInputCompletedListener listener) {
+            mInputCallbackDelegate = null;
             mOnInputCompletedDelegate = OnInputCompletedDelegateImpl.create(
+                    requireNonNull(listener));
+        }
+
+        /**
+         * Returns an {@link InputSignInMethod.Builder} instance.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @param listener the {@link InputCallbackDelegate} to be notified of input events
+         * @throws NullPointerException if {@code listener} is {@code null}
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(2)
+        @SuppressLint("ExecutorRegistration")
+        public Builder(@NonNull InputCallback listener) {
+            mOnInputCompletedDelegate = null;
+            mInputCallbackDelegate = InputCallbackDelegateImpl.create(
                     requireNonNull(listener));
         }
 

@@ -74,6 +74,7 @@ import java.util.concurrent.Executors;
  * A fragment that demos transform utilities.
  */
 @SuppressLint("RestrictedAPI")
+@OptIn(markerClass = TransformExperimental.class)
 public final class TransformFragment extends Fragment {
 
     private static final String TAG = "TransformFragment";
@@ -103,15 +104,13 @@ public final class TransformFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     RectF mBrightestTile;
 
-    private final FileTransformFactory mFileTransformFactoryWithoutExif =
-            new FileTransformFactory.Builder().build();
-    private final FileTransformFactory mFileTransformFactoryWithExif =
-            new FileTransformFactory.Builder().setUseExifOrientation(true).build();
+    private FileTransformFactory mFileTransformFactoryWithoutExif;
+    private FileTransformFactory mFileTransformFactoryWithExif;
 
     private final ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {
 
         private final ImageProxyTransformFactory mImageProxyTransformFactory =
-                new ImageProxyTransformFactory.Builder().build();
+                new ImageProxyTransformFactory();
 
         @Override
         @OptIn(markerClass = TransformExperimental.class)
@@ -265,10 +264,14 @@ public final class TransformFragment extends Fragment {
 
     @NonNull
     @Override
+    @OptIn(markerClass = TransformExperimental.class)
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+        mFileTransformFactoryWithoutExif = new FileTransformFactory();
+        mFileTransformFactoryWithExif = new FileTransformFactory();
+        mFileTransformFactoryWithExif.setUsingExifOrientation(true);
         mExecutorService = Executors.newSingleThreadExecutor();
         mCameraController = new LifecycleCameraController(requireContext());
         mCameraController.bindToLifecycle(getViewLifecycleOwner());

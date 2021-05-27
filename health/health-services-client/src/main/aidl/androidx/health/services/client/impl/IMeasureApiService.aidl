@@ -36,22 +36,22 @@ interface IMeasureApiService {
     const int API_VERSION = 1;
 
     /**
-     * Method to register measure listener.
-     */
-    void registerCallback(in MeasureRegistrationRequest request, in IMeasureCallback callback, in IStatusCallback statusCallback) = 0;
-
-    /**
-     * Method to unregister measure listener.
-     */
-    void unregisterCallback(in MeasureUnregistrationRequest request, in IMeasureCallback callback, in IStatusCallback statusCallback) = 1;
-
-    /**
      * Returns version of this AIDL interface.
      *
      * <p> Can be used by client to detect version of the API on the service
      * side. Returned version should be always > 0.
      */
-    int getApiVersion() = 2;
+    int getApiVersion() = 0;
+
+    /**
+     * Method to register measure listener.
+     */
+    void registerCallback(in MeasureRegistrationRequest request, in IMeasureCallback callback, in IStatusCallback statusCallback) = 1;
+
+    /**
+     * Method to unregister measure listener.
+     */
+    void unregisterCallback(in MeasureUnregistrationRequest request, in IMeasureCallback callback, in IStatusCallback statusCallback) = 2;
 
    /** Method to get capabilities. */
     MeasureCapabilitiesResponse getCapabilities(in CapabilitiesRequest request) = 3;

@@ -127,25 +127,30 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
     internal fun generateDirectionTypeSpec(action: Action): TypeSpec {
         val className = ClassName("", action.id.javaIdentifier.toCamelCase())
 
-        val getActionIdFunSpec = FunSpec.builder("getActionId")
-            .addModifiers(KModifier.OVERRIDE)
-            .returns(Int::class)
-            .addStatement("return %L", action.id.accessor())
-            .build()
+        val actionIdPropSpec =
+            PropertySpec.builder("actionId", Int::class, KModifier.OVERRIDE)
+                .initializer("%L", action.id.accessor()).build()
 
-        val getArgumentsFunSpec = FunSpec.builder("getArguments").apply {
-            addModifiers(KModifier.OVERRIDE)
-            if (action.args.any { it.type is ObjectType }) {
-                addAnnotation(CAST_NEVER_SUCCEEDS)
-            }
-            returns(BUNDLE_CLASSNAME)
-            val resultVal = "result"
-            addStatement("val %L = %T()", resultVal, BUNDLE_CLASSNAME)
-            action.args.forEach { arg ->
-                arg.type.addBundlePutStatement(this, arg, resultVal, "this.${arg.sanitizedName}")
-            }
-            addStatement("return %L", resultVal)
-        }.build()
+        val argumentsPropSpec =
+            PropertySpec.builder("arguments", BUNDLE_CLASSNAME, KModifier.OVERRIDE)
+                .getter(
+                    FunSpec.getterBuilder().apply {
+                        if (action.args.any { it.type is ObjectType }) {
+                            addAnnotation(CAST_NEVER_SUCCEEDS)
+                        }
+                        val resultVal = "result"
+                        addStatement("val %L = %T()", resultVal, BUNDLE_CLASSNAME)
+                        action.args.forEach { arg ->
+                            arg.type.addBundlePutStatement(
+                                this,
+                                arg,
+                                resultVal,
+                                "this.${arg.sanitizedName}"
+                            )
+                        }
+                        addStatement("return %L", resultVal)
+                    }.build()
+                ).build()
 
         val constructorFunSpec = FunSpec.constructorBuilder()
             .addParameters(
@@ -178,8 +183,8 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                 )
         }.addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(KModifier.PRIVATE)
-            .addFunction(getActionIdFunSpec)
-            .addFunction(getArgumentsFunSpec)
+            .addProperty(actionIdPropSpec)
+            .addProperty(argumentsPropSpec)
             .build()
     }
 

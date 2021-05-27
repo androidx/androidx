@@ -33,6 +33,10 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
         get() = backStack.lastOrNull()
             ?: throw IllegalStateException("Nothing on the back stack")
 
+    fun popCurrent() {
+        state.pop(current, false)
+    }
+
     override fun createDestination(): Destination {
         return Destination(this)
     }

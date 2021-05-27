@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
 import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -56,6 +57,8 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
@@ -110,6 +113,7 @@ public class PreviewExtenderTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
+        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
@@ -401,7 +405,7 @@ public class PreviewExtenderTest {
 
     private class FakePreviewExtender extends PreviewExtender {
         FakePreviewExtender(Preview.Builder builder, PreviewExtenderImpl impl) {
-            init(builder, impl, Extensions.EXTENSION_MODE_NONE);
+            init(builder, impl, ExtensionMode.NONE);
         }
     }
 

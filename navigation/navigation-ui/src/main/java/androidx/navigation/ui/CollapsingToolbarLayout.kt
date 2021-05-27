@@ -26,7 +26,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
  *
  * By calling this method, the title in the Toolbar will automatically be updated when
  * the destination changes (assuming there is a valid
- * [label][androidx.navigation.NavDestination.getLabel]).
+ * [label][androidx.navigation.NavDestination.label]).
  *
  * The start destination of your navigation graph is considered the only top level
  * destination. On the start destination of your navigation graph, the Toolbar will show
@@ -56,7 +56,7 @@ public fun CollapsingToolbarLayout.setupWithNavController(
  *
  * By calling this method, the title in the Toolbar will automatically be updated when
  * the destination changes (assuming there is a valid
- * [label][androidx.navigation.NavDestination.getLabel]).
+ * [label][androidx.navigation.NavDestination.label]).
  *
  * The [AppBarConfiguration] you provide controls how the Navigation button is
  * displayed and what action is triggered when the Navigation button is tapped.

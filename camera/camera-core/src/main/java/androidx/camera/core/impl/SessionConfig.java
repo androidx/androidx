@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -234,27 +235,24 @@ public final class SessionConfig {
         /**
          * Adds a tag to the SessionConfig with a key. For tracking the source.
          */
-        public void addTag(@NonNull String key, @NonNull Integer tag) {
+        public void addTag(@NonNull String key, @NonNull Object tag) {
             mCaptureConfigBuilder.addTag(key, tag);
         }
 
         /**
          * Adds a {@link CameraDevice.StateCallback} callback.
-         *
-         * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
         public void addDeviceStateCallback(
                 @NonNull CameraDevice.StateCallback deviceStateCallback) {
             if (mDeviceStateCallbacks.contains(deviceStateCallback)) {
-                throw new IllegalArgumentException("Duplicate device state callback.");
+                return;
             }
             mDeviceStateCallbacks.add(deviceStateCallback);
         }
 
         /**
          * Adds all {@link CameraDevice.StateCallback} callbacks.
-         * * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllDeviceStateCallbacks(@NonNull
                 Collection<CameraDevice.StateCallback> deviceStateCallbacks) {
@@ -265,22 +263,18 @@ public final class SessionConfig {
 
         /**
          * Adds a {@link CameraCaptureSession.StateCallback} callback.
-         *
-         * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
         public void addSessionStateCallback(@NonNull
                 CameraCaptureSession.StateCallback sessionStateCallback) {
             if (mSessionStateCallbacks.contains(sessionStateCallback)) {
-                throw new IllegalArgumentException("Duplicate session state callback.");
+                return;
             }
             mSessionStateCallbacks.add(sessionStateCallback);
         }
 
         /**
          * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
-         *
-         * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllSessionStateCallbacks(@NonNull
                 List<CameraCaptureSession.StateCallback> sessionStateCallbacks) {
@@ -292,8 +286,6 @@ public final class SessionConfig {
         /**
          * Adds a {@link CameraCaptureCallback} callback for repeating requests.
          * <p>This callback does not call for single requests.
-         *
-         * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         public void addRepeatingCameraCaptureCallback(
                 @NonNull CameraCaptureCallback cameraCaptureCallback) {
@@ -303,8 +295,6 @@ public final class SessionConfig {
         /**
          * Adds all {@link CameraCaptureCallback} callbacks.
          * <p>These callbacks do not call for single requests.
-         *
-         * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllRepeatingCameraCaptureCallbacks(@NonNull
                 Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
@@ -316,12 +306,12 @@ public final class SessionConfig {
          * <p>Listeners added here are available in both the
          * {@link #getRepeatingCameraCaptureCallbacks()} and
          * {@link #getSingleCameraCaptureCallbacks()} methods.
-         *
-         * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
             mCaptureConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
-            mSingleCameraCaptureCallbacks.add(cameraCaptureCallback);
+            if (!mSingleCameraCaptureCallbacks.contains(cameraCaptureCallback)) {
+                mSingleCameraCaptureCallbacks.add(cameraCaptureCallback);
+            }
         }
 
         /**
@@ -329,13 +319,15 @@ public final class SessionConfig {
          * <p>Listeners added here are available in both the
          * {@link #getRepeatingCameraCaptureCallbacks()} and
          * {@link #getSingleCameraCaptureCallbacks()} methods.
-         *
-         * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllCameraCaptureCallbacks(@NonNull
                 Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
-            mCaptureConfigBuilder.addAllCameraCaptureCallbacks(cameraCaptureCallbacks);
-            mSingleCameraCaptureCallbacks.addAll(cameraCaptureCallbacks);
+            for (CameraCaptureCallback c : cameraCaptureCallbacks) {
+                mCaptureConfigBuilder.addCameraCaptureCallback(c);
+                if (!mSingleCameraCaptureCallbacks.contains(c)) {
+                    mSingleCameraCaptureCallbacks.add(c);
+                }
+            }
         }
 
         /** Obtain all {@link CameraCaptureCallback} callbacks for single requests. */
@@ -406,6 +398,12 @@ public final class SessionConfig {
      * the parameters for the {@link SessionConfig} are compatible with each other
      */
     public static final class ValidatingBuilder extends BaseBuilder {
+        // Current supported session template values and prioritize from small to large.
+        private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
+                CameraDevice.TEMPLATE_PREVIEW,
+                CameraDevice.TEMPLATE_RECORD
+        );
+
         private static final String TAG = "ValidatingBuilder";
         private boolean mValid = true;
         private boolean mTemplateSet = false;
@@ -419,19 +417,10 @@ public final class SessionConfig {
 
             // Check template
             if (captureConfig.getTemplateType() != -1) {
-                if (!mTemplateSet) {
-                    mCaptureConfigBuilder.setTemplateType(captureConfig.getTemplateType());
-                    mTemplateSet = true;
-                } else if (mCaptureConfigBuilder.getTemplateType()
-                        != captureConfig.getTemplateType()) {
-                    String errorMessage =
-                            "Invalid configuration due to template type: "
-                                    + mCaptureConfigBuilder.getTemplateType()
-                                    + " != "
-                                    + captureConfig.getTemplateType();
-                    Logger.d(TAG, errorMessage);
-                    mValid = false;
-                }
+                mTemplateSet = true;
+                mCaptureConfigBuilder.setTemplateType(
+                        selectTemplateType(captureConfig.getTemplateType(),
+                                mCaptureConfigBuilder.getTemplateType()));
             }
 
             TagBundle tagBundle = sessionConfig.getRepeatingCaptureConfig().getTagBundle();
@@ -493,6 +482,11 @@ public final class SessionConfig {
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
                     mCaptureConfigBuilder.build());
+        }
+
+        private int selectTemplateType(int type1, int type2) {
+            return SUPPORTED_TEMPLATE_PRIORITY.indexOf(type1)
+                    >= SUPPORTED_TEMPLATE_PRIORITY.indexOf(type2) ? type1 : type2;
         }
     }
 }

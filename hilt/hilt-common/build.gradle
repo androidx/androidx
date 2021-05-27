@@ -26,8 +26,8 @@ plugins {
 }
 
 dependencies {
-    implementation(HILT_CORE)
-    annotationProcessor(HILT_COMPILER)
+    implementation(libs.hiltCore)
+    annotationProcessor(libs.hiltCompiler)
 }
 
 androidx {

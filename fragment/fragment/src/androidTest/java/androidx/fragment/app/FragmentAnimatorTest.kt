@@ -17,8 +17,10 @@
 package androidx.fragment.app
 
 import android.animation.Animator
+import android.animation.AnimatorInflater
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.content.res.Resources
 import android.os.Build
 import android.view.View
 import androidx.annotation.AnimatorRes
@@ -518,8 +520,11 @@ class FragmentAnimatorTest {
         assertThat(fragment2.isAdded).isFalse()
         assertThat(fm1.findFragmentByTag("2"))
             .isEqualTo(null) // fragmentManager does not know about animating fragment
-        assertThat(fragment2.parentFragmentManager)
-            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+        // Only do this check if the animator is still going.
+        if (fragment2.endLatch.count == 1L) {
+            assertThat(fragment2.parentFragmentManager)
+                .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+        }
 
         val fc2 = fc1.restart(activityRule, viewModelStore)
 
@@ -694,26 +699,38 @@ class FragmentAnimatorTest {
             transit: Int,
             enter: Boolean,
             nextAnim: Int
-        ) = ValueAnimator.ofFloat(0f, 1f).setDuration(1)?.apply {
+        ): Animator? {
             if (nextAnim == 0) {
                 return null
             }
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator) {
-                    wasStarted = true
-                }
 
-                override fun onAnimationEnd(animation: Animator) {
-                    endLatch.countDown()
-                }
-            })
-            numAnimators++
-            wasStarted = false
-            endLatch = CountDownLatch(1)
-            resourceId = nextAnim
-            baseEnter = enter
-            baseAnimator = this
-            initialized = true
+            var animator: Animator? = null
+            try {
+                animator = AnimatorInflater.loadAnimator(context, nextAnim)
+            } catch (e: Resources.NotFoundException) { }
+
+            if (animator == null) {
+                animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
+            }
+
+            return animator?.apply {
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationStart(animation: Animator) {
+                        wasStarted = true
+                    }
+
+                    override fun onAnimationEnd(animation: Animator) {
+                        endLatch.countDown()
+                    }
+                })
+                numAnimators++
+                wasStarted = false
+                endLatch = CountDownLatch(1)
+                resourceId = nextAnim
+                baseEnter = enter
+                baseAnimator = this
+                initialized = true
+            }
         }
 
         override fun onResume() {

@@ -24,7 +24,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.TextViewCompat;
-import androidx.emoji2.viewshelper.EmojiTextViewHelper;
+import androidx.emoji2.viewsintegration.EmojiTextViewHelper;
 
 /**
  * Button widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used

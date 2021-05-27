@@ -35,10 +35,26 @@ import org.robolectric.annotation.internal.DoNotInstrument
 public class ImageProxyTransformFactoryTest {
 
     @Test
+    public fun setUseRotationDegrees_getterReturnsTrue() {
+        val factory = ImageProxyTransformFactory()
+        assertThat(factory.isUsingRotationDegrees).isFalse()
+        factory.isUsingRotationDegrees = true
+        assertThat(factory.isUsingRotationDegrees).isTrue()
+    }
+
+    @Test
+    public fun setUseCropRect_getterReturnsTrue() {
+        val factory = ImageProxyTransformFactory()
+        assertThat(factory.isUsingCropRect).isFalse()
+        factory.isUsingCropRect = true
+        assertThat(factory.isUsingCropRect).isTrue()
+    }
+
+    @Test
     public fun withoutRotationOrCropRect_scaled() {
         // Arrange: a 3x4 rect.
         val imageProxy = createFakeImageProxy(3, 4, 90, Rect(0, 0, 3, 4))
-        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder().build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory()
         val transform = imageProxyTransformFactory.getOutputTransform(imageProxy)
 
         // Assert: The bottom-right of the normalized space (1, 1) mapped to (3, 4)
@@ -51,9 +67,8 @@ public class ImageProxyTransformFactoryTest {
     public fun withRotation_scaledAndRotated() {
         // Arrange: a 3x4 rect with 90° rotation.
         // (the MLKit scenario).
-        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder()
-            .setUseRotationDegrees(true)
-            .build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory()
+        imageProxyTransformFactory.isUsingRotationDegrees = true
         val imageProxy = createFakeImageProxy(3, 4, 90, Rect(0, 0, 3, 4))
         val transform = imageProxyTransformFactory.getOutputTransform(imageProxy)
 
@@ -66,9 +81,9 @@ public class ImageProxyTransformFactoryTest {
     @Test
     public fun withCropRect_cropped() {
         // Arrange: a 16x12 rect with a 8x12 crop rect (8,0)-(16,12).
-        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder()
-            .setUseCropRect(true)
-            .build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory()
+        imageProxyTransformFactory.isUsingCropRect = true
+
         val imageProxy = createFakeImageProxy(16, 12, 90, Rect(8, 0, 16, 12))
         val transform = imageProxyTransformFactory.getOutputTransform(imageProxy)
 
@@ -82,10 +97,9 @@ public class ImageProxyTransformFactoryTest {
     @Test
     public fun rotationAndCrop() {
         // Arrange: crop rect with rotation.
-        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder()
-            .setUseCropRect(true)
-            .setUseRotationDegrees(true)
-            .build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory()
+        imageProxyTransformFactory.isUsingRotationDegrees = true
+        imageProxyTransformFactory.isUsingCropRect = true
         val imageProxy = createFakeImageProxy(16, 12, 90, Rect(8, 0, 16, 12))
         val transform = imageProxyTransformFactory.getOutputTransform(imageProxy)
 

@@ -16,8 +16,8 @@
 
 package androidx.room.preconditions
 
-import androidx.room.log.RLog
 import androidx.room.compiler.processing.XElement
+import androidx.room.log.RLog
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName

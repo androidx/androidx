@@ -5,7 +5,6 @@ package androidx.activity.compose {
   }
 
   public final class ActivityResultRegistryKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> onResult);
     method @androidx.compose.runtime.Composable public static <I, O> androidx.activity.compose.ManagedActivityResultLauncher<I,O> rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> onResult);
   }
 

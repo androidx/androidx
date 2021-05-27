@@ -22,9 +22,9 @@ import android.os.Parcelable
 /**
  * A data type is a representation of health data managed by Health Services.
  *
- * A [DataType] specifies the format of the values inside a [DataPoint]. WHS defines data types for
- * instantaneous observations [TimeType.SAMPLE](e.g. heart rate) and data types for change between
- * readings [TimeType.INTERVAL](e.g. distance).
+ * A [DataType] specifies the format of the values inside a [DataPoint]. Health Services defines
+ * data types for instantaneous observations [TimeType.SAMPLE](e.g. heart rate) and data types for
+ * change between readings [TimeType.INTERVAL](e.g. distance).
  *
  * Note: the data type defines only the representation and format of the data, and not how it's
  * being collected, the sensor being used, or the parameters of the collection.

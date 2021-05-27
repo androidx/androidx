@@ -403,4 +403,36 @@ class XElementTest {
             }
         }
     }
+
+    @Test
+    fun docComment() {
+        val javaSrc = Source.java(
+            "JavaSubject",
+            """
+            /**
+             * javadocs
+             */
+            public class JavaSubject {}
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            /**
+             * kdocs
+             */
+            class KotlinSubject
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            assertThat(
+                invocation.processingEnv.requireTypeElement("JavaSubject").docComment?.trim()
+            ).isEqualTo("javadocs")
+            assertThat(
+                invocation.processingEnv.requireTypeElement("KotlinSubject").docComment?.trim()
+            ).isEqualTo("kdocs")
+        }
+    }
 }

@@ -557,27 +557,6 @@ jobs:
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
           wrapper-cache-enabled: true
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        if: ${{ github.repository == 'androidX/androidx' }}
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
-      - name: "Run application tests on Firebase Test Lab"
-        uses: eskatos/gradle-command-action@v1
-        if: ${{ github.repository == 'androidX/androidx' }}
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        with:
-          arguments: firebaseTestLabTests ${{ needs.setup.outputs.gradlew_flags }}
-          build-root-directory: ${{ env.project-root }}
-          configuration-cache-enabled: true
-          dependencies-cache-enabled: true
-          gradle-executable: ${{ env.project-root }}/gradlew
-          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
-          wrapper-cache-enabled: true
-
       - name: "upload build artifacts"
         continue-on-error: true
         if: always()

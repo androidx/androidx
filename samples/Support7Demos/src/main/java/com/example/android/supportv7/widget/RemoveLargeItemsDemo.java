@@ -160,7 +160,7 @@ public class RemoveLargeItemsDemo extends Activity {
         MyAdapter(List<Item> data) {
             TypedValue val = new TypedValue();
             RemoveLargeItemsDemo.this.getTheme().resolveAttribute(
-                    R.attr.selectableItemBackground, val, true);
+                    androidx.appcompat.R.attr.selectableItemBackground, val, true);
             mBackground = val.resourceId;
             mData = data;
         }

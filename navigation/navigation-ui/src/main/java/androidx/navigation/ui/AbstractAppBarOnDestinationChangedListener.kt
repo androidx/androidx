@@ -27,6 +27,7 @@ import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.ui.NavigationUI.matchDestinations
 import java.lang.ref.WeakReference
 import java.util.regex.Pattern
 
@@ -85,10 +86,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
             matcher.appendTail(title)
             setTitle(title)
         }
-        val isTopLevelDestination = NavigationUI.matchDestinations(
-            destination,
-            topLevelDestinations
-        )
+        val isTopLevelDestination = destination.matchDestinations(topLevelDestinations)
         if (openableLayout == null && isTopLevelDestination) {
             setNavigationIcon(null, 0)
         } else {

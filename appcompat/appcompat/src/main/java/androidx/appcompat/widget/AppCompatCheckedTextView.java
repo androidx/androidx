@@ -40,6 +40,7 @@ import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TintableCheckedTextView;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link CheckedTextView} which supports compatible features on older versions of the platform,
@@ -61,6 +62,7 @@ import androidx.core.widget.TintableCheckedTextView;
  * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatCheckedTextView extends CheckedTextView implements TintableCheckedTextView,
         TintableBackgroundView, EmojiCompatConfigurationView {
 

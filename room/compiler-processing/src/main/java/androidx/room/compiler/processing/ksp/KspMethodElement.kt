@@ -30,7 +30,7 @@ import com.google.devtools.ksp.symbol.Modifier
 
 internal sealed class KspMethodElement(
     env: KspProcessingEnv,
-    containing: KspTypeElement,
+    containing: KspMemberContainer,
     declaration: KSFunctionDeclaration
 ) : KspExecutableElement(
     env = env,
@@ -90,7 +90,7 @@ internal sealed class KspMethodElement(
 
     private class KspNormalMethodElement(
         env: KspProcessingEnv,
-        containing: KspTypeElement,
+        containing: KspMemberContainer,
         declaration: KSFunctionDeclaration
     ) : KspMethodElement(
         env, containing, declaration
@@ -102,8 +102,7 @@ internal sealed class KspMethodElement(
             val overridee = declaration.findOverridee()
             env.wrap(
                 ksType = declaration.returnTypeAsMemberOf(
-                    resolver = env.resolver,
-                    ksType = containing.type.ksType
+                    ksType = containing.type?.ksType
                 ),
                 originatingReference = checkNotNull(overridee?.returnType ?: declaration.returnType)
             )
@@ -113,7 +112,7 @@ internal sealed class KspMethodElement(
 
     private class KspSuspendMethodElement(
         env: KspProcessingEnv,
-        containing: KspTypeElement,
+        containing: KspMemberContainer,
         declaration: KSFunctionDeclaration
     ) : KspMethodElement(
         env, containing, declaration
@@ -137,7 +136,7 @@ internal sealed class KspMethodElement(
     companion object {
         fun create(
             env: KspProcessingEnv,
-            containing: KspTypeElement,
+            containing: KspMemberContainer,
             declaration: KSFunctionDeclaration
         ): KspMethodElement {
             return if (declaration.modifiers.contains(Modifier.SUSPEND)) {

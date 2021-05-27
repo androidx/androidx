@@ -53,7 +53,7 @@ internal fun nextConfigId(): CameraConfigId = CameraConfigId(configIds.increment
 private val groupIds = atomic(0)
 internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 internal inline class CameraConfigId(val value: Int) {
     override fun toString(): String = "OutputConfig-$value"
 }

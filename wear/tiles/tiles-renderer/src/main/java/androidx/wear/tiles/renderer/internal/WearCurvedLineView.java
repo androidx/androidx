@@ -33,6 +33,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.renderer.R;
+import androidx.wear.widget.ArcLayout;
 
 /**
  * A line, drawn inside an arc.
@@ -41,7 +42,7 @@ import androidx.wear.tiles.renderer.R;
  * the color to draw with. This widget will then draw an arc, with the specified thickness, around
  * its parent arc. The sweep angle is specified in degrees, clockwise.
  */
-public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutWidget {
+public class WearCurvedLineView extends View implements ArcLayout.Widget {
     private static final int DEFAULT_THICKNESS_PX = 0;
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0;
     @ColorInt private static final int DEFAULT_COLOR = 0xFFFFFFFF;
@@ -96,8 +97,7 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
 
         if (mSweepAngleDegrees >= 360f) {
             // Android internally will take the modulus of the angle with 360, so drawing a full
-            // ring
-            // can't be done using path.arcTo. In that case, just draw a circle.
+            // ring can't be done using path.arcTo. In that case, just draw a circle.
             mPath.addOval(
                     insetPx,
                     insetPx,
@@ -106,10 +106,8 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
                     Direction.CW);
         } else if (mSweepAngleDegrees != 0) {
             // The arc needs to be offset by -90 degrees. The ArcContainer will rotate this widget
-            // such
-            // that the "12 o clock" position on the canvas is aligned to the center of our
-            // requested
-            // angle, but 0 degrees in Android corresponds to the "3 o clock" position.
+            // such that the "12 o clock" position on the canvas is aligned to the center of our
+            // requested angle, but 0 degrees in Android corresponds to the "3 o clock" position.
             mPath.moveTo(0, 0); // Work-around for b/177676885
             mPath.arcTo(
                     insetPx,
@@ -136,18 +134,13 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
         updatePathAndPaint();
     }
 
-    @Override
-    public int getThicknessPx() {
-        return mThicknessPx;
-    }
-
     /** Sets the thickness of this arc in pixels. */
-    public void setThicknessPx(int thicknessPx) {
-        if (thicknessPx < 0) {
-            thicknessPx = 0;
+    public void setThickness(int thickness) {
+        if (thickness < 0) {
+            thickness = 0;
         }
 
-        this.mThicknessPx = thicknessPx;
+        this.mThicknessPx = thickness;
         updatePathAndPaint();
         invalidate();
     }
@@ -155,6 +148,11 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
     @Override
     public float getSweepAngleDegrees() {
         return mSweepAngleDegrees;
+    }
+
+    @Override
+    public int getThickness() {
+        return mThicknessPx;
     }
 
     /** Sets the sweep angle of this arc in degrees. */
@@ -188,7 +186,7 @@ public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutW
     }
 
     @Override
-    public boolean insideClickArea(float x, float y) {
+    public boolean isPointInsideClickArea(float x, float y) {
         // Stolen from WearCurvedTextView...
         float radius2 = min(getWidth(), getHeight()) / 2f - getPaddingTop();
         float radius1 = radius2 - mThicknessPx;

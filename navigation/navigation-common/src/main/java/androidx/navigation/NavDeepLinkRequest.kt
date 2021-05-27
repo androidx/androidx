@@ -31,24 +31,21 @@ public open class NavDeepLinkRequest
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     /**
-     * Get the uri from the NavDeepLinkRequest.
+     * The uri from the NavDeepLinkRequest.
      *
-     * @return the uri for the request.
-     * @see NavDeepLink.getUriPattern
+     * @see NavDeepLink.uriPattern
      */
     public open val uri: Uri?,
     /**
-     * Get the action from the NavDeepLinkRequest.
+     * The action from the NavDeepLinkRequest.
      *
-     * @return the action for the request.
-     * @see NavDeepLink.getAction
+     * @see NavDeepLink.action
      */
     public open val action: String?,
     /**
-     * Get the mimeType from the NavDeepLinkRequest.
+     * The mimeType from the NavDeepLinkRequest.
      *
-     * @return the mimeType of the request.
-     * @see NavDeepLink.getMimeType
+     * @see NavDeepLink.mimeType
      */
     public open val mimeType: String?
 ) {

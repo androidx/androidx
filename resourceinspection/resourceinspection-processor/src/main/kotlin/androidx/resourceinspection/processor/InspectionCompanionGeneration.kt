@@ -31,7 +31,7 @@ import javax.lang.model.element.Modifier
 
 /** Generates an inspection companion from a view using JavaPoet. */
 internal fun generateInspectionCompanion(
-    view: ViewIR,
+    view: View,
     generatedAnnotation: AnnotationSpec?
 ): JavaFile {
     val typeSpec = TypeSpec.classBuilder(
@@ -43,10 +43,13 @@ internal fun generateInspectionCompanion(
         addModifiers(Modifier.PUBLIC, Modifier.FINAL)
         addSuperinterface(INSPECTION_COMPANION.parameterized(view.className))
         addAnnotation(REQUIRES_API)
+        addAnnotation(RESTRICT_TO)
 
         generatedAnnotation?.let { addAnnotation(it) }
 
         addOriginatingElement(view.type)
+
+        addJavadoc("Inspection companion for {@link \$T}.\n\n@hide", view.className)
 
         addField(
             FieldSpec.builder(TypeName.BOOLEAN, "mPropertiesMapped", Modifier.PRIVATE).run {
@@ -57,7 +60,8 @@ internal fun generateInspectionCompanion(
 
         val attributeIdNames = NameAllocator().apply {
             for (attribute in view.attributes) {
-                newName("m${attribute.name.capitalize(Locale.US)}Id", attribute)
+                val attributeName = attribute.name.replaceFirstChar { it.uppercase() }
+                newName("m${attributeName}Id", attribute)
             }
         }
 
@@ -73,14 +77,14 @@ internal fun generateInspectionCompanion(
 
                 for (attribute in view.attributes) {
                     when (attribute.type) {
-                        AttributeTypeIR.INT_ENUM -> addStatement(
+                        AttributeType.INT_ENUM -> addStatement(
                             "\$N = propertyMapper.mapIntEnum(\$S, \$L, \$L)",
                             attributeIdNames[attribute],
                             attribute.name,
                             attribute.attrReference,
                             intEnumLambda(attribute)
                         )
-                        AttributeTypeIR.INT_FLAG -> addStatement(
+                        AttributeType.INT_FLAG -> addStatement(
                             "\$N = propertyMapper.mapIntFlag(\$S, \$L, \$L)",
                             attributeIdNames[attribute],
                             attribute.name,
@@ -102,6 +106,7 @@ internal fun generateInspectionCompanion(
         addMethod(
             MethodSpec.methodBuilder("readProperties").apply {
                 // Make sure the view parameter name doesn't conflict with anything
+                @Suppress("DEPRECATION") // b/187985877
                 val viewParameter = attributeIdNames.clone()
                     .apply { newName("propertyReader") }
                     .newName(view.className.simpleName().decapitalize(Locale.US))
@@ -117,11 +122,11 @@ internal fun generateInspectionCompanion(
 
                 for (attribute in view.attributes) {
                     addStatement(
-                        "propertyReader.read\$L(\$N, \$N.\$L())",
+                        "propertyReader.read\$L(\$N, \$N.\$L)",
                         attribute.type.apiSuffix,
                         attributeIdNames[attribute],
                         viewParameter,
-                        attribute.getter.simpleName
+                        attribute.invocation
                     )
                 }
             }.build()
@@ -134,7 +139,7 @@ internal fun generateInspectionCompanion(
 }
 
 /** The `(Int) -> String` lambda for int enums, as an anonymous class for Java 7 compatibility. */
-private fun intEnumLambda(attribute: AttributeIR): TypeSpec {
+private fun intEnumLambda(attribute: Attribute): TypeSpec {
     return TypeSpec.anonymousClassBuilder("").apply {
         addSuperinterface(INT_FUNCTION.parameterized(STRING))
 
@@ -159,7 +164,7 @@ private fun intEnumLambda(attribute: AttributeIR): TypeSpec {
 }
 
 /** The `(Int) -> Set<String>` lambda for int flags, as an anonymous class. */
-private fun intFlagLambda(attribute: AttributeIR): TypeSpec {
+private fun intFlagLambda(attribute: Attribute): TypeSpec {
     val stringSet = SET.parameterized(STRING)
     val stringHashSet = HASH_SET.parameterized(STRING)
 
@@ -192,7 +197,7 @@ private fun intFlagLambda(attribute: AttributeIR): TypeSpec {
 }
 
 /** A [CodeBlock] of the `$namespace.R.attr.$name` attribute ID reference. */
-private val AttributeIR.attrReference: CodeBlock
+private val Attribute.attrReference: CodeBlock
     get() = CodeBlock.of("\$T.attr.\$N", ClassName.get(namespace, "R"), name)
 
 /** Kotlin wrapper for [ClassName.get] to avoid platform types. */
@@ -228,4 +233,13 @@ private const val MIN_SDK = 29
 private val REQUIRES_API: AnnotationSpec =
     AnnotationSpec.builder(ClassName.get("androidx.annotation", "RequiresApi"))
         .addMember("value", "\$L", MIN_SDK)
+        .build()
+
+private val RESTRICT_TO: AnnotationSpec =
+    AnnotationSpec.builder(ClassName.get("androidx.annotation", "RestrictTo"))
+        .addMember(
+            "value",
+            "\$T.LIBRARY",
+            ClassName.get("androidx.annotation", "RestrictTo", "Scope")
+        )
         .build()

@@ -20,7 +20,6 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.Category
-import com.android.tools.lint.detector.api.ConstantEvaluator
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
@@ -139,8 +138,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
     @Suppress("SameParameterValue")
     private fun extractAttribute(annotation: UAnnotation, name: String): String? {
-        val expression = annotation.findAttributeValue(name) as? UReferenceExpression
-        return (ConstantEvaluator().evaluate(expression) as? PsiField)?.name
+        // Using findAttributeValue instead of findDeclaredAttributeValue allows default values.
+        return annotation.findAttributeValue(name)?.let { expression ->
+            ((expression as? UReferenceExpression)?.resolve() as? PsiField)?.name
+        }
     }
 
     /**
@@ -233,7 +234,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         const val JAVA_OPT_IN_ANNOTATION =
             "androidx.annotation.OptIn"
 
-        @Suppress("DefaultLocale")
+        @Suppress("DefaultLocale", "DEPRECATION") // b/187985877
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
             id = "UnsafeOptInUsage${level.capitalize()}",
             briefDescription = "Unsafe opt-in usage intended to be $level-level severity",
@@ -274,7 +275,7 @@ private fun UAnnotation.hasMatchingAttributeValueClass(
     attributeName: String,
     className: String
 ): Boolean {
-    val attributeValue = findAttributeValue(attributeName)
+    val attributeValue = findDeclaredAttributeValue(attributeName)
     if (attributeValue.getFullyQualifiedName(context) == className) {
         return true
     }

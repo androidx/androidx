@@ -55,6 +55,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
 import android.os.BadParcelableException;
 import android.os.Binder;
@@ -75,6 +76,7 @@ import android.support.v4.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -496,9 +498,9 @@ public final class MediaBrowserCompat {
                 return null;
             }
             MediaBrowser.MediaItem itemFwk = (MediaBrowser.MediaItem) itemObj;
-            int flags = itemFwk.getFlags();
+            int flags = Api21Impl.getFlags(itemFwk);
             MediaDescriptionCompat descriptionCompat =
-                    MediaDescriptionCompat.fromMediaDescription(itemFwk.getDescription());
+                    MediaDescriptionCompat.fromMediaDescription(Api21Impl.getDescription(itemFwk));
             return new MediaItem(descriptionCompat, flags);
         }
 
@@ -2362,6 +2364,21 @@ public final class MediaBrowserCompat {
                             + ", resultData=" + resultData + ")");
                     break;
             }
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {}
+
+        @DoNotInline
+        static MediaDescription getDescription(MediaBrowser.MediaItem item) {
+            return item.getDescription();
+        }
+
+        @DoNotInline
+        static int getFlags(MediaBrowser.MediaItem item) {
+            return item.getFlags();
         }
     }
 }

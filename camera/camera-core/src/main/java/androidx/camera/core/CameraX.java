@@ -26,11 +26,13 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.os.SystemClock;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -449,7 +451,8 @@ public final class CameraX {
     private static Context getBaseContext(ContextWrapper context) {
         Context baseContext = context.getBaseContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return baseContext.createAttributionContext(context.getAttributionTag());
+            return Api30Impl.createAttributionContext(baseContext,
+                    Api30Impl.getAttributionTag(context));
         } else {
             return baseContext;
         }
@@ -719,5 +722,28 @@ public final class CameraX {
          * <p>Once the CameraX instance has been shutdown, it can't be used or re-initialized.
          */
         SHUTDOWN
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 11 (API 30).
+     */
+    @RequiresApi(30)
+    private static class Api30Impl {
+
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static Context createAttributionContext(@NonNull Context context,
+                @Nullable String attributeTag) {
+            return context.createAttributionContext(attributeTag);
+        }
+
+        @DoNotInline
+        @Nullable
+        static String getAttributionTag(@NonNull Context context) {
+            return context.getAttributionTag();
+        }
     }
 }

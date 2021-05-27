@@ -616,6 +616,78 @@ class AffectedModuleDetectorImplTest {
         )
     }
 
+    @Test
+    fun changeInPlaygroundCommon() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf("playground-common/tmp.kt")
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.changedProjects,
+            CoreMatchers.`is`(
+                setOf(p11)
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                false
+            )
+        )
+    }
+
+    @Test
+    fun changeInGithubConfig() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(".github/workflows/bar.txt")
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.changedProjects,
+            CoreMatchers.`is`(
+                setOf(p11)
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                false
+            )
+        )
+    }
+
+    @Test
+    fun changeInPlaygroundCommonAndRoot() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf("playground-common/tmp.kt", "root.txt")
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                true
+            )
+        )
+    }
+
     // For both Linux/Windows
     fun convertToFilePath(vararg list: String): String {
         return list.toList().joinToString(File.separator)
@@ -631,7 +703,7 @@ class AffectedModuleDetectorImplTest {
             includeUncommitted: Boolean
         ) = changedFiles
 
-        override fun findPreviousMergeCL() = lastMergeSha
+        override fun findPreviousSubmittedChange() = lastMergeSha
 
         // Implement unused abstract method
         override fun getGitLog(

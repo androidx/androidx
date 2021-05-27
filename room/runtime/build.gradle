@@ -51,6 +51,7 @@ dependencies {
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(KOTLIN_STDLIB)
     testImplementation(TRUTH)
+    testImplementation(ANDROIDX_TEST_RUNNER) // Needed for @FlakyTest and @Ignore
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

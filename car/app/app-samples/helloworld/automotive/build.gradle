@@ -40,5 +40,5 @@ android {
 
 dependencies {
     implementation(project(":car:app:app-samples:helloworld-common"))
-    implementation(project(":car:app:app-activity"))
+    implementation(project(":car:app:app-automotive"))
 }

@@ -98,11 +98,12 @@ public class ParcelUtils {
     public static void putVersionedParcelable(@NonNull Bundle b, @NonNull String key,
             @Nullable VersionedParcelable obj) {
         if (obj == null) {
-            return;
+            b.putParcelable(key, null);
+        } else {
+            Bundle innerBundle = new Bundle();
+            innerBundle.putParcelable(INNER_BUNDLE_KEY, toParcelable(obj));
+            b.putParcelable(key, innerBundle);
         }
-        Bundle innerBundle = new Bundle();
-        innerBundle.putParcelable(INNER_BUNDLE_KEY, toParcelable(obj));
-        b.putParcelable(key, innerBundle);
     }
 
     /**

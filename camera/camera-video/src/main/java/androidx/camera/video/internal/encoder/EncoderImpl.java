@@ -35,9 +35,11 @@ import android.os.Bundle;
 import android.util.Range;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -1084,12 +1086,12 @@ public class EncoderImpl implements Encoder {
             synchronized (mLock) {
                 if (Build.VERSION.SDK_INT >= 23) {
                     if (mSurface == null) {
-                        mSurface = MediaCodec.createPersistentInputSurface();
+                        mSurface = Api23Impl.createPersistentInputSurface();
                         surface = mSurface;
                     } else {
                         surface = null;
                     }
-                    mMediaCodec.setInputSurface(mSurface);
+                    Api23Impl.setInputSurface(mMediaCodec, mSurface);
                 } else {
                     mSurface = mMediaCodec.createInputSurface();
                     surface = mSurface;
@@ -1205,6 +1207,27 @@ public class EncoderImpl implements Encoder {
                     Logger.e(mTag, "Unable to post to the supplied executor.", e);
                 }
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static Surface createPersistentInputSurface() {
+            return MediaCodec.createPersistentInputSurface();
+        }
+
+        @DoNotInline
+        static void setInputSurface(@NonNull MediaCodec mediaCodec, @NonNull Surface surface) {
+            mediaCodec.setInputSurface(surface);
         }
     }
 }

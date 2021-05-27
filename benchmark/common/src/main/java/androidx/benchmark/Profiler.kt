@@ -82,7 +82,7 @@ internal sealed class Profiler {
             "Sampled" to MethodSampling,
             "ConnectedSampled" to ConnectedSampling
         )
-            .mapKeys { it.key.toLowerCase() }[name.toLowerCase()]
+            .mapKeys { it.key.lowercase() }[name.lowercase()]
     }
 }
 

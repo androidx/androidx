@@ -18,7 +18,7 @@ package androidx.room.compiler.processing
 
 import com.squareup.javapoet.ClassName
 
-interface XTypeElement : XHasModifiers, XElement {
+interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     /**
      * The qualified name of the Class/Interface.
      */
@@ -39,7 +39,7 @@ interface XTypeElement : XHasModifiers, XElement {
     /**
      * The type represented by this [XTypeElement].
      */
-    val type: XType
+    override val type: XType
 
     /**
      * The super type of this element if it represents a class.
@@ -49,7 +49,7 @@ interface XTypeElement : XHasModifiers, XElement {
     /**
      * Javapoet [ClassName] of the type.
      */
-    val className: ClassName
+    override val className: ClassName
 
     /**
      * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.
@@ -65,9 +65,47 @@ interface XTypeElement : XHasModifiers, XElement {
     fun isInterface(): Boolean
 
     /**
-     * Returns `true` if this [XTypeElement] is declared as a Kotlin `object`
+     * Returns `true` if this [XTypeElement] represents a Kotlin functional interface,
+     * i.e. marked with the keyword `fun`
+     */
+    fun isFunctionalInterface(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] represents an ordinary class. ie not an enum, object,
+     * annotation, interface, or other type of specialty class.
+     */
+    fun isClass(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] represents a Kotlin data class
+     */
+    fun isDataClass(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] represents a Kotlin value class
+     */
+    fun isValueClass(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] represents a class with the Kotlin `expect` keyword
+     */
+    fun isExpect(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] represents a Kotlin annotation class or a Java
+     * annotation type.
+     */
+    fun isAnnotationClass(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] is a non-companion `object` in Kotlin
      */
     fun isKotlinObject(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] is declared as a Kotlin `companion object`
+     */
+    fun isCompanionObject(): Boolean
 
     /**
      * All fields, including private supers.

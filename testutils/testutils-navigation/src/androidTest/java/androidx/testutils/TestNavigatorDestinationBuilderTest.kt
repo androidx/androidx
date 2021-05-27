@@ -31,6 +31,7 @@ import org.junit.runner.RunWith
 class TestNavigatorDestinationBuilderTest {
     private val provider = TestNavigatorProvider()
 
+    @Suppress("DEPRECATION")
     @Test
     fun test() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
@@ -53,6 +54,7 @@ class TestNavigatorDestinationBuilderTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testWithBody() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {

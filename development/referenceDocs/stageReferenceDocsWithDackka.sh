@@ -24,13 +24,17 @@ gbash::init_google "$@"
 readonly javaLibraryDirs=(
 #  "benchmark"
 #  "collection"
+  "navigation"
   "paging"
+  "window"
 )
 readonly kotlinLibraryDirs=(
 #  "benchmark"
   "compose"
 #  "collection"
+  "navigation"
 #  "paging"
+  "window"
 )
 
 

@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RestrictTo
@@ -93,7 +92,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 EditorSession.createOnWatchEditingSession(
                     this@WatchFaceConfigActivity,
                     intent!!
-                )!!,
+                ),
                 object : FragmentController {
                     @SuppressLint("SyntheticAccessor")
                     override fun showConfigFragment() {
@@ -198,7 +197,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 coroutineScope.launch {
                     val chosenComplicationProvider =
                         fragmentController.showComplicationConfig(onlyComplication.key)
-                    Log.d(TAG, "showComplicationConfig: $chosenComplicationProvider")
+                    updateUi(chosenComplicationProvider)
                 }
             }
 
@@ -223,5 +222,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
         editorSession.close()
         // Make sure the activity closes.
         finish()
+    }
+
+    private fun updateUi(
+        @Suppress("UNUSED_PARAMETER") chosenComplicationProvider: ChosenComplicationProvider?
+    ) {
+        // The activity can use the chosen complication to update the UI.
     }
 }

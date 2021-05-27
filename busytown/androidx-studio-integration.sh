@@ -47,23 +47,9 @@ export LINT_PRINT_STACKTRACE=true
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPT_DIR/../development/build_log_processor.sh"
   properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors"
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs && \
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    bOS -x lintDebug -x lint -x validateLint -x verifyDependencyVersions --stacktrace -PverifyUpToDate --profile
+  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs bOS -x lintDebug -x lint -x verifyDependencyVersions --stacktrace -PverifyUpToDate --profile
   $SCRIPT_DIR/impl/parse_profile_htmls.sh
 }
 
-function exportTransformsDir() {
-  echo exporting transforms directory
-  destDir="$DIST_DIR/transforms-2/files-2.1"
-  mkdir -p "$destDir"
-  zip -r "$DIST_DIR/transforms.zip" "$OUT_DIR/.gradle/caches/transforms-2/files-2.1"
-}
-
-#if buildAndroidx; then
-#  echo build succeeded
-#else
-#  # b/162260809 export transforms directory to help identify cause of corrupt/missing files
-#  exportTransformsDir
-#  exit 1
-#fi
+buildAndroidx
 echo "Completing $0 at $(date)"

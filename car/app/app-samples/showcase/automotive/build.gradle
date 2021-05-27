@@ -40,5 +40,5 @@ android {
 
 dependencies {
     implementation(project(":car:app:app-samples:showcase-common"))
-    implementation(project(":car:app:app-activity"))
+    implementation(project(":car:app:app-automotive"))
 }
