@@ -19,8 +19,6 @@ import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -46,8 +44,8 @@ android {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_ANDROID)
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.3.2")
@@ -55,26 +53,26 @@ dependencies {
     compileOnly(project(":window:window-extensions"))
     compileOnly(project(":window:window-sidecar"))
 
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(MOCKITO_KOTLIN)
-    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(compileOnly(project(":window:window-extensions")))
     testImplementation(compileOnly(project(":window:window-sidecar")))
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
-    androidTestImplementation(MOCKITO_KOTLIN, excludes.bytebuddy)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(MULTIDEX)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoKotlin, excludes.bytebuddy)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(compileOnly(project(":window:window-extensions")))
     androidTestImplementation(compileOnly(project(":window:window-sidecar")))
 }
