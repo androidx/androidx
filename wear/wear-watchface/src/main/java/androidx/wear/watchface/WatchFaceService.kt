@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Build
@@ -1499,15 +1500,22 @@ public abstract class WatchFaceService : WallpaperService() {
                     Log.v(WatchFaceService.TAG, "drawing frame")
                 }
 
-                runBlocking {
-                    // TODO(b/188572638): We probably don't want to block here, consider drawing a
-                    // black frame instead if deferredWatchFaceImpl hasn't completed.
-                    deferredWatchFaceImpl.await().onDraw()
-                }
+                val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
+                watchFaceImpl?.onDraw()
+                    ?: drawBlack(getWallpaperSurfaceHolderOverride() ?: surfaceHolder)
             } finally {
                 if (TRACE_DRAW) {
                     Trace.endSection()
                 }
+            }
+        }
+
+        private fun drawBlack(surfaceHolder: SurfaceHolder) {
+            val canvas: Canvas = surfaceHolder.lockCanvas() ?: return
+            try {
+                canvas.drawColor(Color.BLACK)
+            } finally {
+                surfaceHolder.unlockCanvasAndPost(canvas)
             }
         }
 
