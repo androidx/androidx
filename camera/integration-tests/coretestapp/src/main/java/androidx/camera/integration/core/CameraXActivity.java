@@ -57,7 +57,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
@@ -65,7 +64,6 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -839,7 +837,6 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Binds use cases to the current lifecycle.
      */
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     private Camera bindToLifecycleSafely(List<UseCase> useCases) {
         ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),
                 mViewFinder.getHeight()),

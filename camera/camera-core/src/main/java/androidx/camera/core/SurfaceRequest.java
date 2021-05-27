@@ -410,7 +410,6 @@ public final class SurfaceRequest {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @ExperimentalUseCaseGroup
     public void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
         mTransformationInfo = transformationInfo;
         TransformationInfoListener listener = mTransformationInfoListener;
@@ -434,7 +433,6 @@ public final class SurfaceRequest {
      * @see TransformationInfoListener
      * @see TransformationInfo
      */
-    @ExperimentalUseCaseGroup
     public void setTransformationInfoListener(@NonNull Executor executor,
             @NonNull TransformationInfoListener listener) {
         mTransformationInfoListener = listener;
@@ -449,7 +447,6 @@ public final class SurfaceRequest {
     /**
      * Clears the {@link TransformationInfoListener} set via {@link #setTransformationInfoListener}.
      */
-    @ExperimentalUseCaseGroup
     public void clearTransformationInfoListener() {
         mTransformationInfoListener = null;
         mTransformationInfoExecutor = null;
@@ -475,7 +472,6 @@ public final class SurfaceRequest {
      * Listener that receives updates of the {@link TransformationInfo} associated with the
      * {@link SurfaceRequest}.
      */
-    @ExperimentalUseCaseGroup
     public interface TransformationInfoListener {
 
         /**
@@ -653,7 +649,6 @@ public final class SurfaceRequest {
      * @see CameraCharacteristics#SENSOR_ORIENTATION
      * @see ViewPort
      */
-    @ExperimentalUseCaseGroup
     @AutoValue
     public abstract static class TransformationInfo {
 

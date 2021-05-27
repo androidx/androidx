@@ -288,7 +288,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return Builder.fromConfig(config);
     }
 
-    @ExperimentalUseCaseGroup
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     private void sendTransformationInfoIfReady(@Nullable Size resolution) {
         CameraInternal cameraInternal = getCamera();
         SurfaceRequest surfaceRequest = mSurfaceRequest;
@@ -317,7 +317,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @UiThread
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     @NonNull
     private SessionConfig.Builder createPipeline(@NonNull String cameraId,
             @NonNull VideoCaptureConfig<T> config,
