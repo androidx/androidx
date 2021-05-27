@@ -329,14 +329,17 @@ public abstract class WatchFaceService : WallpaperService() {
      */
     public fun getBackgroundThreadHandler(): Handler = getBackgroundThreadHandlerImpl()
 
-    internal val backgroundThread = lazy {
-        HandlerThread("WatchFaceBackground").apply { start() }
-    }
-
-    private val _backgroundThreadHandler by lazy { Handler(backgroundThread.value.looper) }
+    internal var backgroundThread: HandlerThread? = null
 
     /** This is open for testing. */
-    internal open fun getBackgroundThreadHandlerImpl() = _backgroundThreadHandler
+    internal open fun getBackgroundThreadHandlerImpl(): Handler {
+        synchronized(this) {
+            if (backgroundThread == null) {
+                backgroundThread = HandlerThread("WatchFaceBackground").apply { start() }
+            }
+            return Handler(backgroundThread!!.looper)
+        }
+    }
 
     /** This is open to allow mocking. */
     internal open fun getMutableWatchState() = MutableWatchState()
@@ -1062,9 +1065,10 @@ public abstract class WatchFaceService : WallpaperService() {
             immutableChinHeightDone = true
         }
 
-        internal fun quitBackgroundThreadIfCreated() {
-            if (backgroundThread.isInitialized()) {
-                backgroundThread.value.quitSafely()
+        private fun quitBackgroundThreadIfCreated() {
+            synchronized(this) {
+                backgroundThread?.quitSafely()
+                backgroundThread = null
             }
         }
 
