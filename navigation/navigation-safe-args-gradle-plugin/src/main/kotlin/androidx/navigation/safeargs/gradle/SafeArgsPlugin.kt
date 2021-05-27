@@ -17,17 +17,17 @@
 package androidx.navigation.safeargs.gradle
 
 import com.android.build.api.extension.AndroidComponentsExtension
-import com.android.build.api.extension.ApplicationAndroidComponentsExtension
-import com.android.build.api.extension.DynamicFeatureAndroidComponentsExtension
+import com.android.build.api.variant.DynamicFeatureVariant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
@@ -66,30 +66,32 @@ abstract class SafeArgsPlugin protected constructor(
                 "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
             )
         }
-        val applicationIds = mutableMapOf<String, Property<String>>()
+        val applicationIds = mutableMapOf<String, Provider<String>>()
         val variantExtension =
             project.extensions.findByType(AndroidComponentsExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
-        variantExtension.onVariants {
-            when (it) {
-                is ApplicationAndroidComponentsExtension, is
-                DynamicFeatureAndroidComponentsExtension ->
-                    applicationIds.getOrPut(it.name) {
-                        project.objects.property(String::class.java)
-                    }.value(it.applicationId)
+        variantExtension.onVariants { variant ->
+            when (variant) {
+                is ApplicationVariant, is DynamicFeatureVariant ->
+                    applicationIds.getOrPut(variant.name) {
+                        variant.applicationId
+                    }
             }
         }
+
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(
                 "generateSafeArgs${variant.name.capitalize()}",
                 ArgumentsGenerationTask::class.java
             ) { task ->
                 task.applicationId.set(
+                    // this will only put in the case where the extension is a Library module
+                    // and should be superseded by `getNamespace()` in agp 7.0+
                     applicationIds.getOrPut(variant.name) {
-                        project.objects.property(String::class.java)
-                    }.value(variant.applicationId)
+                        providerFactory.provider { variant.applicationId }
+                    }
                 )
-                task.rFilePackage = variant.rFilePackage()
+                task.rFilePackage.set(variant.rFilePackage())
                 task.navigationFiles = navigationFiles(variant, project)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
