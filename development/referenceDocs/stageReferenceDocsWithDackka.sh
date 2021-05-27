@@ -8,6 +8,7 @@ readonly defaultDb=""
 DEFINE_string buildId --required "" "The build ID from the Android build server"
 DEFINE_string dateStr "<insert date here>" "Date string used for CL message. Enclose date in double quotes (ex: \"April 29, 2021\")"
 DEFINE_string db "$defaultDb" "The database used for staging. Omitting this value will stage changes to the staging DB."
+DEFINE_bool useToT false "Stage docs from tip-of-tree docs build rather than public docs build"
 
 gbash::init_google "$@"
 
@@ -57,22 +58,30 @@ printf "=================================================================== \n"
 printf "== Download the doc zip files from the build server \n"
 printf "=================================================================== \n"
 
-androidxPublicJavaDocsZip="doclava-public-docs-${FLAGS_buildId}.zip"
-androidxPublicKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
-androidxPublicDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
+if (( FLAGS_useToT )); then
+  printf "Downloading docs-tip-of-tree zip files \n"
+  androidxJavaDocsZip="doclava-tip-of-tree-docs-${FLAGS_buildId}.zip"
+  androidxKotlinDocsZip="dokka-tip-of-tree-docs-${FLAGS_buildId}.zip"
+  androidxDackkaDocsZip="dackka-tip-of-tree-docs-${FLAGS_buildId}.zip"
+else
+  printf "Downloading docs-public zip files \n"
+  androidxJavaDocsZip="doclava-public-docs-${FLAGS_buildId}.zip"
+  androidxKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
+  androidxDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
+fi
 
-/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicJavaDocsZip
-/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicKotlinDocsZip
-/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicDackkaDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxJavaDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxKotlinDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxDackkaDocsZip
 
 printf "\n"
 printf "=================================================================== \n"
 printf "== Unzip the doc zip files \n"
 printf "=================================================================== \n"
 
-unzip $androidxPublicJavaDocsZip -d $newDir
-unzip $androidxPublicKotlinDocsZip -d $newDir
-unzip $androidxPublicDackkaDocsZip -d $dackkaNewDir
+unzip $androidxJavaDocsZip -d $newDir
+unzip $androidxKotlinDocsZip -d $newDir
+unzip $androidxDackkaDocsZip -d $dackkaNewDir
 
 printf "\n"
 printf "=================================================================== \n"
