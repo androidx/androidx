@@ -106,7 +106,7 @@ public val LocalContentAlpha: ProvidableCompositionLocal<Float> = compositionLoc
 private object HighContrastContentAlpha {
     const val high: Float = 1.00f
     const val medium: Float = 0.74f
-    const val disabled: Float = 0.38f
+    const val disabled: Float = 0.50f
 }
 
 /**
@@ -121,5 +121,5 @@ private object HighContrastContentAlpha {
 private object LowContrastContentAlpha {
     const val high: Float = 0.87f
     const val medium: Float = 0.60f
-    const val disabled: Float = 0.38f
+    const val disabled: Float = 0.50f
 }
