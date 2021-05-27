@@ -16,11 +16,16 @@
 
 package androidx.navigation.safe.args.generator.ext
 
+import java.util.Locale
+
 fun String.toCamelCase(): String {
     val split = this.split("_")
     if (split.size == 0) return ""
-    @Suppress("DEPRECATION") // b/187985877
-    if (split.size == 1) return split[0].capitalize()
+    if (split.size == 1) return split[0].replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+            Locale.getDefault()
+        ) else it.toString()
+    }
     return split.joinToCamelCase()
 }
 

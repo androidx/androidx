@@ -151,8 +151,12 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 return if (propName.startsWith("is")) {
                     propName
                 } else {
-                    @Suppress("DEPRECATION") // b/187985877
-                    "get${propName.capitalize(Locale.US)}"
+                    val capitalizedName = propName.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.US
+                        ) else it.toString()
+                    }
+                    "get$capitalizedName"
                 }
             }
         }
@@ -244,8 +248,12 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 return if (propName.startsWith("is")) {
                     "set${propName.substring(2)}"
                 } else {
-                    @Suppress("DEPRECATION") // b/187985877
-                    "set${propName.capitalize(Locale.US)}"
+                    val capitalizedName = propName.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.US
+                        ) else it.toString()
+                    }
+                    "set$capitalizedName"
                 }
             }
         }
