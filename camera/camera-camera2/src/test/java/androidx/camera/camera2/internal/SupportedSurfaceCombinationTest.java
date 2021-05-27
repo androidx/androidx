@@ -100,7 +100,7 @@ import java.util.concurrent.TimeoutException;
 @SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = 29)
 public final class SupportedSurfaceCombinationTest {
     private static final String CAMERA_ID = "0";
     private static final String CAMERA_ID_EXTERNAL = "0-external";
