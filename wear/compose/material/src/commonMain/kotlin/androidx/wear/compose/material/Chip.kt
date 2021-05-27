@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -87,7 +88,7 @@ import androidx.compose.ui.unit.dp
  * to describe the element or do customizations
  */
 @Composable
-fun Chip(
+public fun Chip(
     onClick: () -> Unit,
     colors: ChipColors,
     modifier: Modifier = Modifier,
@@ -185,7 +186,7 @@ fun Chip(
  * content
  */
 @Composable
-fun Chip(
+public fun Chip(
     label: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -291,7 +292,7 @@ fun Chip(
  * content
  */
 @Composable
-fun CompactChip(
+public fun CompactChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     label: (@Composable () -> Unit)? = null,
@@ -337,7 +338,7 @@ fun CompactChip(
  * See [ChipDefaults.secondaryChipColors] for the default colors used in a secondary styled [Chip].
  */
 @Stable
-interface ChipColors {
+public interface ChipColors {
     /**
      * Represents the background treatment for this chip, depending on [enabled]. Backgrounds can
      * be solid, transparent or have a gradient applied.
@@ -345,7 +346,7 @@ interface ChipColors {
      * @param enabled Whether the chip is enabled
      */
     @Composable
-    fun background(enabled: Boolean): State<Painter>
+    public fun background(enabled: Boolean): State<Painter>
 
     /**
      * Represents the content color for this chip, depending on [enabled].
@@ -353,7 +354,7 @@ interface ChipColors {
      * @param enabled Whether the chip is enabled
      */
     @Composable
-    fun contentColor(enabled: Boolean): State<Color>
+    public fun contentColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the secondary content color for this chip, depending on [enabled].
@@ -361,7 +362,7 @@ interface ChipColors {
      * @param enabled Whether the chip is enabled
      */
     @Composable
-    fun secondaryContentColor(enabled: Boolean): State<Color>
+    public fun secondaryContentColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the icon tint color for this chip, depending on [enabled].
@@ -369,7 +370,7 @@ interface ChipColors {
      * @param enabled Whether the chip is enabled
      */
     @Composable
-    fun iconTintColor(enabled: Boolean): State<Color>
+    public fun iconTintColor(enabled: Boolean): State<Color>
 }
 
 /**
@@ -436,7 +437,7 @@ public object ChipDefaults {
     /**
      * The default content padding used by [Chip]
      */
-    public val ContentPadding = PaddingValues(
+    public val ContentPadding: PaddingValues = PaddingValues(
         start = ChipHorizontalPadding,
         top = ChipVerticalPadding,
         end = ChipHorizontalPadding,
@@ -446,7 +447,7 @@ public object ChipDefaults {
     /**
      * The content padding used by a [Chip] which includes an icon
      */
-    public val ContentWithIconPadding = PaddingValues(
+    public val ContentWithIconPadding: PaddingValues = PaddingValues(
         start = ChipWithIconHorizontalPadding,
         top = ChipVerticalPadding,
         end = ChipWithIconHorizontalPadding,
@@ -474,17 +475,17 @@ public object ChipDefaults {
     /**
      * The default size of the icon when used inside a [Chip].
      */
-    public val IconSize = 24.dp
+    public val IconSize: Dp = 24.dp
 
     /**
      * The size of the icon when used inside a Large "Avatar" [Chip].
      */
-    public val LargeIconSize = 32.dp
+    public val LargeIconSize: Dp = 32.dp
 
     /**
      * The size of the icon when used inside a "Compact" [Chip].
      */
-    public val SmallIconSize = 20.dp
+    public val SmallIconSize: Dp = 20.dp
 
     /**
      * The default size of the spacing between an icon and a text when they are used inside a
@@ -506,7 +507,7 @@ public object ChipDefaults {
      * @param disabledIconTintColor The content color of this [Chip] when not enabled
      */
     @Composable
-    fun chipColors(
+    public fun chipColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
