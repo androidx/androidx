@@ -21,7 +21,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Build
@@ -637,7 +636,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 val watchState = engineWrapper.mutableWatchState.asWatchState()
                 engineWrapper.createWatchFaceInternal(
-                    watchState, engineWrapper.surfaceHolder, "maybeCreateWatchFace"
+                    watchState, null, "maybeCreateWatchFace"
                 )
 
                 // Wait for watchface init to complete.
@@ -700,6 +699,12 @@ public abstract class WatchFaceService : WallpaperService() {
          * [deferredWatchFaceImpl] will complete after [deferredRendererAndComplicationManager].
          */
         internal var deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
+
+        /**
+         * [deferredSurfaceHolder] will complete after [onSurfaceChanged], before then it's not
+         * safe to create a UiThread OpenGL context.
+         */
+        internal var deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
 
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible
@@ -1040,6 +1045,16 @@ public abstract class WatchFaceService : WallpaperService() {
             )
         }
 
+        override fun onSurfaceChanged(
+            holder: SurfaceHolder,
+            format: Int,
+            width: Int,
+            height: Int
+        ): Unit = TraceEvent("EngineWrapper.onSurfaceChanged").use {
+            super.onSurfaceChanged(holder, format, width, height)
+            deferredSurfaceHolder.complete(holder)
+        }
+
         override fun onApplyWindowInsets(
             insets: WindowInsets?
         ): Unit = TraceEvent("EngineWrapper.onApplyWindowInsets").use {
@@ -1263,7 +1278,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             createWatchFaceInternal(
                 watchState,
-                getWallpaperSurfaceHolderOverride() ?: surfaceHolder,
+                getWallpaperSurfaceHolderOverride(),
                 _createdBy
             )
 
@@ -1287,7 +1302,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal fun createWatchFaceInternal(
             watchState: WatchState,
-            surfaceHolder: SurfaceHolder,
+            overrideSurfaceHolder: SurfaceHolder?,
             _createdBy: String
         ) {
             asyncWatchFaceConstructionPending = true
@@ -1325,8 +1340,11 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 try {
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
+                        // Note by awaiting deferredSurfaceHolder we ensure onSurfaceChanged has
+                        // been called and we're passing the correct updated surface holder. This is
+                        // important for GL rendering.
                         createWatchFace(
-                            surfaceHolder,
+                            overrideSurfaceHolder ?: deferredSurfaceHolder.await(),
                             watchState,
                             complicationsManager,
                             currentUserStyleRepository
@@ -1553,8 +1571,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
 
                 val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
-                watchFaceImpl?.onDraw()
-                    ?: drawBlack(getWallpaperSurfaceHolderOverride() ?: surfaceHolder)
+                watchFaceImpl?.onDraw() ?: drawBlack()
             } finally {
                 if (TRACE_DRAW) {
                     Trace.endSection()
@@ -1562,13 +1579,10 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        private fun drawBlack(surfaceHolder: SurfaceHolder) {
-            val canvas: Canvas = surfaceHolder.lockCanvas() ?: return
-            try {
-                canvas.drawColor(Color.BLACK)
-            } finally {
-                surfaceHolder.unlockCanvasAndPost(canvas)
-            }
+        private fun drawBlack() {
+            // TODO(b/189452267): We don't know if the watchface will use hardware or software
+            // canvas and mixing the two leads to skia crashes. For now we do nothing rather than
+            // drawing a blank frame.
         }
 
         internal fun watchFaceCreated() = deferredWatchFaceImpl.isCompleted

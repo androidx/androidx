@@ -17,6 +17,7 @@
 package androidx.wear.watchface
 
 import android.content.Context
+import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceHolder
@@ -286,7 +287,9 @@ public class AsyncWatchFaceInitTest {
             initParams
         )
 
-        service.onCreateEngine() as WatchFaceService.EngineWrapper
+        val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        Mockito.`when`(surfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 100, 100))
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         runPostedTasksFor(0)
 
         // Complete the direct boot watch face which should trigger the callback which sets

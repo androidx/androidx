@@ -841,7 +841,7 @@ public class WatchFaceControlClientTest {
 
     @Test
     public fun crashingWatchFace() {
-        val wallpaperService = TestCrashingWatchFaceServiceWithBaseContext()
+        val wallpaperService = TestCrashingWatchFaceServiceWithBaseContext(surfaceHolder)
         val client = handlerCoroutineScope.async {
             service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
@@ -992,8 +992,12 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
     }
 }
 
-internal class TestCrashingWatchFaceServiceWithBaseContext : TestCrashingWatchFaceService() {
+internal class TestCrashingWatchFaceServiceWithBaseContext(
+    private var surfaceHolderOverride: SurfaceHolder
+) : TestCrashingWatchFaceService() {
     init {
         attachBaseContext(ApplicationProvider.getApplicationContext<Context>())
     }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }
