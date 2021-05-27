@@ -69,19 +69,19 @@ import androidx.compose.ui.unit.sp
  */
 @Immutable
 public class Typography internal constructor (
-    val display1: TextStyle,
-    val display2: TextStyle,
-    val display3: TextStyle,
-    val title1: TextStyle,
-    val title2: TextStyle,
-    val title3: TextStyle,
-    val body1: TextStyle,
-    val body2: TextStyle,
-    val button: TextStyle,
-    val caption1: TextStyle,
-    val caption2: TextStyle,
+    public val display1: TextStyle,
+    public val display2: TextStyle,
+    public val display3: TextStyle,
+    public val title1: TextStyle,
+    public val title2: TextStyle,
+    public val title3: TextStyle,
+    public val body1: TextStyle,
+    public val body2: TextStyle,
+    public val button: TextStyle,
+    public val caption1: TextStyle,
+    public val caption2: TextStyle,
 ) {
-    constructor (
+    public constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
         display1: TextStyle = TextStyle(
             fontWeight = FontWeight.Medium,

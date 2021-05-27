@@ -111,7 +111,7 @@ public class Colors(
  *
  * @see contentColorFor
  */
-fun Colors.contentColorFor(backgroundColor: Color): Color {
+public fun Colors.contentColorFor(backgroundColor: Color): Color {
     return when (backgroundColor) {
         primary -> onPrimary
         primaryVariant -> onPrimary
@@ -143,7 +143,7 @@ fun Colors.contentColorFor(backgroundColor: Color): Color {
  */
 @Composable
 @ReadOnlyComposable
-public fun contentColorFor(backgroundColor: Color) =
+public fun contentColorFor(backgroundColor: Color): Color =
     MaterialTheme.colors.contentColorFor(backgroundColor).takeOrElse { LocalContentColor.current }
 
 /**
