@@ -30,7 +30,6 @@ plugins {
 AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    implementation 'androidx.test:runner:1.3.0'
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
@@ -46,6 +45,7 @@ dependencies {
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
         androidTestImplementation project(path: ':compose:test-utils')
+        androidTestImplementation(ANDROIDX_TEST_RUNNER)
     }
 }
 
@@ -120,3 +120,5 @@ androidx {
     targetsJavaConsumers = false
     runApiTasks = new RunApiTasks.No("API tracking disabled while the package is empty")
 }
+
+
