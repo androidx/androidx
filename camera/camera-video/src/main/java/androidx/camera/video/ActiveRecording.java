@@ -29,6 +29,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class ActiveRecording extends Recording {
 
+    // Indicates the recording has been explicitly stopped by users.
+    private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
+    // Indicates the recording has been finalized.
     private final AtomicBoolean mIsFinalized = new AtomicBoolean(false);
 
     ActiveRecording(@NonNull Recorder recorder, @NonNull OutputOptions options,
@@ -50,9 +53,15 @@ public final class ActiveRecording extends Recording {
     /**
      * Pauses the current recording if active.
      *
-     * <p>If the recording is already paused or has been finalized internally, this is a no-op.
+     * <p>If the recording has already been paused or has been finalized internally, this is a
+     * no-op.
+     *
+     * @throws IllegalStateException if the recording has been stopped.
      */
     public void pause() {
+        if (mIsStopped.get()) {
+            throw new IllegalStateException("The recording has been stopped.");
+        }
         if (mIsFinalized.get()) {
             return;
         }
@@ -62,9 +71,14 @@ public final class ActiveRecording extends Recording {
     /**
      * Resumes the current recording if paused.
      *
-     * <p>If the recording is running or has been finalized internally, this is a no-op.
+     * <p>If the recording is active or has been finalized internally, this is a no-op.
+     *
+     * @throws IllegalStateException if the recording has been stopped.
      */
     public void resume() {
+        if (mIsStopped.get()) {
+            throw new IllegalStateException("The recording has been stopped.");
+        }
         if (mIsFinalized.get()) {
             return;
         }
@@ -74,15 +88,17 @@ public final class ActiveRecording extends Recording {
     /**
      * Stops the recording.
      *
-     * <p>Once stop, all methods of this ActiveRecording will be no-op.
+     * <p>Once stop, all other methods of this ActiveRecording will throw an
+     * {@link IllegalStateException}.
      *
      * <p>Once an ActiveRecording has been stopped, the next recording can be started with
      * {@link PendingRecording#start()}.
      *
-     * <p>If the recording is finalized internally, this is a no-op.
+     * <p>If the recording has already been stopped or has been finalized internally, this is a
+     * no-op.
      */
     public void stop() {
-        if (mIsFinalized.getAndSet(true)) {
+        if (mIsStopped.getAndSet(true) || mIsFinalized.get()) {
             return;
         }
         getRecorder().stop();
