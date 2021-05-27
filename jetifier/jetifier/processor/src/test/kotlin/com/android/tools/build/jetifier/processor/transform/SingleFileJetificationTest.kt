@@ -22,6 +22,7 @@ import com.android.tools.build.jetifier.core.type.TypesMap
 import com.android.tools.build.jetifier.processor.FileMapping
 import com.android.tools.build.jetifier.processor.Processor
 import com.google.common.truth.Truth
+import org.intellij.lang.annotations.Language
 import java.io.File
 import org.junit.Test
 
@@ -138,6 +139,42 @@ class SingleFileJetificationTest {
                 "android/support/v7/preference/Preference" to "androidx/preference/Preference"
             ),
             expectSpecifiedOutput = false
+        )
+    }
+
+    @Test
+    fun kotlinSourceDejetifiedProperly() {
+        @Language("kotlin")
+        val input = """
+            package foo
+            import androidx.shiny.library.Bar
+                
+            fun function(): Bar {
+                TODO()
+            }
+            var property: androidx.shiny.library.Foo? = null
+        """.trimIndent()
+
+        @Language("kotlin")
+        val expected = """
+            package foo
+            import android.matt.library.Bar
+                
+            fun function(): Bar {
+                TODO()
+            }
+            var property: android.matt.library.Foo? = null
+        """.trimIndent()
+
+        testSingleFileJetification(
+            givenFileContent = input,
+            expectedOutputFileContent = expected,
+            typesMap = mapOf(
+                "android/matt/library/Bar" to "androidx/shiny/library/Bar",
+                "android/matt/library/Foo" to "androidx/shiny/library/Foo",
+            ),
+            fileExtension = ".kt",
+            isReversed = true
         )
     }
 
