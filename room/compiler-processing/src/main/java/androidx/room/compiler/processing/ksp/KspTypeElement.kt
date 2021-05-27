@@ -168,11 +168,11 @@ internal sealed class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        val setters = _declaredProperties.mapNotNull {
+        _declaredProperties.flatMap {
             if (it.type.ksType.isInline()) {
                 // KAPT does not generate getters/setters for inlines, we'll hide them as well
                 // until room generates kotlin code
-                return@mapNotNull null
+                return@flatMap emptyList()
             }
 
             val setter = it.declaration.setter
@@ -191,21 +191,6 @@ internal sealed class KspTypeElement(
                 }
                 else -> it.declaration.isMutable
             }
-            if (needsSetter) {
-                KspSyntheticPropertyMethodElement.Setter(
-                    env = env,
-                    field = it
-                )
-            } else {
-                null
-            }
-        }
-        val getters = _declaredProperties.mapNotNull {
-            if (it.type.ksType.isInline()) {
-                // KAPT does not generate getters/setters for inlines, we'll hide them as well
-                // until room generates kotlin code
-                return@mapNotNull null
-            }
             val getter = it.declaration.getter
             val needsGetter = when {
                 it.declaration.hasJvmFieldAnnotation() -> {
@@ -222,8 +207,15 @@ internal sealed class KspTypeElement(
                 }
                 else -> true
             }
-
-            if (needsGetter) {
+            val setterElm = if (needsSetter) {
+                KspSyntheticPropertyMethodElement.Setter(
+                    env = env,
+                    field = it
+                )
+            } else {
+                null
+            }
+            val getterElm = if (needsGetter) {
                 KspSyntheticPropertyMethodElement.Getter(
                     env = env,
                     field = it
@@ -231,8 +223,8 @@ internal sealed class KspTypeElement(
             } else {
                 null
             }
+            listOfNotNull(getterElm, setterElm)
         }
-        setters + getters
     }
 
     override fun isInterface(): Boolean {

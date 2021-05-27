@@ -96,15 +96,9 @@ internal sealed class KspMethodElement(
         env, containing, declaration
     ) {
         override val returnType: XType by lazy {
-            // b/160258066
-            // we may need to box the return type if it is overriding a generic, hence, we should
-            // use the declaration of the overridee if available when deciding nullability
-            val overridee = declaration.findOverridee()
-            env.wrap(
-                ksType = declaration.returnTypeAsMemberOf(
-                    ksType = containing.type?.ksType
-                ),
-                originatingReference = checkNotNull(overridee?.returnType ?: declaration.returnType)
+            declaration.returnXType(
+                env = env,
+                containing = containing.type
             )
         }
         override fun isSuspendFunction() = false

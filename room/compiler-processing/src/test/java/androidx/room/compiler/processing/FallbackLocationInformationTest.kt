@@ -109,7 +109,7 @@ class FallbackLocationInformationTest {
                 assertThat(
                     propSetter.parameters.first().fallbackLocationText
                 ).isEqualTo(
-                    "<set-?> in foo.bar.KotlinSubject.setProp(java.lang.String)"
+                    "arg0 in foo.bar.KotlinSubject.setProp(java.lang.String)"
                 )
             }
 

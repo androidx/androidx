@@ -65,15 +65,9 @@ internal sealed class KspMethodType(
         containing: KspType?
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
-            // b/160258066
-            // we may need to box the return type if it is overriding a generic, hence, we should
-            // use the declaration of the overridee if available when deciding nullability
-            val overridee = origin.declaration.findOverridee()
-            env.wrap(
-                originatingReference = (overridee?.returnType ?: origin.declaration.returnType)!!,
-                ksType = origin.declaration.returnTypeAsMemberOf(
-                    ksType = containing?.ksType
-                )
+            origin.declaration.returnXType(
+                env = env,
+                containing = containing
             )
         }
     }
