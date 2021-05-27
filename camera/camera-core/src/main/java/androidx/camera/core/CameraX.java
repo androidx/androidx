@@ -17,9 +17,11 @@
 package androidx.camera.core;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.res.Resources;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -41,6 +43,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CameraValidator;
+import androidx.camera.core.impl.MetadataHolderService;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -369,7 +372,7 @@ public final class CameraX {
 
             if (instanceFuture == null) {
                 if (!isConfigured) {
-                    // Attempt initialization through Application or Resources
+                    // Attempt initialization through Application or meta-data
                     CameraXConfig.Provider configProvider = getConfigProvider(context);
                     if (configProvider == null) {
                         throw new IllegalStateException("CameraX is not configured properly. "
@@ -396,18 +399,33 @@ public final class CameraX {
             // Application is a CameraXConfig.Provider, use this directly
             configProvider = (CameraXConfig.Provider) application;
         } else {
-            // Try to retrieve the CameraXConfig.Provider through the application's resources
+            // Try to retrieve the CameraXConfig.Provider through meta-data provided by
+            // implementation library.
             try {
-                Resources resources = ContextUtil.getApplicationContext(context).getResources();
-                String defaultProviderClassName =
-                        resources.getString(
-                                R.string.androidx_camera_default_config_provider);
+                Context appContext = ContextUtil.getApplicationContext(context);
+                ServiceInfo serviceInfo = appContext.getPackageManager().getServiceInfo(
+                        new ComponentName(appContext, MetadataHolderService.class),
+                        PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS);
+
+                String defaultProviderClassName = null;
+                if (serviceInfo.metaData != null) {
+                    defaultProviderClassName = serviceInfo.metaData.getString(
+                            "androidx.camera.core.impl.MetadataHolderService"
+                                    + ".DEFAULT_CONFIG_PROVIDER");
+                }
+                if (defaultProviderClassName == null) {
+                    Logger.e(TAG,
+                            "No default CameraXConfig.Provider specified in meta-data. The most "
+                                    + "likely cause is you did not include a default "
+                                    + "implementation in your build such as 'camera-camera2'.");
+                    return null;
+                }
                 Class<?> providerClass =
                         Class.forName(defaultProviderClassName);
                 configProvider = (CameraXConfig.Provider) providerClass
                         .getDeclaredConstructor()
                         .newInstance();
-            } catch (Resources.NotFoundException
+            } catch (PackageManager.NameNotFoundException
                     | ClassNotFoundException
                     | InstantiationException
                     | InvocationTargetException
@@ -415,7 +433,7 @@ public final class CameraX {
                     | IllegalAccessException
                     | NullPointerException e) {
                 Logger.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
-                        + "resources", e);
+                        + "meta-data", e);
             }
         }
 
