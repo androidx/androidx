@@ -26,7 +26,6 @@ import android.location.Location;
 import android.os.Build;
 import android.os.SystemClock;
 
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -71,7 +70,6 @@ public class LocationCompatTest {
                 < MAX_ELAPSED_REALTIME_OFFSET_MS);
     }
 
-    @SdkSuppress(minSdkVersion = 21) // b/189491755
     @Test
     public void testMock() {
         Location location = new Location("");
