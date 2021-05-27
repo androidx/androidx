@@ -47,11 +47,9 @@ export LINT_PRINT_STACKTRACE=true
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPT_DIR/../development/build_log_processor.sh"
   properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors"
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs && \
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    bOS -x lintDebug -x lint -x validateLint -x verifyDependencyVersions --stacktrace -PverifyUpToDate --profile
+  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs bOS -x lintDebug -x lint -x verifyDependencyVersions --stacktrace -PverifyUpToDate --profile
   $SCRIPT_DIR/impl/parse_profile_htmls.sh
 }
 
-# Disabled due to https://github.com/google/dagger/issues/2618
-# buildAndroidx
+buildAndroidx
 echo "Completing $0 at $(date)"
