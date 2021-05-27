@@ -23,7 +23,6 @@ import android.os.Handler;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
@@ -33,7 +32,6 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
@@ -278,10 +276,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
      */
-    @SuppressWarnings({"lambdaLast", "deprecation"})
+    @SuppressWarnings({"lambdaLast"})
     @MainThread
     @NonNull
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
@@ -300,8 +297,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * the {@link UseCaseGroup} in the latest
      * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      */
-    @ExperimentalUseCaseGroup
-    @SuppressWarnings({"lambdaLast", "deprecation"})
+    @SuppressWarnings({"lambdaLast"})
     @MainThread
     @NonNull
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
@@ -367,13 +363,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *                                  or method is not called on main thread.
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
-     * @hide
      */
-    @SuppressWarnings({"lambdaLast", "unused", "deprecation"})
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @ExperimentalUseCaseGroup
+    @SuppressWarnings({"lambdaLast", "unused"})
     @NonNull
-    public Camera bindToLifecycle(
+    Camera bindToLifecycle(
             @NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @Nullable ViewPort viewPort,
