@@ -41,6 +41,7 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.getParentOfType
+import java.util.Locale
 
 class ExperimentalDetector : Detector(), SourceCodeScanner {
 
@@ -234,9 +235,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         const val JAVA_OPT_IN_ANNOTATION =
             "androidx.annotation.OptIn"
 
-        @Suppress("DefaultLocale", "DEPRECATION") // b/187985877
+        @Suppress("DefaultLocale")
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
-            id = "UnsafeOptInUsage${level.capitalize()}",
+            id = "UnsafeOptInUsage${level.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }}",
             briefDescription = "Unsafe opt-in usage intended to be $level-level severity",
             explanation = """
                 This API has been flagged as opt-in with $level-level severity.

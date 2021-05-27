@@ -106,10 +106,11 @@ internal fun generateInspectionCompanion(
         addMethod(
             MethodSpec.methodBuilder("readProperties").apply {
                 // Make sure the view parameter name doesn't conflict with anything
-                @Suppress("DEPRECATION") // b/187985877
+                val decapitalizedClassName = view.className.simpleName()
+                    .replaceFirstChar { it.lowercase(Locale.US) }
                 val viewParameter = attributeIdNames.clone()
                     .apply { newName("propertyReader") }
-                    .newName(view.className.simpleName().decapitalize(Locale.US))
+                    .newName(decapitalizedClassName)
 
                 addAnnotation(OVERRIDE)
                 addModifiers(Modifier.PUBLIC)
