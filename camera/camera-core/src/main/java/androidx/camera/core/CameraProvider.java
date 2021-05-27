@@ -17,16 +17,18 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.List;
 
 /**
- * Provides access to a set of cameras.
+ * A {@link CameraProvider} provides basic access to a set of cameras such as querying for camera
+ * existence or information.
  *
- * @hide
+ * <p>A device might have multiple cameras. According to the applications' design, they might
+ * need to search for a suitable camera which supports their functions. A {@link CameraProvider}
+ * allows the applications to check whether any camera exists to fulfill the requirements or to
+ * get {@link CameraInfo} instances of all cameras to retrieve the camera information.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraProvider {
 
     /**
@@ -45,10 +47,6 @@ public interface CameraProvider {
 
     /**
      * Returns {@link CameraInfo} instances of the available cameras.
-     *
-     * <p>The available cameras include all the available cameras on the device, or only those
-     * selected through
-     * {@link androidx.camera.core.CameraXConfig.Builder#setAvailableCamerasLimiter(CameraSelector)}
      *
      * <p>While iterating through all the available {@link CameraInfo}, if one of them meets some
      * predefined requirements, a {@link CameraSelector} that uniquely identifies its camera

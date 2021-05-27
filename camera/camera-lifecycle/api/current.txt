@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.lifecycle {
 
-  public final class ProcessCameraProvider {
+  public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCase!...);
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup);
     method public java.util.List<androidx.camera.core.CameraInfo!> getAvailableCameraInfos();

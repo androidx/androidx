@@ -41,6 +41,11 @@ package androidx.camera.core {
   public final class CameraInfoUnavailableException extends java.lang.Exception {
   }
 
+  public interface CameraProvider {
+    method public java.util.List<androidx.camera.core.CameraInfo!> getAvailableCameraInfos();
+    method public boolean hasCamera(androidx.camera.core.CameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
+  }
+
   public final class CameraSelector {
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
