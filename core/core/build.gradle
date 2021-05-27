@@ -11,9 +11,13 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation-experimental:1.1.0")
     api("androidx.lifecycle:lifecycle-runtime:2.0.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation("androidx.collection:collection:1.0.0")
+
+    // Required for -Werror due to annotation-experimental use of Kotlin
+    compileOnly(KOTLIN_STDLIB)
 
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
