@@ -342,6 +342,8 @@ public class WatchFace(
     }
 }
 
+internal data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
+
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("SyntheticAccessor")
@@ -355,7 +357,9 @@ public class WatchFaceImpl @UiThread constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public val calendar: Calendar
+    public val calendar: Calendar,
+    private val broadcastsObserver: BroadcastsObserver,
+    internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
@@ -419,12 +423,9 @@ public class WatchFaceImpl @UiThread constructor(
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
 
-    private data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
-
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
     private var lastTappedComplicationId: Int? = null
-    internal var broadcastsReceiver: BroadcastsReceiver? = null
 
     // True if 'Do Not Disturb' mode is on.
     private var muteMode = false
@@ -449,63 +450,31 @@ public class WatchFaceImpl @UiThread constructor(
         legacyWatchFaceStyle.tapEventsAccepted
     )
 
-    private val broadcastEventObserver = object : BroadcastsReceiver.BroadcastEventObserver {
-        override fun onActionTimeTick() {
-            if (!watchState.isAmbient.value) {
-                renderer.invalidate()
-            }
-        }
+    internal fun onActionTimeZoneChanged() {
+        calendar.timeZone = TimeZone.getDefault()
+        renderer.invalidate()
+    }
 
-        override fun onActionTimeZoneChanged() {
-            calendar.timeZone = TimeZone.getDefault()
-            renderer.invalidate()
-        }
+    internal fun onActionTimeChanged() {
+        // System time has changed hence next scheduled draw is invalid.
+        nextDrawTimeMillis = systemTimeProvider.getSystemTimeMillis()
+        renderer.invalidate()
+    }
 
-        override fun onActionTimeChanged() {
-            // System time has changed hence next scheduled draw is invalid.
-            nextDrawTimeMillis = systemTimeProvider.getSystemTimeMillis()
-            renderer.invalidate()
+    internal fun onMockTime(intent: Intent) {
+        mockTime.speed = intent.getFloatExtra(
+            EXTRA_MOCK_TIME_SPEED_MULTIPLIER,
+            MOCK_TIME_DEFAULT_SPEED_MULTIPLIER
+        ).toDouble()
+        mockTime.minTime = intent.getLongExtra(
+            EXTRA_MOCK_TIME_WRAPPING_MIN_TIME,
+            MOCK_TIME_WRAPPING_MIN_TIME_DEFAULT
+        )
+        // If MOCK_TIME_WRAPPING_MIN_TIME_DEFAULT is specified then use the current time.
+        if (mockTime.minTime == MOCK_TIME_WRAPPING_MIN_TIME_DEFAULT) {
+            mockTime.minTime = systemTimeProvider.getSystemTimeMillis()
         }
-
-        override fun onActionBatteryLow() {
-            updateBatteryLowAndNotChargingStatus(true)
-        }
-
-        override fun onActionBatteryOkay() {
-            updateBatteryLowAndNotChargingStatus(false)
-        }
-
-        override fun onActionPowerConnected() {
-            updateBatteryLowAndNotChargingStatus(false)
-        }
-
-        override fun onMockTime(intent: Intent) {
-            mockTime.speed = intent.getFloatExtra(
-                EXTRA_MOCK_TIME_SPEED_MULTIPLIER,
-                MOCK_TIME_DEFAULT_SPEED_MULTIPLIER
-            ).toDouble()
-            mockTime.minTime = intent.getLongExtra(
-                EXTRA_MOCK_TIME_WRAPPING_MIN_TIME,
-                MOCK_TIME_WRAPPING_MIN_TIME_DEFAULT
-            )
-            // If MOCK_TIME_WRAPPING_MIN_TIME_DEFAULT is specified then use the current time.
-            if (mockTime.minTime == MOCK_TIME_WRAPPING_MIN_TIME_DEFAULT) {
-                mockTime.minTime = systemTimeProvider.getSystemTimeMillis()
-            }
-            mockTime.maxTime =
-                intent.getLongExtra(EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, Long.MAX_VALUE)
-        }
-
-        private fun updateBatteryLowAndNotChargingStatus(value: Boolean) {
-            val isBatteryLowAndNotCharging =
-                watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
-            if (!isBatteryLowAndNotCharging.hasValue() ||
-                value != isBatteryLowAndNotCharging.value
-            ) {
-                isBatteryLowAndNotCharging.value = value
-                renderer.invalidate()
-            }
-        }
+        mockTime.maxTime = intent.getLongExtra(EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, Long.MAX_VALUE)
     }
 
     /** The UTC reference time for editor preview images in milliseconds since the epoch. */
@@ -709,7 +678,7 @@ public class WatchFaceImpl @UiThread constructor(
         // There's no point registering BroadcastsReceiver for headless instances.
         if (broadcastsReceiver == null && !watchState.isHeadless) {
             broadcastsReceiver =
-                BroadcastsReceiver(watchFaceHostApi.getContext(), broadcastEventObserver)
+                BroadcastsReceiver(watchFaceHostApi.getContext(), broadcastsObserver)
         }
     }
 

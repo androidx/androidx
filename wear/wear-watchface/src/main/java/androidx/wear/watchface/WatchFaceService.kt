@@ -235,7 +235,7 @@ public abstract class WatchFaceService : WallpaperService() {
          * Whether to enable tracing for each call to [WatchFaceImpl.onDraw()] and
          * [WatchFaceImpl.onSurfaceRedrawNeeded()]
          */
-        private const val TRACE_DRAW = true
+        private const val TRACE_DRAW = false
 
         // Reference time for editor screenshots for analog watch faces.
         // 2020/10/10 at 09:30 Note the date doesn't matter, only the hour.
@@ -1300,6 +1300,24 @@ public abstract class WatchFaceService : WallpaperService() {
                         createComplicationsManager(currentUserStyleRepository)
                     }
 
+                val calendar = Calendar.getInstance()
+                val deferredWatchFace = CompletableDeferred<WatchFace>()
+                val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
+
+                // WatchFaceImpl (which registers broadcast observers) needs to be constructed
+                // on the UIThread. Part of this process can be done in parallel with
+                // createWatchFace.
+                uiThreadCoroutineScope.launch {
+                    createWatchFaceImpl(
+                        calendar,
+                        complicationsManager,
+                        currentUserStyleRepository,
+                        deferredWatchFace,
+                        initStyleAndComplicationsDone,
+                        watchState
+                    )
+                }
+
                 try {
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
                         complicationsManager.watchState = watchState
@@ -1318,46 +1336,16 @@ public abstract class WatchFaceService : WallpaperService() {
                         watchFace.renderer.initBackgroundThreadOpenGlContext()
                     }
 
+                    // For Gles watch faces this will trigger UIThread context creation and must be
+                    // done after initBackgroundThreadOpenGlContext.
+                    deferredWatchFace.complete(watchFace)
+
                     val timeAfter = System.currentTimeMillis()
                     val timeTaken = timeAfter - timeBefore
                     require(timeTaken < MAX_CREATE_WATCHFACE_TIME_MILLIS) {
                         "createUserStyleSchema, createComplicationsManager and createWatchFace " +
                             "should complete in less than $MAX_CREATE_WATCHFACE_TIME_MILLIS " +
                             "milliseconds."
-                    }
-
-                    val calendar = Calendar.getInstance()
-                    val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
-
-                    // WatchFaceImpl (which registers broadcast observers) needs to be constructed
-                    // on the UIThread.
-                    uiThreadCoroutineScope.launch {
-                        pendingInitialComplications?.let {
-                            for (idAndData in it) {
-                                complicationsManager.onComplicationDataUpdate(
-                                    idAndData.id,
-                                    idAndData.complicationData.toApiComplicationData()
-                                )
-                            }
-                        }
-
-                        TraceEvent("WatchFaceImpl.init").use {
-                            val watchFaceImpl = WatchFaceImpl(
-                                watchFace,
-                                this@EngineWrapper,
-                                watchState,
-                                currentUserStyleRepository,
-                                complicationsManager,
-                                calendar
-                            )
-
-                            // Make sure no UI thread rendering (a consequence of completing
-                            // deferredWatchFaceImpl) occurs before initStyleAndComplications has
-                            // executed. NB usually we won't have to wait at all.
-                            initStyleAndComplicationsDone.await()
-                            deferredWatchFaceImpl.complete(watchFaceImpl)
-                            asyncWatchFaceConstructionPending = false
-                        }
                     }
 
                     // Perform more initialization on the background thread.
@@ -1374,6 +1362,66 @@ public abstract class WatchFaceService : WallpaperService() {
                     Log.e(TAG, "WatchFace crashed during init", e)
                     deferredWatchFaceImpl.completeExceptionally(e)
                 }
+            }
+        }
+
+        /**
+         * This function contains the parts of watch face init that have to be done on the UI
+         * thread.
+         */
+        @UiThread
+        private suspend fun createWatchFaceImpl(
+            calendar: Calendar,
+            complicationsManager: ComplicationsManager,
+            currentUserStyleRepository: CurrentUserStyleRepository,
+            deferredWatchFace: CompletableDeferred<WatchFace>,
+            initStyleAndComplicationsDone: CompletableDeferred<Unit>,
+            watchState: WatchState
+        ) {
+            pendingInitialComplications?.let {
+                for (idAndData in it) {
+                    complicationsManager.onComplicationDataUpdate(
+                        idAndData.id,
+                        idAndData.complicationData.toApiComplicationData()
+                    )
+                }
+            }
+
+            val broadcastsObserver = BroadcastsObserver(
+                watchState,
+                this,
+                deferredWatchFaceImpl,
+                uiThreadCoroutineScope
+            )
+
+            // There's no point creating BroadcastsReceiver for headless instances.
+            val broadcastsReceiver = TraceEvent("create BroadcastsReceiver").use {
+                if (watchState.isHeadless) {
+                    null
+                } else {
+                    BroadcastsReceiver(_context, broadcastsObserver)
+                }
+            }
+
+            val watchFace = deferredWatchFace.await()
+            TraceEvent("WatchFaceImpl.init").use {
+                val watchFaceImpl = WatchFaceImpl(
+                    watchFace,
+                    this@EngineWrapper,
+                    watchState,
+                    currentUserStyleRepository,
+                    complicationsManager,
+                    calendar,
+                    broadcastsObserver,
+                    broadcastsReceiver
+                )
+
+                // Make sure no UI thread rendering (a consequence of completing
+                // deferredWatchFaceImpl) occurs before initStyleAndComplications has
+                // executed. NB usually we won't have to wait at all.
+                initStyleAndComplicationsDone.await()
+                deferredWatchFaceImpl.complete(watchFaceImpl)
+                asyncWatchFaceConstructionPending = false
             }
         }
 

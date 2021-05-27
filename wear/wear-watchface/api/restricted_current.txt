@@ -6,6 +6,32 @@ package androidx.wear.watchface {
     method public boolean hitTest(androidx.wear.watchface.Complication complication, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class BroadcastsObserver implements androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver {
+    ctor public BroadcastsObserver(androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, kotlinx.coroutines.Deferred<androidx.wear.watchface.WatchFaceImpl> deferredWatchFaceImpl, kotlinx.coroutines.CoroutineScope uiThreadCoroutineScope);
+    method public void onActionBatteryLow();
+    method public void onActionBatteryOkay();
+    method public void onActionPowerConnected();
+    method public void onActionTimeChanged();
+    method public void onActionTimeTick();
+    method public void onActionTimeZoneChanged();
+    method public void onMockTime(android.content.Intent intent);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class BroadcastsReceiver {
+    ctor public BroadcastsReceiver(android.content.Context context, androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver observer);
+    method public void onDestroy();
+  }
+
+  public static interface BroadcastsReceiver.BroadcastEventObserver {
+    method @UiThread public void onActionBatteryLow();
+    method @UiThread public void onActionBatteryOkay();
+    method @UiThread public void onActionPowerConnected();
+    method @UiThread public void onActionTimeChanged();
+    method @UiThread public void onActionTimeTick();
+    method @UiThread public void onActionTimeZoneChanged();
+    method @UiThread public void onMockTime(android.content.Intent intent);
+  }
+
   public interface CanvasComplication {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
     method public androidx.wear.complications.data.ComplicationData? getData();
@@ -367,7 +393,7 @@ package androidx.wear.watchface {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WatchFaceImpl {
-    ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationsManager complicationsManager, android.icu.util.Calendar calendar);
+    ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationsManager complicationsManager, android.icu.util.Calendar calendar, androidx.wear.watchface.BroadcastsObserver broadcastsObserver, androidx.wear.watchface.BroadcastsReceiver? broadcastsReceiver);
     method public long getPreviewReferenceTimeMillis();
     property public final long previewReferenceTimeMillis;
   }
