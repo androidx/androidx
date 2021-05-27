@@ -20,6 +20,7 @@ import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
@@ -46,6 +47,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
@@ -63,6 +65,7 @@ import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.video.ExperimentalVideo;
@@ -71,6 +74,7 @@ import androidx.camera.view.video.OutputFileOptions;
 import androidx.camera.view.video.OutputFileResults;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -115,6 +119,48 @@ public abstract class CameraController {
     // Auto focus is 1/6 of the area.
     private static final float AF_SIZE = 1.0f / 6.0f;
     private static final float AE_SIZE = AF_SIZE * 1.5f;
+
+    /**
+     * States for tap-to-focus feature.
+     *
+     * @hide
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef(value = {TAP_TO_FOCUS_NOT_STARTED, TAP_TO_FOCUS_STARTED, TAP_TO_FOCUS_SUCCESSFUL,
+            TAP_TO_FOCUS_UNSUCCESSFUL, TAP_TO_FOCUS_FAILED})
+    public @interface TapToFocusStates {
+    }
+
+    /**
+     * No tap-to-focus action has been started by the end user.
+     */
+    public static final int TAP_TO_FOCUS_NOT_STARTED = 0;
+
+    /**
+     * A tap-to-focus action has started but not completed. The app also gets notified with this
+     * state if a new action happens before the previous one could finish.
+     */
+    public static final int TAP_TO_FOCUS_STARTED = 1;
+
+    /**
+     * The previous tap-to-focus action was completed successfully and the camera is focused.
+     */
+    public static final int TAP_TO_FOCUS_SUCCESSFUL = 2;
+
+    /**
+     * The previous tap-to-focus action was completed successfully but the camera is still
+     * unfocused. It happens when CameraX receives
+     * {@link CaptureResult#CONTROL_AF_STATE_NOT_FOCUSED_LOCKED}. The end user might be able to
+     * get a better result by trying again with different camera distances and/or lighting.
+     */
+    public static final int TAP_TO_FOCUS_UNSUCCESSFUL = 3;
+
+    /**
+     * The previous tap-to-focus action was failed to complete. This is usually due to device
+     * limitations.
+     */
+    public static final int TAP_TO_FOCUS_FAILED = 4;
 
     /**
      * Bitmask options to enable/disable use cases.
@@ -238,6 +284,10 @@ public abstract class CameraController {
 
     private final ForwardingLiveData<ZoomState> mZoomState = new ForwardingLiveData<>();
     private final ForwardingLiveData<Integer> mTorchState = new ForwardingLiveData<>();
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final MutableLiveData<Integer> mTapToFocusState = new MutableLiveData<>(
+            TAP_TO_FOCUS_NOT_STARTED);
 
     private final Context mAppContext;
 
@@ -1267,13 +1317,37 @@ public abstract class CameraController {
             Logger.d(TAG, "Tap to focus disabled. ");
             return;
         }
-        Logger.d(TAG, "Tap to focus: " + x + ", " + y);
+        Logger.d(TAG, "Tap to focus started: " + x + ", " + y);
+        mTapToFocusState.postValue(TAP_TO_FOCUS_STARTED);
         MeteringPoint afPoint = meteringPointFactory.createPoint(x, y, AF_SIZE);
         MeteringPoint aePoint = meteringPointFactory.createPoint(x, y, AE_SIZE);
-        mCamera.getCameraControl().startFocusAndMetering(new FocusMeteringAction
+        FocusMeteringAction focusMeteringAction = new FocusMeteringAction
                 .Builder(afPoint, FocusMeteringAction.FLAG_AF)
                 .addPoint(aePoint, FocusMeteringAction.FLAG_AE)
-                .build());
+                .build();
+        Futures.addCallback(mCamera.getCameraControl().startFocusAndMetering(focusMeteringAction),
+                new FutureCallback<FocusMeteringResult>() {
+
+                    @Override
+                    public void onSuccess(@Nullable FocusMeteringResult result) {
+                        if (result == null) {
+                            return;
+                        }
+                        Logger.d(TAG, "Tap to focus onSuccess: " + result.isFocusSuccessful());
+                        mTapToFocusState.postValue(result.isFocusSuccessful()
+                                ? TAP_TO_FOCUS_SUCCESSFUL : TAP_TO_FOCUS_UNSUCCESSFUL);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        if (t instanceof CameraControl.OperationCanceledException) {
+                            Logger.d(TAG, "Tap-to-focus is canceled by new action.");
+                            return;
+                        }
+                        Logger.d(TAG, "Tap to focus failed.", t);
+                        mTapToFocusState.postValue(TAP_TO_FOCUS_FAILED);
+                    }
+                }, CameraXExecutors.directExecutor());
     }
 
     /**
@@ -1300,6 +1374,66 @@ public abstract class CameraController {
     public void setTapToFocusEnabled(boolean enabled) {
         Threads.checkMainThread();
         mTapToFocusEnabled = enabled;
+    }
+
+    /**
+     * Returns a {@link LiveData} with the latest tap-to-focus state.
+     *
+     * <p> When tap-to-focus feature is enabled, the {@link LiveData} will receive updates of
+     * focusing states. This happens when the end user taps on {@link PreviewView}, and then again
+     * when focusing is finished either successfully or unsuccessfully. The following table
+     * displays the states the {@link LiveData} can be in, and the possible transitions between
+     * them.
+     *
+     * <table>
+     * <tr>
+     *     <th>State</th>
+     *     <th>Transition cause</th>
+     *     <th>New State</th>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_SUCCESSFUL</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_UNSUCCESSFUL</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FAILED</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td rowspan="3">TAP_TO_FOCUS_STARTED</td>
+     *     <td>Focusing succeeded</td>
+     *     <td>TAP_TO_FOCUS_SUCCESSFUL</td>
+     * </tr>
+     * <tr>
+     *     <td>Focusing failed due to lighting and/or camera distance</td>
+     *     <td>TAP_TO_FOCUS_UNSUCCESSFUL</td>
+     * </tr>
+     * <tr>
+     *     <td>Focusing failed due to device constraints</td>
+     *     <td>TAP_TO_FOCUS_FAILED</td>
+     * </tr>
+     * </table>
+     *
+     * @see #setTapToFocusEnabled(boolean)
+     * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
+     */
+    @MainThread
+    @NonNull
+    public LiveData<Integer> getTapToFocusState() {
+        Threads.checkMainThread();
+        return mTapToFocusState;
     }
 
     /**
