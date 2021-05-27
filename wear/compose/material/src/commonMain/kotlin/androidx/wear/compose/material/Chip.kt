@@ -232,7 +232,7 @@ public fun Chip(
                 if (secondaryLabel != null) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.secondaryContentColor(enabled).value,
-                        LocalTextStyle provides MaterialTheme.typography.button,
+                        LocalTextStyle provides MaterialTheme.typography.caption2,
                         LocalContentAlpha provides
                             colors.secondaryContentColor(enabled = enabled).value.alpha,
                         content = secondaryLabel
