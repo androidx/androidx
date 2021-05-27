@@ -22,7 +22,6 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture.FlashMode;
@@ -82,13 +81,22 @@ public interface CameraControlInternal extends CameraControl {
      */
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
 
     /**
      * Performs capture requests.
      */
     void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+
+    /**
+     * Gets the current SessionConfig.
+     *
+     * <p>When the SessionConfig is changed,
+     * {@link ControlUpdateCallback#onCameraControlUpdateSessionConfig()} will be called to
+     * notify the change.
+     */
+    @NonNull
+    SessionConfig getSessionConfig();
 
     /**
      * Gets the full sensor rect.
@@ -147,13 +155,18 @@ public interface CameraControlInternal extends CameraControl {
 
         @NonNull
         @Override
-        @ExperimentalExposureCompensation
         public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
             return Futures.immediateFuture(0);
         }
 
         @Override
         public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        }
+
+        @NonNull
+        @Override
+        public SessionConfig getSessionConfig() {
+            return SessionConfig.defaultEmptySessionConfig();
         }
 
         @NonNull
@@ -205,8 +218,12 @@ public interface CameraControlInternal extends CameraControl {
     /** Listener called when CameraControlInternal need to notify event. */
     interface ControlUpdateCallback {
 
-        /** Called when CameraControlInternal has updated session configuration. */
-        void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig);
+        /**
+         * Called when CameraControlInternal has updated session configuration.
+         *
+         * <p>The latest SessionConfig can be obtained by calling {@link #getSessionConfig()}.
+         */
+        void onCameraControlUpdateSessionConfig();
 
         /** Called when CameraControlInternal need to send capture requests. */
         void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);

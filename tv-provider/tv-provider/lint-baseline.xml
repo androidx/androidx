@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="ClassVerificationFailure"
@@ -69,7 +69,7 @@
 
     <issue
         id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
+        message="Utility class is missing private constructor"
         errorLine1="public class ChannelLogoUtils {"
         errorLine2="             ~~~~~~~~~~~~~~~~">
         <location
@@ -258,17 +258,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setInternalProviderId(String externalId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="661"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInternalProviderId(String externalId) {"
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
@@ -280,55 +269,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setPreviewVideoUri(Uri previewVideoUri) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="673"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setPreviewVideoUri(Uri previewVideoUri) {"
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="673"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setLastPlaybackPositionMillis(int position) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="687"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setDurationMillis(int duration) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="699"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setIntentUri(Uri intentUri) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="711"
-            column="16"/>
     </issue>
 
     <issue
@@ -346,77 +291,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setIntent(Intent intent) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="723"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setIntent(Intent intent) {"
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="723"
             column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setTransient(boolean transientValue) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="734"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setType(@Type int type) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="761"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setPosterArtAspectRatio(@AspectRatio int ratio) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="785"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setThumbnailAspectRatio(@AspectRatio int ratio) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="808"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setLogoUri(Uri logoUri) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="820"
-            column="16"/>
     </issue>
 
     <issue
@@ -428,28 +307,6 @@
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="820"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setAvailability(@Availability int availability) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="847"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setStartingPrice(String price) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="859"
-            column="16"/>
     </issue>
 
     <issue
@@ -467,33 +324,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setOfferPrice(String price) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="871"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setOfferPrice(String price) {"
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="871"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setReleaseDate(String releaseDate) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="886"
-            column="16"/>
     </issue>
 
     <issue
@@ -511,77 +346,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setReleaseDate(Date releaseDate) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="898"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setReleaseDate(Date releaseDate) {"
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="898"
             column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setItemCount(int itemCount) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="910"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setLive(boolean live) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="922"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInteractionType(@InteractionType int interactionType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="948"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInteractionCount(long interactionCount) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="960"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setAuthor(String author) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="972"
-            column="16"/>
     </issue>
 
     <issue
@@ -593,28 +362,6 @@
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="972"
             column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setBrowsable(boolean browsable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="986"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setContentId(String contentId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="998"
-            column="16"/>
     </issue>
 
     <issue
@@ -632,33 +379,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setLogoContentDescription(String logoContentDescription) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1013"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setLogoContentDescription(String logoContentDescription) {"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="1013"
             column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setGenre(String genre) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1025"
-            column="16"/>
     </issue>
 
     <issue
@@ -675,56 +400,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setStartTimeUtcMillis(long startTime) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1038"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setEndTimeUtcMillis(long endTime) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1050"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setPreviewAudioUri(Uri previewAudioUri) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1062"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setPreviewAudioUri(Uri previewAudioUri) {"
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
             line="1062"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setTvSeriesItemType(@TvSeriesItemType int type) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1074"
-            column="16"/>
     </issue>
 
     <issue
@@ -983,45 +664,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setId(long programId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="569"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setPackageName(String packageName) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="583"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setPackageName(String packageName) {"
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="583"
             column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setTitle(String title) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="595"
-            column="16"/>
     </issue>
 
     <issue
@@ -1039,44 +687,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setEpisodeTitle(String episodeTitle) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="607"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setEpisodeTitle(String episodeTitle) {"
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="607"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setSeasonNumber(int seasonNumber) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="619"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setSeasonNumber(String seasonNumber, int numericalSeasonNumber) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="636"
-            column="16"/>
     </issue>
 
     <issue
@@ -1088,28 +703,6 @@
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="636"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setEpisodeNumber(int episodeNumber) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="652"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setEpisodeNumber(String episodeNumber, int numericalEpisodeNumber) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="669"
-            column="16"/>
     </issue>
 
     <issue
@@ -1127,17 +720,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setDescription(String description) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="686"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setDescription(String description) {"
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
@@ -1149,55 +731,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setLongDescription(String longDescription) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="698"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setLongDescription(String longDescription) {"
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="698"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setVideoWidth(int width) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="710"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setVideoHeight(int height) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="722"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setContentRatings(TvContentRating[] contentRatings) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="736"
-            column="16"/>
     </issue>
 
     <issue
@@ -1215,17 +753,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setPosterArtUri(Uri posterArtUri) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="749"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setPosterArtUri(Uri posterArtUri) {"
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
@@ -1237,33 +764,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setThumbnailUri(Uri thumbnailUri) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="762"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setThumbnailUri(Uri thumbnailUri) {"
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="762"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setCanonicalGenres(@Genre String[] genres) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="777"
-            column="16"/>
     </issue>
 
     <issue
@@ -1281,33 +786,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setInternalProviderData(byte[] data) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="789"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInternalProviderData(byte[] data) {"
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="789"
             column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setAudioLanguages(String[] audioLanguages) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="801"
-            column="16"/>
     </issue>
 
     <issue
@@ -1324,100 +807,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setSearchable(boolean searchable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="814"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInternalProviderFlag1(long flag) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="826"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInternalProviderFlag2(long flag) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="838"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInternalProviderFlag3(long flag) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="850"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setInternalProviderFlag4(long flag) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="862"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="879"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setReviewRating(String reviewRating) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="904"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public T setReviewRating(String reviewRating) {"
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
             line="904"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public T setSeasonTitle(String seasonTitle) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="916"
-            column="16"/>
     </issue>
 
     <issue

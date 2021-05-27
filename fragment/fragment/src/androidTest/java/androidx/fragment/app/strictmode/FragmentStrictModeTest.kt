@@ -36,6 +36,8 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class FragmentStrictModeTest {
+    private val fragmentClass = StrictFragment::class.java
+
     private lateinit var originalPolicy: FragmentStrictMode.Policy
 
     @Before
@@ -57,7 +59,8 @@ public class FragmentStrictModeTest {
 
         var violation: Violation? = null
         try {
-            FragmentStrictMode.onPolicyViolation(StrictFragment(), object : Violation() {})
+            val fragment = StrictFragment()
+            FragmentStrictMode.onPolicyViolation(object : Violation(fragment) {})
         } catch (thrown: Violation) {
             violation = thrown
         }
@@ -67,7 +70,6 @@ public class FragmentStrictModeTest {
     @Test
     public fun policyHierarchy() {
         var lastTriggeredPolicy = ""
-        val violation = object : Violation() {}
 
         fun policy(name: String) = FragmentStrictMode.Policy.Builder()
             .penaltyListener { lastTriggeredPolicy = name }
@@ -88,18 +90,20 @@ public class FragmentStrictModeTest {
                 .commit()
             executePendingTransactions()
 
+            val violation = object : Violation(childFragment) {}
+
             FragmentStrictMode.setDefaultPolicy(policy("Default policy"))
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Default policy")
 
             fragmentManager.strictModePolicy = policy("Parent policy")
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Parent policy")
 
             parentFragment.childFragmentManager.strictModePolicy = policy("Child policy")
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Child policy")
         }
@@ -123,7 +127,7 @@ public class FragmentStrictModeTest {
                 .commit()
             executePendingTransactions()
 
-            FragmentStrictMode.onPolicyViolation(fragment, object : Violation() {})
+            FragmentStrictMode.onPolicyViolation(object : Violation(fragment) {})
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(thread).isEqualTo(Looper.getMainLooper().thread)
         }
@@ -210,6 +214,7 @@ public class FragmentStrictModeTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun detectRetainInstanceUsage() {
         var violation: Violation? = null
@@ -219,14 +224,12 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        @Suppress("DEPRECATION")
         StrictFragment().retainInstance = true
-        assertThat(violation).isInstanceOf(RetainInstanceUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(SetRetainInstanceUsageViolation::class.java)
 
         violation = null
-        @Suppress("DEPRECATION")
         StrictFragment().retainInstance
-        assertThat(violation).isInstanceOf(RetainInstanceUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
     }
 
     @Test
@@ -243,6 +246,7 @@ public class FragmentStrictModeTest {
         assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun detectTargetFragmentUsage() {
         var violation: Violation? = null
@@ -252,19 +256,16 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        @Suppress("DEPRECATION")
         StrictFragment().setTargetFragment(StrictFragment(), 1)
-        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(SetTargetFragmentUsageViolation::class.java)
 
         violation = null
-        @Suppress("DEPRECATION")
         StrictFragment().targetFragment
-        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(GetTargetFragmentUsageViolation::class.java)
 
         violation = null
-        @Suppress("DEPRECATION")
         StrictFragment().targetRequestCode
-        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+        assertThat(violation).isInstanceOf(GetTargetFragmentRequestCodeUsageViolation::class.java)
     }
 
     @Test
@@ -292,5 +293,41 @@ public class FragmentStrictModeTest {
             executePendingTransactions()
             assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
         }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    public fun detectAllowedViolations() {
+        val violationClass1 = RetainInstanceUsageViolation::class.java
+        val violationClass2 = SetUserVisibleHintViolation::class.java
+        val violationClass3 = GetTargetFragmentUsageViolation::class.java
+        val violationClassList = listOf(violationClass1, violationClass2, violationClass3)
+
+        var violation: Violation? = null
+        var policyBuilder = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .detectSetUserVisibleHint()
+            .penaltyListener { violation = it }
+        for (violationClass in violationClassList) {
+            policyBuilder = policyBuilder.allowViolation(fragmentClass, violationClass)
+        }
+        FragmentStrictMode.setDefaultPolicy(policyBuilder.build())
+
+        StrictFragment().retainInstance = true
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(SetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        StrictFragment().retainInstance
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(GetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        StrictFragment().userVisibleHint = true
+        assertThat(violation).isNotInstanceOf(violationClass2)
+
+        violation = null
+        StrictFragment().targetFragment
+        assertThat(violation).isNotInstanceOf(violationClass3)
     }
 }

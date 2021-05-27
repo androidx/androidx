@@ -32,7 +32,7 @@
             android:resource="@xml/automotive_app_desc"
             tools:ignore="MetadataTagInsideApplicationTag" />
 
-        <meta-data android:name="androidx.car.app.minApiLevel"
+        <meta-data android:name="androidx.car.app.minCarApiLevel"
             android:value="1"
             tools:ignore="MetadataTagInsideApplicationTag" />
 

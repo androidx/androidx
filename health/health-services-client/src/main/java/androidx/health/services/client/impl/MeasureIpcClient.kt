@@ -26,7 +26,7 @@ import androidx.health.services.client.impl.ipc.internal.ListenerKey
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * An IPC Client that connects to and communicates with the WHS Service to make Measure API calls.
+ * An IPC Client that connects to and communicates with Health Services to make Measure API calls.
  *
  * @hide
  */

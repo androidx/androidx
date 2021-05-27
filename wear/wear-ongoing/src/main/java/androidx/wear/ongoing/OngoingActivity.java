@@ -106,6 +106,7 @@ public final class OngoingActivity {
         private LocusIdCompat mLocusId;
         private int mOngoingActivityId = DEFAULT_ID;
         private String mCategory;
+        private String mTitle;
 
         static final int DEFAULT_ID = -1;
 
@@ -229,12 +230,25 @@ public final class OngoingActivity {
         }
 
         /**
-         * Set the category of this {@link OngoingActivity}, this may be used by the system to
-         * prioritize it.
+         * Set the category of this {@link OngoingActivity}.
+         * <p>
+         * Must be one of the predefined notification categories (see the {@code CATEGORY_*}
+         * constants in {@link NotificationCompat}) that best describes this
+         * {@link OngoingActivity}. This may be used by the system to prioritize it.
          */
         @NonNull
         public Builder setCategory(@NonNull String category) {
             mCategory = category;
+            return this;
+        }
+
+        /**
+         * Sets the Title of this {@link OngoingActivity}, this could be used by the launcher to
+         * override the app's title.
+         */
+        @NonNull
+        public Builder setTitle(@NonNull String title) {
+            mTitle = title;
             return this;
         }
 
@@ -285,7 +299,8 @@ public final class OngoingActivity {
                         locusId == null ? null : locusId.getId(),
                         mOngoingActivityId,
                         category,
-                        SystemClock.elapsedRealtime()
+                        SystemClock.elapsedRealtime(),
+                        mTitle
                     ));
         }
     }
@@ -378,6 +393,14 @@ public final class OngoingActivity {
      */
     public long getTimestamp() {
         return mData.getTimestamp();
+    }
+
+    /**
+     * Get the title of this {@link OngoingActivity} if set.
+     */
+    @Nullable
+    public String getTitle() {
+        return mData.getTitle();
     }
 
     /**

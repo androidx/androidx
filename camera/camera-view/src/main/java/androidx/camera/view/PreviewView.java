@@ -45,7 +45,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
@@ -847,15 +846,12 @@ public final class PreviewView extends FrameLayout {
      *
      * <p> {@link PreviewView} needs to be in {@link ImplementationMode#COMPATIBLE} mode for the
      * transform to work correctly. For example, the returned {@link OutputTransform} may
-     * not respect the value of {@link #getScaleX()} when {@link ImplementationMode#PERFORMANCE}
+     * not respect the value of {@link #getMatrix()} when {@link ImplementationMode#PERFORMANCE}
      * mode is used.
      *
      * @return the transform applied on the preview by this {@link PreviewView}.
-     * @hide
      * @see CoordinateTransform
      */
-    // TODO(b/179827713): unhide this once all transform utils are done.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TransformExperimental
     @Nullable
     public OutputTransform getOutputTransform() {

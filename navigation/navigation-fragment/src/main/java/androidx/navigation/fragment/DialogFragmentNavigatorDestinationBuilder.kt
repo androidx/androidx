@@ -27,6 +27,11 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DialogFragmentDestination instead",
+    ReplaceWith("dialog<F>(route = id.toString())")
+)
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int
 ): Unit = dialog<F>(id) {}
@@ -34,6 +39,11 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your DialogFragmentDestination instead",
+    ReplaceWith("dialog<F>(route = id.toString()) { builder.invoke() }")
+)
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
@@ -44,16 +54,59 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
         F::class
     ).apply(builder)
 )
+/**
+ * Construct a new [DialogFragmentNavigator.Destination]
+ */
+public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
+    route: String
+): Unit = dialog<F>(route) {}
+
+/**
+ * Construct a new [DialogFragmentNavigator.Destination]
+ */
+public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
+    route: String,
+    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    DialogFragmentNavigatorDestinationBuilder(
+        provider[DialogFragmentNavigator::class],
+        route,
+        F::class
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [DialogFragmentNavigator.Destination]
  */
 @NavDestinationDsl
-public class DialogFragmentNavigatorDestinationBuilder(
-    navigator: DialogFragmentNavigator,
-    @IdRes id: Int,
-    private val fragmentClass: KClass<out DialogFragment>
-) : NavDestinationBuilder<DialogFragmentNavigator.Destination>(navigator, id) {
+public class DialogFragmentNavigatorDestinationBuilder :
+    NavDestinationBuilder<DialogFragmentNavigator.Destination> {
+
+    private var fragmentClass: KClass<out DialogFragment>
+
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your DialogFragmentNavigatorDestination instead",
+        ReplaceWith(
+            "DialogFragmentNavigatorDestinationBuilder(navigator, route = id.toString(), " +
+                "fragmentClass) "
+        )
+    )
+    public constructor(
+        navigator: DialogFragmentNavigator,
+        @IdRes id: Int,
+        fragmentClass: KClass<out DialogFragment>
+    ) : super(navigator, id) {
+        this.fragmentClass = fragmentClass
+    }
+
+    public constructor(
+        navigator: DialogFragmentNavigator,
+        route: String,
+        fragmentClass: KClass<out DialogFragment>
+    ) : super(navigator, route) {
+        this.fragmentClass = fragmentClass
+    }
 
     override fun build(): DialogFragmentNavigator.Destination =
         super.build().also { destination ->

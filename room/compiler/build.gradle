@@ -36,13 +36,6 @@ sourceSets {
     main.java.srcDirs += antlrOut
 }
 
-// Temporary hack to stop AS to adding two guavas into test's classpath
-configurations.all {
-    resolutionStrategy {
-        force GUAVA
-    }
-}
-
 configurations {
     /**
      * shadowed is used for dependencies which we jarjar into the library jar instead of adding it
@@ -120,6 +113,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(MOCKITO_CORE)
+    testImplementation(ANTLR)
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"

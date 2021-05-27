@@ -71,7 +71,7 @@ public class AppInfoTest {
     public void create_minApiLevel_cannotBeLowerThanOldest() {
         int minApiLevel = CarAppApiLevels.getOldest() - 1;
         mApplicationInfo.metaData = new Bundle();
-        mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_MANIFEST_KEY, minApiLevel);
+        mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_METADATA_KEY, minApiLevel);
         AppInfo.create(mContext);
     }
 
@@ -79,7 +79,7 @@ public class AppInfoTest {
     public void create_minApiLevel_cannotBeHigherThanLatest() {
         int minApiLevel = CarAppApiLevels.getLatest() + 1;
         mApplicationInfo.metaData = new Bundle();
-        mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_MANIFEST_KEY, minApiLevel);
+        mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_METADATA_KEY, minApiLevel);
         AppInfo.create(mContext);
     }
 
@@ -87,7 +87,7 @@ public class AppInfoTest {
     public void retrieveMinApiLevel_isReadFromManifest() {
         int minApiLevel = 123;
         mApplicationInfo.metaData = new Bundle();
-        mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_MANIFEST_KEY, minApiLevel);
+        mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_METADATA_KEY, minApiLevel);
         assertThat(AppInfo.retrieveMinCarAppApiLevel(mContext)).isEqualTo(minApiLevel);
     }
 }

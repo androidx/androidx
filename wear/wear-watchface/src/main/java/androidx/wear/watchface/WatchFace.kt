@@ -19,39 +19,44 @@ package androidx.wear.watchface
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
+import android.os.Bundle
+import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
-import android.util.Base64
 import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
+import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.data.ComplicationStateWireFormat
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
-import java.io.FileNotFoundException
-import java.io.InputStreamReader
 import java.security.InvalidParameterException
 import kotlin.math.max
 
@@ -84,61 +89,19 @@ public annotation class WatchFaceType {
     }
 }
 
-private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
-    val hashMap = HashMap<String, ByteArray>()
-    try {
-        val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
-        reader.use {
-            while (true) {
-                val key = reader.readLine() ?: break
-                val value = reader.readLine() ?: break
-                hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
-            }
-        }
-    } catch (e: FileNotFoundException) {
-        // We don't need to do anything special here.
-    }
-    return UserStyleWireFormat(hashMap)
-}
-
-private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
-    val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
-    writer.use {
-        for ((key, value) in style.selectedOptions) {
-            writer.write(key.id.value)
-            writer.newLine()
-            writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
-            writer.newLine()
-        }
-    }
-}
-
 /**
  * The return value of [WatchFaceService.createWatchFace] which brings together rendering, styling,
  * complications and state observers.
  *
  * @param watchFaceType The type of watch face, whether it's digital or analog. Used to determine
  * the default time for editor preview screenshots.
- * @param currentUserStyleRepository The [CurrentUserStyleRepository] for this WatchFace.
  * @param renderer The [Renderer] for this WatchFace.
- * @param complicationsManager The [ComplicationsManager] for this WatchFace.
  */
-public class WatchFace @JvmOverloads constructor(
+public class WatchFace(
     @WatchFaceType public var watchFaceType: Int,
-    public val currentUserStyleRepository: CurrentUserStyleRepository,
-    public val renderer: Renderer,
-    public var complicationsManager: ComplicationsManager =
-        ComplicationsManager(emptyList(), currentUserStyleRepository)
+    public val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
-
-    init {
-        if (renderer is Renderer.GlesRenderer) {
-            require(renderer.initDone) {
-                "Did you forget to call GlesRenderer.initOpenGLContext?"
-            }
-        }
-    }
 
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
@@ -244,7 +207,7 @@ public class WatchFace @JvmOverloads constructor(
      * Interface for getting the current system time.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
         public fun getSystemTimeMillis(): Long
@@ -373,7 +336,7 @@ public class WatchFace @JvmOverloads constructor(
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
         this.systemTimeProvider = systemTimeProvider
     }
@@ -382,10 +345,17 @@ public class WatchFace @JvmOverloads constructor(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("SyntheticAccessor")
-public class WatchFaceImpl(
+public class WatchFaceImpl @UiThread constructor(
     watchface: WatchFace,
     private val watchFaceHostApi: WatchFaceHostApi,
-    private val watchState: WatchState
+    private val watchState: WatchState,
+    internal val currentUserStyleRepository: CurrentUserStyleRepository,
+    internal var complicationsManager: ComplicationsManager,
+
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public val calendar: Calendar
 ) {
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
@@ -421,13 +391,32 @@ public class WatchFaceImpl(
         // available programmatically. The value below is the default but it could be overridden
         // by OEMs.
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
+
+        internal val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
+            hashMapOf(
+                DrawMode.AMBIENT to
+                    RenderParameters(
+                        DrawMode.AMBIENT, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
+                    ),
+                DrawMode.INTERACTIVE to
+                    RenderParameters(
+                        DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
+                    ),
+                DrawMode.LOW_BATTERY_INTERACTIVE to
+                    RenderParameters(
+                        DrawMode.LOW_BATTERY_INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
+                    ),
+                DrawMode.MUTE to
+                    RenderParameters(
+                        DrawMode.MUTE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
+                    ),
+            )
     }
 
     private val systemTimeProvider = watchface.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
-    internal val userStyleRepository = watchface.currentUserStyleRepository
     internal val renderer = watchface.renderer
-    internal val complicationsManager = watchface.complicationsManager
     private val tapListener = watchface.tapListener
 
     private data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
@@ -441,13 +430,8 @@ public class WatchFaceImpl(
     private var muteMode = false
     private var nextDrawTimeMillis: Long = 0
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public val calendar: Calendar = Calendar.getInstance()
-
     private val pendingUpdateTime: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getHandler())
+        CancellableUniqueTask(watchFaceHostApi.getUiThreadHandler())
 
     internal val componentName =
         ComponentName(
@@ -551,17 +535,19 @@ public class WatchFaceImpl(
         }
     }
 
-    private val visibilityObserver = Observer<Boolean> {
-        if (it) {
-            registerReceivers()
-            // Update time zone in case it changed while we weren't visible.
-            calendar.timeZone = TimeZone.getDefault()
-            watchFaceHostApi.invalidate()
-        } else {
-            unregisterReceivers()
-        }
+    private val visibilityObserver = Observer<Boolean> { isVisible ->
+        TraceEvent("WatchFaceImpl.visibilityObserver").use {
+            if (isVisible) {
+                registerReceivers()
+                // Update time zone in case it changed while we weren't visible.
+                calendar.timeZone = TimeZone.getDefault()
+                watchFaceHostApi.invalidate()
+            } else {
+                unregisterReceivers()
+            }
 
-        scheduleDraw()
+            scheduleDraw()
+        }
     }
 
     // Only installed if Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -582,62 +568,12 @@ public class WatchFaceImpl(
     }
 
     init {
-        // If the system has a stored user style then Home/SysUI is in charge of style
-        // persistence, otherwise we need to do our own.
-        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
-        if (storedUserStyle != null) {
-            userStyleRepository.userStyle =
-                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
-        } else {
-            // The system doesn't support preference persistence we need to do it ourselves.
-            val preferencesFile =
-                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
-
-            userStyleRepository.userStyle = UserStyle(
-                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
-                userStyleRepository.schema
-            )
-
-            userStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
-                    }
-                })
-        }
-
         renderer.watchFaceHostApi = watchFaceHostApi
+        renderer.uiThreadInit()
 
         setIsBatteryLowAndNotChargingFromBatteryStatus(
             IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
                 watchFaceHostApi.getContext().registerReceiver(null, iFilter)
-            }
-        )
-
-        // We need to inhibit an immediate callback during initialization because members are not
-        // fully constructed and it will fail. It's also superfluous because we're going to render
-        // anyway.
-        var initFinished = false
-        complicationsManager.init(
-            watchFaceHostApi, calendar, renderer,
-            object : Complication.InvalidateListener {
-                @SuppressWarnings("SyntheticAccessor")
-                override fun onInvalidate() {
-                    // Ensure we render a frame if the Complication needs rendering, e.g. because it
-                    // loaded an image. However if we're animating there's no need to trigger an
-                    // extra invalidation.
-                    if (renderer.shouldAnimate() && computeDelayTillNextFrame(
-                            nextDrawTimeMillis,
-                            systemTimeProvider.getSystemTimeMillis()
-                        ) < MIN_PERCEPTABLE_DELAY_MILLIS
-                    ) {
-                        return
-                    }
-                    if (initFinished) {
-                        watchFaceHostApi.invalidate()
-                    }
-                }
             }
         )
 
@@ -651,20 +587,31 @@ public class WatchFaceImpl(
         }
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
         watchState.isVisible.addObserver(visibilityObserver)
+    }
 
-        initFinished = true
+    internal fun invalidateIfNotAnimating() {
+        // Ensure we render a frame if the Complication needs rendering, e.g.
+        // because it loaded an image. However if we're animating there's no need
+        // to trigger an extra invalidation.
+        if (!renderer.shouldAnimate() || computeDelayTillNextFrame(
+                nextDrawTimeMillis,
+                systemTimeProvider.getSystemTimeMillis()
+            ) > MIN_PERCEPTABLE_DELAY_MILLIS
+        ) {
+            watchFaceHostApi.invalidate()
+        }
     }
 
     internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
         override val userStyleSchema: UserStyleSchema
-            get() = userStyleRepository.schema
+            get() = currentUserStyleRepository.schema
 
         override var userStyle: UserStyle
-            get() = userStyleRepository.userStyle
+            get() = currentUserStyleRepository.userStyle
             set(value) {
-                userStyleRepository.userStyle = value
+                currentUserStyleRepository.userStyle = value
                 watchFaceHostApi.onUserStyleChanged()
             }
 
@@ -735,7 +682,7 @@ public class WatchFaceImpl(
     internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
-        userStyleRepository.userStyle = style
+        currentUserStyleRepository.userStyle = style
         inOnSetStyle = false
     }
 
@@ -756,7 +703,7 @@ public class WatchFaceImpl(
 
     @UiThread
     private fun registerReceivers() {
-        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+        require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
             "registerReceivers must be called the UiThread"
         }
 
@@ -769,7 +716,7 @@ public class WatchFaceImpl(
 
     @UiThread
     private fun unregisterReceivers() {
-        require(watchFaceHostApi.getHandler().looper.isCurrentThread) {
+        require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
             "unregisterReceivers must be called the UiThread"
         }
         broadcastsReceiver?.onDestroy()
@@ -822,8 +769,10 @@ public class WatchFaceImpl(
         } else if (muteMode) {
             newDrawMode = DrawMode.MUTE
         }
-        renderer.renderParameters =
-            RenderParameters(newDrawMode, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
+
+        if (renderer.renderParameters.drawMode != newDrawMode) {
+            renderer.renderParameters = defaultRenderParametersForDrawMode[newDrawMode]!!
+        }
     }
 
     /** @hide */
@@ -944,6 +893,122 @@ public class WatchFaceImpl(
     }
 
     @UiThread
+    internal fun getComplicationState() = complicationsManager.complications.map {
+        IdAndComplicationStateWireFormat(
+            it.key,
+            ComplicationStateWireFormat(
+                it.value.computeBounds(renderer.screenBounds),
+                it.value.boundsType,
+                ComplicationType.toWireTypes(it.value.supportedTypes),
+                it.value.defaultProviderPolicy.providersAsList(),
+                it.value.defaultProviderPolicy.systemProviderFallback,
+                it.value.defaultProviderType.toWireComplicationType(),
+                it.value.enabled,
+                it.value.initiallyEnabled,
+                it.value.renderer.getData()?.type?.toWireComplicationType()
+                    ?: ComplicationType.NO_DATA.toWireComplicationType(),
+                it.value.fixedComplicationProvider,
+                it.value.configExtras
+            )
+        )
+    }
+
+    @UiThread
+    @RequiresApi(27)
+    internal fun renderWatchFaceToBitmap(
+        params: WatchFaceRenderParams
+    ): Bundle = TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
+        val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+        params.userStyle?.let {
+            onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
+        }
+
+        val oldComplicationData =
+            complicationsManager.complications.values.associateBy(
+                { it.id },
+                { it.renderer.getData() }
+            )
+
+        params.idAndComplicationDatumWireFormats?.let {
+            for (idAndData in it) {
+                complicationsManager[idAndData.id]!!.renderer
+                    .loadData(idAndData.complicationData.toApiComplicationData(), false)
+            }
+        }
+
+        val bitmap = renderer.takeScreenshot(
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = params.calendarTimeMillis
+            },
+            RenderParameters(params.renderParametersWireFormat)
+        )
+
+        // Restore previous style & complications if required.
+        if (params.userStyle != null) {
+            onSetStyleInternal(UserStyle(oldStyle))
+        }
+
+        if (params.idAndComplicationDatumWireFormats != null) {
+            for ((id, data) in oldComplicationData) {
+                complicationsManager[id]!!.renderer.loadData(data, false)
+            }
+        }
+
+        return SharedMemoryImage.ashmemWriteImageBundle(bitmap)
+    }
+
+    @UiThread
+    @RequiresApi(27)
+    internal fun renderComplicationToBitmap(
+        params: ComplicationRenderParams
+    ): Bundle? = TraceEvent("WatchFaceImpl.renderComplicationToBitmap").use {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = params.calendarTimeMillis
+        }
+        return complicationsManager[params.complicationId]?.let {
+            val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+            val newStyle = params.userStyle
+            if (newStyle != null) {
+                onSetStyleInternal(
+                    UserStyle(UserStyleData(newStyle), currentUserStyleRepository.schema)
+                )
+            }
+
+            val bounds = it.computeBounds(renderer.screenBounds)
+            val complicationBitmap =
+                Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
+
+            var prevData: ComplicationData? = null
+            val screenshotComplicationData = params.complicationData
+            if (screenshotComplicationData != null) {
+                prevData = it.renderer.getData()
+                it.renderer.loadData(
+                    screenshotComplicationData.toApiComplicationData(),
+                    false
+                )
+            }
+
+            it.renderer.render(
+                Canvas(complicationBitmap),
+                Rect(0, 0, bounds.width(), bounds.height()),
+                calendar,
+                RenderParameters(params.renderParametersWireFormat)
+            )
+
+            // Restore previous ComplicationData & style if required.
+            if (params.complicationData != null) {
+                it.renderer.loadData(prevData, false)
+            }
+
+            if (newStyle != null) {
+                onSetStyleInternal(UserStyle(oldStyle))
+            }
+
+            SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
+        }
+    }
+
+    @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchFaceImpl ($componentName): ")
         writer.increaseIndent()
@@ -955,8 +1020,10 @@ public class WatchFaceImpl(
         writer.println("muteMode=$muteMode")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
-        writer.println("currentUserStyleRepository.userStyle=${userStyleRepository.userStyle}")
-        writer.println("currentUserStyleRepository.schema=${userStyleRepository.schema}")
+        writer.println(
+            "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle}"
+        )
+        writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
         watchState.dump(writer)
         complicationsManager.dump(writer)
         renderer.dump(writer)

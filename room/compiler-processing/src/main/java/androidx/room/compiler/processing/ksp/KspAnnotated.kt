@@ -112,11 +112,16 @@ internal sealed class KspAnnotated(
         fun accept(annotation: KSAnnotation): Boolean
 
         private class Impl(
-            val acceptedTarget: AnnotationUseSiteTarget
+            val acceptedTarget: AnnotationUseSiteTarget,
+            private val acceptNoTarget: Boolean = true,
         ) : UseSiteFilter {
             override fun accept(annotation: KSAnnotation): Boolean {
                 val target = annotation.useSiteTarget
-                return target == null || acceptedTarget == target
+                return if (target == null) {
+                    acceptNoTarget
+                } else {
+                    acceptedTarget == target
+                }
             }
         }
 
@@ -132,6 +137,10 @@ internal sealed class KspAnnotated(
             val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.GET)
             val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.SET)
             val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(AnnotationUseSiteTarget.SETPARAM)
+            val FILE: UseSiteFilter = Impl(
+                acceptedTarget = AnnotationUseSiteTarget.FILE,
+                acceptNoTarget = false
+            )
         }
     }
 

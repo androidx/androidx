@@ -65,7 +65,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CountDownLatch;
@@ -246,12 +245,8 @@ public final class ZoomControlDeviceTest {
 
     @NonNull
     private Rect getSessionCropRegion(ControlUpdateCallback controlUpdateCallback) {
-        ArgumentCaptor<SessionConfig> sessionConfigArgumentCaptor =
-                ArgumentCaptor.forClass(SessionConfig.class);
-
-        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
-                sessionConfigArgumentCaptor.capture());
-        SessionConfig sessionConfig = sessionConfigArgumentCaptor.getValue();
+        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig();
+        SessionConfig sessionConfig = mCamera2CameraControlImpl.getSessionConfig();
         Camera2ImplConfig camera2Config = new Camera2ImplConfig(
                 sessionConfig.getImplementationOptions());
 
@@ -262,12 +257,8 @@ public final class ZoomControlDeviceTest {
 
     @NonNull
     private Float getAndroidRZoomRatio(ControlUpdateCallback controlUpdateCallback) {
-        ArgumentCaptor<SessionConfig> sessionConfigArgumentCaptor =
-                ArgumentCaptor.forClass(SessionConfig.class);
-
-        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
-                sessionConfigArgumentCaptor.capture());
-        SessionConfig sessionConfig = sessionConfigArgumentCaptor.getValue();
+        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig();
+        SessionConfig sessionConfig = mCamera2CameraControlImpl.getSessionConfig();
         Camera2ImplConfig camera2Config = new Camera2ImplConfig(
                 sessionConfig.getImplementationOptions());
 

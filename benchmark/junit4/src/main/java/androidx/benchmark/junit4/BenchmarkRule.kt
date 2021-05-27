@@ -192,7 +192,7 @@ public class BenchmarkRule internal constructor(
                     "The test name $invokeMethodName is too short",
                     invokeMethodName.length > 5
                 )
-                invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
+                invokeMethodName = invokeMethodName.substring(4, 5).lowercase() +
                     invokeMethodName.substring(5)
             }
             internalState.traceUniqueName = description.testClass.simpleName + "_" +

@@ -36,7 +36,7 @@ class EmojiStartupBenchmark {
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun enabledstartup() {
+    fun emojiCompatInitEnabledStartup() {
         // only run this test if the device can configure emoji2
         assumeTrue(hasDiscoverableFontProviderOnDevice())
         benchmarkRule.measureStartup(

@@ -76,6 +76,7 @@ class TestNavHostControllerTest {
         assertThat(backStack[1].destination).isInstanceOf(TestNavigator.Destination::class.java)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testDsl() {

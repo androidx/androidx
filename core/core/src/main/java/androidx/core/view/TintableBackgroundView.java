@@ -25,6 +25,11 @@ import androidx.annotation.Nullable;
  * Interface which allows a {@link android.view.View} to receive background tinting calls from
  * {@link ViewCompat} when running on API v20 devices or lower.
  */
+/*
+ * When used with androidx.resourceinspection.annotation.AppCompatShadowedAttributes, this
+ * interface implies that AppCompat shadows the platform's background tint attributes.
+ * See androidx.resourceinspection.processor for more details and a full mapping of attributes.
+ */
 public interface TintableBackgroundView {
 
     /**

@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.camera2.internal.compat.ApiCompat;
 
 import java.util.List;
 
@@ -91,7 +92,8 @@ public final class OutputConfigurationCompat {
      */
     @RequiresApi(26)
     public <T> OutputConfigurationCompat(@NonNull Size surfaceSize, @NonNull Class<T> klass) {
-        OutputConfiguration deferredConfig = new OutputConfiguration(surfaceSize, klass);
+        OutputConfiguration deferredConfig =
+                ApiCompat.Api26Impl.newOutputConfiguration(surfaceSize, klass);
         if (Build.VERSION.SDK_INT >= 28) {
             mImpl = OutputConfigurationCompatApi28Impl.wrap(deferredConfig);
         } else {

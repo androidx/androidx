@@ -90,14 +90,14 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
         // Grid item with an icon and a title.
         gridItemListBuilder.addItem(
                 new GridItem.Builder()
-                        .setImage(new CarIcon.Builder(mIcon).build())
+                        .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
                         .setTitle("Non-actionable")
                         .build());
 
-        // Grid item with a large icon, a title, onClickListener and no text.
+        // Grid item with an icon, a title, onClickListener and no text.
         gridItemListBuilder.addItem(
                 new GridItem.Builder()
-                        .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_LARGE)
+                        .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
                         .setTitle("Second Item")
                         .setOnClickListener(
                                 () ->

@@ -33,7 +33,7 @@ class EmojiStartupBenchmark {
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun disabledstartup() {
+    fun emojiCompatInitDisabledStartup() {
         benchmarkRule.measureStartup(
             compilationMode = CompilationMode.None,
             startupMode = StartupMode.COLD,

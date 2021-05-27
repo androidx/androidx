@@ -285,22 +285,22 @@ package androidx.wear.widget {
     ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?);
     ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?, int);
     ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?, int, int);
-    method protected void executeDismissCanceledCallbacks();
-    method protected void executeDismissStartedCallbacks();
-    method protected void executeDismissedCallbacks();
-    method public boolean isBackButtonDismissible();
-    method public boolean isSwipeDismissible();
-    method @UiThread public void registerCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
-    method public void setBackButtonDismissible(boolean);
-    method public void setSwipeDismissible(boolean);
-    method @UiThread public void unregisterCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
+    method public boolean isDismissableByBackButton();
+    method public boolean isDismissableBySwipe();
+    method protected void performDismissCanceledCallbacks();
+    method protected void performDismissFinishedCallbacks();
+    method protected void performDismissStartedCallbacks();
+    method @UiThread public final void registerCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
+    method public final void setBackButtonDismissible(boolean);
+    method public final void setSwipeDismissible(boolean);
+    method @UiThread public final void unregisterCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
   }
 
   @UiThread public abstract static class DismissibleFrameLayout.Callback {
     ctor public DismissibleFrameLayout.Callback();
     method public void onDismissCanceled(androidx.wear.widget.DismissibleFrameLayout);
+    method public void onDismissFinished(androidx.wear.widget.DismissibleFrameLayout);
     method public void onDismissStarted(androidx.wear.widget.DismissibleFrameLayout);
-    method public void onDismissed(androidx.wear.widget.DismissibleFrameLayout);
   }
 
   public class RoundedDrawable extends android.graphics.drawable.Drawable {

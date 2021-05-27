@@ -115,7 +115,7 @@ class TopOfTreeBuilder {
         val result = md.digest(file.data)
         return ArchiveFile(
             Paths.get(
-                file.relativePath.toString() + "." + hashType.toLowerCase()
+                file.relativePath.toString() + "." + hashType.lowercase()
             ),
             result
         )

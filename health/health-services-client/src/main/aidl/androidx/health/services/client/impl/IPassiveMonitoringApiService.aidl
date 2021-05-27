@@ -33,9 +33,17 @@ interface IPassiveMonitoringApiService {
     const int API_VERSION = 1;
 
     /**
+     * Returns version of this AIDL interface.
+     *
+     * <p> Can be used by client to detect version of the API on the service
+     * side. Returned version should be always > 0.
+     */
+    int getApiVersion() = 0;
+
+    /**
      * Method to subscribe to an event with corresponding callback intent.
      */
-    void registerEventCallback(in EventRequest request, in PendingIntent intent, in IStatusCallback statusCallback) = 0;
+    void registerEventCallback(in EventRequest request, in PendingIntent intent, in IStatusCallback statusCallback) = 1;
 
     /**
      * Method to subscribe to a set of data types with corresponding callback
@@ -44,7 +52,7 @@ interface IPassiveMonitoringApiService {
      * <p>If a callback is present and is active, updates are provided via the callback. Otherwise,
      * the provided PendingIntent gets the updates.
      */
-    void registerDataCallback(in BackgroundRegistrationRequest request, in PendingIntent fallbackIntent, in IPassiveMonitoringCallback callback, in IStatusCallback statusCallback) = 1;
+    void registerDataCallback(in BackgroundRegistrationRequest request, in PendingIntent fallbackIntent, in IPassiveMonitoringCallback callback, in IStatusCallback statusCallback) = 2;
 
     /**
      * Method to subscribe to a set of data types with corresponding callback intent.
@@ -56,14 +64,6 @@ interface IPassiveMonitoringApiService {
      */
     void unregisterEventCallback(in EventRequest request, in IStatusCallback statusCallback) = 4;
 
-    /**
-     * Returns version of this AIDL interface.
-     *
-     * <p> Can be used by client to detect version of the API on the service
-     * side. Returned version should be always > 0.
-     */
-    int getApiVersion() = 2;
-
-   /** Method to get capabilities. */
-   PassiveMonitoringCapabilitiesResponse getCapabilities(in CapabilitiesRequest request) = 5;
+    /** Method to get capabilities. */
+    PassiveMonitoringCapabilitiesResponse getCapabilities(in CapabilitiesRequest request) = 5;
 }

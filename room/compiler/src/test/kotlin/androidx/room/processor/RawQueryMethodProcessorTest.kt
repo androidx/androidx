@@ -286,6 +286,40 @@ class RawQueryMethodProcessorTest {
     }
 
     @Test
+    fun badType() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract public int[] foo(int query);
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.RAW_QUERY_BAD_PARAMS
+                )
+            }
+        }
+    }
+
+    @Test
+    fun badType_nullable() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract public int[] foo(@androidx.annotation.Nullable SupportSQLiteQuery query);
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.parameterCannotBeNullable(
+                        parameterName = "query"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun observed_notAnEntity() {
         singleQueryMethod(
             """

@@ -23,7 +23,7 @@ package androidx.camera.camera2.pipe
  * or not listed.
  * // TODO: Consider adding data-space as a separate property, or finding a way to work it in.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class StreamFormat(public val value: Int) {
     public companion object {
         public val UNKNOWN: StreamFormat = StreamFormat(0)

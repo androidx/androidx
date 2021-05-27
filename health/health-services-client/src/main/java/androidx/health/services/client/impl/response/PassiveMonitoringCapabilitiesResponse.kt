@@ -21,7 +21,7 @@ import android.os.Parcelable
 import androidx.health.services.client.data.PassiveMonitoringCapabilities
 
 /**
- * Response containing the capabilities of WHS client on the device.
+ * Response containing the [PassiveMonitoringCapabilities] of the device.
  *
  * @hide
  */

@@ -166,10 +166,15 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
      * Override this method to define the work that needs to run in the remote process. This method
      * is called on the main thread.
      * <p>
-     * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
-     * {@code Result}.  After this time has expired, the worker will be signalled to stop and its
-     * {@link ListenableFuture} will be cancelled. Note that the 10 minute execution window also
-     * includes the cost of binding to the remote process.
+     * A ListenableWorker has a well defined
+     * <a href="https://d.android.com/reference/android/app/job/JobScheduler">execution window</a>
+     * to to finish its execution and return a {@link androidx.work.ListenableWorker.Result}.
+     * After this time has expired, the worker will be signalled to stop and its
+     * {@link ListenableFuture} will be cancelled. Note that the execution window also includes
+     * the cost of binding to the remote process.
+     * <p>
+     * The {@link RemoteListenableWorker} will also be signalled to stop when its constraints are
+     * no longer met.
      *
      * @return A {@link ListenableFuture} with the {@code Result} of the computation.  If you
      * cancel this Future, WorkManager will treat this unit of work as a {@code Result#failure()}.

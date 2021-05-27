@@ -70,7 +70,7 @@ public class TestCarContext extends CarContext {
 
     final List<Intent> mStartCarAppIntents = new ArrayList<>();
     @Nullable
-    private PermissionRequest mLastPermissionRequest = null;
+    private PermissionRequestInfo mLastPermissionRequestInfo = null;
     private boolean mHasCalledFinishCarApp;
 
     /** Resets the values tracked by this {@link TestCarContext}. */
@@ -128,11 +128,11 @@ public class TestCarContext extends CarContext {
     }
 
     @Override
-    public void requestPermissions(@NonNull Executor executor, @NonNull List<String> permissions,
+    public void requestPermissions(@NonNull List<String> permissions, @NonNull Executor executor,
             @NonNull OnRequestPermissionsCallback callback) {
-        mLastPermissionRequest = new PermissionRequest(requireNonNull(permissions),
+        mLastPermissionRequestInfo = new PermissionRequestInfo(requireNonNull(permissions),
                 requireNonNull(callback));
-        super.requestPermissions(executor, permissions, callback);
+        super.requestPermissions(permissions, executor, callback);
     }
 
     /**
@@ -174,12 +174,12 @@ public class TestCarContext extends CarContext {
     }
 
     /**
-     * Returns a {@link PermissionRequest} including the information with the last call made to
+     * Returns a {@link PermissionRequestInfo} including the information with the last call made to
      * {@link CarContext#requestPermissions}, or {@code null} if no call was made.
      */
     @Nullable
-    public PermissionRequest getLastPermissionRequest() {
-        return mLastPermissionRequest;
+    public PermissionRequestInfo getLastPermissionRequestInfo() {
+        return mLastPermissionRequestInfo;
     }
 
     /** Verifies if {@link CarContext#finishCarApp} has been called. */
@@ -253,12 +253,12 @@ public class TestCarContext extends CarContext {
      * A representation of a permission request including the permissions that were requested as
      * well as the callback provided.
      */
-    public static class PermissionRequest {
+    public static class PermissionRequestInfo {
         private final List<String> mPermissionsRequested;
         private final OnRequestPermissionsCallback mCallback;
 
         @SuppressWarnings("ExecutorRegistration")
-        PermissionRequest(List<String> permissionsRequested,
+        PermissionRequestInfo(List<String> permissionsRequested,
                 OnRequestPermissionsCallback callback) {
             mPermissionsRequested = requireNonNull(permissionsRequested);
             mCallback = requireNonNull(callback);

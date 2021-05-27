@@ -39,7 +39,7 @@ package androidx.navigation.ui {
   }
 
   public final class BottomNavigationViewKt {
-    method public static void setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView, androidx.navigation.NavController navController);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView, androidx.navigation.NavController navController);
   }
 
   public final class CollapsingToolbarLayoutKt {
@@ -58,12 +58,10 @@ package androidx.navigation.ui {
 
   public final class NavigationUI {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.google.android.material.bottomsheet.BottomSheetBehavior<?>? findBottomSheetBehavior(android.view.View view);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.navigation.NavDestination findStartDestination(androidx.navigation.NavGraph graph);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static boolean matchDestination(androidx.navigation.NavDestination destination, @IdRes int destId);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static boolean matchDestinations(androidx.navigation.NavDestination destination, java.util.Set<java.lang.Integer> destinationIds);
     method public static boolean navigateUp(androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
     method public static boolean navigateUp(androidx.navigation.NavController navController, androidx.navigation.ui.AppBarConfiguration configuration);
     method public static boolean onNavDestinationSelected(android.view.MenuItem item, androidx.navigation.NavController navController);
+    method @androidx.navigation.ui.NavigationUiSaveStateControl public static boolean onNavDestinationSelected(android.view.MenuItem item, androidx.navigation.NavController navController, boolean saveState);
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController);
@@ -74,8 +72,13 @@ package androidx.navigation.ui {
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout collapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController);
     method public static void setupWithNavController(com.google.android.material.navigation.NavigationView navigationView, androidx.navigation.NavController navController);
-    method public static void setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView, androidx.navigation.NavController navController);
+    method @androidx.navigation.ui.NavigationUiSaveStateControl public static void setupWithNavController(com.google.android.material.navigation.NavigationView navigationView, androidx.navigation.NavController navController, boolean saveState);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView navigationBarView, androidx.navigation.NavController navController);
+    method @androidx.navigation.ui.NavigationUiSaveStateControl public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView navigationBarView, androidx.navigation.NavController navController, boolean saveState);
     field public static final androidx.navigation.ui.NavigationUI INSTANCE;
+  }
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface NavigationUiSaveStateControl {
   }
 
   public final class NavigationViewKt {

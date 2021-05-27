@@ -33,6 +33,11 @@ import androidx.car.app.validation.HostValidator;
  * Cars Library developer guide</a>.
  */
 public final class HelloWorldService extends CarAppService {
+
+    public HelloWorldService() {
+        // Exported services must have an empty public constructor.
+    }
+
     @Override
     @NonNull
     public Session onCreateSession() {

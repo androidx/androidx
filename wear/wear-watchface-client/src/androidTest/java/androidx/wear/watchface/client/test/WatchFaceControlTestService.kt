@@ -19,17 +19,34 @@ package androidx.wear.watchface.client.test
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
 
 /**
  * Test shim to allow us to connect to WatchFaceControlService from
- * [WatchFaceControlClientTest].
+ * [WatchFaceControlClientTest] and to optionally override the reported API version.
  */
 public class WatchFaceControlTestService : Service() {
-    private val realService = WatchFaceControlService().apply {
-        setContext(ApplicationProvider.getApplicationContext<Context>())
+    public companion object {
+        /**
+         * If non-null this overrides the API version reported by [IWatchFaceInstanceServiceStub].
+         */
+        public var apiVersionOverride: Int? = null
+    }
+
+    private val realService = object : WatchFaceControlService() {
+        override fun createServiceStub(): IWatchFaceInstanceServiceStub =
+            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {
+                override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
+            }
+
+        init {
+            setContext(ApplicationProvider.getApplicationContext<Context>())
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)

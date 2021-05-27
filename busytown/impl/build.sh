@@ -14,12 +14,24 @@ SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
 # resolve directories
 cd "$SCRIPT_DIR/../.."
-OUT_DIR="../../out"
+if [ "$OUT_DIR" == "" ]; then
+  OUT_DIR="../../out"
+fi
 mkdir -p "$OUT_DIR"
+export OUT_DIR="$(cd $OUT_DIR && pwd)"
 if [ "$DIST_DIR" == "" ]; then
   DIST_DIR="$OUT_DIR/dist"
 fi
 mkdir -p "$DIST_DIR"
+export DIST_DIR="$DIST_DIR"
+
+# parse arguments
+if [ "$1" == "--diagnose" ]; then
+  DIAGNOSE=true
+  shift
+else
+  DIAGNOSE=false
+fi
 
 # record the build start time
 BUILD_START_MARKER="$OUT_DIR/build.sh.start"
@@ -52,15 +64,20 @@ function run() {
 # Confirm the existence of .git dirs. TODO(b/170634430) remove this
 (echo "top commit:" && git --no-pager log -1)
 
-# determine which subset of projects to include, and be sure to print it if it is specified
-PROJECTS_ARG=""
-if [ "$ANDROIDX_PROJECTS" != "" ]; then
-  PROJECTS_ARG="ANDROIDX_PROJECTS=$ANDROIDX_PROJECTS"
+# export some variables
+ANDROID_HOME=../../prebuilts/fullsdk-linux
+
+# run the build
+if run ./gradlew --ci saveSystemStats "$@"; then
+  echo build passed
+else
+  if [ "$DIAGNOSE" == "true" ]; then
+    # see if diagnose-build-failure.sh can identify the root cauase
+    echo "running diagnose-build-failure.sh, see build.log" >&2
+    ./development/diagnose-build-failure/diagnose-build-failure.sh "--ci saveSystemStats $*"
+  fi
+  exit 1
 fi
-# --no-watch-fs disables file system watch, because it does not work on busytown
-# due to our builders using OS that is too old.
-run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=../../prebuilts/fullsdk-linux \
-    ./gradlew --ci saveSystemStats "$@"
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
 DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER

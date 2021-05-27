@@ -20,12 +20,14 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.res.Configuration
 import android.os.Build
+import androidx.appcompat.Orientation
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
+import androidx.appcompat.withOrientation
 import androidx.lifecycle.Lifecycle
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -34,8 +36,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.LifecycleOwnerUtils
 import org.junit.After
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,12 +59,6 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
             // Let the test method launch its own activity so that we can ensure it's RESUMED.
             launchActivity = false
         )
-
-    @Before
-    public fun setup() {
-        device.setOrientationNatural()
-        device.waitForIdle(5000)
-    }
 
     @After
     public fun teardown() {
@@ -96,38 +92,41 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
 
         // Now rotate the device. This should result in an onDestroy lifecycle event.
         nightModeActivity.resetOnDestroy()
-        rotateDeviceAndWaitForRecreate(nightModeActivity)
-        nightModeActivity.expectOnDestroy(5000)
+        rotateDeviceAndWaitForRecreate(nightModeActivity) {
+            nightModeActivity.expectOnDestroy(5000)
 
-        // Assert that we got a different activity and thus it was recreated.
-        val rotatedNightModeActivity = activityRule.activity
-        val rotatedConfig = rotatedNightModeActivity.resources.configuration
-        assertNotSame(nightModeActivity, rotatedNightModeActivity)
-        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
+            // Assert that we got a different activity and thus it was recreated.
+            val rotatedNightModeActivity = activityRule.activity
+            val rotatedConfig = rotatedNightModeActivity.resources.configuration
+            assertNotSame(nightModeActivity, rotatedNightModeActivity)
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
 
-        // On API level 26 and below, the configuration object is going to be identical
-        // across configuration changes, so we need to compare against the cached value.
-        assertNotSame(orientation, rotatedConfig.orientation)
+            // On API level 26 and below, the configuration object is going to be identical
+            // across configuration changes, so we need to compare against the cached value.
+            assertNotSame(orientation, rotatedConfig.orientation)
+        }
     }
 
-    private fun rotateDeviceAndWaitForRecreate(activity: Activity) {
+    private fun rotateDeviceAndWaitForRecreate(activity: Activity, doThis: () -> Unit) {
         val monitor = Instrumentation.ActivityMonitor(activity::class.java.name, null, false)
         instrumentation.addMonitor(monitor)
 
-        // Rotate
-        device.setOrientationLeft()
+        device.withOrientation(Orientation.LEFT) {
+            // Wait for the activity to be recreated after rotation
+            var count = 0
+            var lastActivity: Activity? = activity
+            while ((lastActivity == null || activity == lastActivity) && count < 5) {
+                // If this times out, it will return null.
+                lastActivity = monitor.waitForActivityWithTimeout(1000L)
+                count++
+            }
+            instrumentation.waitForIdleSync()
 
-        // Wait for the activity to be recreated after rotation
-        var count = 0
-        var lastActivity = activity
-        while (activity == lastActivity && count < 5) {
-            lastActivity = monitor.waitForActivityWithTimeout(1000L)
-            count++
+            // Ensure that we didn't time out
+            assertNotNull("Activity was not recreated within 5000ms", lastActivity)
+            assertNotEquals("Activity was not recreated within 5000ms", activity, lastActivity)
+            doThis()
         }
-        instrumentation.waitForIdleSync()
-
-        // Ensure that we didn't time out
-        assertNotEquals("Activity was not recreated within 5000ms", activity, lastActivity)
     }
 
     public companion object {

@@ -20,6 +20,7 @@ import android.app.NotificationManager
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 
 /**
  * Describes the current state of the wearable including some hardware details such as whether or

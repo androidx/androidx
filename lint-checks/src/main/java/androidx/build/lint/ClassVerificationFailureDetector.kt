@@ -63,6 +63,7 @@ import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
+import kotlin.math.min
 
 /**
  * This check detects references to platform APIs that are likely to cause class verification
@@ -80,63 +81,158 @@ import org.jetbrains.uast.util.isMethodCall
 class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
     private var apiDatabase: ApiLookup? = null
 
-    override fun beforeCheckEachProject(context: Context) {
-        apiDatabase = ApiLookup.get(context.client, context.project.buildTarget)
-    }
-
-    override fun afterCheckEachProject(context: Context) {
-        apiDatabase = null
-    }
-
-    override fun createUastHandler(context: JavaContext): UElementHandler? {
+    /**
+     * Copied from ApiDetector.kt
+     */
+    override fun beforeCheckRootProject(context: Context) {
         if (apiDatabase == null) {
+            apiDatabase = ApiLookup.get(context.client, context.project.buildTarget)
+            // We can't look up the minimum API required by the project here:
+            // The manifest file hasn't been processed yet in the -before- project hook.
+            // For now it's initialized lazily in getMinSdk(Context), but the
+            // lint infrastructure should be fixed to parse manifest file up front.
+        }
+    }
+
+    /**
+     * Copied from ApiDetector.kt
+     */
+    private fun getMinSdk(context: Context): Int {
+        val project = if (context.isGlobalAnalysis())
+            context.mainProject else context.project
+        return if (!project.isAndroidProject) {
+            // Don't flag API checks in non-Android projects
+            Integer.MAX_VALUE
+        } else {
+            project.minSdkVersion.featureLevel
+        }
+    }
+
+    /**
+     * Copied from ApiDetector.kt
+     */
+    override fun createUastHandler(context: JavaContext): UElementHandler? {
+        if (apiDatabase == null || context.isTestSource && !context.driver.checkTestSources) {
             return null
         }
-        return ApiVisitor(context)
+        val project = if (context.isGlobalAnalysis())
+            context.mainProject else context.project
+        return if (project.isAndroidProject) {
+            ApiVisitor(context)
+        } else {
+            null
+        }
     }
 
     override fun getApplicableUastTypes() = listOf(UCallExpression::class.java)
 
-    // Consider making this a top class and pass in apiDatabase explicitly.
+    /**
+     * Modified from ApiDetector.kt
+     *
+     * Changes:
+     * - Only the `visitCall` method has been copied over
+     */
     private inner class ApiVisitor(private val context: JavaContext) : UElementHandler() {
+
+        /**
+         * Modified from ApiDetector.kt
+         *
+         * Changes:
+         * - Replaced the `method == null` conditional block with elvis operator `return`
+         */
         override fun visitCallExpression(node: UCallExpression) {
-            val method = node.resolve()
-            if (method != null) {
-                visitCall(method, node, node)
-            }
+            val method = node.resolve() ?: return
+
+            visitCall(method, node, node)
         }
 
+        /**
+         * Modified from ApiDetector.kt
+         *
+         * Changes:
+         * - Added early return for null call, removed null checks
+         * - Removed enforcement of @RequiresApi
+         * - Removed cast checking on parameter list
+         * - Removed special-casing of Support Library
+         * - Removed SimpleDateFormat and Animator checks
+         * - Removed check for suppression
+         * - Removed signature generation
+         * - Removed unused values (signature, desugaring, fqcn)
+         * - Replaced `report` call with a call to `visitNewApiCall`
+         */
         private fun visitCall(
             method: PsiMethod,
             call: UCallExpression?,
             reference: UElement
         ) {
-            if (call == null) {
-                return
-            }
+            // Change: Added early return for null call, removed null checks
+            call ?: return
+
             val apiDatabase = apiDatabase ?: return
             val containingClass = method.containingClass ?: return
+
+            // Change: Removed enforcement of @RequiresApi
+
+            // Change: Removed cast checking on parameter list
+
             val evaluator = context.evaluator
             val owner = evaluator.getQualifiedName(containingClass)
                 ?: return // Couldn't resolve type
+
+            // Change: Removed special-casing of Support library
+
             if (!apiDatabase.containsClass(owner)) {
                 return
             }
+
             val name = getInternalMethodName(method)
             val desc = evaluator.getMethodDescription(
                 method,
-                false,
-                false
+                includeName = false,
+                includeReturn = false
             ) // Couldn't compute description of method for some reason; probably
                 // failure to resolve parameter types
                 ?: return
+
+            // Change: Removed SimpleDateFormat and Animator checks
+
             var api = apiDatabase.getMethodVersion(owner, name, desc)
-            if (api == NO_API_REQUIREMENT) {
+            if (api == -1) {
                 return
             }
-            if (api <= context.project.minSdk) {
+            val minSdk = getMinSdk(context)
+            if (api <= minSdk) {
                 return
             }
+
+            // The lint API database contains two optimizations:
+            // First, all members that were available in API 1 are omitted from the database,
+            // since that saves about half of the size of the database, and for API check
+            // purposes, we don't need to distinguish between "doesn't exist" and "available
+            // in all versions".
+
+            // Second, all inherited members were inlined into each class, so that it doesn't
+            // have to do a repeated search up the inheritance chain.
+            //
+            // Unfortunately, in this custom PSI detector, we look up the real resolved method,
+            // which can sometimes have a different minimum API.
+            //
+            // For example, SQLiteDatabase had a close() method from API 1. Therefore, calling
+            // SQLiteDatabase is supported in all versions. However, it extends SQLiteClosable,
+            // which in API 16 added "implements Closable". In this detector, if we have the
+            // following code:
+            //     void test(SQLiteDatabase db) { db.close }
+            // here the call expression will be the close method on type SQLiteClosable. And
+            // that will result in an API requirement of API 16, since the close method it now
+            // resolves to is in API 16.
+            //
+            // To work around this, we can now look up the type of the call expression ("db"
+            // in the above, but it could have been more complicated), and if that's a
+            // different type than the type of the method, we look up *that* method from
+            // lint's database instead. Furthermore, it's possible for that method to return
+            // "-1" and we can't tell if that means "doesn't exist" or "present in API 1", we
+            // then check the package prefix to see whether we know it's an API method whose
+            // members should all have been inlined.
             if (call.isMethodCall()) {
                 val qualifier = call.receiver
                 if (qualifier != null &&
@@ -155,22 +251,22 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                     val specificApi = apiDatabase.getMethodVersion(
                                         expressionOwner, name, desc
                                     )
-                                    if (specificApi == NO_API_REQUIREMENT) {
+                                    if (specificApi == -1) {
                                         if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                             return
                                         }
-                                    } else if (specificApi <= context.project.minSdk) {
+                                    } else if (specificApi <= minSdk) {
                                         return
                                     } else {
-                                        // For example, for Bundle#getString(String,String) the
-                                        // API level is 12, whereas for BaseBundle#getString
-                                        // (String,String) the API level is 21. If the code
-                                        // specified a Bundle instead of a BaseBundle, reported
-                                        // the Bundle level in the error message instead.
+                                        // For example, for Bundle#getString(String,String) the API level
+                                        // is 12, whereas for BaseBundle#getString(String,String) the API
+                                        // level is 21. If the code specified a Bundle instead of
+                                        // a BaseBundle, reported the Bundle level in the error message
+                                        // instead.
                                         if (specificApi < api) {
                                             api = specificApi
                                         }
-                                        api = Math.min(specificApi, api)
+                                        api = min(specificApi, api)
                                     }
                                 }
                             }
@@ -196,6 +292,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             cls = receiverType.resolve()
                         }
                     }
+
                     if (qualifier is UThisExpression || qualifier is USuperExpression) {
                         val pte = qualifier as UInstanceExpression
                         val resolved = pte.resolve()
@@ -203,6 +300,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             cls = resolved
                         }
                     }
+
                     while (cls != null) {
                         if (cls is PsiAnonymousClass) {
                             // If it's an unqualified call in an anonymous class, we need to
@@ -244,25 +342,29 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         }
                         val specificApi =
                             apiDatabase.getMethodVersion(expressionOwner, name, desc)
-                        if (specificApi == NO_API_REQUIREMENT) {
+                        if (specificApi == -1) {
                             if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                 break
                             }
-                        } else if (specificApi <= context.project.minSdk) {
+                        } else if (specificApi <= minSdk) {
                             return
                         } else {
                             if (specificApi < api) {
                                 api = specificApi
                             }
-                            api = Math.min(specificApi, api)
+                            api = min(specificApi, api)
                             break
                         }
                         cls = cls.superClass
                     }
                 }
             }
+
+            // Change: Removed check for suppression
+
             if (call.isMethodCall()) {
                 val receiver = call.receiver
+
                 var target: PsiClass? = null
                 if (!method.isConstructor) {
                     if (receiver != null) {
@@ -274,12 +376,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         target = call.getContainingUClass()?.javaPsi
                     }
                 }
+
                 // Look to see if there's a possible local receiver
                 if (target != null) {
                     val methods = target.findMethodsBySignature(method, true)
                     if (methods.size > 1) {
                         for (m in methods) {
-                            if (!method.isEquivalentTo(m)) {
+                            //noinspection LintImplPsiEquals
+                            if (method != m) {
                                 val provider = m.containingClass
                                 if (provider != null) {
                                     val methodOwner = evaluator.getQualifiedName(provider)
@@ -287,11 +391,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                         val methodApi = apiDatabase.getMethodVersion(
                                             methodOwner, name, desc
                                         )
-                                        if (methodApi == NO_API_REQUIREMENT ||
-                                            methodApi <= context.project.minSdk
-                                        ) {
-                                            // Yes, we found another call that doesn't have an
-                                            // API requirement
+                                        if (methodApi == -1 || methodApi <= minSdk) {
+                                            // Yes, we found another call that doesn't have an API requirement
                                             return
                                         }
                                     }
@@ -300,6 +401,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         }
                     }
                 }
+
                 // If you're simply calling super.X from method X, even if method X is in a higher
                 // API level than the minSdk, we're generally safe; that method should only be
                 // called by the framework on the right API levels. (There is a danger of somebody
@@ -318,18 +420,19 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         return
                     }
                 }
+
                 // If it's a method we have source for, obviously it shouldn't be a
-                // violation, happens in androidx (appcompat?)
+                // violation. (This happens for example when compiling the support library.)
                 if (method !is PsiCompiledElement) {
                     return
                 }
             }
+
             // Desugar rewrites compare calls (see b/36390874)
             if (name == "compare" &&
                 api == 19 &&
                 startsWithEquivalentPrefix(owner, "java/lang/") &&
                 desc.length == 4 &&
-                context.project.isDesugaring(Desugaring.LONG_COMPARE) &&
                 (
                     desc == "(JJ)" ||
                         desc == "(ZZ)" ||
@@ -339,26 +442,34 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         desc == "(SS)"
                     )
             ) {
-                return
+                if (context.project.isDesugaring(Desugaring.LONG_COMPARE)) {
+                    return
+                }
             }
+
             // Desugar rewrites Objects.requireNonNull calls (see b/32446315)
             if (name == "requireNonNull" &&
                 api == 19 &&
                 owner == "java.util.Objects" &&
-                desc == "(Ljava.lang.Object;)" &&
-                context.project.isDesugaring(Desugaring.OBJECTS_REQUIRE_NON_NULL)
+                desc == "(Ljava.lang.Object;)"
             ) {
-                return
+                if (context.project.isDesugaring(Desugaring.OBJECTS_REQUIRE_NON_NULL)) {
+                    return
+                }
             }
+
             if (name == "addSuppressed" &&
                 api == 19 &&
                 owner == "java.lang.Throwable" &&
-                desc == "(Ljava.lang.Throwable;)" &&
-                context.project.isDesugaring(Desugaring.TRY_WITH_RESOURCES)
+                desc == "(Ljava.lang.Throwable;)"
             ) {
-                return
+                if (context.project.isDesugaring(Desugaring.TRY_WITH_RESOURCES)) {
+                    return
+                }
             }
+
             val nameIdentifier = call.methodIdentifier
+
             val location = if (call.isConstructorCall() &&
                 call.classReference != null
             ) {
@@ -368,6 +479,20 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             } else {
                 context.getLocation(reference)
             }
+
+            // Change: Replaced `report` call with a call to `visitNewApiCall`
+            visitNewApiCall(call, method, api, reference, location)
+        }
+
+        fun visitNewApiCall(
+            call: UCallExpression?,
+            method: PsiMethod,
+            api: Int,
+            reference: UElement,
+            location: Location
+        ) {
+            call ?: return
+
             if (call.getContainingUClass() == null) {
                 // Can't verify if containing class is annotated with @RequiresApi
                 return
@@ -585,7 +710,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // Neither of these should be null if we're looking at Java code.
             val containingClass = method.containingClass ?: return null
             val hostType = containingClass.name ?: return null
-            val hostVar = hostType[0].toLowerCase() + hostType.substring(1)
+            val hostVar = hostType[0].lowercaseChar() + hostType.substring(1)
 
             val hostParam = if (isStatic || isConstructor) { null } else { "$hostType $hostVar" }
 

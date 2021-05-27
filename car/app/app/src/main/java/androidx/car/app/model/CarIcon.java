@@ -24,8 +24,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.graphics.PorterDuff.Mode;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
@@ -50,14 +48,12 @@ import java.util.Objects;
  *
  * <h4>Car Screen Pixel Densities</h4>
  *
- * <p>Similar to Android devices, car screens cover a wide range of pixel densities. To ensure that
- * icons and images render well across all car screens, use vector assets whenever possible to avoid
- * scaling issues. If you use a bitmap instead, ensure that you have resources that address multiple
- * pixel density buckets.
- *
- * <p>In order to support all car screen sizes and pixel density, you can use configuration
- * qualifiers in your resource files (e.g. "mdpi", "hdpi", etc). See
- * {@link androidx.car.app.CarContext} for more details.
+ * <p>Similar to Android devices, car screens cover a wide range of sizes and densities. To
+ * ensure that icons and images render well across all car screens, use vector assets whenever
+ * possible to avoid scaling issues. If your app relies on bitmaps or other non-vector
+ * assets, you should ensure that you have resources that address multiple pixel density
+ * buckets using configuration qualifiers in your resource folders (e.g. "mdpi", "hdpi", etc).
+ * See {@link androidx.car.app.CarContext} for more details.
  *
  * <h4>Themed Drawables</h4>
  *
@@ -272,7 +268,7 @@ public final class CarIcon {
             return mIcon.getUri();
         }
 
-        return VERSION.SDK_INT >= VERSION_CODES.M;
+        return type;
     }
 
     private boolean iconCompatEquals(@Nullable IconCompat other) {
@@ -297,11 +293,9 @@ public final class CarIcon {
             return Objects.equals(mIcon.getUri(), other.getUri());
         }
 
-        // Before Android version M, we support a subset of image types (resource or uri), so we
-        // compare the instances' resource info or uri to check for equality. For M or above,
-        // since we support any icon types, we only check for type equality if the type is
+        // Since we support any icon types, we only check for type equality if the type is
         // neither a resource or uri.
-        return VERSION.SDK_INT >= VERSION_CODES.M;
+        return true;
     }
 
     private static CarIcon forStandardType(@CarIconType int type) {
@@ -357,13 +351,14 @@ public final class CarIcon {
          * Sets the tint of the icon to the given {@link CarColor}.
          *
          * <p>This tint overrides the tint set through {@link IconCompat#setTint(int)} in the
-         * backing {@link IconCompat} with a {@link CarColor} tint.The tint set through {@link
+         * backing {@link IconCompat} with a {@link CarColor} tint. The tint set through {@link
          * IconCompat#setTint(int)} is not guaranteed to be applied if the {@link CarIcon} tint
          * is not set.
          *
          * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
          *
-         * <p>By default, no tint is set unless one is specified with this method.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         *  factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * @throws NullPointerException if {@code tin} is {@code null}
          * @see CarColor

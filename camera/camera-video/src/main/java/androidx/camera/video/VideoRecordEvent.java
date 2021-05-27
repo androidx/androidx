@@ -215,17 +215,19 @@ public abstract class VideoRecordEvent {
 
     @NonNull
     static Finalize finalize(@NonNull OutputOptions outputOptions,
-            @NonNull RecordingStats recordingStats) {
-        return new Finalize(outputOptions, recordingStats, ERROR_NONE, null);
+            @NonNull RecordingStats recordingStats,
+            @NonNull OutputResults outputResults) {
+        return new Finalize(outputOptions, recordingStats, outputResults, ERROR_NONE, null);
     }
 
     @NonNull
     static Finalize finalizeWithError(@NonNull OutputOptions outputOptions,
             @NonNull RecordingStats recordingStats,
+            @NonNull OutputResults outputResults,
             @VideoRecordError int error,
             @Nullable Throwable cause) {
         Preconditions.checkArgument(error != ERROR_NONE, "An error type is required.");
-        return new Finalize(outputOptions, recordingStats, error, cause);
+        return new Finalize(outputOptions, recordingStats, outputResults, error, cause);
     }
 
     /**
@@ -241,6 +243,7 @@ public abstract class VideoRecordEvent {
      * file.
      */
     public static final class Finalize extends VideoRecordEvent {
+        private final OutputResults mOutputResults;
         @VideoRecordError
         private final int mError;
         private final Throwable mCause;
@@ -248,9 +251,11 @@ public abstract class VideoRecordEvent {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         Finalize(@NonNull OutputOptions outputOptions,
                 @NonNull RecordingStats recordingStats,
+                @NonNull OutputResults outputResults,
                 @VideoRecordError int error,
                 @Nullable Throwable cause) {
             super(outputOptions, recordingStats);
+            mOutputResults = outputResults;
             mError = error;
             mCause = cause;
         }
@@ -260,6 +265,14 @@ public abstract class VideoRecordEvent {
         @Override
         public EventType getEventType() {
             return EventType.FINALIZE;
+        }
+
+        /**
+         * Gets the {@link OutputResults}.
+         */
+        @NonNull
+        public OutputResults getOutputResults() {
+            return mOutputResults;
         }
 
         /**

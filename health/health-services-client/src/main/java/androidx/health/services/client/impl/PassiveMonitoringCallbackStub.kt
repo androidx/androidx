@@ -17,7 +17,7 @@
 package androidx.health.services.client.impl
 
 import androidx.health.services.client.PassiveMonitoringCallback
-import androidx.health.services.client.impl.response.PassiveActivityStateResponse
+import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
 
 /**
  * A stub implementation for IPassiveMonitoringCallback.
@@ -28,7 +28,7 @@ internal class PassiveMonitoringCallbackStub
 internal constructor(private val callback: PassiveMonitoringCallback) :
     IPassiveMonitoringCallback.Stub() {
 
-    override fun onPassiveActivityState(response: PassiveActivityStateResponse) {
-        callback.onPassiveActivityState(response.passiveActivityState)
+    override fun onPassiveMonitoringUpdate(response: PassiveMonitoringUpdateResponse) {
+        callback.onPassiveMonitoringUpdate(response.passiveMonitoringUpdate)
     }
 }

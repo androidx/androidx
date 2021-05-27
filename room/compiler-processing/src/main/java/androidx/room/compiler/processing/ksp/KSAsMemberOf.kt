@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
@@ -25,11 +24,14 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 /**
  * Returns the type of a property as if it is member of the given [ksType].
  */
-internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
+internal fun KSPropertyDeclaration.typeAsMemberOf(ksType: KSType?): KSType {
     val resolved = type.resolve()
     if (isStatic()) {
         // calling as member with a static would throw as it might be a member of the companion
         // object
+        return resolved
+    }
+    if (ksType == null) {
         return resolved
     }
     // see: https://github.com/google/ksp/issues/107
@@ -38,16 +40,14 @@ internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KS
     if (resolved.isError) {
         return resolved
     }
-    return resolver.asMemberOf(
-        property = this,
+    return this.asMemberOf(
         containing = ksType
     )
 }
 
 internal fun KSValueParameter.typeAsMemberOf(
-    resolver: Resolver,
     functionDeclaration: KSFunctionDeclaration,
-    ksType: KSType
+    ksType: KSType?
 ): KSType {
     val resolved = type.resolve()
     if (functionDeclaration.isStatic()) {
@@ -61,8 +61,10 @@ internal fun KSValueParameter.typeAsMemberOf(
         // asMemberOf.
         return resolved
     }
-    val asMember = resolver.asMemberOf(
-        function = functionDeclaration,
+    if (ksType == null) {
+        return resolved
+    }
+    val asMember = functionDeclaration.asMemberOf(
         containing = ksType
     )
     // TODO b/173224718
@@ -72,20 +74,19 @@ internal fun KSValueParameter.typeAsMemberOf(
 }
 
 internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
-    resolver: Resolver,
-    ksType: KSType
+    ksType: KSType?
 ): KSType {
     val resolved = returnType?.resolve()
     return when {
         resolved == null -> null
+        ksType == null -> resolved
         resolved.isError -> resolved
         isStatic() -> {
             // calling as member with a static would throw as it might be a member of the companion
             // object
             resolved
         }
-        else -> resolver.asMemberOf(
-            function = this,
+        else -> this.asMemberOf(
             containing = ksType
         ).returnType
     } ?: error("cannot find return type for $this")

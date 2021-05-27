@@ -30,6 +30,11 @@ import androidx.navigation.get
  * Construct a new [DynamicActivityNavigator.Destination]
  * @param id Destination id.
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to build your DynamicActivityDestination instead",
+    ReplaceWith("activity(route = id.toString()) { builder.invoke() }")
+)
 public inline fun DynamicNavGraphBuilder.activity(
     @IdRes id: Int,
     builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
@@ -41,13 +46,47 @@ public inline fun DynamicNavGraphBuilder.activity(
 )
 
 /**
+ * Construct a new [DynamicActivityNavigator.Destination]
+ * @param route Destination route.
+ */
+public inline fun DynamicNavGraphBuilder.activity(
+    route: String,
+    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    DynamicActivityNavigatorDestinationBuilder(
+        provider[DynamicActivityNavigator::class],
+        route
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [DynamicActivityNavigator.Destination]
  */
 @NavDestinationDsl
-public class DynamicActivityNavigatorDestinationBuilder(
-    private val activityNavigator: DynamicActivityNavigator,
-    @IdRes id: Int
-) : NavDestinationBuilder<ActivityNavigator.Destination>(activityNavigator, id) {
+public class DynamicActivityNavigatorDestinationBuilder :
+    NavDestinationBuilder<ActivityNavigator.Destination> {
+    private var activityNavigator: DynamicActivityNavigator
+
+    @Suppress("Deprecation")
+    @Deprecated(
+        "Use routes to build your DynamicActivityDestination instead",
+        ReplaceWith(
+            "DynamicActivityNavigatorDestinationBuilder(activityNavigator, route = id.toString())"
+        )
+    )
+    public constructor(
+        activityNavigator: DynamicActivityNavigator,
+        @IdRes id: Int
+    ) : super(activityNavigator, id) {
+        this.activityNavigator = activityNavigator
+    }
+
+    public constructor(
+        activityNavigator: DynamicActivityNavigator,
+        route: String
+    ) : super(activityNavigator, route) {
+        this.activityNavigator = activityNavigator
+    }
 
     public var moduleName: String? = null
 

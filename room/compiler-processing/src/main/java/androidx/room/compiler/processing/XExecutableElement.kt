@@ -25,9 +25,15 @@ interface XExecutableElement : XHasModifiers, XElement {
     /**
      * The element that declared this executable.
      *
-     * @see requireEnclosingTypeElement
+     * For methods declared as top level functions in Kotlin:
+     *   * When running with KAPT, the value will be an [XTypeElement].
+     *   * When running with KSP, if this function is coming from the classpath, the value will
+     *   be an [XTypeElement].
+     *   * When running with KSP, if this function is in source, the value will **NOT** be an
+     *   [XTypeElement]. If you need the generated synthetic java class name, you can use
+     *   [XMemberContainer.className] property.
      */
-    val enclosingElement: XElement
+    val enclosingElement: XMemberContainer
     /**
      * The list of parameters that should be passed into this method.
      *
@@ -38,13 +44,4 @@ interface XExecutableElement : XHasModifiers, XElement {
      * Returns true if this method receives a vararg parameter.
      */
     fun isVarArgs(): Boolean
-}
-
-/**
- * Checks the enclosing element is a TypeElement and returns it, otherwise,
- * throws [IllegalStateException].
- */
-fun XExecutableElement.requireEnclosingTypeElement(): XTypeElement {
-    return enclosingElement as? XTypeElement
-        ?: error("Required enclosing type element for $this but found $enclosingElement")
 }

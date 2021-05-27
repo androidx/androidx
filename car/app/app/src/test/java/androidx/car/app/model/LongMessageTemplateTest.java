@@ -57,6 +57,15 @@ public class LongMessageTemplateTest {
     }
 
     @Test
+    public void moreThanTwoActions_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new LongMessageTemplate.Builder(mMessage)
+                        .addAction(mAction)
+                        .addAction(mAction)
+                        .addAction(mAction));
+    }
+
+    @Test
     public void createDefault_valuesAreNull() {
         LongMessageTemplate template = new LongMessageTemplate.Builder(mMessage)
                 .setTitle(mTitle)

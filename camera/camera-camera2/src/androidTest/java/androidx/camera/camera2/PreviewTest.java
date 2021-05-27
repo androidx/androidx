@@ -126,9 +126,17 @@ public final class PreviewTest {
     @Test
     public void surfaceProvider_isUsedAfterSetting() {
         final Preview.SurfaceProvider surfaceProvider = mock(Preview.SurfaceProvider.class);
-        doAnswer(args -> ((SurfaceRequest) args.getArgument(0)).willNotProvideSurface()).when(
-                surfaceProvider).onSurfaceRequested(
-                any(SurfaceRequest.class));
+        doAnswer(args -> {
+            SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+            surfaceTexture.setDefaultBufferSize(640, 480);
+            Surface surface = new Surface(surfaceTexture);
+            ((SurfaceRequest) args.getArgument(0)).provideSurface(surface,
+                    CameraXExecutors.directExecutor(), result -> {
+                        surfaceTexture.release();
+                        surface.release();
+                    });
+            return null;
+        }).when(surfaceProvider).onSurfaceRequested(any(SurfaceRequest.class));
 
         final Preview preview = mDefaultBuilder.build();
 

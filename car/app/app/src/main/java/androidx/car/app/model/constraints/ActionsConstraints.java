@@ -47,6 +47,14 @@ public final class ActionsConstraints {
             new ActionsConstraints.Builder().setMaxActions(2).build();
 
     /**
+     * Constraints for actions within the template body.
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_BODY =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
+                    .setMaxCustomTitles(2).build();
+
+    /**
      * Constraints for template headers, where only the special-purpose back and app-icon standard
      * actions are allowed.
      */

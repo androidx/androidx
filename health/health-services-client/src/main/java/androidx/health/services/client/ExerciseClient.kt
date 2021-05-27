@@ -16,7 +16,7 @@
 
 package androidx.health.services.client
 
-import androidx.health.services.client.data.Capabilities
+import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
@@ -29,10 +29,10 @@ public interface ExerciseClient {
     /**
      * Starts a new exercise.
      *
-     * Once started, WHS will begin collecting data associated with the exercise.
+     * Once started, Health Services will begin collecting data associated with the exercise.
      *
-     * Since WHS only allows a single active exercise at a time, this will terminate any active
-     * exercise currently in progress before starting the new one.
+     * Since Health Services only allows a single active exercise at a time, this will terminate any
+     * active exercise currently in progress before starting the new one.
      *
      * @return a [ListenableFuture] that completes once the exercise has been started.
      */
@@ -45,9 +45,9 @@ public interface ExerciseClient {
      * accumulate. Instantaneous measurements such as speed and heart rate will continue to update
      * if requested in the [ExerciseConfig].
      *
-     * If the exercise remains paused for a long period of time WHS will reduce or suspend access to
-     * sensors and GPS in order to conserve battery. Should this happen, access will automatically
-     * resume when the exercise is resumed.
+     * If the exercise remains paused for a long period of time, Health Services will reduce or
+     * suspend access to sensors and GPS in order to conserve battery. Should this happen, access
+     * will automatically resume when the exercise is resumed.
      *
      * If the exercise is already paused then this method has no effect. If the exercise has ended
      * then the returned future will fail.
@@ -146,6 +146,6 @@ public interface ExerciseClient {
      */
     public fun overrideAutoPauseAndResumeForActiveExercise(enabled: Boolean): ListenableFuture<Void>
 
-    /** Returns the [Capabilities] of this client for the device. */
-    public val capabilities: ListenableFuture<Capabilities>
+    /** Returns the [ExerciseCapabilities] of this client for the device. */
+    public val capabilities: ListenableFuture<ExerciseCapabilities>
 }

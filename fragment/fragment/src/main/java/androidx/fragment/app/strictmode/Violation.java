@@ -16,7 +16,21 @@
 
 package androidx.fragment.app.strictmode;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 /** Root class for all FragmentStrictMode violations. */
 @SuppressWarnings("ExceptionName")
 public abstract class Violation extends RuntimeException {
+
+    final Fragment mFragment;
+
+    Violation(@NonNull Fragment fragment) {
+        mFragment = fragment;
+    }
+
+    @NonNull
+    public Fragment getFragment() {
+        return mFragment;
+    }
 }

@@ -62,8 +62,7 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         }
 
         // The app Context is correct here, as it's just used for display density, so it doesn't
-        // depend
-        // on anything from the provider app.
+        // depend on anything from the provider app.
         return new BitmapDrawable(mAppContext.getResources(), bitmap);
     }
 

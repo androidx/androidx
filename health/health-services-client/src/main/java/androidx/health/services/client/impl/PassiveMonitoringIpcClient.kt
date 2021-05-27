@@ -25,7 +25,7 @@ import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * An IPC Client that connects to and communicates with the WHS Service to make passive monitoring
+ * An IPC Client that connects to and communicates with Health Services to make Passive Monitoring
  * API calls.
  *
  * @hide

@@ -28,6 +28,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
 import java.nio.file.Files
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 
 @RunWith(Parameterized::class)
 class RoomIncrementalAnnotationProcessingTest(
@@ -100,6 +103,35 @@ class RoomIncrementalAnnotationProcessingTest(
     private lateinit var changedFiles: Set<File>
     private lateinit var unchangedFiles: Set<File>
     private lateinit var deletedFiles: Set<File>
+
+    /**
+     * Find the Room version from local repo.
+     * Using + instead of an explicit version might cause gradle to find a newer version from
+     * prebuilts (SNAPSHOT).
+     */
+    private val roomVersion by lazy {
+        val metadataFile = File(projectSetup.props.localSupportRepo).resolve(
+            "androidx/room/room-compiler/maven-metadata.xml"
+        )
+        check(metadataFile.exists()) {
+            "Cannot find room metadata file in ${metadataFile.absolutePath}"
+        }
+        check(metadataFile.isFile) {
+            "Metadata file should be a file but it is not."
+        }
+        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(metadataFile)
+        val latestVersionNode = XPathFactory.newInstance().newXPath()
+            .compile("/metadata/versioning/latest").evaluate(
+                xmlDoc, XPathConstants.STRING
+            )
+        check(latestVersionNode is String) {
+            """Unexpected node for latest version:
+                $latestVersionNode / ${latestVersionNode::class.java}
+            """.trimIndent()
+        }
+        latestVersionNode
+    }
 
     @Before
     fun setup() {
@@ -176,8 +208,8 @@ class RoomIncrementalAnnotationProcessingTest(
 
             dependencies {
                 // Uses latest Room built from tip of tree
-                implementation "androidx.room:room-runtime:+"
-                $processorConfiguration "androidx.room:room-compiler:+"
+                implementation "androidx.room:room-runtime:$roomVersion"
+                $processorConfiguration "androidx.room:room-compiler:$roomVersion"
             }
 
             class SchemaLocationArgumentProvider implements CommandLineArgumentProvider {

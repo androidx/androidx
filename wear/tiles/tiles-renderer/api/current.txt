@@ -12,13 +12,13 @@ package androidx.wear.tiles.manager {
 package androidx.wear.tiles.renderer {
 
   public final class TileRenderer {
-    ctor public TileRenderer(android.content.Context, androidx.wear.tiles.builders.LayoutElementBuilders.Layout, androidx.wear.tiles.builders.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
-    ctor public TileRenderer(android.content.Context, androidx.wear.tiles.builders.LayoutElementBuilders.Layout, @StyleRes int, androidx.wear.tiles.builders.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
+    ctor public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
+    ctor public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, @StyleRes int, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
     method public android.view.View? inflate(android.view.ViewGroup);
   }
 
   public static interface TileRenderer.LoadActionListener {
-    method public void onClick(androidx.wear.tiles.builders.StateBuilders.State);
+    method public void onClick(androidx.wear.tiles.StateBuilders.State);
   }
 
 }
@@ -26,14 +26,14 @@ package androidx.wear.tiles.renderer {
 package androidx.wear.tiles.timeline {
 
   public final class TilesTimelineCache {
-    ctor public TilesTimelineCache(androidx.wear.tiles.builders.TimelineBuilders.Timeline);
-    method @MainThread public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry? findClosestTimelineEntry(long);
-    method @MainThread public long findCurrentTimelineEntryExpiry(androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry, long);
-    method @MainThread public androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry? findTimelineEntryForTime(long);
+    ctor public TilesTimelineCache(androidx.wear.tiles.TimelineBuilders.Timeline);
+    method @MainThread public androidx.wear.tiles.TimelineBuilders.TimelineEntry? findClosestTimelineEntry(long);
+    method @MainThread public long findCurrentTimelineEntryExpiry(androidx.wear.tiles.TimelineBuilders.TimelineEntry, long);
+    method @MainThread public androidx.wear.tiles.TimelineBuilders.TimelineEntry? findTimelineEntryForTime(long);
   }
 
   public class TilesTimelineManager implements java.lang.AutoCloseable {
-    ctor public TilesTimelineManager(android.app.AlarmManager, androidx.wear.tiles.timeline.TilesTimelineManager.Clock, androidx.wear.tiles.builders.TimelineBuilders.Timeline, int, java.util.concurrent.Executor, androidx.wear.tiles.timeline.TilesTimelineManager.Listener);
+    ctor public TilesTimelineManager(android.app.AlarmManager, androidx.wear.tiles.timeline.TilesTimelineManager.Clock, androidx.wear.tiles.TimelineBuilders.Timeline, int, java.util.concurrent.Executor, androidx.wear.tiles.timeline.TilesTimelineManager.Listener);
     method public void close();
     method public void init();
   }
@@ -43,7 +43,7 @@ package androidx.wear.tiles.timeline {
   }
 
   public static interface TilesTimelineManager.Listener {
-    method public void onLayoutUpdate(int, androidx.wear.tiles.builders.LayoutElementBuilders.Layout);
+    method public void onLayoutUpdate(int, androidx.wear.tiles.LayoutElementBuilders.Layout);
   }
 
 }

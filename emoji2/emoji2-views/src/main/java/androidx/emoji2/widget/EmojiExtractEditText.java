@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiSpan;
-import androidx.emoji2.viewshelper.EmojiEditTextHelper;
+import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
 
 /**
  * ExtractEditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}.

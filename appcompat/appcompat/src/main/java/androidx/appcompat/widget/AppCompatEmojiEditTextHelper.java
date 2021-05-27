@@ -28,7 +28,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.R;
-import androidx.emoji2.viewshelper.EmojiEditTextHelper;
+import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
 
 /**
  * Helper for using EmojiCompat from TextView in appcompat.
@@ -70,7 +70,6 @@ class AppCompatEmojiEditTextHelper {
         } finally {
             a.recycle();
         }
-        mView.setKeyListener(mEmojiEditTextHelper.getKeyListener(mView.getKeyListener()));
         setEnabled(enabled);
     }
 
@@ -78,7 +77,9 @@ class AppCompatEmojiEditTextHelper {
      * Call from constructor to initialize key listener correctly.
      */
     void initKeyListener() {
+        boolean wasFocusable = mView.isFocusable();
         mView.setKeyListener(mView.getKeyListener());
+        mView.setFocusable(wasFocusable);
     }
 
     /**

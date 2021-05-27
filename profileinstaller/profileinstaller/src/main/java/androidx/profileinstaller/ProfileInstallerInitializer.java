@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * During application startup this will schedule background profile installation several seconds
  * later. At the scheduled time, a background thread will be created to install the profile.
  *
- * You can disable this initializer and call {@link ProfileInstaller#tryInstallSync(Context)}
+ * You can disable this initializer and call {@link ProfileInstaller#writeProfile(Context)}
  * yourself to control the threading behavior.
  *
  * To disable this initializer add the following to your manifest:
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
  *     </provider>
  * </pre>
  *
- * If you disable the initializer, ensure that {@link ProfileInstaller#tryInstallSync(Context)}
+ * If you disable the initializer, ensure that {@link ProfileInstaller#writeProfile(Context)}
  * is called within a few (5-10) seconds of your app starting up.
  */
 public class ProfileInstallerInitializer
@@ -85,7 +85,7 @@ public class ProfileInstallerInitializer
             handler = new Handler(Looper.getMainLooper());
         }
 
-        handler.postDelayed(() -> ProfileInstaller.tryInstallInBackground(appContext), DELAY_MS);
+        handler.postDelayed(() -> writeInBackground(appContext), DELAY_MS);
         return new Result();
     }
 
@@ -96,6 +96,25 @@ public class ProfileInstallerInitializer
     @Override
     public List<Class<? extends Initializer<?>>> dependencies() {
         return Collections.emptyList();
+    }
+
+    /**
+     * Creates a new thread and calls {@link ProfileInstaller#writeProfile(Context)} on it.
+     *
+     * Thread will be destroyed after the call completes.
+     *
+     * Warning: *Never* call this during app initialization as it will create a thread and
+     * start disk read/write immediately.
+     */
+    private static void writeInBackground(@NonNull Context context) {
+        Executor executor = new ThreadPoolExecutor(
+                /* corePoolSize = */0,
+                /* maximumPoolSize = */1,
+                /* keepAliveTime = */0,
+                /* unit = */TimeUnit.MILLISECONDS,
+                /* workQueue = */new LinkedBlockingQueue<>()
+        );
+        executor.execute(() -> ProfileInstaller.writeProfile(context));
     }
 
     /**

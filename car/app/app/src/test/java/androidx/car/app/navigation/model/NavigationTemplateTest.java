@@ -81,6 +81,7 @@ public class NavigationTemplateTest {
         assertThat(template.getBackgroundColor()).isNull();
         assertThat(template.getDestinationTravelEstimate()).isNull();
         assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
+        assertThat(template.getPanModeDelegate()).isNull();
     }
 
     /** Tests construction of a template with all data. */
@@ -118,6 +119,7 @@ public class NavigationTemplateTest {
         assertThat(template.getDestinationTravelEstimate()).isEqualTo(travelEstimate);
         assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
         assertThat(template.getMapActionStrip()).isEqualTo(mMapActionStrip);
+        assertThat(template.getPanModeDelegate()).isNotNull();
     }
 
     @Test

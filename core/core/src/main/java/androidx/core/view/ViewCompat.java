@@ -1208,10 +1208,10 @@ public class ViewCompat {
      * Adds an accessibility action that can be performed on a node associated with a view.
      * A view can only have 32 actions created with this API.
      *
-     * @param view The view.
-     * @param label The use facing description of the action.
+     * @param view    The view.
+     * @param label   The user facing description of the action. If an action with the same label
+     *               already exists, it will be replaced.
      * @param command The command performed when the service requests the action.
-     *
      * @return The id associated with the action,
      * or {@link View#NO_ID} if the action could not be created.
      * This id can be used to remove the action.
@@ -1224,7 +1224,7 @@ public class ViewCompat {
     public static int addAccessibilityAction(
             @NonNull View view, @NonNull CharSequence label,
             @NonNull AccessibilityViewCommand command) {
-        int actionId = getAvailableActionIdFromResources(view);
+        int actionId = getAvailableActionIdFromResources(view, label);
         if (actionId != View.NO_ID) {
             AccessibilityActionCompat action =
                     new AccessibilityActionCompat(actionId, label, command);
@@ -1267,9 +1267,16 @@ public class ViewCompat {
             R.id.accessibility_custom_action_30,
             R.id.accessibility_custom_action_31};
 
-    private static int getAvailableActionIdFromResources(View view) {
+    private static int getAvailableActionIdFromResources(View view, @NonNull CharSequence label) {
         int result = View.NO_ID;
+        // Finds the existing custom action id by label.
         List<AccessibilityActionCompat> actions = getActionList(view);
+        for (int i = 0; i < actions.size(); i++) {
+            if (TextUtils.equals(label, actions.get(i).getLabel())) {
+                return actions.get(i).getId();
+            }
+        }
+        // Finds the first available action id from resources.
         for (int i = 0; i < ACCESSIBILITY_ACTIONS_RESOURCE_IDS.length && result == View.NO_ID;
                 i++) {
             int id = ACCESSIBILITY_ACTIONS_RESOURCE_IDS[i];
@@ -2694,19 +2701,25 @@ public class ViewCompat {
      * Sets the listener to be used to handle insertion of content into the given view.
      *
      * <p>Depending on the type of view, this listener may be invoked for different scenarios. For
-     * example, for an AppCompatEditText, this listener will be invoked for the following scenarios:
+     * example, for an {@code AppCompatEditText}, this listener will be invoked for the following
+     * scenarios:
      * <ol>
      *     <li>Paste from the clipboard (e.g. "Paste" or "Paste as plain text" action in the
      *     insertion/selection menu)
      *     <li>Content insertion from the keyboard (from {@link InputConnection#commitContent})
+     *     <li>Drag and drop (drop events from {@link View#onDragEvent})
      * </ol>
      *
-     * <p>When setting a listener, clients should also declare the MIME types accepted by it.
-     * When invoked with other types of content, the listener may reject the content (defer to
-     * the default platform behavior) or execute some other fallback logic. The MIME types
-     * declared here allow different features to optionally alter their behavior. For example,
-     * the soft keyboard may choose to hide its UI for inserting GIFs for a particular input
-     * field if the MIME types set here for that field don't include "image/gif" or "image/*".
+     * <p>When setting a listener, clients must also declare the accepted MIME types.
+     * The listener will still be invoked even if the MIME type of the content is not one of the
+     * declared MIME types (e.g. if the user pastes content whose type is not one of the declared
+     * MIME types).
+     * In that case, the listener may reject the content (defer to the default platform behavior)
+     * or execute some other fallback logic (e.g. show an appropriate message to the user).
+     * The declared MIME types serve as a hint to allow different features to optionally alter
+     * their behavior. For example, a soft keyboard may optionally choose to hide its UI for
+     * inserting GIFs for a particular input field if the MIME types set here for that field
+     * don't include "image/gif" or "image/*".
      *
      * <p>Note: MIME type matching in the Android framework is case-sensitive, unlike formal RFC
      * MIME types. As a result, you should always write your MIME types with lowercase letters,

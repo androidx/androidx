@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.0.0")
-    implementation("androidx.core:core:1.5.0-alpha01")
+    implementation("androidx.core:core:1.5.0-rc02")
     implementation("androidx.test.screenshot:screenshot-proto:1.0.0-alpha01")
 
     implementation(KOTLIN_STDLIB)

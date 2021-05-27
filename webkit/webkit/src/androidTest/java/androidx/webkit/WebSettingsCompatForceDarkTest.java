@@ -89,8 +89,8 @@ public class WebSettingsCompatForceDarkTest {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
 
         assertEquals("The default force dark state should be AUTO",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_AUTO);
+                WebSettingsCompat.FORCE_DARK_AUTO,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
     }
 
     /**
@@ -108,8 +108,8 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         assertEquals("Force dark should have been set to ON",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_ON);
+                WebSettingsCompat.FORCE_DARK_ON,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be dark",
@@ -119,8 +119,8 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
         assertEquals("Force dark should have been set to OFF",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_OFF);
+                WebSettingsCompat.FORCE_DARK_OFF,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -237,7 +237,7 @@ public class WebSettingsCompatForceDarkTest {
         Integer[] colourValues;
 
         histogram = getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
-        assertEquals("Bitmap should have a single colour", histogram.size(), 1);
+        assertEquals("Bitmap should have a single colour", 1, histogram.size());
         colourValues = histogram.keySet().toArray(new Integer[0]);
 
         return colourValues[0];

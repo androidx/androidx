@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
 import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -50,7 +51,6 @@ import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
@@ -92,8 +92,8 @@ public class ExtensionTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
-    private final EffectMode mEffectMode;
-    @Extensions.ExtensionMode
+    private final ExtensionsManager.EffectMode mEffectMode;
+    @ExtensionMode.Mode
     private final int mExtensionMode;
     @CameraSelector.LensFacing
     private final int mLensFacing;
@@ -103,7 +103,8 @@ public class ExtensionTest {
     private CameraSelector mBaseCameraSelector;
     private CameraSelector mExtensionsCameraSelector;
 
-    public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
+    public ExtensionTest(ExtensionsManager.EffectMode effectMode,
+            @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mExtensionMode = ExtensionsTestUtil.effectModeToExtensionMode(mEffectMode);
         mLensFacing = lensFacing;
@@ -111,6 +112,7 @@ public class ExtensionTest {
 
     @Before
     public void setUp() throws Exception {
+        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
 
@@ -119,11 +121,11 @@ public class ExtensionTest {
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        Extensions extensions = ExtensionsManager.getExtensions(mContext);
-        assumeTrue(extensions.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
+        ExtensionsInfo extensionsInfo = ExtensionsManager.getExtensionsInfo(mContext);
+        assumeTrue(extensionsInfo.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
                 mExtensionMode));
 
-        mExtensionsCameraSelector = extensions.getExtensionCameraSelector(mBaseCameraSelector,
+        mExtensionsCameraSelector = extensionsInfo.getExtensionCameraSelector(mBaseCameraSelector,
                 mExtensionMode);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();

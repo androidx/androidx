@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<app-authenticator digestAlgorithm="sha-256">
+<app-authenticator>
     <permission name="">
         <package name="com.android.app">
             <cert-digest>cbfc520b3ba3a44f6e39029b992c1cb77973a374be1a814d9b41304123cd6c3f

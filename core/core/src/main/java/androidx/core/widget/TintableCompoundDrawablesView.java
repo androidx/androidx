@@ -25,6 +25,11 @@ import androidx.annotation.Nullable;
  * Interface which allows {@link android.widget.TextView} and subclasses to tint compound drawables
  * with {@link TextViewCompat} when running on API v22 devices or lower.
  */
+/*
+ * When used with androidx.resourceinspection.annotation.AppCompatShadowedAttributes, this
+ * interface implies that AppCompat shadows the platform's compound drawable tint attributes.
+ * See androidx.resourceinspection.processor for more details and a full mapping of attributes.
+ */
 public interface TintableCompoundDrawablesView {
     /**
      * Applies a tint to the compound drawables. Does not modify the

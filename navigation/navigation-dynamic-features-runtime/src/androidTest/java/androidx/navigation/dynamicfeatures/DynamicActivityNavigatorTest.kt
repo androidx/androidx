@@ -20,8 +20,10 @@ import android.app.Activity
 import android.content.Intent
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -31,11 +33,12 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 /* ktlint-disable no-unused-imports */ // https://github.com/pinterest/ktlint/issues/937
 import org.mockito.Mockito.`when` as mockWhen
+
 /* ktlint-enable unused-imports */
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class DynamicActivityNavigatorTest {
+public class DynamicActivityNavigatorTest {
 
     private lateinit var navigator: DynamicActivityNavigator
     private lateinit var installManager: DynamicInstallManager
@@ -46,44 +49,54 @@ class DynamicActivityNavigatorTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule(NavigationActivity::class.java)
+    public val activityRule: ActivityScenarioRule<NavigationActivity> =
+        ActivityScenarioRule(NavigationActivity::class.java)
 
     @Before
-    fun setup() {
+    public fun setup() {
         splitInstallManager = mock(SplitInstallManager::class.java)
-        installManager = DynamicInstallManager(activityTestRule.activity, splitInstallManager)
-        navigator = DynamicActivityNavigator(activityTestRule.activity, installManager)
+        activityRule.withActivity {
+            installManager = DynamicInstallManager(
+                this,
+                splitInstallManager
+            )
+            navigator = DynamicActivityNavigator(this, installManager)
+            dynamicDestination = navigator.createDestination()
+            dynamicDestination.setIntent(
+                Intent(this, DestinationActivity::class.java)
+            )
+        }
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
         provider.addNavigator(noOpNavigator)
-        dynamicDestination = navigator.createDestination()
-        dynamicDestination.setIntent(
-            Intent(activityTestRule.activity, DestinationActivity::class.java)
-        )
     }
 
     @Test
-    fun navigate_DynamicActivityDestination() {
+    public fun navigate_DynamicActivityDestination() {
         navigator.navigate(dynamicDestination, null, null, null)
     }
 
     @Test(expected = IllegalStateException::class)
-    fun navigate_DynamicActivityDestination_NoDynamicNavGraph() {
+    public fun navigate_DynamicActivityDestination_NoDynamicNavGraph() {
+        lateinit var activity: NavigationActivity
+        activityRule.scenario.onActivity {
+            activity = it
+        }
         @Suppress("UNUSED_VARIABLE")
         val destination = DynamicActivityNavigator.Destination(NavigatorProvider())
         val navDestination = mock(DynamicActivityNavigator.Destination::class.java).apply {
             mockWhen(moduleName).thenReturn("module")
-            setIntent(Intent(activityTestRule.activity, DestinationActivity::class.java))
+            setIntent(Intent(activity, DestinationActivity::class.java))
         }
         navigator.navigate(navDestination, null, null, null)
     }
 
     @Test
-    fun createDestination() {
+    public fun createDestination() {
         assertNotNull(navigator.createDestination())
     }
 }
 
-class NavigationActivity : Activity()
+public class NavigationActivity : Activity()
 
-class DestinationActivity : Activity()
+public class DestinationActivity : Activity()

@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +26,7 @@ plugins {
 
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     compileOnly projectOrArtifact(":annotation:annotation-sampled")
     implementation projectOrArtifact(":compose:foundation:foundation")

@@ -2,7 +2,7 @@ column {
   contents {
     spannable {
       multiline_alignment {
-        value: HALIGN_START
+        value: HORIZONTAL_ALIGN_START
       }
       max_lines: {
         value: 5
@@ -30,7 +30,7 @@ column {
   contents {
     spannable {
       multiline_alignment {
-        value: HALIGN_CENTER
+        value: HORIZONTAL_ALIGN_CENTER
       }
       max_lines: {
         value: 5
@@ -58,7 +58,7 @@ column {
   contents {
     spannable {
       multiline_alignment {
-        value: HALIGN_END
+        value: HORIZONTAL_ALIGN_END
       }
       max_lines: {
         value: 5

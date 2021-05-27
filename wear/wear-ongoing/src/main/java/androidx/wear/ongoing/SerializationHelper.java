@@ -66,15 +66,14 @@ public class SerializationHelper {
 
     /**
      * Copies an Ongoing Activity information from a bundle to another, without deserializing
-     * and serializing (Note that Bundle instance is shared, not copied and deserializing the
-     * Ongoing activity information somewhere else negates the advantages of using this)
+     * and serializing (this needs to be done before accessing the source Bundle)
      *
      * @param sourceBundle The bundle to get the Ongoing Activity data from
      * @param destinationBundle The bundle to put the Ongoing Activity data into.
      */
     public static void copy(@NonNull Bundle sourceBundle, @NonNull Bundle destinationBundle) {
         destinationBundle.putBundle(EXTRA_ONGOING_ACTIVITY,
-                sourceBundle.getBundle(EXTRA_ONGOING_ACTIVITY));
+                new Bundle(sourceBundle.getBundle(EXTRA_ONGOING_ACTIVITY)));
     }
 
     /**

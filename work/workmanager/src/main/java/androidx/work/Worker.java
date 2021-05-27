@@ -63,9 +63,10 @@ public abstract class Worker extends ListenableWorker {
      * you need to do your work asynchronously on a thread of your own choice, see
      * {@link ListenableWorker}.
      * <p>
-     * A Worker is given a maximum of ten minutes to finish its execution and return a
-     * {@link androidx.work.ListenableWorker.Result}.  After this time has expired, the Worker will
-     * be signalled to stop.
+     * A Worker has a well defined
+     * <a href="https://d.android.com/reference/android/app/job/JobScheduler">execution window</a>
+     * to finish its execution and return a {@link androidx.work.ListenableWorker.Result}.  After
+     * this time has expired, the Worker will be signalled to stop.
      *
      * @return The {@link androidx.work.ListenableWorker.Result} of the computation; note that
      *         dependent work will not execute if you use

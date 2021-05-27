@@ -88,6 +88,7 @@ class NavDestinationTest {
             .isEqualTo(123)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun navDestinationAction() {
         val destination = provider.navDestination(DESTINATION_ID) {
@@ -124,6 +125,7 @@ private const val ACTION_ARGUMENT_VALUE = "VALUE"
  * a NavDestination directly to allow for testing NavDestinationBuilder in
  * isolation.
  */
+@Suppress("DEPRECATION")
 fun NavigatorProvider.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit

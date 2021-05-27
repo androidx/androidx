@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link ToggleButton} which supports compatible features on older versions of the platform,
@@ -48,6 +49,7 @@ import androidx.core.view.ViewCompat;
  * <p>This will automatically be used when you use {@link ToggleButton} in your layouts.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatToggleButton extends ToggleButton implements TintableBackgroundView,
         EmojiCompatConfigurationView {
 

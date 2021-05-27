@@ -38,7 +38,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -133,26 +132,10 @@ public class AppAuthenticator {
      */
     private static final String NAME_ATTRIBUTE = "name";
     /**
-     * The attribute to declare the digest algorithm used for all certificate digests.
-     */
-    private static final String DIGEST_ALGORITHM_ATTRIBUTE = "digestAlgorithm";
-    /**
      * The default digest algorithm used for all certificate digests if one is not specified in
      * the root element.
      */
     static final String DEFAULT_DIGEST_ALGORITHM = "SHA-256";
-    /**
-     * The set of digest algorithms supported by the AppAuthenticator; insecure algorithms and
-     * those that do not support all platform levels have been removed.
-     */
-    private static final Set<String> SUPPORTED_DIGEST_ALGORITHMS;
-
-    static {
-        SUPPORTED_DIGEST_ALGORITHMS = new ArraySet<>(3);
-        SUPPORTED_DIGEST_ALGORITHMS.add("SHA-256");
-        SUPPORTED_DIGEST_ALGORITHMS.add("SHA-384");
-        SUPPORTED_DIGEST_ALGORITHMS.add("SHA-512");
-    }
 
     private AppSignatureVerifier mAppSignatureVerifier;
     private AppAuthenticatorUtils mAppAuthenticatorUtils;
@@ -163,7 +146,7 @@ public class AppAuthenticator {
      * @param appSignatureVerifier the verifier to be used to verify app signing identities
      * @param appAuthenticatorUtils the utils to be used
      */
-    private AppAuthenticator(AppSignatureVerifier appSignatureVerifier,
+    AppAuthenticator(AppSignatureVerifier appSignatureVerifier,
             AppAuthenticatorUtils appAuthenticatorUtils) {
         mAppSignatureVerifier = appSignatureVerifier;
         mAppAuthenticatorUtils = appAuthenticatorUtils;
@@ -431,6 +414,24 @@ public class AppAuthenticator {
     private static AppAuthenticator createFromParser(Context context, XmlPullParser parser)
             throws AppAuthenticatorXmlException, IOException {
         AppAuthenticatorConfig config = createConfigFromParser(parser);
+        return createFromConfig(context, config);
+    }
+
+    /**
+     * Creates a new {@code AppAuthenticator} that can be used to guard resources based on
+     * package name / signing identity as well as allow verification of expected signing identities
+     * before interacting with other apps on a device using the configuration defined in the
+     * provided {@code config}.
+     *
+     * @param context the context within which to create the {@code AppAuthenticator}
+     * @param config  an {@link AppAuthenticatorConfig} containing the definitions for the
+     *                permissions and expected identities based on package / expected signing
+     *                certificate digests
+     * @return a new {@code AppAuthenticator} that can be used to enforce the signing identities
+     * defined in the provided {@code config}
+     */
+    static AppAuthenticator createFromConfig(Context context,
+            @NonNull AppAuthenticatorConfig config) {
         AppSignatureVerifier verifier = AppSignatureVerifier.builder(context)
                 .setPermissionAllowMap(config.getPermissionAllowMap())
                 .setExpectedIdentities(config.getExpectedIdentities())
@@ -440,7 +441,7 @@ public class AppAuthenticator {
     }
 
     /**
-     * Creates a new {@code AppAuthentictorConfig} that can be used to instantiate a new {@code
+     * Creates a new {@code AppAuthenticatorConfig} that can be used to instantiate a new {@code
      * AppAuthenticator} with the specified config.
      *
      * @param parser an {@link XmlPullParser} containing the definition for the permissions and
@@ -464,22 +465,8 @@ public class AppAuthenticator {
                 throw new AppAuthenticatorXmlException(
                         "Provided XML does not contain the expected root tag: " + ROOT_TAG);
             }
-            assertExpectedAttribute(parser, ROOT_TAG, DIGEST_ALGORITHM_ATTRIBUTE, false);
-            String digestAlgorithm = parser.getAttributeValue(null, DIGEST_ALGORITHM_ATTRIBUTE);
-            if (TextUtils.isEmpty(digestAlgorithm)) {
-                digestAlgorithm = DEFAULT_DIGEST_ALGORITHM;
-            } else {
-                // Using US locale as this call is only intended to match the MessageDigest
-                // constants in the supported set as taken from the Android MessageDigest
-                // documentation.
-                digestAlgorithm = digestAlgorithm.toUpperCase(Locale.US);
-                if (!SUPPORTED_DIGEST_ALGORITHMS.contains(digestAlgorithm)) {
-                    throw new AppAuthenticatorXmlException("Provided XML contains an unsupported "
-                            + "digest algorithm, " + digestAlgorithm + "; must be one of the "
-                            + "following: " + Arrays.toString(
-                            SUPPORTED_DIGEST_ALGORITHMS.toArray()));
-                }
-            }
+            assertExpectedAttribute(parser, ROOT_TAG, null, false);
+            String digestAlgorithm = DEFAULT_DIGEST_ALGORITHM;
             int eventType = parser.nextTag();
             // Each new start tag should be for a new permission / expected-identity.
             while (eventType == XmlPullParser.START_TAG) {
@@ -605,10 +592,25 @@ public class AppAuthenticator {
                         + "on line " + parser.getLineNumber() + " must have non-empty text "
                         + "containing the certificate digest of the signer");
             }
-            allowedCertDigests.add(digest);
+            allowedCertDigests.add(normalizeCertDigest(digest));
             eventType = parser.nextTag();
         }
         return allowedCertDigests;
+    }
+
+    /**
+     * Normalizes the provided {@code certDigest} to ensure it is in the proper form for {@code
+     * Collection} membership checks when comparing a package's signing certificate digest against
+     * those provided to the {@code AppAuthenticator}.
+     *
+     * @param certDigest the digest to be normalized
+     * @return a normalized form of the provided digest that can be used in subsequent {@code
+     * Collection} membership checks
+     */
+    static String normalizeCertDigest(String certDigest) {
+        // The AppAuthenticatorUtils#computeDigest method uses lower case characters to compute the
+        // digest.
+        return certDigest.toLowerCase(Locale.US);
     }
 
     /**

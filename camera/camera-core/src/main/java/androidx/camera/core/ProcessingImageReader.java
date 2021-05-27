@@ -437,7 +437,8 @@ class ProcessingImageReader implements ImageReaderProxy {
             } finally {
                 if (image != null) {
                     // Currently use the same key which intends to get a captureStage id value.
-                    Integer tagValue = image.getImageInfo().getTagBundle().getTag(mTagBundleKey);
+                    Integer tagValue =
+                            (Integer) image.getImageInfo().getTagBundle().getTag(mTagBundleKey);
 
                     if (!mCaptureIdList.contains(tagValue)) {
                         Logger.w(TAG, "ImageProxyBundle does not contain this id: " + tagValue);

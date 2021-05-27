@@ -140,7 +140,29 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
     object DefaultSessionOptionsUnpacker : SessionConfig.OptionUnpacker {
         override fun unpack(config: UseCaseConfig<*>, builder: SessionConfig.Builder) {
-            // Unused.
+            val defaultSessionConfig = config.getDefaultSessionConfig( /*valueIfMissing=*/null)
+
+            var implOptions: Config = OptionsBundle.emptyBundle()
+            var templateType = SessionConfig.defaultEmptySessionConfig().templateType
+
+            // Apply/extract defaults from session config
+            if (defaultSessionConfig != null) {
+                templateType = defaultSessionConfig.templateType
+                builder.addAllDeviceStateCallbacks(defaultSessionConfig.deviceStateCallbacks)
+                builder.addAllSessionStateCallbacks(defaultSessionConfig.sessionStateCallbacks)
+                builder.addAllRepeatingCameraCaptureCallbacks(
+                    defaultSessionConfig.repeatingCameraCaptureCallbacks
+                )
+                implOptions = defaultSessionConfig.implementationOptions
+            }
+
+            // Set any additional implementation options
+            builder.setImplementationOptions(implOptions)
+
+            // Set the template type from default session config
+            builder.setTemplateType(templateType)
+
+            // TODO: Add Camera2 options and callbacks
         }
     }
 }

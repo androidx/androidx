@@ -28,21 +28,15 @@ public annotation class NavDestinationDsl
 @NavDestinationDsl
 public open class NavDestinationBuilder<out D : NavDestination> internal constructor(
     /**
-     * Returns the navigator the destination was created from
-     *
-     * @return this destination's navigator
+     * The navigator the destination was created from
      */
     protected val navigator: Navigator<out D>,
     /**
-     * Returns the destination's unique ID.
-     *
-     * @return this destination's ID
+     * The destination's unique ID.
      */
     @IdRes public val id: Int,
     /**
-     * Returns the destination's unique route.
-     *
-     * @return this destination's route
+     * The destination's unique route.
      */
     public val route: String?
 ) {
@@ -57,6 +51,10 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
      *
      * @return the newly constructed [NavDestination]
      */
+    @Deprecated(
+        "Use routes to build your NavDestination instead",
+        ReplaceWith("NavDestinationBuilder(navigator, route = id.toString())")
+    )
     public constructor(navigator: Navigator<out D>, @IdRes id: Int) :
         this(navigator, id, null)
 
@@ -137,6 +135,10 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
     /**
      * Adds a new [NavAction] to the destination
      */
+    @Deprecated(
+        "Building NavDestinations using IDs with the Kotlin DSL has been deprecated in " +
+            "favor of using routes. When using routes there is no need for actions."
+    )
     public fun action(actionId: Int, actionBuilder: NavActionBuilder.() -> Unit) {
         actions[actionId] = NavActionBuilder().apply(actionBuilder).build()
     }
@@ -214,7 +216,7 @@ public class NavArgumentBuilder {
     private var _type: NavType<*>? = null
 
     /**
-     * Sets the NavType for this argument.
+     * The NavType for this argument.
      *
      * If you don't set a type explicitly, it will be inferred
      * from the default value of this argument.

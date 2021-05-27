@@ -22,7 +22,7 @@ import android.provider.Settings
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GoogleApiAvailabilityLight
 
 /**
  * Helper class for checking whether the phone paired to a given Wear OS device has the Play Store.
@@ -77,7 +77,7 @@ public class PlayStoreAvailability private constructor() {
 
             if (!isCurrentDeviceAWatch) {
                 val isPlayServiceAvailable =
-                    GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+                    GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(context)
                 return if (isPlayServiceAvailable == ConnectionResult.SUCCESS) PLAY_STORE_AVAILABLE
                 else PLAY_STORE_UNAVAILABLE
             }

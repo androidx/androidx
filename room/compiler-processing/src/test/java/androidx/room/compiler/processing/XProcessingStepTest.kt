@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XProcessingStep.Companion.asAutoCommonP
 import androidx.room.compiler.processing.XProcessingStep.Companion.executeInKsp
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
+import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
@@ -297,6 +298,7 @@ class XProcessingStepTest {
 
     @Test
     fun kspReturnsUnprocessed() {
+        CompilationTestCapabilities.assumeKspIsEnabled()
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,

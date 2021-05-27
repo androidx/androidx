@@ -204,14 +204,13 @@ public open class ActivityNavigator(
         activityNavigator: Navigator<out Destination>
     ) : NavDestination(activityNavigator) {
         /**
-         * Gets the Intent associated with this destination.
-         * @return
+         * The Intent associated with this destination.
          */
         public var intent: Intent? = null
             private set
 
         /**
-         * Gets the dynamic data URI pattern, if any
+         * The dynamic data URI pattern, if any
          */
         public var dataPattern: String? = null
             private set
@@ -287,11 +286,11 @@ public open class ActivityNavigator(
             }
         }
 
+        /**
+         * The explicit application package name associated with this destination, if any
+         */
         public var targetPackage: String? = null
             private set
-            /**
-             * Get the explicit application package name associated with this destination, if any
-             */
             get() = intent?.`package`
 
         /**
@@ -313,12 +312,11 @@ public open class ActivityNavigator(
             return this
         }
 
+        /**
+         * The explicit [ComponentName] associated with this destination, if any
+         */
         public var component: ComponentName? = null
             private set
-            /**
-             * Get the explicit [ComponentName] associated with this destination, if any
-             * @return
-             */
             get() = intent?.component
 
         /**
@@ -335,11 +333,11 @@ public open class ActivityNavigator(
             return this
         }
 
+        /**
+         * The action used to start the Activity, if any
+         */
         public var action: String? = null
             private set
-            /**
-             * Get the action used to start the Activity, if any
-             */
             get() = intent?.action
 
         /**
@@ -355,11 +353,11 @@ public open class ActivityNavigator(
             return this
         }
 
+        /**
+         * The data URI used to start the Activity, if any
+         */
         public var data: Uri? = null
             private set
-            /**
-             * Get the data URI used to start the Activity, if any
-             */
             get() = intent?.data
 
         /**
@@ -412,12 +410,11 @@ public open class ActivityNavigator(
      */
     public class Extras internal constructor(
         /**
-         * Gets the `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent.
+         * The `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent.
          */
         public val flags: Int,
         /**
-         * Gets the [ActivityOptionsCompat] that should be used with
-         * [ActivityCompat.startActivity].
+         * The [ActivityOptionsCompat] that should be used with [ActivityCompat.startActivity].
          */
         public val activityOptions: ActivityOptionsCompat?
     ) : Navigator.Extras {
@@ -478,8 +475,8 @@ public open class ActivityNavigator(
          * This should be used in place of [Activity.overridePendingTransition]
          * to get the appropriate pop animations.
          * @param activity An activity started from the [ActivityNavigator].
-         * @see NavOptions.getPopEnterAnim
-         * @see NavOptions.getPopExitAnim
+         * @see NavOptions.popEnterAnim
+         * @see NavOptions.popExitAnim
          */
         @JvmStatic
         public fun applyPopAnimationsToPendingTransition(activity: Activity) {

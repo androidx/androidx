@@ -14,38 +14,28 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.LintDetectorTest.manifest
-import com.android.tools.lint.checks.infrastructure.TestFile
-import com.android.tools.lint.checks.infrastructure.TestFiles
-import com.android.tools.lint.checks.infrastructure.TestLintResult
-import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("UnstableApiUsage")
 @RunWith(JUnit4::class)
-class ClassVerificationFailureDetectorTest {
-
-    private fun check(
-        vararg testFiles: TestFile,
-        minSdkVersion: Int = 14,
-    ): TestLintResult {
-        return lint()
-            .files(
-                manifest().minSdk(minSdkVersion),
-                *testFiles,
-            )
-            .issues(ClassVerificationFailureDetector.ISSUE)
-            .run()
-    }
+class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
+    useDetector = ClassVerificationFailureDetector(),
+    useIssues = listOf(ClassVerificationFailureDetector.ISSUE),
+    stubs = arrayOf(
+        // AndroidManifest with minSdkVersion=14
+        manifest().minSdk(14),
+    ),
+) {
 
     @Test
     fun `Detection of unsafe references in Java sources`() {
         val input = arrayOf(
-            javaSample("androidx.ClassVerificationFailureFromJava")
+            javaSample("androidx.ClassVerificationFailureFromJava"),
         )
 
         /* ktlint-disable max-line-length */
@@ -72,59 +62,59 @@ src/androidx/ClassVerificationFailureFromJava.java:80: Error: This call referenc
     @Test
     fun `Detection and auto-fix of unsafe references in real-world Java sources`() {
         val input = arrayOf(
-            javaSample("androidx.core.widget.ListViewCompat")
+            javaSample("androidx.sample.core.widget.ListViewCompat"),
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/core/widget/ListViewCompat.java:39: Error: This call references a method added in API level 19; however, the containing class androidx.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/sample/core/widget/ListViewCompat.java:39: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             listView.scrollListBy(y);
                      ~~~~~~~~~~~~
-src/androidx/core/widget/ListViewCompat.java:69: Error: This call references a method added in API level 19; however, the containing class androidx.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/sample/core/widget/ListViewCompat.java:69: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             return listView.canScrollList(direction);
                             ~~~~~~~~~~~~~
 2 errors, 0 warnings
         """.trimIndent()
 
         val expectedFix = """
-Fix for src/androidx/core/widget/ListViewCompat.java line 39: Extract to static inner class:
+Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to static inner class:
 @@ -39 +39
 -             listView.scrollListBy(y);
 +             Api19Impl.scrollListBy(listView, y);
 @@ -91 +91
 - }
-@@ -92 +91
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @androidx.annotation.DoNotInline
 +     static void scrollListBy(AbsListView absListView, int y) {
 +         absListView.scrollListBy(y);
 +     }
-+
+@@ -93 +102
 + }}
-Fix for src/androidx/core/widget/ListViewCompat.java line 69: Extract to static inner class:
++
+Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to static inner class:
 @@ -69 +69
 -             return listView.canScrollList(direction);
 +             return Api19Impl.canScrollList(listView, direction);
 @@ -91 +91
 - }
-@@ -92 +91
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @androidx.annotation.DoNotInline
 +     static boolean canScrollList(AbsListView absListView, int direction) {
 +         return absListView.canScrollList(direction);
 +     }
-+
+@@ -93 +102
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -134,7 +124,7 @@ Fix for src/androidx/core/widget/ListViewCompat.java line 69: Extract to static 
     @Test
     fun `Auto-fix unsafe void-type method reference in Java source`() {
         val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeVoidMethodReferenceJava")
+            javaSample("androidx.AutofixUnsafeVoidMethodReferenceJava"),
         )
 
         /* ktlint-disable max-line-length */
@@ -145,19 +135,19 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -37 +37
 - }
-@@ -38 +37
 + @annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
-+
+@@ -39 +48
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -167,7 +157,7 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
     @Test
     fun `Auto-fix unsafe constructor reference in Java source`() {
         val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeConstructorReferenceJava")
+            javaSample("androidx.AutofixUnsafeConstructorReferenceJava"),
         )
 
         /* ktlint-disable max-line-length */
@@ -178,19 +168,19 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 +             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
 @@ -38 +38
 - }
-@@ -39 +38
 + @annotation.RequiresApi(30)
 + static class Api30Impl {
 +     private Api30Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
 +         return new AccessibilityNodeInfo(root, virtualDescendantId);
 +     }
-+
+@@ -40 +49
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -200,7 +190,7 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
     @Test
     fun `Auto-fix unsafe static method reference in Java source`() {
         val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeStaticMethodReferenceJava")
+            javaSample("androidx.AutofixUnsafeStaticMethodReferenceJava"),
         )
 
         /* ktlint-disable max-line-length */
@@ -211,19 +201,19 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 +             return Api17Impl.generateViewId();
 @@ -37 +37
 - }
-@@ -38 +37
 + @annotation.RequiresApi(17)
 + static class Api17Impl {
 +     private Api17Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static int generateViewId() {
 +         return View.generateViewId();
 +     }
-+
+@@ -39 +48
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -233,7 +223,7 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
     @Test
     fun `Auto-fix unsafe generic-type method reference in Java source`() {
         val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeGenericMethodReferenceJava")
+            javaSample("androidx.AutofixUnsafeGenericMethodReferenceJava"),
         )
 
         /* ktlint-disable max-line-length */
@@ -244,19 +234,19 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 +             return Api23Impl.getSystemService(context, serviceClass);
 @@ -38 +38
 - }
-@@ -39 +38
 + @annotation.RequiresApi(23)
 + static class Api23Impl {
 +     private Api23Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @annotation.DoNotInline
 +     static <T> T getSystemService(Context context, Class<T> serviceClass) {
 +         return context.getSystemService(serviceClass);
 +     }
-+
+@@ -40 +49
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -266,7 +256,7 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
     @Test
     fun `Auto-fix unsafe reference in Java source with existing inner class`() {
         val input = arrayOf(
-            javaSample("androidx.AutofixUnsafeReferenceWithExistingClassJava")
+            javaSample("androidx.AutofixUnsafeReferenceWithExistingClassJava"),
         )
 
         /* ktlint-disable max-line-length */
@@ -277,36 +267,22 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -46 +46
 - }
-@@ -47 +46
 + @RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
 +         // This class is not instantiable.
 +     }
-+    
++
 +     @DoNotInline
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
-+
+@@ -48 +57
 + }}
++
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expectFixDiffs(expectedFix)
     }
-
-    /**
-     * Loads a [TestFile] from Java source code included in the JAR resources.
-     */
-    private fun javaSample(className: String): TestFile = TestFiles.java(
-        javaClass.getResource("/java/${className.replace('.', '/')}.java").readText()
-    )
-
-    /**
-     * Loads a [TestFile] from Kotlin source code included in the JAR resources.
-     */
-    private fun ktSample(className: String): TestFile = TestFiles.kotlin(
-        javaClass.getResource("/java/${className.replace('.', '/')}.kt").readText()
-    )
 }

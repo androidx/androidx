@@ -19,12 +19,14 @@ package androidx.wear.watchface.test
 import android.content.Context
 import android.os.Handler
 import android.view.SurfaceHolder
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.samples.createExampleOpenGLWatchFaceBuilder
+import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGlesWatchFaceService(
@@ -37,20 +39,37 @@ internal class TestGlesWatchFaceService(
 
     private val mutableWatchState = MutableWatchState()
 
+    // We can't subclass ExampleOpenGLWatchFaceService because we want to override internal methods,
+    // so instead we use composition.
+    private val delegate = object : ExampleOpenGLWatchFaceService() {
+        init {
+            attachBaseContext(testContext)
+        }
+    }
+
     init {
         attachBaseContext(testContext)
     }
 
+    override fun createUserStyleSchema() = delegate.createUserStyleSchema()
+
+    override fun createComplicationsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = delegate.createComplicationsManager(currentUserStyleRepository)
+
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
-        return createExampleOpenGLWatchFaceBuilder(
-            this,
+        return delegate.createWatchFace(
             surfaceHolder,
-            watchState
+            watchState,
+            complicationsManager,
+            currentUserStyleRepository
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
                 return mockSystemTimeMillis
@@ -60,7 +79,7 @@ internal class TestGlesWatchFaceService(
 
     override fun getMutableWatchState() = mutableWatchState
 
-    override fun getHandler() = handler
+    override fun getUiThreadHandlerImpl() = handler
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false

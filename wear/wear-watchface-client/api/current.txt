@@ -25,6 +25,14 @@ package androidx.wear.watchface.client {
     property public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
   }
 
+  public final class DefaultComplicationProviderPolicyAndType {
+    ctor public DefaultComplicationProviderPolicyAndType(androidx.wear.complications.DefaultComplicationProviderPolicy policy, androidx.wear.complications.data.ComplicationType type);
+    method public androidx.wear.complications.DefaultComplicationProviderPolicy getPolicy();
+    method public androidx.wear.complications.data.ComplicationType getType();
+    property public final androidx.wear.complications.DefaultComplicationProviderPolicy policy;
+    property public final androidx.wear.complications.data.ComplicationType type;
+  }
+
   public final class DeviceConfig {
     ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
@@ -129,6 +137,7 @@ package androidx.wear.watchface.client {
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
     method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, @Px int surfaceWidth, @Px int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.DefaultComplicationProviderPolicyAndType> getDefaultComplicationProviderPoliciesAndType(android.content.ComponentName watchFaceName);
     method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
     method public androidx.wear.watchface.client.InteractiveWatchFaceClient? getInteractiveWatchFaceClientInstance(String instanceId);
     method public suspend Object? getOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, androidx.wear.watchface.style.UserStyleData? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient> p);

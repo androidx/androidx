@@ -21,8 +21,6 @@ import org.gradle.api.Project
 import java.io.File
 import java.util.Locale
 
-// String.capitalize(Locale) is currently experimental.
-@ExperimentalStdlibApi
 internal fun BaseVariant.taskName(baseName: String) = "$baseName${name.capitalize(Locale.ENGLISH)}"
 
 internal fun Project.taskWorkingDir(variant: BaseVariant, baseName: String): File {

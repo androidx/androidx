@@ -21,6 +21,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
 
 /**
  * Load the OEM extension Preview implementation for beauty effect type.
@@ -68,7 +69,7 @@ public class BeautyPreviewExtender extends PreviewExtender {
 
         VendorBeautyPreviewExtender(Preview.Builder builder) {
             mImpl = new BeautyPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_BEAUTY);
+            init(builder, mImpl, ExtensionMode.BEAUTY);
         }
     }
 

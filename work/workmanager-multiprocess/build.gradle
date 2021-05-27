@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
 
 plugins {
@@ -32,29 +27,24 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // b/130307237 test coverage breaks robolectric
-        }
-    }
 }
 
 dependencies {
     api project(":work:work-runtime-ktx")
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_ANDROID)
-    api(GUAVA_LISTENABLE_FUTURE)
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
+    api(libs.guavaListenableFuture)
     implementation("androidx.room:room-runtime:2.2.5")
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"))
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(JUNIT)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.junit)
 }
 
 androidx {

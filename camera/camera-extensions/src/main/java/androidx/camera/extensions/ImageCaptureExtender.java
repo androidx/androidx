@@ -35,7 +35,6 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -49,6 +48,8 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureProcessor;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Consumer;
 
 import java.util.ArrayList;
@@ -66,13 +67,12 @@ public abstract class ImageCaptureExtender {
 
     private ImageCapture.Builder mBuilder;
     private ImageCaptureExtenderImpl mImpl;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
-            @Extensions.ExtensionMode int effectMode) {
+            @ExtensionMode.Mode int effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
@@ -94,7 +94,6 @@ public abstract class ImageCaptureExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
@@ -119,7 +118,6 @@ public abstract class ImageCaptureExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {
@@ -150,12 +148,9 @@ public abstract class ImageCaptureExtender {
 
     /**
      * Update extension related configs to the builder.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
-            @Extensions.ExtensionMode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
+    private static void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
+            @ExtensionMode.Mode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
             @NonNull Context context) {
         CaptureProcessorImpl captureProcessor = impl.getCaptureProcessor();
         if (captureProcessor != null) {
@@ -212,7 +207,7 @@ public abstract class ImageCaptureExtender {
         }
     }
 
-    static void checkPreviewEnabled(@Extensions.ExtensionMode int effectMode,
+    static void checkPreviewEnabled(@ExtensionMode.Mode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isPreviewExtenderEnabled = false;
         boolean isMismatched = false;
@@ -224,11 +219,11 @@ public abstract class ImageCaptureExtender {
 
         for (UseCase useCase : activeUseCases) {
             int previewExtenderMode = useCase.getCurrentConfig().retrieveOption(
-                    PreviewExtender.OPTION_PREVIEW_EXTENDER_MODE, Extensions.EXTENSION_MODE_NONE);
+                    PreviewExtender.OPTION_PREVIEW_EXTENDER_MODE, ExtensionMode.NONE);
 
             if (effectMode == previewExtenderMode) {
                 isPreviewExtenderEnabled = true;
-            } else if (previewExtenderMode != Extensions.EXTENSION_MODE_NONE) {
+            } else if (previewExtenderMode != ExtensionMode.NONE) {
                 isMismatched = true;
             }
         }

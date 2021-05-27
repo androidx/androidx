@@ -3400,7 +3400,7 @@ public final class MediaRouter {
             mCompatSession = session;
             if (Build.VERSION.SDK_INT >= 21) {
                 setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
-            } else if (Build.VERSION.SDK_INT >= 14) {
+            } else {
                 if (mRccMediaSession != null) {
                     removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
                     mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);

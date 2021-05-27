@@ -66,7 +66,6 @@ public class TestCarContextTest {
     }
 
     @Test
-    @SuppressWarnings("PendingIntentMutability")
     public void getStartCarAppIntents() {
         Intent startApp = new Intent(Intent.ACTION_VIEW);
 
@@ -76,12 +75,18 @@ public class TestCarContextTest {
 
         Intent broadcast =
                 new Intent("foo").setComponent(new ComponentName(mCarContext.getPackageName(),
-                        "bar"));
+                        "androidx.car.app.CarAppService"));
         PendingIntent pendingIntent = CarPendingIntent.getCarApp(mCarContext, 1, broadcast, 0);
 
         mCarContext.getFakeHost().performNotificationActionClick(pendingIntent);
 
-        assertThat(mCarContext.getStartCarAppIntents()).containsExactly(startApp, broadcast);
+        List<Intent> startCarAppIntents = mCarContext.getStartCarAppIntents();
+        assertThat(startCarAppIntents).hasSize(2);
+        assertThat(startCarAppIntents.get(0)).isEqualTo(startApp);
+        assertThat(startCarAppIntents.get(1).getComponent()).isEqualTo(
+                new ComponentName(mCarContext.getPackageName(),
+                        "androidx.car.app.CarAppService"));
+        assertThat(startCarAppIntents.get(1).getAction()).isEqualTo("foo");
     }
 
     @Test
@@ -95,7 +100,7 @@ public class TestCarContextTest {
 
     @Test
     public void getLastPermissionRequest() {
-        assertThat(mCarContext.getLastPermissionRequest()).isNull();
+        assertThat(mCarContext.getLastPermissionRequestInfo()).isNull();
 
         List<String> permissions = new ArrayList<>();
         permissions.add("foo");
@@ -104,7 +109,7 @@ public class TestCarContextTest {
 
         mCarContext.requestPermissions(permissions, callback);
 
-        TestCarContext.PermissionRequest request = mCarContext.getLastPermissionRequest();
+        TestCarContext.PermissionRequestInfo request = mCarContext.getLastPermissionRequestInfo();
 
         assertThat(request.getPermissionsRequested()).containsExactlyElementsIn(permissions);
         assertThat(request.getCallback()).isEqualTo(callback);

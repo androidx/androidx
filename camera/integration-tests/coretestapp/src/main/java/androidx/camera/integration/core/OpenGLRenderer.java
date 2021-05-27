@@ -28,9 +28,7 @@ import android.view.Surface;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.WorkerThread;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Preview;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
@@ -108,7 +106,6 @@ final class OpenGLRenderer {
      * @return A {@link ListenableFuture} that signals the new surface is ready to be used in the
      * renderer for the input Preview use-case.
      */
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     @MainThread
     @SuppressWarnings("ObjectToString")
     @NonNull

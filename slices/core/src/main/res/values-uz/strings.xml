@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> ilovasiga <xliff:g id="APP_2">%2$s</xliff:g> ilovasidan fragmentlar ko‘rsatishga ruxsat berilsinmi?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"– <xliff:g id="APP">%1$s</xliff:g> ma’lumotlarini o‘qiy oladi"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"– <xliff:g id="APP">%1$s</xliff:g> ichida amallar bajara oladi"</string>
-
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Ruxsat"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Rad etish"</string>
 </resources>

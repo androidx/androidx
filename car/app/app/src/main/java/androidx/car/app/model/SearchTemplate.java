@@ -49,7 +49,7 @@ public final class SearchTemplate implements Template {
     /** A listener for search updates. */
     public interface SearchCallback {
         /**
-         * Notifies the current {@code searchText}.
+         * Notifies the current {@code searchText} has changed.
          *
          * <p>The host may invoke this callback as the user types a search text. The frequency of
          * these updates is not guaranteed to be after every individual keystroke. The host may

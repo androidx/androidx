@@ -65,7 +65,6 @@ package androidx.wear.complications {
     field public static final int PROVIDER_DAY_AND_DATE = 16; // 0x10
     field public static final int PROVIDER_DAY_OF_WEEK = 13; // 0xd
     field public static final int PROVIDER_FAVORITE_CONTACT = 14; // 0xe
-    field public static final int PROVIDER_MOST_RECENT_APP = 15; // 0xf
     field public static final int PROVIDER_NEXT_EVENT = 9; // 0x9
     field public static final int PROVIDER_RETAIL_CHAT = 11; // 0xb
     field public static final int PROVIDER_RETAIL_STEP_COUNT = 10; // 0xa

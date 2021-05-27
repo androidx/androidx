@@ -18,17 +18,17 @@ package androidx.navigation
 /**
  * A Navigator built specifically for [NavGraph] elements. Handles navigating to the
  * correct destination when the NavGraph is the target of navigation actions.
- */
-@Navigator.Name("navigation")
-public open class NavGraphNavigator
-/**
+ *
  * Construct a Navigator capable of routing incoming navigation requests to the proper
  * destination within a [NavGraph].
  *
  * @param navigatorProvider NavigatorProvider used to retrieve the correct
  * [Navigator] to navigate to the start destination
  */
-constructor(private val navigatorProvider: NavigatorProvider) : Navigator<NavGraph>() {
+@Navigator.Name("navigation")
+public open class NavGraphNavigator(
+    private val navigatorProvider: NavigatorProvider
+) : Navigator<NavGraph>() {
     /**
      * Creates a new [NavGraph] associated with this navigator.
      * @return The created [NavGraph].

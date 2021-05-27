@@ -38,6 +38,16 @@ rm -rf "$stateDir"
 mkdir -p "$stateDir"
 stateDir="$(cd $stateDir && pwd)"
 
+if [ "$OUT_DIR" == "" ]; then
+  OUT_DIR="$checkoutDir/out"
+else
+  GRADLE_USER_HOME="$OUT_DIR/.gradle"
+fi
+
+if [ "$DIST_DIR" == "" ];then
+  DIST_DIR="$OUT_DIR/dist"
+fi
+
 if [ "$GRADLE_USER_HOME" == "" ]; then
   GRADLE_USER_HOME="$(cd ~ && pwd)/.gradle"
 fi
@@ -54,19 +64,40 @@ function copy() {
     else
       cp --preserve=all -rT "$from" "$to"
     fi
+  else
+    rm "$to" -rf
   fi
-
 }
 
 function backupState() {
   backupDir="$1"
   echo "Saving state into $backupDir"
   mkdir -p "$backupDir"
-  copy "$checkoutRoot/out"            "$backupDir/out"
+
+  # back up DIST_DIR if not under OUT_DIR
+  if [ "$DIST_DIR" != "$OUT_DIR/dist" ]; then
+    copy "$DIST_DIR"                  "$backupDir/dist"
+  fi
+  # back up GRADLE_USER_HOME if not under OUT_DIR
+  if [ "$GRADLE_USER_HOME" != "$OUT_DIR/.gradle" ]; then
+    copy "$GRADLE_USER_HOME"          "$backupDir/gradleUserHome"
+  fi
+  # back up out/
+  copy "$OUT_DIR"                     "$backupDir/out"
+
+  # If DIST_DIR is under out/, then move it to where we will find it
+  if [ "$DIST_DIR" == "$OUT_DIR/dist" ]; then
+    mv "$backupDir/out/dist"          "$backupDir/dist" 2>/dev/null || true
+  fi
+
+  # if $GRADLE_USER_HOME is under out/ , then move it to where we will find it
+  if [ "$GRADLE_USER_HOME" == "$OUT_DIR/.gradle" ]; then
+    mv "$backupDir/out/.gradle" "$backupDir/gradleUserHome" 2>/dev/null || true
+  fi
+
   copy "$gradlewDir/.gradle"          "$backupDir/support/.gradle"
   copy "$gradlewDir/buildSrc/.gradle" "$backupDir/buildSrc/.gradle"
   copy "$gradlewDir/local.properties" "$backupDir/local.properties"
-  copy "$GRADLE_USER_HOME"            "$backupDir/gradleUserHome"
 }
 
 backupState $stateDir

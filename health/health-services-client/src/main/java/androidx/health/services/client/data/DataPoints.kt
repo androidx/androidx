@@ -46,10 +46,10 @@ public object DataPoints {
     public const val LOCATION_DATA_POINT_ALTITUDE_INDEX: Int = 2
 
     /** Name of intent extra containing the data points set on pending intent. */
-    private const val EXTRA_DATA_POINTS: String = "whs.data_points_list"
+    private const val EXTRA_DATA_POINTS: String = "hs.data_points_list"
 
     /** Name of intent extra containing whether permissions are granted or not. */
-    private const val EXTRA_PERMISSIONS_GRANTED: String = "whs.data_points_has_permissions"
+    private const val EXTRA_PERMISSIONS_GRANTED: String = "hs.data_points_has_permissions"
 
     /** Retrieves the [DataPoint] s that are contained in the given [Intent], if any. */
     @JvmStatic

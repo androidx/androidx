@@ -35,6 +35,7 @@ class NavHostTest {
             get() = this@NavHostTest.navController
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun createGraph() {
         val graph = navHost.createGraph(startDestination = DESTINATION_ID) {

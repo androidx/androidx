@@ -173,6 +173,7 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_start_destination, args)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testStartDestinationWithArgsProgrammatic() {
@@ -238,6 +239,7 @@ class NavControllerTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testSetViewModelStoreOwnerAfterGraphSet() {
@@ -260,6 +262,7 @@ class NavControllerTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testSetSameViewModelStoreOwnerAfterGraphSet() {
@@ -982,6 +985,24 @@ class NavControllerTest {
         assertWithMessage("NavController should return true when popping a non-root destination")
             .that(popped)
             .isTrue()
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateThenPopFromNavigator() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(R.id.second_test)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navigator.popCurrent()
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
@@ -1938,6 +1959,28 @@ class NavControllerTest {
         assertThat(backPressedIntercepted).isTrue()
     }
 
+    @UiThreadTest
+    @Test
+    fun testOnDestinationChangedListenerConcurrentModification() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+
+        val listener = object : NavController.OnDestinationChangedListener {
+            override fun onDestinationChanged(
+                controller: NavController,
+                destination: NavDestination,
+                arguments: Bundle?
+            ) {
+                navController.removeOnDestinationChangedListener(this)
+            }
+        }
+
+        navController.addOnDestinationChangedListener(listener)
+        navController.addOnDestinationChangedListener { _, _, _ -> }
+        navController.navigate(R.id.second_test)
+    }
+
+    @Suppress("DEPRECATION")
     @Test
     fun createGraph() {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
@@ -1949,7 +1992,7 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
-    @Suppress("EXPERIMENTAL_API_USAGE")
+    @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
     fun currentBackStackEntryFlow() = runBlocking {
         navController.graph = navController.createGraph(startDestination = 1) {
             test(1)

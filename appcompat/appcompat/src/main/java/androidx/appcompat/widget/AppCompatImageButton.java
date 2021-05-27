@@ -36,6 +36,7 @@ import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.ImageViewCompat;
 import androidx.core.widget.TintableImageSourceView;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link ImageButton} which supports compatible features on older versions of the platform,
@@ -56,6 +57,7 @@ import androidx.core.widget.TintableImageSourceView;
  * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatImageButton extends ImageButton implements TintableBackgroundView,
         TintableImageSourceView {
 

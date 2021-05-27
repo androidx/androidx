@@ -107,6 +107,26 @@ public class DefaultComplicationProviderPolicy {
         secondaryProvider?.let { add(it) }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DefaultComplicationProviderPolicy
+
+        if (primaryProvider != other.primaryProvider) return false
+        if (secondaryProvider != other.secondaryProvider) return false
+        if (systemProviderFallback != other.systemProviderFallback) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = primaryProvider?.hashCode() ?: 0
+        result = 31 * result + (secondaryProvider?.hashCode() ?: 0)
+        result = 31 * result + systemProviderFallback
+        return result
+    }
+
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
     }

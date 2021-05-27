@@ -20,6 +20,8 @@ import android.os.Build;
 import android.os.Build.VERSION;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * This class contains additional platform version checking methods for targeting pre-release
@@ -27,6 +29,29 @@ import androidx.annotation.ChecksSdkIntAtLeast;
  */
 public class BuildCompat {
     private BuildCompat() {
+    }
+
+    /**
+     * Checks if the codename is a matching or higher version than the given build value.
+     * @param codename the requested build codename, e.g. {@code "O"} or {@code "OMR1"}
+     * @param buildCodename the value of {@link VERSION.CODENAME}
+     *
+     * @return {@code true} if APIs from the requested codename are available in the build.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    protected static boolean isAtLeastPreReleaseCodename(@NonNull String codename,
+            @NonNull String buildCodename) {
+
+        // Special case "REL", which means the build is not a pre-release build.
+        if ("REL".equals(buildCodename)) {
+            return false;
+        }
+
+        // Otherwise lexically compare them.  Return true if the build codename is equal to or
+        // greater than the requested codename.
+        return buildCodename.compareTo(codename) >= 0;
     }
 
     /**
@@ -139,6 +164,6 @@ public class BuildCompat {
      */
     @ChecksSdkIntAtLeast(codename = "S")
     public static boolean isAtLeastS() {
-        return VERSION.CODENAME.equals("S");
+        return isAtLeastPreReleaseCodename("S", VERSION.CODENAME);
     }
 }

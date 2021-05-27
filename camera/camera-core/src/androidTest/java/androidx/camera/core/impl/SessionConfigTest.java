@@ -158,7 +158,7 @@ public class SessionConfigTest {
     }
 
     @Test
-    public void conflictingTemplate() {
+    public void prioritizeTemplateType_previewHigherThanUnsupportedType() {
         SessionConfig.Builder builderPreview = new SessionConfig.Builder();
         builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         SessionConfig sessionConfigPreview = builderPreview.build();
@@ -171,7 +171,30 @@ public class SessionConfigTest {
         validatingBuilder.add(sessionConfigPreview);
         validatingBuilder.add(sessionConfigZsl);
 
-        assertThat(validatingBuilder.isValid()).isFalse();
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_PREVIEW);
+    }
+
+    @Test
+    public void prioritizeTemplateType_recordHigherThanPreview() {
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+        SessionConfig.Builder builderRecord = new SessionConfig.Builder();
+        builderRecord.setTemplateType(CameraDevice.TEMPLATE_RECORD);
+        SessionConfig sessionConfigRecord = builderRecord.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigRecord);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_RECORD);
     }
 
     @Test
@@ -356,15 +379,6 @@ public class SessionConfigTest {
                 .containsNoneOf(callback0, callback1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateRepeatingCameraCaptureCallback_throwsException() {
-        SessionConfig.Builder builder = new SessionConfig.Builder();
-        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
-
-        builder.addRepeatingCameraCaptureCallback(callback0);
-        builder.addRepeatingCameraCaptureCallback(callback0);
-    }
-
     @Test(expected = UnsupportedOperationException.class)
     public void repeatingCameraCaptureCallbacks_areImmutable() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
@@ -397,15 +411,6 @@ public class SessionConfigTest {
         SessionConfig configuration = builder.build();
 
         assertThat(configuration.getDeviceStateCallbacks()).containsExactly(callback0, callback1);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateDeviceStateCallback_throwsException() {
-        SessionConfig.Builder builder = new SessionConfig.Builder();
-        CameraDevice.StateCallback callback0 = mock(CameraDevice.StateCallback.class);
-
-        builder.addDeviceStateCallback(callback0);
-        builder.addDeviceStateCallback(callback0);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -447,16 +452,6 @@ public class SessionConfigTest {
         assertThat(configuration.getSessionStateCallbacks()).containsExactly(callback0, callback1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateSessionStateCallback_throwsException() {
-        SessionConfig.Builder builder = new SessionConfig.Builder();
-        CameraCaptureSession.StateCallback callback0 =
-                mock(CameraCaptureSession.StateCallback.class);
-
-        builder.addSessionStateCallback(callback0);
-        builder.addSessionStateCallback(callback0);
-    }
-
     @Test(expected = UnsupportedOperationException.class)
     public void sessionStateCallbacks_areImmutable() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
@@ -496,15 +491,6 @@ public class SessionConfigTest {
                 .containsExactly(callback0, callback1);
         assertThat(configuration.getRepeatingCameraCaptureCallbacks())
                 .containsExactly(callback0, callback1);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateCameraCallback_throwsException() {
-        SessionConfig.Builder builder = new SessionConfig.Builder();
-        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
-
-        builder.addCameraCaptureCallback(callback0);
-        builder.addCameraCaptureCallback(callback0);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -577,7 +563,7 @@ public class SessionConfigTest {
     @Test
     public void combineTwoSessionsTagsValid() {
         SessionConfig session0 = createSessionConfigWithTag("TEST00", 0);
-        SessionConfig session1 = createSessionConfigWithTag("TEST01", 1);
+        SessionConfig session1 = createSessionConfigWithTag("TEST01", "String");
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(session0);
@@ -590,10 +576,10 @@ public class SessionConfigTest {
         TagBundle tag = sessionCombined.getRepeatingCaptureConfig().getTagBundle();
 
         assertThat(tag.getTag("TEST00")).isEqualTo(0);
-        assertThat(tag.getTag("TEST01")).isEqualTo(1);
+        assertThat(tag.getTag("TEST01")).isEqualTo("String");
     }
 
-    private SessionConfig createSessionConfigWithTag(String key, int tagValue) {
+    private SessionConfig createSessionConfigWithTag(String key, Object tagValue) {
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);

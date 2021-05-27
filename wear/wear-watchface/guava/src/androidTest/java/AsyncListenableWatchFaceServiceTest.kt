@@ -17,10 +17,9 @@
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
-import android.os.Handler
-import android.os.Looper
 import android.view.SurfaceHolder
 import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.ListenableWatchFaceService
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.Renderer
@@ -54,23 +53,21 @@ private class FakeRenderer(
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
 }
 
-private class TestAsyncListenableWatchFaceService(private val handler: Handler) :
+private class TestAsyncListenableWatchFaceService :
     ListenableWatchFaceService() {
     override fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): ListenableFuture<WatchFace> {
         val future = SettableFuture.create<WatchFace>()
-        val userStyleRepository = CurrentUserStyleRepository(
-            UserStyleSchema(emptyList())
-        )
         // Post a task to resolve the future.
-        handler.post {
+        getUiThreadHandler().post {
             future.set(
                 WatchFace(
                     WatchFaceType.DIGITAL,
-                    userStyleRepository,
-                    FakeRenderer(surfaceHolder, watchState, userStyleRepository)
+                    FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
                 ).apply { setOverridePreviewReferenceTimeMillis(REFERENCE_PREVIEW_TIME) }
             )
         }
@@ -79,8 +76,11 @@ private class TestAsyncListenableWatchFaceService(private val handler: Handler) 
 
     suspend fun createWatchFaceForTest(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ): WatchFace = createWatchFace(surfaceHolder, watchState)
+        watchState: WatchState,
+        complicationsManager: ComplicationsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace =
+        createWatchFace(surfaceHolder, watchState, complicationsManager, currentUserStyleRepository)
 }
 
 /**
@@ -91,15 +91,19 @@ public class AsyncListenableWatchFaceServiceTest {
 
     @Test
     public fun asyncTest() {
-        val handler = Handler(Looper.getMainLooper())
-        val service = TestAsyncListenableWatchFaceService(handler)
+        val service = TestAsyncListenableWatchFaceService()
         val mockSurfaceHolder = Mockito.mock(SurfaceHolder::class.java)
         Mockito.`when`(mockSurfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 100, 100))
 
         runBlocking {
+            val currentUserStyleRepository =
+                CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+            val complicationsManager = ComplicationsManager(emptyList(), currentUserStyleRepository)
             val watchFace = service.createWatchFaceForTest(
                 mockSurfaceHolder,
-                MutableWatchState().asWatchState()
+                MutableWatchState().asWatchState(),
+                complicationsManager,
+                currentUserStyleRepository
             )
 
             // Simple check that [watchFace] looks sensible.
