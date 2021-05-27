@@ -101,3 +101,5 @@ at com\.android\.tools\.lint\.Main\.run\(Main\.java\:[0-9]+\)
 at com\.android\.build\.gradle\.internal\.lint\.AndroidLintWorkAction\.invokeLintMainRunMethod\(AndroidLintWorkAction\.kt\:[0-9]+\)
 at com\.android\.build\.gradle\.internal\.lint\.AndroidLintWorkAction\.runLint\(AndroidLintWorkAction\.kt\:[0-9]+\)
 at com\.android\.build\.gradle\.internal\.lint\.AndroidLintWorkAction\.execute\(AndroidLintWorkAction\.kt\:[0-9]+\)
+# > Task :buildSrc-tests:lintAnalyze
+.*\.android\/cache\/api\-versions\-[0-9]+\-[0-9A-Z]+rev[0-9]+\.bin does not exist
