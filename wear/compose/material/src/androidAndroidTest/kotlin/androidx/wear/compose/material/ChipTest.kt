@@ -770,8 +770,10 @@ class ChipFontTest {
         var actualLabelTextStyle = TextStyle.Default
         var actualSecondaryLabelTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
+        var expectedSecondaryTextStyle = TextStyle.Default
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.button
+            expectedSecondaryTextStyle = MaterialTheme.typography.caption2
             Chip(
                 onClick = {},
                 colors = ChipDefaults.primaryChipColors(),
@@ -786,7 +788,7 @@ class ChipFontTest {
             )
         }
         assertEquals(expectedTextStyle, actualLabelTextStyle)
-        assertEquals(expectedTextStyle, actualSecondaryLabelTextStyle)
+        assertEquals(expectedSecondaryTextStyle, actualSecondaryLabelTextStyle)
     }
 }
 
