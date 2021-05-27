@@ -1303,6 +1303,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     TraceEvent("WatchFaceService.createComplicationsManager").use {
                         createComplicationsManager(currentUserStyleRepository)
                     }
+                complicationsManager.watchState = watchState
 
                 val calendar = Calendar.getInstance()
                 val deferredWatchFace = CompletableDeferred<WatchFace>()
@@ -1324,7 +1325,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 try {
                     val watchFace = TraceEvent("WatchFaceService.createWatchFace").use {
-                        complicationsManager.watchState = watchState
                         createWatchFace(
                             surfaceHolder,
                             watchState,
