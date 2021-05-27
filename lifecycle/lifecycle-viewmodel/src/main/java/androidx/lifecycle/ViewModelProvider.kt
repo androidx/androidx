@@ -13,269 +13,253 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import android.app.Application;
-
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-
-import java.lang.reflect.InvocationTargetException;
+import android.app.Application
+import androidx.annotation.MainThread
+import androidx.annotation.RestrictTo
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DEFAULT_KEY
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
+import java.lang.IllegalArgumentException
+import java.lang.RuntimeException
+import java.lang.UnsupportedOperationException
+import java.lang.reflect.InvocationTargetException
 
 /**
- * An utility class that provides {@code ViewModels} for a scope.
- * <p>
- * Default {@code ViewModelProvider} for an {@code Activity} or a {@code Fragment} can be obtained
- * by passing it to {@link ViewModelProvider#ViewModelProvider(ViewModelStoreOwner)}.
+ * An utility class that provides `ViewModels` for a scope.
+ *
+ * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained
+ * by passing it to the constructor: `ViewModelProvider(myFragment)`
+ *
+ * @param store  `ViewModelStore` where ViewModels will be stored.
+ * @param factory factory a `Factory` which will be used to instantiate
+ * new `ViewModels`
  */
-@SuppressWarnings("WeakerAccess")
-public class ViewModelProvider {
-
-    private static final String DEFAULT_KEY =
-            "androidx.lifecycle.ViewModelProvider.DefaultKey";
-
+public open class ViewModelProvider(
+    private val store: ViewModelStore,
+    private val factory: Factory
+) {
     /**
-     * Implementations of {@code Factory} interface are responsible to instantiate ViewModels.
+     * Implementations of `Factory` interface are responsible to instantiate ViewModels.
      */
     public interface Factory {
         /**
-         * Creates a new instance of the given {@code Class}.
-         * <p>
+         * Creates a new instance of the given `Class`.
          *
-         * @param modelClass a {@code Class} whose instance is requested
-         * @param <T>        The type parameter for the ViewModel.
+         * @param modelClass a `Class` whose instance is requested
          * @return a newly created ViewModel
          */
-        @NonNull
-        <T extends ViewModel> T create(@NonNull Class<T> modelClass);
-    }
-
-    static class OnRequeryFactory {
-        void onRequery(@NonNull ViewModel viewModel) {
-        }
+        public fun <T : ViewModel> create(modelClass: Class<T>): T
     }
 
     /**
-     * Implementations of {@code Factory} interface are responsible to instantiate ViewModels.
-     * <p>
-     * This is more advanced version of {@link Factory} that receives a key specified for requested
-     * {@link ViewModel}.
+     * @suppress
      */
-    abstract static class KeyedFactory extends OnRequeryFactory implements Factory {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open class OnRequeryFactory {
+        public open fun onRequery(viewModel: ViewModel) {}
+    }
+
+    /**
+     * Implementations of `Factory` interface are responsible to instantiate ViewModels.
+     *
+     *
+     * This is more advanced version of [Factory] that receives a key specified for requested
+     * [ViewModel].
+     *
+     * @suppress
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract class KeyedFactory : OnRequeryFactory(), Factory {
         /**
-         * Creates a new instance of the given {@code Class}.
+         * Creates a new instance of the given `Class`.
          *
          * @param key a key associated with the requested ViewModel
-         * @param modelClass a {@code Class} whose instance is requested
-         * @param <T>        The type parameter for the ViewModel.
+         * @param modelClass a `Class` whose instance is requested
          * @return a newly created ViewModel
          */
-        @NonNull
-        public abstract <T extends ViewModel> T create(@NonNull String key,
-                @NonNull Class<T> modelClass);
+        public abstract fun <T : ViewModel> create(
+            key: String,
+            modelClass: Class<T>
+        ): T
 
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            throw new UnsupportedOperationException("create(String, Class<?>) must be called on "
-                    + "implementaions of KeyedFactory");
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            throw UnsupportedOperationException(
+                "create(String, Class<?>) must be called on implementations of KeyedFactory"
+            )
         }
     }
 
-    private final Factory mFactory;
-    private final ViewModelStore mViewModelStore;
-
     /**
-     * Creates {@code ViewModelProvider}. This will create {@code ViewModels}
-     * and retain them in a store of the given {@code ViewModelStoreOwner}.
-     * <p>
+     * Creates `ViewModelProvider`. This will create `ViewModels`
+     * and retain them in a store of the given `ViewModelStoreOwner`.
+     *
+     *
      * This method will use the
-     * {@link HasDefaultViewModelProviderFactory#getDefaultViewModelProviderFactory() default factory}
-     * if the owner implements {@link HasDefaultViewModelProviderFactory}. Otherwise, a
-     * {@link NewInstanceFactory} will be used.
+     * [default factory][HasDefaultViewModelProviderFactory.getDefaultViewModelProviderFactory]
+     * if the owner implements [HasDefaultViewModelProviderFactory]. Otherwise, a
+     * [NewInstanceFactory] will be used.
      */
-    public ViewModelProvider(@NonNull ViewModelStoreOwner owner) {
-        this(owner.getViewModelStore(), owner instanceof HasDefaultViewModelProviderFactory
-                ? ((HasDefaultViewModelProviderFactory) owner).getDefaultViewModelProviderFactory()
-                : NewInstanceFactory.getInstance());
-    }
+    public constructor(
+        owner: ViewModelStoreOwner
+    ) : this(owner.viewModelStore, defaultFactory(owner))
 
     /**
-     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
-     * {@code Factory} and retain them in a store of the given {@code ViewModelStoreOwner}.
+     * Creates `ViewModelProvider`, which will create `ViewModels` via the given
+     * `Factory` and retain them in a store of the given `ViewModelStoreOwner`.
      *
-     * @param owner   a {@code ViewModelStoreOwner} whose {@link ViewModelStore} will be used to
-     *                retain {@code ViewModels}
-     * @param factory a {@code Factory} which will be used to instantiate
-     *                new {@code ViewModels}
+     * @param owner   a `ViewModelStoreOwner` whose [ViewModelStore] will be used to
+     * retain `ViewModels`
+     * @param factory a `Factory` which will be used to instantiate
+     * new `ViewModels`
      */
-    public ViewModelProvider(@NonNull ViewModelStoreOwner owner, @NonNull Factory factory) {
-        this(owner.getViewModelStore(), factory);
-    }
-
-    /**
-     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
-     * {@code Factory} and retain them in the given {@code store}.
-     *
-     * @param store   {@code ViewModelStore} where ViewModels will be stored.
-     * @param factory factory a {@code Factory} which will be used to instantiate
-     *                new {@code ViewModels}
-     */
-    public ViewModelProvider(@NonNull ViewModelStore store, @NonNull Factory factory) {
-        mFactory = factory;
-        mViewModelStore = store;
-    }
+    public constructor(owner: ViewModelStoreOwner, factory: Factory) : this(
+        owner.viewModelStore,
+        factory
+    )
 
     /**
      * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
-     * an activity), associated with this {@code ViewModelProvider}.
-     * <p>
+     * an activity), associated with this `ViewModelProvider`.
+     *
+     *
      * The created ViewModel is associated with the given scope and will be retained
      * as long as the scope is alive (e.g. if it is an activity, until it is
      * finished or process is killed).
      *
      * @param modelClass The class of the ViewModel to create an instance of it if it is not
-     *                   present.
-     * @param <T>        The type parameter for the ViewModel.
-     * @return A ViewModel that is an instance of the given type {@code T}.
+     * present.
+     * @return A ViewModel that is an instance of the given type `T`.
+     * @throws IllegalArgumentException if the given [modelClass] is local or anonymous class.
      */
-    @NonNull
     @MainThread
-    public <T extends ViewModel> T get(@NonNull Class<T> modelClass) {
-        String canonicalName = modelClass.getCanonicalName();
-        if (canonicalName == null) {
-            throw new IllegalArgumentException("Local and anonymous classes can not be ViewModels");
-        }
-        return get(DEFAULT_KEY + ":" + canonicalName, modelClass);
+    public open operator fun <T : ViewModel> get(modelClass: Class<T>): T {
+        val canonicalName = modelClass.canonicalName
+            ?: throw IllegalArgumentException("Local and anonymous classes can not be ViewModels")
+        return get("$DEFAULT_KEY:$canonicalName", modelClass)
     }
 
     /**
      * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
-     * an activity), associated with this {@code ViewModelProvider}.
-     * <p>
+     * an activity), associated with this `ViewModelProvider`.
+     *
      * The created ViewModel is associated with the given scope and will be retained
      * as long as the scope is alive (e.g. if it is an activity, until it is
      * finished or process is killed).
      *
      * @param key        The key to use to identify the ViewModel.
      * @param modelClass The class of the ViewModel to create an instance of it if it is not
-     *                   present.
-     * @param <T>        The type parameter for the ViewModel.
-     * @return A ViewModel that is an instance of the given type {@code T}.
+     * present.
+     * @return A ViewModel that is an instance of the given type `T`.
      */
-    @SuppressWarnings("unchecked")
-    @NonNull
+    @Suppress("UNCHECKED_CAST")
     @MainThread
-    public <T extends ViewModel> T get(@NonNull String key, @NonNull Class<T> modelClass) {
-        ViewModel viewModel = mViewModelStore.get(key);
-
+    public open operator fun <T : ViewModel> get(key: String, modelClass: Class<T>): T {
+        var viewModel = store[key]
         if (modelClass.isInstance(viewModel)) {
-            if (mFactory instanceof OnRequeryFactory) {
-                ((OnRequeryFactory) mFactory).onRequery(viewModel);
-            }
-            return (T) viewModel;
+            (factory as? OnRequeryFactory)?.onRequery(viewModel)
+            return viewModel as T
         } else {
-            //noinspection StatementWithEmptyBody
+            @Suppress("ControlFlowWithEmptyBody")
             if (viewModel != null) {
                 // TODO: log a warning.
             }
         }
-        if (mFactory instanceof KeyedFactory) {
-            viewModel = ((KeyedFactory) mFactory).create(key, modelClass);
+        viewModel = if (factory is KeyedFactory) {
+            factory.create(key, modelClass)
         } else {
-            viewModel = mFactory.create(modelClass);
+            factory.create(modelClass)
         }
-        mViewModelStore.put(key, viewModel);
-        return (T) viewModel;
+        store.put(key, viewModel)
+        return viewModel
     }
 
     /**
      * Simple factory, which calls empty constructor on the give class.
      */
-    public static class NewInstanceFactory implements Factory {
-
-        private static NewInstanceFactory sInstance;
-
-        /**
-         * Retrieve a singleton instance of NewInstanceFactory.
-         *
-         * @return A valid {@link NewInstanceFactory}
-         */
-        @NonNull
-        static NewInstanceFactory getInstance() {
-            if (sInstance == null) {
-                sInstance = new NewInstanceFactory();
+    // actually there is getInstance()
+    @Suppress("SingletonConstructor")
+    public open class NewInstanceFactory : Factory {
+        @Suppress("DocumentExceptions")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return try {
+                modelClass.newInstance()
+            } catch (e: InstantiationException) {
+                throw RuntimeException("Cannot create an instance of $modelClass", e)
+            } catch (e: IllegalAccessException) {
+                throw RuntimeException("Cannot create an instance of $modelClass", e)
             }
-            return sInstance;
         }
 
-        @SuppressWarnings("ClassNewInstance")
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            //noinspection TryWithIdenticalCatches
-            try {
-                return modelClass.newInstance();
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-            }
+        public companion object {
+            private var sInstance: NewInstanceFactory? = null
+
+            /**
+             * @suppress
+             * Retrieve a singleton instance of NewInstanceFactory.
+             *
+             * @return A valid [NewInstanceFactory]
+             */
+            @JvmStatic
+            public val instance: NewInstanceFactory
+                @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+                get() {
+                    if (sInstance == null) {
+                        sInstance = NewInstanceFactory()
+                    }
+                    return sInstance!!
+                }
         }
     }
 
     /**
-     * {@link Factory} which may create {@link AndroidViewModel} and
-     * {@link ViewModel}, which have an empty constructor.
+     * [Factory] which may create [AndroidViewModel] and
+     * [ViewModel], which have an empty constructor.
+     *
+     * @param application an application to pass in [AndroidViewModel]
      */
-    public static class AndroidViewModelFactory extends ViewModelProvider.NewInstanceFactory {
-
-        private static AndroidViewModelFactory sInstance;
-
-        /**
-         * Retrieve a singleton instance of AndroidViewModelFactory.
-         *
-         * @param application an application to pass in {@link AndroidViewModel}
-         * @return A valid {@link AndroidViewModelFactory}
-         */
-        @NonNull
-        public static AndroidViewModelFactory getInstance(@NonNull Application application) {
-            if (sInstance == null) {
-                sInstance = new AndroidViewModelFactory(application);
-            }
-            return sInstance;
-        }
-
-        private Application mApplication;
-
-        /**
-         * Creates a {@code AndroidViewModelFactory}
-         *
-         * @param application an application to pass in {@link AndroidViewModel}
-         */
-        public AndroidViewModelFactory(@NonNull Application application) {
-            mApplication = application;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            if (AndroidViewModel.class.isAssignableFrom(modelClass)) {
-                //noinspection TryWithIdenticalCatches
+    public open class AndroidViewModelFactory(
+        private val application: Application
+    ) : NewInstanceFactory() {
+        @Suppress("DocumentExceptions")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
                 try {
-                    return modelClass.getConstructor(Application.class).newInstance(mApplication);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                } catch (InstantiationException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException("Cannot create an instance of " + modelClass, e);
+                    modelClass.getConstructor(Application::class.java).newInstance(application)
+                } catch (e: NoSuchMethodException) {
+                    throw RuntimeException("Cannot create an instance of $modelClass", e)
+                } catch (e: IllegalAccessException) {
+                    throw RuntimeException("Cannot create an instance of $modelClass", e)
+                } catch (e: InstantiationException) {
+                    throw RuntimeException("Cannot create an instance of $modelClass", e)
+                } catch (e: InvocationTargetException) {
+                    throw RuntimeException("Cannot create an instance of $modelClass", e)
                 }
+            } else super.create(modelClass)
+        }
+
+        public companion object {
+            internal fun defaultFactory(owner: ViewModelStoreOwner): Factory =
+                if (owner is HasDefaultViewModelProviderFactory)
+                    owner.defaultViewModelProviderFactory else instance
+
+            internal const val DEFAULT_KEY = "androidx.lifecycle.ViewModelProvider.DefaultKey"
+
+            private var sInstance: AndroidViewModelFactory? = null
+
+            /**
+             * Retrieve a singleton instance of AndroidViewModelFactory.
+             *
+             * @param application an application to pass in [AndroidViewModel]
+             * @return A valid [AndroidViewModelFactory]
+             */
+            @JvmStatic
+            public fun getInstance(application: Application): AndroidViewModelFactory {
+                if (sInstance == null) {
+                    sInstance = AndroidViewModelFactory(application)
+                }
+                return sInstance!!
             }
-            return super.create(modelClass);
         }
     }
 }

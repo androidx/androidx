@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-KotlinOperator: androidx.lifecycle.ViewModelProvider#get(Class<T>):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
-KotlinOperator: androidx.lifecycle.ViewModelProvider#get(String, Class<T>):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+MissingJvmstatic: androidx.lifecycle.ViewModelProvider.NewInstanceFactory#instance:
+    Companion object constants like instance should be using @JvmField, not @JvmStatic; see https://developer.android.com/kotlin/interop#companion_constants
 
 
 SingletonConstructor: androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory#AndroidViewModelFactory(android.app.Application):
     Singleton classes should use `getInstance()` methods: `AndroidViewModelFactory`
+SingletonConstructor: androidx.lifecycle.ViewModelProvider.NewInstanceFactory#NewInstanceFactory():
+    Singleton classes should use `getInstance()` methods: `NewInstanceFactory`

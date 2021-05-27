@@ -37,6 +37,7 @@ class ViewModelLazyTest {
 
     @Suppress("UNCHECKED_CAST")
     class TestFactory : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T = TestVM("spb") as T
+
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = TestVM("spb") as T
     }
 }

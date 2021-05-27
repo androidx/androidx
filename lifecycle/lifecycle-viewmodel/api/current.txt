@@ -16,25 +16,34 @@ package androidx.lifecycle {
   }
 
   public class ViewModelProvider {
-    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner);
-    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
-    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
-    method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(Class<T!>);
-    method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(String, Class<T!>);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner, androidx.lifecycle.ViewModelProvider.Factory factory);
+    method @MainThread public operator <T extends androidx.lifecycle.ViewModel> T get(Class<T> modelClass);
+    method @MainThread public operator <T extends androidx.lifecycle.ViewModel> T get(String key, Class<T> modelClass);
   }
 
   public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
-    ctor public ViewModelProvider.AndroidViewModelFactory(android.app.Application);
-    method public static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application);
+    ctor public ViewModelProvider.AndroidViewModelFactory(android.app.Application application);
+    method public static final androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
+    field public static final androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion Companion;
+  }
+
+  public static final class ViewModelProvider.AndroidViewModelFactory.Companion {
+    method public androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
   }
 
   public static interface ViewModelProvider.Factory {
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
+    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public ViewModelProvider.NewInstanceFactory();
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
+    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
+    field public static final androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion Companion;
+  }
+
+  public static final class ViewModelProvider.NewInstanceFactory.Companion {
   }
 
   public class ViewModelStore {

@@ -67,7 +67,7 @@ internal class NavControllerViewModel : ViewModel(), NavViewModelStoreProvider {
     companion object {
         private val FACTORY: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return NavControllerViewModel() as T
             }
         }
