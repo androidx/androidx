@@ -35,20 +35,20 @@ android {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_CORE)
-    api(KOTLIN_COROUTINES_RX2)
-    api(RX_JAVA)
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesCore)
+    api(libs.kotlinCoroutinesRx2)
+    api(libs.rxjava2)
     api(project(":window:window"))
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
-    androidTestImplementation(MOCKITO_KOTLIN, excludes.bytebuddy)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(MULTIDEX)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoKotlin, excludes.bytebuddy)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
