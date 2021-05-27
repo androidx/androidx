@@ -112,9 +112,11 @@ public final class MediaConstants {
 
     /**
      * Bundle key used for media content id in {@link MediaMetadataCompat metadata}, should contain
-     * the same ID provided to Media Actions Catalog in reference to this title (e.g., episode,
-     * movie). This information can be used to allow users to resume watching this title on your app
-     * across the supported surfaces (e.g., Android TV's Play Next row)
+     * the same ID provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to this title (e.g., episode, movie). This key can contain the content ID of the currently
+     * playing episode or movie and can be used to help users continue watching after this
+     * session is paused or stopped.
      *
      * <p>TYPE: String
      *
@@ -126,10 +128,12 @@ public final class MediaConstants {
 
     /**
      * Bundle key used for next episode's media content ID in {@link MediaMetadataCompat metadata},
-     * following the same ID and format provided to Media Actions Catalog in reference to the next
-     * episode of the current title episode. This information can be used to allow users to resume
-     * watching the next episode of this title on your app once the current episode ends across the
-     * supported surfaces (e.g., Android TV's Play Next row). This can be left blank for movies.
+     * following the same ID and format provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to the next episode of the current title episode. This key can contain the content ID of
+     * the episode immediately following the currently playing episode and can be used to help
+     * users continue watching after this episode is over. This value is only valid for TV
+     * Episode content type and should be left blank for other content.
      *
      * <p>TYPE: String
      *
@@ -141,11 +145,10 @@ public final class MediaConstants {
 
     /**
      * Bundle key used for the TV series's media content ID in {@link MediaMetadataCompat metadata},
-     * following the same ID and format provided to Media Actions Catalog</a> in reference to the
-     * TV series of the title episode. This information can be used to allow users to resume
-     * watching the current episode or next episode of this title on your app across the
-     * supported surfaces (e.g., Android TV's Play Next row). This value is only valid for TV
-     * Episode content type.
+     * following the same ID and format provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to the TV series of the current title episode. This value is only valid for TV Episode
+     * content type and should be left blank for other content.
      *
      * <p>TYPE: String
      *
