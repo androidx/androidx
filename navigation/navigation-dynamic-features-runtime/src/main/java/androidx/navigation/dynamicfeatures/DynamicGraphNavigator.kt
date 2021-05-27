@@ -74,12 +74,11 @@ public class DynamicGraphNavigator(
         navigatorExtras: Extras?
     ) {
         val destination = entry.destination
-        val args = entry.arguments
         val extras = if (navigatorExtras is DynamicExtras) navigatorExtras else null
         if (destination is DynamicNavGraph) {
             val moduleName = destination.moduleName
             if (moduleName != null && installManager.needsInstall(moduleName)) {
-                installManager.performInstall(destination, args, extras, moduleName)
+                installManager.performInstall(entry, extras, moduleName)
                 return
             }
         }
@@ -144,7 +143,7 @@ public class DynamicGraphNavigator(
     /**
      * Install the default progress destination
      *
-     * @return The [NavDestination.getId] of the newly added progress destination
+     * @return The [NavDestination#getId] of the newly added progress destination
      */
     private fun installDefaultProgressDestination(dynamicNavGraph: DynamicNavGraph): Int {
         val progressDestinationSupplier = defaultProgressDestinationSupplier
