@@ -84,14 +84,6 @@ public final class Toll {
     @State
     public static final int TOLLCARD_STATE_NOT_INSERTED = 3;
 
-    /** Toll card request parameters. */
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
-    public static final class Params {
-        public static @NonNull Params getDefault() {
-            return new Params();
-        }
-    }
-
     @Keep
     @NonNull
     private final CarValue<Integer> mCardState;
@@ -137,8 +129,7 @@ public final class Toll {
 
     /** A builder of {@link Toll}. */
     public static final class Builder {
-        @Nullable
-        CarValue<Integer> mCardState;
+        CarValue<Integer> mCardState = CarValue.UNIMPLEMENTED_INTEGER;
 
         /**
          * Sets the toll card state.
@@ -153,15 +144,9 @@ public final class Toll {
 
         /**
          * Constructs the {@link Toll} defined by this builder.
-         *
-         *  <p>Any fields which have not been set are added with {@code null} value and
-         *  {@link CarValue#STATUS_UNIMPLEMENTED}.
          */
         @NonNull
         public Toll build() {
-            if (mCardState == null) {
-                mCardState = CarValue.UNIMPLEMENTED_INTEGER;
-            }
             return new Toll(this);
         }
 

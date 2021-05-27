@@ -115,14 +115,6 @@ public final class EnergyProfile {
     @EvConnectorType
     public static final int EVCONNECTOR_TYPE_OTHER = 101;
 
-    /** Energy profile request parameters. */
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
-    public static final class Params {
-        public static @NonNull Params getDefault() {
-            return new Params();
-        }
-    }
-
     /**
      * Possible Fual types.
      *
@@ -244,10 +236,8 @@ public final class EnergyProfile {
 
     /** A builder of {@link EnergyProfile}. */
     public static final class Builder {
-        @Nullable
-        CarValue<Integer[]> mEvConnectorTypes;
-        @Nullable
-        CarValue<Integer[]> mFuelTypes;
+        CarValue<Integer[]> mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
+        CarValue<Integer[]> mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
 
         /**
          * Sets the cars EV connector types.
@@ -279,12 +269,6 @@ public final class EnergyProfile {
          */
         @NonNull
         public EnergyProfile build() {
-            if (mEvConnectorTypes == null) {
-                mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
-            }
-            if (mFuelTypes == null) {
-                mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
-            }
             return new EnergyProfile(this);
         }
 
