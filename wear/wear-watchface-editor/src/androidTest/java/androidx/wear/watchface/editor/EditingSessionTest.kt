@@ -54,6 +54,7 @@ import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.BroadcastsObserver
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
@@ -1580,7 +1581,14 @@ public class EditorSessionTest {
                 watchState,
                 currentUserStyleRepository,
                 ComplicationsManager(emptyList(), currentUserStyleRepository),
-                Calendar.getInstance()
+                Calendar.getInstance(),
+                BroadcastsObserver(
+                    watchState,
+                    mockWatchFaceHostApi,
+                    CompletableDeferred(),
+                    CoroutineScope(mockHandler.asCoroutineDispatcher())
+                ),
+                null
             )
 
             assertThat(activity.onCreateException).isInstanceOf(IllegalStateException::class.java)
