@@ -51,6 +51,7 @@ import androidx.media2.common.SubtitleData;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
@@ -535,6 +536,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         return cp;
     }
 
+    @FlakyTest(bugId = 189489889)
     @Test
     @LargeTest
     public void getTimestamp() throws Exception {
