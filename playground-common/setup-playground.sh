@@ -4,7 +4,7 @@
 # if we do structural changes in Playground's setup.
 
 function relativize() {
-    python -c "import os.path; print os.path.relpath('$1', '$2')"
+    python -c "import os.path; print(os.path.relpath('$1', '$2'))"
 }
 
 PLAYGROUND_REL_PATH=$(dirname $0)
