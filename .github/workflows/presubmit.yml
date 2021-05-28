@@ -2,7 +2,7 @@ name: AndroidX Presubmits
 on:
   push:
     branches:
-      - yigit/workflow-cleanup
+      - androidx-main
   pull_request_target:
     types: ['labeled']
 
