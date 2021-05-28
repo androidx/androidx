@@ -128,7 +128,7 @@ public class MediaRouteButton extends View {
     private static final int CONNECTION_STATE_CONNECTED =
             MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 
-    private int mLastConnectionState = CONNECTION_STATE_DISCONNECTED;
+    private int mLastConnectionState;
     private int mConnectionState;
 
     private ColorStateList mButtonTint;
@@ -174,6 +174,11 @@ public class MediaRouteButton extends View {
         }
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
+
+        MediaRouter.RouteInfo selectedRoute = mRouter.getSelectedRoute();
+        boolean isRemote = !selectedRoute.isDefaultOrBluetooth();
+        mLastConnectionState = mConnectionState =
+                (isRemote ? selectedRoute.getConnectionState() : CONNECTION_STATE_DISCONNECTED);
 
         if (sConnectivityReceiver == null) {
             sConnectivityReceiver = new ConnectivityReceiver(context.getApplicationContext());
