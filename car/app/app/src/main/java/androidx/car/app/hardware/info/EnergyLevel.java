@@ -24,7 +24,6 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.hardware.common.UpdateRate;
 
 import java.util.Objects;
 
@@ -32,28 +31,6 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(3)
 public final class EnergyLevel {
-
-    /** Energy level request parameters. */
-    public static final class Params {
-        private final @UpdateRate.Value int mRate;
-
-        private static final EnergyLevel.Params DEFAULT = new Params(UpdateRate.DEFAULT);
-
-        /** Construct {@link EnergyLevel} parameter instance. */
-        public Params(@UpdateRate.Value int rate) {
-            mRate = rate;
-        }
-
-        /** Gets the requested data rate for the energy level. */
-        public @UpdateRate.Value int getRate() {
-            return mRate;
-        }
-
-        /** Gets an {@link EnergyLevel.Params} instance with default values set. */
-        public static @NonNull EnergyLevel.Params getDefault() {
-            return DEFAULT;
-        }
-    }
 
     @Keep
     @NonNull
@@ -167,19 +144,11 @@ public final class EnergyLevel {
 
     /** A builder of {@link EnergyLevel}. */
     public static final class Builder {
-        @Nullable
-        CarValue<Float> mBatteryPercent;
-        @Nullable
-        CarValue<Float> mFuelPercent;
-
-        @Nullable
-        CarValue<Boolean> mEnergyIsLow;
-
-        @Nullable
-        CarValue<Float> mRangeRemaining;
-
-        @Nullable
-        CarValue<Integer> mDistanceDisplayUnit;
+        CarValue<Float> mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Boolean> mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
+        CarValue<Float> mRangeRemaining = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
 
         /** Sets the remaining batter percentage. */
         @NonNull
@@ -236,27 +205,9 @@ public final class EnergyLevel {
 
         /**
          * Constructs the {@link EnergyLevel} defined by this builder.
-         *
-         * <p>Any fields which have not been set are added with {@code null} value and
-         * {@link CarValue#STATUS_UNIMPLEMENTED}.
          */
         @NonNull
         public EnergyLevel build() {
-            if (mBatteryPercent == null) {
-                mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
-            }
-            if (mFuelPercent == null) {
-                mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
-            }
-            if (mEnergyIsLow == null) {
-                mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
-            }
-            if (mRangeRemaining == null) {
-                mRangeRemaining = CarValue.UNIMPLEMENTED_FLOAT;
-            }
-            if (mDistanceDisplayUnit == null) {
-                mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
-            }
             return new EnergyLevel(this);
         }
     }
