@@ -24,7 +24,6 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.hardware.common.UpdateRate;
 
 import java.util.Objects;
 
@@ -34,26 +33,6 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(3)
 public final class Speed {
-
-    /**
-     * Parameters for speed requests.
-     */
-    public static final class Params {
-        private final @UpdateRate.Value int mRate;
-
-        public Params(@UpdateRate.Value int rate) {
-            mRate = rate;
-        }
-
-        public @UpdateRate.Value int getRate() {
-            return mRate;
-        }
-
-        public static @NonNull Speed.Params getDefault() {
-            return new Params(UpdateRate.DEFAULT);
-        }
-    }
-
     @Keep
     @NonNull
     private final CarValue<Float> mRawSpeed;
@@ -66,7 +45,12 @@ public final class Speed {
     @NonNull
     private final CarValue<Integer> mSpeedDisplayUnit;
 
-    /** Returns the raw speed of the car in meters/second. */
+    /**
+     * Returns the raw speed of the car in meters/second.
+     *
+     * <p>The value is positive when the vehicle is moving forward, negative when moving
+     * backwards and zero when stopped.
+     */
     @NonNull
     public CarValue<Float> getRawSpeed() {
         return requireNonNull(mRawSpeed);
@@ -135,13 +119,9 @@ public final class Speed {
 
     /** A builder of {@link Speed}. */
     public static final class Builder {
-        @Nullable
-        CarValue<Float> mRawSpeed;
-        @Nullable
-        CarValue<Float> mDisplaySpeed;
-
-        @Nullable
-        CarValue<Integer> mSpeedDisplayUnit;
+        CarValue<Float> mRawSpeed = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mDisplaySpeed = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
 
         /**
          * Sets the raw speed.
@@ -180,21 +160,9 @@ public final class Speed {
 
         /**
          * Constructs the {@link Speed} defined by this builder.
-         *
-         * <p>Any fields which have not been set are added with {@code null} value and
-         * {@link CarValue#STATUS_UNIMPLEMENTED}.
          */
         @NonNull
         public Speed build() {
-            if (mRawSpeed == null) {
-                mRawSpeed = CarValue.UNIMPLEMENTED_FLOAT;
-            }
-            if (mDisplaySpeed == null) {
-                mDisplaySpeed = CarValue.UNIMPLEMENTED_FLOAT;
-            }
-            if (mSpeedDisplayUnit == null) {
-                mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
-            }
             return new Speed(this);
         }
     }

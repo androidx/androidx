@@ -24,7 +24,6 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.hardware.common.UpdateRate;
 
 import java.util.Objects;
 
@@ -32,24 +31,6 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(3)
 public final class Mileage {
-
-    /** Mileage request parameters. */
-    public static final class Params {
-        private final @UpdateRate.Value int mRate;
-
-        public Params(@UpdateRate.Value int rate) {
-            mRate = rate;
-        }
-
-        public @UpdateRate.Value int getRate() {
-            return mRate;
-        }
-
-        public static @NonNull Mileage.Params getDefault() {
-            return new Params(UpdateRate.DEFAULT);
-        }
-    }
-
     @Keep
     @NonNull
     private final CarValue<Float> mOdometer;
@@ -116,10 +97,8 @@ public final class Mileage {
 
     /** A builder of {@link Mileage}. */
     public static final class Builder {
-        @Nullable
-        CarValue<Float> mOdometer;
-        @Nullable
-        CarValue<Integer> mDistanceDisplayUnit;
+        CarValue<Float> mOdometer = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
 
         /**
          * Sets the odometer value in meters.
@@ -147,18 +126,9 @@ public final class Mileage {
 
         /**
          * Constructs the {@link Mileage} defined by this builder.
-         *
-         * <p>Any fields which have not been set are added with {@code null} value and
-         * {@link CarValue#STATUS_UNIMPLEMENTED}.
          */
         @NonNull
         public Mileage build() {
-            if (mOdometer == null) {
-                mOdometer = CarValue.UNIMPLEMENTED_FLOAT;
-            }
-            if (mDistanceDisplayUnit == null) {
-                mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
-            }
             return new Mileage(this);
         }
 
