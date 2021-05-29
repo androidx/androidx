@@ -101,7 +101,7 @@ public class CoordinateTransformTest {
         // Set an arbitrary transform so it's no longer identity matrix.
         matrix.setRotate(90f)
         assertThat(matrix.isIdentity).isFalse()
-        transform.getTransform(matrix)
+        transform.transform(matrix)
         assertThat(matrix.isIdentity).isTrue()
     }
 
