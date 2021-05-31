@@ -34,6 +34,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CameraConfigProvider;
 import androidx.camera.core.impl.CameraFilters;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
+import androidx.camera.core.impl.Identifier;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
@@ -250,7 +251,7 @@ final class ExtensionsInfo {
      * {@link ExtendedCameraConfigProviderStore}.
      */
     private static void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
-        CameraFilter.Id id = CameraFilter.Id.create(getExtendedCameraConfigProviderId(mode));
+        Identifier id = Identifier.create(getExtendedCameraConfigProviderId(mode));
 
         if (ExtendedCameraConfigProviderStore.getConfigProvider(id) == CameraConfigProvider.EMPTY) {
             ExtendedCameraConfigProviderStore.addConfig(id, (cameraInfo, context) -> {
@@ -259,6 +260,7 @@ final class ExtensionsInfo {
                 return new ExtensionsConfig.Builder()
                         .setExtensionMode(mode)
                         .setUseCaseConfigFactory(factory)
+                        .setCompatibilityId(id)
                         .build();
             });
         }

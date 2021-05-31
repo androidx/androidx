@@ -490,9 +490,15 @@ public final class CameraUseCaseAdapter implements Camera {
     public void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
         synchronized (mLock) {
             if (cameraConfig == null) {
-                mCameraConfig = CameraConfigs.emptyConfig();
-                return;
+                cameraConfig = CameraConfigs.emptyConfig();
             }
+
+            if (!mUseCases.isEmpty() && !mCameraConfig.getCompatibilityId().equals(
+                    cameraConfig.getCompatibilityId())) {
+                throw new IllegalStateException(
+                        "Need to unbind all use cases before binding with extension enabled");
+            }
+
             mCameraConfig = cameraConfig;
         }
     }

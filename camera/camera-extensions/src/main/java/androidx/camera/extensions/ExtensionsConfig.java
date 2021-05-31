@@ -19,6 +19,7 @@ package androidx.camera.extensions;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.ReadableConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -57,6 +58,11 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         return retrieveOption(OPTION_USECASE_CONFIG_FACTORY);
     }
 
+    @NonNull
+    @Override
+    public Identifier getCompatibilityId() {
+        return retrieveOption(OPTION_COMPATIBILITY_ID);
+    }
 
     static final class Builder implements CameraConfig.Builder<Builder> {
         private final MutableOptionsBundle mConfig = MutableOptionsBundle.create();
@@ -74,6 +80,13 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         @Override
         public Builder setUseCaseConfigFactory(@NonNull UseCaseConfigFactory factory) {
             mConfig.insertOption(OPTION_USECASE_CONFIG_FACTORY, factory);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setCompatibilityId(@NonNull Identifier identifier) {
+            mConfig.insertOption(OPTION_COMPATIBILITY_ID, identifier);
             return this;
         }
     }

@@ -46,10 +46,18 @@ public class CameraConfigs {
             }
         };
 
+        private final Identifier mIdentifier = Identifier.create(new Object());
+
         @NonNull
         @Override
         public UseCaseConfigFactory getUseCaseConfigFactory() {
             return mUseCaseConfigFactory;
+        }
+
+        @NonNull
+        @Override
+        public Identifier getCompatibilityId() {
+            return mIdentifier;
         }
 
         @NonNull
