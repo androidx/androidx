@@ -1529,9 +1529,151 @@ See Jake Wharton's article on
 [Public API challenges in Kotlin](https://jakewharton.com/public-api-challenges-in-kotlin/)
 for more details.
 
+#### Exhaustive `when` and `sealed class`/`enum class` {#exhaustive-when}
+
+A key feature of Kotlin's `sealed class` and `enum class` declarations is that
+they permit the use of **exhaustive `when` expressions.** For example:
+
+```kotlin
+enum class CommandResult { Permitted, DeniedByUser }
+
+val message = when (commandResult) {
+    Permitted -> "the operation was permitted"
+    DeniedByUser -> "the user said no"
+}
+
+println(message)
+```
+
+This highlights challenges for library API design and compatibility. Consider
+the following addition to the `CommandResult` possibilities:
+
+```kotlin {.bad}
+enum class CommandResult {
+    Permitted,
+    DeniedByUser,
+    DeniedByAdmin // New in androidx.mylibrary:1.1.0!
+}
+```
+
+This change is both **source and binary breaking.**
+
+It is **source breaking** because the author of the `when` block above will see
+a compiler error about not handling the new result value.
+
+It is **binary breaking** because if the `when` block above was compiled as part
+of a library `com.example.library:1.0.0` that transitively depends on
+`androidx.mylibrary:1.0.0`, and an app declares the dependencies:
+
+```kotlin
+implementation("com.example.library:1.0.0")
+implementation("androidx.mylibrary:1.1.0") // Updated!
+```
+
+`com.example.library:1.0.0` does not handle the new result value, leading to a
+runtime exception.
+
+**Note:** The above example is one where Kotlin's `enum class` is the correct
+tool and the library should **not** add a new constant! Kotlin turns this
+semantic API design problem into a compiler or runtime error. This type of
+library API change could silently cause app logic errors or data corruption
+without the protection provided by exhaustive `when`. See
+[When to use exhaustive types](#when-to-use-exhaustive-types).
+
+`sealed class` exhibits the same characteristic; adding a new subtype of an
+existing sealed class is a breaking change for the following code:
+
+```kotlin
+val message = when (command) {
+    is Command.Migrate -> "migrating to ${command.destination}"
+    is Command.Quack -> "quack!"
+}
+```
+
+##### Non-exhaustive alternatives to `enum class`
+
+Kotlin's `@JvmInline value class` with a `private constructor` can be used to
+create type-safe sets of non-exhaustive constants as of Kotlin 1.5. Compose's
+`BlendMode` uses the following pattern:
+
+```kotlin {.good}
+@JvmInline
+value class BlendMode private constructor(val value: Int) {
+    companion object {
+        /** Drop both the source and destination images, leaving nothing. */
+        val Clear = BlendMode(0)
+        /** Drop the destination image, only paint the source image. */
+        val Src = BlendMode(1)
+        // ...
+    }
+}
+```
+
+**Note:** This recommendation may be temporary. Kotlin may add new annotations
+or other language features to declare non-exhaustive enum classes in the future.
+
+Alternatively, the existing `@IntDef` mechanism used in Java-language androidx
+libraries may also be used, but type checking of constants will only be
+performed by lint, and functions overloaded with parameters of different value
+class types are not supported. Prefer the `@JvmInline value class` solution for
+new code unless it would break local consistency with other API in the same
+module that already uses `@IntDef`.
+
+##### Non-exhaustive alternatives to `sealed class`
+
+Abstract classes with constructors marked as `internal` or `private` can
+represent the same subclassing restrictions of sealed classes as seen from
+outside of a library module's own codebase:
+
+```kotlin
+abstract class Command private constructor() {
+    class Migrate(val destination: String) : Command()
+    object Quack : Command()
+}
+```
+
+Using an `internal` constructor will permit non-nested subclasses, but will
+**not** restrict subclasses to the same package within the module, as sealed
+classes do.
+
+##### When to use exhaustive types
+
+Use `enum class` or `sealed class` when the values or subtypes are intended to
+be exhaustive by design from the API's initial release. Use non-exhaustive
+alternatives when the set of constants or subtypes might expand in a minor
+version release.
+
+Consider using an **exhaustive** (`enum class` or `sealed class`) type
+declaration if:
+
+*   The developer is expected to **accept** values of the type
+*   The developer is expected to **act** on **any and all** values received
+
+Consider using a **non-exhaustive** type declaration if:
+
+*   The developer is expected to **provide** values of the type to APIs exposed
+    by the same module **only**
+*   The developer is expected to **ignore** unknown values received
+
+The `CommandResult` example above is a good example of a type that **should**
+use the exhaustive `enum class`; `CommandResult`s are **returned** to the
+developer and the developer cannot implement correct app behavior by ignoring
+unrecognized result values. Adding a new result value would semantically break
+existing code regardless of the language facility used to express the type.
+
+```kotlin {.good}
+enum class CommandResult { Permitted, DeniedByUser, DeniedByAdmin }
+```
+
+Compose's `BlendMode` is a good example of a type that **should not** use the
+exhaustive `enum class`; blending modes are used as arguments to Compose
+graphics APIs and are not intended for interpretation by app code. Additionally,
+there is historical precedent from `android.graphics` for new blending modes to
+be added in the future.
+
 #### Extension and top-level functions {#kotlin-extension-functions}
 
-If your Kotlin file contains any sybmols outside of class-like types
+If your Kotlin file contains any symbols outside of class-like types
 (extension/top-level functions, properties, etc), the file must be annotated
 with `@JvmName`. This ensures unanticipated use-cases from Java callers don't
 get stuck using `BlahKt` files.
