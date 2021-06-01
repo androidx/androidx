@@ -22,6 +22,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.CarText;
 
 import java.util.Objects;
 
@@ -36,16 +37,40 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
 
     @Keep
     @Nullable
+    private final CarText mPinCode;
+
+    // TODO(b/189881361): this field is kept around for the alpha01 release to avoid breaking apps.
+    // Remove once we are in beta and deem safe.
+    @Keep
+    @Nullable
     private final String mPin;
 
     /**
-     * Returns the PIN or activation code to present to the user or {@code null} if not set.
+     * Returns the PIN or activation code to present to the user.
      *
-     * @see Builder#Builder(String)
+     * @see Builder#Builder(CharSequence)
      */
     @NonNull
+    public CarText getPinCode() {
+        if (mPinCode != null) {
+            // For apps that uses a newer version of the library, this field should always be set.
+            return mPinCode;
+        }
+
+        // Fallback to the String value for older clients.
+        return CarText.create(requireNonNull(mPin));
+    }
+
+    /**
+     * Returns the PIN or activation code to present to the user.
+     *
+     * @deprecated use {@link #getPinCode()} instead.
+     */
+    // TODO(b/189881361): remove this once host is switched to reference getPinCode.
+    @Deprecated
+    @NonNull
     public String getPin() {
-        return requireNonNull(mPin);
+        return getPinCode().toString();
     }
 
     @Override
@@ -59,26 +84,28 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
         }
 
         PinSignInMethod that = (PinSignInMethod) other;
-        return Objects.equals(mPin, that.mPin);
+        return Objects.equals(mPinCode, that.mPinCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mPin);
+        return Objects.hash(mPinCode);
     }
 
     PinSignInMethod(Builder builder) {
-        mPin = builder.mPin;
+        mPinCode = builder.mPinCode;
+        mPin = builder.mPinCode.toString();
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private PinSignInMethod() {
+        mPinCode = null;
         mPin = null;
     }
 
     /** A builder of {@link PinSignInMethod}. */
     public static final class Builder {
-        final String mPin;
+        final CarText mPinCode;
 
         /**
          * Returns a {@link PinSignInMethod} instance.
@@ -95,12 +122,15 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
          * code, it is recommended restricting the string to a limited set (for example, numbers,
          * upper-case letters, hexadecimal, etc.).
          *
-         * @param pin the PIN to display is empty.
+         * <p>Spans are not supported in the pin and will be ignored.
+         *
+         * @param pinCode the PIN to display is empty.
          * @throws IllegalArgumentException if {@code pin} is empty or longer than 12 characters.
          * @throws NullPointerException     if {@code pin} is {@code null}
          */
-        public Builder(@NonNull String pin) {
-            int pinLength = pin.length();
+        // TODO(b/183750545): check that no spans are present in the input pin.
+        public Builder(@NonNull CharSequence pinCode) {
+            int pinLength = pinCode.length();
             if (pinLength == 0) {
                 throw new IllegalArgumentException("PIN must not be empty");
             }
@@ -108,7 +138,7 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
                 throw new IllegalArgumentException(
                         "PIN must not be longer than " + MAX_PIN_LENGTH + " characters");
             }
-            mPin = pin;
+            mPinCode = CarText.create(pinCode);
         }
     }
 }
