@@ -154,15 +154,15 @@ package androidx.core.app {
     field public static final int TOTAL_INDEX = 0; // 0x0
   }
 
-  public abstract class JobIntentService extends android.app.Service {
-    ctor public JobIntentService();
-    method public static void enqueueWork(android.content.Context, Class<?>, int, android.content.Intent);
-    method public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
-    method public boolean isStopped();
-    method public android.os.IBinder! onBind(android.content.Intent);
-    method protected abstract void onHandleWork(android.content.Intent);
-    method public boolean onStopCurrentWork();
-    method public void setInterruptIfStopped(boolean);
+  @Deprecated public abstract class JobIntentService extends android.app.Service {
+    ctor @Deprecated public JobIntentService();
+    method @Deprecated public static void enqueueWork(android.content.Context, Class<?>, int, android.content.Intent);
+    method @Deprecated public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
+    method @Deprecated public boolean isStopped();
+    method @Deprecated public android.os.IBinder! onBind(android.content.Intent);
+    method @Deprecated protected abstract void onHandleWork(android.content.Intent);
+    method @Deprecated public boolean onStopCurrentWork();
+    method @Deprecated public void setInterruptIfStopped(boolean);
   }
 
   public final class NavUtils {
