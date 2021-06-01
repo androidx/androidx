@@ -388,6 +388,9 @@ package androidx.core.app {
     field public static final int FLAG_ONGOING_EVENT = 2; // 0x2
     field public static final int FLAG_ONLY_ALERT_ONCE = 8; // 0x8
     field public static final int FLAG_SHOW_LIGHTS = 1; // 0x1
+    field public static final int FOREGROUND_SERVICE_DEFAULT = 0; // 0x0
+    field public static final int FOREGROUND_SERVICE_DEFERRED = 2; // 0x2
+    field public static final int FOREGROUND_SERVICE_IMMEDIATE = 1; // 0x1
     field public static final int GROUP_ALERT_ALL = 0; // 0x0
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
@@ -548,6 +551,7 @@ package androidx.core.app {
     method @ColorInt @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getContentView();
     method public android.os.Bundle getExtras();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getForegroundServiceBehavior();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getHeadsUpContentView();
     method @Deprecated public android.app.Notification getNotification();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPriority();
@@ -573,6 +577,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setDefaults(int);
     method public androidx.core.app.NotificationCompat.Builder setDeleteIntent(android.app.PendingIntent?);
     method public androidx.core.app.NotificationCompat.Builder setExtras(android.os.Bundle?);
+    method public androidx.core.app.NotificationCompat.Builder setForegroundServiceBehavior(@androidx.core.app.NotificationCompat.ServiceNotificationBehavior int);
     method public androidx.core.app.NotificationCompat.Builder setFullScreenIntent(android.app.PendingIntent?, boolean);
     method public androidx.core.app.NotificationCompat.Builder setGroup(String?);
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(@androidx.core.app.NotificationCompat.GroupAlertBehavior int);
@@ -698,6 +703,9 @@ package androidx.core.app {
   }
 
   @IntDef({androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC, androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE, androidx.core.app.NotificationCompat.VISIBILITY_SECRET}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.NotificationVisibility {
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFAULT, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFERRED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.ServiceNotificationBehavior {
   }
 
   @IntDef({android.media.AudioManager.STREAM_VOICE_CALL, android.media.AudioManager.STREAM_SYSTEM, android.media.AudioManager.STREAM_RING, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.STREAM_ALARM, android.media.AudioManager.STREAM_NOTIFICATION, android.media.AudioManager.STREAM_DTMF, android.media.AudioManager.STREAM_ACCESSIBILITY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.StreamType {

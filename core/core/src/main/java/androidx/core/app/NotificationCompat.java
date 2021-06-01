@@ -795,6 +795,56 @@ public class NotificationCompat {
      */
     public static final String GROUP_KEY_SILENT = "silent";
 
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @IntDef({FOREGROUND_SERVICE_DEFAULT,
+            FOREGROUND_SERVICE_IMMEDIATE,
+            FOREGROUND_SERVICE_DEFERRED})
+    public @interface ServiceNotificationBehavior {}
+
+    /**
+     * Constant for {@link Builder#setForegroundServiceBehavior(int)}. In Android 12 or later,
+     * if the Notification associated with starting a foreground service has been
+     * built using setForegroundServiceBehavior() with this behavior, display of
+     * the notification will often be suppressed for a short time to avoid visual
+     * disturbances to the user.
+     *
+     * @see NotificationCompat.Builder#setForegroundServiceBehavior(int)
+     * @see #FOREGROUND_SERVICE_IMMEDIATE
+     * @see #FOREGROUND_SERVICE_DEFERRED
+     */
+    public static final int FOREGROUND_SERVICE_DEFAULT =
+            Notification.FOREGROUND_SERVICE_DEFAULT;
+
+    /**
+     * Constant for {@link Builder#setForegroundServiceBehavior(int)}. In Android 12 or later,
+     * if the Notification associated with starting a foreground service has been
+     * built using setForegroundServiceBehavior() with this behavior, display of
+     * the notification will be immediate even if the default behavior would be
+     * to defer visibility for a short time.
+     *
+     * @see NotificationCompat.Builder#setForegroundServiceBehavior(int)
+     * @see #FOREGROUND_SERVICE_DEFAULT
+     * @see #FOREGROUND_SERVICE_DEFERRED
+     */
+    public static final int FOREGROUND_SERVICE_IMMEDIATE =
+            Notification.FOREGROUND_SERVICE_IMMEDIATE;
+
+    /**
+     * Constant for {@link Builder#setForegroundServiceBehavior(int)}. In Android 12 or later,
+     * if the Notification associated with starting a foreground service has been
+     * built using setForegroundServiceBehavior() with this behavior, display of
+     * the notification will usually be suppressed for a short time to avoid visual
+     * disturbances to the user.
+     *
+     * @see NotificationCompat.Builder#setForegroundServiceBehavior(int)
+     * @see #FOREGROUND_SERVICE_DEFAULT
+     * @see #FOREGROUND_SERVICE_IMMEDIATE
+     */
+    public static final int FOREGROUND_SERVICE_DEFERRED =
+            Notification.FOREGROUND_SERVICE_DEFERRED;
+
     /**
      * Builder class for {@link NotificationCompat} objects.  Allows easier control over
      * all the flags, as well as help constructing the typical notification layouts.
@@ -884,6 +934,7 @@ public class NotificationCompat {
         LocusIdCompat mLocusId;
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
+        @ServiceNotificationBehavior int mFgsDeferBehavior = FOREGROUND_SERVICE_DEFAULT;
         boolean mAllowSystemGeneratedContextualActions;
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
@@ -2297,6 +2348,31 @@ public class NotificationCompat {
         }
 
         /**
+         * Specify a desired visibility policy for a Notification associated with a
+         * foreground service.  The default value is {@link #FOREGROUND_SERVICE_DEFAULT},
+         * meaning the system can choose to defer visibility of the notification for
+         * a short time after the service is started.  Pass
+         * {@link NotificationCompat#FOREGROUND_SERVICE_IMMEDIATE FOREGROUND_SERVICE_IMMEDIATE}
+         * to this method in order to guarantee that visibility is never deferred.  Pass
+         * {@link NotificationCompat#FOREGROUND_SERVICE_DEFERRED FOREGROUND_SERVICE_DEFERRED}
+         * to request that visibility is deferred whenever possible.
+         *
+         * <p class="note">Note that deferred visibility is not guaranteed.  There
+         * may be some circumstances under which the system will show the foreground
+         * service's associated Notification immediately even when the app has used
+         * this method to explicitly request deferred display.</p>
+         *
+         * This method has no effect when running on versions prior to
+          * {@link android.os.Build.VERSION_CODES#S}.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // no underlying getter in platform API
+        @NonNull
+        public Builder setForegroundServiceBehavior(@ServiceNotificationBehavior int behavior) {
+            mFgsDeferBehavior = behavior;
+            return this;
+        }
+
+        /**
          * Sets the {@link BubbleMetadata} that will be used to display app content in a floating
          * window over the existing foreground activity.
          *
@@ -2396,6 +2472,16 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public int getPriority() {
             return mPriority;
+        }
+
+        /**
+         * @return the foreground service behavior defined for the notification
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public int getForegroundServiceBehavior() {
+            return mFgsDeferBehavior;
         }
 
         /**

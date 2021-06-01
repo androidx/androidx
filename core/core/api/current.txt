@@ -343,6 +343,9 @@ package androidx.core.app {
     field public static final int FLAG_ONGOING_EVENT = 2; // 0x2
     field public static final int FLAG_ONLY_ALERT_ONCE = 8; // 0x8
     field public static final int FLAG_SHOW_LIGHTS = 1; // 0x1
+    field public static final int FOREGROUND_SERVICE_DEFAULT = 0; // 0x0
+    field public static final int FOREGROUND_SERVICE_DEFERRED = 2; // 0x2
+    field public static final int FOREGROUND_SERVICE_IMMEDIATE = 1; // 0x1
     field public static final int GROUP_ALERT_ALL = 0; // 0x0
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
@@ -516,6 +519,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setDefaults(int);
     method public androidx.core.app.NotificationCompat.Builder setDeleteIntent(android.app.PendingIntent?);
     method public androidx.core.app.NotificationCompat.Builder setExtras(android.os.Bundle?);
+    method public androidx.core.app.NotificationCompat.Builder setForegroundServiceBehavior(int);
     method public androidx.core.app.NotificationCompat.Builder setFullScreenIntent(android.app.PendingIntent?, boolean);
     method public androidx.core.app.NotificationCompat.Builder setGroup(String?);
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(int);
