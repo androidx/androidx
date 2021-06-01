@@ -23,7 +23,7 @@ import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /**
- * A host-side interface for reporting text input events to clients.
+ * A host-side delegate for sending {@link OnInputCompletedListener} events to the car app.
  */
 @RequiresCarApi(2)
 public interface OnInputCompletedDelegate {
