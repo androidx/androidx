@@ -388,6 +388,7 @@ public class WatchFaceServiceTest {
         // Trigger watch face creation by setting the binder and the immutable properties.
         sendBinder(engineWrapper, apiVersion)
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
@@ -447,6 +448,7 @@ public class WatchFaceServiceTest {
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
@@ -1073,6 +1075,7 @@ public class WatchFaceServiceTest {
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
         sendBinder(engine2, apiVersion = 2)
         sendImmutableProperties(engine2, false, false)
+        engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         val watchFaceImpl2 = engine2.getWatchFaceImplOrNull()!!
         val userStyleRepository2 = watchFaceImpl2.currentUserStyleRepository
@@ -1517,6 +1520,7 @@ public class WatchFaceServiceTest {
         // Trigger watch face creation.
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
         val argument = ArgumentCaptor.forClass(WatchFaceStyle::class.java)
@@ -1740,6 +1744,7 @@ public class WatchFaceServiceTest {
         // Trigger watch face creation.
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
         // Enter ambient mode.
@@ -2399,6 +2404,7 @@ public class WatchFaceServiceTest {
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNotNull()

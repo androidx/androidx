@@ -79,6 +79,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -481,6 +482,7 @@ public class WatchFaceServiceImageTest {
     }
 
     @Test
+    @Ignore // TODO(b/189452267): Fix drawBlack and reinstate.
     public fun testNonBlockingDrawScreenshot() {
         handler.post(this::initControllableWatchFace)
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
