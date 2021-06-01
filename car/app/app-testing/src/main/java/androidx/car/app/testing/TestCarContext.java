@@ -31,7 +31,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
 import androidx.car.app.IStartCarApp;
-import androidx.car.app.OnRequestPermissionsCallback;
+import androidx.car.app.OnRequestPermissionsListener;
 import androidx.car.app.testing.navigation.TestNavigationManager;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -129,10 +129,10 @@ public class TestCarContext extends CarContext {
 
     @Override
     public void requestPermissions(@NonNull List<String> permissions, @NonNull Executor executor,
-            @NonNull OnRequestPermissionsCallback callback) {
+            @NonNull OnRequestPermissionsListener listener) {
         mLastPermissionRequestInfo = new PermissionRequestInfo(requireNonNull(permissions),
-                requireNonNull(callback));
-        super.requestPermissions(permissions, executor, callback);
+                requireNonNull(listener));
+        super.requestPermissions(permissions, executor, listener);
     }
 
     /**
@@ -255,21 +255,21 @@ public class TestCarContext extends CarContext {
      */
     public static class PermissionRequestInfo {
         private final List<String> mPermissionsRequested;
-        private final OnRequestPermissionsCallback mCallback;
+        private final OnRequestPermissionsListener mListener;
 
         @SuppressWarnings("ExecutorRegistration")
         PermissionRequestInfo(List<String> permissionsRequested,
-                OnRequestPermissionsCallback callback) {
+                OnRequestPermissionsListener callback) {
             mPermissionsRequested = requireNonNull(permissionsRequested);
-            mCallback = requireNonNull(callback);
+            mListener = requireNonNull(callback);
         }
 
         /**
-         * Returns the callback that was provided in the permission request.
+         * Returns the listener that was provided in the permission request.
          */
         @NonNull
-        public OnRequestPermissionsCallback getCallback() {
-            return mCallback;
+        public OnRequestPermissionsListener getListener() {
+            return mListener;
         }
 
         /**

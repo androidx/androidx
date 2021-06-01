@@ -32,7 +32,8 @@ public interface InputCallback {
      *
      * @param text the text that was entered, or an empty string if no text was typed.
      */
-    void onInputSubmitted(@NonNull String text);
+    default void onInputSubmitted(@NonNull String text) {
+    }
 
     /**
      * Notifies the current {@code text} has changed in an input box.
@@ -43,5 +44,6 @@ public interface InputCallback {
      *
      * @param text the current text that the user has typed
      */
-    void onInputTextChanged(@NonNull String text);
+    default void onInputTextChanged(@NonNull String text) {
+    }
 }

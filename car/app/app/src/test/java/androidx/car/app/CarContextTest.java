@@ -428,10 +428,10 @@ public class CarContextTest {
         permissions.add("foo");
         permissions.add("bar");
 
-        OnRequestPermissionsCallback callback = mock(OnRequestPermissionsCallback.class);
+        OnRequestPermissionsListener listener = mock(OnRequestPermissionsListener.class);
 
         mLifecycleOwner.mRegistry.setCurrentState(State.CREATED);
-        mCarContext.requestPermissions(permissions, Runnable::run, callback);
+        mCarContext.requestPermissions(permissions, Runnable::run, listener);
 
         ShadowApplication sa = shadowOf((Application) ApplicationProvider.getApplicationContext());
         Intent startActivityIntent = sa.getNextStartedActivity();
@@ -447,11 +447,11 @@ public class CarContextTest {
                 permissions.toArray(new String[0]));
 
         IBinder binder =
-                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY);
+                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY);
 
-        IOnRequestPermissionsCallback iCallback = IOnRequestPermissionsCallback.Stub.asInterface(
+        IOnRequestPermissionsListener iListener = IOnRequestPermissionsListener.Stub.asInterface(
                 binder);
-        iCallback.onRequestPermissionsResult(new String[]{"foo"}, new String[]{"bar"});
+        iListener.onRequestPermissionsResult(new String[]{"foo"}, new String[]{"bar"});
 
         List<String> approved = new ArrayList<>();
         approved.add("foo");
@@ -459,6 +459,6 @@ public class CarContextTest {
         List<String> rejected = new ArrayList<>();
         rejected.add("bar");
 
-        verify(callback).onRequestPermissionsResult(approved, rejected);
+        verify(listener).onRequestPermissionsResult(approved, rejected);
     }
 }

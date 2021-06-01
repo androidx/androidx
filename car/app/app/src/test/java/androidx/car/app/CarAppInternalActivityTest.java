@@ -49,7 +49,7 @@ import java.util.List;
 @DoNotInstrument
 public class CarAppInternalActivityTest {
     @Mock
-    private OnRequestPermissionsCallback mMockCallback;
+    private OnRequestPermissionsListener mMockListener;
 
     private final List<String> mPermisssionsRequested = new ArrayList<>();
 
@@ -88,13 +88,13 @@ public class CarAppInternalActivityTest {
         Bundle extras = new Bundle(2);
         extras.putStringArray(CarContext.EXTRA_PERMISSIONS_KEY,
                 mPermisssionsRequested.toArray(new String[0]));
-        extras.putBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY,
-                new IOnRequestPermissionsCallback.Stub() {
+        extras.putBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY,
+                new IOnRequestPermissionsListener.Stub() {
                     @SuppressWarnings("unckecked")
                     @Override
                     public void onRequestPermissionsResult(String[] approvedPermissions,
                             String[] rejectedPermissions) {
-                        mMockCallback.onRequestPermissionsResult(
+                        mMockListener.onRequestPermissionsResult(
                                 Arrays.asList(approvedPermissions),
                                 Arrays.asList(rejectedPermissions));
                     }

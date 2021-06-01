@@ -33,7 +33,8 @@ public interface NavigationManagerCallback {
      * guidance, routing-related notifications, and updating trip information via {@link
      * NavigationManager#updateTrip(Trip)}.
      */
-    void onStopNavigation();
+    default void onStopNavigation() {
+    }
 
     /**
      * Notifies the app that, from this point onwards, when the user chooses to navigate to a
@@ -44,5 +45,6 @@ public interface NavigationManagerCallback {
      * <p>This functionality is used to allow verifying the app's navigation capabilities without
      * being in an actual car.
      */
-    void onAutoDriveEnabled();
+    default void onAutoDriveEnabled() {
+    }
 }
