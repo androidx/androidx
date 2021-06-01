@@ -86,7 +86,12 @@ import java.util.HashMap;
  *
  * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/SimpleJobIntentService.java
  *      complete}
+ * @deprecated This class has been deprecated in favor of the Android Jetpack
+ * <a href="https://developer.android.com/topic/libraries/architecture/workmanager>WorkManager</a>
+ * library, which makes it easy to schedule deferrable, asynchronous tasks that are expected to run
+ * even if the app exits or the device restarts.
  */
+@Deprecated
 public abstract class JobIntentService extends Service {
     static final String TAG = "JobIntentService";
 
