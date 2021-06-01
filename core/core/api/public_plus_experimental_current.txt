@@ -1539,7 +1539,11 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.P) public static boolean isAtLeastP();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.Q) public static boolean isAtLeastQ();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
-    method @ChecksSdkIntAtLeast(codename="S") public static boolean isAtLeastS();
+    method @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
+    method @ChecksSdkIntAtLeast(codename="T") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+  }
+
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface BuildCompat.PrereleaseSdkCheck {
   }
 
   public final class CancellationSignal {
