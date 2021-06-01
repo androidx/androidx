@@ -1140,3 +1140,5 @@ Could not store entry [0-9a-f]{32} in remote build cache: Storing entry at 'http
 \$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :wear:wear-watchface:compileReleaseKotlin
 w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFaceService\.kt: \([0-9]+, [0-9]+\): Parameter 'surfaceHolder' is never used
+# > Task :lint-checks:integration-tests:copyDebugAndroidLintReports
+Copying lint text report to .*
