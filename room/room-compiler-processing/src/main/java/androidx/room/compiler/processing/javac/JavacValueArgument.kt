@@ -16,12 +16,10 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XValueArgument
 import com.google.auto.common.MoreTypes
-import java.lang.annotation.Repeatable
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.ElementKind
@@ -46,15 +44,12 @@ internal class JavacValueArgument(
         }
         return when {
             // The List implementation further wraps each value as a AnnotationValue.
-            // We don't use arrays because we don't have reified type to instantiate the array
+            // We don't expose arrays because we don't have a reified type to instantiate the array
             // with, and using "Any" prevents the array from being cast to the correct
             // type later on.
             value is List<*> -> value.map { it.unwrapIfNeeded() }
-            // Class types are represented as DeclaredType
             value is TypeMirror -> env.wrap(value, kotlinType = null, XNullability.NONNULL)
-            value is AnnotationMirror -> {
-                JavacAnnotation(env, value)
-            }
+            value is AnnotationMirror -> JavacAnnotation(env, value)
             // Enums are wrapped in a variable element with kind ENUM_CONSTANT
             value is VariableElement -> {
                 when {

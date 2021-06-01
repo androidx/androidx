@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import javax.lang.model.element.Element
-import javax.lang.model.element.VariableElement
 
 internal class JavacEnumEntry(
     env: JavacProcessingEnv,

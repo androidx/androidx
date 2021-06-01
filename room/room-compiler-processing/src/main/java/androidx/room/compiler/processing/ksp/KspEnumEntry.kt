@@ -44,7 +44,9 @@ internal class KspEnumEntry(
                 declaration,
                 KspTypeElement.create(
                     env,
-                    declaration.requireEnclosingMemberContainer(env).declaration as KSClassDeclaration
+                    declaration
+                        .requireEnclosingMemberContainer(env)
+                        .declaration as KSClassDeclaration
                 ) as XEnumTypeElement
             )
         }

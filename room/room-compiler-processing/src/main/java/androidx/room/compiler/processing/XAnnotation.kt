@@ -16,11 +16,12 @@
 
 package androidx.room.compiler.processing
 
-import kotlin.reflect.KClass
-
 /**
  * This wraps annotations that may be declared in sources, and thus not representable with a
  * compiled type. This is an equivalent to the Java AnnotationMirror API.
+ *
+ * Values in the annotation can be accessed via [valueArguments], the [XAnnotation.get] extension
+ * function, or any of the "getAs*" helper functions.
  *
  * In comparison, [XAnnotationBox] is used in situations where the annotation class is already
  * compiled and can be referenced. This can be converted with [asAnnotationBox] if the annotation
@@ -41,71 +42,61 @@ interface XAnnotation {
     val type: XType
 
     /**
-     * Returns the value of the given [methodName], throwing an exception if the method is not
-     * found or if the given type [T] does not match the actual type.
-     *
-     * Note that non primitive types are wrapped by interfaces in order to allow them to be
-     * represented by the process:
-     * - "Class" types are represented with [XType]
-     * - Annotations are represented with [XAnnotation]
-     * - Enums are represented with [XEnumEntry]
-     *
-     * For convenience, wrapper functions are provided for these types, eg [getAsType]
+     * All properties declared in the annotation class.
      */
-    fun <T> get(methodName: String): T {
-        val argument = valueArguments.firstOrNull { it.name == methodName }
-            ?: error("No property named $methodName was found in annotation $simpleName")
-
-        @Suppress("UNCHECKED_CAST")
-        return argument.value as T
-    }
+    val valueArguments: List<XValueArgument>
 
     /**
      * Returns the value of the given [methodName] as a type reference.
      */
-    fun getAsType(methodName: String): XType? {
-        return get(methodName) as XType?
-    }
+    fun getAsType(methodName: String): XType = get(methodName)
 
     /**
      * Returns the value of the given [methodName] as a list of type references.
      */
-    fun getAsTypeList(methodName: String): List<XType> {
-        return get(methodName) as List<XType>
-    }
+    fun getAsTypeList(methodName: String): List<XType> = get(methodName)
 
     /**
      * Returns the value of the given [methodName] as another [XAnnotation].
      */
-    fun getAsAnnotation(methodName: String): XAnnotation {
-        return get(methodName) as XAnnotation
-    }
+    fun getAsAnnotation(methodName: String): XAnnotation = get(methodName)
 
     /**
      * Returns the value of the given [methodName] as a list of [XAnnotation].
      */
-    fun getAsAnnotationList(methodName: String): List<XAnnotation> {
-        return get(methodName) as List<XAnnotation>
-    }
+    fun getAsAnnotationList(methodName: String): List<XAnnotation> = get(methodName)
 
     /**
      * Returns the value of the given [methodName] as a [XEnumEntry].
      */
-    fun getAsEnum(methodName: String): XEnumEntry {
-        return get(methodName) as XEnumEntry
-    }
+    fun getAsEnum(methodName: String): XEnumEntry = get(methodName)
 
     /**
      * Returns the value of the given [methodName] as a list of [XEnumEntry].
      */
-    fun getAsEnumList(methodName: String): List<XEnumEntry> {
-        return get(methodName) as List<XEnumEntry>
-    }
+    fun getAsEnumList(methodName: String): List<XEnumEntry> = get(methodName)
+}
 
-    /**
-     * Information about all properties declared in the annotation class.
-     */
-    val valueArguments: List<XValueArgument>
+/**
+ * Returns the value of the given [methodName], throwing an exception if the method is not
+ * found or if the given type [T] does not match the actual type.
+ *
+ * Note that non primitive types are wrapped by interfaces in order to allow them to be
+ * represented by the process:
+ * - "Class" types are represented with [XType]
+ * - Annotations are represented with [XAnnotation]
+ * - Enums are represented with [XEnumEntry]
+ *
+ * For convenience, wrapper functions are provided for these types, eg [XAnnotation.getAsType]
+ */
+inline fun <reified T> XAnnotation.get(methodName: String): T {
+    val argument = valueArguments.firstOrNull { it.name == methodName }
+        ?: error("No property named $methodName was found in annotation $simpleName")
+
+    return argument.value as? T ?: error(
+        "Value of $methodName of type ${argument.value?.javaClass} " +
+            "cannot be cast to ${T::class.java}"
+    )
 }
 
 /**

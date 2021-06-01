@@ -134,7 +134,7 @@ class XAnnotationTest(
                 .isEqualTo(invocation.processingEnv.requireTypeElement(TestSuppressWarnings::class))
             assertThat(
                 annotation.asAnnotationBox<TestSuppressWarnings>().value.value
-            ).isEqualTo(listOf("a", "b"))
+            ).isEqualTo(arrayOf("a", "b"))
         }
     }
 
@@ -156,12 +156,11 @@ class XAnnotationTest(
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             val annotation = element.requireAnnotation<TestSuppressWarnings>()
 
-            val argument = annotation.valueArguments?.single()
+            val argument = annotation.valueArguments.single()
             assertThat(argument.name).isEqualTo("value")
             assertThat(
                 argument.value
             ).isEqualTo(
-                // TODO: 5/23/21 Should this be an array to match annotation box?
                 listOf("warning1", "warning 2")
             )
         }
@@ -331,8 +330,9 @@ class XAnnotationTest(
             val annotation = subject.requireAnnotation<JavaAnnotationWithTypeReferences>()
             val annotationValue = if (invocation.isKsp && !preCompiled) {
                 // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
-                // return type should be Class<?>[] (only in sources)
-                // Has a bug already been filed for this?
+                // return type should be Class<?>[] (only in sources).
+                // https://github.com/google/ksp/issues/172
+                // https://github.com/google/ksp/issues/214
                 annotation.get<XType>("value")
             } else {
                 annotation.get<List<XType>>("value").single()
@@ -500,42 +500,42 @@ class XAnnotationTest(
                     assertThat(annotation.get<String>("stringVal"))
                         .isEqualTo("foo")
                     assertThat(
-                        annotation.get<XType>("typeVal").rawType.typeName
+                        annotation.getAsType("typeVal").rawType.typeName
                     ).isEqualTo(
                         ClassName.get(HashMap::class.java)
                     )
                     assertThat(
-                        annotation.get<List<XType>>("typeArrayVal").map {
+                        annotation.getAsTypeList("typeArrayVal").map {
                             it.rawType.typeName
                         }
                     ).isEqualTo(
                         listOf(ClassName.get(LinkedHashMap::class.java))
                     )
 
-                    val enumValueEntry = annotation.get<XEnumEntry>("enumVal")
+                    val enumValueEntry = annotation.getAsEnum("enumVal")
                     assertThat(enumValueEntry.name).isEqualTo("DEFAULT")
                     val javaEnumType = invocation.processingEnv.requireTypeElement(JavaEnum::class)
                     assertThat(enumValueEntry.enumTypeElement)
                         .isEqualTo(javaEnumType)
 
-                    val enumList = annotation.get<List<XEnumEntry>>("enumArrayVal")
+                    val enumList = annotation.getAsEnumList("enumArrayVal")
                     assertThat(enumList[0].name).isEqualTo("VAL1")
                     assertThat(enumList[1].name).isEqualTo("VAL2")
                     assertThat(enumList[0].enumTypeElement).isEqualTo(javaEnumType)
                     assertThat(enumList[1].enumTypeElement).isEqualTo(javaEnumType)
 
                     // TODO: KSP mistakenly sees null for the value in a default annotation in
-                    //  sources. Is there an existing KSP ticket for this?
+                    //  sources. https://github.com/google/ksp/issues/53
                     if (!invocation.isKsp && !preCompiled) {
 
-                        annotation.get<XAnnotation>("otherAnnotationVal")
+                        annotation.getAsAnnotation("otherAnnotationVal")
                             .let { other ->
                                 assertThat(other.simpleName).isEqualTo("OtherAnnotation")
                                 assertThat(other.get<String>("value"))
                                     .isEqualTo("def")
                             }
 
-                        annotation.get<List<XAnnotation>>("otherAnnotationArrayVal")
+                        annotation.getAsAnnotationList("otherAnnotationArrayVal")
                             .forEach { other ->
                                 assertThat(other.simpleName).isEqualTo("OtherAnnotation")
                                 assertThat(other.get<String>("value"))

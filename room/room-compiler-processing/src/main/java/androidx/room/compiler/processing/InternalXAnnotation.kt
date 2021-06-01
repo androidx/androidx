@@ -23,19 +23,28 @@ internal interface InternalXAnnotation : XAnnotation {
     fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T>
 }
 
+/**
+ * If this represents a repeatable annotation container this will return the repeated annotations
+ * nested inside it.
+ */
 internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotation>? {
-    val nestedAnnotations = try {
-        getAsAnnotationList("value")
-    } catch (e: Throwable) {
-        return null
-    }
+    return try {
+        // The contract of a repeatable annotation requires that the container annotation have a single
+        // "default" method that returns an array typed with the repeatable annotation type.
+        val nestedAnnotations = getAsAnnotationList("value")
 
-    // Ideally we would read the value of the Repeatable annotation to get the container class
-    // type and check that it matches "this" type. However, there seems to be a KSP bug where
-    // the value of Repeatable is not present so the best we can do is check that all the nested
-    // members are annotated with repeatable.
-    val isRepeatable = nestedAnnotations.all {
-        it.type.typeElement?.hasAnnotation(Repeatable::class) == true
+        // Ideally we would read the value of the Repeatable annotation to get the container class
+        // type and check that it matches "this" type. However, there seems to be a KSP bug where
+        // the value of Repeatable is not present so the best we can do is check that all the nested
+        // members are annotated with repeatable.
+        val isRepeatable = nestedAnnotations.all {
+            it.type.typeElement?.hasAnnotation(Repeatable::class) == true
+        }
+
+        if (isRepeatable) nestedAnnotations else null
+    } catch (e: Throwable) {
+        // If the "value" type either doesn't exist or isn't an array of annotations then the
+        // above code will throw.
+        null
     }
-    return if (isRepeatable) nestedAnnotations else null
 }

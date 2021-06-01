@@ -16,22 +16,18 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.InternalXAnnotation
-import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XValueArgument
 import com.google.auto.common.AnnotationMirrors
 import javax.lang.model.element.AnnotationMirror
-import javax.lang.model.element.QualifiedNameable
 
 internal class JavacAnnotation(
     val env: JavacProcessingEnv,
     val mirror: AnnotationMirror
 ) : InternalXAnnotation {
-
 
     override val simpleName: String
         get() = mirror.annotationType.asElement().simpleName.toString()

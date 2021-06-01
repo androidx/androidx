@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XValueArgument
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
@@ -30,15 +29,15 @@ internal class KspValueArgument(
 ) :
     XValueArgument {
     override val name: String
-        // TODO: I don't think a null name is possible, but not sure recommended way to handle it.
-        get() = valueArgument.name?.asString()!!
+        get() = valueArgument.name?.asString()
+            ?: error("Value argument $this does not have a name.")
 
     override val value: Any? by lazy { valueArgument.unwrap() }
 
     private fun KSValueArgument.unwrap(): Any? {
         fun unwrap(value: Any?): Any? {
-            return when {
-                value is KSType -> {
+            return when (value) {
+                is KSType -> {
                     val declaration = value.declaration
                     // Wrap enum entries in enum specific type elements
                     if (declaration is KSClassDeclaration &&
@@ -50,12 +49,12 @@ internal class KspValueArgument(
                         env.wrap(value, allowPrimitives = true)
                     }
                 }
-                value is KSAnnotation -> KspAnnotation(env, value)
+                is KSAnnotation -> KspAnnotation(env, value)
                 // The List implementation further wraps each value as a AnnotationValue.
-                // We don't use arrays because we don't have reified type to instantiate the array
+                // We don't use arrays because we don't have a reified type to instantiate the array
                 // with, and using "Any" prevents the array from being cast to the correct
                 // type later on.
-                value is List<*> -> value.map { unwrap(it) }
+                is List<*> -> value.map { unwrap(it) }
                 else -> value
             }
         }

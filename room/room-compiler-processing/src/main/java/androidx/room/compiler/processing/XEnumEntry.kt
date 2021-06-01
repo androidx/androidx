@@ -22,8 +22,15 @@ import kotlin.contracts.contract
  * Represents a named entry within an enum class.
  */
 interface XEnumEntry : XElement {
-    val enumTypeElement: XEnumTypeElement
+    /**
+     * The name of this enum object.
+     */
     val name: String
+
+    /**
+     * The parent enum type declaration that holds all entries for this enum type..
+     */
+    val enumTypeElement: XEnumTypeElement
 }
 
 fun XTypeElement.isEnumEntry(): Boolean {

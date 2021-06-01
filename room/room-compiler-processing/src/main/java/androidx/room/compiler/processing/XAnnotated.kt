@@ -36,6 +36,15 @@ interface XAnnotated {
         annotation: KClass<T>
     ): List<XAnnotationBox<T>>
 
+    /**
+     * Returns all annotations on this element represented as [XAnnotation].
+     *
+     * As opposed to other functions like [getAnnotations] this does not require you to have a
+     * reference to each annotation class, and thus it can represent annotations in the module
+     * sources being compiled. However, note that the returned [XAnnotation] cannot provide
+     * an instance of the annotation (like [XAnnotationBox.value] can) and instead all values
+     * must be accessed dynamically.
+     */
     fun getAllAnnotations(): List<XAnnotation>
 
     /**
