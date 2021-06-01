@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
@@ -35,11 +35,11 @@ import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
@@ -48,33 +48,35 @@ private fun getComponentName(context: Context) = ComponentName(
 )
 
 /**
- * The [Complication]s associated with the [WatchFace]. Dynamic creation of complications isn't
- * supported, however complications can be enabled and disabled by [ComplicationsUserStyleSetting].
+ * The [ComplicationSlot]s associated with the [WatchFace]. Dynamic creation of ComplicationSlots
+ * isn't supported, however complicationSlots can be enabled and disabled by
+ * [ComplicationSlotsUserStyleSetting].
  *
- * @param complicationCollection The complications associated with the watch face, may be empty.
+ * @param complicationSlotCollection The [ComplicationSlot]s associated with the watch face, may be
+ * empty.
  * @param currentUserStyleRepository The [CurrentUserStyleRepository] used to listen for
- * [ComplicationsUserStyleSetting] changes and apply them.
+ * [ComplicationSlotsUserStyleSetting] changes and apply them.
  */
-public class ComplicationsManager(
-    complicationCollection: Collection<Complication>,
+public class ComplicationSlotsManager(
+    complicationSlotCollection: Collection<ComplicationSlot>,
     private val currentUserStyleRepository: CurrentUserStyleRepository
 ) {
     /**
-     * Interface used to report user taps on the complication. See [addTapListener] and
+     * Interface used to report user taps on the [ComplicationSlot]. See [addTapListener] and
      * [removeTapListener].
      */
     public interface TapCallback {
         /**
          * Called when the user single taps on a complication.
          *
-         * @param complicationId The watch face's id for the complication that was tapped
+         * @param complicationSlotId The id for the [ComplicationSlot] that was tapped
          */
-        public fun onComplicationTapped(complicationId: Int) {}
+        public fun onComplicationSlotTapped(complicationSlotId: Int) {}
     }
 
     /**
      * The [WatchState] of the associated watch face. This is only initialized after
-     * [WatchFaceService.createComplicationsManager] has completed.
+     * [WatchFaceService.createComplicationSlotsManager] has completed.
      *
      * @hide
      */
@@ -86,25 +88,25 @@ public class ComplicationsManager(
     private lateinit var calendar: Calendar
     internal lateinit var renderer: Renderer
 
-    /** A map of complication IDs to complications. */
-    public val complications: Map<Int, Complication> =
-        complicationCollection.associateBy(Complication::id)
+    /** A map of complication IDs to complicationSlots. */
+    public val complicationSlots: Map<Int, ComplicationSlot> =
+        complicationSlotCollection.associateBy(ComplicationSlot::id)
 
     private class InitialComplicationConfig(
-        val complicationBounds: ComplicationBounds,
+        val complicationSlotBounds: ComplicationSlotBounds,
         val enabled: Boolean,
         val accessibilityTraversalIndex: Int
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
-    // [ComplicationsUserStyleSetting] are defined in terms of an override applied to the initial
-    // config.
+    // [ComplicationSlotsUserStyleSetting] are defined in terms of an override applied to the
+    // initial config.
     private val initialComplicationConfigs: Map<Int, InitialComplicationConfig> =
-        complicationCollection.associateBy(
+        complicationSlotCollection.associateBy(
             { it.id },
             {
                 InitialComplicationConfig(
-                    it.complicationBounds,
+                    it.complicationSlotBounds,
                     it.enabled,
                     it.accessibilityTraversalIndex
                 )
@@ -115,40 +117,40 @@ public class ComplicationsManager(
 
     @VisibleForTesting
     internal constructor(
-        complicationCollection: Collection<Complication>,
+        complicationSlotCollection: Collection<ComplicationSlot>,
         currentUserStyleRepository: CurrentUserStyleRepository,
         renderer: Renderer
-    ) : this(complicationCollection, currentUserStyleRepository) {
+    ) : this(complicationSlotCollection, currentUserStyleRepository) {
         this.renderer = renderer
     }
 
     init {
         val complicationsStyleCategory =
             currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
-                it is ComplicationsUserStyleSetting
+                it is ComplicationSlotsUserStyleSetting
             }
 
-        // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
+        // Add a listener if we have a ComplicationSlotsUserStyleSetting so we can track changes and
         // automatically apply them.
         if (complicationsStyleCategory != null) {
             // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
-            var previousOption: ComplicationsOption? = null
+            var previousOption: ComplicationSlotsOption? = null
             currentUserStyleRepository.addUserStyleChangeListener(
                 object : CurrentUserStyleRepository.UserStyleChangeListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
-                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
+                            userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
                         if (previousOption != newlySelectedOption) {
                             previousOption = newlySelectedOption
-                            applyComplicationsStyleCategoryOption(newlySelectedOption)
+                            applyComplicationsSlotStyleCategoryOption(newlySelectedOption)
                         }
                     }
                 }
             )
         }
 
-        for ((_, complication) in complications) {
-            complication.complicationsManager = this
+        for ((_, complication) in complicationSlots) {
+            complication.complicationSlotsManager = this
         }
     }
 
@@ -158,44 +160,44 @@ public class ComplicationsManager(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
         renderer: Renderer,
-        complicationInvalidateListener: Complication.InvalidateListener
-    ) = TraceEvent("ComplicationsManager.init").use {
+        complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
+    ) = TraceEvent("ComplicationSlotsManager.init").use {
         this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
         this.renderer = renderer
 
-        for ((_, complication) in complications) {
-            complication.init(complicationInvalidateListener)
+        for ((_, complication) in complicationSlots) {
+            complication.init(complicationSlotInvalidateListener)
 
             // Force lazy construction of renderers.
             complication.renderer
         }
 
-        // Activate complications.
-        updateComplications()
+        // Activate complicationSlots.
+        onComplicationsUpdated()
     }
 
-    internal fun applyComplicationsStyleCategoryOption(styleOption: ComplicationsOption) {
-        for ((id, complication) in complications) {
-            val override = styleOption.complicationOverlays.find { it.complicationId == id }
+    internal fun applyComplicationsSlotStyleCategoryOption(styleOption: ComplicationSlotsOption) {
+        for ((id, complication) in complicationSlots) {
+            val override = styleOption.complicationSlotOverlays.find { it.complicationSlotId == id }
             val initialConfig = initialComplicationConfigs[id]!!
             // Apply styleOption overrides.
-            complication.complicationBounds =
-                override?.complicationBounds ?: initialConfig.complicationBounds
+            complication.complicationSlotBounds =
+                override?.complicationSlotBounds ?: initialConfig.complicationSlotBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
             complication.accessibilityTraversalIndex =
                 override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
         }
-        updateComplications()
+        onComplicationsUpdated()
     }
 
-    /** Returns the [Complication] corresponding to [id], if there is one, or `null`. */
-    public operator fun get(id: Int): Complication? = complications[id]
+    /** Returns the [ComplicationSlot] corresponding to [id], if there is one, or `null`. */
+    public operator fun get(id: Int): ComplicationSlot? = complicationSlots[id]
 
     @UiThread
-    internal fun updateComplications() = TraceEvent(
-        "ComplicationsManager.updateComplications"
+    internal fun onComplicationsUpdated() = TraceEvent(
+        "ComplicationSlotsManager.updateComplications"
     ).use {
         if (!this::watchFaceHostApi.isInitialized) {
             return
@@ -206,7 +208,7 @@ public class ComplicationsManager(
         // calls.
         var enabledDirty = false
         var labelsDirty = false
-        for ((id, complication) in complications) {
+        for ((id, complication) in complicationSlots) {
             enabledDirty = enabledDirty || complication.enabledDirty
             labelsDirty = labelsDirty || complication.enabledDirty
 
@@ -239,7 +241,7 @@ public class ComplicationsManager(
         }
 
         if (enabledDirty) {
-            watchFaceHostApi.setActiveComplications(activeKeys.toIntArray())
+            watchFaceHostApi.setActiveComplicationSlots(activeKeys.toIntArray())
         }
 
         if (labelsDirty) {
@@ -250,14 +252,14 @@ public class ComplicationsManager(
     /**
      * Called when new complication data is received.
      *
-     * @param watchFaceComplicationId The id of the complication that the data relates to. If this
+     * @param complicationSlotId The id of the complication that the data relates to. If this
      * id is unrecognized the call will be a NOP, the only circumstance when that happens is if the
      * watch face changes it's complication config between runs e.g. during development.
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
-    internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
-        val complication = complications[watchFaceComplicationId] ?: return
+    internal fun onComplicationDataUpdate(complicationSlotId: Int, data: ComplicationData) {
+        val complication = complicationSlots[complicationSlotId] ?: return
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
         complication.renderer.loadData(data, true)
@@ -267,7 +269,7 @@ public class ComplicationsManager(
 
     @UiThread
     internal fun clearComplicationData() {
-        for ((_, complication) in complications) {
+        for ((_, complication) in complicationSlots) {
             complication.renderer.loadData(null, false)
             (complication.complicationData as MutableObservableWatchData).value =
                 EmptyComplicationData()
@@ -278,12 +280,12 @@ public class ComplicationsManager(
      * Starts a short animation, briefly highlighting the complication to provide visual feedback
      * when the user has tapped on it.
      *
-     * @param complicationId The watch face's ID of the complication to briefly highlight
+     * @param complicationSlotId The ID of the complication slot to briefly highlight
      */
     @UiThread
-    public fun displayPressedAnimation(complicationId: Int) {
-        val complication = requireNotNull(complications[complicationId]) {
-            "No complication found with ID $complicationId"
+    public fun displayPressedAnimation(complicationSlotId: Int) {
+        val complication = requireNotNull(complicationSlots[complicationSlotId]) {
+            "No complication found with ID $complicationSlotId"
         }
         complication.setIsHighlighted(true)
 
@@ -300,14 +302,14 @@ public class ComplicationsManager(
     }
 
     /**
-     * Returns the id of the complication at coordinates x, y or `null` if there isn't one.
+     * Returns the id of the complication slot at coordinates x, y or `null` if there isn't one.
      *
      * @param x The x coordinate of the point to perform a hit test
      * @param y The y coordinate of the point to perform a hit test
-     * @return The complication at coordinates x, y or {@code null} if there isn't one
+     * @return The [ComplicationSlot] at coordinates x, y or {@code null} if there isn't one
      */
-    public fun getComplicationAt(@Px x: Int, @Px y: Int): Complication? =
-        complications.values.firstOrNull { complication ->
+    public fun getComplicationSlotAt(@Px x: Int, @Px y: Int): ComplicationSlot? =
+        complicationSlots.values.firstOrNull { complication ->
             complication.enabled && complication.tapFilter.hitTest(
                 complication,
                 renderer.screenBounds,
@@ -317,26 +319,26 @@ public class ComplicationsManager(
         }
 
     /**
-     * Returns the background complication if there is one or `null` otherwise.
+     * Returns the background [ComplicationSlot] if there is one or `null` otherwise.
      *
-     * @return The background complication if there is one or `null` otherwise
+     * @return The background [ComplicationSlot] if there is one or `null` otherwise
      */
-    public fun getBackgroundComplication(): Complication? =
-        complications.entries.firstOrNull {
-            it.value.boundsType == ComplicationBoundsType.BACKGROUND
+    public fun getBackgroundComplicationSlot(): ComplicationSlot? =
+        complicationSlots.entries.firstOrNull {
+            it.value.boundsType == ComplicationSlotBoundsType.BACKGROUND
         }?.value
 
     /**
-     * Called when the user single taps on a complication, invokes the permission request helper
-     * if needed, otherwise s the tap action.
+     * Called when the user single taps on a [ComplicationSlot], invokes the permission request
+     * helper if needed, otherwise s the tap action.
      *
-     * @param complicationId The watch face's id for the complication single tapped
+     * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
      */
     @SuppressWarnings("SyntheticAccessor")
     @UiThread
-    internal fun onComplicationSingleTapped(complicationId: Int) {
+    internal fun onComplicationSlotSingleTapped(complicationSlotId: Int) {
         // Check if the complication is missing permissions.
-        val data = complications[complicationId]?.renderer?.getData() ?: return
+        val data = complicationSlots[complicationSlotId]?.renderer?.getData() ?: return
         if (data.type == ComplicationType.NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
@@ -354,12 +356,12 @@ public class ComplicationsManager(
             // We don't need to do anything here.
         }
         for (complicationListener in complicationListeners) {
-            complicationListener.onComplicationTapped(complicationId)
+            complicationListener.onComplicationSlotTapped(complicationSlotId)
         }
     }
 
     /**
-     * Adds a [TapCallback] which is called whenever the user interacts with a complication.
+     * Adds a [TapCallback] which is called whenever the user interacts with a complication slot.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
@@ -377,9 +379,9 @@ public class ComplicationsManager(
 
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
-        writer.println("ComplicationsManager:")
+        writer.println("ComplicationSlotsManager:")
         writer.increaseIndent()
-        for ((_, complication) in complications) {
+        for ((_, complication) in complicationSlots) {
             complication.dump(writer)
         }
         writer.decreaseIndent()
@@ -387,12 +389,12 @@ public class ComplicationsManager(
 
     /**
      * This will be called from a binder thread. That's OK because we don't expect this
-     * ComplicationsManager to be accessed at all from the UiThread in that scenario. See
+     * ComplicationSlotsManager to be accessed at all from the UiThread in that scenario. See
      * [androidx.wear.watchface.control.IWatchFaceInstanceServiceStub.getDefaultProviderPolicies].
      */
     @WorkerThread
     internal fun getDefaultProviderPolicies(): Array<IdTypeAndDefaultProviderPolicyWireFormat> =
-        complications.map {
+        complicationSlots.map {
             IdTypeAndDefaultProviderPolicyWireFormat(
                 it.key,
                 it.value.defaultProviderPolicy.providersAsList(),

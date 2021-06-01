@@ -35,7 +35,8 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
@@ -123,14 +124,13 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 rangedStyle.visibility = View.GONE
             }
 
-            is ComplicationsUserStyleSetting -> {
+            is ComplicationSlotsUserStyleSetting -> {
                 booleanStyle.isEnabled = false
                 booleanStyle.visibility = View.GONE
                 styleOptionsList.adapter =
                     ComplicationsStyleSettingViewAdapter(
                         requireContext(),
-                        styleSetting.options
-                            .filterIsInstance<ComplicationsUserStyleSetting.ComplicationsOption>(),
+                        styleSetting.options.filterIsInstance<ComplicationSlotsOption>(),
                         this@StyleConfigFragment
                     )
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -280,11 +280,11 @@ internal class ListStyleSettingViewAdapter(
 }
 
 /**
- * An adapter for [ComplicationsUserStyleSetting]. This is a very minimal placeholder UI.
+ * An adapter for [ComplicationSlotsUserStyleSetting]. This is a very minimal placeholder UI.
  */
 internal class ComplicationsStyleSettingViewAdapter(
     private val context: Context,
-    private val styleOptions: List<ComplicationsUserStyleSetting.ComplicationsOption>,
+    private val styleOptions: List<ComplicationSlotsUserStyleSetting.ComplicationSlotsOption>,
     private val clickListener: ClickListener
 ) :
     RecyclerView.Adapter<StyleSettingViewHolder>() {

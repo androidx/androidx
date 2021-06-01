@@ -42,7 +42,7 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     public static final long NULL_ACCESSIBILITY_TRAVERSAL_INDEX = 0x100000000L;
 
     @ParcelField(1)
-    public int mComplicationId;
+    public int mComplicationSlotId;
 
     /**
      * VersionedParcelable doesn't support boxed Boolean so we set this to one of
@@ -63,12 +63,12 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     }
 
     public ComplicationOverlayWireFormat(
-            int complicationId,
+            int complicationSlotId,
             @Nullable Boolean enabled,
             @Nullable Map<Integer, RectF> perComplicationTypeBounds,
             @Nullable Integer accessibilityTraversalIndex
     ) {
-        mComplicationId = complicationId;
+        mComplicationSlotId = complicationSlotId;
         if (enabled != null) {
             mEnabled = enabled ? ENABLED_YES : ENABLED_NO;
         } else {

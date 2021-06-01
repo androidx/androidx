@@ -27,12 +27,12 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
@@ -105,7 +105,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         )
     }
 
-    private val complication = Complication.createRoundRectComplicationBuilder(
+    private val complication = ComplicationSlot.createRoundRectComplicationBuilder(
         EXAMPLE_OPENGL_COMPLICATION_ID,
         { watchState, listener ->
             CanvasComplicationDrawable(
@@ -122,20 +122,20 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             ComplicationType.SMALL_IMAGE
         ),
         DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-        ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+        ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
-    public override fun createComplicationsManager(
+    public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = ComplicationsManager(listOf(complication), currentUserStyleRepository)
+    ) = ComplicationSlotsManager(listOf(complication), currentUserStyleRepository)
 
     public override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.ANALOG,
@@ -160,7 +160,7 @@ class ExampleOpenGLRenderer(
     private val currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     private val colorStyleSetting: ListUserStyleSetting,
-    private val complication: Complication
+    private val complicationSlot: ComplicationSlot
 ) : Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, FRAME_PERIOD_MS) {
 
     /** Projection transformation matrix. Converts from 3D to 2D.  */
@@ -337,7 +337,7 @@ class ExampleOpenGLRenderer(
         ) // up vector
 
         complicationTexture = GlesTextureComplication(
-            complication.renderer,
+            complicationSlot.renderer,
             128,
             128,
             GLES20.GL_TEXTURE_2D

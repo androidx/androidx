@@ -30,12 +30,12 @@ import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.WatchFaceLayer
 
 /**
- * A complication rendered with [ComplicationDrawable] which renders complications in a material
- * design style. This renderer can't be shared by multiple complications.
+ * A complication rendered with [ComplicationDrawable] which renders complicationSlots in a material
+ * design style. This renderer can't be shared by multiple complicationSlots.
  *
  * @param drawable The [ComplicationDrawable] to render with.
  * @param watchState The watch's [WatchState] which contains details pertaining to (low-bit) ambient
@@ -128,7 +128,7 @@ constructor(
         calendar: Calendar,
         @ColorInt color: Int
     ) {
-        if (boundsType == ComplicationBoundsType.ROUND_RECT) {
+        if (boundsType == ComplicationSlotBoundsType.ROUND_RECT) {
             complicationHighlightRenderer.drawComplicationHighlight(
                 canvas,
                 bounds,

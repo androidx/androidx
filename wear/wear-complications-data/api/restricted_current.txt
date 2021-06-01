@@ -158,13 +158,6 @@ package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) android.
 
 package androidx.wear.complications {
 
-  public final class ComplicationBounds {
-    ctor public ComplicationBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
-    ctor public ComplicationBounds(android.graphics.RectF bounds);
-    method public java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
-    property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
-  }
-
   @RequiresApi(android.os.Build.VERSION_CODES.N) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public ComplicationHelperActivity();
     method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
@@ -190,6 +183,13 @@ package androidx.wear.complications {
     property public final android.graphics.drawable.Icon icon;
     property public final String name;
     property public final androidx.wear.complications.data.ComplicationType type;
+  }
+
+  public final class ComplicationSlotBounds {
+    ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
+    ctor public ComplicationSlotBounds(android.graphics.RectF bounds);
+    method public java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
+    property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
   public final class DefaultComplicationProviderPolicy {
@@ -227,10 +227,10 @@ package androidx.wear.complications {
   }
 
   public static final class ProviderInfoRetriever.ProviderInfo {
+    method public int getComplicationSlotId();
     method public androidx.wear.complications.ComplicationProviderInfo? getInfo();
-    method public int getWatchFaceComplicationId();
+    property public final int complicationSlotId;
     property public final androidx.wear.complications.ComplicationProviderInfo? info;
-    property public final int watchFaceComplicationId;
   }
 
   public static final class ProviderInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {

@@ -52,7 +52,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.complications.data.DataKt;
 import androidx.wear.watchface.CanvasType;
-import androidx.wear.watchface.ComplicationsManager;
+import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceService;
@@ -741,7 +741,8 @@ public class ComplicationDrawableTest {
         @Nullable
         @Override
         protected Object createWatchFace(@NonNull SurfaceHolder surfaceHolder,
-                @NonNull WatchState watchState, @NonNull ComplicationsManager complicationsManager,
+                @NonNull WatchState watchState,
+                @NonNull ComplicationSlotsManager complicationSlotsManager,
                 @NonNull CurrentUserStyleRepository currentUserStyleRepository,
                 @NonNull Continuation<? super WatchFace> completion) {
             return new WatchFace(

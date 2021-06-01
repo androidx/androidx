@@ -25,18 +25,18 @@ import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.annotation.UiThread
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.UserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.RenderParameters.HighlightedElement
 
-/** Interface for rendering complications onto a [Canvas]. */
+/** Interface for rendering complicationSlots onto a [Canvas]. */
 public interface CanvasComplication {
 
     /** Interface for observing when a [CanvasComplication] needs the screen to be redrawn. */
@@ -65,20 +65,20 @@ public interface CanvasComplication {
     )
 
     /**
-     * Draws a highlight for a [ComplicationBoundsType.ROUND_RECT] complication. The default
+     * Draws a highlight for a [ComplicationSlotBoundsType.ROUND_RECT] complication. The default
      * implementation does this by drawing a dashed line around the complication, other visual
      * effects may be used if desired.
      *
      * @param canvas The [Canvas] to render into
      * @param bounds A [Rect] describing the bounds of the complication
-     * @param boundsType The [ComplicationBoundsType] of the complication
+     * @param boundsType The [ComplicationSlotBoundsType] of the complication
      * @param calendar The current [Calendar]
      * @param color The color to render the highlight with
      */
     public fun drawHighlight(
         canvas: Canvas,
         bounds: Rect,
-        @ComplicationBoundsType boundsType: Int,
+        @ComplicationSlotBoundsType boundsType: Int,
         calendar: Calendar,
         @ColorInt color: Int
     )
@@ -111,35 +111,35 @@ public interface CanvasComplication {
 public interface ComplicationTapFilter {
     /**
      * Performs a hit test, returning `true` if the supplied coordinates in pixels are within the
-     * the provided [complication] scaled to [screenBounds].
+     * the provided [complicationSlot] scaled to [screenBounds].
      *
-     * @param complication The [Complication] to perform a hit test for.
+     * @param complicationSlot The [ComplicationSlot] to perform a hit test for.
      * @param screenBounds A [Rect] describing the bounds of the display.
      * @param x The screen space X coordinate in pixels.
      * @param y The screen space Y coordinate in pixels.
      */
     public fun hitTest(
-        complication: Complication,
+        complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int
     ): Boolean
 }
 
-/** Default [ComplicationTapFilter] for [ComplicationBoundsType.ROUND_RECT] complications. */
+/** Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.ROUND_RECT] complicationSlots. */
 public class RoundRectComplicationTapFilter : ComplicationTapFilter {
     override fun hitTest(
-        complication: Complication,
+        complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int
-    ): Boolean = complication.computeBounds(screenBounds).contains(x, y)
+    ): Boolean = complicationSlot.computeBounds(screenBounds).contains(x, y)
 }
 
-/** Default [ComplicationTapFilter] for [ComplicationBoundsType.BACKGROUND] complications. */
+/** Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.BACKGROUND] complicationSlots. */
 public class BackgroundComplicationTapFilter : ComplicationTapFilter {
     override fun hitTest(
-        complication: Complication,
+        complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int
@@ -147,40 +147,40 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
 }
 
 /**
- * Represents a individual complication on the screen. The number of complications is fixed
- * (see [ComplicationsManager]) but complications can be enabled or disabled via
- * [UserStyleSetting.ComplicationsUserStyleSetting].
+ * Represents the slot an individual complication on the screen may go in. The number of
+ * ComplicationSlots is fixed (see [ComplicationSlotsManager]) but ComplicationSlots can be
+ * enabled or disabled via [UserStyleSetting.ComplicationSlotsUserStyleSetting].
  *
  * @param id The Watch Face's ID for the complication.
  * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
  * content description labels.
- * @param boundsType The [ComplicationBoundsType] of the complication.
- * @param bounds The complication's [ComplicationBounds].
+ * @param boundsType The [ComplicationSlotBoundsType] of the complication.
+ * @param bounds The complication's [ComplicationSlotBounds].
  * @param canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
  * [CanvasComplication] for rendering the complication. The factory allows us to decouple
- * Complication from potentially expensive asset loading.
+ * ComplicationSlot from potentially expensive asset loading.
  * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Used
  * during complication, this list should be non-empty.
  * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] which controls the initial
  * provider when the watch face is first installed.
  * @param defaultProviderType The default [ComplicationType] for the default provider.
  * @param initiallyEnabled At creation a complication is either enabled or disabled. This can be
- * overridden by a [ComplicationsUserStyleSetting] (see [ComplicationOverlay.enabled]).
+ * overridden by a [ComplicationSlotsUserStyleSetting] (see [ComplicationSlotOverlay.enabled]).
  * Editors need to know the initial state of a complication to predict the effects of making a
  * style change.
  * @param configExtras Extras to be merged into the Intent sent when invoking the provider chooser
  * activity.
  * @param fixedComplicationProvider  Whether or not the complication provider is fixed (i.e.
  * can't be changed by the user).  This is useful for watch faces built around specific
- * complications.
+ * complicationSlots.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication.
  */
-public class Complication internal constructor(
+public class ComplicationSlot internal constructor(
     public val id: Int,
     accessibilityTraversalIndex: Int,
-    @ComplicationBoundsType public val boundsType: Int,
-    bounds: ComplicationBounds,
+    @ComplicationSlotBoundsType public val boundsType: Int,
+    bounds: ComplicationSlotBounds,
     public val canvasComplicationFactory: CanvasComplicationFactory,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
@@ -193,10 +193,10 @@ public class Complication internal constructor(
     public val tapFilter: ComplicationTapFilter
 ) {
     /**
-     * The [ComplicationsManager] this is attached to. Only set after the [ComplicationsManager] has
-     * been created.
+     * The [ComplicationSlotsManager] this is attached to. Only set after the
+     * [ComplicationSlotsManager] has been created.
      */
-    internal lateinit var complicationsManager: ComplicationsManager
+    internal lateinit var complicationSlotsManager: ComplicationSlotsManager
 
     /**
      * The [CanvasComplication] used to render the complication. This can't be used until after
@@ -204,10 +204,10 @@ public class Complication internal constructor(
      */
     public val renderer: CanvasComplication by lazy {
         canvasComplicationFactory.create(
-            complicationsManager.watchState,
+            complicationSlotsManager.watchState,
             object : CanvasComplication.InvalidateCallback {
                 override fun onInvalidate() {
-                    if (this@Complication::invalidateListener.isInitialized) {
+                    if (this@ComplicationSlot::invalidateListener.isInitialized) {
                         invalidateListener.onInvalidate()
                     }
                 }
@@ -227,19 +227,19 @@ public class Complication internal constructor(
 
         /**
          * Constructs a [Builder] for a complication with bounds type
-         * [ComplicationBoundsType.ROUND_RECT]. This is the most common type of complication. These
+         * [ComplicationSlotBoundsType.ROUND_RECT]. This is the most common type of complication. These
          * can be tapped by the user to trigger the associated intent.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          * unique within the watch face.
          * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
          * [CanvasComplication] to use for rendering. Note renderers should not be shared between
-         * complications.
-         * @param supportedTypes The types of complication supported by this Complication. Used
+         * complicationSlots.
+         * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
          * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
          * the initial complication provider when the watch is first installed.
-         * @param bounds The complication's [ComplicationBounds].
+         * @param bounds The complication's [ComplicationSlotBounds].
          */
         @JvmStatic
         public fun createRoundRectComplicationBuilder(
@@ -247,30 +247,30 @@ public class Complication internal constructor(
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
-            bounds: ComplicationBounds
+            bounds: ComplicationSlotBounds
         ): Builder = Builder(
             id,
             canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
-            ComplicationBoundsType.ROUND_RECT,
+            ComplicationSlotBoundsType.ROUND_RECT,
             bounds,
             RoundRectComplicationTapFilter()
         )
 
         /**
          * Constructs a [Builder] for a complication with bound type
-         * [ComplicationBoundsType.BACKGROUND] whose bounds cover the entire screen. A background
-         * complication is for watch faces that wish to have a full screen user selectable
-         * backdrop. This sort of complication isn't clickable and at most one may be present in
-         * the list of complications.
+         * [ComplicationSlotBoundsType.BACKGROUND] whose bounds cover the entire screen. A
+         * background complication is for watch faces that wish to have a full screen user
+         * selectable  backdrop. This sort of complication isn't clickable and at most one may be
+         * present in the list of complicationSlots.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          * unique within the watch face.
          * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
          * [CanvasComplication] to use for rendering. Note renderers should not be shared between
-         * complications.
-         * @param supportedTypes The types of complication supported by this Complication. Used
+         * complicationSlots.
+         * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
          * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
          * the initial complication provider when the watch is first installed.
@@ -286,17 +286,18 @@ public class Complication internal constructor(
             canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
-            ComplicationBoundsType.BACKGROUND,
-            ComplicationBounds(RectF(0f, 0f, 1f, 1f)),
+            ComplicationSlotBoundsType.BACKGROUND,
+            ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
             BackgroundComplicationTapFilter()
         )
 
         /**
-         * Constructs a [Builder] for a complication with bounds type [ComplicationBoundsType.EDGE].
+         * Constructs a [Builder] for a complication with bounds type
+         * [ComplicationSlotBoundsType.EDGE].
          *
          * An edge complication is drawn around the border of the display and has custom hit test
          * logic (see [complicationTapFilter]). When tapped the associated intent is
-         * dispatched. Edge complications should have a custom [renderer] with
+         * dispatched. Edge complicationSlots should have a custom [renderer] with
          * [CanvasComplication.drawHighlight] overridden.
          *
          * Note we don't support edge complication hit testing from an editor.
@@ -305,13 +306,13 @@ public class Complication internal constructor(
          * unique within the watch face.
          * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
          * [CanvasComplication] to use for rendering. Note renderers should not be shared between
-         * complications.
-         * @param supportedTypes The types of complication supported by this Complication. Used
+         * complicationSlots.
+         * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
          * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
          * the initial complication provider when the watch is first installed.
-         * @param bounds The complication's [ComplicationBounds]. Its likely the bounding rect will
-         * be much larger than the complication and shouldn't directly be used for hit testing.
+         * @param bounds The complication's [ComplicationSlotBounds]. Its likely the bounding rect
+         * will be much larger than the complication and shouldn't directly be used for hit testing.
          * @param complicationTapFilter The [ComplicationTapFilter] used to determine whether or
          * not a tap hit the complication.
          */
@@ -321,33 +322,33 @@ public class Complication internal constructor(
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
-            bounds: ComplicationBounds,
+            bounds: ComplicationSlotBounds,
             complicationTapFilter: ComplicationTapFilter
         ): Builder = Builder(
             id,
             canvasComplicationFactory,
             supportedTypes,
             defaultProviderPolicy,
-            ComplicationBoundsType.EDGE,
+            ComplicationSlotBoundsType.EDGE,
             bounds,
             complicationTapFilter
         )
     }
 
     /**
-     * Builder for constructing [Complication]s.
+     * Builder for constructing [ComplicationSlot]s.
      *
      * @param id The watch face's ID for this complication. Can be any integer but should be unique
      * within the watch face.
      * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
      * [CanvasComplication] to use for rendering. Note renderers should not be shared between
-     * complications.
-     * @param supportedTypes The types of complication supported by this Complication. Used
+     * complicationSlots.
+     * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
      * during complication, this list should be non-empty.
      * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
      * the initial complication provider when the watch is first installed.
-     * @param boundsType The [ComplicationBoundsType] of the complication.
-     * @param bounds The complication's [ComplicationBounds].
+     * @param boundsType The [ComplicationSlotBoundsType] of the complication.
+     * @param bounds The complication's [ComplicationSlotBounds].
      * @param complicationTapFilter The [ComplicationTapFilter] used to perform hit testing for this
      * complication.
      */
@@ -356,8 +357,8 @@ public class Complication internal constructor(
         private val canvasComplicationFactory: CanvasComplicationFactory,
         private val supportedTypes: List<ComplicationType>,
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
-        @ComplicationBoundsType private val boundsType: Int,
-        private val bounds: ComplicationBounds,
+        @ComplicationSlotBoundsType private val boundsType: Int,
+        private val bounds: ComplicationSlotBounds,
         private val complicationTapFilter: ComplicationTapFilter
     ) {
         private var accessibilityTraversalIndex = id
@@ -396,7 +397,7 @@ public class Complication internal constructor(
 
         /**
          * Whether the complication is initially enabled or not (by default its enabled). This can
-         * be overridden by [ComplicationsUserStyleSetting].
+         * be overridden by [ComplicationSlotsUserStyleSetting].
          */
         public fun setEnabled(enabled: Boolean): Builder {
             this.initiallyEnabled = enabled
@@ -420,8 +421,8 @@ public class Complication internal constructor(
             return this
         }
 
-        /** Constructs the [Complication]. */
-        public fun build(): Complication = Complication(
+        /** Constructs the [ComplicationSlot]. */
+        public fun build(): ComplicationSlot = ComplicationSlot(
             id,
             accessibilityTraversalIndex,
             boundsType,
@@ -447,17 +448,17 @@ public class Complication internal constructor(
     internal var complicationBoundsDirty = true
 
     /**
-     * The complication's [ComplicationBounds] which are converted to pixels during rendering.
+     * The complication's [ComplicationSlotBounds] which are converted to pixels during rendering.
      *
      * Note it's not allowed to change the bounds of a background complication because
      * they are assumed to always cover the entire screen.
      */
-    public var complicationBounds: ComplicationBounds = bounds
+    public var complicationSlotBounds: ComplicationSlotBounds = bounds
         @UiThread
         get
         @UiThread
         internal set(value) {
-            require(boundsType != ComplicationBoundsType.BACKGROUND)
+            require(boundsType != ComplicationSlotBoundsType.BACKGROUND)
             if (field == value) {
                 return
             }
@@ -483,7 +484,7 @@ public class Complication internal constructor(
 
     internal var supportedTypesDirty = true
 
-    /** The types of complications the complication supports. Must be non-empty. */
+    /** The types of complicationSlots the complication supports. Must be non-empty. */
     public var supportedTypes: List<ComplicationType> = supportedTypes
         @UiThread
         get
@@ -500,7 +501,7 @@ public class Complication internal constructor(
     internal var defaultProviderPolicyDirty = true
 
     /**
-     * The [DefaultComplicationProviderPolicy] which defines the default complications providers
+     * The [DefaultComplicationProviderPolicy] which defines the default complicationSlots providers
      * selected when the user hasn't yet made a choice. See also [defaultProviderType].
      */
     public var defaultProviderPolicy: DefaultComplicationProviderPolicy = defaultProviderPolicy
@@ -537,7 +538,7 @@ public class Complication internal constructor(
     /**
      * This is used to determine the order in which accessibility labels for the watch face are
      * read to the user. Accessibility labels are automatically generated for the time and
-     * complications.  See also [Renderer.additionalContentDescriptionLabels].
+     * complicationSlots.  See also [Renderer.additionalContentDescriptionLabels].
      */
     public var accessibilityTraversalIndex: Int = accessibilityTraversalIndex
         @UiThread
@@ -557,7 +558,8 @@ public class Complication internal constructor(
     internal var dataDirty = true
 
     /**
-     * The [androidx.wear.complications.data.ComplicationData] associated with the [Complication].
+     * The [androidx.wear.complications.data.ComplicationData] associated with the
+     * [ComplicationSlot].
      */
     public val complicationData:
         ObservableWatchData<androidx.wear.complications.data.ComplicationData> =
@@ -597,8 +599,8 @@ public class Complication internal constructor(
     }
 
     /**
-     * Watch faces should use this method to render non-fixed complications for any highlight layer
-     * pass. Note the system may call this.
+     * Watch faces should use this method to render non-fixed complicationSlots for any highlight
+     * layer pass. Note the system may call this.
      *
      * @param canvas The [Canvas] to render into
      * @param calendar The current [Calendar]
@@ -610,15 +612,15 @@ public class Complication internal constructor(
         calendar: Calendar,
         renderParameters: RenderParameters
     ) {
-        // It's only sensible to render a highlight for non-fixed complications because you can't
-        // edit fixed complications.
+        // It's only sensible to render a highlight for non-fixed ComplicationSlots because you
+        // can't edit fixed complicationSlots.
         if (fixedComplicationProvider) {
             return
         }
 
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
         when (val highlightedElement = renderParameters.highlightLayer?.highlightedElement) {
-            is HighlightedElement.AllComplications -> {
+            is HighlightedElement.AllComplicationSlots -> {
                 renderer.drawHighlight(
                     canvas,
                     bounds,
@@ -628,7 +630,7 @@ public class Complication internal constructor(
                 )
             }
 
-            is HighlightedElement.Complication -> {
+            is HighlightedElement.ComplicationSlot -> {
                 if (highlightedElement.id == id) {
                     renderer.drawHighlight(
                         canvas,
@@ -662,8 +664,8 @@ public class Complication internal constructor(
         // provider type.
         val unitSquareBounds =
             renderer.getData()?.let {
-                complicationBounds.perComplicationTypeBounds[it.type]
-            } ?: complicationBounds.perComplicationTypeBounds[defaultProviderType]!!
+                complicationSlotBounds.perComplicationTypeBounds[it.type]
+            } ?: complicationSlotBounds.perComplicationTypeBounds[defaultProviderType]!!
         unitSquareBounds.intersect(unitSquare)
         // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
@@ -676,7 +678,7 @@ public class Complication internal constructor(
 
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
-        writer.println("Complication $id:")
+        writer.println("ComplicationSlot $id:")
         writer.increaseIndent()
         writer.println("fixedComplicationProvider=$fixedComplicationProvider")
         writer.println("enabled=$enabled")
@@ -696,7 +698,7 @@ public class Complication internal constructor(
                 "${defaultProviderPolicy.systemProviderFallback}"
         )
         writer.println("data=${renderer.getData()}")
-        val bounds = complicationBounds.perComplicationTypeBounds.map {
+        val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
             "${it.key} -> ${it.value}"
         }
         writer.println("bounds=[$bounds]")

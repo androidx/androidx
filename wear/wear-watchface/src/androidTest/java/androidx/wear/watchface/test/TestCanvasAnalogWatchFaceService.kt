@@ -19,7 +19,7 @@ package androidx.wear.watchface.test
 import android.content.Context
 import android.os.Handler
 import android.view.SurfaceHolder
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
@@ -54,14 +54,14 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun createUserStyleSchema() = delegate.createUserStyleSchema()
 
-    override fun createComplicationsManager(
+    override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = delegate.createComplicationsManager(currentUserStyleRepository)
+    ) = delegate.createComplicationSlotsManager(currentUserStyleRepository)
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
@@ -69,7 +69,7 @@ internal class TestCanvasAnalogWatchFaceService(
         return delegate.createWatchFace(
             surfaceHolder,
             watchState,
-            complicationsManager,
+            complicationSlotsManager,
             currentUserStyleRepository
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {

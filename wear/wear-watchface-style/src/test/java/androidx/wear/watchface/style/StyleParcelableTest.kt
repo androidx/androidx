@@ -20,7 +20,7 @@ import android.graphics.drawable.Icon
 import android.os.Parcel
 
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
@@ -371,50 +371,50 @@ public class StyleParcelableTest {
     public fun parcelAndUnparcelComplicationsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102
-        val src = ComplicationsUserStyleSetting(
+        val src = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
             "Complications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
-                ComplicationsUserStyleSetting.ComplicationsOption(
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     "Both",
                     null,
                     listOf()
                 ),
-                ComplicationsUserStyleSetting.ComplicationsOption(
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("NO_COMPLICATIONS"),
                     "None",
                     null,
                     listOf(
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             leftComplicationID,
                             enabled = false
                         ),
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             rightComplicationID,
                             enabled = false
                         )
                     )
                 ),
-                ComplicationsUserStyleSetting.ComplicationsOption(
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("LEFT_COMPLICATION"),
                     "Left",
                     null,
                     listOf(
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             rightComplicationID,
                             enabled = false
                         )
                     )
                 ),
-                ComplicationsUserStyleSetting.ComplicationsOption(
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id("RIGHT_COMPLICATION"),
                     "Right",
                     null,
                     listOf(
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             leftComplicationID,
                             enabled = false
                         )
@@ -435,33 +435,33 @@ public class StyleParcelableTest {
             )
         parcel.recycle()
 
-        assert(unparceled is ComplicationsUserStyleSetting)
+        assert(unparceled is ComplicationSlotsUserStyleSetting)
         assertThat(unparceled.id.value).isEqualTo("complications_style_setting")
 
         val options = unparceled.options.filterIsInstance<
-            ComplicationsUserStyleSetting.ComplicationsOption>()
+            ComplicationSlotsUserStyleSetting.ComplicationSlotsOption>()
         assertThat(options.size).isEqualTo(4)
         assertThat(options[0].id.value.decodeToString()).isEqualTo("LEFT_AND_RIGHT_COMPLICATIONS")
-        assertThat(options[0].complicationOverlays.size).isEqualTo(0)
+        assertThat(options[0].complicationSlotOverlays.size).isEqualTo(0)
 
         assertThat(options[1].id.value.decodeToString()).isEqualTo("NO_COMPLICATIONS")
-        assertThat(options[1].complicationOverlays.size).isEqualTo(2)
-        val options1Overlays = ArrayList(options[1].complicationOverlays)
-        assertThat(options1Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertThat(options[1].complicationSlotOverlays.size).isEqualTo(2)
+        val options1Overlays = ArrayList(options[1].complicationSlotOverlays)
+        assertThat(options1Overlays[0].complicationSlotId).isEqualTo(leftComplicationID)
         assertFalse(options1Overlays[0].enabled!!)
-        assertThat(options1Overlays[1].complicationId).isEqualTo(rightComplicationID)
+        assertThat(options1Overlays[1].complicationSlotId).isEqualTo(rightComplicationID)
         assertFalse(options1Overlays[1].enabled!!)
 
         assertThat(options[2].id.value.decodeToString()).isEqualTo("LEFT_COMPLICATION")
-        assertThat(options[2].complicationOverlays.size).isEqualTo(1)
-        val options2Overlays = ArrayList(options[2].complicationOverlays)
-        assertThat(options2Overlays[0].complicationId).isEqualTo(rightComplicationID)
+        assertThat(options[2].complicationSlotOverlays.size).isEqualTo(1)
+        val options2Overlays = ArrayList(options[2].complicationSlotOverlays)
+        assertThat(options2Overlays[0].complicationSlotId).isEqualTo(rightComplicationID)
         assertFalse(options2Overlays[0].enabled!!)
 
         assertThat(options[3].id.value.decodeToString()).isEqualTo("RIGHT_COMPLICATION")
-        assertThat(options[3].complicationOverlays.size).isEqualTo(1)
-        val options3Overlays = ArrayList(options[3].complicationOverlays)
-        assertThat(options3Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertThat(options[3].complicationSlotOverlays.size).isEqualTo(1)
+        val options3Overlays = ArrayList(options[3].complicationSlotOverlays)
+        assertThat(options3Overlays[0].complicationSlotId).isEqualTo(leftComplicationID)
         assertFalse(options3Overlays[0].enabled!!)
     }
 

@@ -59,16 +59,16 @@ public class ProviderUpdateRequester(
      * provider, for the given complication ids. Inactive complications are ignored, as are
      * complications configured to use a different provider.
      *
-     * @param complicationIds the ids of the complications to be updated, as provided in calls to
-     * [ComplicationProviderService.onComplicationActivated] and
+     * @param complicationInstanceIds The system's IDs for the complications to be updated as provided
+     * to [ComplicationProviderService.onComplicationActivated] and
      * [ComplicationProviderService.onComplicationRequest].
      */
     @SuppressLint("PendingIntentMutability")
-    public fun requestUpdate(vararg complicationIds: Int) {
+    public fun requestUpdate(vararg complicationInstanceIds: Int) {
         val intent = Intent(ACTION_REQUEST_UPDATE)
         intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE)
         intent.putExtra(EXTRA_PROVIDER_COMPONENT, providerComponent)
-        intent.putExtra(EXTRA_COMPLICATION_IDS, complicationIds)
+        intent.putExtra(EXTRA_COMPLICATION_IDS, complicationInstanceIds)
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
