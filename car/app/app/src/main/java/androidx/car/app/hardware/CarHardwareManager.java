@@ -65,7 +65,7 @@ public interface CarHardwareManager {
             @Nullable HostDispatcher hostDispatcher) throws IllegalStateException {
 
         try { // Check for automotive library first.
-            Class<?> c = Class.forName("androidx.car.app.hardware.CarHardwareManagerAutomotive");
+            Class<?> c = Class.forName("androidx.car.app.hardware.AutomotiveCarHardwareManager");
             Constructor<?> ctor = c.getConstructor(Context.class);
             Object object = ctor.newInstance(context);
             return (CarHardwareManager) object;
@@ -78,7 +78,7 @@ public interface CarHardwareManager {
         }
 
         try { // Check for automotive library first.
-            Class<?> c = Class.forName("androidx.car.app.hardware.CarHardwareManagerProjected");
+            Class<?> c = Class.forName("androidx.car.app.hardware.ProjectedCarHardwareManager");
             Constructor<?> ctor = c.getConstructor(HostDispatcher.class);
             Object object = ctor.newInstance(hostDispatcher);
             return (CarHardwareManager) object;
