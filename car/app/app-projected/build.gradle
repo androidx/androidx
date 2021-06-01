@@ -24,10 +24,31 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":car:app:app"))
     annotationProcessor(NULLAWAY)
 
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+        multiDexEnabled = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        // We rely on keeping a bunch of private variables in the library for serialization.
+        disable("BanKeepAnnotation")
+    }
+    buildFeatures {
+        aidl = true
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
