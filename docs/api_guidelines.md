@@ -1065,14 +1065,9 @@ standalone `com.google.guava:listenablefuture` artifact. See
 
 #### Java 8 {#dependencies-java8}
 
-NOTE All Jetpack libraries will migrate to Java 8 as soon as Android Studio 4.2
-launches to stable. Until then, new dependencies on Java 8 should weigh the pros
-and cons as documented here.
-
 Libraries that take a dependency on a library targeting Java 8 must _also_
 target Java 8, which will incur a ~5% build performance (as of 8/2019) hit for
-clients. New libraries targeting Java 8 may use Java 8 dependencies; however,
-existing libraries targeting Java 7 should not.
+clients. New libraries targeting Java 8 may use Java 8 dependencies.
 
 The default language level for `androidx` libraries is Java 8, and we encourage
 libraries to stay on Java 8. However, if you have a business need to target Java
