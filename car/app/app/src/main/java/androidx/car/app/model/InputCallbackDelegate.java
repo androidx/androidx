@@ -24,7 +24,7 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /**
- * A host-side interface for reporting text input events to clients.
+ * A host-side delegate for sending {@link InputCallback} events to the car app.
  */
 @ExperimentalCarApi
 @RequiresCarApi(2)
