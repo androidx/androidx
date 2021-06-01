@@ -2773,15 +2773,15 @@ package androidx.core.view {
     method public static void dispatchNestedScroll(android.view.View, int, int, int, int, int[]?, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]?, @androidx.core.view.ViewCompat.NestedScrollType int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
-    method public static void enableAccessibleClickableSpanSupport(android.view.View!);
+    method public static void enableAccessibleClickableSpanSupport(android.view.View);
     method public static int generateViewId();
     method public static androidx.core.view.AccessibilityDelegateCompat? getAccessibilityDelegate(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
-    method public static androidx.core.view.accessibility.AccessibilityNodeProviderCompat! getAccessibilityNodeProvider(android.view.View);
-    method @UiThread public static CharSequence! getAccessibilityPaneTitle(android.view.View!);
+    method public static androidx.core.view.accessibility.AccessibilityNodeProviderCompat? getAccessibilityNodeProvider(android.view.View);
+    method @UiThread public static CharSequence? getAccessibilityPaneTitle(android.view.View);
     method @Deprecated public static float getAlpha(android.view.View!);
-    method public static android.content.res.ColorStateList! getBackgroundTintList(android.view.View);
-    method public static android.graphics.PorterDuff.Mode! getBackgroundTintMode(android.view.View);
+    method public static android.content.res.ColorStateList? getBackgroundTintList(android.view.View);
+    method public static android.graphics.PorterDuff.Mode? getBackgroundTintMode(android.view.View);
     method public static android.graphics.Rect? getClipBounds(android.view.View);
     method public static android.view.Display? getDisplay(android.view.View);
     method public static float getElevation(android.view.View);
@@ -2802,7 +2802,7 @@ package androidx.core.view {
     method @Deprecated public static int getOverScrollMode(android.view.View!);
     method @Px public static int getPaddingEnd(android.view.View);
     method @Px public static int getPaddingStart(android.view.View);
-    method public static android.view.ViewParent! getParentForAccessibility(android.view.View);
+    method public static android.view.ViewParent? getParentForAccessibility(android.view.View);
     method @Deprecated public static float getPivotX(android.view.View!);
     method @Deprecated public static float getPivotY(android.view.View!);
     method public static androidx.core.view.WindowInsetsCompat? getRootWindowInsets(android.view.View);
@@ -2812,14 +2812,14 @@ package androidx.core.view {
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
-    method @UiThread public static final CharSequence? getStateDescription(android.view.View);
+    method @UiThread public static CharSequence? getStateDescription(android.view.View);
     method public static java.util.List<android.graphics.Rect!> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
     method public static float getTranslationZ(android.view.View);
     method public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
-    method public static int getWindowSystemUiVisibility(android.view.View);
+    method @Deprecated public static int getWindowSystemUiVisibility(android.view.View);
     method @Deprecated public static float getX(android.view.View!);
     method @Deprecated public static float getY(android.view.View!);
     method public static float getZ(android.view.View);
@@ -2830,7 +2830,7 @@ package androidx.core.view {
     method public static boolean hasOnClickListeners(android.view.View);
     method public static boolean hasOverlappingRendering(android.view.View);
     method public static boolean hasTransientState(android.view.View);
-    method @UiThread public static boolean isAccessibilityHeading(android.view.View!);
+    method @UiThread public static boolean isAccessibilityHeading(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isFocusedByDefault(android.view.View);
     method public static boolean isImportantForAccessibility(android.view.View);
@@ -2842,21 +2842,21 @@ package androidx.core.view {
     method public static boolean isNestedScrollingEnabled(android.view.View);
     method @Deprecated public static boolean isOpaque(android.view.View!);
     method public static boolean isPaddingRelative(android.view.View);
-    method @UiThread public static boolean isScreenReaderFocusable(android.view.View!);
+    method @UiThread public static boolean isScreenReaderFocusable(android.view.View);
     method @Deprecated public static void jumpDrawablesToCurrentState(android.view.View!);
-    method public static android.view.View! keyboardNavigationClusterSearch(android.view.View, android.view.View!, @androidx.core.view.ViewCompat.FocusDirection int);
+    method public static android.view.View? keyboardNavigationClusterSearch(android.view.View, android.view.View?, @androidx.core.view.ViewCompat.FocusDirection int);
     method public static void offsetLeftAndRight(android.view.View, int);
     method public static void offsetTopAndBottom(android.view.View, int);
     method public static androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
     method @Deprecated public static void onInitializeAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public static void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
+    method public static void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
     method @Deprecated public static void onPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle!);
+    method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle?);
     method public static androidx.core.view.ContentInfoCompat? performReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
     method public static void postInvalidateOnAnimation(android.view.View);
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
-    method public static void postOnAnimation(android.view.View, Runnable!);
-    method public static void postOnAnimationDelayed(android.view.View, Runnable!, long);
+    method public static void postOnAnimation(android.view.View, Runnable);
+    method public static void postOnAnimationDelayed(android.view.View, Runnable, long);
     method public static void removeAccessibilityAction(android.view.View, int);
     method public static void removeOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
     method public static void replaceAccessibilityAction(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat, CharSequence?, androidx.core.view.accessibility.AccessibilityViewCommand?);
@@ -2865,18 +2865,18 @@ package androidx.core.view {
     method @Deprecated public static int resolveSizeAndState(int, int, int);
     method public static boolean restoreDefaultFocus(android.view.View);
     method public static void saveAttributeDataForStyleable(android.view.View, android.content.Context, int[], android.util.AttributeSet?, android.content.res.TypedArray, int, int);
-    method public static void setAccessibilityDelegate(android.view.View, androidx.core.view.AccessibilityDelegateCompat!);
-    method @UiThread public static void setAccessibilityHeading(android.view.View!, boolean);
+    method public static void setAccessibilityDelegate(android.view.View, androidx.core.view.AccessibilityDelegateCompat?);
+    method @UiThread public static void setAccessibilityHeading(android.view.View, boolean);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
-    method @UiThread public static void setAccessibilityPaneTitle(android.view.View!, CharSequence!);
+    method @UiThread public static void setAccessibilityPaneTitle(android.view.View, CharSequence?);
     method @Deprecated public static void setActivated(android.view.View!, boolean);
     method @Deprecated public static void setAlpha(android.view.View!, @FloatRange(from=0.0, to=1.0) float);
     method public static void setAutofillHints(android.view.View, java.lang.String!...);
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable?);
-    method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList!);
-    method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode!);
+    method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList?);
+    method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode?);
     method @Deprecated public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup!, boolean);
-    method public static void setClipBounds(android.view.View, android.graphics.Rect!);
+    method public static void setClipBounds(android.view.View, android.graphics.Rect?);
     method public static void setElevation(android.view.View, float);
     method @Deprecated public static void setFitsSystemWindows(android.view.View!, boolean);
     method public static void setFocusedByDefault(android.view.View, boolean);
@@ -2885,7 +2885,7 @@ package androidx.core.view {
     method public static void setImportantForAutofill(android.view.View, int);
     method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, @IdRes int);
-    method public static void setLayerPaint(android.view.View, android.graphics.Paint!);
+    method public static void setLayerPaint(android.view.View, android.graphics.Paint?);
     method @Deprecated public static void setLayerType(android.view.View!, int, android.graphics.Paint!);
     method public static void setLayoutDirection(android.view.View, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
@@ -2896,20 +2896,20 @@ package androidx.core.view {
     method public static void setPaddingRelative(android.view.View, @Px int, @Px int, @Px int, @Px int);
     method @Deprecated public static void setPivotX(android.view.View!, float);
     method @Deprecated public static void setPivotY(android.view.View!, float);
-    method public static void setPointerIcon(android.view.View, androidx.core.view.PointerIconCompat!);
+    method public static void setPointerIcon(android.view.View, androidx.core.view.PointerIconCompat?);
     method @Deprecated public static void setRotation(android.view.View!, float);
     method @Deprecated public static void setRotationX(android.view.View!, float);
     method @Deprecated public static void setRotationY(android.view.View!, float);
     method @Deprecated public static void setSaveFromParentEnabled(android.view.View!, boolean);
     method @Deprecated public static void setScaleX(android.view.View!, float);
     method @Deprecated public static void setScaleY(android.view.View!, float);
-    method @UiThread public static void setScreenReaderFocusable(android.view.View!, boolean);
+    method @UiThread public static void setScreenReaderFocusable(android.view.View, boolean);
     method public static void setScrollIndicators(android.view.View, @androidx.core.view.ViewCompat.ScrollIndicators int);
     method public static void setScrollIndicators(android.view.View, @androidx.core.view.ViewCompat.ScrollIndicators int, @androidx.core.view.ViewCompat.ScrollIndicators int);
     method @UiThread public static void setStateDescription(android.view.View, CharSequence?);
     method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect!>);
     method public static void setTooltipText(android.view.View, CharSequence?);
-    method public static void setTransitionName(android.view.View, String!);
+    method public static void setTransitionName(android.view.View, String?);
     method @Deprecated public static void setTranslationX(android.view.View!, float);
     method @Deprecated public static void setTranslationY(android.view.View!, float);
     method public static void setTranslationZ(android.view.View, float);
@@ -2917,12 +2917,12 @@ package androidx.core.view {
     method @Deprecated public static void setX(android.view.View!, float);
     method @Deprecated public static void setY(android.view.View!, float);
     method public static void setZ(android.view.View, float);
-    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData!, android.view.View.DragShadowBuilder!, Object!, int);
+    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData?, android.view.View.DragShadowBuilder, Object?, int);
     method public static boolean startNestedScroll(android.view.View, @androidx.core.view.ViewCompat.ScrollAxis int);
     method public static boolean startNestedScroll(android.view.View, @androidx.core.view.ViewCompat.ScrollAxis int, @androidx.core.view.ViewCompat.NestedScrollType int);
     method public static void stopNestedScroll(android.view.View);
     method public static void stopNestedScroll(android.view.View, @androidx.core.view.ViewCompat.NestedScrollType int);
-    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder!);
+    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
     field public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 2; // 0x2
     field public static final int ACCESSIBILITY_LIVE_REGION_NONE = 0; // 0x0
     field public static final int ACCESSIBILITY_LIVE_REGION_POLITE = 1; // 0x1
@@ -2970,7 +2970,7 @@ package androidx.core.view {
   }
 
   public static interface ViewCompat.OnUnhandledKeyEventListenerCompat {
-    method public boolean onUnhandledKeyEvent(android.view.View!, android.view.KeyEvent!);
+    method public boolean onUnhandledKeyEvent(android.view.View, android.view.KeyEvent);
   }
 
   @IntDef(value={androidx.core.view.ViewCompat.SCROLL_AXIS_NONE, androidx.core.view.ViewCompat.SCROLL_AXIS_HORIZONTAL, androidx.core.view.ViewCompat.SCROLL_AXIS_VERTICAL}, flag=true) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.ScrollAxis {
