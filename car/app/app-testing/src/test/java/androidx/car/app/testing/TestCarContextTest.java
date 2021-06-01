@@ -25,7 +25,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 
 import androidx.car.app.AppManager;
-import androidx.car.app.OnRequestPermissionsCallback;
+import androidx.car.app.OnRequestPermissionsListener;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.notification.CarPendingIntent;
@@ -105,13 +105,13 @@ public class TestCarContextTest {
         List<String> permissions = new ArrayList<>();
         permissions.add("foo");
 
-        OnRequestPermissionsCallback callback = mock(OnRequestPermissionsCallback.class);
+        OnRequestPermissionsListener listener = mock(OnRequestPermissionsListener.class);
 
-        mCarContext.requestPermissions(permissions, callback);
+        mCarContext.requestPermissions(permissions, listener);
 
         TestCarContext.PermissionRequestInfo request = mCarContext.getLastPermissionRequestInfo();
 
         assertThat(request.getPermissionsRequested()).containsExactlyElementsIn(permissions);
-        assertThat(request.getCallback()).isEqualTo(callback);
+        assertThat(request.getListener()).isEqualTo(listener);
     }
 }

@@ -62,12 +62,12 @@ public class CarAppInternalActivity extends ComponentActivity {
     private void requestPermissions(Intent intent) {
         Bundle extras = intent.getExtras();
         IBinder binder =
-                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY);
-        IOnRequestPermissionsCallback callback =
-                IOnRequestPermissionsCallback.Stub.asInterface(binder);
+                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY);
+        IOnRequestPermissionsListener listener =
+                IOnRequestPermissionsListener.Stub.asInterface(binder);
         String[] permissions = extras.getStringArray(CarContext.EXTRA_PERMISSIONS_KEY);
 
-        if (callback == null || permissions == null) {
+        if (listener == null || permissions == null) {
             Log.e(LogTags.TAG, "Intent to request permissions is missing the callback binder");
             finish();
             return;
@@ -89,7 +89,7 @@ public class CarAppInternalActivity extends ComponentActivity {
                             }
 
                             try {
-                                callback.onRequestPermissionsResult(granted.toArray(new String[0]),
+                                listener.onRequestPermissionsResult(granted.toArray(new String[0]),
                                         rejected.toArray(new String[0]));
                             } catch (RemoteException e) {
                                 // This is impossible since it is running in the same process.
