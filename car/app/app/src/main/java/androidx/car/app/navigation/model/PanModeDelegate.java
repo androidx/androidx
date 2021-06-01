@@ -24,7 +24,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /**
- * A host-side interface for reporting pan mode change events.
+ * A host-side delegate for sending {@link PanModeListener} events to the car app.
  */
 @CarProtocol
 @RequiresCarApi(2)

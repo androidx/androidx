@@ -23,7 +23,8 @@ import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 
 /**
- * A host-side interface for reporting to clients that the visibility state has changed.
+ * A host-side delegate for sending
+ * {@link androidx.car.app.model.ItemList.OnItemVisibilityChangedListener} events to the car app.
  */
 @CarProtocol
 public interface OnItemVisibilityChangedDelegate {
