@@ -46,6 +46,7 @@ dependencies {
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
         androidTestImplementation project(path: ':compose:test-utils')
         androidTestImplementation(ANDROIDX_TEST_RUNNER)
+        androidTestImplementation(TRUTH)
     }
 }
 
