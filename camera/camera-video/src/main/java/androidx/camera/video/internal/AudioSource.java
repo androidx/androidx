@@ -42,6 +42,9 @@ import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +65,9 @@ import java.util.concurrent.TimeUnit;
  */
 public final class AudioSource {
     private static final String TAG = "AudioSource";
+    // Common sample rate options to choose from in descending order.
+    public static final List<Integer> COMMON_SAMPLE_RATES = Collections.unmodifiableList(
+            Arrays.asList(48000, 44100, 22050, 11025, 8000, 4800));
 
     enum InternalState {
         /** The initial state or when {@link #stop} is called after started. */
