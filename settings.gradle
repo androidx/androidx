@@ -630,6 +630,7 @@ includeProject(":window:window-rxjava2", "window/window-rxjava2", [BuildType.MAI
 includeProject(":window:window-rxjava3", "window/window-rxjava3", [BuildType.MAIN])
 includeProject(":window:window-samples", "window/window-samples", [BuildType.MAIN])
 includeProject(":window:window-sidecar", "window/window-sidecar", [BuildType.MAIN])
+includeProject(":window:window-testing", "window/window-testing", [BuildType.MAIN])
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":work:work-benchmark", "work/workmanager-benchmark", [BuildType.MAIN])
 includeProject(":work:work-gcm", "work/workmanager-gcm", [BuildType.MAIN])

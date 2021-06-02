@@ -281,6 +281,7 @@ dependencies {
     docs(project(":window:window-rxjava3"))
     stubs(project(":window:window-sidecar"))
     stubs(project(":window:window-extensions"))
+    docs(project(":window:window-testing"))
     docs(project(":work:work-gcm"))
     docs(project(":work:work-multiprocess"))
     docs(project(":work:work-runtime"))

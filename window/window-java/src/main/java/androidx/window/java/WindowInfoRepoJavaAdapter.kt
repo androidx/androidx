@@ -42,7 +42,7 @@ public class WindowInfoRepoJavaAdapter(private val repo: WindowInfoRepo) : Windo
     /**
      * Register a listener to consume [WindowLayoutInfo] values. If the same consumer is
      * registered twice then this method is a no-op.
-     * @see WindowInfoRepo.windowLayoutInfo
+     * @see WindowInfoRepo.getWindowLayoutInfo
      */
     public fun addWindowLayoutInfoListener(
         executor: Executor,
@@ -52,7 +52,7 @@ public class WindowInfoRepoJavaAdapter(private val repo: WindowInfoRepo) : Windo
             if (consumerToJobMap[consumer] == null) {
                 val scope = CoroutineScope(executor.asCoroutineDispatcher())
                 consumerToJobMap[consumer] = scope.launch {
-                    repo.windowLayoutInfo().collect(consumer::accept)
+                    repo.windowLayoutInfo.collect(consumer::accept)
                 }
             }
         }
@@ -61,7 +61,7 @@ public class WindowInfoRepoJavaAdapter(private val repo: WindowInfoRepo) : Windo
     /**
      * Remove a listener to stop consuming [WindowLayoutInfo] values. If the listener has already
      * been removed then this is a no-op.
-     * @see WindowInfoRepo.windowLayoutInfo
+     * @see WindowInfoRepo.getWindowLayoutInfo
      */
     public fun removeWindowLayoutInfoListener(consumer: Consumer<WindowLayoutInfo>) {
         lock.withLock {

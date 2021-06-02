@@ -27,6 +27,9 @@ import android.util.Log
 import android.view.Display
 import android.view.DisplayCutout
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.VisibleForTesting
 import androidx.window.ActivityCompatHelperApi24.isInMultiWindowMode
 import androidx.window.ActivityCompatHelperApi30.currentWindowBounds
@@ -83,7 +86,8 @@ internal open class WindowBoundsHelper {
      * @see android.view.WindowManager.getCurrentWindowMetrics
      * @see android.view.WindowMetrics.getBounds
      */
-    open fun computeCurrentWindowBounds(activity: Activity): Rect {
+    @RestrictTo(LIBRARY)
+    public open fun computeCurrentWindowBounds(activity: Activity): Rect {
         return if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
             currentWindowBounds(activity)
         } else if (Build.VERSION.SDK_INT >= VERSION_CODES.Q) {
@@ -108,7 +112,8 @@ internal open class WindowBoundsHelper {
      *
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    open fun computeMaximumWindowBounds(activity: Activity): Rect {
+    @RestrictTo(LIBRARY_GROUP)
+    public open fun computeMaximumWindowBounds(activity: Activity): Rect {
         return if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
             maximumWindowBounds(activity)
         } else {
@@ -121,7 +126,7 @@ internal open class WindowBoundsHelper {
         }
     }
 
-    companion object {
+    internal companion object {
         private const val TAG = "WindowBoundsHelper"
         private val globalInstance = WindowBoundsHelper()
         private var testInstance: WindowBoundsHelper? = null

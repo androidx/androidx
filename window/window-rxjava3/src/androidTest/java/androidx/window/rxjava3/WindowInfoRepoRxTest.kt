@@ -43,7 +43,7 @@ public class WindowInfoRepoRxTest {
         )
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
-        whenever(mockRepo.windowLayoutInfo()).thenReturn(flowOf(expected))
+        whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
 
         val testSubscriber = mockRepo.windowLayoutInfoObservable().test()
 
@@ -60,7 +60,7 @@ public class WindowInfoRepoRxTest {
         )
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
-        whenever(mockRepo.windowLayoutInfo()).thenReturn(flowOf(expected))
+        whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
 
         val testSubscriber = mockRepo.windowLayoutInfoFlowable().test()
 
