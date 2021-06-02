@@ -54,24 +54,19 @@
       <intent-filter>
         <action android:name="androidx.car.app.CarAppService" />
       </intent-filter>
-      <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
-          android:value="androidx.car.app.sample.places.common.Places" />
     </service>
 
-    <activity-alias
-        android:enabled="true"
+    <activity
+        android:name="androidx.car.app.activity.CarAppActivity"
         android:exported="true"
-        android:label="Places"
-        android:name="Places"
-        android:targetActivity="androidx.car.app.activity.CarAppActivity" >
+        android:label="Places">
+
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-      <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
-          android:value="androidx.car.app.sample.places.common.PlacesCarAppService" />
       <meta-data android:name="distractionOptimized" android:value="true"/>
-    </activity-alias>
+    </activity>
 
   </application>
 </manifest>

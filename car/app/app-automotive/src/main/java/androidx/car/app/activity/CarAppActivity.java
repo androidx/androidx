@@ -16,15 +16,16 @@
 
 package androidx.car.app.activity;
 
-import static android.content.pm.PackageManager.NameNotFoundException;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
+
+import static androidx.car.app.CarAppService.SERVICE_INTERFACE;
 
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +33,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.CarAppService;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
@@ -47,43 +49,41 @@ import androidx.car.app.utils.ThreadUtils;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.List;
+
 /**
  * The class representing a car app activity.
  *
- * <p>This class is responsible for binding to the host and rendering the content given by a {@link
- * androidx.car.app.CarAppService}.
+ * <p>This class is responsible for binding to the host and rendering the content given by its
+ * {@link androidx.car.app.CarAppService}.
  *
  * <p>Usage of {@link CarAppActivity} is only required for applications targeting Automotive OS.
  *
  * <h4>Activity Declaration</h4>
  *
- * <p>The app must declare an {@code activity-alias} for a {@link CarAppActivity} providing its
- * associated {@link androidx.car.app.CarAppService} as meta-data. For example:
+ * <p>The app must declare and export this {@link CarAppActivity} in their manifest. In order for
+ * it to show up in the car's app launcher, it must include a {@link Intent#CATEGORY_LAUNCHER}
+ * intent filter.
+ *
+ * For example:
  *
  * <pre>{@code
- * <activity-alias
- *   android:enabled="true"
+ * <activity
+ *   android:name="androidx.car.app.activity.CarAppActivity"
  *   android:exported="true"
- *   android:label="@string/your_app_label"
- *   android:name=".YourActivityAliasName"
- *   android:targetActivity="androidx.car.app.activity.CarAppActivity" >
+ *   android:label="@string/your_app_label">
+ *
  *   <intent-filter>
  *     <action android:name="android.intent.action.MAIN" />
  *     <category android:name="android.intent.category.LAUNCHER" />
  *   </intent-filter>
- *   <meta-data
- *     android:name="androidx.car.app.CAR_APP_SERVICE"
- *     android:value=".YourCarAppService" />
  *   <meta-data android:name="distractionOptimized" android:value="true"/>
- * </activity-alias>
+ * </activity>
  * }</pre>
  *
- * <p>See {@link androidx.car.app.CarAppService} for how to declare your app's car app service in
- * the manifest.
+ * <p>See {@link androidx.car.app.CarAppService} for how to declare your app's
+ * {@link CarAppService} in the manifest.
  *
- * <p>Note the name of the alias should be unique and resemble a fully qualified class name, but
- * unlike the name of the target activity, the alias name is arbitrary; it does not refer to an
- * actual class.
  *
  * <h4>Distraction-optimized Activities</h4>
  *
@@ -92,10 +92,7 @@ import androidx.lifecycle.ViewModelProvider;
  * set to {@code true}, any other activities marked this way may cause the app to be rejected
  * during app submission.
  */
-@SuppressLint({"ForbiddenSuperClass"})
 public final class CarAppActivity extends FragmentActivity {
-    @VisibleForTesting
-    static final String SERVICE_METADATA_KEY = "androidx.car.app.CAR_APP_SERVICE";
 
     @SuppressLint({"ActionValue"})
     @VisibleForTesting
@@ -106,7 +103,6 @@ public final class CarAppActivity extends FragmentActivity {
     @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
     @Nullable OnBackPressedListener mOnBackPressedListener;
     @Nullable CarAppViewModel mViewModel;
-    private int mDisplayId;
 
     /**
      * Handles the service connection errors by presenting a message the user and potentially
@@ -200,10 +196,12 @@ public final class CarAppActivity extends FragmentActivity {
                 }
             };
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        // Set before the onCreate() as this method sets windowing information based on the theme.
+        setTheme(android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstanceState);
+        setSoftInputHandling();
         setContentView(R.layout.activity_template);
         mSurfaceView = requireViewById(R.id.template_view_surface);
 
@@ -213,7 +211,6 @@ public final class CarAppActivity extends FragmentActivity {
             finish();
             return;
         }
-        mDisplayId = getWindowManager().getDefaultDisplay().getDisplayId();
 
         CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(getApplication(),
                 serviceComponentName);
@@ -234,7 +231,13 @@ public final class CarAppActivity extends FragmentActivity {
         mSurfaceView.setErrorHandler(mErrorHandler);
         mSurfaceView.getHolder().addCallback(mSurfaceHolderListener);
 
-        mViewModel.bind(getIntent(), mCarActivity, mDisplayId);
+        mViewModel.bind(getIntent(), mCarActivity, getDisplayId());
+    }
+
+    // TODO(b/189862860): Address SOFT_INPUT_ADJUST_RESIZE deprecation
+    @SuppressWarnings("deprecation")
+    private void setSoftInputHandling() {
+        getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
     }
 
     @Override
@@ -247,12 +250,14 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-        requireNonNull(mViewModel).bind(intent, mCarActivity, mDisplayId);
+        requireNonNull(mViewModel).bind(intent, mCarActivity, getDisplayId());
     }
 
+    // TODO(b/189864400): Address WindowManager#getDefaultDisplay() deprecation
+    @SuppressWarnings("deprecation")
     @VisibleForTesting
     int getDisplayId() {
-        return mDisplayId;
+        return getWindowManager().getDefaultDisplay().getDisplayId();
     }
 
     @VisibleForTesting
@@ -262,31 +267,19 @@ public final class CarAppActivity extends FragmentActivity {
 
     @Nullable
     private ComponentName retrieveServiceComponentName() {
-        ActivityInfo activityInfo = null;
-        try {
-            activityInfo =
-                    getPackageManager()
-                            .getActivityInfo(getComponentName(), PackageManager.GET_META_DATA);
-        } catch (NameNotFoundException e) {
-            Log.e(LogTags.TAG, "Unable to find component: " + getComponentName(), e);
-        }
-
-        if (activityInfo == null) {
+        Intent intent = new Intent(SERVICE_INTERFACE);
+        intent.setPackage(getPackageName());
+        List<ResolveInfo> infos = getPackageManager().queryIntentServices(intent, 0);
+        if (infos == null || infos.isEmpty()) {
+            Log.e(LogTags.TAG, "Unable to find required " + SERVICE_INTERFACE
+                    + " implementation. App manifest must include exactly one car app service.");
+            return null;
+        } else if (infos.size() != 1) {
+            Log.e(LogTags.TAG, "Found more than one " + SERVICE_INTERFACE
+                    + " implementation. App manifest must include exactly one car app service.");
             return null;
         }
-
-        String serviceName = activityInfo.metaData.getString(SERVICE_METADATA_KEY);
-        if (serviceName == null) {
-            Log.e(
-                    LogTags.TAG,
-                    "Unable to find required metadata tag with name "
-                            + SERVICE_METADATA_KEY
-                            + ". App manifest must include metadata tag with name "
-                            + SERVICE_METADATA_KEY
-                            + " and the name of the car app service as the value");
-            return null;
-        }
-
+        String serviceName = infos.get(0).serviceInfo.name;
         return new ComponentName(this, serviceName);
     }
 }
