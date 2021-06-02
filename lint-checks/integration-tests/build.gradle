@@ -77,3 +77,10 @@ class CompareFilesTask extends DefaultTask {
         }
     }
 }
+
+// workaround for b/189877657
+afterEvaluate {
+    tasks.named("copyDebugAndroidLintReports").configure {
+        enabled = false
+    }
+}
