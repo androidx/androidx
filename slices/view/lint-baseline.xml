@@ -74,7 +74,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="329"
+            line="330"
             column="24"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="414"
+            line="415"
             column="17"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="416"
+            line="417"
             column="17"/>
     </issue>
 
@@ -120,6 +120,72 @@
             file="src/main/java/androidx/slice/widget/TemplateView.java"
             line="125"
             column="41"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/strings.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/strings.xml"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="32"
+            column="5"/>
     </issue>
 
     <issue
@@ -338,7 +404,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="87"
+            line="88"
             column="28"/>
     </issue>
 
@@ -349,7 +415,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="87"
+            line="88"
             column="45"/>
     </issue>
 
@@ -360,7 +426,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="162"
+            line="163"
             column="19"/>
     </issue>
 
@@ -371,7 +437,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="162"
+            line="163"
             column="43"/>
     </issue>
 
@@ -382,7 +448,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="162"
+            line="163"
             column="60"/>
     </issue>
 
@@ -393,7 +459,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="170"
+            line="171"
             column="25"/>
     </issue>
 
@@ -404,7 +470,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="177"
+            line="178"
             column="33"/>
     </issue>
 
@@ -415,7 +481,7 @@
         errorLine2="                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="191"
+            line="192"
             column="27"/>
     </issue>
 
@@ -426,7 +492,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="198"
+            line="199"
             column="32"/>
     </issue>
 
@@ -437,7 +503,7 @@
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="198"
+            line="199"
             column="60"/>
     </issue>
 
@@ -448,7 +514,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="240"
+            line="241"
             column="52"/>
     </issue>
 
@@ -459,7 +525,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="240"
+            line="241"
             column="64"/>
     </issue>
 
@@ -470,7 +536,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="255"
+            line="256"
             column="35"/>
     </issue>
 
@@ -481,7 +547,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="259"
+            line="260"
             column="31"/>
     </issue>
 
@@ -492,7 +558,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="263"
+            line="264"
             column="34"/>
     </issue>
 
@@ -503,7 +569,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="305"
+            line="306"
             column="31"/>
     </issue>
 
@@ -514,7 +580,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="305"
+            line="306"
             column="48"/>
     </issue>
 
@@ -525,7 +591,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="335"
+            line="336"
             column="44"/>
     </issue>
 
@@ -536,7 +602,7 @@
         errorLine2="                                                                      ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="344"
+            line="345"
             column="71"/>
     </issue>
 
@@ -547,7 +613,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="352"
+            line="353"
             column="36"/>
     </issue>
 
@@ -558,7 +624,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="359"
+            line="360"
             column="47"/>
     </issue>
 
@@ -569,7 +635,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="368"
+            line="369"
             column="45"/>
     </issue>
 
@@ -580,7 +646,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="377"
+            line="378"
             column="16"/>
     </issue>
 
@@ -591,7 +657,7 @@
         errorLine2="                                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="377"
+            line="378"
             column="56"/>
     </issue>
 
@@ -602,7 +668,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="401"
+            line="402"
             column="40"/>
     </issue>
 
@@ -613,7 +679,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="427"
+            line="428"
             column="58"/>
     </issue>
 
@@ -789,7 +855,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="85"
+            line="86"
             column="28"/>
     </issue>
 
@@ -800,7 +866,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="85"
+            line="86"
             column="45"/>
     </issue>
 
@@ -811,7 +877,7 @@
         errorLine2="                                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="85"
+            line="86"
             column="63"/>
     </issue>
 
@@ -822,7 +888,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="101"
+            line="102"
             column="60"/>
     </issue>
 
@@ -833,7 +899,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="102"
+            line="103"
             column="13"/>
     </issue>
 
@@ -844,7 +910,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="103"
+            line="104"
             column="13"/>
     </issue>
 
