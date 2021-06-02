@@ -702,6 +702,7 @@ class FragmentLifecycleTest {
         f.arguments = Bundle()
 
         fc.dispatchPause()
+        @Suppress("DEPRECATION")
         fc.saveAllState()
 
         try {
