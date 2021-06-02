@@ -328,8 +328,61 @@ class MethodSpecHelperTest(
         overridesCheck(source, impl)
     }
 
+    @Test
+    fun javaOverridesKotlinProperty() {
+        val myInterface = Source.kotlin(
+            "MyInterface.kt",
+            """
+            package foo.bar
+            interface MyInterface {
+                val x:Int
+                var y:Int
+            }
+            """.trimIndent()
+        )
+        val javaImpl = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            class Baz implements MyInterface {
+                public int getX() {
+                    return 1;
+                }
+                public int getY() {
+                    return 1;
+                }
+                public void setY(int value) {
+                }
+            }
+            """.trimIndent()
+        )
+        overridesCheck(myInterface, javaImpl)
+    }
+
+    @Test
+    fun kotlinOverridesKotlinProperty() {
+        val source = Source.kotlin(
+            "MyInterface.kt",
+            """
+            package foo.bar
+            interface MyInterface {
+                var x:Int
+            }
+            open class Baz : MyInterface {
+                override var x: Int
+                    get() = TODO("not implemented")
+                    set(value) {}
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
     @Suppress("NAME_SHADOWING") // intentional
-    private fun overridesCheck(vararg sources: Source, ignoreInheritedMethods: Boolean = false) {
+    private fun overridesCheck(
+        vararg sources: Source,
+        ignoreInheritedMethods: Boolean = false
+    ) {
         val (sources: List<Source>, classpath: List<File>) = if (preCompiledCode) {
             emptyList<Source>() to listOf(compileFiles(sources.toList()))
         } else {

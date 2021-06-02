@@ -22,6 +22,7 @@ import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
@@ -90,11 +91,16 @@ internal class OverrideVarianceResolver(
             // if declared in the same class, skip
             return null
         }
+
         // it is declared in a super type, get that
+        val overridee = funDeclaration.findOverridee() as? KSFunctionDeclaration
+        // in kotlin, a method cannot override a property and we get to this code only for kotlin,
+        // hence we only check for overridee if it is a KSFunction. Override is KSDeclaration by
+        // default to handle cases when a Java method overrides a kotlin property
         val overrideeElm = KspMethodElement.create(
             env = env,
             containing = env.wrapClassDeclaration(declaredIn),
-            declaration = funDeclaration.findOverridee() ?: funDeclaration
+            declaration = overridee ?: funDeclaration
         )
         val containing = overrideeElm.enclosingElement.type ?: return null
         return KspMethodType.create(

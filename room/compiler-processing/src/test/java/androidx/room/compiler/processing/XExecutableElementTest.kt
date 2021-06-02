@@ -511,6 +511,90 @@ class XExecutableElementTest {
     }
 
     @Test
+    fun javaMethodOverridesKotlinProperty() {
+        val myInterface = Source.kotlin(
+            "MyInterface.kt",
+            """
+            interface MyInterface {
+                val x:Int
+                var y:Int
+            }
+            """.trimIndent()
+        )
+        val javaImpl = Source.java(
+            "JavaImpl",
+            """
+            class JavaImpl implements MyInterface {
+                public int getX() {
+                    return 1;
+                }
+                public int getY() {
+                    return 1;
+                }
+                public void setY(int value) {
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(myInterface, javaImpl)
+        ) { invocation ->
+            val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
+            assertThat(
+                elm.getMethod("getX").returnType.typeName
+            ).isEqualTo(TypeName.INT)
+            assertThat(
+                elm.getMethod("getY").returnType.typeName
+            ).isEqualTo(TypeName.INT)
+            assertThat(
+                elm.getMethod("setY").parameters.first().type.typeName
+            ).isEqualTo(TypeName.INT)
+        }
+    }
+
+    @Test
+    fun javaMethodOverridesKotlinProperty_generic() {
+        val myInterface = Source.kotlin(
+            "MyInterface.kt",
+            """
+            interface MyInterface<T> {
+                val x:T
+                var y:T
+            }
+            """.trimIndent()
+        )
+        val javaImpl = Source.java(
+            "JavaImpl",
+            """
+            class JavaImpl implements MyInterface<Integer> {
+                public Integer getX() {
+                    return 1;
+                }
+                public Integer getY() {
+                    return 1;
+                }
+                public void setY(Integer value) {
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(myInterface, javaImpl)
+        ) { invocation ->
+            val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
+            assertThat(
+                elm.getMethod("getX").returnType.typeName
+            ).isEqualTo(TypeName.INT.box())
+            assertThat(
+                elm.getMethod("getY").returnType.typeName
+            ).isEqualTo(TypeName.INT.box())
+            assertThat(
+                elm.getMethod("setY").parameters.first().type.typeName
+            ).isEqualTo(TypeName.INT.box())
+        }
+    }
+
+    @Test
     fun genericToPrimitiveOverrides_methodElement() {
         genericToPrimitiveOverrides(asMemberOf = false)
     }
