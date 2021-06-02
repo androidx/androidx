@@ -141,6 +141,23 @@ public abstract class VideoRecordEvent {
     public static final int ERROR_CAMERA_CLOSED = 4;
 
     /**
+     * The recording failed due to the output options are invalid.
+     */
+    public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
+
+    /**
+     * The recording failed while encoding.
+     */
+    public static final int ERROR_ENCODING_FAILED = 6;
+
+    /**
+     * The recording failed due to the recorder encountered errors.
+     *
+     * <p>Usually it can only be recovered by recreating a recorder and recordings with it.
+     */
+    public static final int ERROR_RECORDER_ERROR = 7;
+
+    /**
      * Describes the error that occurred during a video recording.
      *
      * <p>This is the error code returning from {@link Finalize#getError()}.
@@ -150,7 +167,8 @@ public abstract class VideoRecordEvent {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
-            ERROR_INSUFFICIENT_DISK, ERROR_CAMERA_CLOSED})
+            ERROR_INSUFFICIENT_DISK, ERROR_CAMERA_CLOSED, ERROR_INVALID_OUTPUT_OPTIONS,
+            ERROR_ENCODING_FAILED, ERROR_RECORDER_ERROR})
     public @interface VideoRecordError {
     }
 

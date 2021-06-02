@@ -33,5 +33,6 @@ class VideoSpecTest {
         assertThat(videoSpec.qualitySelector).isEqualTo(VideoSpec.QUALITY_SELECTOR_AUTO)
         assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_RANGE_AUTO)
         assertThat(videoSpec.frameRate).isEqualTo(VideoSpec.FRAME_RATE_RANGE_AUTO)
+        assertThat(videoSpec.aspectRatio).isEqualTo(VideoSpec.ASPECT_RATIO_AUTO)
     }
 }
