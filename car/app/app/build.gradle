@@ -16,9 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -34,19 +31,19 @@ dependencies {
     // Session and Screen both implement LifeCycleOwner so this needs to be exposed.
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0")
-    compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
+    compileOnly libs.kotlinStdlib // Due to :annotation-experimental
 
-    annotationProcessor(NULLAWAY)
+    annotationProcessor(libs.nullaway)
 
     // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
     // it is ever upgraded.
     testImplementation("junit:junit:4.13")
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(TRUTH)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
     testImplementation project(path: ':car:app:app-testing')
 }
 
