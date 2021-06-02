@@ -42,7 +42,6 @@ package androidx.room {
   public class Room {
     ctor @Deprecated public Room();
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> databaseBuilder(android.content.Context, Class<T!>, String);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <T, C> T getGeneratedImplementation(Class<C!>, String);
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> inMemoryDatabaseBuilder(android.content.Context, Class<T!>);
     field public static final String MASTER_TABLE_NAME = "room_master_table";
   }
@@ -59,7 +58,6 @@ package androidx.room {
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.Class<?>!,java.util.List<java.lang.Class<?>!>!> getRequiredTypeConverters();
     method public java.util.concurrent.Executor getTransactionExecutor();
     method public <T> T? getTypeConverter(Class<T!>);
     method public boolean inTransaction();

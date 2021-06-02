@@ -163,7 +163,7 @@ package androidx.fragment.app {
     field public static final android.os.Parcelable.Creator<androidx.fragment.app.Fragment.SavedState!> CREATOR;
   }
 
-  public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator {
+  public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.lifecycle.LifecycleOwner {
     ctor public FragmentActivity();
     ctor @ContentView public FragmentActivity(@LayoutRes int);
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();

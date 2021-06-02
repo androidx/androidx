@@ -783,7 +783,7 @@ package androidx.core.app {
     method public androidx.core.app.Person.Builder setUri(String?);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.app.RemoteActionCompat") public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
+  public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
     ctor public RemoteActionCompat(androidx.core.graphics.drawable.IconCompat, CharSequence, CharSequence, android.app.PendingIntent);
     ctor public RemoteActionCompat(androidx.core.app.RemoteActionCompat);
     method @RequiresApi(26) public static androidx.core.app.RemoteActionCompat createFromRemoteAction(android.app.RemoteAction);
@@ -1309,7 +1309,7 @@ package androidx.core.graphics.drawable {
     method public static android.graphics.drawable.Drawable! wrap(android.graphics.drawable.Drawable);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true, jetifyAs="android.support.v4.graphics.drawable.IconCompat") public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
+  public class IconCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat! createWithAdaptiveBitmap(android.graphics.Bitmap!);
@@ -1325,6 +1325,8 @@ package androidx.core.graphics.drawable {
     method public int getType();
     method public android.net.Uri getUri();
     method public android.graphics.drawable.Drawable? loadDrawable(android.content.Context);
+    method public void onPostParceling();
+    method public void onPreParceling(boolean);
     method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
     method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);
     method public androidx.core.graphics.drawable.IconCompat! setTintMode(android.graphics.PorterDuff.Mode!);

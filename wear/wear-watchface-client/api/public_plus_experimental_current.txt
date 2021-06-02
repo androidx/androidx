@@ -2,7 +2,7 @@
 package androidx.wear.watchface.client {
 
   public final class ComplicationState {
-    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider, android.os.Bundle complicationConfigExtras);
+    ctor public ComplicationState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider, android.os.Bundle complicationConfigExtras);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
     method public android.os.Bundle getComplicationConfigExtras();

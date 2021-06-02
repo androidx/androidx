@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.car.app.activity {
 
-  public final class CarAppActivity extends androidx.fragment.app.FragmentActivity {
+  public final class CarAppActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
     ctor public CarAppActivity();
   }
 

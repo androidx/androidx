@@ -45,12 +45,6 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum DiffingChangePayload {
-    enum_constant public static final androidx.paging.DiffingChangePayload ITEM_TO_PLACEHOLDER;
-    enum_constant public static final androidx.paging.DiffingChangePayload PLACEHOLDER_POSITION_CHANGE;
-    enum_constant public static final androidx.paging.DiffingChangePayload PLACEHOLDER_TO_ITEM;
-  }
-
   @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
   }
 
@@ -136,7 +130,6 @@ package androidx.paging {
     method public androidx.paging.LoadState component2();
     method public androidx.paging.LoadState component3();
     method public androidx.paging.LoadStates copy(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public inline void forEach(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> op);
     method public androidx.paging.LoadState getAppend();
     method public androidx.paging.LoadState getPrepend();
     method public androidx.paging.LoadState getRefresh();

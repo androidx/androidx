@@ -1,14 +1,14 @@
 // Signature format: 4.0
 package androidx.media2.session {
 
-  @androidx.versionedparcelable.VersionedParcelize public final class HeartRating implements androidx.media2.common.Rating {
+  public final class HeartRating implements androidx.media2.common.Rating {
     ctor public HeartRating();
     ctor public HeartRating(boolean);
     method public boolean hasHeart();
     method public boolean isRated();
   }
 
-  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class LibraryResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
+  public class LibraryResult implements androidx.versionedparcelable.VersionedParcelable {
     ctor public LibraryResult(int);
     ctor public LibraryResult(int, androidx.media2.common.MediaItem?, androidx.media2.session.MediaLibraryService.LibraryParams?);
     ctor public LibraryResult(int, java.util.List<androidx.media2.common.MediaItem!>?, androidx.media2.session.MediaLibraryService.LibraryParams?);
@@ -17,6 +17,11 @@ package androidx.media2.session {
     method public androidx.media2.common.MediaItem? getMediaItem();
     method public java.util.List<androidx.media2.common.MediaItem!>? getMediaItems();
     method public int getResultCode();
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
     field public static final int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
     field public static final int RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
     field public static final int RESULT_ERROR_SESSION_DISCONNECTED = -100; // 0xffffff9c
@@ -25,6 +30,9 @@ package androidx.media2.session {
     field public static final int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
     field public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108; // 0xffffff94
     field public static final int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107; // 0xffffff95
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
+    field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
   public class MediaBrowser extends androidx.media2.session.MediaController {
@@ -73,7 +81,7 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> fastForward();
     method public androidx.media2.session.SessionCommandGroup? getAllowedCommands();
     method public long getBufferedPosition();
-    method @androidx.media2.common.SessionPlayer.BuffState public int getBufferingState();
+    method public int getBufferingState();
     method public androidx.media2.session.SessionToken? getConnectedToken();
     method public androidx.media2.common.MediaItem? getCurrentMediaItem();
     method public int getCurrentMediaItemIndex();
@@ -86,10 +94,10 @@ package androidx.media2.session {
     method public java.util.List<androidx.media2.common.MediaItem!>? getPlaylist();
     method public androidx.media2.common.MediaMetadata? getPlaylistMetadata();
     method public int getPreviousMediaItemIndex();
-    method @androidx.media2.common.SessionPlayer.RepeatMode public int getRepeatMode();
-    method public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(@androidx.media2.common.SessionPlayer.TrackInfo.MediaTrackType int);
+    method public int getRepeatMode();
+    method public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(int);
     method public android.app.PendingIntent? getSessionActivity();
-    method @androidx.media2.common.SessionPlayer.ShuffleMode public int getShuffleMode();
+    method public int getShuffleMode();
     method public java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!> getTracks();
     method public androidx.media2.common.VideoSize getVideoSize();
     method public boolean isConnected();
@@ -108,8 +116,8 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setPlaybackSpeed(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setPlaylist(java.util.List<java.lang.String!>, androidx.media2.common.MediaMetadata?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRating(String, androidx.media2.common.Rating);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRepeatMode(@androidx.media2.common.SessionPlayer.RepeatMode int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setShuffleMode(@androidx.media2.common.SessionPlayer.ShuffleMode int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRepeatMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setShuffleMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setSurface(android.view.Surface?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setVolumeTo(int, int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipBackward();
@@ -132,7 +140,7 @@ package androidx.media2.session {
   public abstract static class MediaController.ControllerCallback {
     ctor public MediaController.ControllerCallback();
     method public void onAllowedCommandsChanged(androidx.media2.session.MediaController, androidx.media2.session.SessionCommandGroup);
-    method public void onBufferingStateChanged(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, @androidx.media2.common.SessionPlayer.BuffState int);
+    method public void onBufferingStateChanged(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, int);
     method public void onConnected(androidx.media2.session.MediaController, androidx.media2.session.SessionCommandGroup);
     method public void onCurrentMediaItemChanged(androidx.media2.session.MediaController, androidx.media2.common.MediaItem?);
     method public androidx.media2.session.SessionResult onCustomCommand(androidx.media2.session.MediaController, androidx.media2.session.SessionCommand, android.os.Bundle?);
@@ -140,13 +148,13 @@ package androidx.media2.session {
     method public void onPlaybackCompleted(androidx.media2.session.MediaController);
     method public void onPlaybackInfoChanged(androidx.media2.session.MediaController, androidx.media2.session.MediaController.PlaybackInfo);
     method public void onPlaybackSpeedChanged(androidx.media2.session.MediaController, float);
-    method public void onPlayerStateChanged(androidx.media2.session.MediaController, @androidx.media2.common.SessionPlayer.PlayerState int);
+    method public void onPlayerStateChanged(androidx.media2.session.MediaController, int);
     method public void onPlaylistChanged(androidx.media2.session.MediaController, java.util.List<androidx.media2.common.MediaItem!>?, androidx.media2.common.MediaMetadata?);
     method public void onPlaylistMetadataChanged(androidx.media2.session.MediaController, androidx.media2.common.MediaMetadata?);
-    method public void onRepeatModeChanged(androidx.media2.session.MediaController, @androidx.media2.common.SessionPlayer.RepeatMode int);
+    method public void onRepeatModeChanged(androidx.media2.session.MediaController, int);
     method public void onSeekCompleted(androidx.media2.session.MediaController, long);
     method public int onSetCustomLayout(androidx.media2.session.MediaController, java.util.List<androidx.media2.session.MediaSession.CommandButton!>);
-    method public void onShuffleModeChanged(androidx.media2.session.MediaController, @androidx.media2.common.SessionPlayer.ShuffleMode int);
+    method public void onShuffleModeChanged(androidx.media2.session.MediaController, int);
     method public void onSubtitleData(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, androidx.media2.common.SessionPlayer.TrackInfo, androidx.media2.common.SubtitleData);
     method public void onTrackDeselected(androidx.media2.session.MediaController, androidx.media2.common.SessionPlayer.TrackInfo);
     method public void onTrackSelected(androidx.media2.session.MediaController, androidx.media2.common.SessionPlayer.TrackInfo);
@@ -154,7 +162,7 @@ package androidx.media2.session {
     method public void onVideoSizeChanged(androidx.media2.session.MediaController, androidx.media2.common.VideoSize);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
+  public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getControlType();
     method public int getCurrentVolume();
@@ -170,7 +178,7 @@ package androidx.media2.session {
     field public static final String SERVICE_INTERFACE = "androidx.media2.session.MediaLibraryService";
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public static final class MediaLibraryService.LibraryParams implements androidx.versionedparcelable.VersionedParcelable {
+  public static final class MediaLibraryService.LibraryParams implements androidx.versionedparcelable.VersionedParcelable {
     method public android.os.Bundle? getExtras();
     method public boolean isOffline();
     method public boolean isRecent();
@@ -234,7 +242,7 @@ package androidx.media2.session {
     method public androidx.media2.session.MediaSession.Builder setSessionCallback(java.util.concurrent.Executor, androidx.media2.session.MediaSession.SessionCallback);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public static final class MediaSession.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
+  public static final class MediaSession.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media2.session.SessionCommand? getCommand();
     method public CharSequence? getDisplayName();
     method public android.os.Bundle? getExtras();
@@ -296,7 +304,7 @@ package androidx.media2.session {
     method public int getNotificationId();
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public final class PercentageRating implements androidx.media2.common.Rating {
+  public final class PercentageRating implements androidx.media2.common.Rating {
     ctor public PercentageRating();
     ctor public PercentageRating(float);
     method public float getPercentRating();
@@ -320,7 +328,7 @@ package androidx.media2.session {
     method public void onVolumeChanged(androidx.media2.session.RemoteSessionPlayer, int);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public final class SessionCommand implements androidx.versionedparcelable.VersionedParcelable {
+  public final class SessionCommand implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommand(int);
     ctor public SessionCommand(String, android.os.Bundle?);
     method public int getCommandCode();
@@ -369,7 +377,7 @@ package androidx.media2.session {
     field public static final int COMMAND_VERSION_2 = 2; // 0x2
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public final class SessionCommandGroup implements androidx.versionedparcelable.VersionedParcelable {
+  public final class SessionCommandGroup implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommandGroup();
     ctor public SessionCommandGroup(java.util.Collection<androidx.media2.session.SessionCommand!>?);
     method public java.util.Set<androidx.media2.session.SessionCommand!> getCommands();
@@ -386,12 +394,17 @@ package androidx.media2.session {
     method public androidx.media2.session.SessionCommandGroup.Builder removeCommand(androidx.media2.session.SessionCommand);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class SessionResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
+  public class SessionResult implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionResult(int, android.os.Bundle?);
     method public long getCompletionTime();
     method public android.os.Bundle? getCustomCommandResult();
     method public androidx.media2.common.MediaItem? getMediaItem();
     method public int getResultCode();
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
     field public static final int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
     field public static final int RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
     field public static final int RESULT_ERROR_SESSION_DISCONNECTED = -100; // 0xffffff9c
@@ -400,10 +413,12 @@ package androidx.media2.session {
     field public static final int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
     field public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108; // 0xffffff94
     field public static final int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107; // 0xffffff95
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {
+  public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionToken(android.content.Context, android.content.ComponentName);
     method public android.os.Bundle getExtras();
     method public String getPackageName();
@@ -415,7 +430,7 @@ package androidx.media2.session {
     field public static final int TYPE_SESSION_SERVICE = 1; // 0x1
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public final class StarRating implements androidx.media2.common.Rating {
+  public final class StarRating implements androidx.media2.common.Rating {
     ctor public StarRating(@IntRange(from=1) int);
     ctor public StarRating(@IntRange(from=1) int, float);
     method public int getMaxStars();
@@ -423,7 +438,7 @@ package androidx.media2.session {
     method public boolean isRated();
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public final class ThumbRating implements androidx.media2.common.Rating {
+  public final class ThumbRating implements androidx.media2.common.Rating {
     ctor public ThumbRating();
     ctor public ThumbRating(boolean);
     method public boolean isRated();
