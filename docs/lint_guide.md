@@ -54,13 +54,7 @@ plugins {
 }
 
 dependencies {
-    // compileOnly because lint runtime is provided when checks are run
-    // Use latest lint for running from IDE to make sure checks always run
-    if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
-        compileOnly LINT_API_LATEST
-    } else {
-        compileOnly LINT_API_MIN
-    }
+    compileOnly LINT_API_MIN
     compileOnly KOTLIN_STDLIB
 
     testImplementation KOTLIN_STDLIB
