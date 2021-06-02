@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- TODO(b/189861989): Remove once lint issue has been resolved -->
-<lint>
-    <issue id="Instantiatable" severity="ignore" />
-</lint>
