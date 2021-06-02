@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -41,9 +42,6 @@ import java.util.Objects;
  * notification action.
  */
 public final class CarPendingIntent {
-    @VisibleForTesting
-    static final String CAR_APP_ACTIVITY_CLASSNAME = "androidx.car.app.activity.CarAppActivity";
-
     /**
      * The key for retrieving the original {@link Intent} form the one the OS sent from the user
      * click.
@@ -51,6 +49,7 @@ public final class CarPendingIntent {
     static final String COMPONENT_EXTRA_KEY =
             "androidx.car.app.notification.COMPONENT_EXTRA_KEY";
 
+    private static final String ACTIVITY_METADATA_KEY = "androidx.car.app.CAR_APP_ACTIVITY";
     private static final String NAVIGATION_URI_PREFIX = "geo:";
     private static final String PHONE_URI_PREFIX = "tel:";
     private static final String SEARCH_QUERY_PARAMETER = "q";
@@ -80,7 +79,7 @@ public final class CarPendingIntent {
      *                    {@link PendingIntent#getBroadcast(Context, int, Intent, int)} except for
      *                    {@link PendingIntent#FLAG_IMMUTABLE} as the {@link PendingIntent} needs
      *                    to be mutable to allow the host to add the necessary extras for
-     *                    starting the car app. If {@link PendingIntent#FLAG_IMMUTABLE} is set,
+     *                    starting the car app.  If {@link PendingIntent#FLAG_IMMUTABLE} is set,
      *                    it will be unset before creating the {@link PendingIntent}
      * @throws NullPointerException      if either {@code context} or {@code intent} are null
      * @throws InvalidParameterException if the {@code intent} is not for starting a navigation
@@ -150,14 +149,37 @@ public final class CarPendingIntent {
 
     private static PendingIntent createForAutomotive(Context context, int requestCode,
             Intent intent, int flags) {
+        Intent automotiveIntent = fixIntentForAutomotive(context, intent);
+        return PendingIntent.getActivity(context, requestCode, automotiveIntent, flags);
+    }
+
+    /**
+     * Returns an {@link Intent} that will be able to start the correct activity in the car for
+     * the data provided in the {@code intent}.
+     *
+     * <p>If the {@code intent} is to start this car app, it will replace the target with the
+     * proper activity that is tied to the given car app.
+     */
+    private static Intent fixIntentForAutomotive(Context context, Intent intent) {
         String packageName = context.getPackageName();
         ComponentName intentComponent = intent.getComponent();
         if (intentComponent != null && Objects.equals(intentComponent.getPackageName(),
                 packageName)) {
-            intent.setClassName(packageName, CAR_APP_ACTIVITY_CLASSNAME);
+            ServiceInfo serviceInfo;
+            try {
+                serviceInfo = context.getPackageManager().getServiceInfo(intentComponent,
+                        PackageManager.GET_META_DATA);
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new InvalidParameterException("Intent does not have the CarAppService's "
+                        + "ComponentName as its target");
+            }
+
+            String activityClass = serviceInfo.metaData.getString(ACTIVITY_METADATA_KEY);
+            intent.setClassName(packageName, activityClass);
         }
 
-        return PendingIntent.getActivity(context, requestCode, intent, flags);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
     }
 
     /**

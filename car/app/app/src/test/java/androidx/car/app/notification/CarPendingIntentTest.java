@@ -82,7 +82,7 @@ public class CarPendingIntentTest {
 
         Intent startedActivity = Shadows.shadowOf((Application) mContext).getNextStartedActivity();
         assertThat(startedActivity.getComponent()).isEqualTo(
-                new ComponentName(mContext, CarPendingIntent.CAR_APP_ACTIVITY_CLASSNAME));
+                new ComponentName(mContext, "androidx.car.app.CarAppActivity"));
     }
 
     @Test

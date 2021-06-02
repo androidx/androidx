@@ -37,7 +37,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
@@ -46,7 +48,6 @@ import android.view.MotionEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
-import androidx.car.app.CarAppService;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
 import androidx.car.app.activity.renderer.IRendererCallback;
@@ -73,6 +74,8 @@ import org.robolectric.shadows.ShadowPackageManager;
 public class CarAppActivityTest {
     private final ComponentName mRendererComponent = new ComponentName(
             ApplicationProvider.getApplicationContext(), getClass().getName());
+    private final ComponentName mCarAppActivityComponent = new ComponentName(
+            ApplicationProvider.getApplicationContext(), CarAppActivity.class);
     private final String mFakeCarAppServiceClass = "com.fake.FakeCarAppService";
     private final ComponentName mFakeCarAppServiceComponent = new ComponentName(
             ApplicationProvider.getApplicationContext(), mFakeCarAppServiceClass);
@@ -84,12 +87,17 @@ public class CarAppActivityTest {
         try {
             Application app = ApplicationProvider.getApplicationContext();
 
-            // Register fake {@code CarAppService}
+            // Add fake metadata to simulate manifest entry for car app service.
+            Bundle metaData = new Bundle();
+            metaData.putString(CarAppActivity.SERVICE_METADATA_KEY, mFakeCarAppServiceClass);
+            app.getApplicationInfo().metaData = metaData;
             PackageManager packageManager = app.getPackageManager();
+            ActivityInfo activityInfo;
+            activityInfo = packageManager.getActivityInfo(mCarAppActivityComponent,
+                    PackageManager.GET_META_DATA);
+            activityInfo.metaData = metaData;
             ShadowPackageManager spm = shadowOf(packageManager);
-            spm.addServiceIfNotPresent(mFakeCarAppServiceComponent);
-            spm.addIntentFilterForService(mFakeCarAppServiceComponent,
-                    new IntentFilter(CarAppService.SERVICE_INTERFACE));
+            spm.addOrUpdateActivity(activityInfo);
 
             // Register fake renderer service which will be simulated by {@code mRenderService}.
             spm.addServiceIfNotPresent(mRendererComponent);
