@@ -48,7 +48,7 @@ android {
     lintOptions {
         // lint is supposed to detect errors in this project
         // We don't need to see the errors in stdout
-        textOutput("${buildDir}/lint-output.txt")
+        textOutput("${buildDir}/lint-results-debug.txt") // Set to this value for b/189877657
         // We don't want errors to cause lint to fail
         abortOnError false
     }
