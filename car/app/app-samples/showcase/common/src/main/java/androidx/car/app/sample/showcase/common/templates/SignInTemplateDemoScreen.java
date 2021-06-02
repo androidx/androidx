@@ -57,8 +57,8 @@ public class SignInTemplateDemoScreen extends Screen {
 
     // package private to avoid synthetic accessor
     State mState = State.USERNAME;
+    String mErrorMessage;
     private String mUsername = null;
-    private String mErrorMessage;
 
     private final CharSequence mAdditionalText = Utils.clickable("Please review our terms of "
                     + "service", 18, 16,
@@ -88,6 +88,7 @@ public class SignInTemplateDemoScreen extends Screen {
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                mErrorMessage = "";
                 if (mState == State.USERNAME || mState == State.SIGNED_IN) {
                     getScreenManager().pop();
                 } else {
