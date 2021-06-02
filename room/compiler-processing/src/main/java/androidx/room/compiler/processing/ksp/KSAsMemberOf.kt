@@ -16,10 +16,13 @@
 
 package androidx.room.compiler.processing.ksp
 
+import com.google.devtools.ksp.symbol.KSFunction
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
+import java.lang.UnsupportedOperationException
 
 /**
  * Returns the type of a property as if it is member of the given [ksType].
@@ -64,7 +67,7 @@ internal fun KSValueParameter.typeAsMemberOf(
     if (ksType == null) {
         return resolved
     }
-    val asMember = functionDeclaration.asMemberOf(
+    val asMember = functionDeclaration.safeAsMemberOf(
         containing = ksType
     )
     // TODO b/173224718
@@ -86,8 +89,42 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
             // object
             resolved
         }
-        else -> this.asMemberOf(
+        else -> this.safeAsMemberOf(
             containing = ksType
         ).returnType
     } ?: error("cannot find return type for $this")
+}
+
+/**
+ * Runs asMemberOf while working around a KSP bug where if a java method overrides a property,
+ * calling as member of fails it.
+ */
+private fun KSFunctionDeclaration.safeAsMemberOf(
+    containing: KSType
+): KSFunction {
+    return try {
+        asMemberOf(containing)
+    } catch (unsupported: UnsupportedOperationException) {
+        SyntheticKSFunction(this)
+    }
+}
+
+/**
+ * Workaround for https://github.com/google/ksp/issues/462
+ */
+private class SyntheticKSFunction(
+    val declaration: KSFunctionDeclaration
+) : KSFunction {
+    override val extensionReceiverType: KSType?
+        get() = declaration.extensionReceiver?.resolve()
+    override val isError: Boolean
+        get() = false
+    override val parameterTypes: List<KSType?>
+        get() = declaration.parameters.map { param ->
+            param.type.resolve()
+        }
+    override val returnType: KSType?
+        get() = declaration.returnType?.resolve()
+    override val typeParameters: List<KSTypeParameter>
+        get() = declaration.typeParameters
 }

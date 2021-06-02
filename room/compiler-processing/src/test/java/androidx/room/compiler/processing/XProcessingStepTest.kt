@@ -24,10 +24,9 @@ import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -315,19 +314,14 @@ class XProcessingStepTest {
         }
         var returned: List<KSAnnotated>? = null
         val processorProvider = object : SymbolProcessorProvider {
-            override fun create(
-                options: Map<String, String>,
-                kotlinVersion: KotlinVersion,
-                codeGenerator: CodeGenerator,
-                logger: KSPLogger
-            ): SymbolProcessor {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return object : SymbolProcessor {
                     override fun process(resolver: Resolver): List<KSAnnotated> {
                         val env = XProcessingEnv.create(
                             emptyMap(),
                             resolver,
-                            codeGenerator,
-                            logger
+                            environment.codeGenerator,
+                            environment.logger
                         )
                         return processingStep.executeInKsp(env)
                             .also { returned = it }

@@ -35,6 +35,7 @@ import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
 import androidx.room.compiler.processing.ksp.overrides
+import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyGetter
@@ -222,7 +223,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
             ) {
 
             override val name: String by lazy {
-                origin.field.declaration.setter?.parameter?.name?.asString() ?: "value"
+                val originalName = origin.field.declaration.setter?.parameter?.name?.asString()
+                originalName.sanitizeAsJavaParameterName(0)
             }
             override val type: XType
                 get() = origin.field.type

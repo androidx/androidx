@@ -20,6 +20,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 
@@ -71,16 +72,11 @@ class SyntheticKspProcessor private constructor(
     private class Provider(
         private val delegate: SyntheticKspProcessor
     ) : SymbolProcessorProvider {
-        override fun create(
-            options: Map<String, String>,
-            kotlinVersion: KotlinVersion,
-            codeGenerator: CodeGenerator,
-            logger: KSPLogger
-        ): SymbolProcessor {
+        override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
             delegate.internalInit(
-                options = options,
-                codeGenerator = codeGenerator,
-                logger = logger
+                options = environment.options,
+                codeGenerator = environment.codeGenerator,
+                logger = environment.logger
             )
             return delegate
         }

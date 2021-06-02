@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
+import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import javax.lang.model.element.VariableElement
 
 internal class JavacMethodParameter(
@@ -25,10 +26,13 @@ internal class JavacMethodParameter(
     private val executable: JavacExecutableElement,
     containing: JavacTypeElement,
     element: VariableElement,
-    val kotlinMetadata: KmValueParameter?
+    val kotlinMetadata: KmValueParameter?,
+    val argIndex: Int
 ) : JavacVariableElement(env, containing, element) {
     override val name: String
-        get() = kotlinMetadata?.name ?: super.name
+        get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(
+            argIndex = argIndex
+        )
     override val kotlinType: KmType?
         get() = kotlinMetadata?.type
     override val fallbackLocationText: String

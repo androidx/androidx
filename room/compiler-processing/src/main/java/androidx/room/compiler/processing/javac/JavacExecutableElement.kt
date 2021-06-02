@@ -45,7 +45,8 @@ internal abstract class JavacExecutableElement(
                 executable = this,
                 containing = containing,
                 element = variable,
-                kotlinMetadata = kotlinMetadata?.parameters?.getOrNull(index)
+                kotlinMetadata = kotlinMetadata?.parameters?.getOrNull(index),
+                argIndex = index
             )
         }
     }
