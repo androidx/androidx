@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
@@ -80,10 +78,10 @@ dependencies {
     implementation(projectOrArtifact(":arch:core:core-runtime"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    implementation(MULTIDEX)
+    implementation(libs.multidex)
 
-    // FINDBUGS dependency resolves an app/testapp version conflict.
-    implementation(FINDBUGS)
+    // libs.findbugs dependency resolves an app/testapp version conflict.
+    implementation(libs.findbugs)
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation("androidx.appcompat:appcompat:1.0.0")
     // use the shadowed dependency in tests so that if the shadowing does not work properly,
@@ -103,21 +101,21 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
 
-    // FINDBUGS dependency resolves an app/testapp version conflict.
-    androidTestImplementation(FINDBUGS)
-    androidTestImplementation(GUAVA_ANDROID)
-    androidTestImplementation(RX_JAVA)
-    androidTestImplementation(RX_JAVA3)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    // libs.findbugs dependency resolves an app/testapp version conflict.
+    androidTestImplementation(libs.findbugs)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.rxjava2)
+    androidTestImplementation(libs.rxjava3)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(project(":internal-testutils-truth"))
 
 
-    testImplementation(JUNIT)
+    testImplementation(libs.junit)
 }

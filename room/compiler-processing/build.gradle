@@ -18,31 +18,29 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
-    api(JAVAPOET)
-    api(KOTLINPOET)
+    api(libs.kotlinStdlib)
+    api(libs.javapoet)
+    api(libs.kotlinPoet)
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation(GUAVA)
-    implementation(AUTO_COMMON)
-    implementation(AUTO_VALUE_ANNOTATIONS)
+    implementation(libs.guava)
+    implementation(libs.autoCommon)
+    implementation(libs.autoValueAnnotations)
 
-    implementation(KOTLIN_METADATA_JVM)
-    implementation(INTELLIJ_ANNOTATIONS)
+    implementation(libs.kotlinMetadataJvm)
+    implementation(libs.intellijAnnotations)
     implementation(libs.kspApi)
-    implementation(KOTLIN_STDLIB_JDK8) // KSP defines older version as dependency, force update.
+    implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
 
-    testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(JUNIT)
-    testImplementation(JSR250)
-    testImplementation(KOTLIN_COMPILE_TESTING_KSP)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.junit)
+    testImplementation(libs.jsr250)
+    testImplementation(libs.kotlinCompileTestingKsp)
     testImplementation(libs.ksp)
     testImplementation(project(":room:room-compiler-processing-testing"))
 }
