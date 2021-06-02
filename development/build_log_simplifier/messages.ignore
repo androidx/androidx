@@ -566,6 +566,7 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+Found an unresolved type in androidx\.compose\.animation\.AnimatedContentScope\$using\(androidx\.compose\.animation\.ContentTransform, androidx\.compose\.animation\.SizeTransform\) \(AnimatedContent\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
