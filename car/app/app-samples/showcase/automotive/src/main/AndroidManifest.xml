@@ -61,6 +61,8 @@
         <action android:name="androidx.car.app.CarAppService"/>
         <category android:name="androidx.car.app.category.NAVIGATION"/>
       </intent-filter>
+      <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
+          android:value="androidx.car.app.sample.showcase.common.Showcase" />
     </service>
 
     <service
@@ -78,17 +80,20 @@
           android:resource="@xml/file_provider_paths"/>
     </provider>
 
-    <activity
-        android:name="androidx.car.app.activity.CarAppActivity"
+    <activity-alias
+        android:enabled="true"
         android:exported="true"
-        android:label="Showcase">
-
+        android:label="Showcase"
+        android:name="Showcase"
+        android:targetActivity="androidx.car.app.activity.CarAppActivity" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+      <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
+          android:value="androidx.car.app.sample.showcase.common.ShowcaseService" />
       <meta-data android:name="distractionOptimized" android:value="true"/>
-    </activity>
+    </activity-alias>
 
   </application>
 </manifest>

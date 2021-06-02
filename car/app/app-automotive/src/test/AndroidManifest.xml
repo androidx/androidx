@@ -16,11 +16,4 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.car.app.automotive">
-
-    <application>
-        <activity
-            android:name="androidx.car.app.activity.CarAppActivity"
-            android:exported="true">
-        </activity>
-    </application>
 </manifest>
