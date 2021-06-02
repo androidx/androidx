@@ -1138,6 +1138,7 @@ at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$Grad
 Could not store entry [0-9a-f]{32} in remote build cache: Storing entry at 'http://gradle\-remote\-cache\.uplink\.goog:[0-9]+/cache/[0-9a-f]{32}' response status [0-9]+: Uplink Bad Gateway
 # > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\..*
 # > Task :wear:wear-watchface:compileReleaseKotlin
 w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFaceService\.kt: \([0-9]+, [0-9]+\): Parameter 'surfaceHolder' is never used
 # > Task :lint-checks:integration-tests:copyDebugAndroidLintReports
