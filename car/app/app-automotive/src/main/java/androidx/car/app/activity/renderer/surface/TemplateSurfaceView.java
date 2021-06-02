@@ -44,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.activity.CarAppViewModel;
 import androidx.car.app.activity.ErrorHandler;
 import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
@@ -52,7 +53,7 @@ import androidx.car.app.serialization.Bundleable;
 /**
  * A surface view suitable for template rendering.
  *
- * <p>This view supports surface package even for builds lower than {@link Build.VERSION_CODES.R}.
+ * <p>This view supports surface package even for builds lower than {@link Build.VERSION_CODES#R}.
  *
  * @hide
  */
@@ -71,7 +72,7 @@ public final class TemplateSurfaceView extends SurfaceView {
     @Nullable
     ServiceDispatcher mServiceDispatcher;
     @Nullable
-    private ErrorHandler mErrorHandler;
+    private CarAppViewModel mViewModel;
     private final InputMethodManager mInputMethodManager =
             (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
     private final SurfaceWrapperProvider mSurfaceWrapperProvider =
@@ -84,7 +85,7 @@ public final class TemplateSurfaceView extends SurfaceView {
 
                     ISurfaceControl surfaceControl = mSurfaceControl;
                     if (surfaceControl != null) {
-                        mServiceDispatcher.dispatch(() ->
+                        mServiceDispatcher.dispatch("onWindowFocusChanged", () ->
                                 surfaceControl.onWindowFocusChanged(hasFocus(), isInTouchMode));
                     }
                 }
@@ -102,10 +103,10 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     /**
-     * Sets the {@link ErrorHandler} to be used to handle errors.
+     * Sets the {@link CarAppViewModel} to be used to handle errors.
      */
-    public void setErrorHandler(@NonNull ErrorHandler errorHandler) {
-        mErrorHandler = errorHandler;
+    public void setViewModel(@NonNull CarAppViewModel viewModel) {
+        mViewModel = viewModel;
     }
 
     /**
@@ -137,7 +138,7 @@ public final class TemplateSurfaceView extends SurfaceView {
         requireNonNull(mServiceDispatcher);
         ISurfaceControl surfaceControl = mSurfaceControl;
         if (surfaceControl != null) {
-            mServiceDispatcher.dispatch(() ->
+            mServiceDispatcher.dispatch("onWindowFocusChanged", () ->
                     surfaceControl.onWindowFocusChanged(gainFocus, isInTouchMode()));
         }
     }
@@ -165,7 +166,8 @@ public final class TemplateSurfaceView extends SurfaceView {
         }
 
         EditorInfo hostEditorInfo =
-                mServiceDispatcher.fetch(null, proxyInputConnection::getEditorInfo);
+                mServiceDispatcher.fetch("getEditorInfo", null,
+                        proxyInputConnection::getEditorInfo);
         if (hostEditorInfo == null) {
             Log.e(TAG, "Unable to retrieve host EditorInfo");
             return null;
@@ -235,17 +237,15 @@ public final class TemplateSurfaceView extends SurfaceView {
      * {@link android.view.SurfaceControlViewHost.SurfacePackage} or a {@link LegacySurfacePackage}.
      */
     public void setSurfacePackage(@NonNull Object surfacePackage) {
-        requireNonNull(mErrorHandler);
+        requireNonNull(mViewModel);
 
         if (SUPPORTS_SURFACE_CONTROL && surfacePackage instanceof SurfacePackage) {
             Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
         } else if (surfacePackage instanceof LegacySurfacePackage) {
             setSurfacePackage((LegacySurfacePackage) surfacePackage);
         } else {
-            Log.e(TAG, "Unrecognized surface package");
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                    new IllegalArgumentException("Unrecognized surface package: "
-                            + surfacePackage));
+            Log.e(TAG, "Unrecognized surface package: " + surfacePackage);
+            mViewModel.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
         }
     }
 
@@ -260,7 +260,7 @@ public final class TemplateSurfaceView extends SurfaceView {
 
         ISurfaceControl surfaceControl = surfacePackage.getSurfaceControl();
         SurfaceWrapper surfaceWrapper = mSurfaceWrapperProvider.createSurfaceWrapper();
-        mServiceDispatcher.dispatch(() ->
+        mServiceDispatcher.dispatch("setSurfaceWrapper", () ->
                 surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper)));
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));
@@ -286,7 +286,8 @@ public final class TemplateSurfaceView extends SurfaceView {
         MotionEvent eventCopy = MotionEvent.obtain(requireNonNull(event));
         ISurfaceControl surfaceControl = mSurfaceControl;
         if (surfaceControl != null) {
-            mServiceDispatcher.dispatch(() -> surfaceControl.onTouchEvent(eventCopy));
+            mServiceDispatcher.dispatch("onTouchEvent",
+                    () -> surfaceControl.onTouchEvent(eventCopy));
             return true;
         }
         return false;

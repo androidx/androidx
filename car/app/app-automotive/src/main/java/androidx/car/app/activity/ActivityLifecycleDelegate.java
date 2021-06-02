@@ -108,7 +108,7 @@ final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
             return;
         }
 
-        mServiceDispatcher.dispatch(() -> {
+        mServiceDispatcher.dispatch(event.name(), () -> {
             switch (event) {
                 case ON_CREATE:
                     callback.onCreate();
