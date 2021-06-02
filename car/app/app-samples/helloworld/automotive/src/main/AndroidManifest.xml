@@ -42,23 +42,18 @@
           <intent-filter>
             <action android:name="androidx.car.app.CarAppService" />
           </intent-filter>
-          <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
-              android:value="androidx.car.app.sample.helloworld.common.HelloWorld" />
         </service>
 
-        <activity-alias
-            android:enabled="true"
+        <activity
+            android:name="androidx.car.app.activity.CarAppActivity"
             android:exported="true"
-            android:label="Hello World"
-            android:name="HelloWorld"
-            android:targetActivity="androidx.car.app.activity.CarAppActivity" >
-          <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-          </intent-filter>
-          <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
-              android:value="androidx.car.app.sample.helloworld.common.HelloWorldService" />
-          <meta-data android:name="distractionOptimized" android:value="true"/>
-        </activity-alias>
+            android:label="Hello World">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
     </application>
 </manifest>
