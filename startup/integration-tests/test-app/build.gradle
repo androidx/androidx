@@ -22,8 +22,6 @@ plugins {
     id("kotlin-android")
 }
 
-project.ext.noDocs = true
-
 android {
     buildTypes {
         getByName("release") {
@@ -33,7 +31,7 @@ android {
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
     implementation(project(":startup:integration-tests:first-library"))
     implementation(project(":startup:integration-tests:second-library"))
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
