@@ -1,6 +1,4 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -11,11 +9,11 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
-    annotationProcessor(NULLAWAY)
+    annotationProcessor(libs.nullaway)
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
