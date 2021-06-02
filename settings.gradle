@@ -307,6 +307,7 @@ includeProject(":compose:integration-tests:macrobenchmark-target", "compose/inte
 includeProject(":compose:lint", "compose/lint", [BuildType.COMPOSE])
 includeProject(":compose:lint:internal-lint-checks", "compose/lint/internal-lint-checks", [BuildType.COMPOSE])
 includeProject(":compose:lint:common", "compose/lint/common", [BuildType.COMPOSE])
+includeProject(":compose:lint:common-test", "compose/lint/common-test", [BuildType.COMPOSE])
 includeProject(":compose:material", "compose/material", [BuildType.COMPOSE])
 includeProject(":compose:material:material", "compose/material/material", [BuildType.COMPOSE])
 includeProject(":compose:material:material-benchmark", "compose/material/material/benchmark", [BuildType.COMPOSE])
