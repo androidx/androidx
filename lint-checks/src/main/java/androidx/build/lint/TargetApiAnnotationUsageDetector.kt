@@ -29,7 +29,10 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UAnnotation
 
-class BanTargetApiAnnotation : Detector(), Detector.UastScanner {
+/**
+ * Enforces policy banning use of the `@TargetApi` annotation.
+ */
+class TargetApiAnnotationUsageDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
 
@@ -42,7 +45,14 @@ class BanTargetApiAnnotation : Detector(), Detector.UastScanner {
             if (node.qualifiedName == "android.annotation.TargetApi") {
                 context.report(
                     ISSUE, node, context.getNameLocation(node),
-                    "Uses @TargetApi annotation"
+                    "Use `@RequiresApi` instead of `@TargetApi`",
+                    fix().name("Replace with `@RequiresApi`")
+                        .replace()
+                        .pattern("(?:android\\.annotation\\.)?TargetApi")
+                        .with("androidx.annotation.RequiresApi")
+                        .shortenNames()
+                        .autoFix(true, true)
+                        .build(),
                 )
             }
         }
@@ -51,11 +61,13 @@ class BanTargetApiAnnotation : Detector(), Detector.UastScanner {
     companion object {
         val ISSUE = Issue.create(
             "BanTargetApiAnnotation",
-            "Uses @TargetApi annotation",
-            "Use of @TargetApi annotation is not allowed, please consider " +
-                "using the @RequiresApi annotation instead.",
+            "Replace usage of `@TargetApi` with `@RequiresApi`",
+            "The `@TargetApi` annotation satisfies the `NewApi` lint check, but it does " +
+                "not ensure that calls to the annotated API are correctly guarded on an `SDK_INT`" +
+                " (or equivalent) check. Instead, use the `@RequiresApi` annotation to ensure " +
+                "that all calls are correctly guarded.",
             Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanTargetApiAnnotation::class.java, Scope.JAVA_FILE_SCOPE)
+            Implementation(TargetApiAnnotationUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
     }
 }

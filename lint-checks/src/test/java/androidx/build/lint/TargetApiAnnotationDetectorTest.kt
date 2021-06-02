@@ -23,9 +23,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanTargetApiAnnotationTest : AbstractLintDetectorTest(
-    useDetector = BanTargetApiAnnotation(),
-    useIssues = listOf(BanTargetApiAnnotation.ISSUE),
+class TargetApiAnnotationDetectorTest : AbstractLintDetectorTest(
+    useDetector = TargetApiAnnotationUsageDetector(),
+    useIssues = listOf(TargetApiAnnotationUsageDetector.ISSUE),
 ) {
 
     @Test
@@ -36,10 +36,10 @@ class BanTargetApiAnnotationTest : AbstractLintDetectorTest(
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/TargetApiUsageJava.java:22: Error: Uses @TargetApi annotation [BanTargetApiAnnotation]
+src/androidx/TargetApiUsageJava.java:22: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
 @TargetApi(29)
 ~~~~~~~~~~~~~~
-src/androidx/TargetApiUsageJava.java:25: Error: Uses @TargetApi annotation [BanTargetApiAnnotation]
+src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
     @TargetApi(30)
     ~~~~~~~~~~~~~~
 2 errors, 0 warnings

@@ -13,17 +13,6 @@
     </issue>
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Uses @TargetApi annotation"
-        errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
-            line="47"
-            column="5"/>
-    </issue>
-
-    <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 20; however, the containing class androidx.slice.widget.ActionRow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (input.getRemoteInput().getAllowFreeFormInput()) {"
