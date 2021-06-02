@@ -58,9 +58,10 @@ internal class WindowInfoRepoImp(
      * @see maximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
-    override fun currentWindowMetrics(): WindowMetrics {
-        return WindowMetrics(windowBoundsHelper.computeCurrentWindowBounds(activity))
-    }
+    override val currentWindowMetrics: WindowMetrics
+        get() {
+            return WindowMetrics(windowBoundsHelper.computeCurrentWindowBounds(activity))
+        }
 
     /**
      * Returns the largest [WindowMetrics] an app may expect in the current system state.
@@ -87,18 +88,20 @@ internal class WindowInfoRepoImp(
      * @see currentWindowMetrics
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    override fun maximumWindowMetrics(): WindowMetrics {
-        return WindowMetrics(windowBoundsHelper.computeMaximumWindowBounds(activity))
-    }
+    override val maximumWindowMetrics: WindowMetrics
+        get() {
+            return WindowMetrics(windowBoundsHelper.computeMaximumWindowBounds(activity))
+        }
 
     /**
      * A [Flow] of window layout changes in the current visual [Context].
      *
      * @see Activity.onAttachedToWindow
      */
-    override fun windowLayoutInfo(): Flow<WindowLayoutInfo> = callbackFlow {
-        val callback = Consumer<WindowLayoutInfo> { info -> offer(info) }
-        windowBackend.registerLayoutChangeCallback(activity, Runnable::run, callback)
-        awaitClose { windowBackend.unregisterLayoutChangeCallback(callback) }
-    }.buffer(capacity = UNLIMITED)
+    override val windowLayoutInfo: Flow<WindowLayoutInfo>
+        get() = callbackFlow {
+            val callback = Consumer<WindowLayoutInfo> { info -> offer(info) }
+            windowBackend.registerLayoutChangeCallback(activity, Runnable::run, callback)
+            awaitClose { windowBackend.unregisterLayoutChangeCallback(callback) }
+        }.buffer(capacity = UNLIMITED)
 }

@@ -17,10 +17,38 @@ package androidx.window
 
 import android.app.Activity
 import android.os.IBinder
+import android.os.Looper
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * A utility method [Activity] to return an optional [IBinder] window token from an [Activity].
  */
 internal fun getActivityWindowToken(activity: Activity?): IBinder? {
     return activity?.window?.attributes?.token
+}
+
+internal inline fun <reified T> Activity.getTag(id: Int): T? {
+    return window.decorView.getTag(id) as? T
+}
+
+/**
+ * Checks to see if an object of type [T] is associated with the tag [id]. If it is available
+ * then it is returned. Otherwise set an object crated using the [producer] and return that value.
+ * @return object associated with the tag.
+ */
+internal inline fun <reified T> Activity.getOrCreateTag(id: Int, producer: () -> T): T {
+    return (window.decorView.getTag(id) as? T) ?: run {
+        assert(Looper.getMainLooper() == Looper.myLooper())
+        val value = producer()
+        window.decorView.setTag(id, value)
+        value
+    }
+}
+
+/**
+ * Provide an instance of [WindowInfoRepo] that is associated to the given [Activity]
+ */
+@ExperimentalCoroutinesApi
+public fun Activity.windowInfoRepository(): WindowInfoRepo {
+    return WindowInfoRepo.create(this)
 }

@@ -41,9 +41,24 @@ package androidx.window {
   }
 
   public interface WindowInfoRepo {
-    method public androidx.window.WindowMetrics currentWindowMetrics();
-    method public androidx.window.WindowMetrics maximumWindowMetrics();
-    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo();
+    method public androidx.window.WindowMetrics getCurrentWindowMetrics();
+    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
+    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.WindowInfoRepoDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
+    property public abstract androidx.window.WindowMetrics currentWindowMetrics;
+    property public abstract androidx.window.WindowMetrics maximumWindowMetrics;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo;
+    field public static final androidx.window.WindowInfoRepo.Companion Companion;
+  }
+
+  public static final class WindowInfoRepo.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.WindowInfoRepoDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepoDecorator {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.WindowInfoRepo decorate(androidx.window.WindowInfoRepo repo);
   }
 
   public final class WindowLayoutInfo {
@@ -70,9 +85,6 @@ package androidx.window {
     ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
     property public final android.graphics.Rect bounds;
-  }
-
-  public final class WindowServices {
   }
 
 }
