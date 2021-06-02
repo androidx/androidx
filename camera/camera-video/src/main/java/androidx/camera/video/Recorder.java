@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides functionality to generate {@link PendingRecording} and record video to the location
@@ -189,6 +190,12 @@ public final class Recorder implements VideoOutput {
     boolean mMuted = false;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Uri mOutputUri = Uri.EMPTY;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mRecordingBytes = 0L;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mRecordingDurationNs = 0L;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mFirstRecordingVideoDataTimeUs = 0L;
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
         mExecutor = executor != null ? executor : CameraXExecutors.ioExecutor();
@@ -653,6 +660,8 @@ public final class Recorder implements VideoOutput {
                     return;
                 }
 
+                mRecordingBytes += encodedData.size();
+
                 Preconditions.checkNotNull(mMediaMuxer).writeSampleData(mAudioTrackIndex,
                         encodedData.getByteBuffer(), encodedData.getBufferInfo());
                 encodedData.close();
@@ -794,15 +803,21 @@ public final class Recorder implements VideoOutput {
                     return;
                 }
 
+                if (mFirstRecordingVideoDataTimeUs == 0L) {
+                    mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
+                }
+                mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                        encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
+                mRecordingBytes += encodedData.size();
+
                 Preconditions.checkNotNull(mMediaMuxer).writeSampleData(mVideoTrackIndex,
                         encodedData.getByteBuffer(), encodedData.getBufferInfo());
                 encodedData.close();
 
-                // TODO: generate event status.
                 updateVideoRecordEvent(
                         VideoRecordEvent.status(
                                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                                RecordingStats.EMPTY_STATS));
+                                getCurrentRecordingStats()));
             }
 
             @Override
@@ -918,7 +933,7 @@ public final class Recorder implements VideoOutput {
 
         updateVideoRecordEvent(VideoRecordEvent.start(
                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                RecordingStats.EMPTY_STATS));
+                getCurrentRecordingStats()));
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -928,7 +943,7 @@ public final class Recorder implements VideoOutput {
 
         updateVideoRecordEvent(VideoRecordEvent.pause(
                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                RecordingStats.EMPTY_STATS));
+                getCurrentRecordingStats()));
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -938,7 +953,7 @@ public final class Recorder implements VideoOutput {
 
         updateVideoRecordEvent(VideoRecordEvent.resume(
                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                RecordingStats.EMPTY_STATS));
+                getCurrentRecordingStats()));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -958,16 +973,19 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     void finalizeRecordingWithError(@VideoRecordEvent.VideoRecordError int error,
             @Nullable Throwable throwable) {
-        // TODO: report the recording stats.
+        OutputOptions outputOptions =
+                Preconditions.checkNotNull(mRunningRecording).getOutputOptions();
+        RecordingStats stats = getCurrentRecordingStats();
+        OutputResults outputResults = OutputResults.of(mOutputUri);
         updateVideoRecordEvent(error == VideoRecordEvent.ERROR_NONE
                 ? VideoRecordEvent.finalize(
-                        Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                        RecordingStats.EMPTY_STATS,
-                        OutputResults.of(mOutputUri))
+                        outputOptions,
+                        stats,
+                        outputResults)
                 : VideoRecordEvent.finalizeWithError(
-                        Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                        RecordingStats.EMPTY_STATS,
-                        OutputResults.of(mOutputUri),
+                        outputOptions,
+                        stats,
+                        outputResults,
                         error,
                         throwable));
 
@@ -983,6 +1001,9 @@ public final class Recorder implements VideoOutput {
         mEncodingCompleters.clear();
         mRunningRecording = null;
         mOutputUri = Uri.EMPTY;
+        mRecordingBytes = 0L;
+        mRecordingDurationNs = 0L;
+        mFirstRecordingVideoDataTimeUs = 0L;
 
         synchronized (mLock) {
             if (getObservableData(mState) == State.RELEASING) {
@@ -1012,6 +1033,13 @@ public final class Recorder implements VideoOutput {
         if (mRunningRecording != null) {
             mRunningRecording.updateVideoRecordEvent(event);
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mSequentialExecutor")
+    @NonNull
+    RecordingStats getCurrentRecordingStats() {
+        return RecordingStats.of(mRecordingDurationNs, mRecordingBytes);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
