@@ -19,6 +19,7 @@ package androidx.room
 import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
+import androidx.sqlite.db.SupportSQLiteCompat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -90,7 +91,7 @@ public class CoroutinesRoom private constructor() {
                 }
                 continuation.invokeOnCancellation {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        cancellationSignal.cancel()
+                        SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)
                     }
                     job.cancel()
                 }

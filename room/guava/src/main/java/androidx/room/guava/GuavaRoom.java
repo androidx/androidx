@@ -26,6 +26,7 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -122,7 +123,7 @@ public class GuavaRoom {
                 @Override
                 public void run() {
                     if (future.isCancelled()) {
-                        cancellationSignal.cancel();
+                        SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal);
                     }
                 }
             }, sDirectExecutor);

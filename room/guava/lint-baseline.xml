@@ -2,17 +2,6 @@
 <issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        cancellationSignal.cancel();"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="125"
-            column="44"/>
-    </issue>
-
-    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;callable&quot;, in androidx.room.guava.GuavaRoom.createListenableFuture) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            final boolean releaseQuery) {"
