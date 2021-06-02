@@ -388,6 +388,14 @@ class ChipColorTest {
         )
 
     @Test
+    fun gives_primary_gradient_enabled_colors() =
+        verifyGradientBackgroundColors(
+            TestChipColors.PrimaryGradient,
+            ChipStatus.Enabled,
+            { MaterialTheme.colors.onPrimary },
+        )
+
+    @Test
     fun three_slot_layout_gives_primary_enabled_colors() =
         verifySlotColors(
             TestChipColors.Primary,
@@ -440,6 +448,15 @@ class ChipColorTest {
         )
 
     @Test
+    fun gives_child_enabled_colors() =
+        verifyColors(
+            TestChipColors.Child,
+            ChipStatus.Enabled,
+            { Color.Transparent },
+            { MaterialTheme.colors.onSurface }
+        )
+
+    @Test
     fun three_slot_layout_gives_secondary_enabled_colors() =
         verifySlotColors(
             TestChipColors.Secondary,
@@ -456,6 +473,15 @@ class ChipColorTest {
             TestChipColors.Secondary,
             ChipStatus.Disabled,
             { MaterialTheme.colors.surface },
+            { MaterialTheme.colors.onSurface }
+        )
+
+    @Test
+    fun gives_child_disabled_colors() =
+        verifyColors(
+            TestChipColors.Child,
+            ChipStatus.Disabled,
+            { Color.Transparent },
             { MaterialTheme.colors.onSurface }
         )
 
@@ -618,6 +644,42 @@ class ChipColorTest {
         }
 
         assertEquals(overrideColor, actualContentColor)
+    }
+
+    private fun verifyGradientBackgroundColors(
+        testChipColors: TestChipColors,
+        status: ChipStatus,
+        contentColor: @Composable () -> Color
+    ) {
+        var expectedContent = Color.Transparent
+        var actualContent = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            if (status.enabled()) {
+                expectedContent = contentColor()
+            } else {
+                expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(testBackground)
+            ) {
+                Chip(
+                    onClick = {},
+                    colors = testChipColors.chipColors(),
+                    content = { actualContent = LocalContentColor.current },
+                    enabled = status.enabled(),
+                    modifier = Modifier.testTag("test-item")
+                )
+            }
+        }
+
+        assertEquals(expectedContent, actualContent)
+
+        // Background checks are clearly missing here. There is no good way to check that
+        // a gradient background matches with this approach.
     }
 
     private fun verifyColors(
@@ -847,9 +909,19 @@ private enum class TestChipColors {
             return ChipDefaults.primaryChipColors()
         }
     },
+    PrimaryGradient {
+        @Composable override fun chipColors(): ChipColors {
+            return ChipDefaults.gradientBackgroundChipColors()
+        }
+    },
     Secondary {
         @Composable override fun chipColors(): ChipColors {
             return ChipDefaults.secondaryChipColors()
+        }
+    },
+    Child {
+        @Composable override fun chipColors(): ChipColors {
+            return ChipDefaults.childChipColors()
         }
     };
 
