@@ -36,7 +36,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -196,7 +195,6 @@ public class CameraGraphSimulatorTest {
         assertThat(lossEvent.streamId).isEqualTo(stream.id)
     }
 
-    @Ignore // TODO(b/188446185): flaky
     @Test
     fun simulatorCanIssueMultipleFrames() = runBlocking {
         val listener = FakeRequestListener()
