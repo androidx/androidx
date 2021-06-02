@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -25,10 +26,36 @@ import java.util.concurrent.Executor;
 /**
  * A recording that can be started at a future time.
  */
-public final class PendingRecording extends Recording {
+public final class PendingRecording {
+
+    private final Recorder mRecorder;
+    private final OutputOptions mOutputOptions;
+    private Consumer<VideoRecordEvent> mEventListener;
+    private Executor mCallbackExecutor;
 
     PendingRecording(@NonNull Recorder recorder, @NonNull OutputOptions options) {
-        super(recorder, options, null, null);
+        mRecorder = recorder;
+        mOutputOptions = options;
+    }
+
+    @NonNull
+    Recorder getRecorder() {
+        return mRecorder;
+    }
+
+    @NonNull
+    OutputOptions getOutputOptions() {
+        return mOutputOptions;
+    }
+
+    @Nullable
+    Executor getCallbackExecutor() {
+        return mCallbackExecutor;
+    }
+
+    @Nullable
+    Consumer<VideoRecordEvent> getEventListener() {
+        return mEventListener;
     }
 
     /**
@@ -43,8 +70,8 @@ public final class PendingRecording extends Recording {
             @NonNull Consumer<VideoRecordEvent> listener) {
         Preconditions.checkNotNull(callbackExecutor, "CallbackExecutor can't be null.");
         Preconditions.checkNotNull(listener, "Event listener can't be null");
-        setCallbackExecutor(callbackExecutor);
-        setEventListener(listener);
+        mCallbackExecutor = callbackExecutor;
+        mEventListener = listener;
         return this;
     }
 
@@ -59,6 +86,6 @@ public final class PendingRecording extends Recording {
      */
     @NonNull
     public ActiveRecording start() {
-        return getRecorder().start(this);
+        return mRecorder.start(this);
     }
 }
