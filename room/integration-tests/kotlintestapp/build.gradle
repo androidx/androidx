@@ -20,8 +20,6 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -93,9 +91,9 @@ dependencies {
     implementation(projectOrArtifact(":arch:core:core-runtime"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
-    implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_COROUTINES_ANDROID)
-    implementation(MULTIDEX)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.multidex)
     // depend on the shadowed version so that it tests with the shipped artifact
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
     if (useKsp) {
@@ -109,17 +107,17 @@ dependencies {
     }
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER) {
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner) {
         exclude module: "support-annotations"
         exclude module: "hamcrest-core"
     }
-    androidTestImplementation(ESPRESSO_CORE, {
+    androidTestImplementation(libs.espressoCore, {
         exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
@@ -127,9 +125,9 @@ dependencies {
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
-    androidTestImplementation(GUAVA_ANDROID)
-    androidTestImplementation(RX_JAVA)
-    testImplementation(MOCKITO_CORE)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.rxjava2)
+    testImplementation(libs.mockitoCore)
 }
 
 if (useKsp) {

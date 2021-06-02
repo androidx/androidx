@@ -99,7 +99,7 @@ find -iname build.gradle | xargs sed -i "s/ANDROIDX_TEST_UIAUTOMATOR/libs.testUi
 find -iname build.gradle | xargs sed -i "s/TRUTH/libs.truth/"
 find -iname build.gradle | xargs sed -i "s/VIEW_BINDING/libs.viewBinding/"
 find -iname build.gradle | xargs sed -i "s/WIRE_RUNTIME/libs.wireRuntime/"
-find -iname build.gradle | xargs sed -i "s/XERIAL/libs.xerial/"
+find -iname build.gradle | xargs sed -i "s/XERIAL/libs.sqliteJdbc/"
 find -iname build.gradle | xargs sed -i "s/XPP3/libs.xpp3/"
 find -iname build.gradle | xargs sed -i "s/XMLPULL/libs.xmlpull/"
 find -iname build.gradle | xargs sed -i "s/JUNIT/libs.junit/"
