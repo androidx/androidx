@@ -176,8 +176,6 @@ public class EncoderImpl implements Encoder {
     Range<Long> mStartStopTimeRangeUs = NO_RANGE;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mTotalPausedDurationUs = 0L;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    boolean mDropVideoFrame = false;
 
     final EncoderFinder mEncoderFinder = new EncoderFinder();
     /**
@@ -239,7 +237,6 @@ public class EncoderImpl implements Encoder {
         mStartStopTimeRangeUs = NO_RANGE;
         mTotalPausedDurationUs = 0L;
         mActivePauseResumeTimeRanges.clear();
-        mDropVideoFrame = false;
         mFreeInputBufferIndexQueue.clear();
 
         // Cancel incomplete acquisitions if exists.
@@ -499,8 +496,9 @@ public class EncoderImpl implements Encoder {
         mMediaCodec.setParameters(bundle);
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mEncoderExecutor")
-    private void requestKeyFrame() {
+    void requestKeyFrame() {
         Bundle bundle = new Bundle();
         bundle.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
         mMediaCodec.setParameters(bundle);
@@ -681,31 +679,6 @@ public class EncoderImpl implements Encoder {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mEncoderExecutor")
-    boolean shouldDropBufferByPaused(@NonNull MediaCodec.BufferInfo bufferInfo) {
-        if (mIsVideoEncoder) {
-            // Update drop status only when meet a key frame because a complete frame series
-            // (I+P-frames) should be kept to avoid "shattered" transitioning effect.
-            if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0) {
-                boolean isInPauseRange = isInPauseRange(bufferInfo.presentationTimeUs);
-                if (!mDropVideoFrame && isInPauseRange) {
-                    mDropVideoFrame = true;
-
-                    // Dropping from MediaCodec if surface-input is used.
-                    if (mEncoderInput instanceof SurfaceInput) {
-                        setMediaCodecPaused(true);
-                    }
-                } else if (mDropVideoFrame && !isInPauseRange) {
-                    mDropVideoFrame = false;
-                }
-            }
-            return mDropVideoFrame;
-        } else {
-            return isInPauseRange(bufferInfo.presentationTimeUs);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mEncoderExecutor")
     boolean isInPauseRange(long timeUs) {
         for (Range<Long> range : mActivePauseResumeTimeRanges) {
             if (range.contains(timeUs)) {
@@ -786,6 +759,16 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static boolean isKeyFrame(@NonNull MediaCodec.BufferInfo bufferInfo) {
+        return (bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static boolean isEndOfStream(@NonNull MediaCodec.BufferInfo bufferInfo) {
+        return (bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class InternalStateObservable implements Observable<InternalState> {
 
         private final Map<Observer<? super InternalState>, Executor> mObservers =
@@ -828,6 +811,14 @@ public class EncoderImpl implements Encoder {
 
         private boolean mHasFirstData = false;
         private boolean mHasEndData = false;
+        /** The last presentation time of BufferInfo without modified. */
+        private long mLastPresentationTimeUs = 0L;
+        /**
+         * The last sent presentation time of BufferInfo. The value could be adjusted by total
+         * pause duration.
+         */
+        private long mLastSentPresentationTimeUs = 0L;
+        private boolean mIsOutputBufferInPauseState = false;
 
         @Override
         public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
@@ -885,26 +876,7 @@ public class EncoderImpl implements Encoder {
                             }
                         }
 
-                        // Ignore the output buffer for some cases, set the buffer size to 0 to
-                        // ignore the output buffer.
-                        if (mHasEndData
-                                // Sometimes the codec config data was notified by output callback,
-                                // they have been sent out by onOutputFormatChanged(), so ignore it.
-                                || (bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0
-                                // Ignore buffers are not in start/stop range. One situation is
-                                // to ignore outdated frames when using the Surface of
-                                // MediaCodec#createPersistentInputSurface. After the persistent
-                                // Surface stops, it will keep a small number of old frames in
-                                // its buffer, and send those old frames in the next startup.
-                                || !mStartStopTimeRangeUs.contains(bufferInfo.presentationTimeUs)
-                                // Ignore those buffers during paused duration.
-                                || shouldDropBufferByPaused(bufferInfo)
-                        ) {
-                            bufferInfo.size = 0;
-                        }
-
-                        if (bufferInfo.size > 0) {
-                            updateTotalPausedDuration(bufferInfo.presentationTimeUs);
+                        if (!shouldDropBuffer(bufferInfo)) {
                             if (mTotalPausedDurationUs > 0) {
                                 bufferInfo.presentationTimeUs -= mTotalPausedDurationUs;
                                 if (DEBUG) {
@@ -912,39 +884,16 @@ public class EncoderImpl implements Encoder {
                                             + DebugUtils.readableUs(bufferInfo.presentationTimeUs));
                                 }
                             }
-                            EncodedDataImpl encodedData;
+
+                            mLastSentPresentationTimeUs = bufferInfo.presentationTimeUs;
+
                             try {
-                                encodedData = new EncodedDataImpl(mediaCodec, index, bufferInfo);
+                                EncodedDataImpl encodedData = new EncodedDataImpl(mediaCodec, index,
+                                        bufferInfo);
+                                sendEncodedData(encodedData, encoderCallback, executor);
                             } catch (MediaCodec.CodecException e) {
                                 handleEncodeError(e);
                                 return;
-                            }
-                            // Propagate data
-                            mEncodedDataSet.add(encodedData);
-                            Futures.addCallback(encodedData.getClosedFuture(),
-                                    new FutureCallback<Void>() {
-                                        @Override
-                                        public void onSuccess(@Nullable Void result) {
-                                            mEncodedDataSet.remove(encodedData);
-                                        }
-
-                                        @Override
-                                        public void onFailure(Throwable t) {
-                                            mEncodedDataSet.remove(encodedData);
-                                            if (t instanceof MediaCodec.CodecException) {
-                                                handleEncodeError(
-                                                        (MediaCodec.CodecException) t);
-                                            } else {
-                                                handleEncodeError(EncodeException.ERROR_UNKNOWN,
-                                                        t.getMessage(), t);
-                                            }
-                                        }
-                                    }, mEncoderExecutor);
-                            try {
-                                executor.execute(() -> encoderCallback.onEncodedData(encodedData));
-                            } catch (RejectedExecutionException e) {
-                                Logger.e(mTag, "Unable to post to the supplied executor.", e);
-                                encodedData.close();
                             }
                         } else {
                             try {
@@ -956,22 +905,19 @@ public class EncoderImpl implements Encoder {
                         }
 
                         // Handle end of stream
-                        if (!mHasEndData) {
-                            if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                                mHasEndData = true;
-                                stopMediaCodec(() -> {
-                                    if (mState == ERROR) {
-                                        // Error occur during stopping.
-                                        return;
-                                    }
-                                    try {
-                                        executor.execute(encoderCallback::onEncodeStop);
-                                    } catch (RejectedExecutionException e) {
-                                        Logger.e(mTag, "Unable to post to the supplied executor.",
-                                                e);
-                                    }
-                                });
-                            }
+                        if (!mHasEndData && isEndOfStream(bufferInfo)) {
+                            mHasEndData = true;
+                            stopMediaCodec(() -> {
+                                if (mState == ERROR) {
+                                    // Error occur during stopping.
+                                    return;
+                                }
+                                try {
+                                    executor.execute(encoderCallback::onEncodeStop);
+                                } catch (RejectedExecutionException e) {
+                                    Logger.e(mTag, "Unable to post to the supplied executor.", e);
+                                }
+                            });
                         }
                         break;
                     case CONFIGURED:
@@ -983,6 +929,122 @@ public class EncoderImpl implements Encoder {
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
             });
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        private void sendEncodedData(@NonNull EncodedDataImpl encodedData,
+                @NonNull EncoderCallback callback, @NonNull Executor executor) {
+            mEncodedDataSet.add(encodedData);
+            Futures.addCallback(encodedData.getClosedFuture(),
+                    new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                            mEncodedDataSet.remove(encodedData);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            mEncodedDataSet.remove(encodedData);
+                            if (t instanceof MediaCodec.CodecException) {
+                                handleEncodeError(
+                                        (MediaCodec.CodecException) t);
+                            } else {
+                                handleEncodeError(EncodeException.ERROR_UNKNOWN,
+                                        t.getMessage(), t);
+                            }
+                        }
+                    }, mEncoderExecutor);
+            try {
+                executor.execute(() -> callback.onEncodedData(encodedData));
+            } catch (RejectedExecutionException e) {
+                Logger.e(mTag, "Unable to post to the supplied executor.", e);
+                encodedData.close();
+            }
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        private boolean shouldDropBuffer(@NonNull MediaCodec.BufferInfo bufferInfo) {
+            if (mHasEndData) {
+                Logger.d(mTag, "Drop buffer by already reach end of stream.");
+                return true;
+            }
+
+            if (bufferInfo.size <= 0) {
+                Logger.d(mTag, "Drop buffer by invalid buffer size.");
+                return true;
+            }
+
+            // Sometimes the codec config data was notified by output callback, they should have
+            // been sent out by onOutputFormatChanged(), so ignore it.
+            if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+                Logger.d(mTag, "Drop buffer by codec config.");
+                return true;
+            }
+
+            // MediaCodec may send out of order buffer
+            if (bufferInfo.presentationTimeUs <= mLastPresentationTimeUs) {
+                Logger.d(mTag, "Drop buffer by out of order buffer from MediaCodec.");
+                return true;
+            }
+            mLastPresentationTimeUs = bufferInfo.presentationTimeUs;
+
+            // Ignore buffers are not in start/stop range. One situation is to ignore outdated
+            // frames when using the Surface of MediaCodec#createPersistentInputSurface. After
+            // the persistent Surface stops, it will keep a small number of old frames in its
+            // buffer, and send those old frames in the next startup.
+            if (!mStartStopTimeRangeUs.contains(bufferInfo.presentationTimeUs)) {
+                Logger.d(mTag, "Drop buffer by not in start-stop range.");
+                return true;
+            }
+
+            if (updatePauseRangeStateAndCheckIfBufferPaused(bufferInfo)) {
+                Logger.d(mTag, "Drop buffer by pause.");
+                return true;
+            }
+
+            return false;
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        private boolean updatePauseRangeStateAndCheckIfBufferPaused(
+                @NonNull MediaCodec.BufferInfo bufferInfo) {
+            boolean isInPauseRange = isInPauseRange(bufferInfo.presentationTimeUs);
+            if (!mIsOutputBufferInPauseState && isInPauseRange) {
+                Logger.d(mTag, "Switch to pause state");
+                // From resume to pause
+                mIsOutputBufferInPauseState = true;
+
+                // Pause by MediaCodec if surface-input is used. It has to ensure the current
+                // state is PAUSED state because start() could be called before the output buffer
+                // reach pause range.
+                if (mEncoderInput instanceof SurfaceInput && mState == PAUSED) {
+                    setMediaCodecPaused(true);
+                }
+            } else if (mIsOutputBufferInPauseState && !isInPauseRange) {
+                // From pause to resume
+                updateTotalPausedDuration(bufferInfo.presentationTimeUs);
+
+                if (mIsVideoEncoder && !isKeyFrame(bufferInfo)) {
+                    // If a video frame is not a key frame, do not switch to resume state.
+                    // This is because a key frame is required to be the first encoded data
+                    // after resume, otherwise output video will have "shattered" transitioning
+                    // effect.
+                    Logger.d(mTag, "Not a key frame, don't switch to resume state.");
+                    requestKeyFrame();
+                } else {
+                    // It should check if the adjusted time is valid before switch to resume.
+                    // It may get invalid adjusted time, see b/189114207.
+                    long adjustedTimeUs = bufferInfo.presentationTimeUs - mTotalPausedDurationUs;
+                    if (adjustedTimeUs > mLastSentPresentationTimeUs) {
+                        Logger.d(mTag, "Switch to resume state");
+                        mIsOutputBufferInPauseState = false;
+                    } else {
+                        Logger.d(mTag, "Adjusted time by pause duration is invalid.");
+                    }
+                }
+            }
+
+            return mIsOutputBufferInPauseState;
         }
 
         @Override
