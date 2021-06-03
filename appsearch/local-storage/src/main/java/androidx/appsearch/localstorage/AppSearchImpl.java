@@ -204,12 +204,12 @@ public final class AppSearchImpl implements Closeable {
      * @param logger collects stats for initialization if provided.
      */
     @NonNull
-    public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context context,
+    public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context userContext,
             @Nullable UserHandle callerUserHandle, @Nullable AppSearchLogger logger,
             @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
-        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(userContext);
         Preconditions.checkNotNull(optimizeStrategy);
 
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
@@ -219,7 +219,7 @@ public final class AppSearchImpl implements Closeable {
         }
 
         AppSearchImpl appSearchImpl =
-                new AppSearchImpl(icingDir, context, callerUserHandle, initStatsBuilder,
+                new AppSearchImpl(icingDir, userContext, callerUserHandle, initStatsBuilder,
                         optimizeStrategy);
 
         long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
@@ -242,7 +242,7 @@ public final class AppSearchImpl implements Closeable {
     /**
      * @param initStatsBuilder collects stats for initialization if provided.
      */
-    private AppSearchImpl(@NonNull File icingDir, @NonNull Context context,
+    private AppSearchImpl(@NonNull File icingDir, @NonNull Context userContext,
             @Nullable UserHandle callerUserHandle,
             @Nullable InitializeStats.Builder initStatsBuilder,
             @NonNull OptimizeStrategy optimizeStrategy) throws AppSearchException {
@@ -260,7 +260,7 @@ public final class AppSearchImpl implements Closeable {
                     ObjectsCompat.hashCode(mIcingSearchEngineLocked));
 
             mVisibilityStoreLocked =
-                    new VisibilityStore(this, context, callerUserHandle);
+                    new VisibilityStore(this, userContext, callerUserHandle);
             mOptimizeStrategy = optimizeStrategy;
 
             // The core initialization procedure. If any part of this fails, we bail into
