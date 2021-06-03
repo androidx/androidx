@@ -89,7 +89,7 @@ dependencies {
     docs("androidx.core:core-animation:1.0.0-alpha02")
     docs("androidx.core:core-animation-testing:1.0.0-alpha02")
     docs("androidx.core:core:1.6.0-rc01")
-    docs("androidx.core:core-ktx:1.6.0-beta02")
+    docs("androidx.core:core-ktx:1.6.0-rc01")
     docs("androidx.cursoradapter:cursoradapter:1.0.0")
     docs("androidx.customview:customview:1.1.0")
     docs("androidx.datastore:datastore:1.0.0-beta01")
