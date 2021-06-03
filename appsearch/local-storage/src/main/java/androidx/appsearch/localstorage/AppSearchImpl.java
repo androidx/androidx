@@ -772,6 +772,9 @@ public final class AppSearchImpl implements Closeable {
             if (!filterPackageNames.isEmpty() && !filterPackageNames.contains(packageName)) {
                 // Client wanted to query over some packages that weren't its own. This isn't
                 // allowed through local query so we can return early with no results.
+                if (logger != null) {
+                    sStatsBuilder.setStatusCode(AppSearchResult.RESULT_SECURITY_ERROR);
+                }
                 return new SearchResultPage(Bundle.EMPTY);
             }
 
