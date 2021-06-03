@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.GUAVA_ANDROID
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -30,7 +28,7 @@ android {
 dependencies {
     implementation(project(":car:app:app"))
 
-    implementation(GUAVA_ANDROID)
+    implementation(libs.guavaAndroid)
 
     implementation("androidx.core:core:1.5.0-alpha01")
 }
