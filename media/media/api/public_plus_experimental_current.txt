@@ -530,7 +530,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesCompat") public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
+  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
@@ -594,8 +594,8 @@ package androidx.media {
 
   public final class AudioManagerCompat {
     method public static int abandonAudioFocusRequest(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
-    method @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, @androidx.core.app.NotificationCompat.StreamType int);
-    method @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, @androidx.core.app.NotificationCompat.StreamType int);
+    method @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, int);
+    method @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, int);
     method public static int requestAudioFocus(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
     field public static final int AUDIOFOCUS_GAIN = 1; // 0x1
     field public static final int AUDIOFOCUS_GAIN_TRANSIENT = 2; // 0x2

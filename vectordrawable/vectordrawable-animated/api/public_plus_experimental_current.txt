@@ -13,7 +13,7 @@ package androidx.vectordrawable.graphics.drawable {
     method public void onAnimationStart(android.graphics.drawable.Drawable!);
   }
 
-  public class AnimatedVectorDrawableCompat extends android.graphics.drawable.Drawable implements androidx.vectordrawable.graphics.drawable.Animatable2Compat androidx.core.graphics.drawable.TintAwareDrawable {
+  public class AnimatedVectorDrawableCompat extends android.graphics.drawable.Drawable implements androidx.vectordrawable.graphics.drawable.Animatable2Compat {
     method public void clearAnimationCallbacks();
     method public static void clearAnimationCallbacks(android.graphics.drawable.Drawable!);
     method public static androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat? create(android.content.Context, @DrawableRes int);

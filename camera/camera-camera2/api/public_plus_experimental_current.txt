@@ -33,17 +33,15 @@ package androidx.camera.camera2.interop {
     method public androidx.camera.camera2.interop.Camera2Interop.Extender<T!> setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback);
   }
 
-  @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions implements androidx.camera.core.impl.ReadableConfig {
+  @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
     ctor public CaptureRequestOptions(androidx.camera.core.impl.Config);
     method public <ValueT> ValueT? getCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.camera.core.impl.Config getConfig();
   }
 
   public static final class CaptureRequestOptions.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.camera2.interop.CaptureRequestOptions> {
     ctor public CaptureRequestOptions.Builder();
     method public androidx.camera.camera2.interop.CaptureRequestOptions build();
     method public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.camera.core.impl.MutableConfig getMutableConfig();
     method public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>, ValueT);
   }
 
