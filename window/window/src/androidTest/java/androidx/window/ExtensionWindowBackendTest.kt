@@ -185,6 +185,26 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
         assertEquals(expected, consumer.values)
     }
 
+    @Test
+    public fun testWindowLayoutInfo_secondCallbackUpdatesOnRegistration() {
+        val interfaceCompat = SwitchOnUnregisterExtensionInterfaceCompat()
+        val backend = ExtensionWindowBackend(interfaceCompat)
+        val activity = mock<Activity>()
+        val firstConsumer = SimpleConsumer<WindowLayoutInfo>()
+        val secondConsumer = SimpleConsumer<WindowLayoutInfo>()
+        val executor = MoreExecutors.directExecutor()
+        val firstExpected = mutableListOf<WindowLayoutInfo>()
+        val secondExpected = mutableListOf<WindowLayoutInfo>()
+        backend.registerLayoutChangeCallback(activity, executor, firstConsumer)
+        firstExpected.add(interfaceCompat.currentWindowLayoutInfo())
+        backend.registerLayoutChangeCallback(activity, executor, secondConsumer)
+        secondExpected.add(interfaceCompat.currentWindowLayoutInfo())
+        backend.unregisterLayoutChangeCallback(firstConsumer)
+        backend.unregisterLayoutChangeCallback(secondConsumer)
+        assertEquals(firstExpected, firstConsumer.values)
+        assertEquals(secondExpected, secondConsumer.values)
+    }
+
     private class SimpleConsumer<T> : Consumer<T> {
         val values = mutableListOf<T>()
 
