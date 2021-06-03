@@ -52,7 +52,7 @@ public class TelephonyManagerCompatTest {
                 (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
     }
 
-    @SdkSuppress(minSdkVersion = 21) // b/189491928
+    @SdkSuppress(minSdkVersion = 22)
     @Test
     public void testGetSubscriptionId() {
         SubscriptionManager subscriptionManager = (SubscriptionManager) mContext.getSystemService(
