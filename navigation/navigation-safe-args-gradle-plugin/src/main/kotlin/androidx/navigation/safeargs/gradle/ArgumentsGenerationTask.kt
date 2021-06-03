@@ -25,7 +25,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
@@ -38,13 +37,14 @@ import javax.inject.Inject
 
 private const val MAPPING_FILE = "file_mappings.json"
 
-open class ArgumentsGenerationTask @Inject constructor(private val projectLayout: ProjectLayout) :
-    DefaultTask() {
+abstract class ArgumentsGenerationTask @Inject constructor(
+    private val projectLayout: ProjectLayout
+) : DefaultTask() {
     @get:Input
-    lateinit var rFilePackage: Provider<String>
+    abstract val rFilePackage: Property<String>
 
     @get:Input
-    val applicationId: Property<String> = project.objects.property(String::class.java)
+    abstract val applicationId: Property<String>
 
     @get:Input
     var useAndroidX: Boolean = true
@@ -65,7 +65,7 @@ open class ArgumentsGenerationTask @Inject constructor(private val projectLayout
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
         val output = SafeArgsGenerator(
             rFilePackage = rFilePackage.get(),
-            applicationId = applicationId.get() ?: "",
+            applicationId = applicationId.orNull ?: "",
             navigationXml = file,
             outputDir = out,
             useAndroidX = useAndroidX,
