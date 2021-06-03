@@ -46,8 +46,6 @@ package androidx.window {
     method public androidx.window.WindowMetrics getCurrentWindowMetrics();
     method public androidx.window.WindowMetrics getMaximumWindowMetrics();
     method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.WindowInfoRepoDecorator overridingDecorator);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
     property public abstract androidx.window.WindowMetrics currentWindowMetrics;
     property public abstract androidx.window.WindowMetrics maximumWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo;
@@ -56,12 +54,6 @@ package androidx.window {
 
   public static final class WindowInfoRepo.Companion {
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public androidx.window.WindowInfoRepo create(android.app.Activity activity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.WindowInfoRepoDecorator overridingDecorator);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepoDecorator {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.WindowInfoRepo decorate(androidx.window.WindowInfoRepo repo);
   }
 
   public final class WindowLayoutInfo {
