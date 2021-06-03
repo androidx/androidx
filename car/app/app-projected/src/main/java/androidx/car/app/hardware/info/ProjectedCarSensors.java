@@ -17,11 +17,17 @@ package androidx.car.app.hardware.info;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.hardware.ICarHardwareResultTypes;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
+import androidx.car.app.hardware.common.CarResultStubMap;
+import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataListener;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -32,52 +38,85 @@ import java.util.concurrent.Executor;
 @RestrictTo(LIBRARY)
 public class ProjectedCarSensors implements CarSensors {
 
-    public ProjectedCarSensors(@NonNull CarHardwareHostDispatcher hostDispatcher) {
-        // TODO(b/188534318): Implement calls to host
+    private static final CarValue<List<Float>> UNIMPLEMENTED_FLOAT_LIST = new CarValue<>(null,
+            0, CarValue.STATUS_UNIMPLEMENTED);
+    private final CarResultStubMap<Accelerometer, Integer> mAccelerometerCarResultStubMap;
+    private final CarResultStubMap<Gyroscope, Integer> mGyroscopeCarResultStubMap;
+    private final CarResultStubMap<Compass, Integer> mCompassCarResultStubMap;
+    private final CarResultStubMap<CarHardwareLocation, Integer>
+            mCarHardwareLocationCarResultStubMap;
+
+    final CarHardwareHostDispatcher mCarHardwareHostDispatcher;
+
+    /**
+     * Constructs a {@link CarSensors} implementation for android auto projected.
+     *
+     * @throws NullPointerException if {@code carHardwareHostDispatcher} is {@code null}
+     */
+    public ProjectedCarSensors(@NonNull CarHardwareHostDispatcher carHardwareHostDispatcher) {
+        mCarHardwareHostDispatcher = requireNonNull(carHardwareHostDispatcher);
+        mAccelerometerCarResultStubMap =
+                new CarResultStubMap<>(ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER,
+                        new Accelerometer(UNIMPLEMENTED_FLOAT_LIST), carHardwareHostDispatcher);
+        mGyroscopeCarResultStubMap =
+                new CarResultStubMap<>(ICarHardwareResultTypes.TYPE_SENSOR_GYROSCOPE,
+                        new Gyroscope(UNIMPLEMENTED_FLOAT_LIST), carHardwareHostDispatcher);
+        mCompassCarResultStubMap =
+                new CarResultStubMap<>(ICarHardwareResultTypes.TYPE_SENSOR_COMPASS,
+                        new Compass(UNIMPLEMENTED_FLOAT_LIST), carHardwareHostDispatcher);
+        mCarHardwareLocationCarResultStubMap =
+                new CarResultStubMap<>(ICarHardwareResultTypes.TYPE_SENSOR_CAR_LOCATION,
+                        new CarHardwareLocation(
+                                new CarValue<>(null, 0, CarValue.STATUS_UNIMPLEMENTED)),
+                        carHardwareHostDispatcher);
     }
 
     @Override
     public void addAccelerometerListener(@UpdateRate int rate,
             @NonNull Executor executor, @NonNull OnCarDataListener<Accelerometer> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mAccelerometerCarResultStubMap.addListener(rate, requireNonNull(executor),
+                requireNonNull(listener));
     }
 
     @Override
     public void removeAccelerometerListener(@NonNull OnCarDataListener<Accelerometer> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mAccelerometerCarResultStubMap.removeListener(requireNonNull(listener));
     }
 
     @Override
     public void addGyroscopeListener(@UpdateRate int rate, @NonNull Executor executor,
             @NonNull OnCarDataListener<Gyroscope> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mGyroscopeCarResultStubMap.addListener(rate, requireNonNull(executor),
+                requireNonNull(listener));
     }
 
     @Override
     public void removeGyroscopeListener(@NonNull OnCarDataListener<Gyroscope> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mGyroscopeCarResultStubMap.removeListener(requireNonNull(listener));
     }
 
     @Override
     public void addCompassListener(@UpdateRate int rate, @NonNull Executor executor,
             @NonNull OnCarDataListener<Compass> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mCompassCarResultStubMap.addListener(rate, requireNonNull(executor),
+                requireNonNull(listener));
     }
 
     @Override
     public void removeCompassListener(@NonNull OnCarDataListener<Compass> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mCompassCarResultStubMap.removeListener(requireNonNull(listener));
     }
 
     @Override
     public void addCarHardwareLocationListener(@UpdateRate int rate,
             @NonNull Executor executor, @NonNull OnCarDataListener<CarHardwareLocation> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mCarHardwareLocationCarResultStubMap.addListener(rate, requireNonNull(executor),
+                requireNonNull(listener));
     }
 
     @Override
     public void removeCarHardwareLocationListener(
             @NonNull OnCarDataListener<CarHardwareLocation> listener) {
-        // TODO(b/188534318): Implement calls to host
+        mCarHardwareLocationCarResultStubMap.removeListener(requireNonNull(listener));
     }
 }
