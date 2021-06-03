@@ -628,6 +628,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun takePicture_withBufferFormatRaw10() = runBlocking {
+        // RAW10 does not work in redmi 8
+        assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
         skipTestOnCameraPipeConfig()
 
         val cameraCharacteristics = CameraUtil.getCameraCharacteristics(BACK_LENS_FACING)
