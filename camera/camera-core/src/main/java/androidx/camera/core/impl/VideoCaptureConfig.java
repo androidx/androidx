@@ -45,8 +45,6 @@ public final class VideoCaptureConfig
             Option.create("camerax.core.videoCapture.audioSampleRate", int.class);
     public static final Option<Integer> OPTION_AUDIO_CHANNEL_COUNT =
             Option.create("camerax.core.videoCapture.audioChannelCount", int.class);
-    public static final Option<Integer> OPTION_AUDIO_RECORD_SOURCE =
-            Option.create("camerax.core.videoCapture.audioRecordSource", int.class);
     public static final Option<Integer> OPTION_AUDIO_MIN_BUFFER_SIZE =
             Option.create("camerax.core.videoCapture.audioMinBufferSize", int.class);
 
@@ -182,27 +180,6 @@ public final class VideoCaptureConfig
      */
     public int getAudioChannelCount() {
         return retrieveOption(OPTION_AUDIO_CHANNEL_COUNT);
-    }
-
-    /**
-     * Returns the audio recording source.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    public int getAudioRecordSource(int valueIfMissing) {
-        return retrieveOption(OPTION_AUDIO_RECORD_SOURCE, valueIfMissing);
-    }
-
-    /**
-     * Returns the audio recording source.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    public int getAudioRecordSource() {
-        return retrieveOption(OPTION_AUDIO_RECORD_SOURCE);
     }
 
     /**
