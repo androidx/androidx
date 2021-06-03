@@ -390,8 +390,7 @@ class AffectedModuleDetectorImplTest {
             injectedGitClient = MockGitClient(
                 lastMergeSha = "foo",
                 changedFiles = listOf(convertToFilePath("p1", "foo.java"))
-            ),
-            isPresubmit = false
+            )
         )
         // Verify expectations on affected projects
         MatcherAssert.assertThat(
@@ -438,8 +437,7 @@ class AffectedModuleDetectorImplTest {
             injectedGitClient = MockGitClient(
                 lastMergeSha = "foo",
                 changedFiles = emptyList()
-            ),
-            isPresubmit = false
+            )
         )
         // Verify expectations on affected projects
         MatcherAssert.assertThat(
@@ -477,52 +475,6 @@ class AffectedModuleDetectorImplTest {
     }
 
     @Test
-    fun projectSubset_noChangedFiles_presubmit() {
-        val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
-            logger = logger,
-            ignoreUnknownProjects = false,
-            injectedGitClient = MockGitClient(
-                lastMergeSha = "foo",
-                changedFiles = emptyList()
-            ),
-            isPresubmit = true
-        )
-        // Verify expectations on affected projects
-        MatcherAssert.assertThat(
-            detector.affectedProjects,
-            CoreMatchers.`is`(
-                setOf(p11)
-            )
-        )
-        MatcherAssert.assertThat(
-            detector.getSubset(p1),
-            CoreMatchers.`is`(
-                ProjectSubset.DEPENDENT_PROJECTS
-            )
-        )
-        MatcherAssert.assertThat(
-            detector.getSubset(p3),
-            CoreMatchers.`is`(
-                ProjectSubset.DEPENDENT_PROJECTS
-            )
-        )
-        // Only the placeholder test should return CHANGED_PROJECTS
-        MatcherAssert.assertThat(
-            detector.getSubset(p11),
-            CoreMatchers.`is`(
-                ProjectSubset.CHANGED_PROJECTS
-            )
-        )
-        MatcherAssert.assertThat(
-            detector.buildAll,
-            CoreMatchers.`is`(
-                true
-            )
-        )
-    }
-
-    @Test
     fun projectSubset_unknownChangedFiles() {
         val detector = AffectedModuleDetectorImpl(
             rootProject = root,
@@ -531,8 +483,7 @@ class AffectedModuleDetectorImplTest {
             injectedGitClient = MockGitClient(
                 lastMergeSha = "foo",
                 changedFiles = listOf(convertToFilePath("unknown", "file.java"))
-            ),
-            isPresubmit = false
+            )
         )
         // Verify expectations on affected projects
         MatcherAssert.assertThat(
@@ -547,64 +498,17 @@ class AffectedModuleDetectorImplTest {
                 setOf(p11)
             )
         )
-        // Everything should return dependent in presubmit case
+        // Everything should return NONE in buildall case
         MatcherAssert.assertThat(
             detector.getSubset(p1),
             CoreMatchers.`is`(
-                ProjectSubset.DEPENDENT_PROJECTS
+                ProjectSubset.NONE
             )
         )
         MatcherAssert.assertThat(
             detector.getSubset(p3),
             CoreMatchers.`is`(
-                ProjectSubset.DEPENDENT_PROJECTS
-            )
-        )
-        // Only the placeholder test should return CHANGED_PROJECTS
-        MatcherAssert.assertThat(
-            detector.getSubset(p11),
-            CoreMatchers.`is`(
-                ProjectSubset.CHANGED_PROJECTS
-            )
-        )
-    }
-
-    @Test
-    fun projectSubset_unknownChangedFiles_presubmit() {
-        val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
-            logger = logger,
-            ignoreUnknownProjects = false,
-            injectedGitClient = MockGitClient(
-                lastMergeSha = "foo",
-                changedFiles = listOf(convertToFilePath("unknown", "file.java"))
-            ),
-            isPresubmit = true
-        )
-        // Verify expectations on affected projects
-        MatcherAssert.assertThat(
-            detector.changedProjects,
-            CoreMatchers.`is`(
-                setOf(p11)
-            )
-        )
-        MatcherAssert.assertThat(
-            detector.dependentProjects,
-            CoreMatchers.`is`(
-                setOf(p11)
-            )
-        )
-        // Everything should return dependent in presubmit case
-        MatcherAssert.assertThat(
-            detector.getSubset(p1),
-            CoreMatchers.`is`(
-                ProjectSubset.DEPENDENT_PROJECTS
-            )
-        )
-        MatcherAssert.assertThat(
-            detector.getSubset(p3),
-            CoreMatchers.`is`(
-                ProjectSubset.DEPENDENT_PROJECTS
+                ProjectSubset.NONE
             )
         )
         // Only the placeholder test should return CHANGED_PROJECTS
