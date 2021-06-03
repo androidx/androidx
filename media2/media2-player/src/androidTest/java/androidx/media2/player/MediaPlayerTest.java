@@ -1867,6 +1867,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue(onPlaybackCompletedMonitor.waitForSignal(LARGE_TEST_WAIT_TIME_MS));
     }
 
+    @Ignore("Test disabled due to flakiness, see b/189898969")
     @Test
     @LargeTest
     public void repeatAll() throws Exception {
