@@ -263,7 +263,8 @@ public class WindowInsetsControllerCompatActivityTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 29) // Flag deprecated in 30+
+    // minSdkVersion = 21 due to b/189492236
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 29) // Flag deprecated in 30+
     public fun systemBarsBehavior_swipe() {
         scenario.onActivity {
             windowInsetsController.systemBarsBehavior =
@@ -279,7 +280,8 @@ public class WindowInsetsControllerCompatActivityTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 29) // Flag deprecated in 30+
+    // minSdkVersion = 21 due to b/189492236
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 29) // Flag deprecated in 30+
     public fun systemBarsBehavior_transient() {
         scenario.onActivity {
             windowInsetsController.systemBarsBehavior =

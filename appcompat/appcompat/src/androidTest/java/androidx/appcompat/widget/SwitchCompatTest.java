@@ -41,6 +41,7 @@ import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -171,6 +172,7 @@ public class SwitchCompatTest {
         info.recycle();
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189493648
     @Test
     public void testSetCustomSelectionActionModeCallback() {
         final SwitchCompat view = new SwitchCompat(mActivity);
