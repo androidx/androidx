@@ -384,7 +384,7 @@ public abstract class BaseEditorSession internal constructor(
     ) {
         // Check if the user cancelled the provider chooser.
         if (complicationProviderChooserResult == null) {
-            pendingComplicationProviderChooserResult!!.complete(null)
+            pendingComplicationProviderChooserResult?.complete(null)
             pendingComplicationProviderChooserResult = null
             return
         }
@@ -408,7 +408,7 @@ public abstract class BaseEditorSession internal constructor(
                 } else {
                     complicationPreviewDataMap[pendingComplicationProviderId] = previewData
                 }
-                pendingComplicationProviderChooserResult!!.complete(
+                pendingComplicationProviderChooserResult?.complete(
                     ChosenComplicationProvider(
                         pendingComplicationProviderId,
                         complicationProviderChooserResult.providerInfo,
