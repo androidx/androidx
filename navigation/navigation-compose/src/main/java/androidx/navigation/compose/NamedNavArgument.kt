@@ -22,6 +22,8 @@ import androidx.navigation.NavDestinationDsl
 
 /**
  * Construct a new [NavArgument]
+ *
+ * @sample androidx.navigation.compose.samples.NavWithArgs
  */
 @NavDestinationDsl
 public fun navArgument(
