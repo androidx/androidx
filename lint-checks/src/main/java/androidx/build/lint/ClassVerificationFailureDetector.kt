@@ -559,14 +559,12 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         .range(insertionPoint)
                         .beginning()
                         .with(insertionSource)
-                        .reformat(true)
                         .shortenNames()
                         .build(),
                     fix()
                         .replace()
                         .range(context.getLocation(call))
                         .with(replacementCall)
-                        .reformat(true)
                         .shortenNames()
                         .build(),
                 )
