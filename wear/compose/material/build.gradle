@@ -45,6 +45,7 @@ dependencies {
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
         androidTestImplementation project(path: ':compose:test-utils')
+        androidTestImplementation project(":test-screenshot")
         androidTestImplementation(ANDROIDX_TEST_RUNNER)
         androidTestImplementation(TRUTH)
     }
@@ -92,6 +93,7 @@ if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
                 implementation(project(path: ':compose:ui:ui-test'))
                 implementation(project(path: ':compose:ui:ui-test-junit4'))
                 implementation(project(path: ':compose:test-utils'))
+                implementation(project(":test-screenshot"))
             }
         }
     }
@@ -106,6 +108,8 @@ android {
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/wear/compose/material"
 }
 
 androidx {

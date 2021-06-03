@@ -94,8 +94,10 @@ fun Button(
                 shape = CircleShape
             )
     ) {
+        val contentColor = colors.contentColor(enabled = enabled).value
         CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor(enabled = enabled).value,
+            LocalContentColor provides contentColor,
+            LocalContentAlpha provides contentColor.alpha,
             LocalTextStyle provides MaterialTheme.typography.button
         ) {
             content()
@@ -160,8 +162,10 @@ fun CompactButton(
                 shape = CircleShape
             )
     ) {
+        val contentColor = colors.contentColor(enabled = enabled).value
         CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor(enabled = enabled).value,
+            LocalContentColor provides contentColor,
+            LocalContentAlpha provides contentColor.alpha,
             LocalTextStyle provides MaterialTheme.typography.button
         ) {
             content()
