@@ -121,6 +121,7 @@ import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -773,6 +774,63 @@ public final class ImageCapture extends UseCase {
     @CaptureMode
     public int getCaptureMode() {
         return mCaptureMode;
+    }
+
+    /**
+     * Gets selected resolution information of the {@link ImageCapture}.
+     *
+     * <p>The returned {@link ResolutionInfo} will be expressed in the coordinates of the camera
+     * sensor. Note that the resolution might not be the same as the resolution of the received
+     * image by calling {@link #takePicture} because the received image might have been rotated
+     * to the upright orientation using the target rotation setting by the device.
+     *
+     * <p>The resolution information might change if the use case is unbound and then rebound,
+     * {@link #setTargetRotation(int)} is called to change the target rotation setting, or
+     * {@link #setCropAspectRatio(Rational)} is called to change the crop aspect ratio setting.
+     * The application needs to call {@link #getResolutionInfo()} again to get the latest
+     * {@link ResolutionInfo} for the changes.
+     *
+     * @return the resolution information if the use case has been bound by the
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
+     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     */
+    @Nullable
+    @Override
+    public ResolutionInfo getResolutionInfo() {
+        return super.getResolutionInfo();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    protected ResolutionInfo getResolutionInfoInternal() {
+        CameraInternal camera = getCamera();
+        Size resolution = getAttachedSurfaceResolution();
+
+        if (camera == null || resolution == null) {
+            return null;
+        }
+
+        Rect cropRect = getViewPortCropRect();
+
+        Rational cropAspectRatio = mCropAspectRatio;
+
+        if (cropRect == null) {
+            if (cropAspectRatio != null) {
+                cropRect = ImageUtil.computeCropRectFromAspectRatio(resolution, cropAspectRatio);
+            } else {
+                cropRect = new Rect(0, 0, resolution.getWidth(), resolution.getHeight());
+            }
+        }
+
+        int rotationDegrees = getRelativeRotation(camera);
+
+        return ResolutionInfo.create(resolution, cropRect, rotationDegrees);
     }
 
     /**

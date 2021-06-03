@@ -42,6 +42,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -677,6 +678,54 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getImageFormat() {
         return mCurrentConfig.getInputFormat();
+    }
+
+    /**
+     * Returns {@link ResolutionInfo} of the use case.
+     *
+     * <p>The resolution information might change if the use case is unbound and then rebound or
+     * the target rotation setting is changed. The application needs to call
+     * {@link #getResolutionInfo()} again to get the latest {@link ResolutionInfo} for the changes.
+     *
+     * @return the resolution information if the use case has been bound by the
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
+     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public ResolutionInfo getResolutionInfo() {
+        return getResolutionInfoInternal();
+    }
+
+    /**
+     * Returns a new {@link ResolutionInfo} according to the latest settings of the use case, or
+     * null if the use case is not bound yet.
+     *
+     * <p>This allows the subclasses to return different {@link ResolutionInfo} according to its
+     * different design.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    protected ResolutionInfo getResolutionInfoInternal() {
+        CameraInternal camera = getCamera();
+        Size resolution = getAttachedSurfaceResolution();
+
+        if (camera == null || resolution == null) {
+            return null;
+        }
+
+        Rect cropRect = getViewPortCropRect();
+
+        if (cropRect == null) {
+            cropRect = new Rect(0, 0, resolution.getWidth(), resolution.getHeight());
+        }
+
+        int rotationDegrees = getRelativeRotation(camera);
+
+        return ResolutionInfo.create(resolution, cropRect, rotationDegrees);
     }
 
     enum State {
