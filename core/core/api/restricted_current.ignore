@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-InvalidNullConversion: androidx.core.widget.TextViewCompat#wrapCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback):
-    Attempted to change method return from @NonNull to @Nullable: incompatible change for method androidx.core.widget.TextViewCompat.wrapCustomSelectionActionModeCallback(android.widget.TextView,android.view.ActionMode.Callback)
