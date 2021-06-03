@@ -26,7 +26,7 @@ import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -92,19 +92,22 @@ abstract class SafeArgsPlugin protected constructor(
                     }
                 )
                 task.rFilePackage.set(variant.rFilePackage())
-                task.navigationFiles = navigationFiles(variant, project)
-                task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
-                task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
-                task.useAndroidX = (project.findProperty("android.useAndroidX") == "true").also {
-                    if (!it) {
-                        throw GradleException(
-                            "androidx.navigation.safeargs can only be used with an androidx project"
-                        )
+                task.navigationFiles.setFrom(navigationFiles(variant, project))
+                task.outputDir.set(File(project.buildDir, "$GENERATED_PATH/${variant.dirName}"))
+                task.incrementalFolder.set(File(project.buildDir, "$INCREMENTAL_PATH/${task.name}"))
+                task.useAndroidX.set(
+                    (project.findProperty("android.useAndroidX") == "true").also {
+                        if (!it) {
+                            throw GradleException(
+                                "androidx.navigation.safeargs can only be used with an androidx " +
+                                    "project"
+                            )
+                        }
                     }
-                }
-                task.generateKotlin = generateKotlin
+                )
+                task.generateKotlin.set(generateKotlin)
             }
-            variant.registerJavaGeneratingTask(task, task.outputDir)
+            variant.registerJavaGeneratingTask(task, task.outputDir.asFile.get())
         }
     }
 
@@ -117,7 +120,10 @@ abstract class SafeArgsPlugin protected constructor(
         parsed.getProperty("@package").toString()
     }
 
-    private fun navigationFiles(variant: BaseVariant, project: Project): FileCollection {
+    private fun navigationFiles(
+        variant: BaseVariant,
+        project: Project
+    ): ConfigurableFileCollection {
         val fileProvider = providerFactory.provider {
             variant.sourceSets
                 .flatMap { it.resDirectories }
