@@ -57,6 +57,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
@@ -76,10 +77,15 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.ActiveRecording;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.RecordingStats;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -102,6 +108,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -135,7 +142,7 @@ public class CameraXActivity extends AppCompatActivity {
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
-    private VideoFileSaver mVideoFileSaver;
+    private ActiveRecording mActiveRecording;
     /** The camera to use */
     CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
     ProcessCameraProvider mCameraProvider;
@@ -153,7 +160,6 @@ public class CameraXActivity extends AppCompatActivity {
     private ToggleButton mAnalysisToggle;
     private ToggleButton mPreviewToggle;
 
-    private Button mRecord;
     private Button mTakePicture;
     private ImageButton mCameraDirectionButton;
     private ImageButton mFlashButton;
@@ -167,6 +173,7 @@ public class CameraXActivity extends AppCompatActivity {
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
+    private RecordUi mRecordUi;
 
     SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
 
@@ -342,32 +349,109 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private void setUpRecordButton() {
-        mRecord.setOnClickListener((view) -> {
-            String text = mRecord.getText().toString();
-            if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
-                createDefaultVideoFolderIfNotExist();
-
-                try {
-                    getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions(
-                            getApplicationContext().getContentResolver()),
-                            ContextCompat.getMainExecutor(CameraXActivity.this), mVideoFileSaver);
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Missing audio permission while setting up recording.");
-                    return;
-                }
-
-                mVideoFileSaver.setSaving();
-                mRecord.setText("Stop");
-            } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
-                mRecord.setText("Record");
-                getVideoCapture().stopRecording();
-            } else if (text.equals("Record") && mVideoFileSaver.isSaving()) {
-                mRecord.setText("Stop");
-                mVideoFileSaver.setSaving();
-            } else if (text.equals("Stop") && !mVideoFileSaver.isSaving()) {
-                mRecord.setText("Record");
+        mRecordUi.getButtonRecord().setOnClickListener((view) -> {
+            RecordUi.State state = mRecordUi.getState();
+            switch (state) {
+                case IDLE:
+                    createDefaultVideoFolderIfNotExist();
+                    mActiveRecording = getVideoCapture().getOutput()
+                            .prepareRecording(getNewVideoOutputFileOptions())
+                            .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),
+                                    mVideoRecordEventListener)
+                            .start();
+                    mRecordUi.setState(RecordUi.State.RECORDING);
+                    break;
+                case RECORDING:
+                case PAUSED:
+                    mActiveRecording.stop();
+                    mActiveRecording = null;
+                    mRecordUi.setState(RecordUi.State.STOPPING);
+                    break;
+                case STOPPING:
+                    // Record button should be disabled.
+                default:
+                    throw new IllegalStateException(
+                            "Unexpected state when click record button: " + state);
             }
         });
+
+        mRecordUi.getButtonPause().setOnClickListener(view -> {
+            RecordUi.State state = mRecordUi.getState();
+            switch (state) {
+                case RECORDING:
+                    mActiveRecording.pause();
+                    mRecordUi.setState(RecordUi.State.PAUSED);
+                    break;
+                case PAUSED:
+                    mActiveRecording.resume();
+                    mRecordUi.setState(RecordUi.State.RECORDING);
+                    break;
+                case IDLE:
+                case STOPPING:
+                    // Pause button should be invisible.
+                default:
+                    throw new IllegalStateException(
+                            "Unexpected state when click pause button: " + state);
+            }
+        });
+    }
+
+    private final Consumer<VideoRecordEvent> mVideoRecordEventListener = event -> {
+        updateRecordingStats(event.getRecordingStats());
+
+        switch (event.getEventType()) {
+            case FINALIZE:
+                VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
+
+                switch (finalize.getError()) {
+                    case VideoRecordEvent.ERROR_NONE:
+                    case VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED:
+                    case VideoRecordEvent.ERROR_INSUFFICIENT_DISK:
+                        Uri uri = finalize.getOutputResults().getOutputUri();
+                        String msg = "Saved uri " + uri;
+                        if (finalize.getError() != VideoRecordEvent.ERROR_NONE) {
+                            msg += " with error (" + finalize.getError() + ")";
+                        }
+                        Log.d(TAG, msg, finalize.getCause());
+                        Toast.makeText(CameraXActivity.this, msg, Toast.LENGTH_LONG).show();
+                        break;
+                    default:
+                        String errMsg = "Video capture failed by (" + finalize.getError() + "): "
+                                + finalize.getCause();
+                        Log.e(TAG, errMsg, finalize.getCause());
+                        Toast.makeText(CameraXActivity.this, errMsg, Toast.LENGTH_LONG).show();
+                }
+                mRecordUi.setState(RecordUi.State.IDLE);
+                break;
+
+            default:
+                // No-op
+                break;
+        }
+    };
+
+    @NonNull
+    private MediaStoreOutputOptions getNewVideoOutputFileOptions() {
+        String videoFileName = "video_" + System.currentTimeMillis();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+        contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
+        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
+        contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+        return MediaStoreOutputOptions.builder()
+                .setContentResolver(getContentResolver())
+                .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+                .setContentValues(contentValues)
+                .build();
+    }
+
+    private void updateRecordingStats(@NonNull RecordingStats stats) {
+        double durationSec = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNs()) / 1000d;
+        // Show megabytes in International System of Units (SI)
+        double sizeMb = stats.getNumBytesRecorded() / (1000d * 1000d);
+        String msg = String.format("%.2f sec\n%.2f MB", durationSec, sizeMb);
+        mRecordUi.getTextStats().setText(msg);
     }
 
     private void setUpTakePictureButton() {
@@ -510,7 +594,7 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private void updateButtonsUi() {
-        mRecord.setEnabled(mVideoToggle.isChecked());
+        mRecordUi.setEnabled(mVideoToggle.isChecked());
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
         mCaptureQualityToggle.setEnabled(mPhotoToggle.isChecked());
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
@@ -568,7 +652,6 @@ public class CameraXActivity extends AppCompatActivity {
         mPreviewToggle = findViewById(R.id.PreviewToggle);
 
         mTakePicture = findViewById(R.id.Picture);
-        mRecord = findViewById(R.id.Video);
         mFlashButton = findViewById(R.id.flash_toggle);
         mCameraDirectionButton = findViewById(R.id.direction_toggle);
         mTorchButton = findViewById(R.id.torch_toggle);
@@ -579,6 +662,11 @@ public class CameraXActivity extends AppCompatActivity {
         mZoomRatioLabel = findViewById(R.id.zoomRatio);
 
         mTextView = findViewById(R.id.textView);
+        mRecordUi = new RecordUi(
+                findViewById(R.id.Video),
+                findViewById(R.id.video_pause),
+                findViewById(R.id.video_stats)
+        );
 
         setUpButtonEvents();
         setupViewFinderGestureControls();
@@ -692,6 +780,14 @@ public class CameraXActivity extends AppCompatActivity {
         // Clear listening frame update before unbind all.
         mPreviewRenderer.clearFrameUpdateListener();
 
+        // Stop video recording if exists.
+        if (mRecordUi.getState() == RecordUi.State.RECORDING
+                || mRecordUi.getState() == RecordUi.State.PAUSED) {
+            mActiveRecording.stop();
+            mActiveRecording = null;
+            mRecordUi.setState(RecordUi.State.STOPPING);
+        }
+
         mCameraProvider.unbindAll();
         try {
             List<UseCase> useCases = buildUseCases();
@@ -756,10 +852,8 @@ public class CameraXActivity extends AppCompatActivity {
         }
 
         if (mVideoToggle.isChecked()) {
-            mVideoFileSaver = new VideoFileSaver();
-            VideoCapture videoCapture = new VideoCapture.Builder()
-                    .setTargetName("VideoCapture")
-                    .build();
+            VideoCapture<Recorder> videoCapture =
+                    VideoCapture.withOutput(new Recorder.Builder().build());
             useCases.add(videoCapture);
         }
         return useCases;
@@ -1048,6 +1142,95 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @UiThread
+    private static class RecordUi {
+
+        enum State {
+            IDLE, RECORDING, PAUSED, STOPPING
+        }
+
+        private final Button mButtonRecord;
+        private final Button mButtonPause;
+        private final TextView mTextStats;
+        private boolean mEnabled = false;
+        private State mState = State.IDLE;
+
+        RecordUi(@NonNull Button buttonRecord, @NonNull Button buttonPause,
+                @NonNull TextView textStats) {
+            mButtonRecord = buttonRecord;
+            mButtonPause = buttonPause;
+            mTextStats = textStats;
+        }
+
+        void setEnabled(boolean enabled) {
+            mEnabled = enabled;
+            if (enabled) {
+                mTextStats.setText("");
+                mTextStats.setVisibility(View.VISIBLE);
+                updateUi();
+            } else {
+                mButtonRecord.setText("Record");
+                mButtonRecord.setEnabled(false);
+                mButtonPause.setVisibility(View.INVISIBLE);
+                mTextStats.setVisibility(View.GONE);
+            }
+        }
+
+        void setState(@NonNull State state) {
+            mState = state;
+            updateUi();
+        }
+
+        @NonNull
+        State getState() {
+            return mState;
+        }
+
+        private void updateUi() {
+            if (!mEnabled) {
+                return;
+            }
+            switch (mState) {
+                case IDLE:
+                    mButtonRecord.setText("Record");
+                    mButtonRecord.setEnabled(true);
+                    mButtonPause.setText("Pause");
+                    mButtonPause.setVisibility(View.INVISIBLE);
+                    break;
+                case RECORDING:
+                    mButtonRecord.setText("Stop");
+                    mButtonRecord.setEnabled(true);
+                    mButtonPause.setText("Pause");
+                    mButtonPause.setVisibility(View.VISIBLE);
+                    break;
+                case STOPPING:
+                    mButtonRecord.setText("Saving");
+                    mButtonRecord.setEnabled(false);
+                    mButtonPause.setText("Pause");
+                    mButtonPause.setVisibility(View.INVISIBLE);
+                    break;
+                case PAUSED:
+                    mButtonRecord.setText("Stop");
+                    mButtonRecord.setEnabled(true);
+                    mButtonPause.setText("Resume");
+                    mButtonPause.setVisibility(View.VISIBLE);
+                    break;
+            }
+        }
+
+        Button getButtonRecord() {
+            return mButtonRecord;
+        }
+
+        Button getButtonPause() {
+            return mButtonPause;
+        }
+
+        TextView getTextStats() {
+            return mTextStats;
+        }
+    }
+
     Preview getPreview() {
         return findUseCase(Preview.class);
     }
@@ -1060,7 +1243,8 @@ public class CameraXActivity extends AppCompatActivity {
         return findUseCase(ImageCapture.class);
     }
 
-    VideoCapture getVideoCapture() {
+    @SuppressWarnings("unchecked")
+    VideoCapture<Recorder> getVideoCapture() {
         return findUseCase(VideoCapture.class);
     }
 
