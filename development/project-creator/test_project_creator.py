@@ -117,10 +117,6 @@ class TestSettingsGradle(unittest.TestCase):
         self.assertEqual("includeProject(\":foo:bar:bar-compose\", \"foo/bar/bar-compose\", " + \
                          "[BuildType.COMPOSE])\n", line)
 
-        line = get_new_settings_gradle_line("androidx.ui", "ui-foo")
-        self.assertEqual("includeProject(\":ui:ui-foo\", \"ui/ui-foo\", " + \
-                         "[BuildType.COMPOSE])\n", line)
-
     def test_gradle_project_coordinates(self):
         coordinates = get_gradle_project_coordinates("androidx.foo", "foo")
         self.assertEqual(":foo:foo", coordinates)
