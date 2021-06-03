@@ -22,16 +22,16 @@
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Mehr anzeigen"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Aktualisiert: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="other">vor <xliff:g id="ID_2">%d</xliff:g> Min.</item>
-      <item quantity="one">vor <xliff:g id="ID_1">%d</xliff:g> Min.</item>
+      <item quantity="other">Vor <xliff:g id="ID_2">%d</xliff:g> Min.</item>
+      <item quantity="one">Vor <xliff:g id="ID_1">%d</xliff:g> Min.</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
-      <item quantity="other">vor <xliff:g id="ID_2">%d</xliff:g> Jahren</item>
-      <item quantity="one">vor <xliff:g id="ID_1">%d</xliff:g> Jahr</item>
+      <item quantity="other">Vor <xliff:g id="ID_2">%d</xliff:g> Jahren</item>
+      <item quantity="one">Vor <xliff:g id="ID_1">%d</xliff:g> Jahr</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
-      <item quantity="other">vor <xliff:g id="ID_2">%d</xliff:g> Tagen</item>
-      <item quantity="one">vor <xliff:g id="ID_1">%d</xliff:g> Tag</item>
+      <item quantity="other">Vor <xliff:g id="ID_2">%d</xliff:g> Tagen</item>
+      <item quantity="one">Vor <xliff:g id="ID_1">%d</xliff:g> Tag</item>
     </plurals>
     <string name="abc_slice_error" msgid="4188371422904147368">"Verbindung nicht möglich"</string>
 </resources>
