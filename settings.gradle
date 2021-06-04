@@ -590,6 +590,7 @@ includeProject(":wear:wear-complications-provider", "wear/wear-complications-pro
 includeProject(":wear:wear-complications-provider-samples", "wear/wear-complications-provider/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:compose:compose-foundation", "wear/compose/foundation", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-material", "wear/compose/material", [BuildType.COMPOSE])
+includeProject(":wear:compose:compose-material-benchmark", "wear/compose/material/benchmark", [BuildType.COMPOSE])
 includeProject(":wear:wear-input", "wear/wear-input", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input-testing", "wear/wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, BuildType.WEAR])
