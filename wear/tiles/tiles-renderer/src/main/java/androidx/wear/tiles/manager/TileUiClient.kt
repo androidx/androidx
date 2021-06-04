@@ -28,14 +28,15 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.MainThread
+import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
+import androidx.wear.tiles.DeviceParametersBuilders
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
+import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TimelineBuilders
-import androidx.wear.tiles.connection.TilesConnection
-import androidx.wear.tiles.proto.DeviceParametersProto
-import androidx.wear.tiles.proto.RequestProto
-import androidx.wear.tiles.proto.StateProto
+import androidx.wear.tiles.connection.DefaultTileProviderClient
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineManager
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +58,7 @@ import java.util.concurrent.Executors
  * Likewise, when the owning activity is destroyed, you should call {@link #close} to disconnect
  * and release resources.
  */
-public class TileClient(
+public class TileUiClient(
     private val context: Context,
     component: ComponentName,
     private val parentView: ViewGroup
@@ -70,7 +71,7 @@ public class TileClient(
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
 
-    private val tilesConnection = TilesConnection(
+    private val tilesConnection = DefaultTileProviderClient(
         context = context,
         componentName = component,
         coroutineScope = coroutineScope,
@@ -132,28 +133,27 @@ public class TileClient(
     }
 
     private suspend fun requestTile(
-        state: StateProto.State? = StateProto.State.getDefaultInstance()
+        state: StateBuilders.State = StateBuilders.State.builder().build()
     ) = coroutineScope {
         withContext(Dispatchers.Main) {
-            val tileRequest = RequestProto.TileRequest
-                .newBuilder()
+            val tileRequest = RequestBuilders.TileRequest
+                .builder()
                 .setState(state)
                 .setDeviceParameters(buildDeviceParameters())
                 .build()
 
-            val tile = tilesConnection.tileRequest(tileRequest)
-            val tileProto = tile.toProto()
+            val tile = tilesConnection.tileRequest(tileRequest).await()
 
-            if (tileProto.resourcesVersion.isNotEmpty() && tileProto.resourcesVersion
-                != tileResources?.toProto()?.version
+            if (tile.resourcesVersion.isNotEmpty() &&
+                tile.resourcesVersion != tileResources?.version
             ) {
-                val resourcesRequest = RequestProto.ResourcesRequest
-                    .newBuilder()
-                    .setVersion(tileProto.resourcesVersion)
+                val resourcesRequest = RequestBuilders.ResourcesRequest
+                    .builder()
+                    .setVersion(tile.resourcesVersion)
                     .setDeviceParameters(buildDeviceParameters())
                     .build()
 
-                tileResources = tilesConnection.resourcesRequest(resourcesRequest)
+                tileResources = tilesConnection.resourcesRequest(resourcesRequest).await()
             }
 
             timelineManager?.apply {
@@ -163,14 +163,14 @@ public class TileClient(
             val localTimelineManager = TilesTimelineManager(
                 context.getSystemService(AlarmManager::class.java),
                 System::currentTimeMillis,
-                TimelineBuilders.Timeline.fromProto(tile.toProto().timeline),
+                tile.timeline ?: TimelineBuilders.Timeline.builder().build(),
                 0,
                 ContextCompat.getMainExecutor(context),
                 { _, layout -> updateContents(layout) }
             )
             timelineManager = localTimelineManager
 
-            val freshnessInterval = tile.toProto().freshnessIntervalMillis
+            val freshnessInterval = tile.freshnessIntervalMillis
             if (freshnessInterval > 0) {
                 updateScheduler.scheduleUpdateAtTime(freshnessInterval)
             }
@@ -190,7 +190,7 @@ public class TileClient(
             layout,
             tileResources!!,
             ContextCompat.getMainExecutor(context),
-            { state -> coroutineScope.launch { requestTile(state.toProto()) } }
+            { state -> coroutineScope.launch { requestTile(state) } }
         )
         renderer.inflate(parentView)?.apply {
             (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
@@ -198,22 +198,22 @@ public class TileClient(
     }
 
     private fun registerBroadcastReceiver() {
-        val i = IntentFilter(Companion.ACTION_REQUEST_TILE_UPDATE)
+        val i = IntentFilter(ACTION_REQUEST_TILE_UPDATE)
         context.registerReceiver(updateReceiver, i)
     }
 
-    private fun buildDeviceParameters(): DeviceParametersProto.DeviceParameters? {
+    private fun buildDeviceParameters(): DeviceParametersBuilders.DeviceParameters {
         val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val isScreenRound: Boolean = context.resources.configuration.isScreenRound
-        return DeviceParametersProto.DeviceParameters.newBuilder()
+        return DeviceParametersBuilders.DeviceParameters.builder()
             .setScreenWidthDp(Math.round(displayMetrics.widthPixels / displayMetrics.density))
             .setScreenHeightDp(Math.round(displayMetrics.heightPixels / displayMetrics.density))
             .setScreenDensity(displayMetrics.density)
             .setScreenShape(
-                if (isScreenRound) DeviceParametersProto.ScreenShape.SCREEN_SHAPE_ROUND
-                else DeviceParametersProto.ScreenShape.SCREEN_SHAPE_RECT
+                if (isScreenRound) DeviceParametersBuilders.SCREEN_SHAPE_ROUND
+                else DeviceParametersBuilders.SCREEN_SHAPE_RECT
             )
-            .setDevicePlatform(DeviceParametersProto.DevicePlatform.DEVICE_PLATFORM_WEAR_OS)
+            .setDevicePlatform(DeviceParametersBuilders.DEVICE_PLATFORM_WEAR_OS)
             .build()
     }
 }

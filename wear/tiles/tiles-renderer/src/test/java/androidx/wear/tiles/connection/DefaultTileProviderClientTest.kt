@@ -20,11 +20,15 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.os.Looper
+import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.tiles.RequestBuilders
+import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.ResourcesCallback
 import androidx.wear.tiles.ResourcesData
 import androidx.wear.tiles.ResourcesRequestData
 import androidx.wear.tiles.TileAddEventData
+import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileCallback
 import androidx.wear.tiles.TileData
 import androidx.wear.tiles.TileEnterEventData
@@ -33,14 +37,13 @@ import androidx.wear.tiles.TileProvider
 import androidx.wear.tiles.TileRemoveEventData
 import androidx.wear.tiles.TileRequestData
 import androidx.wear.tiles.TilesTestRunner
-import androidx.wear.tiles.proto.RequestProto
-import androidx.wear.tiles.proto.ResourceProto
 import androidx.wear.tiles.proto.TileProto
 import androidx.wear.tiles.protobuf.InvalidProtocolBufferException
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -53,9 +56,9 @@ import org.robolectric.annotation.Config
 import java.lang.IllegalArgumentException
 
 @Config(manifest = Config.NONE)
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(TilesTestRunner::class)
-public class TilesConnectionTest {
+public class DefaultTileProviderClientTest {
     public companion object {
         private val TILE_PROVIDER = ComponentName("HelloWorld", "FooBarBaz")
     }
@@ -64,7 +67,7 @@ public class TilesConnectionTest {
     private lateinit var fakeTileProvider: FakeTileProviderService
     private lateinit var fakeCoroutineDispatcher: TestCoroutineDispatcher
     private lateinit var fakeCoroutineScope: TestCoroutineScope
-    private lateinit var connectionUnderTest: TilesConnection
+    private lateinit var clientUnderTest: DefaultTileProviderClient
 
     @Before
     public fun setUp() {
@@ -76,7 +79,7 @@ public class TilesConnectionTest {
         Shadows.shadowOf(appContext as Application)
             .setComponentNameAndServiceForBindService(TILE_PROVIDER, fakeTileProvider.asBinder())
 
-        connectionUnderTest = TilesConnection(
+        clientUnderTest = DefaultTileProviderClient(
             appContext, TILE_PROVIDER,
             fakeCoroutineScope, fakeCoroutineDispatcher
         )
@@ -92,15 +95,16 @@ public class TilesConnectionTest {
 
     @Test
     public fun getTileContents_canGetTileContents(): Unit = fakeCoroutineScope.runBlockingTest {
-        val expectedTile = TileProto.Tile.newBuilder().setResourcesVersion("5").build()
-        fakeTileProvider.returnTile = expectedTile.toByteArray()
+        val expectedTile = TileBuilders.Tile.builder().setResourcesVersion("5").build()
+        fakeTileProvider.returnTile = expectedTile.toProto().toByteArray()
 
         val result = async {
-            connectionUnderTest.tileRequest(RequestProto.TileRequest.getDefaultInstance())
+            clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
-        assertThat(result.await().toProto()).isEqualTo(expectedTile)
+        // We don't override #equals; check the proto forms for equality instead.
+        assertThat(result.await().toProto()).isEqualTo(expectedTile.toProto())
     }
 
     @Test
@@ -110,7 +114,7 @@ public class TilesConnectionTest {
             fakeTileProvider.returnTile = byteArrayOf(127)
 
             val result = async {
-                connectionUnderTest.tileRequest(RequestProto.TileRequest.getDefaultInstance())
+                clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
             }
             Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -128,7 +132,7 @@ public class TilesConnectionTest {
         fakeTileProvider.returnTileVersion = -1
 
         val result = async {
-            connectionUnderTest.tileRequest(RequestProto.TileRequest.getDefaultInstance())
+            clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -145,16 +149,16 @@ public class TilesConnectionTest {
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
         val result = async(fakeCoroutineDispatcher) {
-            connectionUnderTest.tileRequest(RequestProto.TileRequest.getDefaultInstance())
+            clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
 
         assertThat(result.isCompleted).isFalse()
 
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnection.TIMEOUT / 2)
+        fakeCoroutineDispatcher.advanceTimeBy(DefaultTileProviderClient.TIMEOUT_MILLIS / 2)
         assertThat(result.isCompleted).isFalse()
 
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnection.TIMEOUT / 2)
+        fakeCoroutineDispatcher.advanceTimeBy(DefaultTileProviderClient.TIMEOUT_MILLIS / 2)
         assertThat(result.isCompleted).isTrue()
 
         assertThat(result.getCompletionExceptionOrNull())
@@ -163,15 +167,17 @@ public class TilesConnectionTest {
 
     @Test
     public fun getResources_canGetResources(): Unit = fakeCoroutineScope.runBlockingTest {
-        val expectedResources = ResourceProto.Resources.newBuilder().setVersion("5").build()
-        fakeTileProvider.returnResources = expectedResources.toByteArray()
+        val expectedResources = ResourceBuilders.Resources.builder().setVersion("5").build()
+        fakeTileProvider.returnResources = expectedResources.toProto().toByteArray()
 
         val result = async {
-            connectionUnderTest.resourcesRequest(RequestProto.ResourcesRequest.getDefaultInstance())
+            clientUnderTest.resourcesRequest(
+                RequestBuilders.ResourcesRequest.builder().build()
+            ).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
-        assertThat(result.await().toProto()).isEqualTo(expectedResources)
+        assertThat(result.await().toProto()).isEqualTo(expectedResources.toProto())
     }
 
     @Test
@@ -179,7 +185,9 @@ public class TilesConnectionTest {
         fakeTileProvider.returnResources = byteArrayOf(127)
 
         val result = async {
-            connectionUnderTest.resourcesRequest(RequestProto.ResourcesRequest.getDefaultInstance())
+            clientUnderTest.resourcesRequest(
+                RequestBuilders.ResourcesRequest.builder().build()
+            ).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -191,12 +199,14 @@ public class TilesConnectionTest {
 
     @Test
     public fun getResources_failsIfVersionMismatch(): Unit = fakeCoroutineScope.runBlockingTest {
-        val expectedResources = ResourceProto.Resources.newBuilder().setVersion("5").build()
-        fakeTileProvider.returnResources = expectedResources.toByteArray()
+        val expectedResources = ResourceBuilders.Resources.builder().setVersion("5").build()
+        fakeTileProvider.returnResources = expectedResources.toProto().toByteArray()
         fakeTileProvider.returnResourcesVersion = -2
 
         val result = async {
-            connectionUnderTest.resourcesRequest(RequestProto.ResourcesRequest.getDefaultInstance())
+            clientUnderTest.resourcesRequest(
+                RequestBuilders.ResourcesRequest.builder().build()
+            ).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -207,26 +217,76 @@ public class TilesConnectionTest {
 
     @Test
     public fun getResources_failsOnTimeout(): Unit = fakeCoroutineScope.runBlockingTest {
-        val expectedResources = ResourceProto.Resources.newBuilder().setVersion("5").build()
-        fakeTileProvider.returnResources = expectedResources.toByteArray()
+        val expectedResources = ResourceBuilders.Resources.builder().setVersion("5").build()
+        fakeTileProvider.returnResources = expectedResources.toProto().toByteArray()
         fakeTileProvider.shouldReturnResources = false
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
         val result = async(fakeCoroutineDispatcher) {
-            connectionUnderTest.resourcesRequest(RequestProto.ResourcesRequest.getDefaultInstance())
+            clientUnderTest.resourcesRequest(
+                RequestBuilders.ResourcesRequest.builder().build()
+            ).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
 
         assertThat(result.isCompleted).isFalse()
 
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnection.TIMEOUT / 2)
+        fakeCoroutineDispatcher.advanceTimeBy(DefaultTileProviderClient.TIMEOUT_MILLIS / 2)
         assertThat(result.isCompleted).isFalse()
 
-        fakeCoroutineDispatcher.advanceTimeBy(TilesConnection.TIMEOUT / 2)
+        fakeCoroutineDispatcher.advanceTimeBy(DefaultTileProviderClient.TIMEOUT_MILLIS / 2)
         assertThat(result.isCompleted).isTrue()
 
         assertThat(result.getCompletionExceptionOrNull())
             .isInstanceOf(TimeoutCancellationException::class.java)
+    }
+
+    @Test
+    public fun onTileAdd_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
+        val job = launch {
+            clientUnderTest.onTileAdded().await()
+        }
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+        job.join()
+
+        assertThat(fakeTileProvider.onTileAddCalled).isTrue()
+    }
+
+    @Test
+    public fun onTileRemove_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
+        val job = launch {
+            clientUnderTest.onTileRemoved().await()
+        }
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+        job.join()
+
+        assertThat(fakeTileProvider.onTileRemoveCalled).isTrue()
+    }
+
+    @Test
+    public fun onTileEnter_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
+        val job = launch {
+            clientUnderTest.onTileEnter().await()
+        }
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+        job.join()
+
+        assertThat(fakeTileProvider.onTileEnterCalled).isTrue()
+    }
+
+    @Test
+    public fun onTileLeave_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
+        val job = launch {
+            clientUnderTest.onTileLeave().await()
+        }
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+        job.join()
+
+        assertThat(fakeTileProvider.onTileLeaveCalled).isTrue()
     }
 
     private class FakeTileProviderService : TileProvider.Stub() {
@@ -237,6 +297,11 @@ public class TilesConnectionTest {
         var shouldReturnResources = true
         var returnResources = ByteArray(0)
         var returnResourcesVersion = ResourcesData.VERSION_PROTOBUF
+
+        var onTileAddCalled = false
+        var onTileEnterCalled = false
+        var onTileLeaveCalled = false
+        var onTileRemoveCalled = false
 
         override fun getApiVersion(): Int {
             return 5
@@ -263,19 +328,19 @@ public class TilesConnectionTest {
         }
 
         override fun onTileAddEvent(requestData: TileAddEventData?) {
-            TODO("Not yet implemented")
+            onTileAddCalled = true
         }
 
         override fun onTileRemoveEvent(requestData: TileRemoveEventData?) {
-            TODO("Not yet implemented")
+            onTileRemoveCalled = true
         }
 
         override fun onTileEnterEvent(requestData: TileEnterEventData?) {
-            TODO("Not yet implemented")
+            onTileEnterCalled = true
         }
 
         override fun onTileLeaveEvent(requestData: TileLeaveEventData?) {
-            TODO("Not yet implemented")
+            onTileLeaveCalled = true
         }
     }
 }
