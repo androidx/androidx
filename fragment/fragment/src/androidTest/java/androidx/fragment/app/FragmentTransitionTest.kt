@@ -1261,6 +1261,56 @@ class FragmentTransitionTest(
         }
     }
 
+    @Test
+    fun testPopRemoveWithHide() {
+        // The StrictViewFragment runs the appropriate checks to make sure
+        // we're moving through the states appropriately
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = TransitionFragment()
+            val fragment2 = TransitionFragment()
+
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.content, fragment1, "fragment1")
+                    .setReorderingAllowed(reorderingAllowed)
+                    .addToBackStack(null)
+                    .commit()
+            }
+
+            fragment1.waitForTransition()
+
+            withActivity {
+                fm.beginTransaction()
+                    .hide(fragment1)
+                    .add(R.id.content, fragment2, "fragment2")
+                    .setReorderingAllowed(reorderingAllowed)
+                    .addToBackStack(null)
+                    .commit()
+            }
+
+            fragment2.waitForTransition()
+
+            withActivity {
+                fm.popBackStack()
+                fm.beginTransaction()
+                    .hide(fragment2)
+                    .show(fragment1)
+                    .setReorderingAllowed(reorderingAllowed)
+                    .addToBackStack(null)
+                    .commit()
+            }
+
+            fragment2.waitForTransition()
+
+            withActivity {
+                assertThat(fragment2.mView).isNull()
+                assertThat(fragment1.mView.visibility).isEqualTo(View.VISIBLE)
+            }
+        }
+    }
+
     private fun setupInitialFragment(): TransitionFragment {
         val fragment1 = TransitionFragment(R.layout.scene1)
         fragmentManager.beginTransaction()
