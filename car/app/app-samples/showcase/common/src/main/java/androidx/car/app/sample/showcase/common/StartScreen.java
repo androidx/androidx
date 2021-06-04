@@ -33,8 +33,12 @@ import androidx.core.graphics.drawable.IconCompat;
 
 /** The starting screen of the app. */
 public final class StartScreen extends Screen {
-    public StartScreen(@NonNull CarContext carContext) {
+
+    @NonNull private final ShowcaseSession mShowcaseSession;
+
+    public StartScreen(@NonNull CarContext carContext, @NonNull ShowcaseSession showcaseSession) {
         super(carContext);
+        mShowcaseSession = showcaseSession;
     }
 
     @NonNull
@@ -104,7 +108,10 @@ public final class StartScreen extends Screen {
                 new Row.Builder()
                         .setTitle("Misc Demos")
                         .setOnClickListener(
-                                () -> getScreenManager().push(new MiscDemoScreen(getCarContext())))
+                                () ->
+                                        getScreenManager()
+                                                .push(new MiscDemoScreen(getCarContext(),
+                                                        mShowcaseSession)))
                         .setBrowsable(true)
                         .build());
 
