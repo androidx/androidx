@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-    api(project(":core:core"))
+    api("androidx.core:core:1.6.0-rc01")
 
     implementation("com.google.firebase:firebase-appindexing:20.0.0")
     implementation("com.google.crypto.tink:tink-android:1.5.0")

@@ -24,10 +24,10 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0-rc01")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.appcompat:appcompat:1.1.0")
     // Use the latest version of core library for verifying insets visibility
-    api(project(":core:core"))
+    api("androidx.core:core:1.6.0-rc01")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.fragment:fragment:1.2.4")
     api("androidx.recyclerview:recyclerview:1.0.0")
