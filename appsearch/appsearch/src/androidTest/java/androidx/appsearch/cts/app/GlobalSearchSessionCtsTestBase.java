@@ -47,6 +47,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -704,6 +705,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
     }
 
     @Test
+    @Ignore("TODO(b/183031844)")
     public void testReportSystemUsage_ForbiddenFromNonSystem() throws Exception {
         // Index a document
         mDb1.setSchema(
