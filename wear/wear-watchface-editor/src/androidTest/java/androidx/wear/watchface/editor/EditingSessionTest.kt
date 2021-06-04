@@ -39,6 +39,7 @@ import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationBounds
@@ -883,6 +884,7 @@ public class EditorSessionTest {
         }
     }
 
+    @FlakyTest(bugId = 189939975)
     @Test
     public fun launchComplicationProviderChooserTwiceBackToBack() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
