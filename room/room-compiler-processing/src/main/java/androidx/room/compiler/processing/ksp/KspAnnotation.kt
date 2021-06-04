@@ -42,13 +42,16 @@ internal class KspAnnotation(
 
     override val valueArguments: List<XValueArgument> by lazy {
         ksAnnotated.arguments.map { arg ->
-            KspValueArgument(env, arg, isListType = {
-                (ksType.declaration as KSClassDeclaration).getConstructors()
-                    .singleOrNull()
-                    ?.parameters
-                    ?.firstOrNull { it.name == arg.name }
-                    ?.let { env.wrap(it.type).isArray() } == true
-            })
+            KspValueArgument(
+                env, arg,
+                isListType = {
+                    (ksType.declaration as KSClassDeclaration).getConstructors()
+                        .singleOrNull()
+                        ?.parameters
+                        ?.firstOrNull { it.name == arg.name }
+                        ?.let { env.wrap(it.type).isArray() } == true
+                }
+            )
         }
     }
 

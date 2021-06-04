@@ -44,7 +44,7 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
             // should convert them, but it may not be possible because there are differences
             // to how they work (eg different parameters).
             it.type.typeElement?.hasAnnotation(Repeatable::class) == true ||
-            it.type.typeElement?.hasAnnotation(kotlin.annotation.Repeatable::class) == true
+                it.type.typeElement?.hasAnnotation(kotlin.annotation.Repeatable::class) == true
         }
 
         if (isRepeatable) nestedAnnotations else null
