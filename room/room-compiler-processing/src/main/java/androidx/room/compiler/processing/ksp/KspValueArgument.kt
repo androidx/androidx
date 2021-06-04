@@ -25,7 +25,8 @@ import com.google.devtools.ksp.symbol.KSValueArgument
 
 internal class KspValueArgument(
     val env: KspProcessingEnv,
-    val valueArgument: KSValueArgument
+    val valueArgument: KSValueArgument,
+    val isListType: () -> Boolean,
 ) :
     XValueArgument {
     override val name: String
@@ -58,6 +59,16 @@ internal class KspValueArgument(
                 else -> value
             }
         }
-        return unwrap(value)
+        return unwrap(value).let { result ->
+            // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
+            // return type should be Class<?>[] (only in sources).
+            // https://github.com/google/ksp/issues/172
+            // https://github.com/google/ksp/issues/214
+            if (result !is List<*> && isListType()) {
+                listOf(result)
+            } else {
+                result
+            }
+        }
     }
 }

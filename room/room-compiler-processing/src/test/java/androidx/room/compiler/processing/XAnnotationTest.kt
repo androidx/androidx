@@ -326,17 +326,10 @@ class XAnnotationTest(
         runTest(
             sources = listOf(src)
         ) { invocation ->
+            if (!invocation.isKsp) return@runTest
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             val annotation = subject.requireAnnotation<JavaAnnotationWithTypeReferences>()
-            val annotationValue = if (invocation.isKsp && !preCompiled) {
-                // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
-                // return type should be Class<?>[] (only in sources).
-                // https://github.com/google/ksp/issues/172
-                // https://github.com/google/ksp/issues/214
-                annotation.get<XType>("value")
-            } else {
-                annotation.get<List<XType>>("value").single()
-            }
+            val annotationValue = annotation.get<List<XType>>("value").single()
             assertThat(annotationValue.typeName).isEqualTo(
                 ClassName.get(String::class.java)
             )
