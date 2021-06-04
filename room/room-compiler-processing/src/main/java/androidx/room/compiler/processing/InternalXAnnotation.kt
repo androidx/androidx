@@ -37,8 +37,14 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
         // type and check that it matches "this" type. However, there seems to be a KSP bug where
         // the value of Repeatable is not present so the best we can do is check that all the nested
         // members are annotated with repeatable.
+        // https://github.com/google/ksp/issues/358
         val isRepeatable = nestedAnnotations.all {
-            it.type.typeElement?.hasAnnotation(Repeatable::class) == true
+            // The java and kotlin versions of Repeatable are not interchangeable.
+            // https://github.com/google/ksp/issues/459 asks whether the built in type mapper
+            // should convert them, but it may not be possible because there are differences
+            // to how they work (eg different parameters).
+            it.type.typeElement?.hasAnnotation(Repeatable::class) == true ||
+            it.type.typeElement?.hasAnnotation(kotlin.annotation.Repeatable::class) == true
         }
 
         if (isRepeatable) nestedAnnotations else null

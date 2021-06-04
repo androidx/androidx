@@ -31,13 +31,13 @@ interface XAnnotation {
     /**
      * The simple name of the annotation class.
      */
-    val simpleName: String
+    val name: String
 
     /**
      * The [XType] representing the annotation class.
      *
      * Accessing this requires resolving the type, and is thus more expensive that just accessing
-     * [simpleName].
+     * [name].
      */
     val type: XType
 
@@ -91,7 +91,7 @@ interface XAnnotation {
  */
 inline fun <reified T> XAnnotation.get(methodName: String): T {
     val argument = valueArguments.firstOrNull { it.name == methodName }
-        ?: error("No property named $methodName was found in annotation $simpleName")
+        ?: error("No property named $methodName was found in annotation $name")
 
     return argument.value as? T ?: error(
         "Value of $methodName of type ${argument.value?.javaClass} " +
@@ -100,7 +100,8 @@ inline fun <reified T> XAnnotation.get(methodName: String): T {
 }
 
 /**
- * Get a representation of this [XAnnotation] as a [XAnnotationBox].
+ * Get a representation of this [XAnnotation] as a [XAnnotationBox]. This is helpful for converting
+ * to [XAnnotationBox] after getting annotations with [XAnnotated.getAllAnnotations].
  *
  * Only possible if the annotation class is available (ie it is in the classpath and not in
  * the compiled sources).

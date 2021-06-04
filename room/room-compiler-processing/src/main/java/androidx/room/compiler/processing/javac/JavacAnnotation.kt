@@ -29,7 +29,7 @@ internal class JavacAnnotation(
     val mirror: AnnotationMirror
 ) : InternalXAnnotation {
 
-    override val simpleName: String
+    override val name: String
         get() = mirror.annotationType.asElement().simpleName.toString()
 
     override val type: XType by lazy {

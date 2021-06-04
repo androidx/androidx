@@ -96,12 +96,12 @@ class XAnnotationTest(
 
             val allAnnotations = element.getAllAnnotations().filterNot {
                 // Drop metadata annotation in kapt
-                it.simpleName == "Metadata"
+                it.name == "Metadata"
             }
             assertThat(allAnnotations).hasSize(1)
 
             val annotation1 = allAnnotations[0]
-            assertThat(annotation1.simpleName)
+            assertThat(annotation1.name)
                 .isEqualTo("MyAnnotation1")
             assertThat(annotation1.type.typeElement)
                 .isEqualTo(invocation.processingEnv.requireTypeElement("MyAnnotation1"))
@@ -128,7 +128,7 @@ class XAnnotationTest(
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyClass")
             val annotation = element.requireAnnotation<TestSuppressWarnings>()
-            assertThat(annotation.simpleName)
+            assertThat(annotation.name)
                 .isEqualTo(TestSuppressWarnings::class.simpleName)
             assertThat(annotation.type.typeElement)
                 .isEqualTo(invocation.processingEnv.requireTypeElement(TestSuppressWarnings::class))
@@ -211,7 +211,7 @@ class XAnnotationTest(
             assertThat(annotation.get<Int>("intMethod")).isEqualTo(3)
             annotation.get<XAnnotation>("singleOtherAnnotation")
                 .let { other ->
-                    assertThat(other.simpleName).isEqualTo("OtherAnnotation")
+                    assertThat(other.name).isEqualTo("OtherAnnotation")
                     assertThat(other.get<String>("value"))
                         .isEqualTo("other single")
                 }
@@ -299,7 +299,7 @@ class XAnnotationTest(
             assertThat(annotation.get<Int>("intMethod")).isEqualTo(3)
             annotation.get<XAnnotation>("singleOtherAnnotation")
                 .let { other ->
-                    assertThat(other.simpleName).isEqualTo("OtherAnnotation")
+                    assertThat(other.name).isEqualTo("OtherAnnotation")
                     assertThat(other.get<String>("value"))
                         .isEqualTo("other single")
                 }
@@ -530,14 +530,14 @@ class XAnnotationTest(
 
                         annotation.getAsAnnotation("otherAnnotationVal")
                             .let { other ->
-                                assertThat(other.simpleName).isEqualTo("OtherAnnotation")
+                                assertThat(other.name).isEqualTo("OtherAnnotation")
                                 assertThat(other.get<String>("value"))
                                     .isEqualTo("def")
                             }
 
                         annotation.getAsAnnotationList("otherAnnotationArrayVal")
                             .forEach { other ->
-                                assertThat(other.simpleName).isEqualTo("OtherAnnotation")
+                                assertThat(other.name).isEqualTo("OtherAnnotation")
                                 assertThat(other.get<String>("value"))
                                     .isEqualTo("v1")
                             }
@@ -619,7 +619,7 @@ class XAnnotationTest(
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
                     val annotations = subject.getAllAnnotations().filter {
-                        it.simpleName == "RepeatableJavaAnnotation"
+                        it.name == "RepeatableJavaAnnotation"
                     }
                     val values = annotations.map { it.get<String>("value") }
                     assertWithMessage(subject.qualifiedName)
@@ -654,7 +654,7 @@ class XAnnotationTest(
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
                     val annotations = subject.getAllAnnotations().filter {
-                        it.simpleName == "RepeatableJavaAnnotation"
+                        it.name == "RepeatableJavaAnnotation"
                     }
                     val values = annotations.map { it.get<String>("value") }
                     assertWithMessage(subject.qualifiedName)
@@ -675,7 +675,7 @@ class XAnnotationTest(
     }
 
     private inline fun <reified T : Annotation> XAnnotated.findAnnotation(): XAnnotation? {
-        return getAllAnnotations().singleOrNull { it.simpleName == T::class.simpleName }
+        return getAllAnnotations().singleOrNull { it.name == T::class.simpleName }
     }
 
     private fun XAnnotated.assertHasSuppressWithValue(vararg expected: String) {

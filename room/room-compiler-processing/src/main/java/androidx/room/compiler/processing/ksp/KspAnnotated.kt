@@ -92,15 +92,7 @@ internal sealed class KspAnnotated(
     ): Boolean {
         val declaration = ksAnnotation.annotationType.resolve().declaration
         val qualifiedName = declaration.qualifiedName?.asString() ?: return false
-        if (qualifiedName == annotationClass.qualifiedName) return true
-
-        // In cases where a standard library annotation is looked up the KSP name is the kotlin
-        // version and the KClass is the java version, so we need to map the package names.
-        // TODO: Replace with resolver.mapKotlinNameToJava once
-        // https://github.com/google/ksp/issues/459 is fixed.
-        return annotationClass.simpleName == declaration.simpleName.asString() &&
-            annotationClass.qualifiedName?.startsWith("java.lang.annotation.") == true &&
-            qualifiedName.startsWith("kotlin.annotation")
+        return qualifiedName == annotationClass.qualifiedName
     }
 
     private class KSAnnotatedDelegate(

@@ -44,6 +44,9 @@ interface XAnnotated {
      * sources being compiled. However, note that the returned [XAnnotation] cannot provide
      * an instance of the annotation (like [XAnnotationBox.value] can) and instead all values
      * must be accessed dynamically.
+     *
+     * The returned [XAnnotation]s can be converted to [XAnnotationBox] via
+     * [XAnnotation.asAnnotationBox] if the annotation class is on the class path.
      */
     fun getAllAnnotations(): List<XAnnotation>
 

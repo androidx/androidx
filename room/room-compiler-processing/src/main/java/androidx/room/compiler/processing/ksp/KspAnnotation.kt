@@ -29,7 +29,7 @@ internal class KspAnnotation(
 
     val ksType by lazy { ksAnnotated.annotationType.resolve() }
 
-    override val simpleName: String
+    override val name: String
         get() = ksAnnotated.shortName.asString()
 
     override val type: XType by lazy {
