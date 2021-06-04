@@ -149,7 +149,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer zipTestConfigsWithApks ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
