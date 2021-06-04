@@ -153,7 +153,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         renderFrame();
     }
 
-    /** Tells the renderer whether to subscribe and show CarHardware information. */
+    /** Tells the renderer whether to subscribe and show car hardware information. */
     public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
         if (isEnabled == mShowCarHardwareSurfaceInfo) {
             return;

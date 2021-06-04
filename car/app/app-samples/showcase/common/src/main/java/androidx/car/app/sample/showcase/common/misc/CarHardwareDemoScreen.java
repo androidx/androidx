@@ -28,16 +28,17 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
-/** Simple demo of how access CarHardware information. */
+/** Simple demo of how access car hardware information. */
 public final class CarHardwareDemoScreen extends Screen {
-
 
     public CarHardwareDemoScreen(@NonNull CarContext carContext,
             @NonNull ShowcaseSession showcaseSession) {
         super(carContext);
         Lifecycle lifecycle = getLifecycle();
         lifecycle.addObserver(new DefaultLifecycleObserver() {
+
             @NonNull final ShowcaseSession mShowcaseSession = showcaseSession;
+
             @Override
             public void onResume(@NonNull LifecycleOwner owner) {
                 // When this screen is visible set the SurfaceRenderer to show
@@ -68,7 +69,4 @@ public final class CarHardwareDemoScreen extends Screen {
 
         return new NavigationTemplate.Builder().setActionStrip(actionStrip).build();
     }
-
-
-
 }

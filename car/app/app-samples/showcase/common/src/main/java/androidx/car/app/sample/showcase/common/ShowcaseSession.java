@@ -137,7 +137,7 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
         }
     }
 
-    /** Tells the session whether to update the renderer to show CarHardware information. */
+    /** Tells the session whether to update the renderer to show car hardware information. */
     public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
         mRenderer.setCarHardwareSurfaceRendererEnabledState(isEnabled);
     }
