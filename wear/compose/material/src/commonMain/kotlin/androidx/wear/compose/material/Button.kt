@@ -226,6 +226,16 @@ object ButtonDefaults {
         )
     }
 
+    @Composable
+    fun iconButtonColors(
+        contentColor: Color = MaterialTheme.colors.onSurface,
+    ): ButtonColors {
+        return buttonColors(
+            backgroundColor = Color.Transparent,
+            contentColor = contentColor,
+        )
+    }
+
     /**
      * The default background size of a [CompactButton].
      */

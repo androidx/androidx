@@ -550,11 +550,47 @@ class ButtonColorTest {
         )
 
     @Test
-    fun gives_secondaryextrasmall_disabled_surface_colors() =
+    fun gives_disabled_compact_button_secondary_colors() =
         verifyCompactButtonColors(
             Status.Disabled,
             { ButtonDefaults.secondaryButtonColors() },
             { MaterialTheme.colors.surface },
+            { MaterialTheme.colors.onSurface },
+        )
+
+    @Test
+    fun gives_enabled_button_icon_colors() =
+        verifyButtonColors(
+            Status.Enabled,
+            { ButtonDefaults.iconButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.onSurface },
+        )
+
+    @Test
+    fun gives_enabled_compact_button_icon_colors() =
+        verifyCompactButtonColors(
+            Status.Enabled,
+            { ButtonDefaults.iconButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.onSurface },
+        )
+
+    @Test
+    fun gives_disabled_button_icon_colors() =
+        verifyButtonColors(
+            Status.Disabled,
+            { ButtonDefaults.iconButtonColors() },
+            { Color.Transparent },
+            { MaterialTheme.colors.onSurface },
+        )
+
+    @Test
+    fun gives_disabled_compact_button_icon_colors() =
+        verifyCompactButtonColors(
+            Status.Disabled,
+            { ButtonDefaults.iconButtonColors() },
+            { Color.Transparent },
             { MaterialTheme.colors.onSurface },
         )
 
