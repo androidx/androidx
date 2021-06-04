@@ -1169,6 +1169,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.reset();
     }
 
+    @FlakyTest(bugId = 190043361)
     @Test
     @LargeTest
     public void seekModes() throws Exception {
