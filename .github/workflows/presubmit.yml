@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - androidx-main
+      - yigit/dist-all-test-apks
   pull_request_target:
     types: ['labeled']
 
