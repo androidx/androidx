@@ -4,6 +4,10 @@ package androidx.benchmark.macro {
   public abstract sealed class CompilationMode {
   }
 
+  public static final class CompilationMode.BaselineProfile extends androidx.benchmark.macro.CompilationMode {
+    field public static final androidx.benchmark.macro.CompilationMode.BaselineProfile INSTANCE;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class CompilationMode.Interpreted extends androidx.benchmark.macro.CompilationMode {
   }
 

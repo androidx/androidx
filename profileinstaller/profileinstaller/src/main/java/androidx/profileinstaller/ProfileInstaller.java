@@ -169,26 +169,26 @@ public class ProfileInstaller {
      * directory. The associated [data] passed in for this call will be the size, in bytes, of
      * the profile that was found.
      */
-    @DiagnosticCode public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 0;
+    @DiagnosticCode public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 1;
 
     /**
      * Indicates that when tryInstallSync was run, no existing profile was found in the "cur"
      * directory.
      */
-    @DiagnosticCode public static final int DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST = 1;
+    @DiagnosticCode public static final int DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST = 2;
 
     /**
      * Indicates that when tryInstallSync was run, an existing profile was found in the "cur"
      * directory. The associated [data] passed in for this call will be the size, in bytes, of
      * the profile that was found.
      */
-    @DiagnosticCode public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 2;
+    @DiagnosticCode public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 3;
 
     /**
      * Indicates that when tryInstallSync was run, no existing profile was found in the "cur"
      * directory.
      */
-    @DiagnosticCode public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 3;
+    @DiagnosticCode public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 4;
 
     /**
      * @hide
@@ -213,49 +213,49 @@ public class ProfileInstaller {
      * Note that this should happen but is not the only condition that indicates "nothing went
      * wrong". Several result codes are indicative of expected behavior.
      */
-    @ResultCode public static final int RESULT_INSTALL_SUCCESS = 0;
+    @ResultCode public static final int RESULT_INSTALL_SUCCESS = 1;
 
     /**
      * Indicates that no installation occurred because it was determined that the baseline
      * profile had already been installed previously.
      */
-    @ResultCode public static final int RESULT_ALREADY_INSTALLED = 1;
+    @ResultCode public static final int RESULT_ALREADY_INSTALLED = 2;
 
     /**
      * Indicates that the current SDK level is such that installing a profile is not supported by
      * ART.
      */
-    @ResultCode public static final int RESULT_UNSUPPORTED_ART_VERSION = 2;
+    @ResultCode public static final int RESULT_UNSUPPORTED_ART_VERSION = 3;
 
     /**
      * Indicates that the installation was aborted because the app was found to not have adequate
      * permissions to write the profile to disk.
      */
-    @ResultCode public static final int RESULT_NOT_WRITABLE = 3;
+    @ResultCode public static final int RESULT_NOT_WRITABLE = 4;
 
     /**
      * Indicates that the format required by this SDK version is not supported by this version of
      * the ProfileInstaller library.
      */
-    @ResultCode public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 4;
+    @ResultCode public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 5;
 
     /**
      * Indicates that no baseline profile was bundled with the APK, and as a result, no
      * installation could take place.
      */
-    @ResultCode public static final int RESULT_BASELINE_PROFILE_NOT_FOUND = 5;
+    @ResultCode public static final int RESULT_BASELINE_PROFILE_NOT_FOUND = 6;
 
     /**
      * Indicates that an IO Exception took place during install. The associated [data] with this
      * result is the exception.
      */
-    @ResultCode public static final int RESULT_IO_EXCEPTION = 6;
+    @ResultCode public static final int RESULT_IO_EXCEPTION = 7;
 
     /**
      * Indicates that a parsing exception occurred during install. The associated [data] with
      * this result is the exception.
      */
-    @ResultCode public static final int RESULT_PARSE_EXCEPTION = 7;
+    @ResultCode public static final int RESULT_PARSE_EXCEPTION = 8;
 
     static boolean shouldSkipInstall(
             @NonNull Diagnostics diagnostics,
