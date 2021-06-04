@@ -181,6 +181,7 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
+\$OUT_DIR/androidx/wear/compose/compose\-material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/profileinstaller/profileinstaller\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -1143,3 +1144,5 @@ WARNING:Software Components will not be created automatically for Maven publishi
 w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFaceService\.kt: \([0-9]+, [0-9]+\): Parameter 'surfaceHolder' is never used
 # > Task :lint-checks:integration-tests:copyDebugAndroidLintReports
 Copying lint text report to .*
+# > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/wear/compose/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
