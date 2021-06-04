@@ -26,7 +26,6 @@ import androidx.room.vo.FtsOptions
 import androidx.room.vo.Warning
 import columnInfo
 import org.sqlite.JDBC
-import org.sqlite.SQLiteJDBCLoader
 import java.io.File
 import java.sql.Connection
 import java.sql.SQLException
@@ -68,7 +67,7 @@ class DatabaseVerifier private constructor(
             // multiple library versions, process isolation and multiple class loaders by using
             // UUID named library files.
             synchronized(System::class.java) {
-                SQLiteJDBCLoader.initialize() // extract and loads native library
+                NativeSQLiteLoader.load() // extract and loads native library
                 JDBC.isValidURL(CONNECTION_URL) // call to register driver
             }
         }
