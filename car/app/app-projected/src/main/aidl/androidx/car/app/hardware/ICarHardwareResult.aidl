@@ -24,6 +24,6 @@ import android.os.IInterface;
  */
 oneway interface ICarHardwareResult {
    /** Notifies the app of car hardware result. */
-   void onCarHardwareResult(in int resultType, in boolean isSupported, in Bundleable result,
-           in IBinder callback) = 1;
+   void onCarHardwareResult(in int resultType, in boolean isSupported,
+           in @nullable Bundleable result, in IBinder callback) = 1;
 }
