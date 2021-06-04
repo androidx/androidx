@@ -39,7 +39,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 /** Session class for the Showcase sample app. */
-class ShowcaseSession extends Session implements DefaultLifecycleObserver {
+public class ShowcaseSession extends Session implements DefaultLifecycleObserver {
     static final String URI_SCHEME = "samples";
     static final String URI_HOST = "showcase";
 
@@ -61,7 +61,7 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
             // action.
             getCarContext()
                     .getCarService(ScreenManager.class)
-                    .push(new StartScreen(getCarContext()));
+                    .push(new StartScreen(getCarContext(), this));
             return new NavigatingDemoScreen(getCarContext());
         }
 
@@ -89,10 +89,10 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
 
             getCarContext()
                     .getCarService(ScreenManager.class)
-                    .push(new StartScreen(getCarContext()));
+                    .push(new StartScreen(getCarContext(), this));
             return new PreSeedingFlowScreen(getCarContext());
         }
-        return new StartScreen(getCarContext());
+        return new StartScreen(getCarContext(), this);
     }
 
     @Override
@@ -135,5 +135,10 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
         if (mRenderer != null) {
             mRenderer.onCarConfigurationChanged();
         }
+    }
+
+    /** Tells the session whether to update the renderer to show CarHardware information. */
+    public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
+        mRenderer.setCarHardwareSurfaceRendererEnabledState(isEnabled);
     }
 }

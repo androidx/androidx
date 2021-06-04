@@ -31,15 +31,28 @@ import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
+import androidx.car.app.hardware.CarHardwareManager;
+import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.info.CarInfo;
+import androidx.car.app.hardware.info.Model;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+
+import java.util.concurrent.Executor;
 
 /** A very simple implementation of a renderer for the app's background surface. */
 public final class SurfaceRenderer implements DefaultLifecycleObserver {
     private static final String TAG = "showcase";
 
+    private static final int HORIZONTAL_TEXT_MARGIN = 10;
+    private static final int VERTICAL_TEXT_MARGIN_FROM_TOP = 20;
+    private static final int VERTICAL_TEXT_MARGIN_FROM_BOTTOM = 10;
+
     private final CarContext mCarContext;
+    private final Executor mCarHardwareExecutor;
     @Nullable
     Surface mSurface;
     @Nullable
@@ -49,6 +62,22 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
     private final Paint mLeftInsetPaint = new Paint();
     private final Paint mRightInsetPaint = new Paint();
     private final Paint mCenterPaint = new Paint();
+    private final Paint mCarInfoPaint = new Paint();
+    private boolean mShowCarHardwareSurfaceInfo;
+
+    @Nullable
+    Model mModel;
+
+    private OnCarDataListener<Model> mModelListener = new OnCarDataListener<Model>() {
+        @Override
+        public void onCarData(@NonNull Model data) {
+            synchronized (SurfaceRenderer.this) {
+                Log.i(TAG, String.format("Received model information %s", data));
+                mModel = data;
+                renderFrame();
+            }
+        }
+    };
 
     private final SurfaceCallback mSurfaceCallback =
             new SurfaceCallback() {
@@ -109,11 +138,36 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         mCenterPaint.setAntiAlias(true);
         mCenterPaint.setStyle(Style.STROKE);
 
+        mCarInfoPaint.setColor(Color.BLACK);
+        mCarInfoPaint.setAntiAlias(true);
+        mCarInfoPaint.setStyle(Style.STROKE);
+        mCarInfoPaint.setTextAlign(Align.CENTER);
+
+        mCarHardwareExecutor = ContextCompat.getMainExecutor(mCarContext);
+
         lifecycle.addObserver(this);
     }
 
     /** Callback called when the car configuration changes. */
     public void onCarConfigurationChanged() {
+        renderFrame();
+    }
+
+    /** Tells the renderer whether to subscribe and show CarHardware information. */
+    public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
+        if (isEnabled == mShowCarHardwareSurfaceInfo) {
+            return;
+        }
+        if (isEnabled) {
+            CarHardwareManager carHardwareManager =
+                    mCarContext.getCarService(CarHardwareManager.class);
+
+            // Request any single shot values.
+            CarInfo carInfo = carHardwareManager.getCarInfo();
+            mModel = null;
+            carInfo.getModel(mCarHardwareExecutor, mModelListener);
+        }
+        mShowCarHardwareSurfaceInfo = isEnabled;
         renderFrame();
     }
 
@@ -133,9 +187,51 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         // Clear the background.
         canvas.drawColor(mCarContext.isDarkMode() ? Color.DKGRAY : Color.LTGRAY);
 
-        final int horizontalTextMargin = 10;
-        final int verticalTextMarginFromTop = 20;
-        final int verticalTextMarginFromBottom = 10;
+        if (mShowCarHardwareSurfaceInfo) {
+            renderCarInfoFrame(canvas);
+        } else {
+            renderStandardFrame(canvas);
+        }
+        mSurface.unlockCanvasAndPost(canvas);
+
+    }
+
+    private void renderCarInfoFrame(Canvas canvas) {
+        Rect visibleArea = mVisibleArea;
+        if (visibleArea != null) {
+            if (visibleArea.isEmpty()) {
+                // No inset set. The entire area is considered safe to draw.
+                visibleArea.set(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
+            }
+
+            StringBuilder info = new StringBuilder();
+            if (mModel == null) {
+                info.append("Fetching model info.");
+            } else {
+                if (mModel.getManufacturer().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Manufacturer unavailable, ");
+                } else {
+                    info.append(mModel.getManufacturer().getValue());
+                    info.append(",");
+                }
+                if (mModel.getName().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Model unavailable, ");
+                } else {
+                    info.append(mModel.getName());
+                    info.append(",");
+                }
+                if (mModel.getYear().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Year unavailable.");
+                } else {
+                    info.append(mModel.getYear());
+                }
+            }
+            canvas.drawText(info.toString(), visibleArea.centerX(),
+                    visibleArea.top + VERTICAL_TEXT_MARGIN_FROM_TOP, mCarInfoPaint);
+        }
+    }
+
+    private void renderStandardFrame(Canvas canvas) {
 
         // Draw a rectangle showing the inset.
         Rect visibleArea = mVisibleArea;
@@ -160,13 +256,13 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                     mLeftInsetPaint);
             canvas.drawText(
                     "(" + visibleArea.left + " , " + visibleArea.top + ")",
-                    visibleArea.left + horizontalTextMargin,
-                    visibleArea.top + verticalTextMarginFromTop,
+                    visibleArea.left + HORIZONTAL_TEXT_MARGIN,
+                    visibleArea.top + VERTICAL_TEXT_MARGIN_FROM_TOP,
                     mLeftInsetPaint);
             canvas.drawText(
                     "(" + visibleArea.right + " , " + visibleArea.bottom + ")",
-                    visibleArea.right - horizontalTextMargin,
-                    visibleArea.bottom - verticalTextMarginFromBottom,
+                    visibleArea.right - HORIZONTAL_TEXT_MARGIN,
+                    visibleArea.bottom - VERTICAL_TEXT_MARGIN_FROM_BOTTOM,
                     mRightInsetPaint);
         } else {
             Log.d(TAG, "Visible area not available.");
@@ -181,12 +277,11 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
             canvas.drawLine(centerX, centerY - lengthPx, centerX, centerY + lengthPx, mCenterPaint);
             canvas.drawText(
                     "(" + centerX + ", " + centerY + ")",
-                    centerX + horizontalTextMargin,
+                    centerX + HORIZONTAL_TEXT_MARGIN,
                     centerY,
                     mCenterPaint);
         } else {
             Log.d(TAG, "Stable area not available.");
         }
-        mSurface.unlockCanvasAndPost(canvas);
     }
 }
