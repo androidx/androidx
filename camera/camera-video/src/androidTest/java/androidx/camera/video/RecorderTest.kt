@@ -20,11 +20,13 @@ import android.Manifest
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
+import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.CameraSelector
@@ -35,6 +37,7 @@ import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.SurfaceTextureProvider
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -88,6 +91,7 @@ class RecorderTest {
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var recorder: Recorder
     private lateinit var preview: Preview
+    private lateinit var surfaceTexturePreview: Preview
 
     @Before
     fun setUp() {
@@ -97,33 +101,49 @@ class RecorderTest {
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
-        // Skip for b/168187087
-        assumeFalse(
-            "The camera fails to initialize on Sailfish if there's only one MediaCodec surface " +
-                "attached.",
-            Build.DEVICE.equals("sailfish", true)
-        )
 
         CameraX.initialize(context, Camera2Config.defaultConfig()).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+
+        recorder = Recorder.Builder()
+            .setQualitySelector(QualitySelector.of(QualitySelector.QUALITY_HIGHEST)).build()
 
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
         preview = Preview.Builder().build()
 
+        // Add another Preview to provide an additional surface for b/168187087.
+        surfaceTexturePreview = Preview.Builder().build()
+        instrumentation.runOnMainSync {
+            surfaceTexturePreview.setSurfaceProvider(
+                SurfaceTextureProvider.createSurfaceTextureProvider(
+                    object : SurfaceTextureProvider.SurfaceTextureCallback {
+                        override fun onSurfaceTextureReady(
+                            surfaceTexture: SurfaceTexture,
+                            resolution: Size
+                        ) {
+                            // No-op
+                        }
+
+                        override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                            surfaceTexture.release()
+                        }
+                    }
+                )
+            )
+        }
+
         try {
-            cameraUseCaseAdapter.checkAttachUseCases(listOf(preview))
+            cameraUseCaseAdapter.checkAttachUseCases(listOf(preview, surfaceTexturePreview))
         } catch (e: CameraUseCaseAdapter.CameraException) {
             assumeNoException("The device doesn't support the use cases combination.", e)
         }
 
-        recorder = Recorder.Builder()
-            .setQualitySelector(QualitySelector.of(QualitySelector.QUALITY_HIGHEST)).build()
-
         cameraUseCaseAdapter = CameraUtil.createCameraAndAttachUseCase(
             context,
             cameraSelector,
-            preview
+            preview,
+            surfaceTexturePreview
         )
     }
 
