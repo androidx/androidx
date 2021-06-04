@@ -232,6 +232,7 @@ public class FragmentStrictModeTest {
         assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun detectSetUserVisibleHint() {
         var violation: Violation? = null
@@ -241,9 +242,12 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        @Suppress("DEPRECATION")
-        StrictFragment().userVisibleHint = true
+        val fragment = StrictFragment()
+        fragment.userVisibleHint = true
         assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set user visible hint to true for fragment $fragment"
+        )
     }
 
     @Suppress("DEPRECATION")
