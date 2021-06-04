@@ -79,7 +79,7 @@ import java.util.concurrent.TimeoutException;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = 29)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class SupportedSizeConstraintsTest {
 
     private static final String BACK_CAMERA_ID = "0";

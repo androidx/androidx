@@ -334,11 +334,14 @@ public abstract class CameraController {
     private static Context getApplicationContext(@NonNull Context context) {
         Context applicationContext = context.getApplicationContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Api30Impl.createAttributionContext(applicationContext,
-                    Api30Impl.getAttributionTag(context));
-        } else {
-            return applicationContext;
+            String attributeTag = Api30Impl.getAttributionTag(context);
+
+            if (attributeTag != null) {
+                return Api30Impl.createAttributionContext(applicationContext, attributeTag);
+            }
         }
+
+        return applicationContext;
     }
 
     /**
