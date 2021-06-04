@@ -1158,3 +1158,6 @@ w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFac
 Copying lint text report to .*
 # > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/wear/compose/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Configure project :ads-identifier
+WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
+The current default is \'false\'\.
