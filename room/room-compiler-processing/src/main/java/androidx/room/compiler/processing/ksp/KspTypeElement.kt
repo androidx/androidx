@@ -337,6 +337,12 @@ internal sealed class KspTypeElement(
             }
     }
 
+    override fun getEnclosedTypeElements(): List<XTypeElement> {
+        return declaration.declarations.filterIsInstance<KSClassDeclaration>()
+            .map { env.wrapClassDeclaration(it) }
+            .toList()
+    }
+
     override fun toString(): String {
         return declaration.toString()
     }

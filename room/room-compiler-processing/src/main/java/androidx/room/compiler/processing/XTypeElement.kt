@@ -157,4 +157,9 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * List of interfaces implemented by this class
      */
     fun getSuperInterfaceElements(): List<XTypeElement>
+
+    /**
+     * Returns the list of all classes nested directly within this class.
+     */
+    fun getEnclosedTypeElements(): List<XTypeElement>
 }
