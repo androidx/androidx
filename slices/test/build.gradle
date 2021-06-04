@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
 import androidx.build.Publish
@@ -31,12 +30,12 @@ dependencies {
     implementation("androidx.collection:collection:1.1.0")
     api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
 
 androidx {

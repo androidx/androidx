@@ -15,7 +15,6 @@
  */
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
 import static androidx.build.dependencies.DependenciesKt.PROTOBUF_COMPILER
 
 plugins {
@@ -43,7 +42,7 @@ dependencies {
     // For settings fragment
     implementation("androidx.preference:preference:1.1.1")
 
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation(libs.constraintLayout)
     implementation("androidx.navigation:navigation-fragment-ktx:2.3.2")
 
     // For kotlin serialization
