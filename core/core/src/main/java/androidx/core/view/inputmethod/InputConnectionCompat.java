@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 
 package androidx.core.view.inputmethod;
 
+import android.annotation.SuppressLint;
 import android.content.ClipDescription;
 import android.net.Uri;
 import android.os.Build;
@@ -29,11 +30,13 @@ import android.view.inputmethod.InputContentInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 
 /**
  * Helper for accessing features in {@link InputConnection} introduced after API level 13 in a
  * backwards compatible fashion.
  */
+@SuppressLint("PrivateConstructorForUtilityClass") // Already launched with public constructor
 public final class InputConnectionCompat {
 
     private static final String COMMIT_CONTENT_ACTION =
@@ -67,7 +70,7 @@ public final class InputConnectionCompat {
 
     static boolean handlePerformPrivateCommand(
             @Nullable String action,
-            @NonNull Bundle data,
+            @Nullable Bundle data,
             @NonNull OnCommitContentListener onCommitContentListener) {
         if (data == null) {
             return false;
@@ -232,7 +235,9 @@ public final class InputConnectionCompat {
          * request is already handled or still being handled in background. {@code false} to use the
          * default implementation
          */
-        boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts);
+        @SuppressWarnings("NullableProblems") // Not useful here
+        boolean onCommitContent(@NonNull InputContentInfoCompat inputContentInfo, int flags,
+                @Nullable Bundle opts);
     }
 
     /**
@@ -257,18 +262,15 @@ public final class InputConnectionCompat {
     public static InputConnection createWrapper(@NonNull InputConnection inputConnection,
             @NonNull EditorInfo editorInfo,
             @NonNull OnCommitContentListener onCommitContentListener) {
-        if (inputConnection == null) {
-            throw new IllegalArgumentException("inputConnection must be non-null");
-        }
-        if (editorInfo == null) {
-            throw new IllegalArgumentException("editorInfo must be non-null");
-        }
-        if (onCommitContentListener == null) {
-            throw new IllegalArgumentException("onCommitContentListener must be non-null");
-        }
+        ObjectsCompat.requireNonNull(inputConnection, "inputConnection must be non-null");
+        ObjectsCompat.requireNonNull(editorInfo, "editorInfo must be non-null");
+        ObjectsCompat.requireNonNull(onCommitContentListener,
+                "onCommitContentListener must be non-null");
+
         if (Build.VERSION.SDK_INT >= 25) {
             final OnCommitContentListener listener = onCommitContentListener;
             return new InputConnectionWrapper(inputConnection, false /* mutable */) {
+                @SuppressWarnings("ConstantConditions") // Incorrect warning
                 @Override
                 public boolean commitContent(InputContentInfo inputContentInfo, int flags,
                         Bundle opts) {
@@ -299,7 +301,6 @@ public final class InputConnectionCompat {
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
     public InputConnectionCompat() {
     }
 }

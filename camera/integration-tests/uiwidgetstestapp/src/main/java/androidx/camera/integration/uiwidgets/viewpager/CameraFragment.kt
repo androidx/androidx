@@ -73,7 +73,7 @@ class CameraFragment : Fragment() {
                     Log.d(TAG, "Skip camera setup since the lifecycle is closed")
                 }
             },
-            ContextCompat.getMainExecutor(this.context)
+            ContextCompat.getMainExecutor(requireContext())
         )
     }
 
