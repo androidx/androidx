@@ -187,11 +187,13 @@ public class ForceStopRunnable implements Runnable {
                 return true;
             }
             return false;
-        } catch (SecurityException exception) {
+        } catch (SecurityException | IllegalStateException exception) {
+            // b/189975360 Some Samsung Devices seem to throw an IllegalStateException :( on API 30.
+
             // Setting Alarms on some devices fails due to OEM introduced bugs in AlarmManager.
             // When this happens, there is not much WorkManager can do, other can reschedule
             // everything.
-            Logger.get().warning(TAG, "Ignoring security exception", exception);
+            Logger.get().warning(TAG, "Ignoring exception", exception);
             return true;
         }
     }
