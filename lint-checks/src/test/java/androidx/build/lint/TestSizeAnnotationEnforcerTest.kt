@@ -40,7 +40,7 @@ class TestSizeAnnotationEnforcerTest : LintDetectorTest() {
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import org.junit.runner.RunWith
                 import org.junit.runners.JUnit4
@@ -63,7 +63,7 @@ class TestSizeAnnotationEnforcerTest : LintDetectorTest() {
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import androidx.test.filters.MediumTest
                 import org.junit.runner.RunWith
@@ -90,7 +90,7 @@ class TestSizeAnnotationEnforcerTest : LintDetectorTest() {
             .expect(
                 /* ktlint-disable max-line-length */
 """
-src/test/androidx/ui/foo/Test.kt:8: Error: Unexpected test size annotation [UnexpectedTestSizeAnnotation]
+src/test/androidx/foo/Test.kt:8: Error: Unexpected test size annotation [UnexpectedTestSizeAnnotation]
                 @MediumTest
                 ~~~~~~~~~~~
 1 errors, 0 warnings
@@ -104,7 +104,7 @@ src/test/androidx/ui/foo/Test.kt:8: Error: Unexpected test size annotation [Unex
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import org.junit.runner.RunWith
                 import org.junit.runners.JUnit4
@@ -119,7 +119,7 @@ src/test/androidx/ui/foo/Test.kt:8: Error: Unexpected test size annotation [Unex
             .expect(
                 /* ktlint-disable max-line-length */
                 """
-src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Supported runners are: [androidx.test.ext.junit.runners.AndroidJUnit4, org.junit.runners.Parameterized] [UnsupportedTestRunner]
+src/androidTest/androidx/foo/Test.kt:7: Error: Unsupported test runner. Supported runners are: [androidx.test.ext.junit.runners.AndroidJUnit4, org.junit.runners.Parameterized] [UnsupportedTestRunner]
                 @RunWith(JUnit4::class)
                          ~~~~~~~~~~~~~
 1 errors, 0 warnings
@@ -133,7 +133,7 @@ src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Suppo
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import androidx.test.ext.junit.runners.AndroidJUnit4
                 import androidx.test.filters.MediumTest
@@ -158,7 +158,7 @@ src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Suppo
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import org.junit.runner.RunWith
                 import org.junit.runners.Parameterized
@@ -181,7 +181,7 @@ src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Suppo
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 class Test {
                     @Test
@@ -199,7 +199,7 @@ src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Suppo
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import androidx.test.ext.junit.runners.AndroidJUnit4
                 import androidx.test.filters.MediumTest
@@ -228,7 +228,7 @@ src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Suppo
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import androidx.test.ext.junit.runners.AndroidJUnit4
                 import androidx.test.filters.MediumTest
@@ -254,7 +254,7 @@ src/androidTest/androidx/ui/foo/Test.kt:7: Error: Unsupported test runner. Suppo
             .expect(
                 /* ktlint-disable max-line-length */
                 """
-src/androidTest/androidx/ui/foo/Test.kt:16: Error: Missing test size annotation [MissingTestSizeAnnotation]
+src/androidTest/androidx/foo/Test.kt:16: Error: Missing test size annotation [MissingTestSizeAnnotation]
                     fun bar() {}
                         ~~~
 1 errors, 0 warnings
@@ -268,7 +268,7 @@ src/androidTest/androidx/ui/foo/Test.kt:16: Error: Missing test size annotation 
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import androidx.test.ext.junit.runners.AndroidJUnit4
                 import org.junit.runner.RunWith
@@ -292,10 +292,10 @@ src/androidTest/androidx/ui/foo/Test.kt:16: Error: Missing test size annotation 
             .expect(
                 /* ktlint-disable max-line-length */
                 """
-src/androidTest/androidx/ui/foo/Test.kt:11: Error: Missing test size annotation [MissingTestSizeAnnotation]
+src/androidTest/androidx/foo/Test.kt:11: Error: Missing test size annotation [MissingTestSizeAnnotation]
                     fun foo() {}
                         ~~~
-src/androidTest/androidx/ui/foo/Test.kt:14: Error: Missing test size annotation [MissingTestSizeAnnotation]
+src/androidTest/androidx/foo/Test.kt:14: Error: Missing test size annotation [MissingTestSizeAnnotation]
                     fun bar() {}
                         ~~~
 2 errors, 0 warnings
@@ -309,7 +309,7 @@ src/androidTest/androidx/ui/foo/Test.kt:14: Error: Missing test size annotation 
         lint().files(
             kotlin(
                 """
-                package androidx.ui.foo
+                package androidx.foo
 
                 import androidx.test.filters.MediumTest
                 import org.junit.runner.RunWith

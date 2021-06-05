@@ -62,9 +62,9 @@ gradlePlugin {
             id = "AndroidXPlugin"
             implementationClass = "androidx.build.AndroidXPlugin"
         }
-        AndroidXUiPlugin {
-            id = "AndroidXUiPlugin"
-            implementationClass = "androidx.build.AndroidXUiPlugin"
+        AndroidXComposePlugin {
+            id = "AndroidXComposePlugin"
+            implementationClass = "androidx.build.AndroidXComposePlugin"
         }
     }
 }
