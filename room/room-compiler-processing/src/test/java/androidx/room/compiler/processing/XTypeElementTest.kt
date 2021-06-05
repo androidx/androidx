@@ -986,6 +986,9 @@ class XTypeElementTest {
                 enum class NestedEnum {
                     A, B
                 }
+                companion object {
+                    val foo = 1
+                }
             }
             """.trimIndent()
         )
@@ -999,6 +1002,7 @@ class XTypeElementTest {
                     invocation.processingEnv.requireTypeElement("TopLevelClass.NestedObject"),
                     invocation.processingEnv.requireTypeElement("TopLevelClass.NestedInterface"),
                     invocation.processingEnv.requireTypeElement("TopLevelClass.NestedEnum"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.Companion"),
                 )
         }
     }
