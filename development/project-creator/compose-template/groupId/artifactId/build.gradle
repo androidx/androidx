@@ -20,7 +20,7 @@ import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }

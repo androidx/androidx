@@ -34,6 +34,6 @@ androidx {
     name = "Compose Animation Tooling"
     description = "Compose Animation APIs for tooling support. Internal use only."
     publish = Publish.SNAPSHOT_ONLY
-    mavenGroup = LibraryGroups.UI
+    mavenGroup = LibraryGroups.Compose.ANIMATION
     runApiTasks = new RunApiTasks.Yes()
 }
