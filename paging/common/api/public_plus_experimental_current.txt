@@ -491,10 +491,3 @@ package androidx.paging {
 
 }
 
-package androidx.paging.multicast {
-
-  public final class ChannelManagerKt {
-  }
-
-}
-
