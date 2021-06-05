@@ -23,14 +23,14 @@ interface ICarHardwareHost {
   /**
    * Indicates to the host that the app is interested in a car hardware result with a single value.
    */
-  void getCarHardwareResult(in int resultType, in Bundleable params,
+  void getCarHardwareResult(in int resultType, in @nullable Bundleable params,
           in ICarHardwareResult callback) = 1;
 
   /**
    * Indicates to the host that the app wants to subscribe to a car hardware result that changes
    * over time.
    */
-  void subscribeCarHardwareResult(in int resultType, in Bundleable params,
+  void subscribeCarHardwareResult(in int resultType, in @nullable Bundleable params,
           in ICarHardwareResult callback) = 2;
 
   /**
