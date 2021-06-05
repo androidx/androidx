@@ -130,6 +130,12 @@ internal sealed class JavacTypeElement(
         }
     }
 
+    override fun getEnclosedTypeElements(): List<XTypeElement> {
+        return ElementFilter.typesIn(element.enclosedElements).map {
+            env.wrapTypeElement(it)
+        }
+    }
+
     override val type: JavacDeclaredType by lazy {
         env.wrap<JavacDeclaredType>(
             typeMirror = element.asType(),

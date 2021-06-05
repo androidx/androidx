@@ -974,6 +974,68 @@ class XTypeElementTest {
         }
     }
 
+    @Test
+    fun enclosedTypes() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            class TopLevelClass {
+                class NestedClass
+                object NestedObject
+                interface NestedInterface
+                enum class NestedEnum {
+                    A, B
+                }
+                companion object {
+                    val foo = 1
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val topLevelClass = invocation.processingEnv.requireTypeElement("TopLevelClass")
+            val enclosedTypeElements = topLevelClass.getEnclosedTypeElements()
+
+            assertThat(enclosedTypeElements)
+                .containsExactly(
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedClass"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedObject"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedInterface"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedEnum"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.Companion"),
+                )
+        }
+    }
+
+    @Test
+    fun enclosedTypes_java() {
+        val src = Source.java(
+            "Source",
+            """
+            class TopLevelClass {
+                class InnerClass { }
+                static class NestedClass { }
+                interface NestedInterface { }
+                enum NestedEnum {
+                    A, B
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val topLevelClass = invocation.processingEnv.requireTypeElement("TopLevelClass")
+            val enclosedTypeElements = topLevelClass.getEnclosedTypeElements()
+
+            assertThat(enclosedTypeElements)
+                .containsExactly(
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.InnerClass"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedClass"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedInterface"),
+                    invocation.processingEnv.requireTypeElement("TopLevelClass.NestedEnum"),
+                )
+        }
+    }
+
     /**
      * it is good to exclude methods coming from Object when testing as they differ between KSP
      * and KAPT but irrelevant for Room.
