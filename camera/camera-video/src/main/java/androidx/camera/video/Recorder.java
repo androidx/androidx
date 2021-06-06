@@ -220,9 +220,12 @@ public final class Recorder implements VideoOutput {
                     // The video encoder has already be created, providing the surface directly.
                     surfaceRequest.provideSurface(mSurface, mSequentialExecutor, (result) -> {
                         Surface resultSurface = result.getSurface();
-                        resultSurface.release();
                         if (mSurface == resultSurface) {
+                            // The latest surface will be released by the encoder when encoder is
+                            // released.
                             mSurface = null;
+                        } else {
+                            resultSurface.release();
                         }
                         release();
                         setState(State.INITIALIZING);
@@ -743,9 +746,12 @@ public final class Recorder implements VideoOutput {
                     mSurface = surface;
                     surfaceRequest.provideSurface(surface, mSequentialExecutor, (result) -> {
                         Surface resultSurface = result.getSurface();
-                        resultSurface.release();
                         if (mSurface == resultSurface) {
+                            // The latest surface will be released by the encoder when encoder is
+                            // released.
                             mSurface = null;
+                        } else {
+                            resultSurface.release();
                         }
                         release();
                         setState(State.INITIALIZING);
