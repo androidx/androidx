@@ -453,6 +453,7 @@ class AutoMigrationWriter(
                 migrateBuilder,
                 addedTable.entityBundle.createTable()
             )
+            addStatementsToRecreateIndexes(addedTable.entityBundle, migrateBuilder)
         }
     }
 
