@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "androidx.profile-installer:profile-installer"
+    name = "androidx.profileinstaller:profileinstaller"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.PROFILEINSTALLER
     mavenGroup = LibraryGroups.PROFILEINSTALLER
