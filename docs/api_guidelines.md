@@ -34,6 +34,9 @@ Maven groupId: `androidx.<feature-name>`
 
 Maven artifactId: `<feature-name>-<sub-feature>`
 
+New modules in androidx can be created using the
+[project creator script](/company/teams/androidx/policies.md#project-creator).
+
 #### Common sub-feature names {#module-naming-subfeature}
 
 *   `-testing` for an artifact intended to be used while testing usages of your
