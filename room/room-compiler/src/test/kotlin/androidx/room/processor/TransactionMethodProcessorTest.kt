@@ -93,6 +93,27 @@ class TransactionMethodProcessorTest {
     }
 
     @Test
+    fun deferredReturnType_flow() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public kotlinx.coroutines.flow.Flow<String> doInTransaction(int param) {
+                    return null;
+                }
+                """
+        ) { transaction, invocation ->
+            assertThat(transaction.name, `is`("doInTransaction"))
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "kotlinx.coroutines.flow.Flow"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun deferredReturnType_liveData() {
         singleTransactionMethod(
             """
@@ -266,7 +287,7 @@ class TransactionMethodProcessorTest {
         val otherSources = listOf(
             COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
             COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
-            COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE
+            COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE, COMMON.FLOW
         )
         runProcessorTest(
             sources = inputSource + otherSources
