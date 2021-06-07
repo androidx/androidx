@@ -22,6 +22,7 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.vo.TransactionMethod
 
 class TransactionMethodProcessor(
@@ -86,7 +87,8 @@ class TransactionMethodProcessor(
             RxJava3TypeNames.MAYBE,
             RxJava3TypeNames.SINGLE,
             RxJava3TypeNames.COMPLETABLE,
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
+            KotlinTypeNames.FLOW
         )
     }
 }
