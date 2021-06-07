@@ -370,6 +370,60 @@ class QueryTest {
         )
     }
 
+    @Test
+    fun test_large_number_of_values_with_response_size_limit() = runBlocking {
+        // test config
+        val expectedRecordCount = 4096
+        val recordSize = 512
+        val idealBatchCount = 256
+        val responseSizeLimitHint = expectedRecordCount.toLong() * recordSize / idealBatchCount
+
+        // create a database
+        val db = Database(
+            "db_large_val",
+            Table("table1", Column("c1", "blob"))
+        ).createInstance(temporaryFolder, writeAheadLoggingEnabled = true)
+
+        // populate the database
+        val records = mutableListOf<ByteArray>()
+        val statement = db.compileStatement("insert into table1 values (?)")
+        repeat(expectedRecordCount) { ix ->
+            val value = ByteArray(recordSize) { ix.toByte() }
+            records.add(value)
+            statement.bindBlob(1, value)
+            statement.executeInsert()
+        }
+
+        // query the data through inspection
+        val dbId = inspectDatabase(db)
+        var recordCount = 0
+        var batchCount = 0
+        while (true) { // break close inside of the loop
+            val response = testEnvironment.sendCommand(
+                createQueryCommand(
+                    dbId,
+                    "select * from table1 LIMIT 999999 OFFSET $recordCount",
+                    responseSizeLimitHint = responseSizeLimitHint
+                )
+            )
+            assertThat(response.hasErrorOccurred()).isFalse()
+            val rows = response.query.rowsList
+            if (rows.isEmpty()) break // no more rows to process
+
+            batchCount++
+            rows.forEach { row ->
+                val actual = row.valuesList.single().blobValue.toByteArray()
+                val expected = records[recordCount++]
+                assertThat(actual).isEqualTo(expected)
+            }
+        }
+
+        // verify the response
+        assertThat(recordCount).isEqualTo(expectedRecordCount)
+        assertThat(batchCount.toDouble()).isGreaterThan(idealBatchCount * 0.7) // 30% tolerance
+        assertThat(batchCount.toDouble()).isLessThan(idealBatchCount * 1.3) // 30% tolerance
+    }
+
     /** Union of two queries (different column names) resulting in using first query columns. */
     @Test
     fun test_valid_query_two_table_union() {
