@@ -27,6 +27,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation("junit:junit:4.13")
     androidTestImplementation(TRUTH)
     androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
     androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
@@ -47,6 +48,7 @@ dependencies {
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation("junit:junit:4.13")
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
 }
