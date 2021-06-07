@@ -23,6 +23,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
@@ -34,6 +36,7 @@ import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.VersionName;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -112,6 +115,17 @@ public final class ExtensionsManager {
     @GuardedBy("EXTENSIONS_LOCK")
     private static ListenableFuture<Void> sDeinitFuture;
 
+    @GuardedBy("EXTENSIONS_LOCK")
+    private static ListenableFuture<ExtensionsManager> sInitializeFuture;
+
+    @GuardedBy("EXTENSIONS_LOCK")
+    private static ListenableFuture<Void> sDeinitializeFuture;
+
+    @GuardedBy("EXTENSIONS_LOCK")
+    private static ExtensionsManager sExtensionsManager;
+
+    private final ExtensionsAvailability mExtensionsAvailability;
+
     /**
      * Initialize the extensions asynchronously.
      *
@@ -185,9 +199,9 @@ public final class ExtensionsManager {
      * Deinitialize the extensions.
      *
      * <p> For the moment only used for testing to deinitialize the extensions. Immediately after
-     * this has been called then extensions will be deinitialized and
-     * {@link #getExtensionsInfo(Context)} will throw an exception. However, tests should wait until
-     * the returned future is complete.
+     * this has been called, the extensions functions will no longer work. Calling the extensions
+     * functions in the situation will cause IllegalStateExceptions. The deinitialization process
+     * is asynchronous. Tests should wait until the returned future is complete..
      *
      * @hide
      */
@@ -251,29 +265,6 @@ public final class ExtensionsManager {
                 sDeinitFuture = Futures.immediateFuture(null);
             }
             return sDeinitFuture;
-
-        }
-    }
-
-    /**
-     * Gets a new {@link ExtensionsInfo} instance.
-     *
-     * <p> An instance can be retrieved only after {@link #init(Context)} has successfully
-     * returned with {@code ExtensionsAvailability.LIBRARY_AVAILABLE}.
-     *
-     * @throws IllegalStateException if extensions not initialized
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public static ExtensionsInfo getExtensionsInfo(@NonNull Context context) {
-        synchronized (EXTENSIONS_LOCK) {
-            if (!sInitialized) {
-                throw new IllegalStateException("Extensions not yet initialized");
-            }
-
-            return new ExtensionsInfo(context);
         }
     }
 
@@ -319,6 +310,241 @@ public final class ExtensionsManager {
         }
 
         return isAvailable;
+    }
+
+    /**
+     * Retrieves the {@link ExtensionsManager} associated with the current process.
+     *
+     * <p>An application must wait until the {@link ListenableFuture} completes to get an
+     * {@link ExtensionsManager} instance. The {@link ExtensionsManager} instance can be used to
+     * access the extensions related functions.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context) {
+        return getInstance(context, VersionName.getCurrentVersion());
+    }
+
+    static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context,
+            @NonNull VersionName versionName) {
+        synchronized (EXTENSIONS_LOCK) {
+            if (sDeinitializeFuture != null && !sDeinitializeFuture.isDone()) {
+                throw new IllegalStateException("Not yet done deinitializing extensions");
+            }
+            sDeinitializeFuture = null;
+
+            // Will be initialized, with an empty implementation which will report all extensions
+            // as unavailable
+            if (ExtensionVersion.getRuntimeVersion() == null) {
+                return Futures.immediateFuture(
+                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE));
+            }
+
+            // Prior to 1.1 no additional initialization logic required
+            if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+                return Futures.immediateFuture(
+                        getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE));
+            }
+
+            if (sInitializeFuture == null) {
+                sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                    try {
+                        InitializerImpl.init(versionName.toVersionString(),
+                                context,
+                                new InitializerImpl.OnExtensionsInitializedCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Logger.d(TAG, "Successfully initialized extensions");
+                                        completer.set(getOrCreateExtensionsManager(
+                                                ExtensionsAvailability.LIBRARY_AVAILABLE));
+                                    }
+
+                                    @Override
+                                    public void onFailure(int error) {
+                                        Logger.e(TAG, "Failed to initialize extensions");
+                                        completer.set(getOrCreateExtensionsManager(
+                                                ExtensionsAvailability
+                                                        .LIBRARY_UNAVAILABLE_ERROR_LOADING));
+                                    }
+                                },
+                                CameraXExecutors.directExecutor());
+                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                        Logger.e(TAG, "Failed to initialize extensions. Some classes or methods "
+                                + "are missed in the vendor library. " + e);
+                        completer.set(getOrCreateExtensionsManager(
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION));
+                    }
+
+                    return "Initialize extensions";
+                });
+            }
+
+            return sInitializeFuture;
+        }
+    }
+
+    /**
+     * Shutdown the extensions.
+     *
+     * <p> For the moment only used for testing to shutdown the extensions. Calling this function
+     * can deinitialize the extensions vendor library and release the created
+     * {@link ExtensionsManager} instance. Tests should wait until the returned future is
+     * complete. Then, tests can call the {@link ExtensionsManager#getInstance(Context)} function
+     * again to initialize a new {@link ExtensionsManager} instance.
+     *
+     * @hide
+     */
+    // TODO: Will need to be rewritten to be threadsafe with use in conjunction with
+    //  ExtensionsManager.init(...) if this is to be released for use outside of testing.
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    @NonNull
+    public ListenableFuture<Void> shutdown() {
+        synchronized (EXTENSIONS_LOCK) {
+            if (ExtensionVersion.getRuntimeVersion() == null) {
+                sInitializeFuture = null;
+                sExtensionsManager = null;
+                return Futures.immediateFuture(null);
+            }
+
+            // If initialization not yet attempted then deinit should succeed immediately.
+            if (sInitializeFuture == null) {
+                return Futures.immediateFuture(null);
+            }
+
+            // If already in progress of deinit then return the future
+            if (sDeinitializeFuture != null) {
+                return sDeinitializeFuture;
+            }
+
+            ExtensionsAvailability availability;
+
+            // Wait for the extension to be initialized before deinitializing. Block since
+            // this is only used for testing.
+            try {
+                sInitializeFuture.get();
+                sInitializeFuture = null;
+                availability = sExtensionsManager.mExtensionsAvailability;
+                sExtensionsManager = null;
+            } catch (ExecutionException | InterruptedException e) {
+                sDeinitializeFuture = Futures.immediateFailedFuture(e);
+                return sDeinitializeFuture;
+            }
+
+            // Once extension has been initialized start the deinit call
+            if (availability == ExtensionsAvailability.LIBRARY_AVAILABLE) {
+                sDeinitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                    try {
+                        InitializerImpl.deinit(
+                                new InitializerImpl.OnExtensionsDeinitializedCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        completer.set(null);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int error) {
+                                        completer.setException(new Exception("Failed to "
+                                                + "deinitialize extensions."));
+                                    }
+                                },
+                                CameraXExecutors.directExecutor());
+                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                        completer.setException(e);
+                    }
+                    return null;
+                });
+            } else {
+                sDeinitializeFuture = Futures.immediateFuture(null);
+            }
+            return sDeinitializeFuture;
+        }
+    }
+
+    static ExtensionsManager getOrCreateExtensionsManager(
+            ExtensionsAvailability extensionsAvailability) {
+        synchronized (EXTENSIONS_LOCK) {
+            if (sExtensionsManager != null) {
+                return sExtensionsManager;
+            }
+
+            sExtensionsManager = new ExtensionsManager(extensionsAvailability);
+
+            return sExtensionsManager;
+        }
+    }
+
+    /**
+     * Returns a new {@link CameraSelector} based on the one passed in for the specified extension
+     * mode.
+     *
+     * <p>The returned extension {@link CameraSelector} can be used to bind use cases to a
+     * desired {@link LifecycleOwner} and then the specified extension mode will be enabled on
+     * the camera.
+     *
+     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
+     * @param baseCameraSelector The base {@link CameraSelector} on top of which the extension
+     *                           config is applied.
+     *                           {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}
+     *                           can be used to check whether any camera can support the specified
+     *                           extension mode for the base camera selector.
+     * @param mode The target extension mode.
+     * @return a {@link CameraSelector} for the specified Extensions mode.
+     * @throws IllegalArgumentException If this device doesn't support extensions function, no
+     * camera can be found to support the specified extension mode, or the base
+     * {@link CameraSelector} has contained extension related configuration in it.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public CameraSelector getExtensionCameraSelector(@NonNull CameraProvider cameraProvider,
+            @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
+        // Directly return the input baseCameraSelector if the target extension mode is NONE.
+        if (mode == ExtensionMode.NONE) {
+            return baseCameraSelector;
+        }
+
+        if (mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
+            throw new IllegalArgumentException("This device doesn't support extensions function! "
+                    + "isExtensionAvailable should be checked first before calling "
+                    + "getExtensionCameraSelector.");
+        }
+
+        return ExtensionsInfo.getExtensionCameraSelectorAndInjectCameraConfig(cameraProvider,
+                baseCameraSelector, mode);
+    }
+
+    /**
+     * Returns true if the particular extension mode is available for the specified
+     * {@link CameraSelector}.
+     *
+     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
+     * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
+     * @param mode The target extension mode to support.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isExtensionAvailable(@NonNull CameraProvider cameraProvider,
+            @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
+        if (mode == ExtensionMode.NONE) {
+            return true;
+        }
+
+        if (mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
+            // Returns false if extensions are not available.
+            return false;
+        }
+
+        return ExtensionsInfo.isExtensionAvailable(cameraProvider, baseCameraSelector, mode);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    ExtensionsAvailability getExtensionsAvailability() {
+        return mExtensionsAvailability;
     }
 
     private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
@@ -418,6 +644,7 @@ public final class ExtensionsManager {
         return extender.isExtensionAvailable(cameraSelector);
     }
 
-    private ExtensionsManager() {
+    private ExtensionsManager(@NonNull ExtensionsAvailability extensionsAvailability) {
+        mExtensionsAvailability = extensionsAvailability;
     }
 }

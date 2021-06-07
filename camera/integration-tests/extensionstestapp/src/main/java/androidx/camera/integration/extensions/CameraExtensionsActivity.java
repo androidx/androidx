@@ -47,7 +47,6 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.ExtensionsInfo;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -97,7 +96,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     ProcessCameraProvider mCameraProvider;
 
     Camera mCamera;
-    ExtensionsInfo mExtensionsInfo;
+
+    ExtensionsManager mExtensionsManager;
 
     enum ImageCaptureType {
 
@@ -168,7 +168,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         @ExtensionMode.Mode
         int extensionMode = extensionModeFrom(imageCaptureType);
 
-        if (!mExtensionsInfo.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
+        if (!mExtensionsManager.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
                 extensionMode)) {
             return false;
         }
@@ -182,8 +182,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview = previewBuilder.build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
-        CameraSelector cameraSelector = mExtensionsInfo.getExtensionCameraSelector(
-                mCurrentCameraSelector, extensionMode);
+        CameraSelector cameraSelector = mExtensionsManager.getExtensionCameraSelector(
+                mCameraProvider, mCurrentCameraSelector, extensionMode);
 
         mCameraProvider.unbindAll();
         mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
@@ -309,30 +309,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
-        ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
-                ExtensionsManager.init(getApplicationContext());
+        ListenableFuture<ExtensionsManager> extensionsManagerFuture =
+                ExtensionsManager.getInstance(getApplicationContext());
 
-        Futures.addCallback(availability,
-                new FutureCallback<ExtensionsManager.ExtensionsAvailability>() {
+        Futures.addCallback(extensionsManagerFuture,
+                new FutureCallback<ExtensionsManager>() {
                     @Override
-                    public void onSuccess(
-                            @Nullable ExtensionsManager.ExtensionsAvailability availability) {
-                        // Run this on the UI thread to manipulate the Textures & Views.
-                        switch (availability) {
-                            case LIBRARY_AVAILABLE:
-                            case NONE:
-                                mExtensionsInfo = ExtensionsManager.getExtensionsInfo(
-                                        getApplicationContext());
-                                ExtensionsManager.setExtensionsErrorListener((errorCode) ->
-                                        Log.d(TAG, "Extensions error in error code: " + errorCode));
-                                bindUseCasesWithNextExtension();
-                                setupButtons();
-                                break;
-                            case LIBRARY_UNAVAILABLE_ERROR_LOADING:
-                            case LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION:
-                                throw new RuntimeException("Failed to load up extensions "
-                                        + "implementation");
-                        }
+                    public void onSuccess(@Nullable ExtensionsManager extensionsManager) {
+                        mExtensionsManager = extensionsManager;
+                        ExtensionsManager.setExtensionsErrorListener((errorCode) ->
+                                Log.d(TAG, "Extensions error in error code: " + errorCode));
+                        bindUseCasesWithNextExtension();
+                        setupButtons();
                     }
 
                     @Override

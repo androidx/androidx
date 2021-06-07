@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Used for initializing the extensions library.
@@ -45,6 +47,9 @@ public class InitializerImpl {
     public static final int ERROR_INITIALIZE_VERSION_INCOMPATIBLE = 1;
     private static Executor sExecutor = Executors.newSingleThreadExecutor();
 
+    private static final Pattern VERSION_STRING_PATTERN =
+            Pattern.compile("(\\d+)(?:\\.(\\d+))(?:\\.(\\d+))(?:\\-(.+))?");
+
     /**
      * Initializes the {@link Context}.
      *
@@ -59,10 +64,33 @@ public class InitializerImpl {
     public static void init(@NonNull String version, @NonNull Context context,
             @NonNull OnExtensionsInitializedCallback callback, @Nullable Executor executor) {
         Log.d(TAG, "initializing extensions");
-        if (executor == null) {
-            sExecutor.execute(callback::onSuccess);
+
+        Matcher matcher = VERSION_STRING_PATTERN.matcher(version);
+
+        boolean isSupported = false;
+
+        if (matcher.matches()) {
+            int majorNumber = Integer.parseInt(matcher.group(1));
+
+            // The major number of currently supported version is 1. The test library will only
+            // be initialized successfully when the major version number is 1.
+            if (majorNumber == 1) {
+                isSupported = true;
+            }
+        }
+
+        if (isSupported) {
+            if (executor == null) {
+                sExecutor.execute(callback::onSuccess);
+            } else {
+                executor.execute(callback::onSuccess);
+            }
         } else {
-            executor.execute(callback::onSuccess);
+            if (executor == null) {
+                sExecutor.execute(() -> callback.onFailure(ERROR_UNKNOWN));
+            } else {
+                executor.execute(() -> callback.onFailure(ERROR_UNKNOWN));
+            }
         }
     }
 
