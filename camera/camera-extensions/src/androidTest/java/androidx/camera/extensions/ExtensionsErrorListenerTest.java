@@ -88,7 +88,6 @@ public final class ExtensionsErrorListenerTest {
         return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
     }
 
-    private ExtensionsInfo mExtensionsInfo;
     private CameraSelector mCameraSelector;
     private ExtensionsManager.EffectMode mEffectMode;
     @ExtensionMode.Mode
@@ -100,6 +99,7 @@ public final class ExtensionsErrorListenerTest {
     private FakeLifecycleOwner mFakeLifecycleOwner;
     private CameraSelector mExtensionsCameraSelector;
     private CameraUseCaseAdapter mCamera;
+    private ExtensionsManager mExtensionsManager;
 
     final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
     ExtensionsErrorListener mExtensionsErrorListener = new ExtensionsErrorListener() {
@@ -129,16 +129,16 @@ public final class ExtensionsErrorListenerTest {
                 TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
-        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
+        mExtensionsManager = ExtensionsManager.getInstance(mContext).get(TIMEOUT_MILLISECONDS,
+                TimeUnit.MILLISECONDS);
+        assumeTrue(mExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
-        mExtensionsInfo = ExtensionsManager.getExtensionsInfo(mContext);
         mLatch = new CountDownLatch(1);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();
         mFakeLifecycleOwner.startAndResume();
-        mExtensionsCameraSelector =
-                mExtensionsInfo.getExtensionCameraSelector(mCameraSelector, mExtensionMode);
+        mExtensionsCameraSelector = mExtensionsManager.getExtensionCameraSelector(
+                mProcessCameraProvider, mCameraSelector, mExtensionMode);
     }
 
     @After
@@ -153,7 +153,7 @@ public final class ExtensionsErrorListenerTest {
 
         if (mProcessCameraProvider != null) {
             mProcessCameraProvider.shutdown().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
-            ExtensionsManager.deinit().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+            mExtensionsManager.shutdown().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -250,11 +250,11 @@ public final class ExtensionsErrorListenerTest {
         ExtensionsManager.EffectMode mismatchedEffectMode;
 
         if (mEffectMode != ExtensionsManager.EffectMode.BOKEH) {
-            assumeTrue(ExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.BOKEH,
+            assumeTrue(mExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.BOKEH,
                     mLensFacing));
             mismatchedEffectMode = ExtensionsManager.EffectMode.BOKEH;
         } else {
-            assumeTrue(ExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.HDR,
+            assumeTrue(mExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.HDR,
                     mLensFacing));
             mismatchedEffectMode = ExtensionsManager.EffectMode.HDR;
         }
