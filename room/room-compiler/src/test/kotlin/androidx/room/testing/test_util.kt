@@ -80,6 +80,11 @@ object COMMON {
     val MULTI_PKEY_ENTITY by lazy {
         loadJavaCode("common/input/MultiPKeyEntity.java", "MultiPKeyEntity")
     }
+
+    val FLOW by lazy {
+        loadJavaCode("common/input/Flow.java", KotlinTypeNames.FLOW.toString())
+    }
+
     val LIVE_DATA by lazy {
         loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.toString())
     }
