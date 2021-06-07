@@ -259,8 +259,7 @@ internal object Errors {
                 |android {
                 |    defaultConfig {
                 |        // Enable measuring on an emulator, or devices with low battery
-                |        testInstrumentationRunnerArgument
-                |                'androidx.benchmark.suppressErrors', 'EMULATOR,LOW-BATTERY'
+                |        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,LOW-BATTERY"
                 |    }
                 |}
             """.trimMargin()

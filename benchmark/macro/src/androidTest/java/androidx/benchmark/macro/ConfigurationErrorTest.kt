@@ -135,7 +135,8 @@ public class ConfigurationErrorTest {
         // suppression warning should contain *both* errors to be suppressed
         assertTrue(
             message.contains(
-                "testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'ID1,ID2'"
+                """testInstrumentationRunnerArguments""" +
+                    """["androidx.benchmark.suppressErrors"] = "ID1,ID2""""
             )
         )
     }
