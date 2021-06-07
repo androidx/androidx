@@ -986,11 +986,12 @@ package androidx.car.app.model.signin {
   }
 
   @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
-    method public String getPin();
+    method @Deprecated public String getPin();
+    method public androidx.car.app.model.CarText getPinCode();
   }
 
   public static final class PinSignInMethod.Builder {
-    ctor public PinSignInMethod.Builder(String);
+    ctor public PinSignInMethod.Builder(CharSequence);
     method public androidx.car.app.model.signin.PinSignInMethod build();
   }
 

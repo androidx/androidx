@@ -32,8 +32,7 @@ public class PinSignInMethodTest {
     @Test
     public void create_defaultValues() {
         PinSignInMethod signIn = new PinSignInMethod.Builder("ABC").build();
-
-        assertThat(signIn.getPin()).isEqualTo("ABC");
+        assertThat(signIn.getPinCode().toString()).isEqualTo("ABC");
     }
 
     @Test
@@ -46,9 +45,8 @@ public class PinSignInMethodTest {
                 () -> new PinSignInMethod.Builder("123456123456x"));
 
         // Just at max
-        PinSignInMethod signIn =
-                new PinSignInMethod.Builder("123456123456").build();
-        assertThat(signIn.getPin().length() == 12);
+        PinSignInMethod signIn = new PinSignInMethod.Builder("123456123456").build();
+        assertThat(signIn.getPinCode().toString().length() == 12);
     }
 
     @Test
