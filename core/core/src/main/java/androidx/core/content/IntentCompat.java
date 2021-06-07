@@ -16,11 +16,20 @@
 
 package androidx.core.content;
 
+import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import java.util.List;
 
 /**
  * Helper for accessing features in {@link android.content.Intent}.
@@ -48,6 +57,14 @@ public final class IntentCompat {
      */
     @SuppressLint("ActionValue")
     public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
+
+    /**
+     * Activity action: creates an intent to redirect the user to UI to turn on/off their
+     * unused app restriction settings.
+     */
+    @SuppressLint("ActionValue")
+    public static final String ACTION_UNUSED_APP_RESTRICTIONS =
+            "android.intent.action.AUTO_REVOKE_PERMISSIONS";
 
     /**
      * A constant String that is associated with the Intent, used with
@@ -113,6 +130,107 @@ public final class IntentCompat {
             Intent intent = new Intent(selectorAction);
             intent.addCategory(selectorCategory);
             return intent;
+        }
+    }
+
+    /**
+     * Make an Intent to redirect the user to UI to turn on/off their unused app restriction
+     * settings for a particular app (e.g. permission revocation, app hibernation).
+     *
+     * Note: developers must first call {@link #areUnusedAppRestrictionsAvailable} to make sure
+     * that unused app restriction features are available on the device before attempting to create
+     * an intent using this method.
+     *
+     * @param context The {@link Context} of the calling application.
+     * @param packageName The package name of the calling application.
+     *
+     * @return Returns a newly created Intent that can be used to launch an activity where users
+     * can enable and disable unused app restrictions for a specific app.
+     */
+    @NonNull
+    public static Intent makeIntentToAllowlistUnusedAppRestrictions(@NonNull Context context,
+            @NonNull String packageName) {
+        if (!areUnusedAppRestrictionsAvailable(context)) {
+            throw new UnsupportedOperationException(
+                    "Unused App Restrictions are not available on this device");
+        }
+
+        // If the OS version is S+, generate the intent using the Application Details Settings
+        // intent action to support compatibility with the App Hibernation feature
+        // TODO: replace with VERSION_CODES.S once it's defined
+        if (Build.VERSION.SDK_INT >= 31) {
+            return new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(packageName));
+        }
+
+        Intent unusedAppRestrictionsIntent =
+                new Intent(ACTION_UNUSED_APP_RESTRICTIONS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // If the OS version is R, then just add the package name to the intent.
+        // No need to add any other data or flags, since we're relying on the Android R system
+        // feature.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return unusedAppRestrictionsIntent.setData(Uri.parse(packageName));
+        } else {
+            PackageManager packageManager = context.getPackageManager();
+            // Only allow system apps to resolve the intent.
+            String intentResolverName =
+                    packageManager.queryIntentActivities(
+                            unusedAppRestrictionsIntent, PackageManager.MATCH_SYSTEM_ONLY)
+                        .get(0).activityInfo.packageName;
+            unusedAppRestrictionsIntent.setPackage(intentResolverName);
+            return unusedAppRestrictionsIntent;
+        }
+    }
+
+    /**
+     * Checks to see whether unused app restrictions (e.g. permission revocation, app hibernation)
+     * are available on this device.
+     *
+     * @param context The {@link Context} of the calling application.
+     *
+     * @return Returns a boolean indicating whether permission auto-revocation is available on
+     * the device, whether through the Android Operating System or a system app.
+     */
+    public static boolean areUnusedAppRestrictionsAvailable(@NonNull Context context) {
+        // Check that the Android OS version is R+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return true;
+
+        // Else, check for a system app that can resolve the intent
+        PackageManager packageManager = context.getPackageManager();
+        // Alternatively, check if there's another system app that can resolve the intent.
+        List<ResolveInfo> intentResolvers =
+                packageManager.queryIntentActivities(
+                        new Intent(ACTION_UNUSED_APP_RESTRICTIONS),
+                        PackageManager.MATCH_SYSTEM_ONLY);
+        return !intentResolvers.isEmpty();
+    }
+
+    /**
+     * Checks whether an application is exempt from unused app restrictions (e.g. permission
+     * revocation, app hibernation).
+     */
+    public static boolean areUnusedAppRestrictionsAllowlisted(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Api30Impl.areUnusedAppRestrictionsAllowlisted(context);
+        }
+
+        // TODO(b/177234481): Implement the backport behavior of this API
+        return false;
+    }
+
+    /**
+     * We create this static class to avoid Class Verification Failures from referencing a method
+     * only added in Android R.
+     *
+     * <p>Gating references on SDK checks does not address class verification failures, hence the
+     * need for this inner class.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class Api30Impl {
+        private Api30Impl() {}
+        static boolean areUnusedAppRestrictionsAllowlisted(@NonNull Context context) {
+            return context.getPackageManager().isAutoRevokeWhitelisted();
         }
     }
 }
