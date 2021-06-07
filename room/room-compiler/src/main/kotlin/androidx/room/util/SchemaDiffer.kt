@@ -556,7 +556,7 @@ class SchemaDiffer(
                 // Check if the new column is on a table with complex changes. If so, no
                 // need to account for it as the table will be recreated already with the new
                 // table.
-                if (!complexChangedTables.containsKey(toTable.tableName)) {
+                if (!complexChangedTables.containsKey(fromTable.tableName)) {
                     addedColumns[toColumn.columnName] =
                         AutoMigration.AddedColumn(
                             toTable.tableName,
