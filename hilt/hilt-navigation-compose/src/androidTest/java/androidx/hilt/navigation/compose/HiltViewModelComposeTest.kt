@@ -20,8 +20,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.testutils.runBlockingWithManualClock
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -45,7 +43,6 @@ import javax.inject.Inject
 
 @LargeTest
 @HiltAndroidTest
-@ExperimentalTestApi
 @RunWith(AndroidJUnit4::class)
 class HiltViewModelComposeTest {
 
@@ -56,7 +53,7 @@ class HiltViewModelComposeTest {
     val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Test
-    fun verifyCurrentNavGraphViewModel() = runBlockingWithManualClock { _ ->
+    fun verifyCurrentNavGraphViewModel() {
         lateinit var firstViewModel: SimpleViewModel
         lateinit var secondViewModel: SimpleViewModel
         composeTestRule.setContent {
@@ -68,7 +65,7 @@ class HiltViewModelComposeTest {
             }
             secondViewModel = hiltViewModel()
         }
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
         assertThat(firstViewModel).isNotNull()
         assertThat(firstViewModel.handle).isNotNull()
         assertThat(secondViewModel).isNotNull()
@@ -78,7 +75,7 @@ class HiltViewModelComposeTest {
     }
 
     @Test
-    fun differentViewModelAcrossRoutes() = runBlockingWithManualClock { _ ->
+    fun differentViewModelAcrossRoutes() {
         lateinit var firstViewModel: SimpleViewModel
         lateinit var secondViewModel: SimpleViewModel
         composeTestRule.setContent {
@@ -94,18 +91,18 @@ class HiltViewModelComposeTest {
                 }
             }
         }
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
         assertThat(firstViewModel).isNotNull()
         assertThat(firstViewModel.handle).isNotNull()
 
         composeTestRule.onNodeWithText("Navigate to Two").performClick()
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertThat(firstViewModel).isNotSameInstanceAs(secondViewModel)
     }
 
     @Test
-    fun sameParentViewModelAcrossRoutes() = runBlockingWithManualClock { _ ->
+    fun sameParentViewModelAcrossRoutes() {
         lateinit var firstViewModel: SimpleViewModel
         lateinit var secondViewModel: SimpleViewModel
         composeTestRule.setContent {
@@ -127,12 +124,12 @@ class HiltViewModelComposeTest {
                 }
             }
         }
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
         assertThat(firstViewModel).isNotNull()
         assertThat(firstViewModel.handle).isNotNull()
 
         composeTestRule.onNodeWithText("Navigate to Two").performClick()
-        composeTestRule.awaitIdle()
+        composeTestRule.waitForIdle()
 
         assertThat(firstViewModel).isSameInstanceAs(secondViewModel)
     }
