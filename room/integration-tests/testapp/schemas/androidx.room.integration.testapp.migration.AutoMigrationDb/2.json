@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "24a4a9a632f303b32cc8cfcc1534a1b1",
+    "identityHash": "2dee70d4b5bbc3df9701e56eedb6377c",
     "entities": [
       {
         "tableName": "Entity1",
@@ -874,6 +874,48 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Entity26",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `addedInV2` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "addedInV2",
+            "columnName": "addedInV2",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Entity26_addedInV2",
+            "unique": true,
+            "columnNames": [
+              "addedInV2"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Entity26_addedInV2` ON `${TABLE_NAME}` (`addedInV2`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [
@@ -884,7 +926,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '24a4a9a632f303b32cc8cfcc1534a1b1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2dee70d4b5bbc3df9701e56eedb6377c')"
     ]
   }
 }
