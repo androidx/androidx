@@ -74,43 +74,7 @@ public class FakeRequestProcessor(
         defaultParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
         defaultListeners: List<Request.Listener>
-    ): Boolean {
-        val requestSequence =
-            createRequestSequence(
-                repeating = false,
-                listOf(request),
-                defaultParameters,
-                requiredParameters,
-                defaultListeners
-            )
-
-        if (rejectRequests) {
-            check(
-                eventChannel
-                    .trySend(Event(requestSequence = requestSequence, rejected = true))
-                    .isSuccess
-            )
-            return false
-        }
-
-        val signal = synchronized(lock) {
-            requestSequenceQueue.add(requestSequence)
-            pendingSequence?.also {
-                pendingSequence = null
-            }
-        }
-        requestSequence.invokeOnSequenceCreated()
-        requestSequence.invokeOnSequenceSubmitted()
-        signal?.complete(requestSequence)
-
-        check(
-            eventChannel
-                .trySend(Event(requestSequence = requestSequence, submit = true))
-                .isSuccess
-        )
-
-        return true
-    }
+    ): Boolean = submit(listOf(request), defaultParameters, requiredParameters, defaultListeners)
 
     override fun submit(
         requests: List<Request>,
