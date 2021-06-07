@@ -22,12 +22,16 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
@@ -37,6 +41,7 @@ import javax.inject.Inject
 
 private const val MAPPING_FILE = "file_mappings.json"
 
+@CacheableTask
 abstract class ArgumentsGenerationTask @Inject constructor(
     private val projectLayout: ProjectLayout
 ) : DefaultTask() {
@@ -47,20 +52,21 @@ abstract class ArgumentsGenerationTask @Inject constructor(
     abstract val applicationId: Property<String>
 
     @get:Input
-    var useAndroidX: Boolean = true
+    abstract val useAndroidX: Property<Boolean>
 
     @get:Input
-    var generateKotlin: Boolean = false
+    abstract var generateKotlin: Property<Boolean>
 
     @get:OutputDirectory
-    lateinit var outputDir: File
+    abstract val outputDir: DirectoryProperty
 
+    @get:PathSensitive(PathSensitivity.ABSOLUTE)
     @get:Incremental
     @get:InputFiles
-    lateinit var navigationFiles: FileCollection
+    abstract val navigationFiles: ConfigurableFileCollection
 
     @get:OutputDirectory
-    lateinit var incrementalFolder: File
+    abstract val incrementalFolder: DirectoryProperty
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
         val output = SafeArgsGenerator(
@@ -68,8 +74,8 @@ abstract class ArgumentsGenerationTask @Inject constructor(
             applicationId = applicationId.orNull ?: "",
             navigationXml = file,
             outputDir = out,
-            useAndroidX = useAndroidX,
-            generateKotlin = generateKotlin
+            useAndroidX = useAndroidX.get(),
+            generateKotlin = generateKotlin.get()
         ).generate()
         Mapping(
             file.relativeTo(
@@ -80,16 +86,18 @@ abstract class ArgumentsGenerationTask @Inject constructor(
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
     private fun writeMappings(mappings: List<Mapping>) {
-        File(incrementalFolder, MAPPING_FILE).writer().use { Gson().toJson(mappings, it) }
+        File(incrementalFolder.asFile.get(), MAPPING_FILE).writer().use {
+            Gson().toJson(mappings, it)
+        }
     }
 
     private fun readMappings(): List<Mapping> {
         val type = object : TypeToken<List<Mapping>>() {}.type
-        val mappingsFile = File(incrementalFolder, MAPPING_FILE)
-        if (mappingsFile.exists()) {
-            return mappingsFile.reader().use { Gson().fromJson(it, type) }
+        val mappingsFile = File(incrementalFolder.asFile.get(), MAPPING_FILE)
+        return if (mappingsFile.exists()) {
+            mappingsFile.reader().use { Gson().fromJson(it, type) }
         } else {
-            return emptyList()
+            emptyList()
         }
     }
 
@@ -104,13 +112,14 @@ abstract class ArgumentsGenerationTask @Inject constructor(
     }
 
     private fun doFullTaskAction() {
-        if (outputDir.exists() && !outputDir.deleteRecursively()) {
+        val outputDirFile = outputDir.asFile.get()
+        if (outputDirFile.exists() && !outputDirFile.deleteRecursively()) {
             logger.warn("Failed to clear directory for navigation arguments")
         }
-        if (!outputDir.exists() && !outputDir.mkdirs()) {
+        if (!outputDirFile.exists() && !outputDirFile.mkdirs()) {
             throw GradleException("Failed to create directory for navigation arguments")
         }
-        val (mappings, errors) = generateArgs(navigationFiles.files, outputDir)
+        val (mappings, errors) = generateArgs(navigationFiles.files, outputDirFile)
         writeMappings(mappings)
         failIfErrors(errors)
     }
@@ -127,7 +136,7 @@ abstract class ArgumentsGenerationTask @Inject constructor(
         }
 
         val oldMapping = readMappings()
-        val (newMapping, errors) = generateArgs(modifiedFiles, outputDir)
+        val (newMapping, errors) = generateArgs(modifiedFiles, outputDir.asFile.get())
         val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
         val changedInputs = removedFiles + modifiedFiles
         val (modified, unmodified) = oldMapping.partition {
@@ -136,10 +145,10 @@ abstract class ArgumentsGenerationTask @Inject constructor(
         modified.flatMap { it.javaFiles }
             .filter { name -> name !in newJavaFiles }
             .forEach { javaName ->
-                val fileExtension = if (generateKotlin) { ".kt" } else { ".java" }
+                val fileExtension = if (generateKotlin.get()) { ".kt" } else { ".java" }
                 val fileName =
                     "${javaName.replace('.', File.separatorChar)}$fileExtension"
-                val file = File(outputDir, fileName)
+                val file = File(outputDir.asFile.get(), fileName)
                 if (file.exists()) {
                     file.delete()
                 }
