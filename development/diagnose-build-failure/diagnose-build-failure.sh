@@ -51,6 +51,16 @@ done
 if [ "$gradleArgs" == "" ]; then
   usage
 fi
+# split Gradle arguments into options and tasks
+gradleOptions=""
+gradleTasks=""
+for arg in $gradleArgs; do
+  if [[ "$arg" == "-*" ]]; then
+    gradleOptions="$gradleOptions $arg"
+  else
+    gradleTasks="$gradleTasks $arg"
+  fi
+done
 
 if [ "$#" -gt 0 ]; then
   echo "Unrecognized argument: $1"
@@ -99,6 +109,7 @@ function checkStatus() {
   fi
 }
 
+# echos a shell command for running the build in the current directory
 function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$*"
@@ -106,6 +117,37 @@ function getBuildCommand() {
     testCommand="$* 2>&1 | $vgrep '$expectedMessage'"
   fi
   echo "$testCommand"
+}
+
+# Echos a shell command for testing the state in the current directory
+# Status can be inverted by the '--invert' flag
+# The dir of the state being tested is $testDir
+# The dir of the source code is $workingDir
+function getTestStateCommand() {
+  successStatus=0
+  failureStatus=1
+  if [[ "$1" == "--invert" ]]; then
+    successStatus=1
+    failureStatus=0
+    shift
+  fi
+
+  setupCommand="testDir=\$(pwd)
+$scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
+"
+  buildCommand="$*"
+  cleanupCommand="$scriptPath/impl/backup-state.sh \$testDir $workingDir --move >/dev/null"
+
+  fullFiltererCommand="$setupCommand
+if $buildCommand; then
+  $cleanupCommand
+  exit $successStatus
+else
+  $cleanupCommand
+  exit $failureStatus
+fi"
+
+  echo "$fullFiltererCommand"
 }
 
 function runBuild() {
@@ -235,24 +277,60 @@ else
   echo "After restoring the saved state, the build failed. This confirms that this script is successfully saving and restoring the relevant state"
 fi
 
+# Ask diff-filterer.py to run a binary search to determine the minimum set of tasks that must be passed to reproduce this error
+# (it's possible that the caller passed more tasks than needed, particularly if the caller is a script)
+requiredTasksDir="$tempDir/requiredTasks"
+function determineMinimalSetOfRequiredTasks() {
+  echo Calculating the list of tasks to run
+  allTasksLog="$tempDir/tasks.log"
+  restoreState "$successState"
+  rm -f "$allTasksLog"
+  bash -c "cd $workingDir && ./gradlew --no-daemon --dry-run $gradleArgs > $allTasksLog 2>&1" || true
+
+  # process output and split into files
+  taskListFile="$tempDir/tasks.list"
+  cat "$allTasksLog" | grep '^:' | sed 's/ .*//' > "$taskListFile"
+  requiredTasksWork="$tempDir/requiredTasksWork"
+  rm -rf "$requiredTasksWork"
+  cp -r "$tempDir/prev" "$requiredTasksWork"
+  mkdir -p "$requiredTasksWork/tasks"
+  bash -c "cd $requiredTasksWork/tasks && split -l 1 '$taskListFile'"
+
+  rm -rf "$requiredTasksDir"
+  # Build the command for passing to diff-filterer.
+  # We call xargs because the full set of tasks might be too long for the shell, and xargs will
+  # split into multiple gradlew invocations if needed.
+  # We also cd into the tasks/ dir before calling 'cat' to avoid reaching its argument length limit.
+  # note that the variable "$testDir" gets set by $getTestStateCommand
+  buildCommand="$(getBuildCommand "rm -f log && (cd \$testDir/tasks && cat *) | xargs --no-run-if-empty ./gradlew $gradleOptions")"
+
+  # command for moving state, running build, and moving state back
+  fullFiltererCommand="$(getTestStateCommand --invert $buildCommand)"
+
+  if $supportRoot/development/file-utils/diff-filterer.py --work-path "$tempDir" "$requiredTasksWork" "$tempDir/prev"  "$fullFiltererCommand"; then
+    echo diff-filterer successfully identified a minimal set of required tasks. Saving into $requiredTasksDir
+    cp -r "$tempDir/bestResults/tasks" "$requiredTasksDir"
+  else
+    echo diff-filterer was unable to identify a minimal set of tasks required to reproduce the error
+    exit 1
+  fi
+}
+determineMinimalSetOfRequiredTasks
+# update variables
+gradleTasks="$(cat $requiredTasksDir/*)"
+gradleArgs="$gradleOptions $gradleTasks"
+
 # Now ask diff-filterer.py to run a binary search to determine what the relevant differences are between "$tempDir/prev" and "$tempDir/clean"
 echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-setupCommand="work=\$(pwd)
-$scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
-"
+
+# command for running a build
 buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
-cleanupCommand="$scriptPath/impl/backup-state.sh \$work $workingDir --move >/dev/null"
-fullFiltererCommand="$setupCommand
-if $buildCommand; then
-  $cleanupCommand
-  exit 0
-else
-  $cleanupCommand
-  exit 1
-fi"
+# command for moving state, running build, and moving state back
+fullFiltererCommand="$(getTestStateCommand $buildCommand)"
+
 if $supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
