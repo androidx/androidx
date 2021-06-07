@@ -366,7 +366,6 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
-        /** {@inheritDoc} */
         internal override fun takeScreenshot(
             calendar: Calendar,
             renderParameters: RenderParameters
@@ -829,7 +828,6 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
-        /** {@inheritDoc} */
         internal override fun takeScreenshot(
             calendar: Calendar,
             renderParameters: RenderParameters
