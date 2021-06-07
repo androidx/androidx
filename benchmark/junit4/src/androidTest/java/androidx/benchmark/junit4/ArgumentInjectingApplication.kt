@@ -28,8 +28,8 @@ import androidx.benchmark.argumentSource
  * ```
  * android {
  *     defaultConfig {
- *         testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors',
- *                 'CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED'
+ *         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] =
+ *             "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
  *     }
  * }
  * ```
