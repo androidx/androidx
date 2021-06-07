@@ -35,7 +35,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Database utilities for Room
@@ -127,6 +129,22 @@ public class DBUtil {
     }
 
     /**
+     * Checks for foreign key violations by executing a PRAGMA foreign_key_check.
+     */
+    public static void foreignKeyCheck(@NonNull SupportSQLiteDatabase db,
+            @NonNull String tableName) {
+        Cursor cursor = db.query("PRAGMA foreign_key_check(`" + tableName + "`)");
+        try {
+            if (cursor.getCount() > 0) {
+                String errorMsg = processForeignKeyCheckFailure(cursor);
+                throw new IllegalStateException(errorMsg);
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    /**
      * Reads the user version number out of the database header from the given file.
      *
      * @param databaseFile the database file.
@@ -169,6 +187,55 @@ public class DBUtil {
             return SupportSQLiteCompat.Api16Impl.createCancellationSignal();
         }
         return null;
+    }
+
+
+    /**
+     * Converts the {@link Cursor} returned in case of a foreign key violation into a detailed
+     * error message for debugging.
+     * <p>
+     * The foreign_key_check pragma returns one row output for each foreign key violation.
+     * <p>
+     * The cursor received has four columns for each row output. The first column is the name of
+     * the child table. The second column is the rowId of the row that contains the foreign key
+     * violation (or NULL if the child table is a WITHOUT ROWID table). The third column is the
+     * name of the parent table. The fourth column is the index of the specific foreign key
+     * constraint that failed.
+     *
+     * @param cursor Cursor containing information regarding the FK violation
+     * @return Error message generated containing debugging information
+     */
+    private static String processForeignKeyCheckFailure(Cursor cursor) {
+        int rowCount = cursor.getCount();
+        String childTableName = null;
+        Map<String, String> fkParentTables = new HashMap<>();
+
+        while (cursor.moveToNext()) {
+            if (childTableName == null) {
+                childTableName = cursor.getString(0);
+            }
+            String constraintIndex = cursor.getString(3);
+            if (!fkParentTables.containsKey(constraintIndex)) {
+                fkParentTables.put(constraintIndex, cursor.getString(2));
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Foreign key violation(s) detected in '")
+                .append(childTableName).append("'.\n");
+        sb.append("Number of different violations discovered: ")
+                .append(fkParentTables.keySet().size()).append("\n");
+        sb.append("Number of rows in violation: ")
+                .append(rowCount).append("\n");
+        sb.append("Violation(s) detected in the following constraint(s):\n");
+
+        for (Map.Entry<String, String> entry : fkParentTables.entrySet()) {
+            sb.append("\tParent Table = ")
+                    .append(entry.getValue());
+            sb.append(", Foreign Key Constraint Index = ")
+                    .append(entry.getKey()).append("\n");
+        }
+        return sb.toString();
     }
 
     private DBUtil() {
