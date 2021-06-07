@@ -1000,9 +1000,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     public void onStopNestedScroll(View target) {
         mNestedScrollingParentHelper.onStopNestedScroll(target);
         mNestedScrollInProgress = false;
-        // Finish the spinner for nested scrolling
-        finishSpinner(mTotalUnconsumed);
-        mTotalUnconsumed = 0;
+        // Finish the spinner for nested scrolling if we ever consumed any
+        // unconsumed nested scroll
+        if (mTotalUnconsumed > 0) {
+            finishSpinner(mTotalUnconsumed);
+            mTotalUnconsumed = 0;
+        }
         // Dispatch up our nested parent
         stopNestedScroll();
     }
