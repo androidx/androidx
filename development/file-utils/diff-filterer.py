@@ -641,7 +641,7 @@ class DiffRunner(object):
         sys.exit(1)
     self.targetState = self.targetState.withoutDuplicatesFrom(testState)
     self.resetTo_state = self.resetTo_state.withConflictsFrom(testState).withoutDuplicatesFrom(testState)
-    delta = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True)
+    delta = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).withoutDuplicatesFrom(self.full_resetTo_state)
     delta.apply(self.bestState_path)
     self.full_resetTo_state = self.full_resetTo_state.expandedWithEmptyEntriesFor(delta).withConflictsFrom(delta)
     if debug:
