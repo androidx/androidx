@@ -367,13 +367,20 @@ public final class Recorder implements VideoOutput {
      * Starts a pending recording and returns an active recording instance.
      *
      * <p>If the video encoder hasn't been setup with {@link #onSurfaceRequested(SurfaceRequest)}
-     * , this will be no-op and the last {@link PendingRecording} called with it will be started
-     * once the video encoder setup completes.
+     * , the {@link PendingRecording} specified will be started once the video encoder setup
+     * completes.
+     *
+     * @throws IllegalStateException if there's an active recording or the Recorder has been
+     * released.
      */
     @NonNull
     ActiveRecording start(@NonNull PendingRecording pendingRecording) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
         synchronized (mLock) {
+            if (mRunningRecording != null) {
+                // Throw an exception if there's a recording to be started.
+                throw new IllegalStateException("There's an active recording.");
+            }
             mPendingRecordings.remove(pendingRecording);
             ActiveRecording activeRecording = ActiveRecording.from(pendingRecording);
             mRunningRecording = activeRecording;
