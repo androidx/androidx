@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -36,13 +35,13 @@ dependencies {
     api "androidx.annotation:annotation:1.1.0"
     implementation("androidx.core:core:1.3.0-beta01")
     api(project(":slice-builders"))
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
 
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
 }
 
 androidx {

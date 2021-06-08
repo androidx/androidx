@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -33,10 +31,10 @@ android {
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation(libs.kotlinStdlib)
+    implementation(libs.constraintLayout, { transitive = true })
     implementation(project(":arch:core:core-runtime"))
     implementation(project(":appcompat:appcompat"))
     implementation(project(":startup:startup-runtime"))
-    implementation(MATERIAL)
+    implementation(libs.material)
 }

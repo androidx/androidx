@@ -17,15 +17,13 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
-import static androidx.build.dependencies.DependenciesKt.LINT_API_MIN
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
 dependencies {
-    compileOnly(LINT_API_MIN)
+    compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
 
     testImplementation(libs.kotlinStdlib)

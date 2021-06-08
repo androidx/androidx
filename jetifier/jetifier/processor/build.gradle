@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
@@ -31,12 +29,12 @@ dependencies {
     api("org.ow2.asm:asm-util:8.0.1")
     api("org.ow2.asm:asm-commons:8.0.1")
     api("org.jdom:jdom2:2.0.6")
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_METADATA_JVM)
+    api(libs.kotlinStdlib)
+    api(libs.kotlinMetadataJvm)
     testImplementation("junit:junit:4.12")
-    testImplementation(TRUTH)
-    testImplementation(KOTLIN_REFLECT)
-    testImplementation(KOTLIN_COMPILE_TESTING)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinReflect)
+    testImplementation(libs.kotlinCompileTesting)
 }
 
 androidx {
