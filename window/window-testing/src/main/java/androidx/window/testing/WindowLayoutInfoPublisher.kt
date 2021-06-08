@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
-package androidx.window.test
+package androidx.window.testing
 
 import androidx.window.WindowInfoRepo
-import androidx.window.WindowInfoRepoDecorator
 import androidx.window.WindowLayoutInfo
-import kotlinx.coroutines.flow.MutableSharedFlow
+import androidx.window.WindowMetrics
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
-internal class PublishWindowInfoRepoDecorator(
-    private val flow: MutableSharedFlow<WindowLayoutInfo>
-) : WindowInfoRepoDecorator {
-    override fun decorate(repo: WindowInfoRepo): WindowInfoRepo {
-        return PublishLayoutInfoRepo(repo, flow)
-    }
+internal class WindowLayoutInfoPublisher(
+    private val core: WindowInfoRepo,
+    private val flow: StateFlow<WindowLayoutInfo>
+) : WindowInfoRepo {
+
+    override val currentWindowMetrics: WindowMetrics
+        get() {
+            return core.currentWindowMetrics
+        }
+
+    override val maximumWindowMetrics: WindowMetrics
+        get() {
+            return core.maximumWindowMetrics
+        }
+
+    override val windowLayoutInfo: Flow<WindowLayoutInfo>
+        get() {
+            return flow
+        }
 }
