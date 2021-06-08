@@ -9,12 +9,11 @@ package androidx.profileinstaller {
 
   public class ProfileInstaller {
     method @WorkerThread public static void writeProfile(android.content.Context);
-    method @WorkerThread public static void writeProfile(android.content.Context, androidx.profileinstaller.ProfileInstaller.Diagnostics);
+    method @WorkerThread public static void writeProfile(android.content.Context, java.util.concurrent.Executor, androidx.profileinstaller.ProfileInstaller.DiagnosticsCallback);
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST = 2; // 0x2
     field public static final int DIAGNOSTIC_CURRENT_PROFILE_EXISTS = 1; // 0x1
     field public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 4; // 0x4
     field public static final int DIAGNOSTIC_REF_PROFILE_EXISTS = 3; // 0x3
-    field public static final androidx.profileinstaller.ProfileInstaller.Diagnostics LOG_DIAGNOSTICS;
     field public static final int RESULT_ALREADY_INSTALLED = 2; // 0x2
     field public static final int RESULT_BASELINE_PROFILE_NOT_FOUND = 6; // 0x6
     field public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 5; // 0x5
@@ -25,9 +24,9 @@ package androidx.profileinstaller {
     field public static final int RESULT_UNSUPPORTED_ART_VERSION = 3; // 0x3
   }
 
-  public static interface ProfileInstaller.Diagnostics {
-    method public void diagnostic(int, Object?);
-    method public void result(int, Object?);
+  public static interface ProfileInstaller.DiagnosticsCallback {
+    method public void onDiagnosticReceived(int, Object?);
+    method public void onResultReceived(int, Object?);
   }
 
   public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result> {

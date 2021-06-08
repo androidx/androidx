@@ -59,6 +59,7 @@ class ProfileInstallerTranscodeBenchmark {
         runWithTimingDisabled {
             transcoder = DeviceProfileWriter(
                 assets,
+                Runnable::run,
                 Diagnostics(),
                 PROFILE_LOCATION,
                 mTempCurFile!!,
@@ -71,6 +72,7 @@ class ProfileInstallerTranscodeBenchmark {
     private fun assumeDeviceSupportsAot() {
         val transcoder = DeviceProfileWriter(
             assets,
+            Runnable::run,
             Diagnostics(),
             PROFILE_LOCATION,
             mTempCurFile!!,
@@ -86,6 +88,7 @@ class ProfileInstallerTranscodeBenchmark {
     fun deviceAllowsProfileInstallerAotWrites() {
         val transcoder = DeviceProfileWriter(
             assets,
+            Runnable::run,
             Diagnostics(),
             PROFILE_LOCATION,
             mTempCurFile!!,
@@ -137,6 +140,7 @@ class ProfileInstallerTranscodeBenchmark {
         benchmarkRule.measureRepeated {
             val transcoder = DeviceProfileWriter(
                 assets,
+                Runnable::run,
                 Diagnostics(),
                 PROFILE_LOCATION,
                 mTempCurFile!!,
@@ -154,12 +158,12 @@ class ProfileInstallerTranscodeBenchmark {
         const val PROFILE_LOCATION = "golden/profileinstaller.prof"
     }
 
-    class Diagnostics : ProfileInstaller.Diagnostics {
-        override fun diagnostic(code: Int, data: Any?) {
+    class Diagnostics : ProfileInstaller.DiagnosticsCallback {
+        override fun onDiagnosticReceived(code: Int, data: Any?) {
             /* no-op */
         }
 
-        override fun result(code: Int, data: Any?) {
+        override fun onResultReceived(code: Int, data: Any?) {
             /* no-op */
         }
     }

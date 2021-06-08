@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Orchestrate device-level profiler decisions.
@@ -62,7 +63,9 @@ public class DeviceProfileWriter {
     @NonNull
     private final AssetManager mAssetManager;
     @NonNull
-    private final ProfileInstaller.Diagnostics mDiagnostics;
+    private final Executor mExecutor;
+    @NonNull
+    private final ProfileInstaller.DiagnosticsCallback mDiagnostics;
     @Nullable
     private final byte[] mDesiredVersion;
     @NonNull
@@ -77,16 +80,23 @@ public class DeviceProfileWriter {
     @Nullable
     private byte[] mTranscodedProfile;
 
+    private void result(@ProfileInstaller.ResultCode int code, @Nullable Object data) {
+        mExecutor.execute(() -> { mDiagnostics.onResultReceived(code, data); });
+    }
+
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public DeviceProfileWriter(@NonNull AssetManager assetManager,
-            @NonNull ProfileInstaller.Diagnostics diagnostics,
-            @NonNull String profileSourceLocation, @NonNull File curProfile,
+            @NonNull Executor executor,
+            @NonNull ProfileInstaller.DiagnosticsCallback diagnosticsCallback,
+            @NonNull String profileSourceLocation,
+            @NonNull File curProfile,
             @NonNull File refProfile) {
         mAssetManager = assetManager;
-        mDiagnostics = diagnostics;
+        mExecutor = executor;
+        mDiagnostics = diagnosticsCallback;
         mProfileSourceLocation = profileSourceLocation;
         mCurProfile = curProfile;
         mRefProfile = refProfile;
@@ -99,8 +109,7 @@ public class DeviceProfileWriter {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean deviceAllowsProfileInstallerAotWrites() {
         if (mDesiredVersion == null) {
-            mDiagnostics.result(ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION,
-                    Build.VERSION.SDK_INT);
+            result(ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION, Build.VERSION.SDK_INT);
             return false;
         }
 
@@ -108,7 +117,7 @@ public class DeviceProfileWriter {
             // It's possible that some OEMs might not allow writing to this directory. If this is
             // the case, there's not really anything we can do, so we should quit before doing
             // any unnecessary work.
-            mDiagnostics.result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
+            result(ProfileInstaller.RESULT_NOT_WRITABLE, null);
             return false;
         }
 
@@ -167,16 +176,19 @@ public class DeviceProfileWriter {
                             ProfileTranscoder.writeHeader(os, desiredVersion);
                             Encoding.writeAll(is, os);
                         }
-                        mDiagnostics.result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
+                        mDiagnostics.onResultReceived(
+                                ProfileInstaller.RESULT_INSTALL_SUCCESS,
+                                null
+                        );
                     }
                 }
             }
         }  catch (FileNotFoundException e) {
-            mDiagnostics.result(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
         } catch (IOException e) {
-            mDiagnostics.result(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
         } catch (IllegalStateException e) {
-            mDiagnostics.result(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
         }
         return this;
     }
@@ -216,16 +228,19 @@ public class DeviceProfileWriter {
             );
 
             if (!success) {
-                mDiagnostics.result(ProfileInstaller.RESULT_DESIRED_FORMAT_UNSUPPORTED, null);
+                mDiagnostics.onResultReceived(
+                        ProfileInstaller.RESULT_DESIRED_FORMAT_UNSUPPORTED,
+                        null
+                );
                 mProfile = null;
                 return this;
             }
 
             mTranscodedProfile = os.toByteArray();
         } catch (IOException e) {
-            mDiagnostics.result(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
         } catch (IllegalStateException e) {
-            mDiagnostics.result(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
         }
         mProfile = null;
         return this;
@@ -252,11 +267,11 @@ public class DeviceProfileWriter {
                 OutputStream os = new FileOutputStream(mCurProfile)
             ) {
                 Encoding.writeAll(bis, os);
-                mDiagnostics.result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
+                result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
             } catch (FileNotFoundException e) {
-                mDiagnostics.result(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
+                result(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
             } catch (IOException e) {
-                mDiagnostics.result(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+                result(ProfileInstaller.RESULT_IO_EXCEPTION, e);
             } finally {
                 mTranscodedProfile = null;
                 mProfile = null;
