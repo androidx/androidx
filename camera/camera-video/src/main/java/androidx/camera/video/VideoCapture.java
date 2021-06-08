@@ -475,7 +475,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
         }
 
-        int relativeRotation = cameraInfo.getSensorRotationDegrees(getTargetRotationInternal());
+        int targetRotation = builder.getMutableConfig().retrieveOption(OPTION_TARGET_ROTATION,
+                Surface.ROTATION_0);
+        int relativeRotation = cameraInfo.getSensorRotationDegrees(targetRotation);
         boolean needRotate = relativeRotation == 90 || relativeRotation == 270;
         if (needRotate) {
             resolution = new Size(/* width= */resolution.getHeight(),
