@@ -154,6 +154,9 @@ updated local\.properties
 # > Configure project :compose:test\-utils
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
 \* androidAndroidTestRelease
+\* androidTestFixtures
+\* androidTestFixturesDebug
+\* androidTestFixturesRelease
 \* androidTestRelease
 \* test
 You can add a source set to a target's compilation by connecting it with the compilation's default source set using 'dependsOn'\.
