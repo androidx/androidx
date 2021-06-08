@@ -249,8 +249,8 @@ package androidx.car.app.hardware.common {
 package androidx.car.app.hardware.info {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Accelerometer {
-    ctor public Accelerometer(androidx.car.app.hardware.common.CarValue<java.lang.Float![]!>);
-    method public androidx.car.app.hardware.common.CarValue<java.lang.Float![]!> getForces();
+    ctor public Accelerometer(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!>);
+    method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!> getForces();
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarHardwareLocation {
@@ -286,8 +286,8 @@ package androidx.car.app.hardware.info {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Compass {
-    ctor public Compass(androidx.car.app.hardware.common.CarValue<java.lang.Float![]!>);
-    method public androidx.car.app.hardware.common.CarValue<java.lang.Float![]!> getOrientations();
+    ctor public Compass(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!>);
+    method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!> getOrientations();
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class EnergyLevel {
@@ -309,8 +309,8 @@ package androidx.car.app.hardware.info {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class EnergyProfile {
-    method public androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!> getEvConnectorTypes();
-    method public androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!> getFuelTypes();
+    method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!> getEvConnectorTypes();
+    method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!> getFuelTypes();
     field public static final int EVCONNECTOR_TYPE_CHADEMO = 3; // 0x3
     field public static final int EVCONNECTOR_TYPE_COMBO_1 = 4; // 0x4
     field public static final int EVCONNECTOR_TYPE_COMBO_2 = 5; // 0x5
@@ -342,13 +342,13 @@ package androidx.car.app.hardware.info {
   public static final class EnergyProfile.Builder {
     ctor public EnergyProfile.Builder();
     method public androidx.car.app.hardware.info.EnergyProfile build();
-    method public androidx.car.app.hardware.info.EnergyProfile.Builder setEvConnectorTypes(androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!>);
-    method public androidx.car.app.hardware.info.EnergyProfile.Builder setFuelTypes(androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!>);
+    method public androidx.car.app.hardware.info.EnergyProfile.Builder setEvConnectorTypes(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!>);
+    method public androidx.car.app.hardware.info.EnergyProfile.Builder setFuelTypes(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!>);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Gyroscope {
-    ctor public Gyroscope(androidx.car.app.hardware.common.CarValue<java.lang.Float![]!>);
-    method public androidx.car.app.hardware.common.CarValue<java.lang.Float![]!> getRotations();
+    ctor public Gyroscope(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!>);
+    method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!> getRotations();
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Mileage {

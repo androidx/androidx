@@ -24,6 +24,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Information about car specific compass available from the car hardware. */
@@ -33,7 +34,7 @@ public final class Compass {
 
     @Keep
     @NonNull
-    private final CarValue<Float[]> mOrientations;
+    private final CarValue<List<Float>> mOrientations;
 
     /**
      * Returns the raw compass data from the car sensor.
@@ -41,8 +42,8 @@ public final class Compass {
      * <p>Follows the same format as {@link android.hardware.SensorEvent#values}.
      */
     @NonNull
-    public CarValue<Float[]> getOrientations() {
-        return requireNonNull(mOrientations);
+    public CarValue<List<Float>> getOrientations() {
+        return mOrientations;
     }
 
     @Override
@@ -74,12 +75,12 @@ public final class Compass {
      *
      * @throws NullPointerException if {@code orientations} is {@code null}
      */
-    public Compass(@NonNull CarValue<Float[]> orientations) {
+    public Compass(@NonNull CarValue<List<Float>> orientations) {
         mOrientations = requireNonNull(orientations);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Compass() {
-        mOrientations = CarValue.UNIMPLEMENTED_FLOAT_ARRAY;
+        mOrientations = CarValue.UNIMPLEMENTED_FLOAT_LIST;
     }
 }

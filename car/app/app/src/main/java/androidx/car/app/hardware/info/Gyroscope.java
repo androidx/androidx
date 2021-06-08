@@ -24,6 +24,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Information about car specific gyroscopes available from the car hardware. */
@@ -32,12 +33,12 @@ import java.util.Objects;
 public final class Gyroscope {
     @Keep
     @NonNull
-    private final CarValue<Float[]> mRotations;
+    private final CarValue<List<Float>> mRotations;
 
     /** Returns the raw gyroscope data from the car sensor. */
     @NonNull
-    public CarValue<Float[]> getRotations() {
-        return requireNonNull(mRotations);
+    public CarValue<List<Float>> getRotations() {
+        return mRotations;
     }
 
     @Override
@@ -69,12 +70,12 @@ public final class Gyroscope {
      *
      * @throws NullPointerException if {@code rotations} is {@code null}
      */
-    public Gyroscope(@NonNull CarValue<Float[]> rotations) {
+    public Gyroscope(@NonNull CarValue<List<Float>> rotations) {
         mRotations = requireNonNull(rotations);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Gyroscope() {
-        mRotations = CarValue.UNIMPLEMENTED_FLOAT_ARRAY;
+        mRotations = CarValue.UNIMPLEMENTED_FLOAT_LIST;
     }
 }
