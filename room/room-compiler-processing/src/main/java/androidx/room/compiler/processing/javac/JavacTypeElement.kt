@@ -57,6 +57,20 @@ internal sealed class JavacTypeElement(
         element.enclosingType(env)
     }
 
+    private val _declaredFields by lazy {
+        ElementFilter.fieldsIn(element.enclosedElements).map {
+            JavacFieldElement(
+                env = env,
+                element = it,
+                containing = this
+            )
+        }
+    }
+
+    override fun getDeclaredFields(): List<XFieldElement> {
+        return _declaredFields
+    }
+
     private val _allFieldsIncludingPrivateSupers by lazy {
         element.getAllFieldsIncludingPrivateSupers(
             env.elementUtils

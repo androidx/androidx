@@ -23,6 +23,10 @@ fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map {
     it.name
 }
 
+fun XTypeElement.getDeclaredField(name: String) = getDeclaredFields().first {
+    it.name == name
+}
+
 fun XTypeElement.getField(name: String) = getAllFieldsIncludingPrivateSupers().first {
     it.name == name
 }

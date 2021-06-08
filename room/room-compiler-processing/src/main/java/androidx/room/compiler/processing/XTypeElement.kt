@@ -108,6 +108,12 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     fun isCompanionObject(): Boolean
 
     /**
+     * Fields declared in this type
+     *  includes all instance/static fields in this
+     */
+    fun getDeclaredFields(): List<XFieldElement>
+
+    /**
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
