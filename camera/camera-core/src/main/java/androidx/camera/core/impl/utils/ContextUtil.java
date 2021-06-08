@@ -17,6 +17,7 @@
 package androidx.camera.core.impl.utils;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
@@ -35,11 +36,30 @@ public final class ContextUtil {
     public static Context getApplicationContext(@NonNull Context context) {
         Context applicationContext = context.getApplicationContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Api30Impl.createAttributionContext(applicationContext,
-                    Api30Impl.getAttributionTag(context));
-        } else {
-            return applicationContext;
+            String attributeTag = Api30Impl.getAttributionTag(context);
+
+            if (attributeTag != null) {
+                return Api30Impl.createAttributionContext(applicationContext, attributeTag);
+            }
         }
+        return applicationContext;
+    }
+
+    /**
+     * Gets the base context and preserves the attribution tag.
+     */
+    @NonNull
+    public static Context getBaseContext(@NonNull ContextWrapper context) {
+        Context baseContext = context.getBaseContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            String attributeTag = Api30Impl.getAttributionTag(context);
+
+            if (attributeTag != null) {
+                return Api30Impl.createAttributionContext(baseContext, attributeTag);
+            }
+        }
+
+        return baseContext;
     }
 
     private ContextUtil() {
