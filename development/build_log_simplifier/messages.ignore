@@ -1103,6 +1103,7 @@ dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see
 # > Task :camera:camera-camera2-pipe:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ methods\.
 Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.openComplicationProviderChooser\$suspendImpl\(androidx\.wear\.watchface\.editor\.BaseEditorSession, int, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DraggableKt\$draggable\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.compose\.foundation\.gestures\.DragLogic \{\} for value: v[0-9]+\(\$this\$invokeSuspend_u[0-9]+lambda_u[0-9]+d[0-9]+\) by constraint INT\.
 java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)

@@ -46,6 +46,7 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -185,12 +186,14 @@ public class EditorSessionGuavaTest {
             ComplicationType.LONG_TEXT,
             provider3
         )
-        TestComplicationHelperActivity.resultIntent = Intent().apply {
-            putExtra(
-                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
-                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
-            )
-        }
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                )
+            }
+        )
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
             listOf(leftComplication, rightComplication)
