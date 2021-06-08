@@ -78,6 +78,7 @@ class VideoEncoderTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private var currentSurface: Surface? = null
 
     private lateinit var videoEncoderConfig: VideoEncoderConfig
     private lateinit var videoEncoder: EncoderImpl
@@ -127,11 +128,6 @@ class VideoEncoderTest {
 
     @After
     fun tearDown() {
-        // Since the mVideoEncoder is late initialized, check the status before end test.
-        if (this::videoEncoder.isInitialized) {
-            videoEncoder.release()
-        }
-
         camera?.apply {
             instrumentation.runOnMainSync {
                 removeUseCases(setOf(previewForVideoEncoder, preview))
@@ -286,12 +282,17 @@ class VideoEncoderTest {
         (videoEncoder.input as Encoder.SurfaceInput).setOnSurfaceUpdateListener(
             mainExecutor,
             { surface: Surface ->
+                currentSurface = surface
                 previewForVideoEncoder.setSurfaceProvider { request: SurfaceRequest ->
                     request.provideSurface(
                         surface,
-                        CameraXExecutors.directExecutor(),
+                        mainExecutor,
                         {
-                            surface.release()
+                            if (it.surface != currentSurface) {
+                                it.surface.release()
+                            } else {
+                                videoEncoder.release()
+                            }
                         }
                     )
                 }
