@@ -26,7 +26,6 @@ import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.R
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.STARTED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.STOPPING;
 
-import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
@@ -444,8 +443,7 @@ public class EncoderImpl implements Encoder {
                 case STARTED:
                 case PAUSED:
                 case ERROR:
-                    mMediaCodec.release();
-                    setState(RELEASED);
+                    releaseInternal();
                     break;
                 case STOPPING:
                 case PENDING_START:
@@ -460,6 +458,17 @@ public class EncoderImpl implements Encoder {
                     throw new IllegalStateException("Unknown state: " + mState);
             }
         });
+    }
+
+    @ExecutedBy("mEncoderExecutor")
+    private void releaseInternal() {
+        mMediaCodec.release();
+
+        if (mEncoderInput instanceof SurfaceInput) {
+            ((SurfaceInput) mEncoderInput).releaseSurface();
+        }
+
+        setState(RELEASED);
     }
 
     /**
@@ -625,8 +634,7 @@ public class EncoderImpl implements Encoder {
     @ExecutedBy("mEncoderExecutor")
     void handleStopped() {
         if (mState == PENDING_RELEASE) {
-            mMediaCodec.release();
-            setState(RELEASED);
+            releaseInternal();
         } else {
             InternalState oldState = mState;
             reset();
@@ -1115,6 +1123,9 @@ public class EncoderImpl implements Encoder {
         private Surface mSurface;
 
         @GuardedBy("mLock")
+        private final Set<Surface> mObsoleteSurfaces = new HashSet<>();
+
+        @GuardedBy("mLock")
         private OnSurfaceUpdateListener mSurfaceUpdateListener;
 
         @GuardedBy("mLock")
@@ -1140,7 +1151,6 @@ public class EncoderImpl implements Encoder {
             }
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         void resetSurface() {
             Surface surface;
             Executor executor;
@@ -1155,6 +1165,9 @@ public class EncoderImpl implements Encoder {
                     }
                     Api23Impl.setInputSurface(mMediaCodec, mSurface);
                 } else {
+                    if (mSurface != null) {
+                        mObsoleteSurfaces.add(mSurface);
+                    }
                     mSurface = mMediaCodec.createInputSurface();
                     surface = mSurface;
                 }
@@ -1166,13 +1179,29 @@ public class EncoderImpl implements Encoder {
             }
         }
 
+        void releaseSurface() {
+            Surface surface;
+            Set<Surface> obsoleteSurfaces;
+            synchronized (mLock) {
+                surface = mSurface;
+                mSurface = null;
+                obsoleteSurfaces = new HashSet<>(mObsoleteSurfaces);
+                mObsoleteSurfaces.clear();
+            }
+            if (surface != null) {
+                surface.release();
+            }
+            for (Surface obsoleteSurface : obsoleteSurfaces) {
+                obsoleteSurface.release();
+            }
+        }
+
         private void notifySurfaceUpdate(@NonNull Executor executor,
                 @NonNull OnSurfaceUpdateListener listener, @NonNull Surface surface) {
             try {
                 executor.execute(() -> listener.onSurfaceUpdate(surface));
             } catch (RejectedExecutionException e) {
                 Logger.e(mTag, "Unable to post to the supplied executor.", e);
-                surface.release();
             }
         }
     }
