@@ -30,6 +30,7 @@ import androidx.annotation.WorkerThread;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 
 /**
  * Install ahead of time tracing profiles to configure ART to precompile bundled libraries.
@@ -60,7 +61,7 @@ public class ProfileInstaller {
      * An object which can be passed to the ProfileInstaller which will receive information
      * during the installation process which can be used for logging and telemetry.
      */
-    public interface Diagnostics {
+    public interface DiagnosticsCallback {
         /**
          * The diagnostic method will get called 0 to many times during the installation process,
          * and is passed a [code] and optionally [data] which provides some information around
@@ -68,7 +69,7 @@ public class ProfileInstaller {
          * @param code An int specifying which diagnostic situation has occurred.
          * @param data Optional data passed in that relates to the code passed.
          */
-        void diagnostic(@DiagnosticCode int code, @Nullable Object data);
+        void onDiagnosticReceived(@DiagnosticCode int code, @Nullable Object data);
 
         /**
          * The result method will get called exactly once per installation, with a [code]
@@ -77,27 +78,46 @@ public class ProfileInstaller {
          * @param code An int specifying which result situation has occurred.
          * @param data Optional data passed in that relates to the code that was passed.
          */
-        void result(@ResultCode int code, @Nullable Object data);
+        void onResultReceived(@ResultCode int code, @Nullable Object data);
     }
 
-    private static final Diagnostics EMPTY_DIAGNOSTICS = new Diagnostics() {
+    @SuppressWarnings("SameParameterValue")
+    static void result(
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics,
+            @ResultCode int code,
+            @Nullable Object data
+    ) {
+        executor.execute(() -> diagnostics.onResultReceived(code, data));
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    static void diagnostic(
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics,
+            @DiagnosticCode int code,
+            @Nullable Object data
+    ) {
+        executor.execute(() -> diagnostics.onDiagnosticReceived(code, data));
+    }
+
+    private static final DiagnosticsCallback EMPTY_DIAGNOSTICS = new DiagnosticsCallback() {
         @Override
-        public void diagnostic(int code, @Nullable Object data) {
+        public void onDiagnosticReceived(int code, @Nullable Object data) {
             // do nothing
         }
 
         @Override
-        public void result(int code, @Nullable Object data) {
+        public void onResultReceived(int code, @Nullable Object data) {
             // do nothing
         }
     };
 
-    @SuppressWarnings("unused")
     @NonNull
-    public static final Diagnostics LOG_DIAGNOSTICS = new Diagnostics() {
+    static final DiagnosticsCallback LOG_DIAGNOSTICS = new DiagnosticsCallback() {
         static final String TAG = "ProfileInstaller";
         @Override
-        public void diagnostic(int code, @Nullable Object data) {
+        public void onDiagnosticReceived(int code, @Nullable Object data) {
             String msg = "";
             switch (code) {
                 case DIAGNOSTIC_CURRENT_PROFILE_EXISTS:
@@ -117,7 +137,7 @@ public class ProfileInstaller {
         }
 
         @Override
-        public void result(int code, @Nullable Object data) {
+        public void onResultReceived(int code, @Nullable Object data) {
             String msg = "";
             switch (code) {
                 case RESULT_INSTALL_SUCCESS: msg = "RESULT_INSTALL_SUCCESS";
@@ -258,7 +278,8 @@ public class ProfileInstaller {
     @ResultCode public static final int RESULT_PARSE_EXCEPTION = 8;
 
     static boolean shouldSkipInstall(
-            @NonNull Diagnostics diagnostics,
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics,
             long baselineLength,
             boolean curExists,
             long curLength,
@@ -267,22 +288,22 @@ public class ProfileInstaller {
     ) {
         if (curExists && curLength > MIN_MEANINGFUL_LENGTH) {
             // There's a non-empty profile sitting in this directory
-            diagnostics.diagnostic(DIAGNOSTIC_CURRENT_PROFILE_EXISTS, null);
+            diagnostic(executor, diagnostics, DIAGNOSTIC_CURRENT_PROFILE_EXISTS, null);
         } else {
-            diagnostics.diagnostic(DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST, null);
+            diagnostic(executor, diagnostics, DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST, null);
         }
 
         if (refExists && refLength > MIN_MEANINGFUL_LENGTH) {
-            diagnostics.diagnostic(DIAGNOSTIC_REF_PROFILE_EXISTS, null);
+            diagnostic(executor, diagnostics, DIAGNOSTIC_REF_PROFILE_EXISTS, null);
         } else {
-            diagnostics.diagnostic(DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST, null);
+            diagnostic(executor, diagnostics, DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST, null);
         }
 
         if (baselineLength > 0 && baselineLength == curLength) {
             // If the profiles are exactly the same size, we make the assumption that
             // they are in fact the same profile. In this case, there is no work for
             // us to do and we can exit early.
-            diagnostics.result(RESULT_ALREADY_INSTALLED, null);
+            result(executor, diagnostics, RESULT_ALREADY_INSTALLED, null);
             return true;
         }
 
@@ -290,7 +311,7 @@ public class ProfileInstaller {
             // If the profiles are exactly the same size, we make the assumption that
             // they are in fact the same profile. In this case, there is no work for
             // us to do and we can exit early.
-            diagnostics.result(RESULT_ALREADY_INSTALLED, null);
+            result(executor, diagnostics, RESULT_ALREADY_INSTALLED, null);
             return true;
         }
 
@@ -305,7 +326,7 @@ public class ProfileInstaller {
             // TODO: we could do something a bit smarter here to indicate that we've
             //  already written the profile. For instance, we could save a file marking the
             //  install and look at that.
-            diagnostics.result(RESULT_ALREADY_INSTALLED, null);
+            result(executor, diagnostics, RESULT_ALREADY_INSTALLED, null);
             return true;
         }
         return false;
@@ -317,22 +338,28 @@ public class ProfileInstaller {
      *
      * @param assets the asset manager to read source file from dexopt/baseline.prof
      * @param packageName package name of the current apk
-     * @param diagnostics The diagnostics object to pass diagnostics to
+     * @param diagnostics The diagnostics callback to pass diagnostics to
      */
     private static void transcodeAndWrite(
             @NonNull AssetManager assets,
             @NonNull String packageName,
-            @NonNull Diagnostics diagnostics
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            diagnostics.result(ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION, null);
+            result(executor, diagnostics, ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION, null);
             return;
         }
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
         File refProfile = new File(new File(PROFILE_REF_BASE_DIR, packageName), PROFILE_FILE);
 
-        DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets, diagnostics,
-                PROFILE_SOURCE_LOCATION, curProfile, refProfile);
+        DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets,
+                executor,
+                diagnostics,
+                PROFILE_SOURCE_LOCATION,
+                curProfile,
+                refProfile
+        );
 
         if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
             return; /* nothing else to do here */
@@ -340,9 +367,14 @@ public class ProfileInstaller {
 
         DeviceProfileWriter.SkipStrategy skipStrategy =
                 (newProfileLength, existingProfileState) -> shouldSkipInstall(
-                        diagnostics, newProfileLength,
-                        existingProfileState.hasCurFile(), existingProfileState.getCurLength(),
-                        existingProfileState.hasRefFile(), existingProfileState.getRefLength());
+                        executor,
+                        diagnostics,
+                        newProfileLength,
+                        existingProfileState.hasCurFile(),
+                        existingProfileState.getCurLength(),
+                        existingProfileState.hasRefFile(),
+                        existingProfileState.getRefLength()
+                );
 
         deviceProfileWriter.copyProfileOrRead(skipStrategy)
                 .transcodeIfNeeded()
@@ -374,7 +406,7 @@ public class ProfileInstaller {
      */
     @WorkerThread
     public static void writeProfile(@NonNull Context context) {
-        writeProfile(context, EMPTY_DIAGNOSTICS);
+        writeProfile(context, Runnable::run, EMPTY_DIAGNOSTICS);
     }
 
     /**
@@ -400,13 +432,19 @@ public class ProfileInstaller {
 
      *
      * @param context context to read assets from
-     * @param diagnostics an object which will receive diagnostic information about the installation
+     * @param diagnostics an object which will receive diagnostic information about the
+     * installation
+     * @param executor the executor to run the diagnostic events through
      */
     @WorkerThread
-    public static void writeProfile(@NonNull Context context, @NonNull Diagnostics diagnostics) {
+    public static void writeProfile(
+            @NonNull Context context,
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics
+    ) {
         Context appContext = context.getApplicationContext();
         String packageName = appContext.getPackageName();
         AssetManager assetManager = appContext.getAssets();
-        transcodeAndWrite(assetManager, packageName, diagnostics);
+        transcodeAndWrite(assetManager, packageName, executor, diagnostics);
     }
 }

@@ -43,18 +43,18 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
     public void onReceive(@NonNull Context context, @Nullable Intent intent) {
         if (intent == null) return;
         if (!ACTION_INSTALL_PROFILE.equals(intent.getAction())) return;
-        ProfileInstaller.writeProfile(context, new ResultDiagnostics());
+        ProfileInstaller.writeProfile(context, Runnable::run, new ResultDiagnostics());
     }
 
-    class ResultDiagnostics implements ProfileInstaller.Diagnostics {
+    class ResultDiagnostics implements ProfileInstaller.DiagnosticsCallback {
         @Override
-        public void diagnostic(int code, @Nullable Object data) {
-            ProfileInstaller.LOG_DIAGNOSTICS.diagnostic(code, data);
+        public void onDiagnosticReceived(int code, @Nullable Object data) {
+            ProfileInstaller.LOG_DIAGNOSTICS.onDiagnosticReceived(code, data);
         }
 
         @Override
-        public void result(int code, @Nullable Object data) {
-            ProfileInstaller.LOG_DIAGNOSTICS.result(code, data);
+        public void onResultReceived(int code, @Nullable Object data) {
+            ProfileInstaller.LOG_DIAGNOSTICS.onResultReceived(code, data);
             setResultCode(code);
         }
     }
