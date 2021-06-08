@@ -1652,18 +1652,21 @@ public final class TileRendererInternal {
             List<LayoutElement> elements) {
         // We can't measure a container if it's set to wrap-contents but all of its contents are set
         // to expand-to-parent. Such containers must not be displayed.
-        if (containerWidth.hasWrappedDimension() && !containsMeasurableWidth(elements)) {
+        if (containerWidth.hasWrappedDimension()
+                && !containsMeasurableWidth(containerHeight, elements)) {
             return false;
         }
-        if (containerHeight.hasWrappedDimension() && !containsMeasurableHeight(elements)) {
+        if (containerHeight.hasWrappedDimension()
+                && !containsMeasurableHeight(containerWidth, elements)) {
             return false;
         }
         return true;
     }
 
-    private boolean containsMeasurableWidth(List<LayoutElement> elements) {
+    private boolean containsMeasurableWidth(
+            ContainerDimension containerHeight, List<LayoutElement> elements) {
         for (LayoutElement element : elements) {
-            if (isWidthMeasurable(element)) {
+            if (isWidthMeasurable(element, containerHeight)) {
                 // Enough to find a single element that is measurable.
                 return true;
             }
@@ -1671,9 +1674,10 @@ public final class TileRendererInternal {
         return false;
     }
 
-    private boolean containsMeasurableHeight(List<LayoutElement> elements) {
+    private boolean containsMeasurableHeight(
+            ContainerDimension containerWidth, List<LayoutElement> elements) {
         for (LayoutElement element : elements) {
-            if (isHeightMeasurable(element)) {
+            if (isHeightMeasurable(element, containerWidth)) {
                 // Enough to find a single element that is measurable.
                 return true;
             }
@@ -1681,7 +1685,7 @@ public final class TileRendererInternal {
         return false;
     }
 
-    private boolean isWidthMeasurable(LayoutElement element) {
+    private boolean isWidthMeasurable(LayoutElement element, ContainerDimension containerHeight) {
         switch (element.getInnerCase()) {
             case COLUMN:
                 return isMeasurable(element.getColumn().getWidth());
@@ -1692,7 +1696,19 @@ public final class TileRendererInternal {
             case SPACER:
                 return isMeasurable(element.getSpacer().getWidth());
             case IMAGE:
-                return isMeasurable(element.getImage().getWidth());
+                // Special-case. If the image width is proportional, then the height must be
+                // measurable. This means either a fixed size, or expanded where we know the parent
+                // dimension.
+                Image img = element.getImage();
+                if (img.getWidth().hasProportionalDimension()) {
+                    boolean isContainerHeightKnown =
+                            (containerHeight.hasExpandedDimension()
+                                    || containerHeight.hasLinearDimension());
+                    return img.getHeight().hasLinearDimension()
+                            || (img.getHeight().hasExpandedDimension() && isContainerHeightKnown);
+                } else {
+                    return isMeasurable(element.getImage().getWidth());
+                }
             case ARC:
             case TEXT:
             case SPANNABLE:
@@ -1703,7 +1719,7 @@ public final class TileRendererInternal {
         }
     }
 
-    private boolean isHeightMeasurable(LayoutElement element) {
+    private boolean isHeightMeasurable(LayoutElement element, ContainerDimension containerWidth) {
         switch (element.getInnerCase()) {
             case COLUMN:
                 return isMeasurable(element.getColumn().getHeight());
@@ -1714,7 +1730,19 @@ public final class TileRendererInternal {
             case SPACER:
                 return isMeasurable(element.getSpacer().getHeight());
             case IMAGE:
-                return isMeasurable(element.getImage().getHeight());
+                // Special-case. If the image height is proportional, then the width must be
+                // measurable. This means either a fixed size, or expanded where we know the parent
+                // dimension.
+                Image img = element.getImage();
+                if (img.getHeight().hasProportionalDimension()) {
+                    boolean isContainerWidthKnown =
+                            (containerWidth.hasExpandedDimension()
+                                    || containerWidth.hasLinearDimension());
+                    return img.getWidth().hasLinearDimension()
+                            || (img.getWidth().hasExpandedDimension() && isContainerWidthKnown);
+                } else {
+                    return isMeasurable(element.getImage().getHeight());
+                }
             case ARC:
             case TEXT:
             case SPANNABLE:
