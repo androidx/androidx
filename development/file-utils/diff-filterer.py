@@ -20,7 +20,7 @@ import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess,
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--try-fail] [--work-path <workpath>] [--num-jobs <count>] [--debug] <passingPath> <failingPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--work-path <workpath>] [--num-jobs <count>] [--debug] <passingPath> <failingPath> <shellCommand>
 
 diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
@@ -29,9 +29,6 @@ OPTIONS
     Assume that the given shell command does not make any (relevant) changes to the given directory, and therefore don't wipe and repopulate the directory before each invocation of the command
   --assume-input-states-are-correct
     Assume that <shellCommand> passes in <passingPath> and fails in <failingPath> rather than re-verifying this
-  --try-fail
-    Invert the success/fail status of <shellCommand> and swap <passingPath> and <failingPath>
-    That is, instead of trying to transform <passingPath> into <failingPath>, try to transform <failingPath> into <passingPath>
   --work-path <filepath>
     File path to use as the work directory for testing the shell command
     This file path will be overwritten and modified as needed for testing purposes, and will also be the working directory of the shell command when it is run
@@ -568,7 +565,7 @@ class Job(object):
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, tryFail, maxNumJobsAtOnce):
+  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce):
     # some simple params
     self.workPath = os.path.abspath(workPath)
     self.bestState_path = fileIo.join(self.workPath, "bestResults")
@@ -580,7 +577,6 @@ class DiffRunner(object):
     self.originalFailingPath = os.path.abspath(failingPath)
     self.assumeNoSideEffects = assumeNoSideEffects
     self.assumeInputStatesAreCorrect = assumeInputStatesAreCorrect
-    self.tryFail = tryFail
 
     # lists of all the files under the two dirs
     print("Finding files in " + passingPath)
@@ -897,7 +893,6 @@ class DiffRunner(object):
 def main(args):
   assumeNoSideEffects = False
   assumeInputStatesAreCorrect = False
-  tryFail = False
   workPath = "/tmp/diff-filterer"
   maxNumJobsAtOnce = 1
   while len(args) > 0:
@@ -908,10 +903,6 @@ def main(args):
       continue
     if arg == "--assume-input-states-are-correct":
       assumeInputStatesAreCorrect = True
-      args = args[1:]
-      continue
-    if arg == "--try-fail":
-      tryFail = True
       args = args[1:]
       continue
     if arg == "--work-path":
@@ -945,17 +936,13 @@ def main(args):
   failingPath = args[1]
   shellCommand = args[2]
   startTime = datetime.datetime.now()
-  if tryFail:
-    temp = passingPath
-    passingPath = failingPath
-    failingPath = temp
   if not os.path.exists(passingPath):
     print("Specified passing path " + passingPath + " does not exist")
     sys.exit(1)
   if not os.path.exists(failingPath):
     print("Specified failing path " + failingPath + " does not exist")
     sys.exit(1)
-  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, tryFail, maxNumJobsAtOnce).run()
+  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:
