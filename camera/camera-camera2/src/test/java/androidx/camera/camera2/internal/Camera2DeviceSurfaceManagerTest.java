@@ -88,7 +88,7 @@ import java.util.concurrent.TimeoutException;
 /** Robolectric test for {@link Camera2DeviceSurfaceManager} class */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = 29)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class Camera2DeviceSurfaceManagerTest {
     private static final String LEGACY_CAMERA_ID = "0";
     private static final String LIMITED_CAMERA_ID = "1";
