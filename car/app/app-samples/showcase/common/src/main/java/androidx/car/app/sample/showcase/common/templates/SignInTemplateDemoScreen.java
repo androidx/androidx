@@ -31,7 +31,6 @@ import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.MessageTemplate;
-import androidx.car.app.model.OnInputCompletedListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.signin.InputSignInMethod;
@@ -200,17 +199,20 @@ public class SignInTemplateDemoScreen extends Screen {
     }
 
     private Template getPasswordSignInTemplate() {
-        OnInputCompletedListener listener = text -> {
-            // Mocked password validation
-            if (!EXPECTED_PASSWORD.equals(text)) {
-                mErrorMessage = "Invalid password";
-            } else {
-                mErrorMessage = "";
-                mState = State.SIGNED_IN;
+        InputCallback callback = new InputCallback() {
+            @Override
+            public void onInputSubmitted(@NonNull String text) {
+                // Mocked password validation
+                if (!EXPECTED_PASSWORD.equals(text)) {
+                    mErrorMessage = "Invalid password";
+                } else {
+                    mErrorMessage = "";
+                    mState = State.SIGNED_IN;
+                }
+                invalidate();
             }
-            invalidate();
         };
-        InputSignInMethod.Builder builder = new InputSignInMethod.Builder(listener)
+        InputSignInMethod.Builder builder = new InputSignInMethod.Builder(callback)
                 .setHint("Password")
                 .setInputType(InputSignInMethod.INPUT_TYPE_PASSWORD);
         if (mErrorMessage != null) {

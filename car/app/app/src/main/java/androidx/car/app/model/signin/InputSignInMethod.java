@@ -33,9 +33,6 @@ import androidx.car.app.model.CarText;
 import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.InputCallbackDelegate;
 import androidx.car.app.model.InputCallbackDelegateImpl;
-import androidx.car.app.model.OnInputCompletedDelegate;
-import androidx.car.app.model.OnInputCompletedDelegateImpl;
-import androidx.car.app.model.OnInputCompletedListener;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -126,9 +123,6 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     @Keep
     @KeyboardType
     private final int mKeyboardType;
-    @Keep
-    @Nullable
-    private final OnInputCompletedDelegate mOnInputCompletedDelegate;
     @Nullable
     private final InputCallbackDelegate mInputCallbackDelegate;
     @Keep
@@ -189,21 +183,10 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     }
 
     /**
-     * Returns the {@link OnInputCompletedDelegate} for input callbacks.
-     *
-     * @see Builder#Builder(OnInputCompletedListener)
-     */
-    @NonNull
-    public OnInputCompletedDelegate getOnInputCompletedDelegate() {
-        return requireNonNull(mOnInputCompletedDelegate);
-    }
-
-    /**
      * Returns the {@link InputCallbackDelegate} for input callbacks.
      *
      * @see Builder#Builder(InputCallback)
      */
-    @RequiresCarApi(2)
     @NonNull
     public InputCallbackDelegate getInputCallbackDelegate() {
         return requireNonNull(mInputCallbackDelegate);
@@ -255,7 +238,6 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         mInputType = builder.mInputType;
         mErrorMessage = builder.mErrorMessage;
         mKeyboardType = builder.mKeyboardType;
-        mOnInputCompletedDelegate = builder.mOnInputCompletedDelegate;
         mInputCallbackDelegate = builder.mInputCallbackDelegate;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
     }
@@ -267,14 +249,12 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         mInputType = INPUT_TYPE_DEFAULT;
         mErrorMessage = null;
         mKeyboardType = KEYBOARD_DEFAULT;
-        mOnInputCompletedDelegate = null;
         mInputCallbackDelegate = null;
         mShowKeyboardByDefault = false;
     }
 
     /** A builder of {@link InputSignInMethod}. */
     public static final class Builder {
-        @Nullable final OnInputCompletedDelegate mOnInputCompletedDelegate;
         @Nullable final InputCallbackDelegate mInputCallbackDelegate;
         @Nullable
         CarText mHint;
@@ -399,29 +379,11 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
          *
-         * @param listener the {@link OnInputCompletedListener} to be notified of input events
-         * @throws NullPointerException if {@code listener} is {@code null}
-         */
-        @SuppressLint("ExecutorRegistration")
-        public Builder(@NonNull OnInputCompletedListener listener) {
-            mInputCallbackDelegate = null;
-            mOnInputCompletedDelegate = OnInputCompletedDelegateImpl.create(
-                    requireNonNull(listener));
-        }
-
-        /**
-         * Returns an {@link InputSignInMethod.Builder} instance.
-         *
-         * <p>Note that the listener relates to UI events and will be executed on the main thread
-         * using {@link Looper#getMainLooper()}.
-         *
          * @param listener the {@link InputCallbackDelegate} to be notified of input events
          * @throws NullPointerException if {@code listener} is {@code null}
          */
-        @RequiresCarApi(2)
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull InputCallback listener) {
-            mOnInputCompletedDelegate = null;
             mInputCallbackDelegate = InputCallbackDelegateImpl.create(
                     requireNonNull(listener));
         }
