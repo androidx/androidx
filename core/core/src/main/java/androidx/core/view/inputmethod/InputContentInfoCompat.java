@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,12 +91,10 @@ public final class InputContentInfoCompat {
 
         @Override
         public void requestPermission() {
-            return;
         }
 
         @Override
         public void releasePermission() {
-            return;
         }
     }
 
@@ -134,7 +132,7 @@ public final class InputContentInfoCompat {
         }
 
         @Override
-        @Nullable
+        @NonNull
         public Object getInputContentInfo() {
             return mObject;
         }
