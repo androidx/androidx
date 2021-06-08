@@ -624,10 +624,15 @@ final class SqliteInspector extends Inspector {
                 try {
                     cursor = rawQuery(connection.mDatabase, command.getQuery(), params,
                             cancellationSignal);
+
+                    long responseSizeLimitHint = command.getResponseSizeLimitHint();
+                    // treating unset field as unbounded
+                    if (responseSizeLimitHint <= 0) responseSizeLimitHint = Long.MAX_VALUE;
+
                     List<String> columnNames = Arrays.asList(cursor.getColumnNames());
                     callback.reply(Response.newBuilder()
                             .setQuery(QueryResponse.newBuilder()
-                                    .addAllRows(convert(cursor))
+                                    .addAllRows(convert(cursor, responseSizeLimitHint))
                                     .addAllColumnNames(columnNames)
                                     .build())
                             .build()
@@ -761,16 +766,25 @@ final class SqliteInspector extends Inspector {
         return new DatabaseConnection(database, mIOExecutor);
     }
 
-    private static List<Row> convert(Cursor cursor) {
+    /**
+     * @param responseSizeLimitHint expressed in bytes
+     */
+    private static List<Row> convert(Cursor cursor, long responseSizeLimitHint) {
+        long responseSize = 0;
         List<Row> result = new ArrayList<>();
         int columnCount = cursor.getColumnCount();
-        while (cursor.moveToNext()) {
+        while (cursor.moveToNext() && responseSize < responseSizeLimitHint) {
             Row.Builder rowBuilder = Row.newBuilder();
             for (int i = 0; i < columnCount; i++) {
                 CellValue value = readValue(cursor, i);
                 rowBuilder.addValues(value);
             }
-            result.add(rowBuilder.build());
+            Row row = rowBuilder.build();
+            // Optimistically adding a row before checking the limit. Eliminates the case when a
+            // misconfigured client (limit too low) is unable to fetch any results. Row size in
+            // SQLite Android is limited to (~2MB), so the worst case scenario is very manageable.
+            result.add(row);
+            responseSize += row.getSerializedSize();
         }
         return result;
     }
