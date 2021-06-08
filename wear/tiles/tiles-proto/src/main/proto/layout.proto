@@ -484,6 +484,11 @@ message Spannable {
   // first line or after the last line. The default value is zero and negative
   // values will decrease the interline spacing.
   SpProp line_spacing = 6;
+
+  // The explicit height between lines of text. This is equivalent to the
+  // vertical distance between subsequent baselines. If not specified, defaults
+  // the font's recommended interline spacing.
+  SpProp line_height = 7;
 }
 
 // A column of elements. Each child element will be laid out vertically, one

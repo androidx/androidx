@@ -2597,16 +2597,14 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets extra spacing to add between each line. This will apply to all spans regardless of
-         * their font size. This is in addition to original line heights. Note that this won't add
-         * any additional space before the first line or after the last line. The default value is
-         * zero and negative values will decrease the interline spacing. Intended for testing
-         * purposes only.
+         * Gets the explicit height between lines of text. This is equivalent to the vertical
+         * distance between subsequent baselines. If not specified, defaults the font's recommended
+         * interline spacing. Intended for testing purposes only.
          */
         @Nullable
-        public SpProp getLineSpacing() {
-            if (mImpl.hasLineSpacing()) {
-                return SpProp.fromProto(mImpl.getLineSpacing());
+        public SpProp getLineHeight() {
+            if (mImpl.hasLineHeight()) {
+                return SpProp.fromProto(mImpl.getLineHeight());
             } else {
                 return null;
             }
@@ -2754,26 +2752,24 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets extra spacing to add between each line. This will apply to all spans regardless
-             * of their font size. This is in addition to original line heights. Note that this
-             * won't add any additional space before the first line or after the last line. The
-             * default value is zero and negative values will decrease the interline spacing.
+             * Sets the explicit height between lines of text. This is equivalent to the vertical
+             * distance between subsequent baselines. If not specified, defaults the font's
+             * recommended interline spacing.
              */
             @NonNull
-            public Builder setLineSpacing(@NonNull SpProp lineSpacing) {
-                mImpl.setLineSpacing(lineSpacing.toProto());
+            public Builder setLineHeight(@NonNull SpProp lineHeight) {
+                mImpl.setLineHeight(lineHeight.toProto());
                 return this;
             }
 
             /**
-             * Sets extra spacing to add between each line. This will apply to all spans regardless
-             * of their font size. This is in addition to original line heights. Note that this
-             * won't add any additional space before the first line or after the last line. The
-             * default value is zero and negative values will decrease the interline spacing.
+             * Sets the explicit height between lines of text. This is equivalent to the vertical
+             * distance between subsequent baselines. If not specified, defaults the font's
+             * recommended interline spacing.
              */
             @NonNull
-            public Builder setLineSpacing(@NonNull SpProp.Builder lineSpacingBuilder) {
-                mImpl.setLineSpacing(lineSpacingBuilder.build().toProto());
+            public Builder setLineHeight(@NonNull SpProp.Builder lineHeightBuilder) {
+                mImpl.setLineHeight(lineHeightBuilder.build().toProto());
                 return this;
             }
 

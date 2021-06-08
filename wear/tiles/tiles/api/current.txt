@@ -710,7 +710,7 @@ package androidx.wear.tiles {
 
   public static final class LayoutElementBuilders.Spannable implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder builder();
-    method public androidx.wear.tiles.DimensionBuilders.SpProp? getLineSpacing();
+    method public androidx.wear.tiles.DimensionBuilders.SpProp? getLineHeight();
     method public androidx.wear.tiles.TypeBuilders.Int32Prop? getMaxLines();
     method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
@@ -722,8 +722,8 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.LayoutElementBuilders.Span);
     method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.tiles.LayoutElementBuilders.Span.Builder);
     method public androidx.wear.tiles.LayoutElementBuilders.Spannable build();
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineSpacing(androidx.wear.tiles.DimensionBuilders.SpProp);
-    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineSpacing(androidx.wear.tiles.DimensionBuilders.SpProp.Builder);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp);
+    method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setLineHeight(androidx.wear.tiles.DimensionBuilders.SpProp.Builder);
     method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.tiles.TypeBuilders.Int32Prop);
     method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.tiles.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);

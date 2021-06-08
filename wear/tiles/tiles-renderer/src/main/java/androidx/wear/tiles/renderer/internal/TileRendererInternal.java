@@ -1537,7 +1537,27 @@ public final class TileRendererInternal {
             tv.setMaxLines(TEXT_MAX_LINES_DEFAULT);
         }
 
-        if (spannable.hasLineSpacing()) {
+        if (spannable.hasLineHeight()) {
+            // We use a Span here instead of just calling TextViewCompat#setLineHeight.
+            // setLineHeight is implemented by taking the difference between the current font height
+            // (via the font metrics, not just the size in SP), subtracting that from the desired
+            // line height, and setting that as the inter-line spacing. This doesn't work for our
+            // Spannables; we don't use a default height, yet TextView still has a default font (and
+            // size) that it tries to base the requested line height on, despite that never actually
+            // being used. The end result is that the line height never actually drops out as
+            // expected.
+            //
+            // Instead, wrap the whole thing in a LineHeightSpan with the desired line height. This
+            // gets calculated properly as the TextView is calculating its per-line font metrics,
+            // and will actually work correctly.
+            StandardLineHeightSpan span =
+                    new StandardLineHeightSpan((int) toPx(spannable.getLineHeight()));
+            builder.setSpan(
+                    span,
+                    /* start= */ 0,
+                    /* end= */ builder.length(),
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        } else if (spannable.hasLineSpacing()) {
             tv.setLineSpacing(toPx(spannable.getLineSpacing()), 1f);
         }
 
