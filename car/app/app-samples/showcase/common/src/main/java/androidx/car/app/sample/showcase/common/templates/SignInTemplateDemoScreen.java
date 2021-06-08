@@ -29,6 +29,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.OnInputCompletedListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -54,11 +55,12 @@ public class SignInTemplateDemoScreen extends Screen {
 
     private static final String EMAIL_REGEXP = "^(.+)@(.+)$";
     private static final String EXPECTED_PASSWORD = "password";
+    private static final int MAX_USERNAME_LENGTH = 5;
 
     // package private to avoid synthetic accessor
     State mState = State.USERNAME;
-    String mErrorMessage;
-    private String mUsername = null;
+    String mErrorMessage = "";
+    String mUsername = null;
 
     private final CharSequence mAdditionalText = Utils.clickable("Please review our terms of "
                     + "service", 18, 16,
@@ -125,16 +127,42 @@ public class SignInTemplateDemoScreen extends Screen {
     }
 
     private Template getUsernameSignInTemplate() {
-        OnInputCompletedListener listener = text -> {
-            // Mocked username validation
-            if (!text.matches(EMAIL_REGEXP)) {
-                mErrorMessage = "Invalid username";
-            } else {
-                mErrorMessage = "";
-                mUsername = text;
-                mState = State.PASSWORD;
+        InputCallback listener = new InputCallback() {
+            @Override
+            public void onInputSubmitted(@NonNull String text) {
+                // Mocked username validation
+                if (!text.matches(EMAIL_REGEXP)) {
+                    mErrorMessage = "Invalid user name";
+                    mUsername = text;
+                } else {
+                    mErrorMessage = "";
+                    mUsername = text;
+                    mState = State.PASSWORD;
+                }
+                invalidate();
             }
-            invalidate();
+
+            @Override
+            public void onInputTextChanged(@NonNull String text) {
+                // This callback demonstrates how to use handle the text changed event.
+                // In this case, we check that the user name doesn't exceed a certain length.
+                if (mState == State.USERNAME) {
+                    String previousErrorMessage = mErrorMessage;
+                    if (text.length() > MAX_USERNAME_LENGTH) {
+                        mErrorMessage = "User name is too long";
+                    } else {
+                        mErrorMessage = "";
+                    }
+
+                    // If the error message changed, invalidatee the template.
+                    if (!mErrorMessage.equals(previousErrorMessage)) {
+                        // Make sure to keep the user name so that the template preserves it
+                        // after invalidation.
+                        mUsername = text;
+                        invalidate();
+                    }
+                }
+            }
         };
         InputSignInMethod.Builder builder = new InputSignInMethod.Builder(listener)
                 .setHint("Email")
