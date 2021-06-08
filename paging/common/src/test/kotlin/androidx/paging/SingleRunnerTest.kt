@@ -18,6 +18,7 @@ package androidx.paging
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -140,6 +141,7 @@ class SingleRunnerTest {
         assertThat(output.joinToString("")).isEqualTo("0a1b2c3d")
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun ensureIsolation_whenCancelationIsIgnoredByThePreviousBlock() {
         // make sure we wait for previous one if it ignores cancellation

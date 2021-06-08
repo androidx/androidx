@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -59,6 +60,7 @@ internal class Controller3ASubmit3ATest {
         assertThat(result.isCompleted).isFalse()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfModeSubmit(): Unit = runBlocking {
         initGraphProcessor()
@@ -86,6 +88,7 @@ internal class Controller3ASubmit3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAeModeSubmit(): Unit = runBlocking {
         initGraphProcessor()
@@ -114,6 +117,7 @@ internal class Controller3ASubmit3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAwbModeSubmit(): Unit = runBlocking {
         initGraphProcessor()
@@ -142,6 +146,7 @@ internal class Controller3ASubmit3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfRegionsSubmit(): Unit = runBlocking {
         initGraphProcessor()
@@ -170,6 +175,7 @@ internal class Controller3ASubmit3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAeRegionsSubmit(): Unit = runBlocking {
         initGraphProcessor()
@@ -198,6 +204,7 @@ internal class Controller3ASubmit3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAwbRegionsSubmit(): Unit = runBlocking {
         initGraphProcessor()

@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -44,6 +45,7 @@ class LivePagedListTest {
     @Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun instantiatesPagingSourceOnFetchDispatcher() {
         var pagingSourcesCreated = 0

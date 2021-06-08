@@ -28,6 +28,7 @@ import androidx.paging.map
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await
+import kotlinx.coroutines.rx3.awaitSingleOrNull
 
 /**
  * Returns a [PagingData] containing the result of applying the given [transform] to each
@@ -72,4 +73,6 @@ fun <T : Any> PagingData<T>.filterAsync(
 @CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
     generator: (T?, T?) -> Maybe<R>
-): PagingData<R> = insertSeparators { before, after -> generator(before, after).await() }
+): PagingData<R> = insertSeparators { before, after ->
+    generator(before, after).awaitSingleOrNull()
+}

@@ -82,7 +82,7 @@ internal class VirtualCameraManager @Inject constructor(
     }
 
     private fun offerChecked(request: CameraRequest) {
-        check(requestQueue.offer(request)) {
+        check(requestQueue.trySend(request).isSuccess) {
             "There are more than $requestQueueDepth requests buffered!"
         }
     }
@@ -362,7 +362,7 @@ internal class VirtualCameraManager @Inject constructor(
             scope,
             timeout = 1000,
             callback = {
-                channel.offer(RequestClose(this))
+                channel.trySend(RequestClose(this)).isSuccess
             }
         )
 

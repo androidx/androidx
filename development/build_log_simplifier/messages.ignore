@@ -568,6 +568,8 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
 Found an unresolved type in androidx\.compose\.animation\.AnimatedContentScope\$using\(androidx\.compose\.animation\.ContentTransform, androidx\.compose\.animation\.SizeTransform\) \(AnimatedContent\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.BroadcastFrameClock\$cancel\(\) \(BroadcastFrameClock\.kt:[0-9]+\)
+Found an unresolved type in androidx\.datastore\.rxjava[0-9]+\.RxDataStore\$dispose\(\) \(RxDataStore\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
@@ -597,6 +599,9 @@ Found an unresolved type in androidx\.slice\.builders\$list\(android\.content\.C
 # See b/180023439 for hiltNavGraphViewModel warning.
 Found an unresolved type in androidx\.hilt\.navigation\.compose\$hiltNavGraphViewModel\(androidx\.navigation\.NavController, kotlin\.String\) \(NavHostController\.kt:[0-9]+\)
 Unresolved link to .*
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutate\(androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutate\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutateWith\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.gestures\$detectTapGestures\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.gestures\.PressGestureScope, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\)\) \(TapGestureDetector\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
@@ -1097,6 +1102,7 @@ Info: Stripped invalid locals information from [0-9]+ methods\.
 Info: Methods with invalid locals information:
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DraggableKt\$draggable\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.compose\.foundation\.gestures\.DragLogic \{\} for value: v[0-9]+\(\$this\$invokeSuspend_u[0-9]+lambda_u[0-9]+d[0-9]+\) by constraint INT\.
+java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 java\.lang\.Object androidx\.wear\.watchface\.WatchFaceService\$EngineWrapper\.createWatchFaceImpl\(android\.icu\.util\.Calendar, androidx\.wear\.watchface\.ComplicationsManager, androidx\.wear\.watchface\.style\.CurrentUserStyleRepository, kotlinx\.coroutines\.CompletableDeferred, kotlinx\.coroutines\.CompletableDeferred, androidx\.wear\.watchface\.WatchState, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.wear\.watchface\.WatchFaceService\$EngineWrapper\.setUserStyle\$wear_watchface_release\(androidx\.wear\.watchface\.style\.data\.UserStyleWireFormat, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\$fetchComplicationsData\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)

@@ -21,6 +21,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -258,6 +259,7 @@ public abstract class PagedList<T : Any> internal constructor(
         private var dataSource: DataSource<Key, Value>?
         private val initialPage: PagingSource.LoadResult.Page<Key, Value>?
         private val config: Config
+        @OptIn(DelicateCoroutinesApi::class)
         private var coroutineScope: CoroutineScope = GlobalScope
         private var notifyDispatcher: CoroutineDispatcher? = null
         private var fetchDispatcher: CoroutineDispatcher? = null
