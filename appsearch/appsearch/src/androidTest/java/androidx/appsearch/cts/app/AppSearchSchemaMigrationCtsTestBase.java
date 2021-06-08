@@ -37,6 +37,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.test.filters.FlakyTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -327,6 +328,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
 
+    @FlakyTest(bugId = 185926060)
     @Test
     public void testSchemaMigration() throws Exception {
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
