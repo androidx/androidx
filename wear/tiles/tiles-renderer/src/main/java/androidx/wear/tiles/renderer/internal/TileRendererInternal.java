@@ -1049,12 +1049,15 @@ public final class TileRendererInternal {
             }
         }
 
+        // We don't want the text to be screen-reader focusable, unless wrapped in a Semantics
+        // modifier. This prevents automatically reading out partial text (e.g. text in a row) etc.
+        //
+        // This **must** be done before applying modifiers; applying a Semantics modifier will set
+        // importantForAccessibility, so we don't want to override it after applying modifiers.
+        textView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+
         View wrappedView = applyModifiers(textView, text.getModifiers());
         parent.addView(wrappedView, layoutParams);
-
-        // We don't want the text to be screen-reader focusable, unless wrapped in a Audible. This
-        // prevents automatically reading out partial text (e.g. text in a row) etc.
-        textView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         return wrappedView;
     }
