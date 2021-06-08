@@ -956,14 +956,14 @@ package androidx.core.content {
     method public static int checkSelfPermission(android.content.Context, String);
     method public static android.content.Context? createDeviceProtectedStorageContext(android.content.Context);
     method public static String? getAttributionTag(android.content.Context);
-    method public static java.io.File! getCodeCacheDir(android.content.Context);
+    method public static java.io.File getCodeCacheDir(android.content.Context);
     method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
     method public static java.io.File? getDataDir(android.content.Context);
     method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
     method public static java.io.File![] getExternalCacheDirs(android.content.Context);
     method public static java.io.File![] getExternalFilesDirs(android.content.Context, String?);
-    method public static java.util.concurrent.Executor! getMainExecutor(android.content.Context!);
+    method public static java.util.concurrent.Executor getMainExecutor(android.content.Context);
     method public static java.io.File? getNoBackupFilesDir(android.content.Context);
     method public static java.io.File![] getObbDirs(android.content.Context);
     method public static <T> T? getSystemService(android.content.Context, Class<T!>);
@@ -3292,7 +3292,7 @@ package androidx.core.view.inputmethod {
 
   public final class EditorInfoCompat {
     ctor @Deprecated public EditorInfoCompat();
-    method public static String![] getContentMimeTypes(android.view.inputmethod.EditorInfo!);
+    method public static String![] getContentMimeTypes(android.view.inputmethod.EditorInfo);
     method public static CharSequence? getInitialSelectedText(android.view.inputmethod.EditorInfo, int);
     method public static CharSequence? getInitialTextAfterCursor(android.view.inputmethod.EditorInfo, int, int);
     method public static CharSequence? getInitialTextBeforeCursor(android.view.inputmethod.EditorInfo, int, int);
@@ -3311,7 +3311,7 @@ package androidx.core.view.inputmethod {
   }
 
   public static interface InputConnectionCompat.OnCommitContentListener {
-    method public boolean onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat!, int, android.os.Bundle!);
+    method public boolean onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle?);
   }
 
   public final class InputContentInfoCompat {

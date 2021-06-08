@@ -10421,50 +10421,6 @@
     <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class is missing private constructor"
-        errorLine1="public class AppLaunchChecker {"
-        errorLine2="             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/AppLaunchChecker.java"
-            line="36"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public class ContextCompat {"
-        errorLine2="             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="156"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public final class EditorInfoCompat {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
-            line="49"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public final class InputConnectionCompat {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="37"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
         errorLine1="public class NotificationCompat {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
@@ -13244,39 +13200,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static File getCodeCacheDir(@NonNull Context context) {"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="596"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Executor getMainExecutor(Context context) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="683"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Executor getMainExecutor(Context context) {"
-        errorLine2="                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="683"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        Object getWrapper();"
         errorLine2="        ~~~~~~">
         <location
@@ -13547,17 +13470,6 @@
             file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
             line="207"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String[] getContentMimeTypes(EditorInfo editorInfo) {"
-        errorLine2="                                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
-            line="180"
-            column="48"/>
     </issue>
 
     <issue
@@ -14262,28 +14174,6 @@
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
             line="517"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="235"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts);"
-        errorLine2="                                                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="235"
-            column="85"/>
     </issue>
 
     <issue
