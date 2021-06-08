@@ -735,7 +735,7 @@ public final class Recorder implements VideoOutput {
                             "Audio data comes before the track is added to MediaMuxer.");
                 }
                 if (mVideoTrackIndex == null) {
-                    // Drop the data if the video track hasn't been added.
+                    Logger.d(TAG, "Drop audio data since video track hasn't been added.");
                     encodedData.close();
                     return;
                 }
@@ -878,8 +878,8 @@ public final class Recorder implements VideoOutput {
                             "Video data comes before the track is added to MediaMuxer.");
                 }
                 if (!mMuted && mAudioTrackIndex == null) {
+                    Logger.d(TAG, "Drop video data since audio track hasn't been added.");
                     encodedData.close();
-                    // Drop the data if audio track hasn't been added.
                     return;
                 }
 
@@ -1142,6 +1142,9 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void setState(@NonNull State state) {
         synchronized (mLock) {
+            Logger.d(TAG,
+                    "Transitioning Recorder internal state: " + getObservableData(mState) + " -->"
+                            + " " + state);
             mState.setState(state);
             if (state == State.RECORDING) {
                 mStreamState.setState(StreamState.ACTIVE);
