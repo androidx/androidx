@@ -1005,6 +1005,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         if (mTotalUnconsumed > 0) {
             finishSpinner(mTotalUnconsumed);
             mTotalUnconsumed = 0;
+        } else {
+            mProgress.setArrowEnabled(false);
         }
         // Dispatch up our nested parent
         stopNestedScroll();
