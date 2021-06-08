@@ -28,7 +28,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.InputCallback;
@@ -204,7 +203,6 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      *
      * @see Builder#Builder(InputCallback)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(2)
     @NonNull
     public InputCallbackDelegate getInputCallbackDelegate() {
@@ -420,7 +418,6 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          * @param listener the {@link InputCallbackDelegate} to be notified of input events
          * @throws NullPointerException if {@code listener} is {@code null}
          */
-        @ExperimentalCarApi
         @RequiresCarApi(2)
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull InputCallback listener) {
