@@ -44,6 +44,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -101,6 +102,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testParcelingAndUnparceling() {
         val items = RemoteCollectionItems.Builder()
             .setHasStableIds(true)
@@ -128,6 +130,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testBuilder_empty() {
         val items = RemoteCollectionItems.Builder().build()
 
@@ -137,6 +140,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testBuilder_viewTypeCountUnspecified() {
         val firstItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val secondItem = RemoteViews(mPackageName, R.layout.list_view_row2)
@@ -158,6 +162,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testBuilder_viewTypeCountSpecified() {
         val firstItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val secondItem = RemoteViews(mPackageName, R.layout.list_view_row2)
@@ -171,6 +176,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testBuilder_repeatedIdsAndLayouts() {
         val firstItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val secondItem = RemoteViews(mPackageName, R.layout.list_view_row)
@@ -194,6 +200,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testBuilder_viewTypeCountLowerThanLayoutCount() {
         assertFailsWith(IllegalArgumentException::class) {
             RemoteCollectionItems.Builder()
@@ -206,6 +213,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testServiceIntent_hasSameUriForSameIds() {
         val intent1 = RemoteViewsCompatService.createIntent(mContext, appWidgetId = 1, viewId = 42)
         val intent2 = RemoteViewsCompatService.createIntent(mContext, appWidgetId = 1, viewId = 42)
@@ -214,6 +222,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testServiceIntent_hasDifferentUriForDifferentWidgetIds() {
         val intent1 = RemoteViewsCompatService.createIntent(mContext, appWidgetId = 1, viewId = 42)
         val intent2 = RemoteViewsCompatService.createIntent(mContext, appWidgetId = 2, viewId = 42)
@@ -222,6 +231,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testServiceIntent_hasDifferentUriForDifferentViewIds() {
         val intent1 = RemoteViewsCompatService.createIntent(mContext, appWidgetId = 1, viewId = 42)
         val intent2 = RemoteViewsCompatService.createIntent(mContext, appWidgetId = 1, viewId = 43)
@@ -230,6 +240,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testSetRemoteAdapter_emptyCollection() {
         val items = RemoteCollectionItems.Builder().build()
 
@@ -251,6 +262,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testSetRemoteAdapter_withItems() {
         val items = RemoteCollectionItems.Builder()
             .setHasStableIds(true)
@@ -282,6 +294,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testSetRemoteAdapter_clickListener() {
         val action = "my-action"
         val receiver = TestBroadcastReceiver()
@@ -338,6 +351,7 @@ public class RemoteViewsCompatTest {
     }
 
     @Test
+    @Ignore("b/190514964")
     public fun testSetRemoteAdapter_multipleCalls() {
         var items = RemoteCollectionItems.Builder()
             .setHasStableIds(true)
