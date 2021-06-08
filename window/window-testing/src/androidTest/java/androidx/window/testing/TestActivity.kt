@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.test
+package androidx.window.testing
 
 import android.app.Activity
 

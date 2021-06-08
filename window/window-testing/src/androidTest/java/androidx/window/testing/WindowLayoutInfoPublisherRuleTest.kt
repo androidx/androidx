@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.test
+package androidx.window.testing
 
 import android.graphics.Rect
 import androidx.test.ext.junit.rules.ActivityScenarioRule

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.test
+package androidx.window.testing
 
 import androidx.window.WindowInfoRepo
 import androidx.window.WindowLayoutInfo
