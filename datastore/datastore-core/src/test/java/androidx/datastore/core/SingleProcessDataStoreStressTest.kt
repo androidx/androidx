@@ -44,6 +44,7 @@ import java.io.OutputStream
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 @RunWith(JUnit4::class)
 @ExperimentalTime
@@ -97,7 +98,8 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
-        withTimeout(10000L) {
+        @Suppress("DEPRECATION")
+        withTimeout(10.seconds) {
             readers.awaitAll()
         }
     }
@@ -161,7 +163,8 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
-        withTimeout(10000L) {
+        @Suppress("DEPRECATION")
+        withTimeout(10.seconds) {
             readers.awaitAll()
         }
     }
@@ -221,7 +224,8 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
-        withTimeout(10000L) {
+        @Suppress("DEPRECATION")
+        withTimeout(10.seconds) {
             readers.awaitAll()
         }
     }

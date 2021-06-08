@@ -22,6 +22,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -47,6 +48,7 @@ class CoroutineRoomCancellationTest {
 
     private val database = TestDatabase()
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSuspend_cancellable_duringLongQuery() = runBlocking {
         database.backingFieldMap["QueryDispatcher"] = Dispatchers.IO
@@ -80,7 +82,7 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     @Test
     fun testSuspend_cancellable_beforeQueryStarts() = runBlocking {
         database.backingFieldMap["QueryDispatcher"] = testDispatcher
@@ -118,6 +120,7 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSuspend_exception_in_query() = runBlocking {
         database.backingFieldMap["QueryDispatcher"] = Dispatchers.IO

@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -50,6 +51,7 @@ internal class Controller3ALock3ATest {
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfImmediateAeImmediate(): Unit = runBlocking {
         initGraphProcessor()
@@ -130,6 +132,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfImmediateAeAfterCurrentScan(): Unit = runBlocking {
         initGraphProcessor()
@@ -210,6 +213,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfImmediateAeAfterNewScan(): Unit = runBlocking {
         initGraphProcessor()
@@ -295,6 +299,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfAfterCurrentScanAeImmediate(): Unit = runBlocking {
         initGraphProcessor()
@@ -375,6 +380,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfAfterNewScanScanAeImmediate(): Unit = runBlocking {
         initGraphProcessor()
@@ -461,6 +467,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfAfterCurrentScanAeAfterCurrentScan(): Unit = runBlocking {
         initGraphProcessor()
@@ -555,6 +562,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testAfAfterNewScanScanAeAfterNewScan(): Unit = runBlocking {
         initGraphProcessor()
@@ -644,6 +652,7 @@ internal class Controller3ALock3ATest {
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testLock3AWithRegions(): Unit = runBlocking {
         initGraphProcessor()

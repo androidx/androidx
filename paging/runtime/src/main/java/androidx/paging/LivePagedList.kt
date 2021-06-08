@@ -23,6 +23,7 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -228,6 +229,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@OptIn(DelicateCoroutinesApi::class)
 @Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
@@ -286,6 +288,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@OptIn(DelicateCoroutinesApi::class)
 @Suppress("DEPRECATION")
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",

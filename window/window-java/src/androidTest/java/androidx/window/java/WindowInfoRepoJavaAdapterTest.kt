@@ -117,7 +117,7 @@ public class WindowInfoRepoJavaAdapterTest {
         unitUnderTest.addWindowLayoutInfoListener(Runnable::run, testConsumer)
         unitUnderTest.addWindowLayoutInfoListener(Runnable::run, mock())
         unitUnderTest.removeWindowLayoutInfoListener(testConsumer)
-        val accepted = channel.offer(info)
+        val accepted = channel.trySend(info).isSuccess
 
         assertTrue(accepted)
         testConsumer.assertEmpty()

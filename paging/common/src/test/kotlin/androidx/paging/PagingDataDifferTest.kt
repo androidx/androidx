@@ -149,7 +149,7 @@ class PagingDataDifferTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
@@ -157,14 +157,14 @@ class PagingDataDifferTest {
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
@@ -205,7 +205,7 @@ class PagingDataDifferTest {
         // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
         // to a placeholder:
         // [null, null, [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
@@ -227,7 +227,7 @@ class PagingDataDifferTest {
 
         // Now index 0 has been loaded:
         // [[-3], [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-3, listOf(-3, -4))),
                 placeholdersBefore = 0,
@@ -257,7 +257,7 @@ class PagingDataDifferTest {
 
         // Should only resend the hint for index 5, since index 0 has already been loaded:
         // [[-3], [], [-1], [1], [3], [], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(2, listOf())),
                 placeholdersAfter = 2,
@@ -283,7 +283,7 @@ class PagingDataDifferTest {
 
         // Index 5 hasn't loaded, but we are at the end of the list:
         // [[-3], [], [-1], [1], [3], [], [5]]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(3, listOf(4, 5))),
                 placeholdersAfter = 0,
@@ -305,7 +305,7 @@ class PagingDataDifferTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
@@ -313,14 +313,14 @@ class PagingDataDifferTest {
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
@@ -361,7 +361,7 @@ class PagingDataDifferTest {
         // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
         // to a placeholder:
         // [null, null, [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
@@ -383,7 +383,7 @@ class PagingDataDifferTest {
 
         // Drop the previous page, which reset resendable index state in the PREPEND direction.
         // [null, null, [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Drop(
                 loadType = PREPEND,
                 minPageOffset = -2,
@@ -395,7 +395,7 @@ class PagingDataDifferTest {
         // Re-insert the previous page, which should not trigger resending the index due to
         // previous page drop:
         // [[-3], [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
@@ -410,7 +410,7 @@ class PagingDataDifferTest {
     fun peek() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
@@ -418,14 +418,14 @@ class PagingDataDifferTest {
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
@@ -471,7 +471,7 @@ class PagingDataDifferTest {
             differ.collectFrom(PagingData(pageEventCh.consumeAsFlow(), uiReceiver))
         }
 
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(emptyList())),
                 placeholdersBefore = 0,

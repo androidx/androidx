@@ -42,6 +42,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.concurrent.futures.await
 import androidx.core.util.Consumer
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -57,6 +58,7 @@ import kotlinx.coroutines.launch
  * All the needed Cmaera X use cases should be bound before starting the lifecycle. Depending on
  * the test, bind either the preview case, or both the preview and image capture case.
  */
+@kotlin.OptIn(DelicateCoroutinesApi::class)
 internal fun cameraXOpenCamera(
     activity: MainActivity,
     params: CameraParams,
@@ -194,6 +196,7 @@ internal fun cameraXOpenCamera(
 /**
  * End Camera X custom lifecycle, unbind use cases, and start timing the camera close.
  */
+@kotlin.OptIn(DelicateCoroutinesApi::class)
 internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
     logd("In closecameraX, camera: " + params.id + ",  test: " + testConfig.currentRunningTest)
 

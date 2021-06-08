@@ -50,6 +50,7 @@ public suspend fun Activity.trackPipAnimationHintView(view: View) {
 
     // Create a cold flow that will emit the most updated position of the view in the form of a
     // rect as long as the view is attached to the window.
+    @Suppress("DEPRECATION")
     val flow = callbackFlow<Rect> {
         // Emit a new hint rect any time the view moves.
         val layoutChangeListener = View.OnLayoutChangeListener { v, l, t, r, b, oldLeft, oldTop,
