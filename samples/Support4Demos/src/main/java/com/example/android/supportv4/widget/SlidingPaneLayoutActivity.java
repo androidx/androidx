@@ -17,7 +17,6 @@
 
 package com.example.android.supportv4.widget;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
@@ -198,7 +197,6 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
      */
     class FirstLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
         @Override
-        @SuppressLint("UnsafeNewApiCall")
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

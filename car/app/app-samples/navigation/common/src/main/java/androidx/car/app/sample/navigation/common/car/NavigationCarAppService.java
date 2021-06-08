@@ -16,7 +16,6 @@
 
 package androidx.car.app.sample.navigation.common.car;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -97,7 +96,6 @@ public final class NavigationCarAppService extends CarAppService {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     private void createNotificationChannel() {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

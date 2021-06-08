@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.webkit.WebResourceRequest;
 
 import androidx.annotation.NonNull;
@@ -43,7 +42,6 @@ public class WebResourceRequestCompat {
      *
      * @return whether the request was a result of a server-side redirect.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isRedirect(@NonNull WebResourceRequest request) {

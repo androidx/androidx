@@ -156,7 +156,6 @@ public class WebViewCompat {
      *                  requests with callbacks.
      * @param callback  The callback to be invoked.
      */
-    @SuppressWarnings("NewApi")
     @RequiresFeature(name = WebViewFeature.VISUAL_STATE_CALLBACK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postVisualStateCallback(@NonNull WebView webview, long requestId,
@@ -201,7 +200,6 @@ public class WebViewCompat {
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.START_SAFE_BROWSING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,
@@ -244,7 +242,6 @@ public class WebViewCompat {
      * allowlist, {@code false} if any hosts are malformed. The callback will be run on the UI
      * thread
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ALLOWLIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
@@ -298,7 +295,6 @@ public class WebViewCompat {
      * @deprecated Please use {@link #setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
      */
     @Deprecated
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,
@@ -316,7 +312,6 @@ public class WebViewCompat {
      *
      * @return the url pointing to a privacy policy document which can be displayed to users.
      */
-    @SuppressLint("NewApi")
     @NonNull
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -442,7 +437,6 @@ public class WebViewCompat {
      *
      * @return an array of size two, containing the two message ports that form the message channel.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebMessagePortCompat[] createWebMessageChannel(
@@ -474,7 +468,6 @@ public class WebViewCompat {
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.POST_WEB_MESSAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postWebMessage(@NonNull WebView webview, @NonNull WebMessageCompat message,
@@ -758,7 +751,6 @@ public class WebViewCompat {
      *
      * @return the WebViewClient, or a default client if not yet set
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_CLIENT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
@@ -782,7 +774,6 @@ public class WebViewCompat {
      *
      * @return the WebChromeClient, or {@code null} if not yet set
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_CHROME_CLIENT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebChromeClient getWebChromeClient(@NonNull WebView webview) {
@@ -817,7 +808,6 @@ public class WebViewCompat {
      *         with this {@link android.webkit.WebView}, or {@code null} if
      *         WebView is not running in multiprocess mode.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_RENDERER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcess getWebViewRenderProcess(@NonNull WebView webview) {
@@ -864,7 +854,7 @@ public class WebViewCompat {
      */
     // WebViewRenderProcessClient is a callback class, so it should be last. See
     // https://issuetracker.google.com/issues/139770271.
-    @SuppressLint({"LambdaLast", "NewApi"})
+    @SuppressLint({"LambdaLast"})
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -904,7 +894,6 @@ public class WebViewCompat {
      * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
      *                                   callbacks.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -935,7 +924,6 @@ public class WebViewCompat {
      * {@link #setWebViewRenderProcessClient(WebView,WebViewRenderProcessClient)} or {@code null}
      * otherwise.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcessClient getWebViewRenderProcessClient(

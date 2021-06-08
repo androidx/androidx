@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro
 
-import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
@@ -44,7 +43,6 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
         )
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         !applicationInfo.isProfileableByShell
     } else {

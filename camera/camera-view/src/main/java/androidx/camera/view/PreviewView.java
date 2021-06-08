@@ -156,7 +156,6 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
-        @SuppressLint("NewApi")
         @OptIn(markerClass = ExperimentalUseCaseGroup.class)
         @Override
         @AnyThread
