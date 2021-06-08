@@ -24,6 +24,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Information about car specific accelerometers available from the car hardware. */
@@ -33,7 +34,7 @@ public final class Accelerometer {
 
     @Keep
     @NonNull
-    private final CarValue<Float[]> mForces;
+    private final CarValue<List<Float>> mForces;
 
     /**
      * Returns the raw accelerometer force data from the car sensor.
@@ -41,7 +42,7 @@ public final class Accelerometer {
      * <p>Follows the same format as {@link android.hardware.SensorEvent#values}.
      */
     @NonNull
-    public CarValue<Float[]> getForces() {
+    public CarValue<List<Float>> getForces() {
         return mForces;
     }
 
@@ -74,12 +75,12 @@ public final class Accelerometer {
      *
      * @throws NullPointerException if {@code forces} is {@code null}
      */
-    public Accelerometer(@NonNull CarValue<Float[]> forces) {
+    public Accelerometer(@NonNull CarValue<List<Float>> forces) {
         mForces = requireNonNull(forces);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Accelerometer() {
-        mForces = CarValue.UNIMPLEMENTED_FLOAT_ARRAY;
+        mForces = CarValue.UNIMPLEMENTED_FLOAT_LIST;
     }
 }

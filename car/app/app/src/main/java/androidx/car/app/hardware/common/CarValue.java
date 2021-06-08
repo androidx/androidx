@@ -26,6 +26,7 @@ import androidx.car.app.annotations.RequiresCarApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -112,11 +113,11 @@ public final class CarValue<T> {
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<Float[]> UNIMPLEMENTED_FLOAT_ARRAY = unimplemented();
+    public static final CarValue<List<Float>> UNIMPLEMENTED_FLOAT_LIST = unimplemented();
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<Integer[]> UNIMPLEMENTED_INTEGER_ARRAY = unimplemented();
+    public static final CarValue<List<Integer>> UNIMPLEMENTED_INTEGER_LIST = unimplemented();
 
     /**
      * Returns a the data value or {@code null} if the status is not successful.
