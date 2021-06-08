@@ -33,6 +33,7 @@ import androidx.core.os.CancellationSignal;
 import androidx.core.util.Preconditions;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -459,11 +460,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         }
                     });
 
-                    // Capture all views from the firstOut Fragment under the shared element views
-                    for (View sharedElementView : firstOutViews.values()) {
-                        captureTransitioningViews(sharedElementFirstOutViews,
-                                sharedElementView);
-                    }
+                    sharedElementFirstOutViews.addAll(firstOutViews.values());
 
                     // Compute the epicenter of the firstOut transition
                     if (!exitingNames.isEmpty()) {
@@ -473,11 +470,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                                 firstOutEpicenterView);
                     }
 
-                    // Capture all views from the lastIn Fragment under the shared element views
-                    for (View sharedElementView : lastInViews.values()) {
-                        captureTransitioningViews(sharedElementLastInViews,
-                                sharedElementView);
-                    }
+                    sharedElementLastInViews.addAll(lastInViews.values());
 
                     // Compute the epicenter of the lastIn transition
                     if (!enteringNames.isEmpty()) {
@@ -700,16 +693,18 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
      */
     void captureTransitioningViews(ArrayList<View> transitioningViews, View view) {
         if (view instanceof ViewGroup) {
-            if (!transitioningViews.contains(view)
-                    && ViewCompat.getTransitionName(view) != null) {
-                transitioningViews.add(view);
-            }
             ViewGroup viewGroup = (ViewGroup) view;
-            int count = viewGroup.getChildCount();
-            for (int i = 0; i < count; i++) {
-                View child = viewGroup.getChildAt(i);
-                if (child.getVisibility() == View.VISIBLE) {
-                    captureTransitioningViews(transitioningViews, child);
+            if (ViewGroupCompat.isTransitionGroup(viewGroup)) {
+                if (!transitioningViews.contains(view)) {
+                    transitioningViews.add(viewGroup);
+                }
+            } else {
+                int count = viewGroup.getChildCount();
+                for (int i = 0; i < count; i++) {
+                    View child = viewGroup.getChildAt(i);
+                    if (child.getVisibility() == View.VISIBLE) {
+                        captureTransitioningViews(transitioningViews, child);
+                    }
                 }
             }
         } else {
