@@ -57,8 +57,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
@@ -337,6 +339,82 @@ class RecorderTest {
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileHasAudioAndVideo(Uri.fromFile(file))
+
+        file.delete()
+    }
+
+    @Test
+    fun canReceiveRecordingStats() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+        val pendingRecording = recorder.prepareRecording(outputOptions)
+        pendingRecording.withEventListener(
+            CameraXExecutors.directExecutor(),
+            videoRecordEventListener
+        )
+
+        val inOrder = inOrder(videoRecordEventListener)
+
+        // Start
+        val activeRecording = pendingRecording.start()
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        // Pause
+        activeRecording.pause()
+
+        verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Pause::class.java))
+
+        // Resume
+        activeRecording.resume()
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Resume::class.java))
+
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        // Stop
+        activeRecording.stop()
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+        captor.allValues.run {
+            assertThat(size).isAtLeast(
+                1 /* Start */ +
+                    5 /* Status */ +
+                    1 /* Pause */ +
+                    1 /* Resume */ +
+                    5 /* Status */ +
+                    1 /* Stop */
+            )
+
+            // Ensure duration and bytes are increasing
+            take(size - 1).mapIndexed { index, _ ->
+                Pair(get(index).recordingStats, get(index + 1).recordingStats)
+            }.forEach { (former: RecordingStats, latter: RecordingStats) ->
+                assertThat(former.numBytesRecorded).isAtMost(latter.numBytesRecorded)
+                assertThat(former.recordedDurationNs).isAtMost((latter.recordedDurationNs))
+            }
+
+            // Ensure they are not all zero by checking last stats
+            last().recordingStats.also {
+                assertThat(it.numBytesRecorded).isGreaterThan(0L)
+                assertThat(it.recordedDurationNs).isGreaterThan(0L)
+            }
+        }
 
         file.delete()
     }

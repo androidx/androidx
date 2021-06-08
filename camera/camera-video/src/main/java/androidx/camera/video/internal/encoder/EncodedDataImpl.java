@@ -75,7 +75,12 @@ public class EncodedDataImpl implements EncodedData {
     /** {@inheritDoc} */
     @Override
     public long getPresentationTimeUs() {
-        return getBufferInfo().presentationTimeUs;
+        return mBufferInfo.presentationTimeUs;
+    }
+
+    @Override
+    public long size() {
+        return mBufferInfo.size;
     }
 
     /** {@inheritDoc} */
