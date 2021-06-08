@@ -22,6 +22,7 @@ import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_FO
 import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_LOCALE
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
@@ -83,6 +84,7 @@ class NightModeRtlTestUtilsRegressionTestCase {
         restoreConfig?.invoke()
     }
 
+    @FlakyTest(bugId = 190529688)
     @Test
     @Suppress("DEPRECATION")
     fun testLocaleIsMaintained() {
@@ -92,6 +94,7 @@ class NightModeRtlTestUtilsRegressionTestCase {
         assertEquals(TextUtils.getLayoutDirectionFromLocale(CUSTOM_LOCALE), config.layoutDirection)
     }
 
+    @FlakyTest(bugId = 190529688)
     @Test
     fun testFontScaleIsMaintained() {
         // Check that the custom configuration properties are maintained
