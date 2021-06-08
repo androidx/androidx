@@ -131,7 +131,7 @@ def generateAntlrTask = task("generateAntlrGrammar", type: JavaExec) {
     outputs.dir(outFolder)
     inputs.file("$projectDir/SQLite.g4")
     classpath configurations.compileClasspath
-    main "org.antlr.v4.Tool"
+    mainClass.set("org.antlr.v4.Tool")
     args "SQLite.g4", "-visitor", "-o", new File(outFolder, "androidx/room/parser").path,
             "-package", "androidx.room.parser"
 }

@@ -135,13 +135,11 @@ GRADLE_USER_HOME=\$GRADLE_USER_HOME
 To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
 Starting a Gradle Daemon \(subsequent builds will be faster\)
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
-\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
+\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
 Welcome to Gradle .*
 Here are the highlights of this release:
-\- File system watching enabled by default
-\- Support for running with and building Java 16 projects
-\- Native support for Apple Silicon processors
-\- Dependency catalog feature preview
+\- Faster incremental Java compilation
+\- Easier source set configuration in the Kotlin DSL
 For more details see .*
 To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
 Daemon will be stopped at the end of the build
@@ -1163,3 +1161,5 @@ Copying lint text report to .*
 # > Configure project :ads-identifier
 WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
 The current default is \'false\'\.
+# ./gradlew tasks warns as we have warnings present
+You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
