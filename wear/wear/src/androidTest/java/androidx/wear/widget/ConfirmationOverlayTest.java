@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.wear.R;
@@ -74,6 +75,7 @@ public class ConfirmationOverlayTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190194611)
     public void testDefaults_onActivity() throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay();
@@ -116,6 +118,7 @@ public class ConfirmationOverlayTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190194611)
     public void testSuccess_onActivity() throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay()
@@ -147,6 +150,7 @@ public class ConfirmationOverlayTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190194611)
     public void testFailure_onActivity() throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay()
@@ -178,6 +182,7 @@ public class ConfirmationOverlayTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190194611)
     public void testOpenOnPhone_onActivity() throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay()
@@ -250,6 +255,7 @@ public class ConfirmationOverlayTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190194611)
     public void testOverlayHiddenAfterSpecifiedDuration() throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final int overlayDurationMillis = 2000;
