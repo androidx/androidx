@@ -20,13 +20,12 @@ import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
-import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.contains
+import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -89,7 +88,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @FlakyTest(bugId = 190608403)
     @Test
     fun testDeepLink() {
         lateinit var navController: TestNavHostController
@@ -136,7 +134,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @FlakyTest(bugId = 190608403)
     @Test
     fun testNavigationNestedInGraph() {
         lateinit var navController: TestNavHostController
