@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "androidx.profileinstaller:profileinstaller"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.PROFILEINSTALLER
     mavenGroup = LibraryGroups.PROFILEINSTALLER
     inceptionYear = "2021"
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
