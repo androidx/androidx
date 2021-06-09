@@ -199,7 +199,6 @@ public final class TravelEstimate {
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(26)
         @SuppressWarnings("AndroidJdkLibsChecker")
         public Builder(

@@ -16,7 +16,6 @@
 
 package androidx.room;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.CharArrayBuffer;
@@ -441,7 +440,6 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
             });
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
         public void setForeignKeyConstraintsEnabled(boolean enable) {
@@ -465,7 +463,6 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
                     + "OpenHelper instead of on the database directly.");
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
         public boolean isWriteAheadLoggingEnabled() {
@@ -699,7 +696,6 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
             mDelegate.setNotificationUri(cr, uri);
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(api = Build.VERSION_CODES.Q)
         @Override
         public void setNotificationUris(@NonNull ContentResolver cr,
@@ -707,14 +703,12 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
             SupportSQLiteCompat.Api29Impl.setNotificationUris(mDelegate, cr, uris);
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public Uri getNotificationUri() {
             return SupportSQLiteCompat.Api19Impl.getNotificationUri(mDelegate);
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(api = Build.VERSION_CODES.Q)
         @Nullable
         @Override
@@ -727,7 +721,6 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
             return mDelegate.getWantsAllOnMoveCalls();
         }
 
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void setExtras(Bundle extras) {

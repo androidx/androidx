@@ -43,7 +43,6 @@ import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_INTRA_F
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_VIDEO_FRAME_RATE;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -1024,7 +1023,6 @@ public final class VideoCaptureLegacy extends UseCase {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {

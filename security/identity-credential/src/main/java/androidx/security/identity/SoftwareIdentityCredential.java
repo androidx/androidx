@@ -16,7 +16,6 @@
 
 package androidx.security.identity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.icu.util.Calendar;
 import android.security.keystore.KeyProperties;
@@ -190,7 +189,6 @@ class SoftwareIdentityCredential extends IdentityCredential {
         return result;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public @NonNull KeyPair createEphemeralKeyPair() {
         if (mEphemeralKeyPair == null) {

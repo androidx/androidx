@@ -16,7 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.annotation.SuppressLint;
 import android.webkit.WebResourceError;
 
 import androidx.annotation.NonNull;
@@ -76,7 +75,6 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
         return mBoundaryInterface;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public int getErrorCode() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_CODE;
@@ -90,7 +88,6 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
     }
 
     @NonNull
-    @SuppressLint("NewApi")
     @Override
     public CharSequence getDescription() {
         final WebViewFeatureInternal feature =

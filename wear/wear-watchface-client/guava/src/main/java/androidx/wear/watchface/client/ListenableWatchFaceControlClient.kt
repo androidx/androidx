@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.client
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
@@ -102,7 +101,6 @@ public open class ListenableWatchFaceControlClient(
          * to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
          * watch face control service can not be bound.
          */
-        @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public fun createWatchFaceControlClient(
             context: Context,

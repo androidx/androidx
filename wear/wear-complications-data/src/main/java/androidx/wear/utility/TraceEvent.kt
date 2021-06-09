@@ -16,7 +16,6 @@
 
 package androidx.wear.utility
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Trace
 import androidx.annotation.DoNotInline
@@ -49,7 +48,6 @@ public class TraceEvent(traceName: String) : Closeable {
  *
  * @hide
  **/
-@SuppressLint("UnsafeNewApiCall")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AsyncTraceEvent(private val traceName: String) : Closeable {
     internal companion object {
