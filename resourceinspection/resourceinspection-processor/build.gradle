@@ -19,7 +19,6 @@ import androidx.build.LibraryType
 import androidx.build.SupportConfig
 
 import static androidx.build.SdkHelperKt.getSdkPath
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -28,27 +27,27 @@ plugins {
 }
 
 dependencies {
-    implementation(AUTO_COMMON)
-    implementation(AUTO_SERVICE_ANNOTATIONS)
-    implementation(GRADLE_INCAP_HELPER)
-    implementation(GUAVA)
-    implementation(JAVAPOET)
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.autoCommon)
+    implementation(libs.autoServiceAnnotations)
+    implementation(libs.gradleIncapHelper)
+    implementation(libs.guava)
+    implementation(libs.javapoet)
+    implementation(libs.kotlinStdlib)
 
-    kapt(GRADLE_INCAP_HELPER_PROCESSOR)
-    kapt(AUTO_SERVICE_PROCESSOR)
+    kapt(libs.gradleIncapHelperProcessor)
+    kapt(libs.autoService)
 
-    testImplementation(JUNIT)
-    testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(TRUTH)
+    testImplementation(libs.junit)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.truth)
 
     testRuntimeOnly(project(":resourceinspection:resourceinspection-annotation"))
     testRuntimeOnly(project(":annotation:annotation"))
     testRuntimeOnly(fileTree(
             dir: "${getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"))
-    testRuntimeOnly(INTELLIJ_ANNOTATIONS)
-    testRuntimeOnly(JSR250)
+    testRuntimeOnly(libs.intellijAnnotations)
+    testRuntimeOnly(libs.jsr250)
 }
 
 androidx {

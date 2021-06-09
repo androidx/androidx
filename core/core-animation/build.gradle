@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -29,8 +28,8 @@ dependencies {
     implementation("androidx.core:core:1.3.1")
     implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT, excludes.espresso)
-    androidTestImplementation(ANDROIDX_TEST_RULES, excludes.espresso)
+    androidTestImplementation(libs.testExtJunit, excludes.espresso)
+    androidTestImplementation(libs.testRules, excludes.espresso)
 }
 
 androidx {

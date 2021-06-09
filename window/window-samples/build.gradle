@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -36,7 +34,7 @@ android {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.core:core-ktx:1.3.2")
-    api(CONSTRAINT_LAYOUT, {transitive = true})
+    api(libs.constraintLayout)
     // TODO(b/152245564) Conflicting dependencies cause IDE errors.
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
 

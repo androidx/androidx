@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
@@ -53,8 +51,8 @@ def writeTestPropsTask = tasks.register("prepareTestConfiguration", WritePropert
         it.file("androidx.room.compiler.processing.util.CompilationTestCapabilities.Config" +
                 ".properties")
     })
-    property("kotlinVersion", KOTLIN_VERSION)
-    property("kspVersion", KSP_VERSION)
+    property("kotlinVersion", libs.versions.kotlin.get())
+    property("kspVersion", libs.versions.ksp.get())
 }
 
 java {

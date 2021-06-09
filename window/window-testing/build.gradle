@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -34,17 +32,17 @@ android {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
     api(project(":window:window"))
-    api(JUNIT)
+    api(libs.junit)
     implementation("androidx.core:core:1.3.2")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(MULTIDEX)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {

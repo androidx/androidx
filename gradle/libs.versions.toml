@@ -35,6 +35,7 @@ androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLi
 androidLintMin = { module = "com.android.tools.lint:lint", version.ref = "androidLintMin" }
 androidLintApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLint" }
 androidLintMinApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintMin" }
+androidLintChecks = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLint" }
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 autoServiceAnnotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
@@ -46,6 +47,7 @@ antlr4 = { module = "org.antlr:antlr4", version = "4.7.1" }
 apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.10" }
 assertj = { module = "org.assertj:assertj-core", version = "3.11.1" }
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
+constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
 dagger = { module = "com.google.dagger:dagger-compiler", version = "2.35" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
