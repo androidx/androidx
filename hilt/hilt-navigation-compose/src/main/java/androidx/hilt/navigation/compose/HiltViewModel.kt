@@ -21,11 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import kotlin.reflect.KClass
 
 /**
  * Returns an existing
@@ -37,15 +37,16 @@ import kotlin.reflect.KClass
  * fragment or an activity.
  *
  * @sample androidx.hilt.navigation.compose.samples.NavComposable
+ * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable
-inline fun <reified VM : ViewModel> hiltViewModel(): VM {
-    val owner = LocalViewModelStoreOwner.current
-    return if (owner is NavBackStackEntry) {
-        hiltViewModel(VM::class, owner)
-    } else {
-        viewModel()
+inline fun <reified VM : ViewModel> hiltViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     }
+): VM {
+    val factory = createHiltViewModelFactory(viewModelStoreOwner)
+    return viewModel(viewModelStoreOwner, factory = factory)
 }
 
 /**
@@ -71,23 +72,9 @@ inline fun <reified VM : ViewModel> hiltNavGraphViewModel() = hiltViewModel<VM>(
  * the [NavController] back stack.
  *
  * @param backStackEntry The entry of a [NavController] back stack.
- *
- * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
- */
-@Composable
-inline fun <reified VM : ViewModel> hiltViewModel(backStackEntry: NavBackStackEntry) =
-    hiltViewModel(VM::class, backStackEntry)
-
-/**
- * Returns an existing
- * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] or creates a new one scoped to the current navigation graph present on
- * the [NavController] back stack.
- *
- * @param backStackEntry The entry of a [NavController] back stack.
  */
 @Deprecated(
-    message = "Use hiltViewModel(NavBackStackEntry) instead.",
+    message = "Use hiltViewModel(ViewModelStoreOwner) instead.",
     replaceWith = ReplaceWith("hiltViewModel(backStackEntry)"),
 )
 @Composable
@@ -103,7 +90,7 @@ inline fun <reified VM : ViewModel> hiltNavGraphViewModel(backStackEntry: NavBac
  * @param route route of a destination that exists on the [NavController] back stack.
  */
 @Deprecated(
-    message = "Use hiltViewModel(NavBackStackEntry) in combination with " +
+    message = "Use hiltViewModel(ViewModelStoreOwner) in combination with " +
         "NavController#getBackStackEntry(String). This API will be removed in a future version.",
     replaceWith = ReplaceWith("hiltViewModel(this.getBackStackEntry(route))"),
     level = DeprecationLevel.ERROR
@@ -114,13 +101,15 @@ inline fun <reified VM : ViewModel> NavController.hiltNavGraphViewModel(route: S
 
 @Composable
 @PublishedApi
-internal fun <VM : ViewModel> hiltViewModel(
-    kClass: KClass<VM>,
-    backStackEntry: NavBackStackEntry
-): VM {
-    val viewModelFactory = HiltViewModelFactory(
+internal fun createHiltViewModelFactory(
+    viewModelStoreOwner: ViewModelStoreOwner
+): ViewModelProvider.Factory? = if (viewModelStoreOwner is NavBackStackEntry) {
+    HiltViewModelFactory(
         context = LocalContext.current,
-        navBackStackEntry = backStackEntry
+        navBackStackEntry = viewModelStoreOwner
     )
-    return ViewModelProvider(backStackEntry, viewModelFactory).get(kClass.java)
+} else {
+    // Use the default factory provided by the ViewModelStoreOwner
+    // and assume it is an @AndroidEntryPoint annotated fragment or activity
+    null
 }
