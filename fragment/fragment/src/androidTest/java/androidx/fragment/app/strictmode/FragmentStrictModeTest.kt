@@ -230,12 +230,19 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        StrictFragment().retainInstance = true
+        val fragment = StrictFragment()
+        fragment.retainInstance = true
         assertThat(violation).isInstanceOf(SetRetainInstanceUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set retain instance for fragment $fragment"
+        )
 
         violation = null
-        StrictFragment().retainInstance
+        fragment.retainInstance
         assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get retain instance for fragment $fragment"
+        )
     }
 
     @Suppress("DEPRECATION")
