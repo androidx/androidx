@@ -58,6 +58,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -431,6 +432,7 @@ public class CoordinatorLayoutTest {
         });
     }
 
+    @FlakyTest(bugId = 190609035)
     @Test
     public void testGetDependencies() throws Throwable {
         final Instrumentation instrumentation = getInstrumentation();
@@ -732,6 +734,7 @@ public class CoordinatorLayoutTest {
                 any(View.class)); // target
     }
 
+    @FlakyTest(bugId = 190609885)
     @Test
     public void testNestedScrollingTriggeringDependentViewChanged() throws Throwable {
         final CoordinatorLayoutActivity activity = mActivityTestRule.getActivity();
