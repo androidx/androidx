@@ -35,6 +35,7 @@ import androidx.coordinatorlayout.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.hamcrest.Matcher;
@@ -116,6 +117,7 @@ public class CoordinatorSnackbarWithButtonTest extends BaseDynamicCoordinatorLay
         }
     }
 
+    @FlakyTest(bugId = 190609153)
     @Test
     public void testBehaviorBasedSlidingFromLayoutAttribute() {
         // Use a layout in which a TextView child has Behavior object configured via

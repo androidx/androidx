@@ -24,13 +24,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
-import java.lang.UnsupportedOperationException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -138,6 +138,7 @@ public class AutoClosingRoomOpenHelperTest {
         }
     }
 
+    @FlakyTest(bugId = 190607416)
     @Test
     public fun testOnOpenCalledOnEachOpen() {
         val countingCallback = object : Callback() {
