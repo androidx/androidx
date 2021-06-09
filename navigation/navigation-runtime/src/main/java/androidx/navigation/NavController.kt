@@ -293,6 +293,8 @@ public open class NavController(
      * @param listener the listener to receive events
      */
     public open fun addOnDestinationChangedListener(listener: OnDestinationChangedListener) {
+        onDestinationChangedListeners.add(listener)
+
         // Inform the new listener of our current state, if any
         if (backQueue.isNotEmpty()) {
             val backStackEntry = backQueue.last()
@@ -302,7 +304,6 @@ public open class NavController(
                 backStackEntry.arguments
             )
         }
-        onDestinationChangedListeners.add(listener)
     }
 
     /**
