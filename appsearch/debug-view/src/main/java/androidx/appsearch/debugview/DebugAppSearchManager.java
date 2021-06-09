@@ -16,7 +16,6 @@
 
 package androidx.appsearch.debugview;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
@@ -82,7 +81,6 @@ public class DebugAppSearchManager implements Closeable {
      * @throws AppSearchException if the storage type is invalid, or a R- device selects platform
      *                            storage as the storage type for debugging.
      */
-    @SuppressLint("NewApi") //TODO(b/187881058) Remove SuppressLint when S SDK stabilizes.
     @NonNull
     public static ListenableFuture<DebugAppSearchManager> create(
             @NonNull Context context,
