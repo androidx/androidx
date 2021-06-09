@@ -464,10 +464,8 @@ public class AppSearchImplTest {
         assertThat(initStats.hasDeSync()).isFalse();
         assertThat(initStats.getDocumentStoreRecoveryCause())
                 .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
-        // TODO(b/187879464): There should not be a recovery here, but icing lib reports one if the
-        //  doc had no tokens. Once the mentioned bug is fixed, uncomment this.
-        // assertThat(initStats.getIndexRestorationCause())
-        //         .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(initStats.getIndexRestorationCause())
+                .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
         assertThat(initStats.getSchemaStoreRecoveryCause())
                 .isEqualTo(InitializeStats.RECOVERY_CAUSE_NONE);
         assertThat(initStats.getDocumentStoreDataStatus())

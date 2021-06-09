@@ -87,7 +87,6 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    // TODO(b/151178558) return the batch result for migration documents.
     public ListenableFuture<SetSchemaResponse> setSchema(
             @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
