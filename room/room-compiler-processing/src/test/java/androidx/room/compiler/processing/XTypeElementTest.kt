@@ -336,8 +336,12 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
             assertThat(baseClass.getAllFieldNames()).containsExactly("genericProp")
+            assertThat(baseClass.getDeclaredFields().map { it.name })
+                .containsExactly("genericProp")
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(subClass.getAllFieldNames()).containsExactly("genericProp", "subClassProp")
+            assertThat(subClass.getDeclaredFields().map { it.name })
+                .containsExactly("subClassProp")
 
             val baseMethod = baseClass.getMethod("baseMethod")
             baseMethod.asMemberOf(subClass.type).let { methodType ->
