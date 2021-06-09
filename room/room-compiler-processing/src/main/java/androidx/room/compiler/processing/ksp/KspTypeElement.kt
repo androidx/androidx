@@ -134,13 +134,7 @@ internal sealed class KspTypeElement(
 
     private val _declaredFieldsIncludingSupers by lazy {
         // Read all properties from all supers and select the ones that are not overridden.
-        val myPropertyFields = if (declaration.classKind == ClassKind.INTERFACE) {
-            _declaredProperties.filter {
-                it.isStatic()
-            }
-        } else {
-            _declaredProperties.filter { !it.isAbstract() }
-        }
+        val myPropertyFields = getDeclaredFields()
         val selectedNames = myPropertyFields.mapTo(mutableSetOf()) {
             it.name
         }
@@ -266,6 +260,18 @@ internal sealed class KspTypeElement(
     override fun isFinal(): Boolean {
         // workaround for https://github.com/android/kotlin/issues/128
         return !isInterface() && !declaration.isOpen()
+    }
+
+    private val _declaredFields by lazy {
+        if (declaration.classKind == ClassKind.INTERFACE) {
+            _declaredProperties.filter { it.isStatic() }
+        } else {
+            _declaredProperties.filter { !it.isAbstract() }
+        }
+    }
+
+    override fun getDeclaredFields(): List<XFieldElement> {
+        return _declaredFields
     }
 
     override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
