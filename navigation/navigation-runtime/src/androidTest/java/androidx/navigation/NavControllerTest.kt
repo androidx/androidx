@@ -1658,6 +1658,27 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateOptionPopNestedGraph() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(R.id.navigate_pop_base)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(R.id.navigate_start_pop_base)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaActionWithArgs() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_arguments)

@@ -1535,6 +1535,18 @@ public open class NavController(
         ) {
             // Keep popping
         }
+
+        // The _graph should always be on the top of the back stack after you navigate()
+        val firstEntry = backQueue.firstOrNull() ?: hierarchy.firstOrNull()
+        if (firstEntry?.destination != _graph) {
+            val entry = restoredEntries.lastOrNull { restoredEntry ->
+                restoredEntry.destination == _graph!!
+            } ?: NavBackStackEntry.create(
+                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+            )
+            hierarchy.addFirst(entry)
+        }
+
         // Now add the parent hierarchy to the NavigatorStates and back stack
         hierarchy.forEach { entry ->
             val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
@@ -1546,22 +1558,7 @@ public open class NavController(
             navigatorBackStack.addInternal(entry)
         }
         backQueue.addAll(hierarchy)
-        // The _graph should always be on the back stack after you navigate()
-        if (backQueue.isEmpty() || backQueue.first().destination !== _graph) {
-            val entry = restoredEntries.lastOrNull { restoredEntry ->
-                restoredEntry.destination == _graph!!
-            } ?: NavBackStackEntry.create(
-                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
-            )
-            val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
-                entry.destination.navigatorName
-            )
-            val navigatorBackStack = checkNotNull(navigatorState[navigator]) {
-                "NavigatorBackStack for ${node.navigatorName} should already be created"
-            }
-            navigatorBackStack.addInternal(entry)
-            backQueue.addFirst(entry)
-        }
+
         // And finally, add the new destination
         backQueue.add(backStackEntry)
     }
