@@ -78,8 +78,8 @@ at org.gradle.*
 # > Task :internal-testutils-common:lintAnalyze
 Scanning .*:
 Failure reading binary cache file .*\.android\/cache\/api\-versions\-[0-9]+\-[0-9A-Z]+rev[0-9]+\.bin
-Please delete the file and restart the IDE\/lint\: .*\.android\/cache\/api\-versions\-[0-9]+\-[0-9]+rev[0-9]+\.bin
-java\.io\.FileNotFoundException\: .*\.android\/cache\/api\-versions\-[0-9]+\-[0-9]+rev[0-9]+\.bin \(No such file or directory\)
+Please delete the file and restart the IDE\/lint\: .*\.android\/cache\/api\-versions\-[0-9]+\-[0-9A-Z]+rev[0-9]+\.bin
+java\.io\.FileNotFoundException\: .*\.android\/cache\/api\-versions\-[0-9]+\-[0-9A-Z]+rev[0-9]+\.bin \(No such file or directory\)
 at com\.google\.common\.io\.Files\$FileByteSource\.openStream\(Files\.java\:[0-9]+\)
 at com\.google\.common\.io\.Files\$FileByteSource\.read\(Files\.java\:[0-9]+\)
 at com\.google\.common\.io\.Files\.toByteArray\(Files\.java\:[0-9]+\)
