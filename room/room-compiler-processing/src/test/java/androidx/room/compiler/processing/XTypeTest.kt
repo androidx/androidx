@@ -32,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -399,6 +400,259 @@ class XTypeTest {
                     assertThat(it.isKotlinUnit()).isFalse()
                 }
             }
+        }
+    }
+
+    @Test
+    fun selfReferencingType_kotlin() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            class SelfReferencing<T : SelfReferencing<T>>
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val elm = invocation.processingEnv.requireTypeElement("SelfReferencing")
+            val typeName = elm.type.typeName
+            assertThat(typeName.dumpToString(5)).isEqualTo(
+                """
+                SelfReferencing<T>
+                | T
+                | > SelfReferencing<T>
+                | > | T
+                | > | > SelfReferencing<T>
+                | > | > | T
+                """.trimIndent()
+            )
+        }
+    }
+
+    @Test
+    fun selfReferencingType_java() {
+        val src = Source.java(
+            "SelfReferencing",
+            """
+            class SelfReferencing<T extends SelfReferencing<T>> {
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val elm = invocation.processingEnv.requireTypeElement("SelfReferencing")
+            val dump = elm.type.typeName.dumpToString(5)
+            if (invocation.isKsp) {
+                // KSP fails to resolve self referencing java types:
+                // https://github.com/google/ksp/issues/476
+                // keeping this bad assertion here so that when the bug is fixed,
+                // test will fail and it will be cleaned up.
+
+                assertThat(dump).isEqualTo(
+                    """
+                    SelfReferencing<T>
+                    | T
+                    | > SelfReferencing<error.NonExistentClass>
+                    | > | error.NonExistentClass
+                    """.trimIndent()
+                )
+            } else {
+                assertThat(dump).isEqualTo(
+                    """
+                    SelfReferencing<T>
+                    | T
+                    | > SelfReferencing<T>
+                    | > | T
+                    | > | > SelfReferencing<T>
+                    | > | > | T
+                    """.trimIndent()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun multiLevelSelfReferencingType() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+        open class Node<TX : Node<TX, RX>, RX : Node<RX, TX>> {
+        }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val nodeElm = invocation.processingEnv.requireType("Node")
+            val nodeTypeName = nodeElm.typeName
+            assertThat(nodeTypeName.dumpToString(5)).isEqualTo(
+                """
+                Node<TX, RX>
+                | TX
+                | > Node<TX, RX>
+                | > | TX
+                | > | > Node<TX, RX>
+                | > | > | TX
+                | > | > | RX
+                | > | RX
+                | > | > Node<RX, TX>
+                | > | > | RX
+                | > | > | TX
+                | RX
+                | > Node<RX, TX>
+                | > | RX
+                | > | > Node<RX, TX>
+                | > | > | RX
+                | > | > | TX
+                | > | TX
+                | > | > Node<TX, RX>
+                | > | > | TX
+                | > | > | RX
+                """.trimIndent()
+            )
+        }
+    }
+
+    @Test
+    fun selfReferencing_withGenericClassBounds() {
+        val src = Source.kotlin(
+            "SelfReferencing.kt",
+            """
+            class SelfReferencing<TX : SelfReferencing<TX, RX>, RX : List<TX>>
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val elm = invocation.processingEnv.requireTypeElement("SelfReferencing")
+            val typeDump = elm.type.typeName.dumpToString(5)
+            // KSP and Javac diverge here when the generic type parameter in the declaration has
+            // variance. This test is kept here to know that the difference is expected.
+            // KAPT generates a wildcard for the List<T> from the variance of it. In XProcessing,
+            // such resolution is expected to happen at code generation time.
+            //
+            // This inconsistency is not great but it is fairly complicated to do variance
+            // resolution (see: OverrideVarianceResolver.kt) and this level of detail almost
+            // never matters.
+            if (invocation.isKsp) {
+                assertThat(typeDump).isEqualTo(
+                    """
+                    SelfReferencing<TX, RX>
+                    | TX
+                    | > SelfReferencing<TX, RX>
+                    | > | TX
+                    | > | > SelfReferencing<TX, RX>
+                    | > | > | TX
+                    | > | > | RX
+                    | > | RX
+                    | > | > java.util.List<TX>
+                    | > | > | TX
+                    | RX
+                    | > java.util.List<TX>
+                    | > | TX
+                    | > | > SelfReferencing<TX, RX>
+                    | > | > | TX
+                    | > | > | RX
+                    """.trimIndent()
+                )
+            } else {
+                assertThat(typeDump).isEqualTo(
+                    """
+                    SelfReferencing<TX, RX>
+                    | TX
+                    | > SelfReferencing<TX, RX>
+                    | > | TX
+                    | > | > SelfReferencing<TX, RX>
+                    | > | > | TX
+                    | > | > | RX
+                    | > | RX
+                    | > | > java.util.List<? extends TX>
+                    | > | > | ? extends TX
+                    | RX
+                    | > java.util.List<? extends TX>
+                    | > | ? extends TX
+                    """.trimIndent()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun selfReferencing_withGeneric() {
+        val src = Source.kotlin(
+            "SelfReferencing.kt",
+            """
+            class Generic<T>
+            class SelfReferencing<TX : SelfReferencing<TX, RX>, RX : Generic<TX>>
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val elm = invocation.processingEnv.requireTypeElement("SelfReferencing")
+            val typeName = elm.type.typeName
+            assertThat(typeName.dumpToString(5)).isEqualTo(
+                """
+                SelfReferencing<TX, RX>
+                | TX
+                | > SelfReferencing<TX, RX>
+                | > | TX
+                | > | > SelfReferencing<TX, RX>
+                | > | > | TX
+                | > | > | RX
+                | > | RX
+                | > | > Generic<TX>
+                | > | > | TX
+                | RX
+                | > Generic<TX>
+                | > | TX
+                | > | > SelfReferencing<TX, RX>
+                | > | > | TX
+                | > | > | RX
+                """.trimIndent()
+            )
+        }
+    }
+
+    /**
+     * Dumps the typename with its bounds in a given depth.
+     * This makes tests more readable.
+     */
+    private fun TypeName.dumpToString(depth: Int): String {
+        return dump(depth).toString()
+    }
+
+    private fun TypeName.dump(depth: Int): TypeNameNode? {
+        if (depth < 0) return null
+        return when (this) {
+            is ParameterizedTypeName -> TypeNameNode(
+                text = this.toString(),
+                typeArgs = this.typeArguments.mapNotNull { it.dump(depth - 1) }
+            )
+            is TypeVariableName -> TypeNameNode(
+                text = this.toString(),
+                bounds = bounds.map { it.dump(depth - 1) }.filterNotNull()
+            )
+            else -> TypeNameNode(text = toString())
+        }
+    }
+
+    private data class TypeNameNode(
+        val text: String,
+        val bounds: List<TypeNameNode> = emptyList(),
+        val typeArgs: List<TypeNameNode> = emptyList()
+    ) {
+        override fun toString(): String {
+            return buildString {
+                appendLine(text)
+                bounds.forEach {
+                    appendLine(it.toString().prependIndent("> "))
+                }
+                typeArgs.forEach {
+                    appendLine(it.toString().prependIndent("| "))
+                }
+            }.trim()
         }
     }
 }

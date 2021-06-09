@@ -41,7 +41,7 @@ class TestConfigTest {
                 kotlinVersion = "1.4.30",
                 kspVersion = "1.4.20-blah-blah"
             ).canEnableKsp()
-        ).isFalse()
+        ).isTrue()
         assertThat(
             Config(
                 kotlinVersion = "1.5.30",
@@ -59,6 +59,6 @@ class TestConfigTest {
                 kotlinVersion = "1.5",
                 kspVersion = "1.5.20-blah-blah"
             ).canEnableKsp()
-        ).isFalse()
+        ).isTrue()
     }
 }

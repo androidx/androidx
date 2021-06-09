@@ -55,17 +55,16 @@ object CompilationTestCapabilities {
         }
 
         /**
-         * Reduces the version to some approximation by taking major and minor versions and the
-         * first character of the patch. We use this to check if ksp and kotlin are compatible,
-         * feel free to change it if it does not work as it is only an approximation
-         * e.g. 1.4.20 becomes 1.4.2, 1.40.210-foobar becomes 1.40.2
+         * Reduces the version to some approximation by taking major and minor versions.
+         * We use this to check if ksp and kotlin are compatible, feel free to change it if it
+         * does not work as it is only an approximation
+         * e.g. 1.4.20 becomes 1.4, 1.40.210-foobar becomes 1.4
          */
         private fun reduceVersions(version: String): Array<String?> {
             val sections = version.split('.')
             return arrayOf(
                 sections.getOrNull(0),
-                sections.getOrNull(1),
-                sections.getOrNull(2)?.trim()?.first()?.toString(),
+                sections.getOrNull(1)
             )
         }
 
