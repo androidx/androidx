@@ -16,7 +16,6 @@
 
 package androidx.core.view;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,7 +42,6 @@ public final class MenuCompat {
      * @param menu Menu to enable/disable dividers on.
      * @param enabled True if enabled
      */
-    @SuppressLint("NewApi")
     public static void setGroupDividerEnabled(Menu menu, boolean enabled) {
         if (menu instanceof SupportMenu) {
             ((SupportMenu) menu).setGroupDividerEnabled(enabled);

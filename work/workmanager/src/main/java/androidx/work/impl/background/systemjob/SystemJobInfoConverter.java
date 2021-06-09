@@ -18,7 +18,6 @@ package androidx.work.impl.background.systemjob;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
-import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
 import android.content.ComponentName;
 import android.content.Context;
@@ -147,7 +146,6 @@ class SystemJobInfoConverter {
      * @param builder     The instance of {@link JobInfo.Builder}.
      * @param networkType The {@link NetworkType} instance.
      */
-    @SuppressLint("UnsafeNewApiCall")
     static void setRequiredNetwork(
             @NonNull JobInfo.Builder builder,
             @NonNull NetworkType networkType) {

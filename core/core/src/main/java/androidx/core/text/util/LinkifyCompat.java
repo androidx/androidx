@@ -18,7 +18,6 @@ package androidx.core.text.util;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -252,7 +251,6 @@ public final class LinkifyCompat {
      *                      over which pattern matches are to be converted into links.
      *  @param transformFilter Filter to allow the client code to update the link found.
      */
-    @SuppressLint("NewApi")
     public static void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
             @Nullable String defaultScheme, @Nullable String[] schemes,
             @Nullable MatchFilter matchFilter, @Nullable TransformFilter transformFilter) {
@@ -328,7 +326,6 @@ public final class LinkifyCompat {
      *
      * @return True if at least one link is found and applied.
      */
-    @SuppressLint("NewApi")
     public static boolean addLinks(@NonNull Spannable spannable, @NonNull Pattern pattern,
             @Nullable  String defaultScheme, @Nullable String[] schemes,
             @Nullable MatchFilter matchFilter, @Nullable TransformFilter transformFilter) {

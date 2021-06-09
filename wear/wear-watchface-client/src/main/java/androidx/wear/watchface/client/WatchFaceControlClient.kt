@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.client
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -64,7 +63,6 @@ public interface WatchFaceControlClient : AutoCloseable {
          * @throws [ServiceNotBoundException] if the watch face control service can not be bound or
          * a [ServiceStartFailureException] if the watch face dies during startup.
          */
-        @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public suspend fun createWatchFaceControlClient(
             context: Context,

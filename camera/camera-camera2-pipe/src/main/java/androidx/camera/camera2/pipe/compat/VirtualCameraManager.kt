@@ -298,7 +298,6 @@ internal class VirtualCameraManager @Inject constructor(
     /**
      * Wait for the specified duration, or until the availability callback is invoked.
      */
-    @SuppressLint("UnsafeNewApiCall")
     private suspend fun awaitAvailableCameraId(
         cameraId: CameraId,
         timeoutMillis: Long = 200

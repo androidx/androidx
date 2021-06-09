@@ -736,7 +736,6 @@ public abstract class RoomDatabase {
          * Resolves {@link #AUTOMATIC} to either {@link #TRUNCATE} or
          * {@link #WRITE_AHEAD_LOGGING}.
          */
-        @SuppressLint("NewApi")
         JournalMode resolve(Context context) {
             if (this != AUTOMATIC) {
                 return this;

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -125,7 +124,6 @@ public class Camera2CameraMetadata constructor(
             }
         }
 
-    @SuppressLint("UnsafeNewApiCall")
     private val _physicalCameraIds: Lazy<Set<CameraId>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {

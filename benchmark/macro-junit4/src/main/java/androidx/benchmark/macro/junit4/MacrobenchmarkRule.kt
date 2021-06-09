@@ -17,7 +17,6 @@
 package androidx.benchmark.macro.junit4
 
 import android.Manifest
-import android.annotation.SuppressLint
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
@@ -89,7 +88,6 @@ public class MacrobenchmarkRule : TestRule {
     }
 
     private fun applyInternal(base: Statement, description: Description) = object : Statement() {
-        @SuppressLint("UnsafeNewApiCall")
         override fun evaluate() {
             currentDescription = description
             base.evaluate()

@@ -21,7 +21,6 @@ import static androidx.camera.video.internal.AudioSource.InternalState.RELEASED;
 import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTimestamp;
@@ -269,7 +268,6 @@ public final class AudioSource {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @SuppressLint("UnsafeNewApiCall")
     long generatePresentationTimeUs() {
         long presentationTimeUs = -1;
         if (Build.VERSION.SDK_INT >= 24) {
