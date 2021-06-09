@@ -72,6 +72,9 @@ import java.security.InvalidParameterException;
  * </service>
  * }</pre>
  *
+ * <p>For a list of all the supported categories see
+ * <a href="https://developer.android.com/training/cars/navigation#supported-app-categories">Supported App Categories</a>.
+ *
  * <h4>Accessing Location</h4>
  *
  * When the app is running in the car display, the system will not consider it as being in the
