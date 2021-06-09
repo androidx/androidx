@@ -27,7 +27,7 @@ import androidx.car.app.model.Template;
 /**
  * A screen that shows a simple "Hello World!" message.
  *
- * <p>See {@link HelloWorldService} for the app's entry point to Android Auto.
+ * <p>See {@link HelloWorldService} for the app's entry point to the car host.
  */
 public class HelloWorldScreen extends Screen {
     public HelloWorldScreen(@NonNull CarContext carContext) {

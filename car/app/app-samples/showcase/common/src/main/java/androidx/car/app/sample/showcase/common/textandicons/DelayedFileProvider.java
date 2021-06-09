@@ -61,7 +61,7 @@ public class DelayedFileProvider extends FileProvider {
         }
         Uri uri = getUriForFile(context, FILE_PROVIDER_AUTHORITY, resourceFile);
 
-        // FileProvider requires the app to grant temporary access to Android Auto for the file.
+        // FileProvider requires the app to grant temporary access to the car hosts for the file.
         // A URI from a content provider may not need to do this if its contents are public.
         context.grantUriPermission(ANDROID_AUTO_PACKAGE_NAME, uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION);
