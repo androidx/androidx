@@ -69,6 +69,7 @@ public class SwipeRefreshLayoutTest {
         mSwipeRefresh = mActivityTestRule.getActivity().findViewById(R.id.swipe_refresh);
     }
 
+    @FlakyTest(bugId = 113347851)
     @Test
     @LargeTest
     public void testStartAndStopRefreshing() throws Throwable {
