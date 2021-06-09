@@ -973,7 +973,6 @@ package androidx.car.app.model.signin {
   }
 
   @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
-    method @Deprecated public String getPin();
     method public androidx.car.app.model.CarText getPinCode();
   }
 
