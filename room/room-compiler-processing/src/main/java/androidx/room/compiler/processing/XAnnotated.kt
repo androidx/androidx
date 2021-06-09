@@ -37,6 +37,20 @@ interface XAnnotated {
     ): List<XAnnotationBox<T>>
 
     /**
+     * Returns all annotations on this element represented as [XAnnotation].
+     *
+     * As opposed to other functions like [getAnnotations] this does not require you to have a
+     * reference to each annotation class, and thus it can represent annotations in the module
+     * sources being compiled. However, note that the returned [XAnnotation] cannot provide
+     * an instance of the annotation (like [XAnnotationBox.value] can) and instead all values
+     * must be accessed dynamically.
+     *
+     * The returned [XAnnotation]s can be converted to [XAnnotationBox] via
+     * [XAnnotation.asAnnotationBox] if the annotation class is on the class path.
+     */
+    fun getAllAnnotations(): List<XAnnotation>
+
+    /**
      * Returns `true` if this element is annotated with the given [annotation].
      *
      * For repeated annotations declared in Java code, please use the repeated annotation type,
@@ -50,8 +64,8 @@ interface XAnnotated {
 
     /**
      * Returns `true` if this element has an annotation that is declared in the given package.
+     * Alternatively, all annotations can be accessed with [getAllAnnotations].
      */
-    // a very sad method but helps avoid abstraction annotation
     fun hasAnnotationWithPackage(pkg: String): Boolean
 
     /**

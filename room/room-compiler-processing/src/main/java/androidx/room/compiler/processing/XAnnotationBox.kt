@@ -19,7 +19,7 @@ package androidx.room.compiler.processing
 /**
  * This wraps an annotation element that is both accessible from the processor and runtime.
  *
- * It won't scale to a general purpose processing APIs where an equivelant of the AnnotationMirror
+ * It won't scale to a general purpose processing APIs where an equivalent of the AnnotationMirror
  * API needs to be provided but works well for Room's case.
  */
 interface XAnnotationBox<T> {
