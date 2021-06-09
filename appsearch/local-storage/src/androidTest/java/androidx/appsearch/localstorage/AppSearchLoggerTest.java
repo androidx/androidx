@@ -476,10 +476,9 @@ public class AppSearchLoggerTest {
                         .setPropertyString("nonExist", "testPut example1")
                         .build();
 
-        // We mainly want to check the status code in stats. So we don't need to inspect the
-        // exception here.
-        Assert.assertThrows(AppSearchException.class,
+        AppSearchException exception = Assert.assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.putDocument(testPackageName, testDatabase, document, mLogger));
+        assertThat(exception.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         PutDocumentStats pStats = mLogger.mPutDocumentStats;
         assertThat(pStats).isNotNull();
@@ -657,11 +656,10 @@ public class AppSearchLoggerTest {
 
         RemoveStats.Builder rStatsBuilder = new RemoveStats.Builder(testPackageName, testDatabase);
 
-        // We mainly want to check the status code in stats. So we don't need to inspect the
-        // exception here.
-        Assert.assertThrows(AppSearchException.class,
+        AppSearchException exception = Assert.assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.remove(testPackageName, testDatabase, testNamespace,
                         "invalidId", rStatsBuilder));
+        assertThat(exception.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         RemoveStats rStats = rStatsBuilder.build();
         assertThat(rStats.getPackageName()).isEqualTo(testPackageName);
