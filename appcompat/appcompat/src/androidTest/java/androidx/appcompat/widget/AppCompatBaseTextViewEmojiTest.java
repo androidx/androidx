@@ -34,7 +34,6 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -79,7 +78,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         EmojiCompat.reset(mEmojiCompatMock);
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 19)
@@ -91,7 +89,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 19)
@@ -104,7 +101,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 19)
@@ -118,7 +114,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         verifyNoMoreInteractions(mEmojiCompatMock);
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 19)
@@ -135,7 +130,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void whenNotConfigured_andDisabled_doesNotEnable_whenConfigured() throws Throwable {
@@ -173,7 +167,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
 
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void whenNotConfigured_callingEnabled_afterConfigure_enablesEmoji() throws Throwable {
@@ -194,7 +187,6 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
         verify(mEmojiCompatMock, atLeastOnce()).getLoadState();
     }
 
-    @FlakyTest(bugId = 190530500)
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void getEnabled() throws Throwable {

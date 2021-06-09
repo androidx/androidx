@@ -66,7 +66,6 @@ import android.widget.TextView;
 
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.EspressoKey;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -410,7 +409,6 @@ public abstract class BaseViewPagerTest<T extends Activity> {
                 ViewPagerActions.arrowScroll(View.FOCUS_RIGHT), ViewPagerActions.arrowScroll(View.FOCUS_LEFT));
     }
 
-    @FlakyTest(bugId = 112265192)
     @Test
     @LargeTest
     public void testPageSwipesComposite() {
@@ -650,14 +648,12 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         assertStripInteraction(smoothScroll);
     }
 
-    @FlakyTest(bugId = 112265192)
     @Test
     @LargeTest
     public void testPagerStripImmediate() {
         verifyPagerStrip(false);
     }
 
-    @FlakyTest(bugId = 112265192)
     @Test
     @LargeTest
     public void testPagerStripSmooth() {
@@ -1033,7 +1029,6 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         mViewPager.removeOnPageChangeListener(mockPageChangeListener);
     }
 
-    @FlakyTest(bugId = 112265192)
     @Test
     @MediumTest
     public void testPageScrollPositionChangesImmediate() {
@@ -1072,7 +1067,6 @@ public abstract class BaseViewPagerTest<T extends Activity> {
 
     @Test
     @LargeTest
-    @FlakyTest(bugId = 112265192)
     public void testPageScrollPositionChangesSwipe() {
         // Swipe one page to the left
         verifyScrollCallbacksToHigherPage(ViewPagerActions.wrap(swipeLeft()), 1);
@@ -1084,7 +1078,6 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         verifyScrollCallbacksToLowerPage(ViewPagerActions.wrap(swipeRight()), 0);
     }
 
-    @FlakyTest(bugId = 112265192)
     @Test
     @LargeTest
     public void testKeyboardNavigation() {

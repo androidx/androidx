@@ -24,7 +24,6 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.integration.testapp.PageTransformerActivity
 import androidx.viewpager2.integration.testapp.R
@@ -56,7 +55,6 @@ class MarginPageTransformerTest :
         testMargin(null)
     }
 
-    @FlakyTest(bugId = 190611098)
     @Test
     fun testMargin_offscreenLimit_default() {
         testMargin(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT)

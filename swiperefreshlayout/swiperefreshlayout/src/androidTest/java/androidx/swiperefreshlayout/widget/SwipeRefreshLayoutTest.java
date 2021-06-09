@@ -35,7 +35,6 @@ import android.view.View;
 import androidx.swiperefreshlayout.test.R;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.testutils.PollingCheck;
@@ -69,7 +68,6 @@ public class SwipeRefreshLayoutTest {
         mSwipeRefresh = mActivityTestRule.getActivity().findViewById(R.id.swipe_refresh);
     }
 
-    @FlakyTest(bugId = 113347851)
     @Test
     @LargeTest
     public void testStartAndStopRefreshing() throws Throwable {
@@ -133,7 +131,6 @@ public class SwipeRefreshLayoutTest {
 
     @Test
     @SmallTest
-    @FlakyTest(bugId = 113347851)
     public void testSetSize() throws Throwable {
         float density = mSwipeRefresh.getResources().getDisplayMetrics().density;
         assertEquals((int) (SwipeRefreshLayout.CIRCLE_DIAMETER * density),
