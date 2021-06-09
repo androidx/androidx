@@ -103,13 +103,15 @@ class XAnnotationTest(
             val annotation1 = allAnnotations[0]
             assertThat(annotation1.name)
                 .isEqualTo("MyAnnotation1")
+            assertThat(annotation1.qualifiedName)
+                .isEqualTo("MyAnnotation1")
             assertThat(annotation1.type.typeElement)
                 .isEqualTo(invocation.processingEnv.requireTypeElement("MyAnnotation1"))
             assertThat(annotation1.get<Int>("bar"))
                 .isEqualTo(1)
-            assertThat(annotation1.valueArguments).hasSize(1)
-            assertThat(annotation1.valueArguments.first().name).isEqualTo("bar")
-            assertThat(annotation1.valueArguments.first().value).isEqualTo(1)
+            assertThat(annotation1.annotationValues).hasSize(1)
+            assertThat(annotation1.annotationValues.first().name).isEqualTo("bar")
+            assertThat(annotation1.annotationValues.first().value).isEqualTo(1)
         }
     }
 
@@ -130,6 +132,8 @@ class XAnnotationTest(
             val annotation = element.requireAnnotation<TestSuppressWarnings>()
             assertThat(annotation.name)
                 .isEqualTo(TestSuppressWarnings::class.simpleName)
+            assertThat(annotation.qualifiedName)
+                .isEqualTo(TestSuppressWarnings::class.qualifiedName)
             assertThat(annotation.type.typeElement)
                 .isEqualTo(invocation.processingEnv.requireTypeElement(TestSuppressWarnings::class))
             assertThat(
@@ -156,7 +160,7 @@ class XAnnotationTest(
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             val annotation = element.requireAnnotation<TestSuppressWarnings>()
 
-            val argument = annotation.valueArguments.single()
+            val argument = annotation.annotationValues.single()
             assertThat(argument.name).isEqualTo("value")
             assertThat(
                 argument.value
@@ -211,7 +215,8 @@ class XAnnotationTest(
             assertThat(annotation.get<Int>("intMethod")).isEqualTo(3)
             annotation.get<XAnnotation>("singleOtherAnnotation")
                 .let { other ->
-                    assertThat(other.name).isEqualTo("OtherAnnotation")
+                    assertThat(other.name).isEqualTo(OtherAnnotation::class.simpleName)
+                    assertThat(other.qualifiedName).isEqualTo(OtherAnnotation::class.qualifiedName)
                     assertThat(other.get<String>("value"))
                         .isEqualTo("other single")
                 }
@@ -299,7 +304,8 @@ class XAnnotationTest(
             assertThat(annotation.get<Int>("intMethod")).isEqualTo(3)
             annotation.get<XAnnotation>("singleOtherAnnotation")
                 .let { other ->
-                    assertThat(other.name).isEqualTo("OtherAnnotation")
+                    assertThat(other.name).isEqualTo(OtherAnnotation::class.simpleName)
+                    assertThat(other.qualifiedName).isEqualTo(OtherAnnotation::class.qualifiedName)
                     assertThat(other.get<String>("value"))
                         .isEqualTo("other single")
                 }

@@ -19,7 +19,7 @@ package androidx.room.compiler.processing
 /**
  * This wraps information about an argument in an annotation.
  */
-interface XValueArgument {
+interface XAnnotationValue {
     /**
      * The property name.
      */
@@ -27,6 +27,14 @@ interface XValueArgument {
 
     /**
      * The value set on the annotation property, or the default value if it was not explicitly set.
+     *
+     * Possible types are:
+     * - Primitives (Boolean, Byte, Int, Long, Float, Double)
+     * - String
+     * - XEnumEntry
+     * - XAnnotation
+     * - XType
+     * - List of any of the above
      */
     val value: Any?
 }

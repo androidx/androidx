@@ -20,7 +20,7 @@ package androidx.room.compiler.processing
  * This wraps annotations that may be declared in sources, and thus not representable with a
  * compiled type. This is an equivalent to the Java AnnotationMirror API.
  *
- * Values in the annotation can be accessed via [valueArguments], the [XAnnotation.get] extension
+ * Values in the annotation can be accessed via [annotationValues], the [XAnnotation.get] extension
  * function, or any of the "getAs*" helper functions.
  *
  * In comparison, [XAnnotationBox] is used in situations where the annotation class is already
@@ -34,6 +34,12 @@ interface XAnnotation {
     val name: String
 
     /**
+     * The fully qualified name of the annotation class.
+     * Accessing this forces the type to be resolved.
+     */
+    val qualifiedName: String
+
+    /**
      * The [XType] representing the annotation class.
      *
      * Accessing this requires resolving the type, and is thus more expensive that just accessing
@@ -42,9 +48,9 @@ interface XAnnotation {
     val type: XType
 
     /**
-     * All properties declared in the annotation class.
+     * All values declared in the annotation class.
      */
-    val valueArguments: List<XValueArgument>
+    val annotationValues: List<XAnnotationValue>
 
     /**
      * Returns the value of the given [methodName] as a type reference.
@@ -90,7 +96,7 @@ interface XAnnotation {
  * For convenience, wrapper functions are provided for these types, eg [XAnnotation.getAsType]
  */
 inline fun <reified T> XAnnotation.get(methodName: String): T {
-    val argument = valueArguments.firstOrNull { it.name == methodName }
+    val argument = annotationValues.firstOrNull { it.name == methodName }
         ?: error("No property named $methodName was found in annotation $name")
 
     return argument.value as? T ?: error(

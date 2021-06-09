@@ -18,7 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XValueArgument
+import androidx.room.compiler.processing.XAnnotationValue
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
@@ -31,14 +31,14 @@ internal class JavacValueArgument(
     val env: JavacProcessingEnv,
     val element: ExecutableElement,
     val annotationValue: AnnotationValue
-) : XValueArgument {
+) : XAnnotationValue {
     override val name: String
         get() = element.simpleName.toString()
 
     override val value: Any? by lazy { annotationValue.unwrap() }
 
     private fun AnnotationValue.unwrap(): Any? {
-        val value = value
+        val value = this.value
         fun Any?.unwrapIfNeeded(): Any? {
             return if (this is AnnotationValue) this.unwrap() else this
         }

@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XValueArgument
+import androidx.room.compiler.processing.XAnnotationValue
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -27,8 +27,8 @@ internal class KspValueArgument(
     val env: KspProcessingEnv,
     val valueArgument: KSValueArgument,
     val isListType: () -> Boolean,
-) :
-    XValueArgument {
+) : XAnnotationValue {
+
     override val name: String
         get() = valueArgument.name?.asString()
             ?: error("Value argument $this does not have a name.")

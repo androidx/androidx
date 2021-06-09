@@ -64,9 +64,8 @@ interface XAnnotated {
 
     /**
      * Returns `true` if this element has an annotation that is declared in the given package.
+     * Alternatively, all annotations can be accessed with [getAllAnnotations].
      */
-    // a very sad method but helps avoid abstraction annotation
-    // Possibly deprecate in favor of `getAllAnnotations`?
     fun hasAnnotationWithPackage(pkg: String): Boolean
 
     /**

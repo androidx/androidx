@@ -20,8 +20,9 @@ import androidx.room.compiler.processing.InternalXAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XValueArgument
+import androidx.room.compiler.processing.XAnnotationValue
 import com.google.auto.common.AnnotationMirrors
+import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
 
 internal class JavacAnnotation(
@@ -32,11 +33,14 @@ internal class JavacAnnotation(
     override val name: String
         get() = mirror.annotationType.asElement().simpleName.toString()
 
+    override val qualifiedName: String
+        get() = MoreTypes.asTypeElement(mirror.annotationType).qualifiedName.toString()
+
     override val type: XType by lazy {
         JavacDeclaredType(env, mirror.annotationType, XNullability.NONNULL)
     }
 
-    override val valueArguments: List<XValueArgument>
+    override val annotationValues: List<XAnnotationValue>
         get() {
             return AnnotationMirrors.getAnnotationValuesWithDefaults(mirror)
                 .map { (executableElement, annotationValue) ->
