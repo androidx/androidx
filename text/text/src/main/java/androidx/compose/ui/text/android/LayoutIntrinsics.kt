@@ -22,6 +22,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
+import androidx.compose.ui.text.android.style.LineHeightSpan
 import java.text.BreakIterator
 import java.util.PriorityQueue
 
@@ -138,5 +139,6 @@ private fun shouldIncreaseMaxIntrinsic(
         textPaint.letterSpacing != 0f ||
             charSequence.hasSpan(LetterSpacingSpanPx::class.java) ||
             charSequence.hasSpan(LetterSpacingSpanEm::class.java)
-        )
+        ) &&
+        charSequence.hasSpan(LineHeightSpan::class.java)
 }
