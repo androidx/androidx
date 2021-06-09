@@ -605,6 +605,7 @@ includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions"
 includeProject(":wear:tiles:tiles", "wear/tiles/tiles", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-proto", "wear/tiles/tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-renderer", "wear/tiles/tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:tiles:tiles-testing", "wear/tiles/tiles-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface-complications-rendering", "wear/wear-watchface-complications-rendering", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface-client", "wear/wear-watchface-client", [BuildType.MAIN, BuildType.WEAR])
