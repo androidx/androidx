@@ -73,6 +73,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Unit tests for {@link androidx.camera.extensions.ExtensionsErrorListener}.
  * */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SuppressWarnings("deprecation")
 public final class ExtensionsErrorListenerTest {
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -137,7 +138,7 @@ public final class ExtensionsErrorListenerTest {
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();
         mFakeLifecycleOwner.startAndResume();
-        mExtensionsCameraSelector = mExtensionsManager.getExtensionCameraSelector(
+        mExtensionsCameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
                 mProcessCameraProvider, mCameraSelector, mExtensionMode);
     }
 

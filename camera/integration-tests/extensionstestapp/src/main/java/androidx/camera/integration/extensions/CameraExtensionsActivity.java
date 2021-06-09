@@ -182,7 +182,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview = previewBuilder.build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
-        CameraSelector cameraSelector = mExtensionsManager.getExtensionCameraSelector(
+        CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
                 mCameraProvider, mCurrentCameraSelector, extensionMode);
 
         mCameraProvider.unbindAll();
