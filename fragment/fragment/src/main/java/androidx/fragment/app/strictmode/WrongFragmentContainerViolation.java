@@ -39,4 +39,11 @@ public final class WrongFragmentContainerViolation extends Violation {
     public ViewGroup getContainer() {
         return mContainer;
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to add fragment " + mFragment + " to container " + mContainer
+                + " which is not a FragmentContainerView";
+    }
 }

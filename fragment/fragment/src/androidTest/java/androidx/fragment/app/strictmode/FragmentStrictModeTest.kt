@@ -305,18 +305,30 @@ public class FragmentStrictModeTest {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
+            val fragment1 = StrictFragment()
             fragmentManager.beginTransaction()
-                .add(R.id.content, StrictFragment())
+                .add(R.id.content, fragment1)
                 .commit()
             executePendingTransactions()
+            val container1 = withActivity { findViewById(R.id.content) }
             assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to add fragment $fragment1 to container " +
+                    "$container1 which is not a FragmentContainerView"
+            )
 
             violation = null
+            val fragment2 = StrictFragment()
             fragmentManager.beginTransaction()
-                .replace(R.id.content, StrictFragment())
+                .replace(R.id.content, fragment2)
                 .commit()
             executePendingTransactions()
+            val container2 = withActivity { findViewById(R.id.content) }
             assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to add fragment $fragment2 to container " +
+                    "$container2 which is not a FragmentContainerView"
+            )
         }
     }
 
