@@ -177,7 +177,7 @@ public class DelayMetCommandHandler implements
     }
 
     @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> ignored) {
+    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
         stopWork();
     }
 
