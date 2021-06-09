@@ -44,7 +44,7 @@ internal class JavacAnnotation(
         get() {
             return AnnotationMirrors.getAnnotationValuesWithDefaults(mirror)
                 .map { (executableElement, annotationValue) ->
-                    JavacValueArgument(env, executableElement, annotationValue)
+                    JavacAnnotationValue(env, executableElement, annotationValue)
                 }
         }
 

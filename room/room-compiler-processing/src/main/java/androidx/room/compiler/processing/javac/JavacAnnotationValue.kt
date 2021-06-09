@@ -27,7 +27,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
-internal class JavacValueArgument(
+internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
     val element: ExecutableElement,
     val annotationValue: AnnotationValue

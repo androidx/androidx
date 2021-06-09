@@ -23,7 +23,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueArgument
 
-internal class KspValueArgument(
+internal class KspAnnotationValue(
     val env: KspProcessingEnv,
     val valueArgument: KSValueArgument,
     val isListType: () -> Boolean,

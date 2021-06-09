@@ -45,7 +45,7 @@ internal class KspAnnotation(
 
     override val annotationValues: List<XAnnotationValue> by lazy {
         ksAnnotated.arguments.map { arg ->
-            KspValueArgument(
+            KspAnnotationValue(
                 env, arg,
                 isListType = {
                     (ksType.declaration as KSClassDeclaration).getConstructors()
