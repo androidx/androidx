@@ -25,4 +25,10 @@ public final class GetTargetFragmentRequestCodeUsageViolation extends TargetFrag
     GetTargetFragmentRequestCodeUsageViolation(@NonNull Fragment fragment) {
         super(fragment);
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to get target request code from fragment " + mFragment;
+    }
 }
