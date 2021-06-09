@@ -46,6 +46,7 @@ import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 import androidx.dynamicanimation.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -639,6 +640,7 @@ public class SpringTests {
     /**
      * Makes sure all the properties getter works.
      */
+    @FlakyTest(bugId = 190540065)
     @Test
     public void testAllProperties() {
         final DynamicAnimation.ViewProperty[] properties = {

@@ -27,6 +27,7 @@ import android.util.Pair;
 
 import androidx.core.util.Predicate;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -36,6 +37,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ContentInfoCompatTest {
 
+    @FlakyTest(bugId = 190534907)
     @Test
     public void testPartition_multipleItems() throws Exception {
         Uri sampleUri = Uri.parse("content://com.example/path");

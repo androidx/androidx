@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.NestedScrollingParent3
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
@@ -83,6 +84,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         testContentView.awaitLayouts(2)
     }
 
+    @FlakyTest(bugId = 190538334)
     @Test
     fun uiFingerFling_flingVelocityIsCorrect() {
 
