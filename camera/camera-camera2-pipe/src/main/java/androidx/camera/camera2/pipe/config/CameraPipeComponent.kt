@@ -26,11 +26,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import javax.inject.Qualifier
 import javax.inject.Singleton
-
-@Qualifier
-internal annotation class ForCameraThread
 
 @Singleton
 @Component(

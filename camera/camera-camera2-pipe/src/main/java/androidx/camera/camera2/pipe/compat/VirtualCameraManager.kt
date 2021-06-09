@@ -64,6 +64,7 @@ internal class VirtualCameraManager @Inject constructor(
     private val permissions: Permissions,
     private val threads: Threads
 ) {
+    // TODO: Consider rewriting this as a MutableSharedFlow
     private val requestQueue: Channel<CameraRequest> = Channel(requestQueueDepth)
     private val activeCameras: MutableSet<ActiveCamera> = mutableSetOf()
 
@@ -209,7 +210,7 @@ internal class VirtualCameraManager @Inject constructor(
         cameraId: CameraId,
         scope: CoroutineScope
     ): ActiveCamera {
-        val metadata = cameraMetadata.get(cameraId)
+        val metadata = cameraMetadata.getMetadata(cameraId)
         val requestTimestamp = Timestamps.now()
 
         var cameraState: AndroidCameraState
