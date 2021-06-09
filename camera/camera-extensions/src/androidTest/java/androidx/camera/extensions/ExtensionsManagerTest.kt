@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(Parameterized::class)
+@Suppress("DEPRECATION")
 class ExtensionsManagerTest(
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
@@ -117,7 +118,7 @@ class ExtensionsManagerTest(
         val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
         assertThrows<IllegalArgumentException> {
-            extensionsManager.getExtensionCameraSelector(
+            extensionsManager.getExtensionEnabledCameraSelector(
                 cameraProvider,
                 baseCameraSelector,
                 extensionMode
@@ -139,7 +140,7 @@ class ExtensionsManagerTest(
         )
 
         assertThrows<IllegalArgumentException> {
-            extensionsManager.getExtensionCameraSelector(
+            extensionsManager.getExtensionEnabledCameraSelector(
                 cameraProvider,
                 baseCameraSelector,
                 extensionMode
@@ -160,7 +161,7 @@ class ExtensionsManagerTest(
             )
         )
 
-        val resultCameraSelector = extensionsManager.getExtensionCameraSelector(
+        val resultCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
             cameraProvider,
             baseCameraSelector,
             extensionMode
@@ -193,7 +194,7 @@ class ExtensionsManagerTest(
             )
         )
 
-        val extensionCameraSelector = extensionsManager.getExtensionCameraSelector(
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
             cameraProvider,
             baseCameraSelector,
             extensionMode

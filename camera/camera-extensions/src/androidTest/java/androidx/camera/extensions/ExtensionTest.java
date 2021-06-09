@@ -79,6 +79,7 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SuppressWarnings("deprecation")
 public class ExtensionTest {
 
     @Rule
@@ -127,7 +128,7 @@ public class ExtensionTest {
                 mExtensionsManager.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
                         mExtensionMode));
 
-        mExtensionsCameraSelector = mExtensionsManager.getExtensionCameraSelector(
+        mExtensionsCameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
                 mProcessCameraProvider, mBaseCameraSelector, mExtensionMode);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();

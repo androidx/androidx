@@ -49,7 +49,14 @@ import java.util.concurrent.ExecutionException;
 public final class ExtensionsManager {
     private static final String TAG = "ExtensionsManager";
 
-    /** The effect mode options applied on the bound use cases */
+    /**
+     * The effect mode options applied on the bound use cases
+     *
+     * @deprecated Use {@link ExtensionMode} to call the new
+     * {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)} and
+     * {@link #getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)} APIs.
+     */
+    @Deprecated
     public enum EffectMode {
         /** Normal mode without any specific effect applied. */
         NORMAL,
@@ -131,7 +138,11 @@ public final class ExtensionsManager {
      *
      * <p>This should be the first call to the extensions module. An application must wait until the
      * {@link ListenableFuture} completes before making any other calls to the extensions module.
+     *
+     * @deprecated Use {@link #getInstance(Context)} to obtain an {@link ExtensionsManager}
+     * instance to access the extensions functions.
      */
+    @Deprecated
     @NonNull
     public static ListenableFuture<ExtensionsAvailability> init(@NonNull Context context) {
         synchronized (EXTENSIONS_LOCK) {
@@ -275,7 +286,10 @@ public final class ExtensionsManager {
      * @param effectMode The extension function to be checked.
      * @param lensFacing The lensFacing of the camera device to be checked.
      * @return True if the specific extension function is supported for the camera device.
+     * @deprecated Use {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)} to
+     * check whether extension function can support with the given {@link CameraSelector}.
      */
+    @Deprecated
     public static boolean isExtensionAvailable(@NonNull EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
         boolean isImageCaptureAvailable = checkImageCaptureExtensionCapability(effectMode,
@@ -298,7 +312,10 @@ public final class ExtensionsManager {
      * @param effectMode The extension function to be checked.
      * @param lensFacing The lensFacing of the camera device to be checked.
      * @return True if the specific extension function is supported for the camera device.
+     * @deprecated Use {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)} to
+     * check whether extension function can support with the given {@link CameraSelector}.
      */
+    @Deprecated
     public static boolean isExtensionAvailable(@NonNull Class<?> klass,
             @NonNull EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         boolean isAvailable = false;
@@ -318,10 +335,7 @@ public final class ExtensionsManager {
      * <p>An application must wait until the {@link ListenableFuture} completes to get an
      * {@link ExtensionsManager} instance. The {@link ExtensionsManager} instance can be used to
      * access the extensions related functions.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context) {
         return getInstance(context, VersionName.getCurrentVersion());
@@ -476,8 +490,7 @@ public final class ExtensionsManager {
     }
 
     /**
-     * Returns a new {@link CameraSelector} based on the one passed in for the specified extension
-     * mode.
+     * Returns a modified {@link CameraSelector} that will enable the specified extension mode.
      *
      * <p>The returned extension {@link CameraSelector} can be used to bind use cases to a
      * desired {@link LifecycleOwner} and then the specified extension mode will be enabled on
@@ -494,12 +507,9 @@ public final class ExtensionsManager {
      * @throws IllegalArgumentException If this device doesn't support extensions function, no
      * camera can be found to support the specified extension mode, or the base
      * {@link CameraSelector} has contained extension related configuration in it.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public CameraSelector getExtensionCameraSelector(@NonNull CameraProvider cameraProvider,
+    public CameraSelector getExtensionEnabledCameraSelector(@NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         // Directly return the input baseCameraSelector if the target extension mode is NONE.
         if (mode == ExtensionMode.NONE) {
@@ -523,10 +533,7 @@ public final class ExtensionsManager {
      * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode The target extension mode to support.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isExtensionAvailable(@NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE) {
@@ -547,6 +554,7 @@ public final class ExtensionsManager {
         return mExtensionsAvailability;
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
         ImageCapture.Builder builder = new ImageCapture.Builder();
@@ -612,6 +620,7 @@ public final class ExtensionsManager {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean checkPreviewExtensionCapability(EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
         Preview.Builder builder = new Preview.Builder();
