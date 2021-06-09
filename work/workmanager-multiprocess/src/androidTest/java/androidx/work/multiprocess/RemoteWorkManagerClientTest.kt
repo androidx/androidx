@@ -37,6 +37,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyInt
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.spy
@@ -110,7 +111,7 @@ public class RemoteWorkManagerClientTest {
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val remoteStub = mock(IWorkManagerImpl::class.java)
-        val callback = spy(RemoteCallback())
+        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
         val message = "Something bad happened"
         `when`(remoteDispatcher.execute(remoteStub, callback)).thenThrow(RuntimeException(message))
         `when`(remoteStub.asBinder()).thenReturn(binder)
@@ -125,6 +126,7 @@ public class RemoteWorkManagerClientTest {
         assertNotNull(exception)
         verify(callback).onFailure(message)
         verify(mClient, never()).cleanUp()
+        verify(callback, atLeastOnce()).onRequestCompleted()
     }
 
     @Test
@@ -138,7 +140,7 @@ public class RemoteWorkManagerClientTest {
 
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
-        val callback = spy(RemoteCallback())
+        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
         val session = SettableFuture.create<IWorkManagerImpl>()
         session.setException(RuntimeException("Something bad happened"))
         var exception: Throwable? = null
@@ -150,6 +152,7 @@ public class RemoteWorkManagerClientTest {
         assertNotNull(exception)
         verify(callback).onFailure(anyString())
         verify(mClient).cleanUp()
+        verify(callback, atLeastOnce()).onRequestCompleted()
     }
 
     @Test
@@ -165,7 +168,7 @@ public class RemoteWorkManagerClientTest {
             callback.onSuccess(ByteArray(0))
         }
         val remoteStub = mock(IWorkManagerImpl::class.java)
-        val callback = spy(RemoteCallback())
+        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
         `when`(remoteStub.asBinder()).thenReturn(binder)
         val session = SettableFuture.create<IWorkManagerImpl>()
         session.set(remoteStub)
@@ -178,5 +181,6 @@ public class RemoteWorkManagerClientTest {
         assertNull(exception)
         verify(callback).onSuccess(any())
         verify(mClient, never()).cleanUp()
+        verify(callback, atLeastOnce()).onRequestCompleted()
     }
 }
