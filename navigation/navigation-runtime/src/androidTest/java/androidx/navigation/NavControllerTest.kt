@@ -855,6 +855,22 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateFromOnDestinationChangedListener() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+
+        var lastReceivedDestinationId = -1
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            lastReceivedDestinationId = destination.id
+            if (destination.id == R.id.start_test) {
+                navController.navigate(R.id.second_test)
+            }
+        }
+        assertThat(lastReceivedDestinationId).isEqualTo(R.id.second_test)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateArgs() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_arguments)
