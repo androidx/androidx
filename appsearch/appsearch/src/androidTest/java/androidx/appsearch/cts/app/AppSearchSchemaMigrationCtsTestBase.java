@@ -37,7 +37,6 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
-import androidx.test.filters.FlakyTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -72,7 +71,6 @@ import java.util.concurrent.ExecutionException;
  * FALSE  FALSE   FALSE   TRUE    Impossible case, migrators are inactivity
  * FALSE  FALSE   FALSE   FALSE                             fail             throw error
  */
-//TODO(b/178060626) add a platform version of this test
 public abstract class AppSearchSchemaMigrationCtsTestBase {
 
     private static final String DB_NAME = "";
@@ -328,7 +326,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
 
-    @FlakyTest(bugId = 185926060)
     @Test
     public void testSchemaMigration() throws Exception {
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")

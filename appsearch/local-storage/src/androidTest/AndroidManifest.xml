@@ -16,4 +16,6 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.appsearch.localstorage.test">
+    <!-- Required for junit TemporaryFolder rule on older API levels -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>
