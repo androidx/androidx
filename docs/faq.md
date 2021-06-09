@@ -12,7 +12,7 @@ from the Android OS, focus on improving the experience of developing apps
 through broad OS- and device-level compatibility, high-level abstractions to
 simplify and unify platform features, and other new features that target
 developer pain points. To find out more about AndroidX, see the public
-documentation on developer.android.com.
+documentation on [developer.android.com](http://developer.android.com).
 
 ### Why did we move to AndroidX?
 
