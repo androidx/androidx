@@ -300,4 +300,42 @@ src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancel
             .run()
             .expectClean()
     }
+
+    @Test
+    fun `kotlin anonymous object`() {
+        lint().files(
+            kotlin(
+                """
+            package com.example
+
+            val foo = object : Foo() {
+                override fun test() { }
+            }
+            """
+            ).indented()
+        )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `java anonymous object`() {
+        lint().files(
+            java(
+                """
+            package com.example;
+
+            interface Foo {
+                fun test();
+            }
+
+            class Bar {
+                Foo foo = (com.example.Foo)()-> { };
+            }
+            """
+            ).indented()
+        )
+            .run()
+            .expectClean()
+    }
 }
