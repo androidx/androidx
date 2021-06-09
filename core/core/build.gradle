@@ -21,6 +21,7 @@ dependencies {
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
+    androidTestImplementation("junit:junit:4.13")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -44,6 +45,7 @@ dependencies {
     })
     androidTestImplementation(project(":internal-testutils-mockito"))
 
+    testImplementation("junit:junit:4.13")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
