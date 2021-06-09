@@ -38,7 +38,7 @@ import androidx.car.app.sample.navigation.common.nav.NavigationService;
  * The main app activity.
  *
  * <p>See {@link androidx.car.app.sample.navigation.common.car.NavigationCarAppService} for the
- * app's entry point to Android Auto.
+ * app's entry point to the cat host.
  */
 public class MainActivity extends ComponentActivity {
     static final String TAG = MainActivity.class.getSimpleName();
