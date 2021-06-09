@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
@@ -298,15 +300,28 @@ public class LocalStorage {
     }
 
     @WorkerThread
-    private LocalStorage(@NonNull Context context, @NonNull Executor executor,
+    private LocalStorage(
+            @NonNull Context context,
+            @NonNull Executor executor,
             @Nullable AppSearchLogger logger)
             throws AppSearchException {
         Preconditions.checkNotNull(context);
         File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
 
-        // There is no global querier for a local storage instance.
-        mAppSearchImpl = AppSearchImpl.create(icingDir, context, /*callerUserHandle=*/ null, logger,
-                new JetpackOptimizeStrategy());
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        InitializeStats.Builder initStatsBuilder = null;
+        if (logger != null) {
+            initStatsBuilder = new InitializeStats.Builder();
+        }
+
+        mAppSearchImpl = AppSearchImpl.create(
+                icingDir, initStatsBuilder, new JetpackOptimizeStrategy());
+
+        if (logger != null) {
+            initStatsBuilder.setTotalLatencyMillis(
+                    (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
+            logger.logStats(initStatsBuilder.build());
+        }
 
         executor.execute(() -> {
             try {
@@ -319,8 +334,12 @@ public class LocalStorage {
 
     @NonNull
     private AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
-        return new SearchSessionImpl(mAppSearchImpl, context.mExecutor,
-                context.mContext.getPackageName(), context.mDatabaseName, context.mLogger);
+        return new SearchSessionImpl(
+                mAppSearchImpl,
+                context.mExecutor,
+                context.mContext.getPackageName(),
+                context.mDatabaseName,
+                context.mLogger);
     }
 
     @NonNull

@@ -86,8 +86,14 @@ class SearchResultsImpl implements SearchResults {
                             "Invalid null package name for query");
                 } else if (mDatabaseName == null) {
                     // Global queries aren't restricted to a single database
-                    searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec,
-                            mPackageName, Process.myUid(), /*logger=*/ null);
+                    searchResultPage = mAppSearchImpl.globalQuery(
+                            mQueryExpression,
+                            mSearchSpec,
+                            mPackageName,
+                            /*visibilityStore=*/ null,
+                            Process.myUid(),
+                            /*callerHasSystemAccess=*/ false,
+                            /*logger=*/ null);
                 } else {
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(

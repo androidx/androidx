@@ -129,11 +129,11 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
+                    /*visibilityStore=*/ null,
                     new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                     copySchemasPackageAccessible,
                     /*forceOverride=*/false,
                     request.getVersion());
-
 
             // 3. If forceOverride is false, check that all incompatible types will be migrated.
             // If some aren't we must throw an error, rather than proceeding and deleting those
@@ -156,6 +156,7 @@ class SearchSessionImpl implements AppSearchSession {
                             mPackageName,
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
+                            /*visibilityStore=*/ null,
                             new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                             copySchemasPackageAccessible,
                             /*forceOverride=*/ true,
@@ -396,6 +397,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
+                /*visibilityStore=*/ null,
                 new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                 copySchemasPackageAccessible,
                 request.isForceOverride(),
