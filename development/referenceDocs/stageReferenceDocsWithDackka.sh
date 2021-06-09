@@ -34,7 +34,7 @@ readonly kotlinLibraryDirs=(
   "compose"
 #  "collection"
   "navigation"
-#  "paging"
+  "paging"
   "window"
 )
 
