@@ -281,16 +281,29 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        StrictFragment().setTargetFragment(StrictFragment(), 1)
+        val fragment = StrictFragment()
+        val targetFragment = StrictFragment()
+        val requestCode = 1
+        fragment.setTargetFragment(targetFragment, requestCode)
         assertThat(violation).isInstanceOf(SetTargetFragmentUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set target fragment $targetFragment " +
+                "with request code $requestCode for fragment $fragment"
+        )
 
         violation = null
-        StrictFragment().targetFragment
+        fragment.targetFragment
         assertThat(violation).isInstanceOf(GetTargetFragmentUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get target fragment from fragment $fragment"
+        )
 
         violation = null
-        StrictFragment().targetRequestCode
+        fragment.targetRequestCode
         assertThat(violation).isInstanceOf(GetTargetFragmentRequestCodeUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get target request code from fragment $fragment"
+        )
     }
 
     @Test
