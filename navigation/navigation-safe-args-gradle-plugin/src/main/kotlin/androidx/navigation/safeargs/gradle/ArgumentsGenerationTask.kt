@@ -55,7 +55,7 @@ abstract class ArgumentsGenerationTask @Inject constructor(
     abstract val useAndroidX: Property<Boolean>
 
     @get:Input
-    abstract var generateKotlin: Property<Boolean>
+    abstract val generateKotlin: Property<Boolean>
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty

@@ -73,8 +73,16 @@ abstract class SafeArgsPlugin protected constructor(
         variantExtension.onVariants { variant ->
             when (variant) {
                 is ApplicationVariant, is DynamicFeatureVariant ->
-                    applicationIds.getOrPut(variant.name) {
-                        variant.applicationId
+                    // Using reflection for AGP 7.0+ cause it can't resolve that
+                    // DynamicFeatureVariant implements GeneratesApk so the `applicationId`
+                    // property is actually available. Once we upgrade to 7.0 we will use
+                    // getNamespace().
+                    variant::class.java.getDeclaredMethod("getApplicationId").let { method ->
+                        method.trySetAccessible()
+                        applicationIds.getOrPut(variant.name) {
+                            @kotlin.Suppress("UNCHECKED_CAST")
+                            method.invoke(variant) as Provider<String>
+                        }
                     }
             }
         }
