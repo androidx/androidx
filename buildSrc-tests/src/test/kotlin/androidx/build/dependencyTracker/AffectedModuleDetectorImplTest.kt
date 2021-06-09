@@ -61,6 +61,7 @@ class AffectedModuleDetectorImplTest {
     private lateinit var p10: Project
     private lateinit var p11: Project
     private val cobuiltTestPaths = setOf(setOf("cobuilt1", "cobuilt2"))
+    private val ignoredPaths = setOf("ignored/")
 
     @Before
     fun init() {
@@ -582,6 +583,106 @@ class AffectedModuleDetectorImplTest {
             injectedGitClient = MockGitClient(
                 lastMergeSha = "foo",
                 changedFiles = listOf("playground-common/tmp.kt", "root.txt")
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                true
+            )
+        )
+    }
+
+    @Test
+    fun `Only ignored file`() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            ignoredPaths = ignoredPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(convertToFilePath("ignored", "example.txt"))
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                false
+            )
+        )
+    }
+
+    @Test
+    fun `Ignored file and changed file`() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            ignoredPaths = ignoredPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(
+                    convertToFilePath("ignored", "example.txt"),
+                    convertToFilePath("p1", "foo.kt")
+                )
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.changedProjects,
+            CoreMatchers.`is`(
+                setOf(p1, p11)
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                false
+            )
+        )
+    }
+
+    @Test
+    fun `Ignored file and unknown file`() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            ignoredPaths = ignoredPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(
+                    convertToFilePath("ignored", "example.txt"),
+                    convertToFilePath("unknown", "foo.kt")
+                )
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.buildAll,
+            CoreMatchers.`is`(
+                true
+            )
+        )
+    }
+
+    @Test
+    fun `Ignored file, unknown file, and changed file`() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            cobuiltTestPaths = cobuiltTestPaths,
+            ignoredPaths = ignoredPaths,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(
+                    "ignored/eg.txt",
+                    convertToFilePath("unknown", "foo.kt"),
+                    convertToFilePath("p1", "bar.kt")
+                )
             )
         )
         MatcherAssert.assertThat(
