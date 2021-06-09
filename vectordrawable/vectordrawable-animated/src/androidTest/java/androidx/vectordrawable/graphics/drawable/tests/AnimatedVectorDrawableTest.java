@@ -42,6 +42,7 @@ import androidx.annotation.DrawableRes;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -399,6 +400,7 @@ public class AnimatedVectorDrawableTest {
      * Test show that callback is successfully registered.
      * Note that this test requires screen is on.
      */
+    @FlakyTest(bugId = 190193710)
     public void testRegisterCallback() throws Throwable {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override

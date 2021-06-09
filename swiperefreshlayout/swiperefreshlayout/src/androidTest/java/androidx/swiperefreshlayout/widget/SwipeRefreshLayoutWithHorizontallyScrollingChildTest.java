@@ -40,6 +40,7 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.SwipeInjector;
 
@@ -93,6 +94,7 @@ public class SwipeRefreshLayoutWithHorizontallyScrollingChildTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190192628)
     public void refreshWhileScrollingRecyclerView() {
         // When we drag the RecyclerView horizontally, and then move the pointer down,
         SwipeInjector swiper = new SwipeInjector(InstrumentationRegistry.getInstrumentation());
@@ -115,6 +117,7 @@ public class SwipeRefreshLayoutWithHorizontallyScrollingChildTest {
 
     @Test
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 190192628)
     public void refreshWhileScrollingRecyclerView_legacy() {
         // If the legacy behavior is enabled
         mSwipeRefreshLayout.setLegacyRequestDisallowInterceptTouchEventEnabled(true);

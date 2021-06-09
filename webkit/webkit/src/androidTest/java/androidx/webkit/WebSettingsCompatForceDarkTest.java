@@ -28,6 +28,7 @@ import android.webkit.WebView;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.After;
@@ -99,6 +100,7 @@ public class WebSettingsCompatForceDarkTest {
      * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
@@ -132,6 +134,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are always darkened by a user agent.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -162,6 +165,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are darkened only by web theme.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -192,6 +196,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are darkened by a user agent if there is no dark web theme.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_preferWebThemeOverUADarkening() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
