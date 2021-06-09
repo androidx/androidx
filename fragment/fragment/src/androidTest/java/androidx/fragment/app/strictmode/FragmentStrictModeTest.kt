@@ -205,6 +205,7 @@ public class FragmentStrictModeTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun detectFragmentTagUsage() {
         var violation: Violation? = null
@@ -216,7 +217,14 @@ public class FragmentStrictModeTest {
 
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity { setContentView(R.layout.activity_inflated_fragment) }
+            val fragment = withActivity {
+                supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
+            }
+            val container = withActivity { findViewById(R.id.inflated_layout) }
             assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to use <fragment> tag to add fragment $fragment to container $container"
+            )
         }
     }
 
