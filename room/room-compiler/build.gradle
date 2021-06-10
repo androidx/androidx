@@ -239,9 +239,12 @@ tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarRelease")
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn",
-                             "-Xopt-in=kotlin.contracts.ExperimentalContracts",
-                             "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+                "-Xopt-in=kotlin.RequiresOptIn",
+                "-Xopt-in=kotlin.contracts.ExperimentalContracts",
+                "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+        ]
     }
 }
 
