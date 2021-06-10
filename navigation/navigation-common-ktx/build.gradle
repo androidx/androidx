@@ -24,12 +24,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-}
-
 kotlin {
     explicitApi = ExplicitApiMode.Strict
 }
