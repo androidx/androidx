@@ -35,12 +35,12 @@ import androidx.wear.complications.data.ComplicationType.Companion.fromWireType
 
 /**
  * Data associated with complication request in [ComplicationProviderService.onComplicationRequest].
- * @param complicationId The id of the requested complication. Note this ID is distinct from
- * ids used by the watch face itself.
+ * @param complicationInstanceId The system's id for the requested complication which is a unique
+ * value for the tuple [Watch face ComponentName, complication slot ID].
  * @param complicationType The type of complication data requested.
  */
 public class ComplicationRequest(
-    public val complicationId: Int,
+    public val complicationInstanceId: Int,
     public val complicationType: ComplicationType
 )
 
@@ -152,9 +152,13 @@ public abstract class ComplicationProviderService : Service() {
      * This will usually be followed by a call to [onComplicationRequest].
      *
      * This will be called on the main thread.
+     *
+     * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
+     * from the complication slot used by the watch face itself.
+     * @param type The [ComplicationType] of the activated slot.
      */
     @UiThread
-    public open fun onComplicationActivated(complicationId: Int, type: ComplicationType) {}
+    public open fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {}
 
     /**
      * Called when a complication data update is requested for the given complication id.
@@ -209,17 +213,20 @@ public abstract class ComplicationProviderService : Service() {
      * face has stopped displaying it).
      *
      * This will be called on the main thread.
+     *
+     * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
+     * from the complication slot used by the watch face itself.
      */
-    @UiThread public open fun onComplicationDeactivated(complicationId: Int) {}
+    @UiThread public open fun onComplicationDeactivated(complicationInstanceId: Int) {}
 
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
-        override fun onUpdate(complicationId: Int, type: Int, manager: IBinder) {
+        override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
             val complicationType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
                 onComplicationRequest(
-                    ComplicationRequest(complicationId, complicationType),
+                    ComplicationRequest(complicationInstanceId, complicationType),
                     object : ComplicationRequestListener {
                         override fun onComplicationData(complicationData: ComplicationData?) {
                             // This can be run on an arbitrary thread, but that's OK.
@@ -235,7 +242,7 @@ public abstract class ComplicationProviderService : Service() {
                             // When no update is needed, the complicationData is going to be
                             // null.
                             iComplicationManager.updateComplicationData(
-                                complicationId,
+                                complicationInstanceId,
                                 complicationData?.asWireComplicationData()
                             )
                         }
@@ -245,17 +252,21 @@ public abstract class ComplicationProviderService : Service() {
         }
 
         @SuppressLint("SyntheticAccessor")
-        override fun onComplicationDeactivated(complicationId: Int) {
+        override fun onComplicationDeactivated(complicationInstanceId: Int) {
             mainThreadHandler.post {
-                this@ComplicationProviderService.onComplicationDeactivated(complicationId)
+                this@ComplicationProviderService.onComplicationDeactivated(complicationInstanceId)
             }
         }
 
         @SuppressLint("SyntheticAccessor")
-        override fun onComplicationActivated(complicationId: Int, type: Int, manager: IBinder) {
+        override fun onComplicationActivated(
+            complicationInstanceId: Int,
+            type: Int,
+            manager: IBinder
+        ) {
             mainThreadHandler.post {
                 this@ComplicationProviderService.onComplicationActivated(
-                    complicationId,
+                    complicationInstanceId,
                     fromWireType(type)
                 )
             }

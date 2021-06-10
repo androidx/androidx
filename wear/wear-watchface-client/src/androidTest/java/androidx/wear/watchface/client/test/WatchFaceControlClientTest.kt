@@ -32,7 +32,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationText
@@ -40,8 +40,8 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -54,7 +54,7 @@ import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.samples.BLUE_STYLE
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.COMPLICATIONS_STYLE_SETTING
@@ -247,7 +247,7 @@ public class WatchFaceControlClientTest {
                 DrawMode.INTERACTIVE,
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplications,
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.YELLOW,
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
@@ -280,7 +280,7 @@ public class WatchFaceControlClientTest {
                 DrawMode.INTERACTIVE,
                 emptySet(),
                 RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplications,
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.YELLOW,
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
@@ -304,13 +304,14 @@ public class WatchFaceControlClientTest {
             400
         )!!
 
-        assertThat(headlessInstance.complicationsState.size).isEqualTo(2)
+        assertThat(headlessInstance.complicationsSlotState.size).isEqualTo(2)
 
-        val leftComplicationDetails = headlessInstance.complicationsState[
+        val leftComplicationDetails = headlessInstance.complicationsSlotState[
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
         ]!!
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
-        assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(leftComplicationDetails.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
             SystemProviders.PROVIDER_DAY_OF_WEEK
         )
@@ -326,11 +327,12 @@ public class WatchFaceControlClientTest {
         )
         assertTrue(leftComplicationDetails.isEnabled)
 
-        val rightComplicationDetails = headlessInstance.complicationsState[
+        val rightComplicationDetails = headlessInstance.complicationsSlotState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
         ]!!
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
-        assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(rightComplicationDetails.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
             SystemProviders.PROVIDER_STEP_COUNT
         )
@@ -499,13 +501,14 @@ public class WatchFaceControlClientTest {
             )
         )
 
-        assertThat(interactiveInstance.complicationsState.size).isEqualTo(2)
+        assertThat(interactiveInstance.complicationsSlotState.size).isEqualTo(2)
 
-        val leftComplicationDetails = interactiveInstance.complicationsState[
+        val leftComplicationDetails = interactiveInstance.complicationsSlotState[
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
         ]!!
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
-        assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(leftComplicationDetails.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
             SystemProviders.PROVIDER_DAY_OF_WEEK
         )
@@ -524,11 +527,12 @@ public class WatchFaceControlClientTest {
             ComplicationType.SHORT_TEXT
         )
 
-        val rightComplicationDetails = interactiveInstance.complicationsState[
+        val rightComplicationDetails = interactiveInstance.complicationsSlotState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
         ]!!
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
-        assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(rightComplicationDetails.boundsType)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
             SystemProviders.PROVIDER_STEP_COUNT
         )
@@ -685,7 +689,7 @@ public class WatchFaceControlClientTest {
         // We need to wait for watch face init to have completed before lateinit
         // wallpaperService.watchFace will be assigned. To do this we issue an arbitrary API
         // call which by necessity awaits full initialization.
-        interactiveInstance.complicationsState
+        interactiveInstance.complicationsSlotState
 
         // Add some additional ContentDescriptionLabels
         wallpaperService.watchFace.renderer.additionalContentDescriptionLabels = listOf(
@@ -780,11 +784,13 @@ public class WatchFaceControlClientTest {
 
         assertThat(interactiveInstance.instanceId).isEqualTo("testId2")
 
-        // The complications should have been cleared.
-        val leftComplication =
-            interactiveInstance.complicationsState[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
-        val rightComplication =
-            interactiveInstance.complicationsState[EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+        // The complicationSlots should have been cleared.
+        val leftComplication = interactiveInstance.complicationsSlotState[
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+        ]!!
+        val rightComplication = interactiveInstance.complicationsSlotState[
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        ]!!
         assertThat(leftComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
         assertThat(rightComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
 
@@ -807,7 +813,7 @@ public class WatchFaceControlClientTest {
         )
 
         try {
-            // Note the hour hand pips and both complications should be visible in this image.
+            // Note the hour hand pips and both complicationSlots should be visible in this image.
             bitmap.assertAgainstGolden(screenshotRule, "setUserStyle")
         } finally {
             interactiveInstance.close()
@@ -861,7 +867,7 @@ public class WatchFaceControlClientTest {
 
         try {
             // The first call on the interface should report the crash.
-            awaitWithTimeout(client).complicationsState
+            awaitWithTimeout(client).complicationsSlotState
             fail("Expected an exception to be thrown because the watchface crashed on init")
         } catch (e: Exception) {
             assertThat(e.toString()).contains("Deliberately crashing")
@@ -948,13 +954,13 @@ internal class TestExampleCanvasAnalogWatchFaceService(
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         watchFace = super.createWatchFace(
             surfaceHolder,
             watchState,
-            complicationsManager,
+            complicationSlotsManager,
             currentUserStyleRepository
         )
         return watchFace
@@ -967,17 +973,17 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
         const val COMPLICATION_ID = 123
     }
 
-    override fun createComplicationsManager(
+    override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): ComplicationsManager {
-        return ComplicationsManager(
+    ): ComplicationSlotsManager {
+        return ComplicationSlotsManager(
             listOf(
-                Complication.createRoundRectComplicationBuilder(
+                ComplicationSlot.createRoundRectComplicationBuilder(
                     COMPLICATION_ID,
                     { _, _ -> throw Exception("Deliberately crashing") },
                     listOf(ComplicationType.LONG_TEXT),
                     DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
-                    ComplicationBounds(RectF(0.1f, 0.1f, 0.4f, 0.4f))
+                    ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.4f, 0.4f))
                 ).setDefaultProviderType(ComplicationType.LONG_TEXT).build()
             ),
             currentUserStyleRepository
@@ -987,7 +993,7 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         throw Exception("Deliberately crashing")

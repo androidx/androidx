@@ -22,21 +22,24 @@ import androidx.annotation.RestrictTo
 /** @hide */
 @IntDef(
     value = [
-        ComplicationBoundsType.ROUND_RECT,
-        ComplicationBoundsType.BACKGROUND,
-        ComplicationBoundsType.EDGE
+        ComplicationSlotBoundsType.ROUND_RECT,
+        ComplicationSlotBoundsType.BACKGROUND,
+        ComplicationSlotBoundsType.EDGE
     ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public annotation class ComplicationBoundsType {
+public annotation class ComplicationSlotBoundsType {
     public companion object {
-        /** The default, most complications are either circular or rounded rectangles. */
+        /** The default, most complication slots are either circular or rounded rectangles. */
         public const val ROUND_RECT: Int = 0
 
-        /** For full screen image complications drawn behind the watch face. */
+        /**
+         * For a full screen image complication slot drawn behind the watch face. Note you can only
+         * have a single background complication slot.
+         */
         public const val BACKGROUND: Int = 1
 
-        /** For edge of screen complications. */
+        /** For edge of screen complication slots. */
         public const val EDGE: Int = 2
     }
 }

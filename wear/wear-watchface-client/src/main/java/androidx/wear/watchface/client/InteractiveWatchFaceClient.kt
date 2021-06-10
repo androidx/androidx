@@ -24,19 +24,19 @@ import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.toApiComplicationText
 import androidx.wear.utility.TraceEvent
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleData
 import java.util.concurrent.Executor
 
@@ -48,11 +48,14 @@ import java.util.concurrent.Executor
  */
 public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
-     * Sends new ComplicationData to the watch face. Note this doesn't have to be a full update,
+     * Sends new [ComplicationData] to the watch face. Note this doesn't have to be a full update,
      * it's possible to update just one complication at a time, but doing so may result in a less
      * visually clean transition.
+     *
+     * @param slotIdToComplicationData The [ComplicationData] for each
+     * [androidx.wear.watchface.ComplicationSlot].
      */
-    public fun updateComplicationData(idToComplicationData: Map<Int, ComplicationData>)
+    public fun updateComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>)
 
     /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
@@ -80,7 +83,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] and clears
      * any complication data. Setting the new UserStyle may have a side effect of enabling or
-     * disabling complications, which will be visible via [ComplicationState.isEnabled].
+     * disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
      */
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle)
 
@@ -88,8 +91,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
      * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a
-     * side effect of enabling or disabling complications, which will be visible via
-     * [ComplicationState.isEnabled].
+     * side effect of enabling or disabling complicationSlots, which will be visible via
+     * [ComplicationSlotState.isEnabled].
      */
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
 
@@ -100,29 +103,35 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public val userStyleSchema: UserStyleSchema
 
     /**
-     * Map of complication ids to [ComplicationState] for each [Complication] registered with the
-     * watch face's [ComplicationsManager]. The ComplicationState is based on the initial state of
-     * each Complication plus any overrides from a [ComplicationsUserStyleSetting]. As a
-     * consequence ComplicationState may update based on style changes.
+     * Map of [androidx.wear.watchface.ComplicationSlot] ids to [ComplicationSlotState] for each
+     * [ComplicationSlot] registered with the  watch face's [ComplicationSlotsManager]. The
+     * ComplicationSlotState is based on the initial state of each
+     * [androidx.wear.watchface.ComplicationSlot] plus any overrides from a
+     * [ComplicationSlotsUserStyleSetting]. As a consequence ComplicationSlotState may update based
+     * on style changes.
      */
-    public val complicationsState: Map<Int, ComplicationState>
+    public val complicationsSlotState: Map<Int, ComplicationSlotState>
 
-    /** Returns the ID of the complication at the given coordinates or `null` if there isn't one.*/
+    /**
+     * Returns the ID of the [androidx.wear.watchface.ComplicationSlot] at the given coordinates or
+     * `null` if there isn't one.
+     */
     @SuppressWarnings("AutoBoxing")
     public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
-        complicationsState.asSequence().firstOrNull {
+        complicationsSlotState.asSequence().firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
-                ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
-                ComplicationBoundsType.BACKGROUND -> false
-                ComplicationBoundsType.EDGE -> false
+                ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                ComplicationSlotBoundsType.BACKGROUND -> false
+                ComplicationSlotBoundsType.EDGE -> false
                 else -> false
             }
         }?.key
 
     /**
-     * Requests that [ComplicationsManager.displayPressedAnimation] is called for [complicationId].
+     * Requests that [ComplicationSlotsManager.displayPressedAnimation] is called for
+     * [complicationSlotId].
      */
-    public fun displayPressedAnimation(complicationId: Int)
+    public fun displayPressedAnimation(complicationSlotId: Int)
 
     public companion object {
         /** Indicates a "down" touch event on the watch face. */
@@ -212,10 +221,10 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     }
 
     override fun updateComplicationData(
-        idToComplicationData: Map<Int, ComplicationData>
+        slotIdToComplicationData: Map<Int, ComplicationData>
     ) = TraceEvent("InteractiveWatchFaceClientImpl.updateComplicationData").use {
         iInteractiveWatchFace.updateComplicationData(
-            idToComplicationData.map {
+            slotIdToComplicationData.map {
                 IdAndComplicationDataWireFormat(it.key, it.value.asWireComplicationData())
             }
         )
@@ -272,20 +281,20 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iInteractiveWatchFace.userStyleSchema)
 
-    override val complicationsState: Map<Int, ComplicationState>
+    override val complicationsSlotState: Map<Int, ComplicationSlotState>
         get() = iInteractiveWatchFace.complicationDetails.associateBy(
             { it.id },
-            { ComplicationState(it.complicationState) }
+            { ComplicationSlotState(it.complicationState) }
         )
 
     override fun close() = TraceEvent("InteractiveWatchFaceClientImpl.close").use {
         iInteractiveWatchFace.release()
     }
 
-    override fun displayPressedAnimation(complicationId: Int) = TraceEvent(
+    override fun displayPressedAnimation(complicationSlotId: Int) = TraceEvent(
         "InteractiveWatchFaceClientImpl.bringAttentionToComplication"
     ).use {
-        iInteractiveWatchFace.bringAttentionToComplication(complicationId)
+        iInteractiveWatchFace.bringAttentionToComplication(complicationSlotId)
     }
 
     override fun sendTouchEvent(

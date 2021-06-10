@@ -54,18 +54,20 @@ public enum class DrawMode {
  * Used to parameterize watch face rendering.
  *
  * Watch face rendering is split up in a number of layers: the base layer [WatchFaceLayer.BASE], the
- * complications layer [WatchFaceLayer.COMPLICATIONS], and the layer above the complications
- * [WatchFaceLayer.COMPLICATIONS_OVERLAY]. These layers are always drawn in this order, one on top of
- * the previous one. These are the layers that are used to render the watch face itself.
+ * [ComplicationSlot]s layer [WatchFaceLayer.COMPLICATIONS], and the layer above the
+ * complicationSlots [WatchFaceLayer.COMPLICATIONS_OVERLAY]. These layers are always drawn in
+ * this order, one on top of the previous one. These are the layers that are used to render the
+ * watch face itself.
  *
  * An additional layer, the highlight layer, can be drawn during editing the watch face to highlight
- * different elements of the watch face, namely a set of complications (which may be a single
- * complication) or the area of the watch face that is affected by a single user style setting.
+ * different elements of the watch face, namely a set of [ComplicationSlot]s (which may be a single
+ * ComplicationSlot) or the area of the watch face that is affected by a single user style setting.
  *
- * The watch face should provide a way to highlight any of the above combination so that its own
- * editor on the one provided by the Wear OS phone app is able to highlight the editable part of the
- * watch face to the user. If a complication of single user style setting is meant to affect the
- * entire watch face, the entire watch face should be highlighted.
+ * The watch face should provide a way to highlight any of the above combinations so that its own
+ * editor, or the one provided by the Wear OS companion phone app is able to highlight the editable
+ * part of the watch face to the user. If an individual user style setting is meant to affect the
+ * entire watch face (e.g. an overall color setting),then  the entire watch face should be
+ * highlighted.
  *
  * The watch face layers and highlight layer can be configured independently, so that it is possible
  * to draw only the highlight layer by passing an empty set of [watchFaceLayers].
@@ -94,16 +96,19 @@ public class RenderParameters @JvmOverloads constructor(
 
     /** An element of the watch face to highlight. */
     public sealed class HighlightedElement {
-        /** All [Complication]s will be highlighted. */
-        public object AllComplications : HighlightedElement()
+        /** All [ComplicationSlot]s will be highlighted. */
+        public object AllComplicationSlots : HighlightedElement()
 
-        /** A single [Complication] with the specified [id] will be highlighted. */
-        public class Complication(public val id: Int) : HighlightedElement() {
+        /**
+         * A single [androidx.wear.watchface.ComplicationSlot] with the specified [id] will be
+         * highlighted.
+         */
+        public class ComplicationSlot(public val id: Int) : HighlightedElement() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (javaClass != other?.javaClass) return false
 
-                other as Complication
+                other as ComplicationSlot
 
                 if (id != other.id) return false
 
@@ -142,7 +147,7 @@ public class RenderParameters @JvmOverloads constructor(
      * The definition of what to include in the highlight layer.
      *
      * The highlight layer is used by editors to show the parts of the watch face affected by a
-     * setting. E.g. a set of complications or a user style setting.
+     * setting. E.g. a set of [ComplicationSlot]s or a user style setting.
      *
      * The highlight layer is composited on top of the watch face with an alpha blend. It should
      * be cleared with [backgroundTint]. The solid or semi-transparent outline around
@@ -210,7 +215,7 @@ public class RenderParameters @JvmOverloads constructor(
 
             RenderParametersWireFormat.ELEMENT_TYPE_ALL_COMPLICATIONS -> {
                 HighlightLayer(
-                    HighlightedElement.AllComplications,
+                    HighlightedElement.AllComplicationSlots,
                     wireFormat.highlightTint,
                     wireFormat.backgroundTint
                 )
@@ -218,7 +223,7 @@ public class RenderParameters @JvmOverloads constructor(
 
             RenderParametersWireFormat.ELEMENT_TYPE_COMPLICATION -> {
                 HighlightLayer(
-                    HighlightedElement.Complication(wireFormat.elementComplicationId),
+                    HighlightedElement.ComplicationSlot(wireFormat.elementComplicationSlotId),
                     wireFormat.highlightTint,
                     wireFormat.backgroundTint
                 )
@@ -242,7 +247,7 @@ public class RenderParameters @JvmOverloads constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): RenderParametersWireFormat =
         when (val thingHighlighted = highlightLayer?.highlightedElement) {
-            is HighlightedElement.AllComplications -> RenderParametersWireFormat(
+            is HighlightedElement.AllComplicationSlots -> RenderParametersWireFormat(
                 drawMode.ordinal,
                 computeLayersBitfield(),
                 RenderParametersWireFormat.ELEMENT_TYPE_ALL_COMPLICATIONS,
@@ -252,7 +257,7 @@ public class RenderParameters @JvmOverloads constructor(
                 highlightLayer.backgroundTint
             )
 
-            is HighlightedElement.Complication -> RenderParametersWireFormat(
+            is HighlightedElement.ComplicationSlot -> RenderParametersWireFormat(
                 drawMode.ordinal,
                 computeLayersBitfield(),
                 RenderParametersWireFormat.ELEMENT_TYPE_COMPLICATION,
@@ -303,12 +308,12 @@ public class RenderParameters @JvmOverloads constructor(
             writer.println("HighlightLayer:")
             writer.increaseIndent()
             when (it.highlightedElement) {
-                is HighlightedElement.AllComplications -> {
-                    writer.println("HighlightedElement.AllComplications:")
+                is HighlightedElement.AllComplicationSlots -> {
+                    writer.println("HighlightedElement.AllComplicationSlots:")
                 }
 
-                is HighlightedElement.Complication -> {
-                    writer.println("HighlightedElement.Complication:")
+                is HighlightedElement.ComplicationSlot -> {
+                    writer.println("HighlightedElement.ComplicationSlot:")
                     writer.increaseIndent()
                     writer.println("id=${it.highlightedElement.id}")
                     writer.decreaseIndent()

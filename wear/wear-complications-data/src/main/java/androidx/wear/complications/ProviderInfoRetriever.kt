@@ -57,8 +57,8 @@ private typealias WireComplicationProviderInfo =
 public class ProviderInfoRetriever : AutoCloseable {
     /** Results for [retrieveProviderInfo]. */
     public class ProviderInfo internal constructor(
-        /** The id for the complication, as provided to [retrieveProviderInfo].  */
-        public val watchFaceComplicationId: Int,
+        /** The id for the complication slot, as provided to [retrieveProviderInfo].  */
+        public val complicationSlotId: Int,
 
         /**
          * Details of the provider for that complication, or `null` if no provider is currently

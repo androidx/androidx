@@ -46,7 +46,7 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 
 /**
- * A styleable drawable object that draws complications. You can create a ComplicationDrawable from
+ * A styleable drawable object that draws complicationSlots. You can create a ComplicationDrawable from
  * XML inflation or by using one of the constructor methods.
  *
  * <h3>Constructing a ComplicationDrawable</h3>
@@ -78,13 +78,13 @@ import java.io.IOException
  *
  * ```
  * <?xml version="1.0" encoding="utf-8"?>
- * <android.support.wearable.complications.rendering.ComplicationDrawable
+ * <android.support.wearable.complication.rendering.ComplicationDrawable
  * xmlns:app="http://schemas.android.com/apk/res-auto"
  * app:textColor="#FFFF0000"
  * app:titleColor="#FFFFFFFF">
  * <ambient
  * app:textColor="#FFFFFFFF" />
- * </android.support.wearable.complications.rendering.ComplicationDrawable>
+ * </android.support.wearable.complication.rendering.ComplicationDrawable>
  * ```
  *
  *
@@ -94,7 +94,7 @@ import java.io.IOException
  * ```
  * <?xml version="1.0" encoding="utf-8"?>
  * <drawable
- * class="android.support.wearable.complications.rendering.ComplicationDrawable"
+ * class="android.support.wearable.complication.rendering.ComplicationDrawable"
  * xmlns:app="http://schemas.android.com/apk/res-auto"
  * app:textColor="#FFFF0000"
  * app:titleColor="#FFFFFFFF">
@@ -120,7 +120,7 @@ import java.io.IOException
  * <h4>Syntax:</h4>
  * ```
  * <?xml version="1.0" encoding="utf-8"?>
- * <android.support.wearable.complications.rendering.ComplicationDrawable
+ * <android.support.wearable.complication.rendering.ComplicationDrawable
  * xmlns:app="http://schemas.android.com/apk/res-auto"
  * app:backgroundColor="color"
  * app:backgroundDrawable="drawable"
@@ -162,7 +162,7 @@ import java.io.IOException
  * app:titleColor="color"
  * app:titleSize="dimension"
  * app:titleTypeface="string" />
- * </android.support.wearable.complications.rendering.ComplicationDrawable>
+ * </android.support.wearable.complication.rendering.ComplicationDrawable>
  * ```
  *
  * Attributes of the top-level tag apply to both active and ambient modes while attributes of the
@@ -549,7 +549,7 @@ public class ComplicationDrawable : Drawable {
     /** If the ranged value progress should be hidden when [ComplicationData] is of type
      * [RANGED_VALUE].
      *
-     * @attr ref androidx.wear.watchface.complications.rendering.R
+     * @attr ref androidx.wear.watchface.complicationSlots.rendering.R
      * .styleable#ComplicationDrawable_rangedValueProgressHidden
      */
     public var isRangedValueProgressHidden: Boolean = false

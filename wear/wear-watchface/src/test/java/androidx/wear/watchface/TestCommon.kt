@@ -42,7 +42,7 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
-    private val complications: List<Complication>,
+    private val complicationSlots: List<ComplicationSlot>,
     private val rendererFactory: (
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
@@ -55,15 +55,15 @@ internal class TestWatchFaceService(
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
-    /** The ids of the complications that have been tapped. */
-    val tappedComplicationIds: List<Int>
+    /** The ids of the [ComplicationSlot]s that have been tapped. */
+    val tappedComplicationSlotIds: List<Int>
         get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var lastUserStyle: UserStyle? = null
     var renderer: TestRenderer? = null
 
-    /** A mutable list of the ids of the complications that have been tapped. */
+    /** A mutable list of the ids of the complicationSlots that have been tapped. */
     private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
 
     fun reset() {
@@ -83,9 +83,9 @@ internal class TestWatchFaceService(
 
     override fun createUserStyleSchema() = userStyleSchema
 
-    override fun createComplicationsManager(
+    override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): ComplicationsManager {
+    ): ComplicationSlotsManager {
         currentUserStyleRepository.addUserStyleChangeListener(
             object : CurrentUserStyleRepository.UserStyleChangeListener {
                 override fun onUserStyleChanged(userStyle: UserStyle) {
@@ -94,21 +94,22 @@ internal class TestWatchFaceService(
             }
         )
 
-        val complicationsManager = ComplicationsManager(complications, currentUserStyleRepository)
-        complicationsManager.addTapListener(
-            object : ComplicationsManager.TapCallback {
-                override fun onComplicationTapped(complicationId: Int) {
-                    mutableTappedComplicationIds.add(complicationId)
+        val complicationSlotsManager =
+            ComplicationSlotsManager(complicationSlots, currentUserStyleRepository)
+        complicationSlotsManager.addTapListener(
+            object : ComplicationSlotsManager.TapCallback {
+                override fun onComplicationSlotTapped(complicationSlotId: Int) {
+                    mutableTappedComplicationIds.add(complicationSlotId)
                 }
             }
         )
-        return complicationsManager
+        return complicationSlotsManager
     }
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
@@ -267,7 +268,7 @@ public class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(te
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("android.support.wearable.watchface")
-            .doNotInstrumentPackage("androidx.wear.complications")
+            .doNotInstrumentPackage("androidx.wear.complicationSlots")
             .doNotInstrumentPackage("androidx.wear.utility")
             .doNotInstrumentPackage("androidx.wear.watchface")
             .doNotInstrumentPackage("androidx.wear.watchface.ui")

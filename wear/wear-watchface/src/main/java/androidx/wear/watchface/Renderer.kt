@@ -178,11 +178,12 @@ public sealed class Renderer @WorkerThread constructor(
 
     /**
      * Accessibility [ContentDescriptionLabel] for any rendered watch face elements other than the
-     * time and [Complication]s which are generated automatically.
+     * time and [ComplicationSlot]s which are generated automatically.
      *
      * The [Int] in the `Pair<Int, ContentDescriptionLabel>` is used to sort the
      * [ContentDescriptionLabel]s. Note the time piece has an accessibility traversal index of -1
-     * and each complication's index is defined by its [Complication.accessibilityTraversalIndex].
+     * and each [ComplicationSlot]'s index is defined by its
+     * [ComplicationSlot.accessibilityTraversalIndex].
      */
     public var additionalContentDescriptionLabels:
         Collection<Pair<Int, ContentDescriptionLabel>> = emptyList()
@@ -261,7 +262,7 @@ public sealed class Renderer @WorkerThread constructor(
      * shouldAnimate returns true we inhibit entering [DrawMode.AMBIENT].
      *
      * By default we remain at an interactive frame rate when the watch face is visible and we're
-     * not in ambient mode. Watchfaces with animated transitions for entering ambient mode may
+     * not in ambient mode. Watch faces with animated transitions for entering ambient mode may
      * need to override this to ensure they play smoothly.
      *
      * @return Whether we should schedule an onDraw call to maintain an interactive frame rate
