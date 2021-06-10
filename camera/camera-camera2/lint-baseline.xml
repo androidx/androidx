@@ -1,5 +1,544 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#captureBurstRequests`"
+        errorLine1="        verify(mCaptureSession, times(1)).captureBurstRequests(any(List.class),"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
+            line="83"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#captureSingleRequest`"
+        errorLine1="        verify(mCaptureSession, times(1)).captureSingleRequest(any(CaptureRequest.class),"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
+            line="110"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#setRepeatingBurstRequests`"
+        errorLine1="        verify(mCaptureSession, times(1)).setRepeatingBurstRequests(any(List.class),"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
+            line="140"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#setSingleRepeatingRequest`"
+        errorLine1="        verify(mCaptureSession, times(1)).setSingleRepeatingRequest(any(CaptureRequest.class),"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
+            line="168"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.hardware.camera2.CameraDevice#createCaptureSessionByOutputConfigurations`"
+        errorLine1="        verify(mCameraDevice, times(1)).createCaptureSessionByOutputConfigurations("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="104"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraDevice#createCaptureSession`"
+        errorLine1="        verify(mCameraDevice, times(1)).createCaptureSession("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="123"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 21): `android.hardware.camera2.params.SessionConfiguration`"
+        errorLine1="                any(SessionConfiguration.class));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="124"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="                InputConfigurationCompat.wrap(mock(InputConfiguration.class))));"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="167"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraDevice#createReprocessableCaptureSession`"
+        errorLine1="        verify(mCameraDevice, times(1)).createReprocessableCaptureSession("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="172"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="                any(InputConfiguration.class),"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="173"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="                InputConfigurationCompat.wrap(mock(InputConfiguration.class))));"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="192"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.hardware.camera2.CameraDevice#createReprocessableCaptureSessionByConfigurations`"
+        errorLine1="        verify(mCameraDevice, times(1)).createReprocessableCaptureSessionByConfigurations("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="197"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="                any(InputConfiguration.class),"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="198"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraDevice#createConstrainedHighSpeedCaptureSession`"
+        errorLine1="        verify(mCameraDevice, times(1)).createConstrainedHighSpeedCaptureSession("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
+            line="217"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="104"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="122"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="140"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="158"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="176"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="194"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="212"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="230"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="248"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="266"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
+        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
+            line="284"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="        InputConfiguration inputConfig = new InputConfiguration(WIDTH, HEIGHT, FORMAT);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/InputConfigurationCompatTest.java"
+            line="52"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="        InputConfiguration config = new InputConfiguration(WIDTH, HEIGHT, FORMAT);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/InputConfigurationCompatTest.java"
+            line="84"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.hardware.camera2.params.InputConfiguration`"
+        errorLine1="        InputConfiguration config = new InputConfiguration(WIDTH, HEIGHT, FORMAT);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/InputConfigurationCompatTest.java"
+            line="96"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 21): `android.hardware.camera2.params.OutputConfiguration`"
+        errorLine1="        assertThat(outputConfig).isInstanceOf(OutputConfiguration.class);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
+            line="172"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `new android.hardware.camera2.params.OutputConfiguration`"
+        errorLine1="        OutputConfiguration outputConfig = new OutputConfiguration(surface);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
+            line="179"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `new android.hardware.camera2.params.OutputConfiguration`"
+        errorLine1="        OutputConfiguration outputConfig = new OutputConfiguration(TEST_GROUP_ID, surface);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
+            line="189"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `OutputConfigurationCompat`"
+        errorLine1="        OutputConfigurationCompat outputConfigCompat = new OutputConfigurationCompat("
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
+            line="198"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 21): `android.hardware.camera2.params.OutputConfiguration`"
+        errorLine1="        OutputConfiguration outputConfig = mock(OutputConfiguration.class);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
+            line="218"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.params.OutputConfiguration#setPhysicalCameraId`"
+        errorLine1="        verify(outputConfig, times(1)).setPhysicalCameraId(PHYSICAL_CAMERA_ID);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
+            line="224"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 21): `android.hardware.camera2.params.OutputConfiguration`"
+        errorLine1="            outputConfigs.add((OutputConfiguration) outputConfigCompat.unwrap());"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
+            line="93"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `new android.hardware.camera2.params.SessionConfiguration`"
+        errorLine1="        SessionConfiguration sessionConfig = new SessionConfiguration("
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
+            line="96"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.params.SessionConfiguration#getOutputConfigurations`"
+        errorLine1="                ((SessionConfiguration) sessionConfigCompat.unwrap()).getOutputConfigurations())"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
+            line="114"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 21): `android.hardware.camera2.params.SessionConfiguration`"
+        errorLine1="                ((SessionConfiguration) sessionConfigCompat.unwrap()).getOutputConfigurations())"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
+            line="114"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onCaptureQueueEmpty`"
+        errorLine1="        sessionConfigurationCompat.getStateCallback().onCaptureQueueEmpty(mMockCaptureSession);"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
+            line="118"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `onCaptureQueueEmpty`"
+        errorLine1="        verify(mMockStateCallback).onCaptureQueueEmpty(any(SynchronizedCaptureSession.class));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
+            line="120"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onSurfacePrepared`"
+        errorLine1="        sessionConfigurationCompat.getStateCallback().onSurfacePrepared(mMockCaptureSession,"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
+            line="132"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `onSurfacePrepared`"
+        errorLine1="        verify(mMockStateCallback).onSurfacePrepared(any(SynchronizedCaptureSession.class),"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
+            line="135"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `onCaptureQueueEmpty`"
+        errorLine1="        mStateCallback.onCaptureQueueEmpty(mCaptureSessionCompatBaseImpl);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
+            line="70"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `onCaptureQueueEmpty`"
+        errorLine1="        verify(mMockStateCallback).onCaptureQueueEmpty(any());"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
+            line="71"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onCaptureQueueEmpty`"
+        errorLine1="        verify(mMockCameraCaptureSessionStateCallback).onCaptureQueueEmpty(any());"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
+            line="72"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `onSurfacePrepared`"
+        errorLine1="        mStateCallback.onSurfacePrepared(mCaptureSessionCompatBaseImpl, mock(Surface.class));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
+            line="79"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `onSurfacePrepared`"
+        errorLine1="        verify(mMockStateCallback).onSurfacePrepared(any(), any(Surface.class));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
+            line="80"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onSurfacePrepared`"
+        errorLine1="        verify(mMockCameraCaptureSessionStateCallback).onSurfacePrepared(any(), any(Surface.class));"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
+            line="81"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 30 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ZOOM_RATIO`"
+        errorLine1="                CaptureRequest.CONTROL_ZOOM_RATIO, null);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"
+            line="269"
+            column="17"/>
+    </issue>
 
     <issue
         id="SoonBlockedPrivateApi"
@@ -25,7 +564,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (Size) getSurfaceSize.invoke(null, surface);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +575,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (int) detectSurfaceType.invoke(null, surface);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -47,7 +586,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (int) getGenerationId.invoke(surface);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

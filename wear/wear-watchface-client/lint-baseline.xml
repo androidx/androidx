@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.util.Base64#getDecoder`"
+        errorLine1="        val bytes = Base64.getDecoder().decode(String(resource.readBytes()))"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/SerializationTest.kt"
+            line="59"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.util.Base64.Decoder#decode`"
+        errorLine1="        val bytes = Base64.getDecoder().decode(String(resource.readBytes()))"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/SerializationTest.kt"
+            line="59"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `renderWatchFaceToBitmap`"
+        errorLine1="        val bitmap = headlessInstance.renderWatchFaceToBitmap("
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlClientTest.kt"
+            line="216"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `renderWatchFaceToBitmap`"
+        errorLine1="        val bitmap = headlessInstance.renderWatchFaceToBitmap("
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlClientTest.kt"
+            line="245"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `renderWatchFaceToBitmap`"
+        errorLine1="        val bitmap = headlessInstance.renderWatchFaceToBitmap("
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlClientTest.kt"
+            line="278"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `renderWatchFaceToBitmap`"
+        errorLine1="        val bitmap = interactiveInstance.renderWatchFaceToBitmap("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlClientTest.kt"
+            line="411"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `renderWatchFaceToBitmap`"
+        errorLine1="        val bitmap = interactiveInstance.renderWatchFaceToBitmap("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlClientTest.kt"
+            line="453"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `renderWatchFaceToBitmap`"
+        errorLine1="        val bitmap = interactiveInstance.renderWatchFaceToBitmap("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlClientTest.kt"
+            line="804"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `getApiVersion`"
+        errorLine1="                override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()"
+        errorLine2="                                                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
+            line="44"
+            column="81"/>
+    </issue>
+
+</issues>

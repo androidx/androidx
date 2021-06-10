@@ -1,5 +1,203 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `LOCALIZED`"
+        errorLine1="        @ColumnInfo(collate = ColumnInfo.LOCALIZED)"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/CollationTest.java"
+            line="120"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `UNICODE`"
+        errorLine1="        @ColumnInfo(collate = ColumnInfo.UNICODE)"
+        errorLine2="                                         ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/CollationTest.java"
+            line="122"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#hash`"
+        errorLine1="            return Objects.hash(id, name);"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/InvalidationTrackerTest.java"
+            line="241"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.lang.Long#hashCode`"
+        errorLine1="        int result = Long.hashCode(id);"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/vo/Product.java"
+            line="49"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#hash`"
+        errorLine1="            return Objects.hash(mId, mUsername);"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/ProvidedTypeConverterTest.java"
+            line="229"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#hash`"
+        errorLine1="            return Objects.hash(mName, mLastName);"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/ProvidedTypeConverterTest.java"
+            line="280"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `new java.lang.AssertionError`"
+        errorLine1="            throw new AssertionError(&quot;interrupted&quot;, e);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
+            line="290"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `new java.lang.AssertionError`"
+        errorLine1="            throw new AssertionError(&quot;drain timed out&quot;, e);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
+            line="292"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `new java.lang.AssertionError`"
+        errorLine1="            throw new AssertionError(&quot;interrupted&quot;, e);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
+            line="327"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `new java.lang.AssertionError`"
+        errorLine1="            throw new AssertionError(&quot;execution error&quot;, e);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
+            line="329"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        mDB.getDao().insert(new TestEntity(&quot;1&quot;, List.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;)));"
+        errorLine2="                                                     ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="62"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        mDB.getDao().insert(new TestEntity(&quot;2&quot;, List.of(&quot;d&quot;, &quot;e&quot;, &quot;f&quot;)));"
+        errorLine2="                                                     ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="63"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        mDB.getDao().insert(new TestEntity(&quot;3&quot;, List.of(&quot;g&quot;, &quot;h&quot;, &quot;i&quot;)));"
+        errorLine2="                                                     ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="64"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        mDB.getDao().delete(List.of(&quot;2&quot;, &quot;3&quot;));"
+        errorLine2="                                 ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="65"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        mDB.getDao().insert(new TestEntity(&quot;1&quot;, List.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;)));"
+        errorLine2="                                                     ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="71"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        mDB.getDao().update(&quot;1&quot;, List.of(&quot;d&quot;, &quot;e&quot;, &quot;f&quot;));"
+        errorLine2="                                      ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="72"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 24): `java.util.List#of`"
+        errorLine1="        assertThat(mDB.getDao().getAll().get(0).data).isEqualTo(List.of(&quot;d&quot;, &quot;e&quot;, &quot;f&quot;));"
+        errorLine2="                                                                     ~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="74"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 24): `java.lang.String#join`"
+        errorLine1="            return String.join(&quot;,&quot;, list);"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
+            line="114"
+            column="27"/>
+    </issue>
 
     <issue
         id="SyntheticAccessor"

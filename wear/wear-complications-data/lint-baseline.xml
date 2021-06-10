@@ -1,5 +1,181 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `retrievePreviewComplicationData`"
+        errorLine1="                providerInfoRetriever.retrievePreviewComplicationData(component, type)!!"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/ProviderInfoRetrieverTest.kt"
+            line="86"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `retrievePreviewComplicationData`"
+        errorLine1="            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/ProviderInfoRetrieverTest.kt"
+            line="114"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `retrievePreviewComplicationData`"
+        errorLine1="            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/ProviderInfoRetrieverTest.kt"
+            line="127"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `retrievePreviewComplicationData`"
+        errorLine1="            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/ProviderInfoRetrieverTest.kt"
+            line="147"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#parse`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="52"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#toEpochMilli`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="52"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#parse`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="81"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#toEpochMilli`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="81"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#parse`"
+        errorLine1="        val startPointMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                       ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="145"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#toEpochMilli`"
+        errorLine1="        val startPointMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="145"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#parse`"
+        errorLine1="        val dateTimeMillis = Instant.parse(&quot;2020-12-30T10:15:20.00Z&quot;).toEpochMilli()"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="171"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#toEpochMilli`"
+        errorLine1="        val dateTimeMillis = Instant.parse(&quot;2020-12-30T10:15:20.00Z&quot;).toEpochMilli()"
+        errorLine2="                                                                      ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="171"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#parse`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="194"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#toEpochMilli`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="194"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#parse`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="207"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `java.time.Instant#toEpochMilli`"
+        errorLine1="        val referenceMillis = Instant.parse(&quot;2020-12-30T10:15:30.001Z&quot;).toEpochMilli()"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/complications/data/TextTest.kt"
+            line="207"
+            column="73"/>
+    </issue>
 
     <issue
         id="MissingQuantity"
@@ -8,7 +184,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/complication_strings.xml"
-            line="60"
+            line="4"
             column="5"/>
     </issue>
 

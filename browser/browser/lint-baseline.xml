@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="                intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/browser/customtabs/CustomTabsIntentTest.java"
+            line="280"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="                intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/browser/customtabs/CustomTabsIntentTest.java"
+            line="289"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="        assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/browser/customtabs/CustomTabsIntentTest.java"
+            line="304"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="        assertEquals(session.getBinder(), intent.getExtras().getBinder("
+        errorLine2="                                                             ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/browser/customtabs/TestUtil.java"
+            line="56"
+            column="62"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"

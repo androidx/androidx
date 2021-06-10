@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 16): `android.view.PixelCopy.OnPixelCopyFinishedListener`"
+        errorLine1="                    PixelCopy.request(source, dest, new PixelCopy.OnPixelCopyFinishedListener() {"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/widget/VideoView_WithPlayerTest.java"
+            line="478"
+            column="57"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"

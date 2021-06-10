@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;always&quot;/>"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_demo.xml"
-            line="25"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;always&quot;/>"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_demo.xml"
-            line="31"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;always&quot;/>"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_demo.xml"
-            line="37"
-            column="11"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="SyntheticAccessor"

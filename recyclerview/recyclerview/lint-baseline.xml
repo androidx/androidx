@@ -1,5 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `new android.view.View`"
+        errorLine1="            super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/BaseWrapContentWithAspectRatioTest.java"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Map#getOrDefault`"
+        errorLine1="            } else if (duplicateDiffs.getOrDefault(after[index].id, 0) > 0 &amp;&amp; item.newItem) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
+            line="503"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Map#getOrDefault`"
+        errorLine1="            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrDefault(it.id, 1)"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
+            line="549"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Map#getOrDefault`"
+        errorLine1="            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrDefault(it.id, 0)"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
+            line="552"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.view.View#isScrollContainer`"
+        errorLine1="                + &quot;handle it properly&quot;, true, mRecyclerView.isScrollContainer());"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewBasicTest.java"
+            line="105"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#setLayoutDirection`"
+        errorLine1="            mRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewFocusTest.java"
+            line="239"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `new android.widget.FrameLayout`"
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestContentView.java"
+            line="53"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumWidth`"
+        errorLine1="                            getMinimumWidth()),"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
+            line="108"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumHeight`"
+        errorLine1="                            getMinimumHeight()));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
+            line="111"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `new android.widget.FrameLayout.LayoutParams`"
+        errorLine1="            super(source);"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
+            line="283"
+            column="13"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"

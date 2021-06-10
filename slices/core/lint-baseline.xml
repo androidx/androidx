@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 19): `android.content.pm.PackageManager#getPackageUid`"
+        errorLine1="        mTestUid = mContext.getPackageManager().getPackageUid(mTestPkg, 0);"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/slice/SlicePermissionTest.java"
+            line="58"
+            column="49"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -47,7 +58,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (int) h.getClass().getDeclaredMethod(&quot;getIdentifier&quot;).invoke(h);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

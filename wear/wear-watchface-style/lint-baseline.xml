@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(unparceled.icon!!.uri.toString()).isEqualTo(&quot;settingIcon&quot;)"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="80"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray[0].icon!!.uri.toString()).isEqualTo(&quot;icon1&quot;)"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="87"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray[1].icon!!.uri.toString()).isEqualTo(&quot;icon2&quot;)"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="90"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray[2].icon!!.uri.toString()).isEqualTo(&quot;icon3&quot;)"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="93"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(unmarshalled1.icon!!.uri.toString()).isEqualTo(&quot;icon1&quot;)"
+        errorLine2="                                        ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="108"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(unmarshalled2.icon!!.uri.toString()).isEqualTo(&quot;icon2&quot;)"
+        errorLine2="                                        ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="111"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(unmarshalled3.icon!!.uri.toString()).isEqualTo(&quot;icon3&quot;)"
+        errorLine2="                                        ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="114"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(schema.userStyleSettings[0].icon!!.uri.toString()).isEqualTo(&quot;settingIcon1&quot;)"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="172"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray1[0].icon!!.uri.toString()).isEqualTo(&quot;icon1&quot;)"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="182"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo(&quot;icon2&quot;)"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="185"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(schema.userStyleSettings[1].icon!!.uri.toString()).isEqualTo(&quot;settingIcon2&quot;)"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="191"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray2[0].icon!!.uri.toString()).isEqualTo(&quot;icon3&quot;)"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="201"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getUri`"
+        errorLine1="        assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo(&quot;icon4&quot;)"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/style/StyleParcelableTest.kt"
+            line="204"
+            column="43"/>
+    </issue>
+
+</issues>
