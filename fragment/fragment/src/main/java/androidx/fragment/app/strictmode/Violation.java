@@ -29,6 +29,9 @@ public abstract class Violation extends RuntimeException {
         mFragment = fragment;
     }
 
+    /**
+     * Gets the {@link Fragment} causing the Violation.
+     */
     @NonNull
     public Fragment getFragment() {
         return mFragment;
