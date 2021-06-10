@@ -540,6 +540,10 @@ public class WatchFaceImpl @UiThread constructor(
         renderer.watchFaceHostApi = watchFaceHostApi
         renderer.uiThreadInit()
 
+        if (renderer.additionalContentDescriptionLabels.isNotEmpty()) {
+            watchFaceHostApi.updateContentDescriptionLabels()
+        }
+
         setIsBatteryLowAndNotChargingFromBatteryStatus(
             IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
                 watchFaceHostApi.getContext().registerReceiver(null, iFilter)
