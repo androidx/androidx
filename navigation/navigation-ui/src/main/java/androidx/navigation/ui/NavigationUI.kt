@@ -558,6 +558,7 @@ public object NavigationUI {
     /**
      * Walks up the view hierarchy, trying to determine if the given View is contained within
      * a bottom sheet.
+     * @suppress
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -73,6 +73,7 @@ public abstract class NavType<T> internal constructor(
      * @param key    bundle key under which to put the value
      * @param value  parsed value
      * @return parsed value of the type represented by this NavType
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun parseAndPut(bundle: Bundle, key: String, value: String): T {
@@ -166,6 +167,7 @@ public abstract class NavType<T> internal constructor(
             return StringType
         }
 
+        /** @suppress */
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -202,6 +204,7 @@ public abstract class NavType<T> internal constructor(
         /**
          * @param value nothing
          * @throws IllegalArgumentException not real
+         * @suppress
          */
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic

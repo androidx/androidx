@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 
 /**
  * Data for a single metric from a single benchmark test method run.
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class MetricResult(
@@ -37,6 +38,7 @@ public data class MetricResult(
  *
  * Each field directly corresponds to JSON output, though not every JSON object may be
  * represented directly here.
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BenchmarkResult(
