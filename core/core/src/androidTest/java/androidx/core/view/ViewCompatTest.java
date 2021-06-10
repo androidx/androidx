@@ -50,7 +50,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -89,7 +88,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         assertEquals("RTL constants", View.LAYOUT_DIRECTION_RTL, ViewCompat.LAYOUT_DIRECTION_RTL);
     }
 
-    @FlakyTest(bugId = 190537195)
     @Test
     public void testGetDisplay() {
         final Display display = ViewCompat.getDisplay(mView);
