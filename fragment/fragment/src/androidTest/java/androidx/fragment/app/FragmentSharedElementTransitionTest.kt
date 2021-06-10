@@ -64,7 +64,7 @@ class FragmentSharedElementTransitionTest {
     }
 
     @Test
-    fun testNestedSharedElementViewNonMatching() {
+    fun testNestedSharedElementViewsMoreOutViews() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene5)
             withActivity {
@@ -80,6 +80,11 @@ class FragmentSharedElementTransitionTest {
             val redSquare = withActivity { findViewById(R.id.redSquare) }
             val startBlueBounds = containerBlueSquare.boundsOnScreen
 
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(greenSquare, redSquare)
+            }
+            verifyNoOtherTransitions(fragment)
+
             val fragment2 = TransitionFragment(R.layout.scene4)
 
             withActivity {
@@ -93,13 +98,99 @@ class FragmentSharedElementTransitionTest {
 
             val blueSquare = withActivity { findViewById(R.id.blueSquare) }
 
-            fragment.enterTransition.verifyAndClearTransition {
-                enteringViews += listOf(containerBlueSquare, greenSquare, redSquare)
+            fragment.exitTransition.verifyAndClearTransition {
+                exitingViews += listOf(greenSquare, redSquare)
+                epicenter = startBlueBounds
             }
             fragment2.sharedElementEnter.verifyAndClearTransition {
                 enteringViews += listOf(blueSquare)
-                exitingViews += listOf(containerBlueSquare, greenSquare)
+                exitingViews += listOf(containerBlueSquare)
                 epicenter = startBlueBounds
+            }
+            verifyNoOtherTransitions(fragment)
+            verifyNoOtherTransitions(fragment2)
+        }
+    }
+
+    @Test
+    fun testNestedSharedElementViewsMoreInViews() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = TransitionFragment(R.layout.scene4)
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment)
+                    .commit()
+            }
+
+            val blueSquare = withActivity { findViewById(R.id.blueSquare) }
+            val startBlueBounds = blueSquare.boundsOnScreen
+
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(blueSquare)
+            }
+            verifyNoOtherTransitions(fragment)
+
+            val fragment2 = TransitionFragment(R.layout.scene6)
+
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addSharedElement(blueSquare, "blueSquare")
+                    .replace(R.id.content, fragment2)
+                    .commit()
+            }
+
+            val containerBlueSquare = withActivity { findViewById(R.id.containerBlueSquare) }
+
+            fragment2.sharedElementEnter.verifyAndClearTransition {
+                exitingViews += listOf(blueSquare)
+                enteringViews += listOf(containerBlueSquare)
+                epicenter = startBlueBounds
+            }
+            verifyNoOtherTransitions(fragment)
+            verifyNoOtherTransitions(fragment2)
+        }
+    }
+
+    @Test
+    fun testNestedTransitionGroupTrue() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = TransitionFragment(R.layout.scene7)
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment)
+                    .commit()
+            }
+
+            val containerBlueSquare = withActivity { findViewById(R.id.containerBlueSquare) }
+
+            fragment.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(containerBlueSquare)
+            }
+            verifyNoOtherTransitions(fragment)
+
+            val fragment2 = TransitionFragment(R.layout.scene4)
+
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment2)
+                    .commit()
+            }
+
+            val blueSquare = withActivity { findViewById(R.id.blueSquare) }
+
+            fragment.exitTransition.verifyAndClearTransition {
+                exitingViews += listOf(containerBlueSquare)
+            }
+            fragment2.enterTransition.verifyAndClearTransition {
+                enteringViews += listOf(blueSquare)
             }
             verifyNoOtherTransitions(fragment)
             verifyNoOtherTransitions(fragment2)
