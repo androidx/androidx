@@ -5,8 +5,8 @@ package androidx.wear.complications {
     ctor public ComplicationProviderService();
     method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType type);
     method public final android.os.IBinder? onBind(android.content.Intent intent);
-    method @UiThread public void onComplicationActivated(int complicationId, androidx.wear.complications.data.ComplicationType type);
-    method @UiThread public void onComplicationDeactivated(int complicationId);
+    method @UiThread public void onComplicationActivated(int complicationInstanceId, androidx.wear.complications.data.ComplicationType type);
+    method @UiThread public void onComplicationDeactivated(int complicationInstanceId);
     method @UiThread public abstract void onComplicationRequest(androidx.wear.complications.ComplicationRequest request, androidx.wear.complications.ComplicationProviderService.ComplicationRequestListener listener);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
     field public static final String CATEGORY_PROVIDER_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
@@ -28,16 +28,16 @@ package androidx.wear.complications {
   }
 
   public final class ComplicationRequest {
-    ctor public ComplicationRequest(int complicationId, androidx.wear.complications.data.ComplicationType complicationType);
-    method public int getComplicationId();
+    ctor public ComplicationRequest(int complicationInstanceId, androidx.wear.complications.data.ComplicationType complicationType);
+    method public int getComplicationInstanceId();
     method public androidx.wear.complications.data.ComplicationType getComplicationType();
-    property public final int complicationId;
+    property public final int complicationInstanceId;
     property public final androidx.wear.complications.data.ComplicationType complicationType;
   }
 
   public final class ProviderUpdateRequester {
     ctor public ProviderUpdateRequester(android.content.Context context, android.content.ComponentName providerComponent);
-    method public void requestUpdate(int... complicationIds);
+    method public void requestUpdate(int... complicationInstanceIds);
     method public void requestUpdateAll();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL";

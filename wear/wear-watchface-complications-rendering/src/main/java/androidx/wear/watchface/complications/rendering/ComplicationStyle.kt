@@ -30,7 +30,7 @@ import androidx.wear.complications.data.SmallImageType
  */
 public class ComplicationStyle {
     /**
-     * Constants used to define border styles for complications.
+     * Constants used to define border styles for complicationSlots.
      *
      * @hide
      */

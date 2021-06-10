@@ -31,14 +31,14 @@ import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.client.ComplicationState
+import androidx.wear.watchface.client.ComplicationSlotState
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyleData
@@ -71,7 +71,7 @@ public class SerializationTest {
             ComplicationRenderParams.CREATOR.createFromParcel(it)
         }
 
-        assertThat(deserialized.complicationId).isEqualTo(123)
+        assertThat(deserialized.complicationSlotId).isEqualTo(123)
         assertThat(RenderParameters(deserialized.renderParametersWireFormat))
             .isEqualTo(
                 RenderParameters(
@@ -153,7 +153,7 @@ public class SerializationTest {
                 DrawMode.INTERACTIVE,
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplications,
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.RED,
                     Color.argb(128, 0, 0, 0)
                 )
@@ -190,11 +190,11 @@ public class SerializationTest {
     @Test
     public fun complicationState() {
         val deserialized = loadGoldenResource(R.raw.complication_state) {
-            ComplicationState(ComplicationStateWireFormat.CREATOR.createFromParcel(it))
+            ComplicationSlotState(ComplicationStateWireFormat.CREATOR.createFromParcel(it))
         }
 
         assertThat(deserialized.bounds).isEqualTo(Rect(1, 2, 3, 4))
-        assertThat(deserialized.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(deserialized.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(deserialized.supportedTypes).containsExactly(
             ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT
         )

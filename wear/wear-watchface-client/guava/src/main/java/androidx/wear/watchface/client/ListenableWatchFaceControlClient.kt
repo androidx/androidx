@@ -141,7 +141,7 @@ public open class ListenableWatchFaceControlClient(
         deviceConfig: DeviceConfig,
         watchUiState: WatchUiState,
         userStyle: UserStyleData?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): ListenableFuture<InteractiveWatchFaceClient> =
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
@@ -151,7 +151,7 @@ public open class ListenableWatchFaceControlClient(
                 deviceConfig,
                 watchUiState,
                 userStyle,
-                idToComplicationData
+                slotIdToComplicationData
             )
         }
 
@@ -160,14 +160,14 @@ public open class ListenableWatchFaceControlClient(
         deviceConfig: DeviceConfig,
         watchUiState: WatchUiState,
         userStyle: UserStyleData?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient =
         watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
             id,
             deviceConfig,
             watchUiState,
             userStyle,
-            idToComplicationData
+            slotIdToComplicationData
         )
 
     override fun getEditorServiceClient(): EditorServiceClient =

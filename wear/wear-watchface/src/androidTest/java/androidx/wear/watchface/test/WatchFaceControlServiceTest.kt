@@ -35,7 +35,7 @@ import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
@@ -75,7 +75,7 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace = withContext(mainThreadCoroutineScope.coroutineContext) {
         WatchFace(

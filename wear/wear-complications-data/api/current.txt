@@ -1,13 +1,6 @@
 // Signature format: 4.0
 package androidx.wear.complications {
 
-  public final class ComplicationBounds {
-    ctor public ComplicationBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
-    ctor public ComplicationBounds(android.graphics.RectF bounds);
-    method public java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
-    property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
-  }
-
   public final class ComplicationProviderInfo {
     ctor public ComplicationProviderInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.complications.data.ComplicationType type, android.content.ComponentName? componentName);
     method public String getAppName();
@@ -20,6 +13,13 @@ package androidx.wear.complications {
     property public final android.graphics.drawable.Icon icon;
     property public final String name;
     property public final androidx.wear.complications.data.ComplicationType type;
+  }
+
+  public final class ComplicationSlotBounds {
+    ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
+    ctor public ComplicationSlotBounds(android.graphics.RectF bounds);
+    method public java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
+    property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
   public final class DefaultComplicationProviderPolicy {
@@ -44,10 +44,10 @@ package androidx.wear.complications {
   }
 
   public static final class ProviderInfoRetriever.ProviderInfo {
+    method public int getComplicationSlotId();
     method public androidx.wear.complications.ComplicationProviderInfo? getInfo();
-    method public int getWatchFaceComplicationId();
+    property public final int complicationSlotId;
     property public final androidx.wear.complications.ComplicationProviderInfo? info;
-    property public final int watchFaceComplicationId;
   }
 
   public static final class ProviderInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {

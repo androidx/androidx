@@ -20,19 +20,19 @@ import android.graphics.RectF
 import androidx.wear.complications.data.ComplicationType
 
 /**
- * ComplicationBounds are defined by fractional screen space coordinates in unit-square [0..1].
+ * ComplicationSlotBounds are defined by fractional screen space coordinates in unit-square [0..1].
  * These bounds will be subsequently clamped to the unit square and converted to screen space
  * coordinates. NB 0 and 1 are included in the unit square.
  *
- * One bound is expected per [ComplicationType] to allow complications to change shape depending on
- * the type.
+ * One bound is expected per [ComplicationType] to allow [androidx.wear.watchface.ComplicationSlot]s
+ * to change shape depending on the type.
  */
-public class ComplicationBounds(
+public class ComplicationSlotBounds(
     /** Per [ComplicationType] fractional unit-square screen space complication bounds. */
     public val perComplicationTypeBounds: Map<ComplicationType, RectF>
 ) {
     /**
-     * Constructs a ComplicationBounds where all complication types have the same screen space
+     * Constructs a ComplicationSlotBounds where all complication types have the same screen space
      * unit-square bounds.
      */
     public constructor(bounds: RectF) : this(ComplicationType.values().associateWith { bounds })

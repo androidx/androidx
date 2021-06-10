@@ -64,31 +64,31 @@ internal class TestAsyncWatchFaceService(
 
         abstract fun createComplicationsManager(
             currentUserStyleRepository: CurrentUserStyleRepository
-        ): ComplicationsManager
+        ): ComplicationSlotsManager
 
         abstract fun createWatchFaceAsync(
             surfaceHolder: SurfaceHolder,
             watchState: WatchState,
-            complicationsManager: ComplicationsManager,
+            complicationSlotsManager: ComplicationSlotsManager,
             currentUserStyleRepository: CurrentUserStyleRepository
         ): Deferred<WatchFace>
     }
 
     override fun createUserStyleSchema() = factory.createUserStyleSchema()
 
-    override fun createComplicationsManager(
+    override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = factory.createComplicationsManager(currentUserStyleRepository)
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = factory.createWatchFaceAsync(
         surfaceHolder,
         watchState,
-        complicationsManager,
+        complicationSlotsManager,
         currentUserStyleRepository
     ).await()
 
@@ -196,12 +196,12 @@ public class AsyncWatchFaceInitTest {
 
                 override fun createComplicationsManager(
                     currentUserStyleRepository: CurrentUserStyleRepository
-                ) = ComplicationsManager(emptyList(), currentUserStyleRepository)
+                ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
                 override fun createWatchFaceAsync(
                     surfaceHolder: SurfaceHolder,
                     watchState: WatchState,
-                    complicationsManager: ComplicationsManager,
+                    complicationSlotsManager: ComplicationSlotsManager,
                     currentUserStyleRepository: CurrentUserStyleRepository
                 ) = completableWatchFace
             },
@@ -269,12 +269,12 @@ public class AsyncWatchFaceInitTest {
 
                 override fun createComplicationsManager(
                     currentUserStyleRepository: CurrentUserStyleRepository
-                ) = ComplicationsManager(emptyList(), currentUserStyleRepository)
+                ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
                 override fun createWatchFaceAsync(
                     surfaceHolder: SurfaceHolder,
                     watchState: WatchState,
-                    complicationsManager: ComplicationsManager,
+                    complicationSlotsManager: ComplicationSlotsManager,
                     currentUserStyleRepository: CurrentUserStyleRepository
                 ): Deferred<WatchFace> {
                     pendingSurfaceHolder = surfaceHolder

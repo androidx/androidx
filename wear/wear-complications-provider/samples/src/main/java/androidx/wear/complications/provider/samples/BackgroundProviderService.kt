@@ -46,7 +46,7 @@ class BackgroundProviderService : ComplicationProviderService() {
         }
     }
 
-    override fun onComplicationActivated(complicationId: Int, type: ComplicationType) {
+    override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
         // Start requesting background updates.
         backgroundUpdate()
     }

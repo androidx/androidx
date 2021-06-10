@@ -175,8 +175,8 @@ class ComplicationRenderer {
      * Initializes complication renderer.
      *
      * @param context      Current context.
-     * @param activeStyle  Complication style to be used when in active mode.
-     * @param ambientStyle Complication style to be used when in ambient mode.
+     * @param activeStyle  ComplicationSlot style to be used when in active mode.
+     * @param ambientStyle ComplicationSlot style to be used when in ambient mode.
      */
     ComplicationRenderer(
             Context context, ComplicationStyle activeStyle, ComplicationStyle ambientStyle) {
@@ -208,7 +208,7 @@ class ComplicationRenderer {
     /**
      * Sets the complication data to be rendered.
      *
-     * @param data Complication data to be rendered. If this is null, nothing is drawn.
+     * @param data ComplicationSlot data to be rendered. If this is null, nothing is drawn.
      * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise
      *     they will be loaded synchronously.
      */

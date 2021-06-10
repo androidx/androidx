@@ -44,7 +44,7 @@ import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
@@ -184,31 +184,32 @@ internal class TestControllableWatchFaceService(
 
         fun createComplicationsManager(
             currentUserStyleRepository: CurrentUserStyleRepository
-        ): ComplicationsManager = ComplicationsManager(emptyList(), currentUserStyleRepository)
+        ): ComplicationSlotsManager =
+            ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
         abstract fun createWatchFaceAsync(
             surfaceHolder: SurfaceHolder,
             watchState: WatchState,
-            complicationsManager: ComplicationsManager,
+            complicationSlotsManager: ComplicationSlotsManager,
             currentUserStyleRepository: CurrentUserStyleRepository
         ): Deferred<WatchFace>
     }
 
     override fun createUserStyleSchema() = factory.createUserStyleSchema()
 
-    override fun createComplicationsManager(
+    override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = factory.createComplicationsManager(currentUserStyleRepository)
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = factory.createWatchFaceAsync(
         surfaceHolderOverride,
         watchState,
-        complicationsManager,
+        complicationSlotsManager,
         currentUserStyleRepository
     ).await()
 
@@ -352,7 +353,7 @@ public class WatchFaceServiceImageTest {
                 override fun createWatchFaceAsync(
                     surfaceHolder: SurfaceHolder,
                     watchState: WatchState,
-                    complicationsManager: ComplicationsManager,
+                    complicationSlotsManager: ComplicationSlotsManager,
                     currentUserStyleRepository: CurrentUserStyleRepository
                 ): Deferred<WatchFace> = completableWatchFace
             },
@@ -603,7 +604,7 @@ public class WatchFaceServiceImageTest {
     public fun testSetGreenStyle() {
         handler.post(this::initCanvasWatchFace)
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-        // Note this will clear complications.
+        // Note this will clear complicationSlots.
         interactiveWatchFaceInstance.updateWatchfaceInstance(
             "newId",
             UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
@@ -635,7 +636,7 @@ public class WatchFaceServiceImageTest {
                             DrawMode.INTERACTIVE,
                             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                             RenderParameters.HighlightLayer(
-                                RenderParameters.HighlightedElement.AllComplications,
+                                RenderParameters.HighlightedElement.AllComplicationSlots,
                                 Color.RED,
                                 Color.argb(128, 0, 0, 0)
                             )
@@ -673,7 +674,7 @@ public class WatchFaceServiceImageTest {
                             DrawMode.INTERACTIVE,
                             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                             RenderParameters.HighlightLayer(
-                                RenderParameters.HighlightedElement.Complication(
+                                RenderParameters.HighlightedElement.ComplicationSlot(
                                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
                                 ),
                                 Color.RED,

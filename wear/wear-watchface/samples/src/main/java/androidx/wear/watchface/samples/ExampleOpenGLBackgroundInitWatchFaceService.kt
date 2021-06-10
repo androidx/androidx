@@ -24,7 +24,7 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import android.view.SurfaceHolder
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
@@ -46,7 +46,7 @@ class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         // Init is performed on a worker thread, however all rendering is done on the UiThread so

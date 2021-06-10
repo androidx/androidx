@@ -42,7 +42,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
@@ -58,8 +58,8 @@ import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.BroadcastsObserver
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
@@ -71,7 +71,7 @@ import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.editor.EditorSession.Companion.EDITING_SESSION_TIMEOUT_MILLIS
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -319,7 +319,7 @@ public class EditorSessionTest {
         mockInvalidateCallback
     )
     private val leftComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
             { _, _ -> mockLeftCanvasComplication },
             listOf(
@@ -330,7 +330,7 @@ public class EditorSessionTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
-            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -340,7 +340,7 @@ public class EditorSessionTest {
         mockInvalidateCallback
     )
     private val rightComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
             { _, _ -> mockRightCanvasComplication },
             listOf(
@@ -351,7 +351,7 @@ public class EditorSessionTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .setConfigExtras(
                 Bundle().apply {
@@ -367,7 +367,7 @@ public class EditorSessionTest {
             mockInvalidateCallback
         )
     private val backgroundComplication =
-        Complication.createBackgroundComplicationBuilder(
+        ComplicationSlot.createBackgroundComplicationBuilder(
             BACKGROUND_COMPLICATION_ID,
             { _, _ -> mockBackgroundCanvasComplication },
             emptyList(),
@@ -401,7 +401,7 @@ public class EditorSessionTest {
 
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
-        complications: List<Complication>,
+        complicationSlots: List<ComplicationSlot>,
         watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345,
         providerInfoRetrieverProvider: ProviderInfoRetrieverProvider =
@@ -410,8 +410,9 @@ public class EditorSessionTest {
         preRFlow: Boolean = false
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
-        val complicationsManager = ComplicationsManager(complications, userStyleRepository)
-        complicationsManager.watchState = placeholderWatchState
+        val complicationSlotsManager =
+            ComplicationSlotsManager(complicationSlots, userStyleRepository)
+        complicationSlotsManager.watchState = placeholderWatchState
 
         // Mocking getters and setters with mockito at the same time is hard so we do this instead.
         editorDelegate = object : WatchFace.EditorDelegate {
@@ -422,14 +423,15 @@ public class EditorSessionTest {
                     userStyleRepository.userStyle = value
                 }
 
-            override val complicationsManager = complicationsManager
+            override val complicationSlotsManager = complicationSlotsManager
             override val screenBounds = this@EditorSessionTest.screenBounds
             override val previewReferenceTimeMillis = previewReferenceTimeMillis
 
             override fun renderWatchFaceToBitmap(
                 renderParameters: RenderParameters,
                 calendarTimeMillis: Long,
-                idToComplicationData: Map<Int, androidx.wear.complications.data.ComplicationData>?
+                slotIdToComplicationData:
+                    Map<Int, androidx.wear.complications.data.ComplicationData>?
             ) = fakeBitmap
 
             override fun onDestroy() {
@@ -510,7 +512,7 @@ public class EditorSessionTest {
     public fun backgroundComplicationId_noBackgroundComplication() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
         scenario.onActivity {
-            assertThat(it.editorSession.backgroundComplicationId).isEqualTo(null)
+            assertThat(it.editorSession.backgroundComplicationSlotId).isEqualTo(null)
         }
     }
 
@@ -554,7 +556,7 @@ public class EditorSessionTest {
             listOf(backgroundComplication)
         )
         scenario.onActivity {
-            assertThat(it.editorSession.backgroundComplicationId).isEqualTo(
+            assertThat(it.editorSession.backgroundComplicationSlotId).isEqualTo(
                 BACKGROUND_COMPLICATION_ID
             )
         }
@@ -567,42 +569,45 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            assertThat(it.editorSession.complicationsState.size).isEqualTo(3)
-            assertThat(it.editorSession.complicationsState[LEFT_COMPLICATION_ID]!!.bounds)
+            assertThat(it.editorSession.complicationSlotsState.size).isEqualTo(3)
+            assertThat(it.editorSession.complicationSlotsState[LEFT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(80, 160, 160, 240))
-            assertThat(it.editorSession.complicationsState[LEFT_COMPLICATION_ID]!!.boundsType)
-                .isEqualTo(ComplicationBoundsType.ROUND_RECT)
+            assertThat(it.editorSession.complicationSlotsState[LEFT_COMPLICATION_ID]!!.boundsType)
+                .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
             assertFalse(
-                it.editorSession.complicationsState[
+                it.editorSession.complicationSlotsState[
                     LEFT_COMPLICATION_ID
                 ]!!.fixedComplicationProvider
             )
             assertTrue(
-                it.editorSession.complicationsState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
+                it.editorSession.complicationSlotsState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
             )
 
-            assertThat(it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!.bounds)
+            assertThat(it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(240, 160, 320, 240))
-            assertThat(it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!.boundsType)
-                .isEqualTo(ComplicationBoundsType.ROUND_RECT)
+            assertThat(it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!.boundsType)
+                .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
             assertFalse(
-                it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!
+                it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!
                     .fixedComplicationProvider
             )
             assertTrue(
-                it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled
+                it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled
             )
 
-            assertThat(it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!.bounds)
+            assertThat(it.editorSession.complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(screenBounds)
-            assertThat(it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!.boundsType)
-                .isEqualTo(ComplicationBoundsType.BACKGROUND)
+            assertThat(
+                it.editorSession.complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.boundsType
+            ).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
             assertFalse(
-                it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!
+                it.editorSession.complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!
                     .fixedComplicationProvider
             )
             assertFalse(
-                it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!.isInitiallyEnabled
+                it.editorSession.complicationSlotsState[
+                    BACKGROUND_COMPLICATION_ID
+                ]!!.isInitiallyEnabled
             )
             // We could test more state but this should be enough.
         }
@@ -617,7 +622,7 @@ public class EditorSessionTest {
                 mockInvalidateCallback
             )
         val fixedLeftComplication =
-            Complication.createRoundRectComplicationBuilder(
+            ComplicationSlot.createRoundRectComplicationBuilder(
                 LEFT_COMPLICATION_ID,
                 { _, _ -> mockLeftCanvasComplication },
                 listOf(
@@ -628,7 +633,7 @@ public class EditorSessionTest {
                     ComplicationType.SMALL_IMAGE
                 ),
                 DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
-                ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                 .setFixedComplicationProvider(true)
                 .build()
@@ -639,7 +644,7 @@ public class EditorSessionTest {
         )
         scenario.onActivity {
             assertTrue(
-                it.editorSession.complicationsState[
+                it.editorSession.complicationSlotsState[
                     LEFT_COMPLICATION_ID
                 ]!!.fixedComplicationProvider
             )
@@ -834,7 +839,7 @@ public class EditorSessionTest {
         )
         TestComplicationHelperActivity.resultIntent = Intent().apply {
             putExtra(
-                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
                 chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
         }
@@ -858,7 +863,8 @@ public class EditorSessionTest {
                 editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
             assertThat(chosenComplicationProvider).isNotNull()
             checkNotNull(chosenComplicationProvider)
-            assertThat(chosenComplicationProvider.complicationId).isEqualTo(LEFT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider.complicationSlotId)
+                .isEqualTo(LEFT_COMPLICATION_ID)
             assertEquals(
                 chosenComplicationProviderInfo,
                 chosenComplicationProvider.complicationProviderInfo
@@ -890,7 +896,7 @@ public class EditorSessionTest {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
         TestComplicationHelperActivity.resultIntent = Intent().apply {
             putExtra(
-                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
                 ComplicationProviderInfo(
                     "TestProvider3App",
                     "TestProvider3",
@@ -949,7 +955,8 @@ public class EditorSessionTest {
                 editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
             assertThat(chosenComplicationProvider).isNotNull()
             checkNotNull(chosenComplicationProvider)
-            assertThat(chosenComplicationProvider.complicationId).isEqualTo(LEFT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider.complicationSlotId)
+                .isEqualTo(LEFT_COMPLICATION_ID)
             assertThat(chosenComplicationProvider.complicationProviderInfo).isNull()
             assertThat(editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID])
                 .isInstanceOf(EmptyComplicationData::class.java)
@@ -993,7 +1000,7 @@ public class EditorSessionTest {
         )
         TestComplicationHelperActivity.resultIntent = Intent().apply {
             putExtra(
-                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
                 chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
             putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
@@ -1014,7 +1021,8 @@ public class EditorSessionTest {
                 editorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID)
             assertThat(chosenComplicationProvider).isNotNull()
             checkNotNull(chosenComplicationProvider)
-            assertThat(chosenComplicationProvider.complicationId).isEqualTo(RIGHT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider.complicationSlotId)
+                .isEqualTo(RIGHT_COMPLICATION_ID)
             assertEquals(
                 chosenComplicationProviderInfo,
                 chosenComplicationProvider.complicationProviderInfo
@@ -1049,7 +1057,7 @@ public class EditorSessionTest {
         )
         TestComplicationProviderChooserActivity.resultIntent = Intent().apply {
             putExtra(
-                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
                 chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
             putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
@@ -1070,7 +1078,8 @@ public class EditorSessionTest {
                 editorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID)
             assertThat(chosenComplicationProvider).isNotNull()
             checkNotNull(chosenComplicationProvider)
-            assertThat(chosenComplicationProvider.complicationId).isEqualTo(RIGHT_COMPLICATION_ID)
+            assertThat(chosenComplicationProvider.complicationSlotId)
+                .isEqualTo(RIGHT_COMPLICATION_ID)
             assertEquals(
                 chosenComplicationProviderInfo,
                 chosenComplicationProvider.complicationProviderInfo
@@ -1094,10 +1103,10 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            assertThat(it.editorSession.getComplicationIdAt(0, 0)).isEqualTo(null)
-            assertThat(it.editorSession.getComplicationIdAt(85, 165))
+            assertThat(it.editorSession.getComplicationSlotIdAt(0, 0)).isEqualTo(null)
+            assertThat(it.editorSession.getComplicationSlotIdAt(85, 165))
                 .isEqualTo(LEFT_COMPLICATION_ID)
-            assertThat(it.editorSession.getComplicationIdAt(245, 165))
+            assertThat(it.editorSession.getComplicationSlotIdAt(245, 165))
                 .isEqualTo(RIGHT_COMPLICATION_ID)
         }
     }
@@ -1582,7 +1591,7 @@ public class EditorSessionTest {
                 mockWatchFaceHostApi,
                 watchState,
                 currentUserStyleRepository,
-                ComplicationsManager(emptyList(), currentUserStyleRepository),
+                ComplicationSlotsManager(emptyList(), currentUserStyleRepository),
                 Calendar.getInstance(),
                 BroadcastsObserver(
                     watchState,

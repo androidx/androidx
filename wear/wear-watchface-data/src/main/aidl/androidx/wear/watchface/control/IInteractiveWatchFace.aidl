@@ -136,12 +136,12 @@ interface IInteractiveWatchFace {
     oneway void release() = 11;
 
     /**
-     * Requests the specified complication is highlighted for a short period to bring attention to
-     * it.
+     * Requests the specified complication slot is highlighted for a short period to bring attention
+     * to it.
      *
      * @since API version 1.
      */
-    oneway void bringAttentionToComplication(in int complicationId) = 12;
+    oneway void bringAttentionToComplication(in int complicationSlotId) = 12;
 
     /**
      * Forwards a touch event for the WatchFace to process.
