@@ -30,7 +30,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,7 +52,6 @@ class HiltViewModelComposeTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<TestActivity>()
 
-    @FlakyTest(bugId = 190539286)
     @Test
     fun verifyCurrentNavGraphViewModel() {
         lateinit var firstViewModel: SimpleViewModel
@@ -76,7 +74,6 @@ class HiltViewModelComposeTest {
         assertThat(firstViewModel).isNotSameInstanceAs(secondViewModel)
     }
 
-    @FlakyTest(bugId = 190539286)
     @Test
     fun differentViewModelAcrossRoutes() {
         lateinit var firstViewModel: SimpleViewModel

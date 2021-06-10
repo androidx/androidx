@@ -34,7 +34,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.TestPagingSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -64,7 +63,6 @@ class LazyPagingItemsTest {
         return Pager(config = config, pagingSourceFactory = pagingSourceFactory)
     }
 
-    @FlakyTest(bugId = 190609811)
     @Test
     fun lazyPagingColumnShowsItems() {
         val pager = createPager()
@@ -122,7 +120,6 @@ class LazyPagingItemsTest {
             .assertDoesNotExist()
     }
 
-    @FlakyTest(bugId = 190609811)
     @Test
     fun lazyPagingRowShowsItems() {
         val pager = createPager()
@@ -369,7 +366,6 @@ class LazyPagingItemsTest {
             .assertDoesNotExist()
     }
 
-    @FlakyTest(bugId = 190609811)
     @Test
     fun updatingItem() {
         val items = mutableListOf(1, 2, 3)

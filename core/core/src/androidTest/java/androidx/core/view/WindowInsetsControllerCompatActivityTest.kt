@@ -31,7 +31,6 @@ import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
@@ -84,7 +83,6 @@ public class WindowInsetsControllerCompatActivityTest {
     /**
      * IME visibility is only reliable on API 23+, where we have access to the root WindowInsets
      */
-    @FlakyTest(bugId = 190537405)
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public fun toggleIME() {

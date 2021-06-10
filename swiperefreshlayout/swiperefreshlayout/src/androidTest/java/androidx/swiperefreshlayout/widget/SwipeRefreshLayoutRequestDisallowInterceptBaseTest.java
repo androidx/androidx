@@ -24,7 +24,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.view.ViewConfiguration;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.SwipeInjector;
 
@@ -66,7 +65,6 @@ public abstract class SwipeRefreshLayoutRequestDisallowInterceptBaseTest {
         assertThat(mRecyclerView.mRequestDisallowInterceptFalseCalled, equalTo(false));
     }
 
-    @FlakyTest(bugId = 190613223)
     @Test
     public void swipeMoreThanTouchSlop_requestDisallowIsCalled() {
         assertThat(mRecyclerView.mRequestDisallowInterceptTrueCalled, equalTo(false));
