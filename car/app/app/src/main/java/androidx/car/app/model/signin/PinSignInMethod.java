@@ -61,18 +61,6 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
         return CarText.create(requireNonNull(mPin));
     }
 
-    /**
-     * Returns the PIN or activation code to present to the user.
-     *
-     * @deprecated use {@link #getPinCode()} instead.
-     */
-    // TODO(b/189881361): remove this once host is switched to reference getPinCode.
-    @Deprecated
-    @NonNull
-    public String getPin() {
-        return getPinCode().toString();
-    }
-
     @Override
     public boolean equals(Object other) {
         if (this == other) {
