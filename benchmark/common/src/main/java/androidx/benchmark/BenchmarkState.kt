@@ -52,7 +52,10 @@ import java.util.concurrent.TimeUnit
  *
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
-public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
+public class BenchmarkState {
+
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor()
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
@@ -115,6 +118,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
     private var stats = mutableListOf<Stats>()
     private var allData = mutableListOf<LongArray>()
 
+    /** @suppress */
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMinTimeNanos(): Long {
