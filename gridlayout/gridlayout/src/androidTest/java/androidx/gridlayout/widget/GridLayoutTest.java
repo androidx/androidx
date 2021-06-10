@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 
 import androidx.gridlayout.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -126,7 +125,6 @@ public class GridLayoutTest {
         assertEquals(total, left);
     }
 
-    @FlakyTest(bugId = 190539262)
     @Test
     public void testWrapContentInOtherDirection() throws Throwable {
         setContentView(R.layout.height_wrap_content_test);
