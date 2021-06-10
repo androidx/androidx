@@ -4,6 +4,7 @@
 
 ## Introduction {#introduction}
 
+This guide is an addendum to
 s.android.com/api-guidelines,
 which covers standard and practices for designing platform APIs.
 
@@ -162,7 +163,7 @@ for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is 14.
+default is **14** (Android 4.0, Ice Cream Sandwich).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match
