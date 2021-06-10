@@ -18,21 +18,30 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import kotlin.reflect.KClass
 
+@OptIn(KspExperimental::class)
 internal sealed class KspAnnotated(
     val env: KspProcessingEnv
 ) : InternalXAnnotated {
     abstract fun annotations(): Sequence<KSAnnotation>
 
     private fun <T : Annotation> findAnnotations(annotation: KClass<T>): Sequence<KSAnnotation> {
-        return annotations().filter {
-            val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
-            qName == annotation.qualifiedName
-        }
+        return annotations().filter { isSameAnnotationClass(it, annotation) }
+    }
+
+    override fun getAllAnnotations(): List<XAnnotation> {
+        return annotations().map { ksAnnotated ->
+            KspAnnotation(env, ksAnnotated)
+        }.flatMap { annotation ->
+            annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
+        }.toList()
     }
 
     override fun <T : Annotation> getAnnotations(
@@ -72,10 +81,18 @@ internal sealed class KspAnnotated(
         containerAnnotation: KClass<out Annotation>?
     ): Boolean {
         return annotations().any {
-            val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
-            qName == annotation.qualifiedName ||
-                (containerAnnotation != null && qName == containerAnnotation.qualifiedName)
+            isSameAnnotationClass(it, annotation) ||
+                (containerAnnotation != null && isSameAnnotationClass(it, containerAnnotation))
         }
+    }
+
+    private fun isSameAnnotationClass(
+        ksAnnotation: KSAnnotation,
+        annotationClass: KClass<out Annotation>
+    ): Boolean {
+        val declaration = ksAnnotation.annotationType.resolve().declaration
+        val qualifiedName = declaration.qualifiedName?.asString() ?: return false
+        return qualifiedName == annotationClass.qualifiedName
     }
 
     private class KSAnnotatedDelegate(

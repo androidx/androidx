@@ -17,9 +17,11 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.InternalXAnnotated
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
+import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreElements.isAnnotationPresent
 import java.util.Locale
@@ -55,6 +57,13 @@ internal abstract class JavacElement(
             ?.let {
                 listOf(it)
             } ?: emptyList()
+    }
+
+    override fun getAllAnnotations(): List<XAnnotation> {
+        return element.annotationMirrors.map { mirror -> JavacAnnotation(env, mirror) }
+            .flatMap { annotation ->
+                annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
+            }
     }
 
     override fun hasAnnotation(
