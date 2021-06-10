@@ -26,6 +26,7 @@ kotlinCoroutines = "1.5.0"
 ksp = "1.5.10-1.0.0-beta01"
 leakcanary = "2.2"
 mockito = "2.25.0"
+skiko = "0.3.3"
 sqldelight = "1.3.0"
 wire = "3.6.0"
 
@@ -131,6 +132,11 @@ robolectric = { module = "org.robolectric:robolectric", version = "4.5.1" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 shadow = { module = "com.github.jengelman.gradle.plugins:shadow", version = "6.1.0" }
+skiko = { module = "org.jetbrains.skiko:skiko-jvm", version.ref = "skiko" }
+skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-arm64", version.ref = "skiko" }
+skikoMacOsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-x64", version.ref = "skiko" }
+skikoWindowsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-windows-x64", version.ref = "skiko" }
+skikoLinuxX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-linux-x64", version.ref = "skiko" }
 sqldelightAndroid = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelightCoroutinesExt = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version = "3.34.0" }
