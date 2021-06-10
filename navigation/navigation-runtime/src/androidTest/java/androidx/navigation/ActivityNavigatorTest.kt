@@ -30,10 +30,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
@@ -97,11 +95,10 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should not include FLAG_ACTIVITY_NEW_TASK",
-            0, intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should not include FLAG_ACTIVITY_NEW_TASK")
+            .that(intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK)
+            .isEqualTo(0)
     }
 
     @Test
@@ -117,11 +114,10 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should include FLAG_ACTIVITY_NEW_TASK",
-            Intent.FLAG_ACTIVITY_NEW_TASK, intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should not include FLAG_ACTIVITY_NEW_TASK")
+            .that(intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK)
+            .isEqualTo(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 
     @Test
@@ -140,11 +136,10 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should include FLAG_ACTIVITY_SINGLE_TOP",
-            Intent.FLAG_ACTIVITY_SINGLE_TOP, intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should include FLAG_ACTIVITY_SINGLE_TOP")
+            .that(intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .isEqualTo(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
 
     @Test
@@ -161,11 +156,10 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should have its arguments in its extras",
-            TARGET_ARGUMENT_VALUE, intent.getStringExtra(TARGET_ARGUMENT_NAME)
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should have its arguments in its extras")
+            .that(intent.getStringExtra(TARGET_ARGUMENT_NAME))
+            .isEqualTo(TARGET_ARGUMENT_VALUE)
     }
 
     @Test
@@ -179,11 +173,10 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should have action set",
-            TARGET_ACTION, intent.action
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should have action set")
+            .that(intent.action)
+            .isEqualTo(TARGET_ACTION)
     }
 
     @Test
@@ -197,11 +190,10 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should have data set",
-            TARGET_DATA, intent.data
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should have data set")
+            .that(intent.data)
+            .isEqualTo(TARGET_DATA)
     }
 
     @Test
@@ -218,16 +210,18 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should have data set with argument filled in",
-            TARGET_DATA_PATTERN.replace("{$TARGET_ARGUMENT_NAME}", TARGET_ARGUMENT_VALUE),
-            intent.data?.toString()
-        )
-        assertEquals(
-            "Intent should have its arguments in its extras",
-            TARGET_ARGUMENT_VALUE, intent.getStringExtra(TARGET_ARGUMENT_NAME)
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should have data set with argument filled in")
+            .that(intent.data?.toString())
+            .isEqualTo(
+                TARGET_DATA_PATTERN.replace(
+                    "{$TARGET_ARGUMENT_NAME}",
+                    TARGET_ARGUMENT_VALUE
+                )
+            )
+        assertWithMessage("Intent should have its arguments in its extras")
+            .that(intent.getStringExtra(TARGET_ARGUMENT_NAME))
+            .isEqualTo(TARGET_ARGUMENT_VALUE)
     }
 
     @Test
@@ -244,19 +238,18 @@ class ActivityNavigatorTest {
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
-        assertNotNull(intent)
-        assertEquals(
-            "Intent should have data set with argument filled in",
-            TARGET_DATA_PATTERN.replace(
-                "{$TARGET_ARGUMENT_NAME}",
-                TARGET_ARGUMENT_INT_VALUE.toString()
-            ),
-            intent.data?.toString()
-        )
-        assertEquals(
-            "Intent should have its arguments in its extras",
-            TARGET_ARGUMENT_INT_VALUE, intent.getIntExtra(TARGET_ARGUMENT_NAME, -1)
-        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("Intent should have data set with argument filled in")
+            .that(intent.data?.toString())
+            .isEqualTo(
+                TARGET_DATA_PATTERN.replace(
+                    "{$TARGET_ARGUMENT_NAME}",
+                    TARGET_ARGUMENT_INT_VALUE.toString()
+                )
+            )
+        assertWithMessage("Intent should have its arguments in its extras")
+            .that(intent.getIntExtra(TARGET_ARGUMENT_NAME, -1))
+            .isEqualTo(TARGET_ARGUMENT_INT_VALUE)
     }
 
     @Test
@@ -349,7 +342,9 @@ class ActivityNavigatorTest {
         activityRule.runOnUiThread {
             targetActivity.addAll(TargetActivity.instances)
         }
-        assertTrue("Only expected a single TargetActivity", targetActivity.size == 1)
+        assertWithMessage("Only expected a single TargetActivity")
+            .that(targetActivity.size == 1)
+            .isTrue()
         return targetActivity[0]
     }
 }
