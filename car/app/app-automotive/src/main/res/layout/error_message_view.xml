@@ -14,12 +14,14 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.car.app.activity.ui.ErrorMessageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="false"
     android:orientation="vertical"
-    android:paddingRight="@dimen/car_app_plain_content_container_padding">
+    android:background="?android:colorBackground">
 
     <FrameLayout
         android:id="@+id/content_container"
@@ -37,8 +39,8 @@
 
             <ImageView
                 android:id="@+id/message_icon"
-                android:layout_width="@dimen/car_app_message_icon_size"
-                android:layout_height="@dimen/car_app_message_icon_size"
+                android:layout_width="@dimen/car_app_icon_size"
+                android:layout_height="@dimen/car_app_icon_size"
                 android:src="@drawable/car_app_icon_error"
                 tools:ignore="ContentDescription" />
 
@@ -60,4 +62,4 @@
                 android:textColor="@color/default_white" />
         </LinearLayout>
     </FrameLayout>
-</LinearLayout>
+</androidx.car.app.activity.ui.ErrorMessageView>

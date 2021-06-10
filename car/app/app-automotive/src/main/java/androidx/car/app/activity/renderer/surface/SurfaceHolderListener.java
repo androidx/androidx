@@ -53,11 +53,7 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
      */
     public final void setSurfaceListener(@Nullable ISurfaceListener surfaceListener) {
         mSurfaceListener = surfaceListener;
-        onActive();
-    }
-
-    private void onActive() {
-        if (mIsSurfaceAvailable) {
+        if (surfaceListener != null && mIsSurfaceAvailable) {
             notifySurfaceCreated();
         }
     }
@@ -83,16 +79,18 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
     private void notifySurfaceCreated() {
         ISurfaceListener surfaceListener = mSurfaceListener;
         if (surfaceListener != null) {
-            mServiceDispatcher.dispatch(() -> surfaceListener.onSurfaceAvailable(
-                    Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
+            mServiceDispatcher.dispatch("onSurfaceAvailable",
+                    () -> surfaceListener.onSurfaceAvailable(
+                            Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
         }
     }
 
     private void notifySurfaceChanged() {
         ISurfaceListener surfaceListener = mSurfaceListener;
         if (surfaceListener != null) {
-            mServiceDispatcher.dispatch(() -> surfaceListener.onSurfaceChanged(
-                    Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
+            mServiceDispatcher.dispatch("onSurfaceChanged",
+                    () -> surfaceListener.onSurfaceChanged(
+                            Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
         }
     }
 }

@@ -42,6 +42,8 @@ import androidx.car.app.activity.renderer.surface.OnBackPressedListener;
 import androidx.car.app.activity.renderer.surface.SurfaceHolderListener;
 import androidx.car.app.activity.renderer.surface.SurfaceWrapperProvider;
 import androidx.car.app.activity.renderer.surface.TemplateSurfaceView;
+import androidx.car.app.activity.ui.ErrorMessageView;
+import androidx.car.app.activity.ui.LoadingView;
 import androidx.car.app.automotive.R;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -100,37 +102,13 @@ public final class CarAppActivity extends FragmentActivity {
     static final String ACTION_RENDER = "android.car.template.host.RendererService";
 
     TemplateSurfaceView mSurfaceView;
+    ErrorMessageView mErrorMessageView;
+    LoadingView mLoadingView;
     @Nullable SurfaceHolderListener mSurfaceHolderListener;
     @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
-    @Nullable OnBackPressedListener mOnBackPressedListener;
     @Nullable CarAppViewModel mViewModel;
-
-    /**
-     * Handles the service connection errors by presenting a message the user and potentially
-     * finishing the activity.
-     */
-    final ErrorHandler mErrorHandler = (errorType, exception) -> {
-        requireNonNull(errorType);
-
-        Log.e(LogTags.TAG, "Service error: " + errorType, exception);
-
-        requireNonNull(mViewModel).unbind();
-
-        ThreadUtils.runOnMain(() -> {
-            Log.d(LogTags.TAG, "Showing error fragment");
-
-            if (mSurfaceView != null) {
-                mSurfaceView.setVisibility(View.GONE);
-            }
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(
-                            R.id.error_message_container,
-                            ErrorMessageFragment.newInstance(errorType))
-                    .commit();
-        });
-    };
+    @Nullable OnBackPressedListener mOnBackPressedListener;
+    @Nullable HostUpdateReceiver mHostUpdateReceiver;
 
     /**
      * {@link ICarAppActivity} implementation that allows the {@link IRendererService} to
@@ -143,24 +121,29 @@ public final class CarAppActivity extends FragmentActivity {
                     requireNonNull(bundleable);
                     try {
                         Object surfacePackage = bundleable.get();
+                        Log.d(LogTags.TAG, "setSurfacePackage");
                         ThreadUtils.runOnMain(() -> mSurfaceView.setSurfacePackage(surfacePackage));
                     } catch (BundlerException e) {
-                        mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR, e);
+                        Log.e(LogTags.TAG, "Unable to set surface package", e);
+                        requireNonNull(mViewModel).onError(ErrorHandler.ErrorType.HOST_ERROR);
                     }
                 }
 
                 @Override
                 public void registerRendererCallback(@NonNull IRendererCallback callback) {
                     requireNonNull(callback);
+                    Log.d(LogTags.TAG, "registerRendererCallback");
                     ThreadUtils.runOnMain(
                             () -> {
                                 mSurfaceView.setOnCreateInputConnectionListener(editorInfo ->
-                                        getServiceDispatcher().fetch(null, () ->
-                                                callback.onCreateInputConnection(
-                                                        editorInfo)));
+                                        getServiceDispatcher().fetch("OnCreateInputConnection",
+                                                null,
+                                                () -> callback.onCreateInputConnection(editorInfo))
+                                );
 
                                 mOnBackPressedListener = () ->
-                                        getServiceDispatcher().dispatch(callback::onBackPressed);
+                                        getServiceDispatcher().dispatch("onBackPressed",
+                                                callback::onBackPressed);
 
                                 requireNonNull(mActivityLifecycleDelegate)
                                         .registerRendererCallback(callback);
@@ -171,6 +154,7 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public void setSurfaceListener(@NonNull ISurfaceListener listener) {
                     requireNonNull(listener);
+                    Log.d(LogTags.TAG, "setSurfaceListener");
                     ThreadUtils.runOnMain(
                             () -> requireNonNull(mSurfaceHolderListener)
                                     .setSurfaceListener(listener));
@@ -178,21 +162,25 @@ public final class CarAppActivity extends FragmentActivity {
 
                 @Override
                 public void onStartInput() {
+                    Log.d(LogTags.TAG, "onStartInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStartInput());
                 }
 
                 @Override
                 public void onStopInput() {
+                    Log.d(LogTags.TAG, "onStopInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStopInput());
                 }
 
                 @Override
                 public void startCarApp(@NonNull Intent intent) {
+                    Log.d(LogTags.TAG, "startCarApp");
                     startActivity(intent);
                 }
 
                 @Override
                 public void finishCarApp() {
+                    Log.d(LogTags.TAG, "finishCarApp");
                     finish();
                 }
             };
@@ -200,11 +188,13 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         // Set before the onCreate() as this method sets windowing information based on the theme.
-        setTheme(android.R.style.Theme_NoTitleBar);
+        setTheme(android.R.style.Theme_DeviceDefault_NoActionBar);
         super.onCreate(savedInstanceState);
         setSoftInputHandling();
         setContentView(R.layout.activity_template);
         mSurfaceView = requireViewById(R.id.template_view_surface);
+        mErrorMessageView = requireViewById(R.id.error_message_view);
+        mLoadingView = requireViewById(R.id.loading_view);
 
         ComponentName serviceComponentName = retrieveServiceComponentName();
         if (serviceComponentName == null) {
@@ -216,10 +206,12 @@ public final class CarAppActivity extends FragmentActivity {
         CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(getApplication(),
                 serviceComponentName);
         mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
-        mViewModel.getErrorEvent().observe(this,
-                errorEvent -> mErrorHandler.onError(errorEvent.getErrorType(),
-                        errorEvent.getException()));
+        mViewModel.setActivity(this);
+        mViewModel.getError().observe(this, this::onErrorChanged);
+        mViewModel.getState().observe(this, this::onStateChanged);
 
+        mHostUpdateReceiver = new HostUpdateReceiver(mViewModel);
+        mHostUpdateReceiver.register(this);
         mActivityLifecycleDelegate = new ActivityLifecycleDelegate(getServiceDispatcher());
         mSurfaceHolderListener = new SurfaceHolderListener(getServiceDispatcher(),
                 new SurfaceWrapperProvider(mSurfaceView));
@@ -229,7 +221,7 @@ public final class CarAppActivity extends FragmentActivity {
         // Set the z-order to receive the UI events on the surface.
         mSurfaceView.setZOrderOnTop(true);
         mSurfaceView.setServiceDispatcher(getServiceDispatcher());
-        mSurfaceView.setErrorHandler(mErrorHandler);
+        mSurfaceView.setViewModel(mViewModel);
         mSurfaceView.getHolder().addCallback(mSurfaceHolderListener);
 
         mViewModel.bind(getIntent(), mCarActivity, getDisplayId());
@@ -245,6 +237,41 @@ public final class CarAppActivity extends FragmentActivity {
     public void onBackPressed() {
         if (mOnBackPressedListener != null) {
             mOnBackPressedListener.onBackPressed();
+        }
+    }
+
+    private void onErrorChanged(@Nullable ErrorHandler.ErrorType errorType) {
+        mErrorMessageView.setError(errorType);
+    }
+
+    private void onStateChanged(@NonNull CarAppViewModel.State state) {
+        requireNonNull(mSurfaceView);
+        requireNonNull(mSurfaceHolderListener);
+
+        switch (state) {
+            case IDLE:
+                mSurfaceView.setVisibility(View.GONE);
+                mSurfaceHolderListener.setSurfaceListener(null);
+                mErrorMessageView.setVisibility(View.GONE);
+                mLoadingView.setVisibility(View.GONE);
+                break;
+            case ERROR:
+                mSurfaceView.setVisibility(View.GONE);
+                mSurfaceHolderListener.setSurfaceListener(null);
+                mErrorMessageView.setVisibility(View.VISIBLE);
+                mLoadingView.setVisibility(View.GONE);
+                break;
+            case CONNECTING:
+                mSurfaceView.setVisibility(View.GONE);
+                mSurfaceHolderListener.setSurfaceListener(null);
+                mErrorMessageView.setVisibility(View.GONE);
+                mLoadingView.setVisibility(View.VISIBLE);
+                break;
+            case CONNECTED:
+                mSurfaceView.setVisibility(View.VISIBLE);
+                mErrorMessageView.setVisibility(View.GONE);
+                mLoadingView.setVisibility(View.GONE);
+                break;
         }
     }
 
@@ -264,6 +291,12 @@ public final class CarAppActivity extends FragmentActivity {
     @VisibleForTesting
     ServiceDispatcher getServiceDispatcher() {
         return requireNonNull(mViewModel).getServiceDispatcher();
+    }
+
+    @Override
+    protected void onDestroy() {
+        requireNonNull(mHostUpdateReceiver).unregister(this);
+        super.onDestroy();
     }
 
     @Nullable

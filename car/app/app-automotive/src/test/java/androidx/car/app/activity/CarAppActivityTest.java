@@ -56,6 +56,7 @@ import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -175,8 +176,9 @@ public class CarAppActivityTest {
                             ActivityLifecycleCallbacks.class);
                     activity.registerActivityLifecycleCallbacks(activityCallback);
                     // Report service connection error.
-                    activity.mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR,
-                            new Exception("fake error"));
+                    CarAppViewModel viewModel =
+                            new ViewModelProvider(activity).get(CarAppViewModel.class);
+                    viewModel.onError(ErrorHandler.ErrorType.HOST_ERROR);
 
                     assertThat(activity.isFinishing()).isEqualTo(false);
 
@@ -260,11 +262,10 @@ public class CarAppActivityTest {
                     verify(rendererCallback, times(1)).onBackPressed();
 
                     // Verify focus request sent to host.
-                    assertThat(activity.mSurfaceView.isFocused()).isTrue();
-                    activity.mSurfaceView.clearFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(false, false);
                     activity.mSurfaceView.requestFocus();
                     verify(callback, times(1)).onWindowFocusChanged(true, false);
+                    activity.mSurfaceView.clearFocus();
+                    verify(callback, times(1)).onWindowFocusChanged(false, false);
 
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis();

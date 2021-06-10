@@ -39,6 +39,8 @@ public interface ErrorHandler {
         UPDATE_HOST(R.string.error_action_update_host),
         /** Finish the application */
         FINISH(R.string.error_action_finish),
+        /** Try to reconnect */
+        RETRY(R.string.error_action_retry),
         ;
 
         private final @StringRes int mActionResId;
@@ -59,7 +61,7 @@ public interface ErrorHandler {
     enum ErrorType {
         CLIENT_SIDE_ERROR(R.string.error_message_client_side_error, ActionType.FINISH),
         HOST_ERROR(R.string.error_message_host_error, ActionType.FINISH),
-        HOST_CONNECTION_LOST(R.string.error_message_host_connection_lost, ActionType.FINISH),
+        HOST_CONNECTION_LOST(R.string.error_message_host_connection_lost, ActionType.RETRY),
         HOST_NOT_FOUND(R.string.error_message_host_not_found, ActionType.UPDATE_HOST),
         HOST_INCOMPATIBLE(R.string.error_message_host_incompatible, ActionType.UPDATE_HOST),
         MULTIPLE_HOSTS(R.string.error_message_multiple_hosts, ActionType.FINISH),
@@ -90,7 +92,6 @@ public interface ErrorHandler {
      * the {@link CarAppActivity} will be disconnected from the host service.
      *
      * @param errorType type of error to display
-     * @param exception additional error information, used for logging
      */
-    void onError(@NonNull ErrorType errorType, @NonNull Throwable exception);
+    void onError(@NonNull ErrorType errorType);
 }
