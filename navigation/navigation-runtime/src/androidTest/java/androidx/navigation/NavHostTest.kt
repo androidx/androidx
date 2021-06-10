@@ -21,7 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 @SmallTest
@@ -41,10 +41,9 @@ class NavHostTest {
         val graph = navHost.createGraph(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID)
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
     }
 }
 
