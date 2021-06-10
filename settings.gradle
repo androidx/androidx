@@ -12,6 +12,35 @@ rootProject.name = "androidx"
 
 enableFeaturePreview("VERSION_CATALOGS")
 
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            def skikoOverride = System.getenv("SKIKO_VERSION")
+            if (skikoOverride != null) {
+                logger.warn("Using custom version ${skikoOverride} of SKIKO due to SKIKO_VERSION being set.")
+                version('skiko', skikoOverride)
+            }
+            String os = System.getProperty("os.name").toLowerCase(Locale.US)
+            String currentOsArtifact
+            if (os.contains("mac os x") ||  os.contains("darwin") || os.contains("osx")) {
+                def arch = System.getProperty("os.arch")
+                if (arch == "aarch64") {
+                    currentOsArtifact = "skiko-jvm-runtime-macos-arm64"
+                } else {
+                    currentOsArtifact = "skiko-jvm-runtime-macos-x64"
+                }
+            } else if (os.startsWith("win")) {
+                currentOsArtifact = "skiko-jvm-runtime-windows-x64"
+            } else if (os.startsWith("linux") ) {
+                currentOsArtifact = "skiko-jvm-runtime-linux-x64"
+            } else {
+                throw GradleException("Unsupported operating system $os")
+            }
+            alias("skikoCurrentOs").to("org.jetbrains.skiko", currentOsArtifact).versionRef("skiko")
+        }
+    }
+}
+
 boolean isMultiplatformEnabled() {
     def mppParameter = properties.get("androidx.compose.multiplatformEnabled")
     if (mppParameter == null) return false
