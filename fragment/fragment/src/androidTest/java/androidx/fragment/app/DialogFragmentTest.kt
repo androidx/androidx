@@ -256,6 +256,7 @@ class DialogFragmentTest {
         }
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -298,6 +299,7 @@ class DialogFragmentTest {
         }
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -334,6 +336,7 @@ class DialogFragmentTest {
             .commitNow()
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()

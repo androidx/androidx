@@ -242,11 +242,11 @@ package androidx.fragment.app {
     method @Deprecated public void restoreAllState(android.os.Parcelable?, java.util.List<androidx.fragment.app.Fragment!>?);
     method @Deprecated public void restoreAllState(android.os.Parcelable?, androidx.fragment.app.FragmentManagerNonConfig?);
     method @Deprecated public void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>!);
-    method public void restoreSaveState(android.os.Parcelable?);
+    method @Deprecated public void restoreSaveState(android.os.Parcelable?);
     method @Deprecated public androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>? retainLoaderNonConfig();
     method @Deprecated public androidx.fragment.app.FragmentManagerNonConfig? retainNestedNonConfig();
     method @Deprecated public java.util.List<androidx.fragment.app.Fragment!>? retainNonConfig();
-    method public android.os.Parcelable? saveAllState();
+    method @Deprecated public android.os.Parcelable? saveAllState();
   }
 
   public class FragmentFactory {

@@ -78,6 +78,7 @@ class ReentrantFragmentTest(
                 val savedState: Parcelable?
                 try {
                     fc1.dispatchPause()
+                    @Suppress("DEPRECATION")
                     savedState = fc1.saveAllState()
                     fc1.dispatchStop()
                     fc1.dispatchDestroy()

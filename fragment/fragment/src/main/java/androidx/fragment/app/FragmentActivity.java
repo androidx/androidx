@@ -27,7 +27,6 @@ import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,7 +37,6 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
-import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.ActivityResultRegistryOwner;
@@ -59,6 +57,7 @@ import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
+import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -79,7 +78,7 @@ public class FragmentActivity extends ComponentActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
 
-    static final String FRAGMENTS_TAG = "android:support:fragments";
+    static final String LIFECYCLE_TAG = "android:support:lifecycle";
 
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
     /**
@@ -121,35 +120,12 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     private void init() {
-        // TODO: Directly connect FragmentManager to SavedStateRegistry
-        getSavedStateRegistry().registerSavedStateProvider(FRAGMENTS_TAG,
-                new SavedStateRegistry.SavedStateProvider() {
-                    @NonNull
-                    @Override
-                    public Bundle saveState() {
-                        Bundle outState = new Bundle();
-                        markFragmentsCreated();
-                        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-                        Parcelable p = mFragments.saveAllState();
-                        if (p != null) {
-                            outState.putParcelable(FRAGMENTS_TAG, p);
-                        }
-                        return outState;
-                    }
-                });
-        addOnContextAvailableListener(new OnContextAvailableListener() {
-            @Override
-            public void onContextAvailable(@NonNull Context context) {
-                mFragments.attachHost(null /*parent*/);
-                Bundle savedInstanceState = getSavedStateRegistry()
-                        .consumeRestoredStateForKey(FRAGMENTS_TAG);
-
-                if (savedInstanceState != null) {
-                    Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
-                    mFragments.restoreSaveState(p);
-                }
-            }
+        getSavedStateRegistry().registerSavedStateProvider(LIFECYCLE_TAG, () -> {
+            markFragmentsCreated();
+            mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+            return new Bundle();
         });
+        addOnContextAvailableListener(context -> mFragments.attachHost(null /*parent*/));
     }
 
     // ------------------------------------------------------------------------
@@ -720,6 +696,7 @@ public class FragmentActivity extends ComponentActivity implements
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
+            SavedStateRegistryOwner,
             FragmentOnAttachListener {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
@@ -814,6 +791,12 @@ public class FragmentActivity extends ComponentActivity implements
         @Override
         public ActivityResultRegistry getActivityResultRegistry() {
             return FragmentActivity.this.getActivityResultRegistry();
+        }
+
+        @NonNull
+        @Override
+        public SavedStateRegistry getSavedStateRegistry() {
+            return FragmentActivity.this.getSavedStateRegistry();
         }
     }
 

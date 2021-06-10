@@ -146,7 +146,13 @@ public class FragmentController {
      * Saves the state for all Fragments.
      *
      * @see #restoreSaveState(Parcelable)
+     *
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.savedstate.SavedStateRegistryOwner} to automatically
+     * save state via the {@link FragmentManager}.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Nullable
     public Parcelable saveAllState() {
         return mHost.mFragmentManager.saveAllState();
@@ -188,7 +194,12 @@ public class FragmentController {
      *
      * @param state the saved state containing the Parcelable returned by {@link #saveAllState()}
      * @see #saveAllState()
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.savedstate.SavedStateRegistryOwner} to automatically
+     * restore the saved state via the {@link FragmentManager}.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public void restoreSaveState(@Nullable Parcelable state) {
         if (!(mHost instanceof ViewModelStoreOwner)) {
             throw new IllegalStateException("Your FragmentHostCallback must implement "
