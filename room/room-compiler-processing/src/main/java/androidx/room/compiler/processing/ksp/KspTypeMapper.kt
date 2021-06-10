@@ -81,7 +81,7 @@ object KspTypeMapper {
         mapping["java.util.List"] = "kotlin.collections.MutableList"
         mapping["java.util.ListIterator"] = "kotlin.collections.ListIterator"
         mapping["java.util.Map"] = "kotlin.collections.MutableMap"
-        mapping["java.util.Map.Entry"] = "Map.kotlin.collections.MutableEntry"
+        mapping["java.util.Map.Entry"] = "kotlin.collections.MutableEntry"
     }
 
     fun swapWithKotlinType(javaType: String): String = mapping[javaType] ?: javaType

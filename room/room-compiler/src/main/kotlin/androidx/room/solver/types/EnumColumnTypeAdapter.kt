@@ -90,7 +90,7 @@ class EnumColumnTypeAdapter(
                         beginControlFlow("if ($N == null)", param)
                         addStatement("return null")
                         nextControlFlow("switch ($N)", param)
-                        enumTypeElement.enumConstantNames.forEach { enumConstantName ->
+                        enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
                             addStatement("case $L: return $S", enumConstantName, enumConstantName)
                         }
                         addStatement(
@@ -127,7 +127,7 @@ class EnumColumnTypeAdapter(
                         beginControlFlow("if ($N == null)", param)
                         addStatement("return null")
                         nextControlFlow("switch ($N)", param)
-                        enumTypeElement.enumConstantNames.forEach { enumConstantName ->
+                        enumTypeElement.entries.map { it.name }.forEach { enumConstantName ->
                             addStatement(
                                 "case $S: return $T.$L",
                                 enumConstantName, out.typeName, enumConstantName

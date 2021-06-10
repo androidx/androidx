@@ -19,15 +19,23 @@ package androidx.room.compiler.processing
 import kotlin.contracts.contract
 
 /**
- * Type elements that represent Enum declarations.
+ * Represents a named entry within an enum class.
  */
-interface XEnumTypeElement : XTypeElement {
-    val entries: Set<XEnumEntry>
+interface XEnumEntry : XElement {
+    /**
+     * The name of this enum object.
+     */
+    val name: String
+
+    /**
+     * The parent enum type declaration that holds all entries for this enum type..
+     */
+    val enumTypeElement: XEnumTypeElement
 }
 
-fun XTypeElement.isEnum(): Boolean {
+fun XTypeElement.isEnumEntry(): Boolean {
     contract {
-        returns(true) implies (this@isEnum is XEnumTypeElement)
+        returns(true) implies (this@isEnumEntry is XEnumEntry)
     }
-    return this is XEnumTypeElement
+    return this is XEnumEntry
 }
