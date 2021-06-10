@@ -31,6 +31,7 @@ import androidx.navigation.safe.args.generator.ReferenceArrayType
 import androidx.navigation.safe.args.generator.ReferenceType
 import androidx.navigation.safe.args.generator.StringArrayType
 import androidx.navigation.safe.args.generator.StringType
+import androidx.navigation.safe.args.generator.ext.capitalize
 import androidx.navigation.safe.args.generator.ext.toCamelCase
 import androidx.navigation.safe.args.generator.ext.toCamelCaseAsVar
 import androidx.navigation.safe.args.generator.models.Action
@@ -363,11 +364,7 @@ private class ClassWithArgsSpecs(
     ).initializer("new $T()", HASHMAP_CLASSNAME).build()
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
-        val capitalizedName = arg.sanitizedName.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(
-                Locale.getDefault()
-            ) else it.toString()
-        }
+        val capitalizedName = arg.sanitizedName.capitalize(Locale.US)
         MethodSpec.methodBuilder("set$capitalizedName").apply {
             addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
             addAnnotation(suppressAnnotationSpec)
@@ -522,11 +519,7 @@ private class ClassWithArgsSpecs(
     }.build()
 
     private fun getterFromArgName(sanitizedName: String, suffix: String = ""): String {
-        val capitalizedName = sanitizedName.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(
-                Locale.getDefault()
-            ) else it.toString()
-        }
+        val capitalizedName = sanitizedName.capitalize(Locale.US)
         return "get${capitalizedName}$suffix"
     }
 
