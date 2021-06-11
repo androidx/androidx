@@ -519,18 +519,6 @@ There were failing tests\. See the report at: .*.html
 # > Task :compose:ui:ui:processDebugUnitTestManifest
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
-# > Task *:lintDebug
-# TODO: b/182321297 remove when this message isn't printed
-Lint: Unknown issue id "ComposableNaming"
-Lint: Unknown issue id "ComposableLambdaParameterNaming"
-Lint: Unknown issue id "ComposableLambdaParameterPosition"
-Lint: Unknown issue id "CompositionLocalNaming"
-Lint: Unknown issue id "ComposableModifierFactory"
-Lint: Unknown issue id "InvalidColorHexValue"
-Lint: Unknown issue id "MissingColorAlphaChannel"
-Lint: Unknown issue id "ModifierFactoryExtensionFunction"
-Lint: Unknown issue id "ModifierFactoryReturnType"
-Lint: Unknown issue id "ModifierParameter"
 # > Task :compose:foundation:foundation:reportLibraryMetrics
 Stripped invalid locals information from [0-9]+ methods\.
 Methods with invalid locals information:
@@ -1095,7 +1083,6 @@ Scanning .+: \.*
 \.+
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-.*Unknown issue id.*
 No issues found.*
 Incorrect detector reported disabled issue.*
 Scanning .* \(Phase 2\):
