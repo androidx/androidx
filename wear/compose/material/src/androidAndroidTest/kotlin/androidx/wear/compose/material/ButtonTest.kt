@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -63,13 +62,13 @@ class ButtonBehaviourTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").assertExists()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
@@ -77,13 +76,13 @@ class ButtonBehaviourTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").assertExists()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
@@ -91,13 +90,13 @@ class ButtonBehaviourTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").assertExists()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
@@ -105,13 +104,13 @@ class ButtonBehaviourTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").assertExists()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
@@ -120,13 +119,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = {},
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -135,13 +134,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = {},
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -150,13 +149,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -165,13 +164,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").assertHasClickAction()
+        rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
     }
 
     @Test
@@ -180,13 +179,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = {},
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").assertIsEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
     }
 
     @Test
@@ -195,13 +194,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").assertIsNotEnabled()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
     }
 
     @Test
@@ -212,13 +211,13 @@ class ButtonBehaviourTest {
             CompactButton(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -233,13 +232,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item").performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -254,13 +253,13 @@ class ButtonBehaviourTest {
             CompactButton(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -275,13 +274,13 @@ class ButtonBehaviourTest {
             Button(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item").performClick()
+        rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -293,13 +292,13 @@ class ButtonBehaviourTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 CreateImage()
             }
         }
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
@@ -313,13 +312,13 @@ class ButtonBehaviourTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 Text("Test")
             }
         }
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
@@ -388,19 +387,7 @@ class ButtonBehaviourTest {
     fun is_circular_under_ltr_for_button() =
         rule.isCircular(LayoutDirection.Ltr) {
             Button(
-                modifier = Modifier.testTag("test-item"),
-                onClick = {},
-            ) {
-                // omit content to allow us to validate the shape by pixel checking.
-            }
-        }
-
-    @Test
-    @Ignore // This test failing under Treehugger, to be replaced with Screenshot test.
-    fun is_circular_under_ltr_for_compact_button() =
-        rule.isCircular(LayoutDirection.Ltr, padding = 8.dp) {
-            CompactButton(
-                modifier = Modifier.testTag("test-item"),
+                modifier = Modifier.testTag(TEST_TAG),
                 onClick = {},
             ) {
                 // omit content to allow us to validate the shape by pixel checking.
@@ -411,19 +398,7 @@ class ButtonBehaviourTest {
     fun is_circular_under_rtl_for_button() =
         rule.isCircular(LayoutDirection.Rtl) {
             Button(
-                modifier = Modifier.testTag("test-item"),
-                onClick = {},
-            ) {
-                // omit content to allow us to validate the shape by pixel checking.
-            }
-        }
-
-    @Test
-    @Ignore // This test failing under Treehugger, to be replaced with Screenshot test.
-    fun is_circular_under_rtl_for_compact_button() =
-        rule.isCircular(LayoutDirection.Rtl, padding = 8.dp) {
-            CompactButton(
-                modifier = Modifier.testTag("test-item"),
+                modifier = Modifier.testTag(TEST_TAG),
                 onClick = {},
             ) {
                 // omit content to allow us to validate the shape by pixel checking.
@@ -603,13 +578,13 @@ class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(backgroundColor = overrideColor),
                     enabled = true,
-                    modifier = Modifier.testTag("test-item")
+                    modifier = Modifier.testTag(TEST_TAG)
                 ) {
                 }
             }
         }
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
@@ -623,13 +598,13 @@ class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(backgroundColor = overrideColor),
                     enabled = true,
-                    modifier = Modifier.testTag("test-item")
+                    modifier = Modifier.testTag(TEST_TAG)
                 ) {
                 }
             }
         }
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(overrideColor, 25.0f)
     }
@@ -643,13 +618,13 @@ class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(disabledBackgroundColor = overrideColor),
                     enabled = false,
-                    modifier = Modifier.testTag("test-item")
+                    modifier = Modifier.testTag(TEST_TAG)
                 ) {
                 }
             }
         }
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
@@ -663,13 +638,13 @@ class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(disabledBackgroundColor = overrideColor),
                     enabled = false,
-                    modifier = Modifier.testTag("test-item")
+                    modifier = Modifier.testTag(TEST_TAG)
                 ) {
                 }
             }
         }
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(overrideColor, 25.0f)
     }
@@ -683,7 +658,7 @@ class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(contentColor = overrideColor),
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -701,7 +676,7 @@ class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(contentColor = overrideColor),
                 enabled = true,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -719,7 +694,7 @@ class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(disabledContentColor = overrideColor),
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -737,7 +712,7 @@ class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(disabledContentColor = overrideColor),
                 enabled = false,
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -762,7 +737,7 @@ class ButtonColorTest {
                 onClick = {},
                 colors = buttonColors(),
                 enabled = status.enabled(),
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 actualColor = LocalContentColor.current
             }
@@ -787,7 +762,7 @@ class ButtonColorTest {
                 backgroundPadding = 0.dp,
                 colors = buttonColors(),
                 enabled = status.enabled(),
-                modifier = Modifier.testTag("test-item")
+                modifier = Modifier.testTag(TEST_TAG)
             ) {
                 actualColor = LocalContentColor.current
             }
@@ -828,7 +803,7 @@ class ButtonColorTest {
 
         assertEquals(expectedContent, actualContent)
 
-        rule.onNodeWithTag("test-item")
+        rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(
                 if (expectedBackground != Color.Transparent) expectedBackground else testBackground,
@@ -908,7 +883,7 @@ private fun ComposeContentTestRule.isCircular(
         }
     }
 
-    onNodeWithTag("test-item")
+    onNodeWithTag(TEST_TAG)
         .captureToImage()
         .assertShape(
             density = density,
