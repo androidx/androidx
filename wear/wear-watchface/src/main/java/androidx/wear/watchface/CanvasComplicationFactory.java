@@ -28,7 +28,9 @@ public interface CanvasComplicationFactory {
     /**
      * Creates a CanvasComplication. This will be called on a background thread, however all
      * CanvasComplication rendering will be done on the UI thread and there's a memory barrier
-     * between construction and usage so no special threading primitives are required.
+     * between construction and usage so no special threading primitives are required. If the
+     * CanvasComplication needs to share state with the Renderer then it should override
+     * onRendererCreated.
      *
      * @param watchState The current WatchState
      * @param invalidateCallback The CanvasComplication.InvalidateCallback the constructed
