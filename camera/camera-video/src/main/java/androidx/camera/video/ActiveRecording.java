@@ -18,25 +18,36 @@ package androidx.camera.video;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provides controls for the currently active recording.
  */
-public final class ActiveRecording extends Recording {
+public final class ActiveRecording {
+
+    private static final String TAG = "ActiveRecording";
 
     // Indicates the recording has been explicitly stopped by users.
     private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
     // Indicates the recording has been finalized.
     private final AtomicBoolean mIsFinalized = new AtomicBoolean(false);
+    private final Recorder mRecorder;
+    private final OutputOptions mOutputOptions;
+    private Consumer<VideoRecordEvent> mEventListener;
+    private Executor mCallbackExecutor;
 
     ActiveRecording(@NonNull Recorder recorder, @NonNull OutputOptions options,
             @Nullable Executor callbackExecutor, @Nullable Consumer<VideoRecordEvent> listener) {
-        super(recorder, options, callbackExecutor, listener);
+        mRecorder = recorder;
+        mOutputOptions = options;
+        mCallbackExecutor = callbackExecutor;
+        mEventListener = listener;
     }
 
     /**
@@ -48,6 +59,11 @@ public final class ActiveRecording extends Recording {
         return new ActiveRecording(pendingRecording.getRecorder(),
                 pendingRecording.getOutputOptions(), pendingRecording.getCallbackExecutor(),
                 pendingRecording.getEventListener());
+    }
+
+    @NonNull
+    OutputOptions getOutputOptions() {
+        return mOutputOptions;
     }
 
     /**
@@ -65,7 +81,7 @@ public final class ActiveRecording extends Recording {
         if (mIsFinalized.get()) {
             return;
         }
-        getRecorder().pause();
+        mRecorder.pause();
     }
 
     /**
@@ -82,7 +98,7 @@ public final class ActiveRecording extends Recording {
         if (mIsFinalized.get()) {
             return;
         }
-        getRecorder().resume();
+        mRecorder.resume();
     }
 
     /**
@@ -101,14 +117,22 @@ public final class ActiveRecording extends Recording {
         if (mIsStopped.getAndSet(true) || mIsFinalized.get()) {
             return;
         }
-        getRecorder().stop();
+        mRecorder.stop();
     }
 
-    @Override
+    /**
+     * Updates the recording status and callback to users.
+     */
     void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
         if (event instanceof VideoRecordEvent.Finalize) {
             mIsFinalized.set(true);
         }
-        super.updateVideoRecordEvent(event);
+        if (mCallbackExecutor != null && mEventListener != null) {
+            try {
+                mCallbackExecutor.execute(() -> mEventListener.accept(event));
+            } catch (RejectedExecutionException e) {
+                Logger.e(TAG, "The callback executor is invalid.", e);
+            }
+        }
     }
 }
