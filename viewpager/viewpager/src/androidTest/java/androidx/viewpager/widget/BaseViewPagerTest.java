@@ -69,6 +69,7 @@ import android.widget.TextView;
 import androidx.core.os.BuildCompat;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.EspressoKey;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -1140,6 +1141,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
 
     @Test
     @LargeTest
+    @FlakyTest(bugId = 179887413)
     public void testKeyboardNavigation() {
         ButtonPagerAdapter adapter = new ButtonPagerAdapter();
         adapter.add("Red", Color.RED);
