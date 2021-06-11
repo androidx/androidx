@@ -39,12 +39,11 @@ import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ComplicationProviderInfo
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.ProviderChooserIntent
 import androidx.wear.complications.ProviderInfoRetriever
@@ -90,6 +89,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -235,7 +235,7 @@ public class TestComplicationHelperActivity : Activity() {
 
     public companion object {
         public var lastIntent: Intent? = null
-        public var resultIntent: Intent? = null
+        public var resultIntent: CompletableDeferred<Intent?>? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -243,12 +243,14 @@ public class TestComplicationHelperActivity : Activity() {
 
         lastIntent = intent
 
-        setResult(123, resultIntent)
-        finish()
+        CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher()).launch {
+            setResult(123, resultIntent!!.await())
+            finish()
+        }
     }
 }
 
-/** Fake complication provider choooser for testing. */
+/** Fake complication provider chooser for testing. */
 public class TestComplicationProviderChooserActivity : Activity() {
 
     public companion object {
@@ -837,12 +839,14 @@ public class EditorSessionTest {
             ComplicationType.LONG_TEXT,
             provider3
         )
-        TestComplicationHelperActivity.resultIntent = Intent().apply {
-            putExtra(
-                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
-                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
-            )
-        }
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                )
+            }
+        )
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -890,24 +894,25 @@ public class EditorSessionTest {
         }
     }
 
-    @FlakyTest(bugId = 189939975)
     @Test
     public fun launchComplicationProviderChooserTwiceBackToBack() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
-        TestComplicationHelperActivity.resultIntent = Intent().apply {
-            putExtra(
-                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
-                ComplicationProviderInfo(
-                    "TestProvider3App",
-                    "TestProvider3",
-                    Icon.createWithBitmap(
-                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-                    ),
-                    ComplicationType.LONG_TEXT,
-                    provider3
-                ).toWireComplicationProviderInfo()
-            )
-        }
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    ComplicationProviderInfo(
+                        "TestProvider3App",
+                        "TestProvider3",
+                        Icon.createWithBitmap(
+                            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                        ),
+                        ComplicationType.LONG_TEXT,
+                        provider3
+                    ).toWireComplicationProviderInfo()
+                )
+            }
+        )
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -920,21 +925,71 @@ public class EditorSessionTest {
         }
 
         runBlocking {
-            val pendingResult = async {
-                editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
-            }
+            assertThat(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+                .isNotNull()
 
             // This shouldn't crash.
             assertThat(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
                 .isNotNull()
-            assertThat(pendingResult).isNotNull()
+        }
+    }
+
+    @Test
+    public fun launchConcurrentComplicationProviderChoosers() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred()
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            // This won't complete till later.
+            val firstComplicationProviderChooserResult = async {
+                editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
+            }
+
+            async {
+                try {
+                    editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
+                    fail("A concurrent openComplicationProviderChooser should throw an exception")
+                } catch (e: Exception) {
+                    assertThat(e).isInstanceOf(IllegalStateException::class.java)
+                }
+
+                // Allow firstComplicationProviderChooserResult to complete.
+                TestComplicationHelperActivity.resultIntent!!.complete(
+                    Intent().apply {
+                        putExtra(
+                            "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                            ComplicationProviderInfo(
+                                "TestProvider3App",
+                                "TestProvider3",
+                                Icon.createWithBitmap(
+                                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                                ),
+                                ComplicationType.LONG_TEXT,
+                                provider3
+                            ).toWireComplicationProviderInfo()
+                        )
+                    }
+                )
+            }
+
+            assertThat(firstComplicationProviderChooserResult.await()).isNotNull()
         }
     }
 
     @Test
     public fun launchComplicationProviderChooser_chooseEmpty() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
-        TestComplicationHelperActivity.resultIntent = Intent().apply {}
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(Intent())
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -966,7 +1021,10 @@ public class EditorSessionTest {
     @Test
     public fun launchComplicationProviderChooser_cancel() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
-        TestComplicationHelperActivity.resultIntent = null
+        // NB CompletableDeferred(null) doesn't do what we expect...
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred<Intent?>().apply {
+            complete(null)
+        }
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -998,13 +1056,15 @@ public class EditorSessionTest {
             ComplicationType.LONG_TEXT,
             provider3
         )
-        TestComplicationHelperActivity.resultIntent = Intent().apply {
-            putExtra(
-                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
-                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
-            )
-            putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
-        }
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                )
+                putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
+            }
+        )
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -1418,9 +1478,27 @@ public class EditorSessionTest {
 
     @Test
     public fun cancelDuring_updatePreviewData() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    ComplicationProviderInfo(
+                        "TestProvider3App",
+                        "TestProvider3",
+                        Icon.createWithBitmap(
+                            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                        ),
+                        ComplicationType.LONG_TEXT,
+                        provider3
+                    ).toWireComplicationProviderInfo()
+                )
+            }
+        )
+
         lateinit var baseEditorSession: BaseEditorSession
         lateinit var providerInfoRetriever: ProviderInfoRetriever
-        var forceClosed = false
+        var requestPreviewComplicationDataCount = 0
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
             listOf(leftComplication, rightComplication),
@@ -1436,34 +1514,41 @@ public class EditorSessionTest {
                     complicationType: Int,
                     previewComplicationDataCallback: IPreviewComplicationDataCallback
                 ): Boolean {
-                    if (!forceClosed) {
+                    // Force close the third time this is invoked in response to
+                    // openComplicationProviderChooser and a result being selected. The previous two
+                    // invocations where done to prime the map for getComplicationsPreviewData().
+                    if (++requestPreviewComplicationDataCount == 3) {
                         baseEditorSession.forceClose()
-                        forceClosed = true
+                    } else {
+                        previewComplicationDataCallback.updateComplicationData(
+                            ShortTextComplicationData.Builder(
+                                PlainComplicationText.Builder("TestData").build(),
+                                ComplicationText.EMPTY
+                            ).build().asWireComplicationData()
+                        )
                     }
                     return true
                 }
             }
         )
-        scenario.onActivity {
-            baseEditorSession = it.editorSession as BaseEditorSession
-            baseEditorSession.pendingComplicationProviderChooserResult = CompletableDeferred()
-            baseEditorSession.onComplicationProviderChooserResult(
-                ComplicationProviderChooserResult(
-                    ComplicationProviderInfo(
-                        "provider.app",
-                        "provider",
-                        providerIcon,
-                        ComplicationType.SHORT_TEXT,
-                        providerComponentName
-                    ),
-                    Bundle.EMPTY
-                )
-            )
+
+        scenario.onActivity { activity ->
+            baseEditorSession = activity.editorSession as BaseEditorSession
         }
 
-        // Make sure everything that was going to run has run.
-        runBlocking {
-            baseEditorSession.coroutineScope.coroutineContext.job.join()
+        try {
+            runBlocking {
+                withContext(baseEditorSession.coroutineScope.coroutineContext) {
+                    baseEditorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID)
+
+                    // Make sure everything that was going to run has run.
+                    baseEditorSession.coroutineScope.coroutineContext.job.join()
+
+                    fail("Should have failed with a JobCancellationException")
+                }
+            }
+        } catch (e: Exception) {
+            assertThat(e.toString()).contains("kotlinx.coroutines.JobCancellationException")
         }
 
         // Ensure the providerInfoRetriever was closed despite forceClose() being called.
