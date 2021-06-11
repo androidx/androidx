@@ -16,10 +16,15 @@
 
 package androidx.camera.video;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * RecordingStats keeps track of the current recording’s statistics. It is a snapshot of things
@@ -28,13 +33,42 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class RecordingStats {
 
-    public static final RecordingStats EMPTY_STATS = of(0, 0);
+    /**
+     * The recording is being recorded with audio data.
+     */
+    public static final int AUDIO_RECORDING = 0;
+    /**
+     * The recording is disabled.
+     */
+    public static final int AUDIO_DISABLED = 1;
+    /**
+     * The recording is muted because the audio source is silenced by the system.
+     *
+     * <p>If the audio source is occupied by privilege application, depending on the system
+     * version, the system may silence the application that are using the audio source.
+     */
+    public static final int AUDIO_SOURCE_SILENCED = 2;
+    /**
+     * The recording is muted because the audio encoder encountered errors.
+     */
+    public static final int AUDIO_ENCODER_ERROR = 3;
+
+    /** @hide */
+    @IntDef({AUDIO_RECORDING, AUDIO_DISABLED, AUDIO_SOURCE_SILENCED, AUDIO_ENCODER_ERROR})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface AudioState {
+    }
+
+    // Restrict the constructor scope.
+    RecordingStats() {
+    }
 
     @NonNull
-    static RecordingStats of(long duration, long bytes) {
+    static RecordingStats of(long duration, long bytes, @AudioState int audioState) {
         Preconditions.checkArgument(duration >= 0, "duration must be positive value.");
         Preconditions.checkArgument(bytes >= 0, "bytes must be positive value.");
-        return new AutoValue_RecordingStats(duration, bytes);
+        return new AutoValue_RecordingStats(duration, bytes, audioState);
     }
 
     /** Returns current recorded duration in nano seconds. */
@@ -42,4 +76,8 @@ public abstract class RecordingStats {
 
     /** Returns current recorded bytes. */
     public abstract long getNumBytesRecorded();
+
+    /** Returns current audio state. */
+    @AudioState
+    public abstract int getAudioState();
 }

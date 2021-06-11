@@ -16,8 +16,11 @@
 
 package androidx.camera.video;
 
+import android.Manifest;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -40,6 +43,8 @@ public final class PendingRecording {
     private final OutputOptions mOutputOptions;
     private Consumer<VideoRecordEvent> mEventListener;
     private Executor mCallbackExecutor;
+
+    private boolean mAudioEnabled = false;
 
     PendingRecording(@NonNull Recorder recorder, @NonNull OutputOptions options) {
         mRecorder = recorder;
@@ -66,6 +71,10 @@ public final class PendingRecording {
         return mEventListener;
     }
 
+    boolean isAudioEnabled() {
+        return mAudioEnabled;
+    }
+
     /**
      * Sets the event listener that will receive {@link VideoRecordEvent} for this recording.
      *
@@ -80,6 +89,21 @@ public final class PendingRecording {
         Preconditions.checkNotNull(listener, "Event listener can't be null");
         mCallbackExecutor = callbackExecutor;
         mEventListener = listener;
+        return this;
+    }
+
+    /**
+     * Enables audio to be recorded for this recording.
+     *
+     * <p>By default, the recording will be created without audio recording. To enable audio
+     * recording, the {@link Manifest.permission#RECORD_AUDIO} has to be granted.
+     *
+     * @return this pending recording
+     */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @NonNull
+    public PendingRecording withAudioEnabled() {
+        mAudioEnabled = true;
         return this;
     }
 

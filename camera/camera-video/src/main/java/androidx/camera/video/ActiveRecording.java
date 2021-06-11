@@ -56,17 +56,19 @@ public final class ActiveRecording implements AutoCloseable {
     private final OutputOptions mOutputOptions;
     private final Consumer<VideoRecordEvent> mEventListener;
     private final Executor mCallbackExecutor;
-
     private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
+    private final boolean mAudioEnabled;
 
     ActiveRecording(@NonNull Recorder recorder, @NonNull OutputOptions options,
-            @Nullable Executor callbackExecutor, @Nullable Consumer<VideoRecordEvent> listener) {
+            @Nullable Executor callbackExecutor, @Nullable Consumer<VideoRecordEvent> listener,
+            boolean audioEnabled) {
         mRecorder = recorder;
         mOutputOptions = options;
         mCallbackExecutor = callbackExecutor;
         mEventListener = listener;
 
         mCloseGuard.open("stop");
+        mAudioEnabled = audioEnabled;
     }
 
     /**
@@ -77,12 +79,16 @@ public final class ActiveRecording implements AutoCloseable {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
         return new ActiveRecording(pendingRecording.getRecorder(),
                 pendingRecording.getOutputOptions(), pendingRecording.getCallbackExecutor(),
-                pendingRecording.getEventListener());
+                pendingRecording.getEventListener(), pendingRecording.isAudioEnabled());
     }
 
     @NonNull
     OutputOptions getOutputOptions() {
         return mOutputOptions;
+    }
+
+    boolean isAudioEnabled() {
+        return mAudioEnabled;
     }
 
     /**
