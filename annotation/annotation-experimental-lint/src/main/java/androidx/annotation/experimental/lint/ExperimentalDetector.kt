@@ -30,7 +30,6 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
@@ -39,7 +38,6 @@ import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
-import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.getParentOfType
 import java.util.Locale
 
@@ -115,33 +113,15 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     ) {
         val useAnnotation = (annotation.uastParent as? UClass)?.qualifiedName ?: return
         if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationNames)) {
-            val level = extractAttribute(annotation, "level")
-            if (level != null) {
-                report(
-                    context, usage,
-                    """
+            val level = annotation.extractAttribute(context, "level") ?: "ERROR"
+            report(
+                context, usage,
+                """
                     This declaration is opt-in and its usage should be marked with
                     '@$useAnnotation' or '@OptIn(markerClass = $useAnnotation.class)'
                 """,
-                    level
-                )
-            } else {
-                report(
-                    context, annotation,
-                    """
-                    Failed to extract attribute "level" from annotation
-                """,
-                    "ERROR"
-                )
-            }
-        }
-    }
-
-    @Suppress("SameParameterValue")
-    private fun extractAttribute(annotation: UAnnotation, name: String): String? {
-        // Using findAttributeValue instead of findDeclaredAttributeValue allows default values.
-        return annotation.findAttributeValue(name)?.let { expression ->
-            ((expression as? UReferenceExpression)?.resolve() as? PsiField)?.name
+                level
+            )
         }
     }
 
@@ -210,7 +190,16 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                     "of: ERROR, WARNING"
             )
         }
-        context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
+        try {
+            context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
+        } catch (e: UnsupportedOperationException) {
+            if ("Method not implemented" == e.message) {
+                // Workaround for b/191286558 where lint attempts to read annotations from a
+                // compiled UAST parent of `usage`. Swallow the exception and don't report anything.
+            } else {
+                throw e
+            }
+        }
     }
 
     companion object {

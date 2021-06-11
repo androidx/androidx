@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="91"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setAllPackagesCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST),"
+        errorLine2="                                                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="102"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="114"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setAllPackagesCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST),"
+        errorLine2="                                                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="125"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST, SIGNATURE1_DIGEST),"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="139"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                        Set.of(SIGNATURE2_DIGEST, SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="155"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="167"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                        Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="169"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="192"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="216"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                        Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="232"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="249"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                        Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="264"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="279"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                        Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="295"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST, SIGNATURE1_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="309"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="320"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                        Set.of(SIGNATURE1_DIGEST, SIGNATURE2_DIGEST, SIGNATURE3_DIGEST))"
+        errorLine2="                            ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="333"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE1_DIGEST, SIGNATURE3_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="346"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE1_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="358"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="372"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="387"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
+        errorLine2="                                           ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="402"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="426"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="447"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
+        errorLine2="                                                        ~~">
+        <location
+            file="src/test/java/androidx/security/app/authenticator/AppSignatureVerifierTest.java"
+            line="465"
+            column="57"/>
+    </issue>
+
+</issues>

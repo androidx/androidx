@@ -1,5 +1,368 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `TypefaceEmojiSpan`"
+        errorLine1="        final EmojiSpan span = new TypefaceEmojiSpan(metadata);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
+            line="65"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 15 (current min is 14): `android.view.View#hasOnClickListeners`"
+        errorLine1="        assertTrue(extractButton.hasOnClickListeners());"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiExtractTextLayoutTest.java"
+            line="177"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 15 (current min is 14): `android.view.View#hasOnClickListeners`"
+        errorLine1="        assertFalse(extractButton.hasOnClickListeners());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiExtractTextLayoutTest.java"
+            line="199"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiInputFilter`"
+        errorLine1="        mInputFilter = new EmojiInputFilter(textView);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="58"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `filter`"
+        errorLine1="        assertNull(mInputFilter.filter(null, 0, 1, null, 0, 1));"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="63"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `filter`"
+        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="73"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `filter`"
+        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="85"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `filter`"
+        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="98"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `filter`"
+        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="111"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `filter`"
+        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputFilterTest.java"
+            line="123"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getId`"
+        errorLine1="                    if (mResId == spans[index].getId()) {"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="233"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getId`"
+        errorLine1="                    if (mResId == -1 || mResId == spans[index].getId()) {"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="240"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiTextWatcher`"
+        errorLine1="        mTextWatcher = new EmojiTextWatcher(editText);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="54"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `onTextChanged`"
+        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="62"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `onTextChanged`"
+        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="74"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `onTextChanged`"
+        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="86"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getEmojiReplaceStrategy`"
+        errorLine1="        assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT, mTextWatcher.getEmojiReplaceStrategy());"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="98"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `onTextChanged`"
+        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="100"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `setEmojiReplaceStrategy`"
+        errorLine1="        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="105"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `onTextChanged`"
+        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="107"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `onTextChanged`"
+        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="118"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiTransformationMethod`"
+        errorLine1="        mTransformationMethod = new EmojiTransformationMethod(mWrappedTransformationMethod);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="84"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        assertNull(mTransformationMethod.getTransformation(null, mView));"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="89"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        mTransformationMethod.getTransformation(&quot;&quot;, null);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="95"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiTransformationMethod`"
+        errorLine1="        mTransformationMethod = new EmojiTransformationMethod(null);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="100"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="102"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="110"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="124"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="137"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getTransformation`"
+        errorLine1="        final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
+            line="150"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `MetadataRepo`"
+        errorLine1="                            loaderCallback.onLoaded(new MetadataRepo());"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"
+            line="88"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `create`"
+        errorLine1="                            sMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
+        errorLine2="                                                         ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"
+            line="119"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `create`"
+        errorLine1="                    mMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/TestConfigBuilder.java"
+            line="144"
+            column="50"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"

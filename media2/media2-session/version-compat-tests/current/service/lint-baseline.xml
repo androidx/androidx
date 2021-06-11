@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 16): `java.util.Objects#equals`"
+        errorLine1="                    if (Objects.equals(mediaId, list.get(i))) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/test/service/tests/MediaSessionCallbackTest.java"
+            line="166"
+            column="33"/>
+    </issue>
+
+</issues>

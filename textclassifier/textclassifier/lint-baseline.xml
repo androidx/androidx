@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `FLOATING_TOOLBAR_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.FLOATING_TOOLBAR_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="45"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `MAIN_PANEL_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.MAIN_PANEL_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="61"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `OVERFLOW_PANEL_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.OVERFLOW_PANEL_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="66"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `FLOATING_TOOLBAR_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.FLOATING_TOOLBAR_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="71"
+            column="44"/>
+    </issue>
 
     <issue
         id="WrongConstant"

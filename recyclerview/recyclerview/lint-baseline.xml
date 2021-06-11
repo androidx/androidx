@@ -1,5 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `new android.view.View`"
+        errorLine1="            super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/BaseWrapContentWithAspectRatioTest.java"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Map#getOrDefault`"
+        errorLine1="            } else if (duplicateDiffs.getOrDefault(after[index].id, 0) > 0 &amp;&amp; item.newItem) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
+            line="503"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Map#getOrDefault`"
+        errorLine1="            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrDefault(it.id, 1)"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
+            line="549"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Map#getOrDefault`"
+        errorLine1="            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrDefault(it.id, 0)"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
+            line="552"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.view.View#isScrollContainer`"
+        errorLine1="                + &quot;handle it properly&quot;, true, mRecyclerView.isScrollContainer());"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewBasicTest.java"
+            line="105"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#setLayoutDirection`"
+        errorLine1="            mRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewFocusTest.java"
+            line="239"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `new android.widget.FrameLayout`"
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestContentView.java"
+            line="53"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumWidth`"
+        errorLine1="                            getMinimumWidth()),"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
+            line="108"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumHeight`"
+        errorLine1="                            getMinimumHeight()));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
+            line="111"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `new android.widget.FrameLayout.LayoutParams`"
+        errorLine1="            super(source);"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
+            line="283"
+            column="13"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -52,7 +162,7 @@
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1112"
+            line="1102"
             column="20"/>
     </issue>
 
@@ -63,7 +173,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7584"
+            line="7406"
             column="30"/>
     </issue>
 
@@ -74,7 +184,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11951"
+            line="11773"
             column="27"/>
     </issue>
 
@@ -1610,17 +1720,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected T getItem(int position) {"
-        errorLine2="              ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/ListAdapter.java"
-            line="149"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public RecyclerView.LayoutManager getLayoutManager() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1801,7 +1900,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="816"
+            line="806"
             column="12"/>
     </issue>
 
@@ -1812,7 +1911,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1480"
+            line="1441"
             column="15"/>
     </issue>
 
@@ -1823,7 +1922,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1494"
+            line="1455"
             column="43"/>
     </issue>
 
@@ -1834,7 +1933,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1516"
+            line="1477"
             column="46"/>
     </issue>
 
@@ -1845,7 +1944,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1524"
+            line="1485"
             column="49"/>
     </issue>
 
@@ -1856,7 +1955,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2530"
+            line="2418"
             column="37"/>
     </issue>
 
@@ -1867,7 +1966,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2998"
+            line="2880"
             column="12"/>
     </issue>
 
@@ -1878,7 +1977,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2998"
+            line="2880"
             column="29"/>
     </issue>
 
@@ -1889,7 +1988,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3143"
+            line="3025"
             column="35"/>
     </issue>
 
@@ -1900,7 +1999,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3143"
+            line="3025"
             column="47"/>
     </issue>
 
@@ -1911,7 +2010,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3189"
+            line="3071"
             column="50"/>
     </issue>
 
@@ -1922,7 +2021,7 @@
         errorLine2="                                                             ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3189"
+            line="3071"
             column="62"/>
     </issue>
 
@@ -1933,7 +2032,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3194"
+            line="3076"
             column="31"/>
     </issue>
 
@@ -1944,7 +2043,7 @@
         errorLine2="                                                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3201"
+            line="3083"
             column="66"/>
     </issue>
 
@@ -1955,7 +2054,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3413"
+            line="3295"
             column="42"/>
     </issue>
 
@@ -1966,7 +2065,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3567"
+            line="3417"
             column="33"/>
     </issue>
 
@@ -1977,7 +2076,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3756"
+            line="3603"
             column="41"/>
     </issue>
 
@@ -1988,7 +2087,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4034"
+            line="3881"
             column="49"/>
     </issue>
 
@@ -1999,7 +2098,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4042"
+            line="3889"
             column="55"/>
     </issue>
 
@@ -2010,7 +2109,7 @@
         errorLine2="                                      ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4660"
+            line="4507"
             column="39"/>
     </issue>
 
@@ -2021,7 +2120,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4755"
+            line="4602"
             column="22"/>
     </issue>
 
@@ -2032,7 +2131,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4816"
+            line="4663"
             column="24"/>
     </issue>
 
@@ -2043,7 +2142,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4826"
+            line="4673"
             column="41"/>
     </issue>
 
@@ -2054,7 +2153,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4831"
+            line="4678"
             column="15"/>
     </issue>
 
@@ -2065,7 +2164,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4839"
+            line="4686"
             column="12"/>
     </issue>
 
@@ -2076,7 +2175,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4839"
+            line="4686"
             column="56"/>
     </issue>
 
@@ -2087,7 +2186,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4847"
+            line="4694"
             column="15"/>
     </issue>
 
@@ -2098,7 +2197,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4847"
+            line="4694"
             column="59"/>
     </issue>
 
@@ -2109,7 +2208,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5094"
+            line="4941"
             column="12"/>
     </issue>
 
@@ -2120,7 +2219,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5312"
+            line="5159"
             column="12"/>
     </issue>
 
@@ -2131,7 +2230,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5356"
+            line="5203"
             column="30"/>
     </issue>
 
@@ -2142,7 +2241,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5356"
+            line="5203"
             column="45"/>
     </issue>
 
@@ -2153,7 +2252,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="6099"
+            line="5921"
             column="37"/>
     </issue>
 
@@ -2164,7 +2263,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8323"
+            line="8145"
             column="42"/>
     </issue>
 
@@ -2175,7 +2274,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8347"
+            line="8169"
             column="44"/>
     </issue>
 
@@ -2186,7 +2285,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8383"
+            line="8205"
             column="47"/>
     </issue>
 
@@ -2197,7 +2296,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8562"
+            line="8384"
             column="70"/>
     </issue>
 
@@ -2208,7 +2307,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8563"
+            line="8385"
             column="17"/>
     </issue>
 
@@ -2219,7 +2318,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8591"
+            line="8413"
             column="17"/>
     </issue>
 
@@ -2230,7 +2329,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8624"
+            line="8446"
             column="37"/>
     </issue>
 
@@ -2241,7 +2340,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8642"
+            line="8464"
             column="40"/>
     </issue>
 
@@ -2252,7 +2351,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8663"
+            line="8485"
             column="40"/>
     </issue>
 
@@ -2263,7 +2362,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8670"
+            line="8492"
             column="42"/>
     </issue>
 
@@ -2274,7 +2373,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8697"
+            line="8519"
             column="42"/>
     </issue>
 
@@ -2285,7 +2384,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8697"
+            line="8519"
             column="61"/>
     </issue>
 
@@ -2296,7 +2395,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8761"
+            line="8583"
             column="38"/>
     </issue>
 
@@ -2307,7 +2406,7 @@
         errorLine2="                                                        ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8761"
+            line="8583"
             column="57"/>
     </issue>
 
@@ -2318,7 +2417,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8776"
+            line="8598"
             column="39"/>
     </issue>
 
@@ -2329,7 +2428,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8794"
+            line="8616"
             column="25"/>
     </issue>
 
@@ -2340,7 +2439,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8806"
+            line="8628"
             column="42"/>
     </issue>
 
@@ -2351,7 +2450,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8823"
+            line="8645"
             column="16"/>
     </issue>
 
@@ -2362,7 +2461,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8823"
+            line="8645"
             column="50"/>
     </issue>
 
@@ -2373,7 +2472,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8847"
+            line="8669"
             column="16"/>
     </issue>
 
@@ -2384,7 +2483,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8847"
+            line="8669"
             column="50"/>
     </issue>
 
@@ -2395,7 +2494,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8847"
+            line="8669"
             column="61"/>
     </issue>
 
@@ -2406,7 +2505,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8864"
+            line="8686"
             column="49"/>
     </issue>
 
@@ -2417,7 +2516,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8864"
+            line="8686"
             column="68"/>
     </issue>
 
@@ -2428,7 +2527,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8881"
+            line="8703"
             column="47"/>
     </issue>
 
@@ -2439,7 +2538,7 @@
         errorLine2="                                                                 ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8881"
+            line="8703"
             column="66"/>
     </issue>
 
@@ -2450,7 +2549,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8928"
+            line="8750"
             column="44"/>
     </issue>
 
@@ -2461,7 +2560,7 @@
         errorLine2="                                                                      ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8928"
+            line="8750"
             column="71"/>
     </issue>
 
@@ -2472,7 +2571,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8943"
+            line="8765"
             column="39"/>
     </issue>
 
@@ -2483,7 +2582,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8977"
+            line="8799"
             column="34"/>
     </issue>
 
@@ -2494,7 +2593,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8996"
+            line="8818"
             column="41"/>
     </issue>
 
@@ -2505,7 +2604,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9014"
+            line="8836"
             column="41"/>
     </issue>
 
@@ -2516,7 +2615,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9025"
+            line="8847"
             column="29"/>
     </issue>
 
@@ -2527,7 +2626,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9037"
+            line="8859"
             column="29"/>
     </issue>
 
@@ -2538,7 +2637,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9103"
+            line="8925"
             column="32"/>
     </issue>
 
@@ -2549,7 +2648,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9280"
+            line="9102"
             column="64"/>
     </issue>
 
@@ -2560,7 +2659,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="10762"
+            line="10584"
             column="44"/>
     </issue>
 
@@ -2571,7 +2670,7 @@
         errorLine2="                      ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11080"
+            line="10902"
             column="23"/>
     </issue>
 
@@ -2582,7 +2681,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12105"
+            line="11927"
             column="31"/>
     </issue>
 
@@ -2593,7 +2692,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12112"
+            line="11934"
             column="31"/>
     </issue>
 
@@ -2604,7 +2703,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12119"
+            line="11941"
             column="31"/>
     </issue>
 
@@ -2615,7 +2714,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12125"
+            line="11947"
             column="60"/>
     </issue>
 
@@ -2626,7 +2725,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12125"
+            line="11947"
             column="76"/>
     </issue>
 
@@ -2637,7 +2736,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12130"
+            line="11952"
             column="60"/>
     </issue>
 
@@ -2648,7 +2747,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12130"
+            line="11952"
             column="76"/>
     </issue>
 
@@ -2659,7 +2758,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12161"
+            line="11983"
             column="29"/>
     </issue>
 
@@ -2670,7 +2769,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12161"
+            line="11983"
             column="40"/>
     </issue>
 
@@ -2681,7 +2780,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12169"
+            line="11991"
             column="29"/>
     </issue>
 
@@ -2692,7 +2791,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12173"
+            line="11995"
             column="29"/>
     </issue>
 
@@ -2703,7 +2802,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12177"
+            line="11999"
             column="29"/>
     </issue>
 
@@ -2714,7 +2813,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12531"
+            line="12353"
             column="37"/>
     </issue>
 
@@ -2725,7 +2824,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12545"
+            line="12367"
             column="16"/>
     </issue>
 
@@ -2736,7 +2835,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12558"
+            line="12380"
             column="48"/>
     </issue>
 
@@ -2747,19 +2846,8 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12910"
+            line="12732"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public &lt;T> T get(int resourceId) {"
-        errorLine2="                   ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="13123"
-            column="20"/>
     </issue>
 
     <issue
@@ -2769,7 +2857,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="13138"
+            line="12960"
             column="41"/>
     </issue>
 
@@ -3150,166 +3238,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int add(T item) {"
-        errorLine2="                   ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="142"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean remove(T item) {"
-        errorLine2="                          ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="573"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public T removeItemAt(int index) {"
-        errorLine2="           ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="585"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void updateItemAt(int index, T item) {"
-        errorLine2="                                        ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="630"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public T get(int index) throws IndexOutOfBoundsException {"
-        errorLine2="           ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="704"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int indexOf(T item) {"
-        errorLine2="                       ~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="727"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        abstract public int compare(T2 o1, T2 o2);"
-        errorLine2="                                    ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="854"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        abstract public int compare(T2 o1, T2 o2);"
-        errorLine2="                                           ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="854"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/SortedList.java"
             line="865"
             column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        abstract public boolean areContentsTheSame(T2 oldItem, T2 newItem);"
-        errorLine2="                                                   ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="887"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        abstract public boolean areContentsTheSame(T2 oldItem, T2 newItem);"
-        errorLine2="                                                               ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="887"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        abstract public boolean areItemsTheSame(T2 item1, T2 item2);"
-        errorLine2="                                                ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="899"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        abstract public boolean areItemsTheSame(T2 item1, T2 item2);"
-        errorLine2="                                                          ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="899"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Object getChangePayload(T2 item1, T2 item2) {"
-        errorLine2="                                       ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="919"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Object getChangePayload(T2 item1, T2 item2) {"
-        errorLine2="                                                 ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="919"
-            column="50"/>
     </issue>
 
     <issue
@@ -3326,100 +3260,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public int compare(T2 o1, T2 o2) {"
-        errorLine2="                           ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="957"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public int compare(T2 o1, T2 o2) {"
-        errorLine2="                                  ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="957"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/SortedList.java"
             line="982"
             column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean areContentsTheSame(T2 oldItem, T2 newItem) {"
-        errorLine2="                                          ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="987"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean areContentsTheSame(T2 oldItem, T2 newItem) {"
-        errorLine2="                                                      ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="987"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean areItemsTheSame(T2 item1, T2 item2) {"
-        errorLine2="                                       ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="992"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean areItemsTheSame(T2 item1, T2 item2) {"
-        errorLine2="                                                 ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="992"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Object getChangePayload(T2 item1, T2 item2) {"
-        errorLine2="                                       ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="998"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Object getChangePayload(T2 item1, T2 item2) {"
-        errorLine2="                                                 ~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="998"
-            column="50"/>
     </issue>
 
     <issue
