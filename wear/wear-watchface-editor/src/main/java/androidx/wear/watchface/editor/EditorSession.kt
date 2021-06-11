@@ -190,6 +190,8 @@ public abstract class EditorSession : AutoCloseable {
      *
      * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot] to select
      * a complication provider for.
+     * @throws IllegalStateException if a previous invocation of openComplicationProviderChooser is
+     * still running when openComplicationProviderChooser is called.
      */
     @UiThread
     public abstract suspend fun openComplicationProviderChooser(complicationSlotId: Int):
@@ -374,12 +376,9 @@ public abstract class BaseEditorSession internal constructor(
     override suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?> =
         deferredComplicationsProviderInfoMap.await()
 
-    /** Pending result for [openComplicationProviderChooser]. */
+    /** Pending result for ComplicationProviderChooserRequest. */
     internal var pendingComplicationProviderChooserResult:
-        CompletableDeferred<ChosenComplicationProvider?>? = null
-
-    /** The id of the complication being configured due to [openComplicationProviderChooser]. */
-    private var pendingComplicationProviderId: Int = -1
+        CompletableDeferred<ComplicationProviderChooserResult?>? = null
 
     private val chooseComplicationProvider =
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
@@ -389,45 +388,11 @@ public abstract class BaseEditorSession internal constructor(
     internal fun onComplicationProviderChooserResult(
         complicationProviderChooserResult: ComplicationProviderChooserResult?
     ) {
-        // Check if the user cancelled the provider chooser.
-        if (complicationProviderChooserResult == null) {
-            pendingComplicationProviderChooserResult?.complete(null)
+        synchronized(this) {
+            val deferredResult = pendingComplicationProviderChooserResult
             pendingComplicationProviderChooserResult = null
-            return
-        }
-        val providerInfoRetriever =
-            providerInfoRetrieverProvider.getProviderInfoRetriever()
-        coroutineScope.launchWithTracing(
-            "BaseEditorSession.onComplicationProviderChooserResult"
-        ) {
-            try {
-                val complicationsProviderInfoMap = deferredComplicationsProviderInfoMap.await()
-                complicationsProviderInfoMap[pendingComplicationProviderId] =
-                    complicationProviderChooserResult.providerInfo
-                val previewData = getPreviewData(
-                    providerInfoRetriever,
-                    complicationProviderChooserResult.providerInfo
-                )
-                val complicationPreviewDataMap = deferredComplicationPreviewDataMap.await()
-                if (previewData == null) {
-                    complicationPreviewDataMap[pendingComplicationProviderId] =
-                        EmptyComplicationData()
-                } else {
-                    complicationPreviewDataMap[pendingComplicationProviderId] = previewData
-                }
-                pendingComplicationProviderChooserResult?.complete(
-                    ChosenComplicationProvider(
-                        pendingComplicationProviderId,
-                        complicationProviderChooserResult.providerInfo,
-                        complicationProviderChooserResult.extras,
-                    )
-                )
-                pendingComplicationProviderChooserResult = null
-            } finally {
-                // This gets called after the above coroutine has finished.
-                providerInfoRetriever.close()
-            }
-        }
+            deferredResult
+        }!!.complete(complicationProviderChooserResult)
     }
 
     override suspend fun openComplicationProviderChooser(
@@ -439,20 +404,68 @@ public abstract class BaseEditorSession internal constructor(
         require(!complicationSlotsState[complicationSlotId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationSlotId"
         }
-        // If there's a previous openComplicationProviderChooser invocation in flight then wait for
-        // it to complete.
-        pendingComplicationProviderChooserResult?.await()
 
-        pendingComplicationProviderChooserResult = CompletableDeferred()
-        pendingComplicationProviderId = complicationSlotId
-        chooseComplicationProvider.launch(
-            ComplicationProviderChooserRequest(
-                this,
-                complicationSlotId,
-                watchFaceId.id
+        val deferredResult = CompletableDeferred<ComplicationProviderChooserResult?>()
+
+        synchronized(this) {
+            // The ComplicationProviderChooser is modal so it doesn't make sense to allow concurrent
+            // invocations so bail out if there's a pending result.
+            if (pendingComplicationProviderChooserResult != null) {
+                throw IllegalStateException(
+                    "Concurrent openComplicationProviderChooser invocation is not supported"
+                )
+            }
+            pendingComplicationProviderChooserResult = deferredResult
+
+            chooseComplicationProvider.launch(
+                ComplicationProviderChooserRequest(
+                    this,
+                    complicationSlotId,
+                    watchFaceId.id
+                )
             )
-        )
-        return pendingComplicationProviderChooserResult!!.await()
+        }
+
+        val complicationProviderChooserResult = try {
+            deferredResult.await()
+        } finally {
+            synchronized(this) {
+                pendingComplicationProviderChooserResult = null
+            }
+        }
+
+        // If deferredResult was null then the user canceled so return null.
+        if (complicationProviderChooserResult == null) {
+            return null
+        }
+
+        val providerInfoRetriever =
+            providerInfoRetrieverProvider.getProviderInfoRetriever()
+
+        try {
+            val complicationsProviderInfoMap = deferredComplicationsProviderInfoMap.await()
+            complicationsProviderInfoMap[complicationSlotId] =
+                complicationProviderChooserResult.providerInfo
+            val previewData = getPreviewData(
+                providerInfoRetriever,
+                complicationProviderChooserResult.providerInfo
+            )
+            val complicationPreviewDataMap = deferredComplicationPreviewDataMap.await()
+            if (previewData == null) {
+                complicationPreviewDataMap[complicationSlotId] =
+                    EmptyComplicationData()
+            } else {
+                complicationPreviewDataMap[complicationSlotId] = previewData
+            }
+            return ChosenComplicationProvider(
+                complicationSlotId,
+                complicationProviderChooserResult.providerInfo,
+                complicationProviderChooserResult.extras,
+            )
+        } finally {
+            // This gets called after the above coroutine has finished.
+            providerInfoRetriever.close()
+        }
     }
 
     override val backgroundComplicationSlotId: Int? by lazy {
@@ -506,13 +519,12 @@ public abstract class BaseEditorSession internal constructor(
 
     private fun makeFallbackPreviewData(
         providerInfo: ComplicationProviderInfo
-    ) =
-        ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder(providerInfo.name).build(),
-            ComplicationText.EMPTY
-        ).setMonochromaticImage(
-            MonochromaticImage.Builder(providerInfo.icon).build()
-        ).build()
+    ) = ShortTextComplicationData.Builder(
+        PlainComplicationText.Builder(providerInfo.name).build(),
+        ComplicationText.EMPTY
+    ).setMonochromaticImage(
+        MonochromaticImage.Builder(providerInfo.icon).build()
+    ).build()
 
     protected fun fetchComplicationsData() {
         val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
