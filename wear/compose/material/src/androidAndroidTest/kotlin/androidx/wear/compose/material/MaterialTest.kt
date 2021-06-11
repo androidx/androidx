@@ -56,6 +56,8 @@ import kotlin.math.round
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
 
+internal const val TEST_TAG = "test-item"
+
 fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
     composable: @Composable () -> Unit

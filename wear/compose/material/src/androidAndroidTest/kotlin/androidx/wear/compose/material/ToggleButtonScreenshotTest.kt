@@ -40,7 +40,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalTestApi::class)
-class ButtonScreenshotTest {
+class ToggleButtonScreenshotTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -52,50 +52,39 @@ class ButtonScreenshotTest {
     val testName = TestName()
 
     @Test
-    fun button_ltr() =
+    fun togglebutton_ltr() =
         verifyScreenshot(LayoutDirection.Ltr) {
-            Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("abc")
+            ToggleButton(
+                checked = true,
+                onCheckedChange = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                Text("On")
             }
         }
 
     @Test
-    fun button_rtl() =
+    fun togglebutton_rtl() =
         verifyScreenshot(LayoutDirection.Rtl) {
-            Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("abc")
+            ToggleButton(
+                checked = true,
+                onCheckedChange = {},
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                Text("On")
             }
         }
 
     @Test
-    fun button_disabled() =
+    fun togglebutton_disabled() =
         verifyScreenshot {
-            Button(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("abc")
-            }
-        }
-
-    @Test
-    fun compactbutton_ltr() =
-        verifyScreenshot(LayoutDirection.Ltr) {
-            CompactButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("xs")
-            }
-        }
-
-    @Test
-    fun compactbutton_rtl() =
-        verifyScreenshot(LayoutDirection.Rtl) {
-            CompactButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("xs")
-            }
-        }
-
-    @Test
-    fun compactbutton_disabled() =
-        verifyScreenshot {
-            CompactButton(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("xs")
+            ToggleButton(
+                checked = false,
+                onCheckedChange = {},
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                Text("Off")
             }
         }
 

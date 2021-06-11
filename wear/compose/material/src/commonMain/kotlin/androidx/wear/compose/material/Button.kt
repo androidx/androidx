@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this chip in different states. See [ButtonDefaults.buttonColors].
+ * this button in different states. See [ButtonDefaults.buttonColors].
  * @param interactionSource The [MutableInteractionSource] representing the stream of
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -126,7 +126,7 @@ fun Button(
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this chip in different states. See [ButtonDefaults.buttonColors].
+ * this button in different states. See [ButtonDefaults.buttonColors].
  * @param backgroundPadding Increases the transparent clickable area around the background,
  * defaults to [ButtonDefaults.CompactButtonBackgroundPadding]
  * @param interactionSource The [MutableInteractionSource] representing the stream of
