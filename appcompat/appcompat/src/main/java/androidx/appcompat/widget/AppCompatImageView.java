@@ -63,6 +63,8 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatImageHelper mImageHelper;
 
+    private boolean mHasLevel = false;
+
     public AppCompatImageView(@NonNull Context context) {
         this(context, null);
     }
@@ -103,9 +105,17 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
 
     @Override
     public void setImageDrawable(@Nullable Drawable drawable) {
+        if (mImageHelper != null && drawable != null && !mHasLevel) {
+            // If there is no level set already then obtain the level from the drawable
+            mImageHelper.obtainLevelFromDrawable(drawable);
+        }
         super.setImageDrawable(drawable);
         if (mImageHelper != null) {
             mImageHelper.applySupportImageTint();
+            if (!mHasLevel) {
+                // Apply the level from drawable
+                mImageHelper.applyImageLevel();
+            }
         }
     }
 
@@ -267,5 +277,11 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     @Override
     public boolean hasOverlappingRendering() {
         return mImageHelper.hasOverlappingRendering() && super.hasOverlappingRendering();
+    }
+
+    @Override
+    public void setImageLevel(int level) {
+        super.setImageLevel(level);
+        mHasLevel = true;
     }
 }
