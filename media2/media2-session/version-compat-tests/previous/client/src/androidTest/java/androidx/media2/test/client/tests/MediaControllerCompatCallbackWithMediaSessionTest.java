@@ -407,6 +407,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         assertEquals(testSeekPosition, controllerCallback.mPlaybackState.getPosition());
     }
 
+    @FlakyTest(bugId = 187338985)
     @Test
     public void currentMediaItemChange() throws Exception {
         prepareLooper();
