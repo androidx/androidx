@@ -27,6 +27,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EdgeEffect;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -97,21 +100,29 @@ public class EdgeEffectCompatTest extends
         public EdgeEffect mEdgeEffect;
 
         public ViewWithEdgeEffect(Context context) {
-            this(context, null);
+            super(context);
+            initEdgeEffect(context, null);
         }
 
         public ViewWithEdgeEffect(Context context, AttributeSet attrs) {
-            this(context, attrs, 0);
+            super(context, attrs);
+            initEdgeEffect(context, attrs);
         }
 
         public ViewWithEdgeEffect(Context context, AttributeSet attrs, int defStyleAttr) {
-            this(context, attrs, defStyleAttr, 0);
+            super(context, attrs, defStyleAttr);
+            initEdgeEffect(context, attrs);
         }
 
+        @RequiresApi(21)
+        @SuppressWarnings("unused")
         public ViewWithEdgeEffect(Context context, AttributeSet attrs, int defStyleAttr,
                 int defStyleRes) {
             super(context, attrs, defStyleAttr, defStyleRes);
+            initEdgeEffect(context, attrs);
+        }
 
+        private void initEdgeEffect(@NonNull Context context, @Nullable AttributeSet attrs) {
             mEdgeEffect = EdgeEffectCompat.create(context, attrs);
         }
     }
