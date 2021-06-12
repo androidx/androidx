@@ -127,6 +127,30 @@ public abstract class AudioSpec {
                 .setSampleRate(SAMPLE_RATE_RANGE_AUTO);
     }
 
+    /**
+     * Transforms channel count to corresponding {@link AudioFormat} channel config.
+     */
+    static int channelCountToConfig(@ChannelCount int channelCount) {
+        int channelConfig;
+        switch (channelCount) {
+            case CHANNEL_COUNT_AUTO:
+                channelConfig = AudioFormat.CHANNEL_IN_DEFAULT;
+                break;
+            case CHANNEL_COUNT_MONO:
+                channelConfig = AudioFormat.CHANNEL_IN_MONO;
+                break;
+            case CHANNEL_COUNT_STEREO:
+                channelConfig = AudioFormat.CHANNEL_IN_STEREO;
+                break;
+            case CHANNEL_COUNT_NONE:
+                throw new IllegalArgumentException("Unable to get channel config with zero "
+                        + "channel count");
+            default:
+                throw new IllegalArgumentException("Invalid channel count " + channelCount + ".");
+        }
+        return channelConfig;
+    }
+
     /** Gets the bitrate. */
     @NonNull
     public abstract Range<Integer> getBitrate();
