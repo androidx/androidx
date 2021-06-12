@@ -183,7 +183,7 @@ class RecorderTest {
 
         activeRecording.stop()
 
-        verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileHasAudioAndVideo(Uri.fromFile(file))
@@ -270,7 +270,7 @@ class RecorderTest {
 
         activeRecording.stop()
 
-        verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileHasAudioAndVideo(Uri.fromFile(file))
@@ -315,13 +315,12 @@ class RecorderTest {
 
         activeRecording.pause()
 
-        verify(videoRecordEventListener, timeout(1000L))
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
         activeRecording.resume()
 
-        clearInvocations(videoRecordEventListener)
-        val inOrder = inOrder(videoRecordEventListener)
         inOrder.verify(videoRecordEventListener, timeout(1000L))
             .accept(any(VideoRecordEvent.Resume::class.java))
         // Check there are data being encoded after resuming.
@@ -331,7 +330,7 @@ class RecorderTest {
         activeRecording.stop()
 
         // Wait for the recording to be finalized.
-        verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileHasAudioAndVideo(Uri.fromFile(file))
