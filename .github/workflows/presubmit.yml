@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - androidx-main
-      - yigit/fix-java-tools-jar
   pull_request_target:
     types: ['labeled']
 
