@@ -655,8 +655,9 @@ public final class Recorder implements VideoOutput {
         return AudioEncoderConfig.builder()
                 .setMimeType(MediaSpec.outputFormatToAudioMime(mediaSpec.getOutputFormat()))
                 .setBitrate(AUDIO_BITRATE_DEFAULT)
-                .setSampleRate(AUDIO_SAMPLE_RATE_DEFAULT)
-                .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                .setSampleRate(selectSampleRate(mediaSpec.getAudioSpec()))
+                .setChannelMask(
+                        AudioSpec.channelCountToConfig(mediaSpec.getAudioSpec().getChannelCount()))
                 .setChannelCount(mediaSpec.getAudioSpec().getChannelCount())
                 .build();
     }
@@ -770,11 +771,46 @@ public final class Recorder implements VideoOutput {
     @Nullable
     private AudioSource setupAudioSource(@NonNull BufferProvider<InputBuffer> bufferProvider,
             @NonNull AudioSpec audioSpec) throws AudioSourceAccessException {
-        int selectedSampleRate = AUDIO_SAMPLE_RATE_DEFAULT;
+        int sampleRate = selectSampleRate(audioSpec);
+        int channelConfig = AudioSpec.channelCountToConfig(audioSpec.getChannelCount());
+        int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig,
+                audioSpec.getSourceFormat());
+        if (bufferSize <= 0) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                Logger.i(TAG,
+                        "Unable to find a available sample rate. Fallback to native sample rate.");
+                // Use the native sample rate came from the audio source if the OS version is API
+                // 24+.
+                sampleRate = AudioFormat.SAMPLE_RATE_UNSPECIFIED;
+            } else {
+                setState(State.ERROR);
+                mErrorCause = new IllegalArgumentException(
+                        "Unable to find a available sample rate.");
+                return null;
+            }
+        }
+
+        return new AudioSource.Builder().setExecutor(CameraXExecutors.ioExecutor())
+                .setBufferProvider(bufferProvider)
+                .setAudioSource(audioSpec.getSource())
+                .setSampleRate(sampleRate)
+                .setChannelConfig(channelConfig)
+                .setAudioFormat(AUDIO_SPEC_DEFAULT.getSourceFormat())
+                .setDefaultBufferSize(bufferSize * 2)
+                .build();
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private int selectSampleRate(AudioSpec audioSpec) {
         int bufferSize = 0;
+        // The default sample rate should work on most devices. May consider throw an
+        // exception or have other way to notify users that the specified sample rate
+        // can not be satisfied.
+        int selectedSampleRate = AUDIO_SAMPLE_RATE_DEFAULT;
+        int channelConfig = AudioSpec.channelCountToConfig(audioSpec.getChannelCount());
         for (int sampleRate : AudioSource.COMMON_SAMPLE_RATES) {
             if (audioSpec.getSampleRate().contains(sampleRate)) {
-                bufferSize = AudioRecord.getMinBufferSize(sampleRate, audioSpec.getChannelCount(),
+                bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig,
                         audioSpec.getSourceFormat());
                 if (bufferSize > 0) {
                     // Choose the largest valid sample rate as the list has descending order.
@@ -784,37 +820,7 @@ public final class Recorder implements VideoOutput {
             }
         }
 
-        if (bufferSize <= 0) {
-            Logger.i(TAG, "Unable to find a available sample rate. Fallback to default.");
-            if (Build.VERSION.SDK_INT >= 24) {
-                // Use the native sample rate came from the audio source.
-                selectedSampleRate = AudioFormat.SAMPLE_RATE_UNSPECIFIED;
-            } else {
-                // The default sample rate should work on most devices. May consider throw an
-                // exception or have other way to notify users that the specified sample rate
-                // can not be satisfied.
-                selectedSampleRate = AUDIO_SAMPLE_RATE_DEFAULT;
-            }
-
-            bufferSize = AudioRecord.getMinBufferSize(selectedSampleRate,
-                    audioSpec.getChannelCount(), audioSpec.getSourceFormat());
-            if (bufferSize <= 0) {
-                Logger.e(TAG, "Unable to retrieve minimum buffer size.");
-                setState(State.ERROR);
-                mErrorCause = new IllegalArgumentException(
-                        "Unable to retrieve minimum buffer size.");
-                return null;
-            }
-        }
-
-        return new AudioSource.Builder().setExecutor(CameraXExecutors.ioExecutor())
-                .setBufferProvider(bufferProvider)
-                .setAudioSource(audioSpec.getSource())
-                .setSampleRate(selectedSampleRate)
-                .setChannelConfig(audioSpec.getChannelCount())
-                .setAudioFormat(AUDIO_SPEC_DEFAULT.getSourceFormat())
-                .setDefaultBufferSize(bufferSize * 2)
-                .build();
+        return selectedSampleRate;
     }
 
     @ExecutedBy("mSequentialExecutor")
