@@ -129,7 +129,17 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-
+      - name: "Setup JDK 8 for tools.jar"
+        id: setup-java8
+        uses: actions/setup-java@v1
+        with:
+          java-version: "8"
+      - name: "set tools jar path"
+        id: setup-tools-jar
+        run: |
+          set -x
+          TOOLS_JAR=$JAVA_HOME/lib/tools.jar
+          echo "::set-output name=toolsJar::$TOOLS_JAR"
       - name: "Setup JDK 11"
         id: setup-java
         uses: actions/setup-java@v1
@@ -147,6 +157,7 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
           arguments: buildOnServer buildTestApks ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
