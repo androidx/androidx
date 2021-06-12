@@ -138,8 +138,8 @@ class KspFilerTest {
             "Baz.kt",
             """
                 package foo.bar;
-                 
-                class Baz 
+
+                class Baz
             """.trimIndent()
         )
     }
