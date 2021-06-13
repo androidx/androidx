@@ -308,6 +308,7 @@ class AudioEncoderTest {
     @Test
     fun bufferProvider_canReceiveBufferProviderStateChange() {
         // Arrange.
+        fakeAudioLoop.start()
         val stateRef = AtomicReference<State>()
         val lock = Semaphore(0)
         (encoder.input as Encoder.ByteBufferInput).addObserver(

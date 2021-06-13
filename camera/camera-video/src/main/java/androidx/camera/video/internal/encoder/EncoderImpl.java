@@ -40,7 +40,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -140,7 +139,6 @@ public class EncoderImpl implements Encoder {
     final Object mLock = new Object();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final boolean mIsVideoEncoder;
-    private final InternalStateObservable mStateObservable = new InternalStateObservable();
     private final MediaFormat mMediaFormat;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final MediaCodec mMediaCodec;
@@ -194,23 +192,7 @@ public class EncoderImpl implements Encoder {
         if (encoderConfig instanceof AudioEncoderConfig) {
             mTag = "AudioEncoder";
             mIsVideoEncoder = false;
-            ByteBufferInput byteBufferInput = new ByteBufferInput();
-            // State change will run on mEncoderExecutor, use direct executor to avoid delay.
-            mStateObservable.addObserver(CameraXExecutors.directExecutor(),
-                    new Observable.Observer<InternalState>() {
-                        @ExecutedBy("mEncoderExecutor")
-                        @Override
-                        public void onNewData(@Nullable InternalState value) {
-                            byteBufferInput.setActive(value == STARTED);
-                        }
-
-                        @ExecutedBy("mEncoderExecutor")
-                        @Override
-                        public void onError(@NonNull Throwable t) {
-                            // No defined. Ignore.
-                        }
-                    });
-            mEncoderInput = byteBufferInput;
+            mEncoderInput = new ByteBufferInput();
         } else if (encoderConfig instanceof VideoEncoderConfig) {
             mTag = "VideoEncoder";
             mIsVideoEncoder = true;
@@ -283,6 +265,9 @@ public class EncoderImpl implements Encoder {
                         handleEncodeError(e);
                         return;
                     }
+                    if (mEncoderInput instanceof ByteBufferInput) {
+                        ((ByteBufferInput) mEncoderInput).setActive(true);
+                    }
                     setState(STARTED);
                     break;
                 case PAUSED:
@@ -302,8 +287,9 @@ public class EncoderImpl implements Encoder {
                             (resumeTimeUs - pauseTimeUs))
                     );
 
-                    if (mEncoderInput instanceof SurfaceInput) {
-                        setMediaCodecPaused(false);
+                    setMediaCodecPaused(false);
+                    if (mEncoderInput instanceof ByteBufferInput) {
+                        ((ByteBufferInput) mEncoderInput).setActive(true);
                     }
                     // If this is a video encoder, then request a key frame in order to complete
                     // the resume process as soon as possible in MediaCodec.Callback
@@ -350,6 +336,7 @@ public class EncoderImpl implements Encoder {
                 case PAUSED:
                     setState(STOPPING);
                     if (mEncoderInput instanceof ByteBufferInput) {
+                        ((ByteBufferInput) mEncoderInput).setActive(false);
                         // Wait for all issued input buffer done to avoid input loss.
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         for (InputBuffer inputBuffer : mInputBufferSet) {
@@ -494,7 +481,6 @@ public class EncoderImpl implements Encoder {
         }
         Logger.d(mTag, "Transitioning encoder internal state: " + mState + " --> " + state);
         mState = state;
-        mStateObservable.notifyState();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -777,44 +763,6 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    class InternalStateObservable implements Observable<InternalState> {
-
-        private final Map<Observer<? super InternalState>, Executor> mObservers =
-                new LinkedHashMap<>();
-
-        @ExecutedBy("mEncoderExecutor")
-        void notifyState() {
-            final InternalState state = mState;
-            for (Map.Entry<Observer<? super InternalState>, Executor> entry :
-                    mObservers.entrySet()) {
-                entry.getValue().execute(() -> entry.getKey().onNewData(state));
-            }
-        }
-
-        @ExecutedBy("mEncoderExecutor")
-        @NonNull
-        @Override
-        public ListenableFuture<InternalState> fetchData() {
-            return Futures.immediateFuture(mState);
-        }
-
-        @ExecutedBy("mEncoderExecutor")
-        @Override
-        public void addObserver(@NonNull Executor executor,
-                @NonNull Observer<? super InternalState> observer) {
-            final InternalState state = mState;
-            mObservers.put(observer, executor);
-            executor.execute(() -> observer.onNewData(state));
-        }
-
-        @ExecutedBy("mEncoderExecutor")
-        @Override
-        public void removeObserver(@NonNull Observer<? super InternalState> observer) {
-            mObservers.remove(observer);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class MediaCodecCallback extends MediaCodec.Callback {
 
         private boolean mHasFirstData = false;
@@ -1016,22 +964,24 @@ public class EncoderImpl implements Encoder {
         @ExecutedBy("mEncoderExecutor")
         private boolean updatePauseRangeStateAndCheckIfBufferPaused(
                 @NonNull MediaCodec.BufferInfo bufferInfo) {
+            updateTotalPausedDuration(bufferInfo.presentationTimeUs);
             boolean isInPauseRange = isInPauseRange(bufferInfo.presentationTimeUs);
             if (!mIsOutputBufferInPauseState && isInPauseRange) {
                 Logger.d(mTag, "Switch to pause state");
                 // From resume to pause
                 mIsOutputBufferInPauseState = true;
 
-                // Pause by MediaCodec if surface-input is used. It has to ensure the current
-                // state is PAUSED state because start() could be called before the output buffer
-                // reach pause range.
-                if (mEncoderInput instanceof SurfaceInput && mState == PAUSED) {
+                // It has to ensure the current state is PAUSED state and then stop the input
+                // source. This is because start() will resume input source and could be called
+                // before the output buffer reach pause range.
+                if (mState == PAUSED) {
+                    if (mEncoderInput instanceof ByteBufferInput) {
+                        ((ByteBufferInput) mEncoderInput).setActive(false);
+                    }
                     setMediaCodecPaused(true);
                 }
             } else if (mIsOutputBufferInPauseState && !isInPauseRange) {
                 // From pause to resume
-                updateTotalPausedDuration(bufferInfo.presentationTimeUs);
-
                 if (mIsVideoEncoder && !isKeyFrame(bufferInfo)) {
                     // If a video frame is not a key frame, do not switch to resume state.
                     // This is because a key frame is required to be the first encoded data
