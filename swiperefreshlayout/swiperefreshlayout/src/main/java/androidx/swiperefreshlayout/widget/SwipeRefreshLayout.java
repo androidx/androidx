@@ -1006,7 +1006,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             finishSpinner(mTotalUnconsumed);
             mTotalUnconsumed = 0;
         } else {
-            mProgress.setArrowEnabled(false);
+            // Set the progress back to the initial state so that it is positioned properly,
+            // is GONE and no animations are running. We don't want the shadow from
+            // the progress to show at this point.
+            post(() -> reset());
         }
         // Dispatch up our nested parent
         stopNestedScroll();
