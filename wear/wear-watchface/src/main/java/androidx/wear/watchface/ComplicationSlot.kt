@@ -25,6 +25,7 @@ import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.annotation.UiThread
+import androidx.annotation.WorkerThread
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
@@ -36,7 +37,11 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.RenderParameters.HighlightedElement
 
-/** Interface for rendering complicationSlots onto a [Canvas]. */
+/**
+ * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
+ * [CanvasComplicationFactory.create]. If state needs to be shared with the [Renderer] that should
+ * be set up inside [onRendererCreated].
+ */
 public interface CanvasComplication {
 
     /** Interface for observing when a [CanvasComplication] needs the screen to be redrawn. */
@@ -44,6 +49,15 @@ public interface CanvasComplication {
         /** Signals that the complication needs to be redrawn. Can be called on any thread. */
         public fun onInvalidate()
     }
+
+    /**
+     * Called once on a background thread before any subsequent UI thread rendering to inform the
+     * CanvasComplication of the [Renderer] which is useful if they need to share state. Note the
+     * [Renderer] is created asynchronously which is why we can't pass it in via
+     * [CanvasComplicationFactory.create] as it may not be available at that time.
+     */
+    @WorkerThread
+    public fun onRendererCreated(renderer: Renderer) {}
 
     /**
      * Draws the complication defined by [getData] into the canvas with the specified bounds.

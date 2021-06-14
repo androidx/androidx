@@ -11,6 +11,7 @@ package androidx.wear.watchface {
     method public androidx.wear.complications.data.ComplicationData? getData();
     method public boolean isHighlighted();
     method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
+    method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method public void setIsHighlighted(boolean p);
     property public abstract boolean isHighlighted;
