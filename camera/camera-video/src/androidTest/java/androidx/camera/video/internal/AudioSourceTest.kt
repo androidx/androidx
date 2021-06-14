@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,8 +40,10 @@ import java.util.concurrent.Callable
 class AudioSourceTest {
 
     companion object {
-        private const val SAMPLE_RATE = 8000
-        private const val DEFAULT_MIN_BUFFER_SIZE = 1024
+        private const val SAMPLE_RATE = 44100
+        private const val AUDIO_SOURCE = MediaRecorder.AudioSource.CAMCORDER
+        private const val CHANNEL_COUNT = 1
+        private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
     }
 
     @get:Rule
@@ -53,6 +56,8 @@ class AudioSourceTest {
 
     @Before
     fun setUp() {
+        assumeTrue(AudioSource.isSettingsSupported(SAMPLE_RATE, CHANNEL_COUNT, AUDIO_FORMAT))
+
         fakeBufferProvider = FakeBufferProvider {
             bufferFactoryInvocations.call()
             FakeInputBuffer()
@@ -61,11 +66,10 @@ class AudioSourceTest {
 
         audioSource = AudioSource.Builder()
             .setExecutor(CameraXExecutors.ioExecutor())
-            .setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
+            .setAudioSource(AUDIO_SOURCE)
             .setSampleRate(SAMPLE_RATE)
-            .setChannelConfig(AudioFormat.CHANNEL_IN_MONO)
-            .setAudioFormat(AudioFormat.ENCODING_PCM_16BIT)
-            .setDefaultBufferSize(DEFAULT_MIN_BUFFER_SIZE)
+            .setChannelCount(CHANNEL_COUNT)
+            .setAudioFormat(AUDIO_FORMAT)
             .setBufferProvider(fakeBufferProvider)
             .build()
     }
