@@ -28,7 +28,6 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":internal-testutils-runtime") return true
     if (name == ":internal-testutils-truth") return true
     if (isNeededForComposePlayground(name)) return true
-    if (name == ":test-screenshot") return true
     return false
 })
 

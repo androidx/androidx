@@ -25,7 +25,6 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":internal-testutils-paging") return true
     if (name == ":compose:integration-tests:demos:common") return true
     if (isNeededForComposePlayground(name)) return true
-    if (name == ":test-screenshot") return true
     return false
 })
 

@@ -23,7 +23,6 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":annotation:annotation-sampled") return true
     if (name == ":internal-testutils-runtime") return true
     if (isNeededForComposePlayground(name)) return true
-    if (name == ":test-screenshot") return true
     return false
 })
 
