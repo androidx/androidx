@@ -170,7 +170,7 @@ public class ComplicationSlotsManager(
             complication.init(complicationSlotInvalidateListener)
 
             // Force lazy construction of renderers.
-            complication.renderer
+            complication.renderer.onRendererCreated(renderer)
         }
 
         // Activate complicationSlots.
