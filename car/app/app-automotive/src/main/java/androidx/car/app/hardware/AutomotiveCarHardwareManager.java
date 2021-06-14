@@ -15,7 +15,6 @@
  */
 package androidx.car.app.hardware;
 
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static java.util.Objects.requireNonNull;
