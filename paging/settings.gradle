@@ -24,10 +24,7 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":internal-testutils-ktx") return true
     if (name == ":internal-testutils-paging") return true
     if (name == ":compose:integration-tests:demos:common") return true
-    if (name == ":compose:lint:common") return true
-    if (name == ":compose:lint:internal-lint-checks") return true
-    if (name == ":compose:test-utils") return true
-    if (name == ":test-screenshot") return true
+    if (isNeededForComposePlayground(name)) return true
     return false
 })
 
