@@ -23,7 +23,7 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.OriginatingElementsHolder
 import java.io.OutputStream
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
@@ -51,7 +51,7 @@ internal class KspFiler(
 
     override fun write(fileSpec: FileSpec, mode: XFiler.Mode) {
         val originatingFiles = fileSpec.members
-            .filterIsInstance<TypeSpec>()
+            .filterIsInstance<OriginatingElementsHolder>()
             .flatMap { it.originatingElements }
             .map(::originatingFileFor)
 
