@@ -97,7 +97,6 @@ class AppSearchMigrationHelper implements Closeable {
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
         try (FileOutputStream outputStream = new FileOutputStream(mFile, /*append=*/ true)) {
-            // TODO(b/151178558) change the output stream so that we can use it in platform
             CodedOutputStream codedOutputStream = CodedOutputStream.newInstance(outputStream);
             SearchResultPage searchResultPage = mAppSearchImpl.query(mPackageName, mDatabaseName,
                     /*queryExpression=*/"",
