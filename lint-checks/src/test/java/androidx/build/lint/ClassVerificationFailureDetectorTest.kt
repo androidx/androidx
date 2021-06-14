@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -33,6 +34,7 @@ class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
 ) {
 
     @Test
+    @Ignore("b/190726182")
     fun `Detection of unsafe references in Java sources`() {
         val input = arrayOf(
             javaSample("androidx.ClassVerificationFailureFromJava"),
