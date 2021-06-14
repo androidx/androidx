@@ -25,6 +25,7 @@ dependencies {
 
     implementation(libs.espressoCore, excludes.espresso)
     implementation(libs.kotlinStdlib)
+    implementation("androidx.core:core:1.2.0")
 }
 
 android {
