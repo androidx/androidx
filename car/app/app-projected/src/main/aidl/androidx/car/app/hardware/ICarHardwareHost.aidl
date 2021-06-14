@@ -37,6 +37,6 @@ interface ICarHardwareHost {
    * Indicates to the host that the app wants to unsubscribe from a vehicle result that changes
    * over time.
    */
-  void unsubscribeCarHardwareResult(in int resultType) = 3;
+  void unsubscribeCarHardwareResult(in int resultType, in @nullable Bundleable params) = 3;
 
 }

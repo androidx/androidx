@@ -145,7 +145,7 @@ public class CarResultStubTest {
         }
 
         @Override
-        public void getCarHardwareResult(int resultType, Bundleable params,
+        public void getCarHardwareResult(int resultType, @Nullable Bundleable params,
                 ICarHardwareResult callback) throws RemoteException {
             mCallback = callback;
             // Record the call in the mock
@@ -157,7 +157,7 @@ public class CarResultStubTest {
         }
 
         @Override
-        public void subscribeCarHardwareResult(int resultType, Bundleable params,
+        public void subscribeCarHardwareResult(int resultType, @Nullable Bundleable params,
                 ICarHardwareResult callback) throws RemoteException {
             mCallback = callback;
             mMockCarHardwareHost.subscribeCarHardwareResult(resultType, params, callback);
@@ -167,8 +167,9 @@ public class CarResultStubTest {
         }
 
         @Override
-        public void unsubscribeCarHardwareResult(int resultType) throws RemoteException {
-            mMockCarHardwareHost.unsubscribeCarHardwareResult(resultType);
+        public void unsubscribeCarHardwareResult(int resultType, @Nullable Bundleable params)
+                throws RemoteException {
+            mMockCarHardwareHost.unsubscribeCarHardwareResult(resultType, params);
         }
     }
 }
