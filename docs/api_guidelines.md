@@ -23,17 +23,21 @@ classes within a feature's artifact must reside within this package, and may
 further subdivide into `androidx.<feature-name>.<layer>` using standard Android
 layers (app, widget, etc.) or layers specific to the feature.
 
-Maven artifacts use the groupId format `androidx.<feature-name>` and artifactId
-format `<feature-name>` to match the Java package.
+Maven specifications use the groupId format `androidx.<feature-name>` and
+artifactId format `<feature-name>` to match the Java package. For example,
+`androidx.core.role` uses the Maven spec `androidx.core:role`.
 
-Sub-features that can be separated into their own artifact should use the
-following formats:
+Sub-features that can be separated into their own artifact are recommended to
+use the following formats:
 
-Java package: `androidx.<feature-name>.<sub-feature>.<layer>`
+-   Java package: `androidx.<feature-name>.<sub-feature>.<layer>`
+-   Maven groupId: `androidx.<feature-name>`
+-   Maven artifactId: `<feature-name>-<sub-feature>`
 
-Maven groupId: `androidx.<feature-name>`
-
-Maven artifactId: `<feature-name>-<sub-feature>`
+Gradle project names and directories follow the Maven spec format, substituting
+the project name separator `:` or directory separator `/` for the Maven
+separators `.` or `:`. For example, `androidx.core:core-role` would use project
+name `:core:core-role` and directory `/core/core-role`.
 
 New modules in androidx can be created using the
 [project creator script](/company/teams/androidx/policies.md#project-creator).
