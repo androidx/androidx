@@ -527,20 +527,22 @@ public abstract class NavType<T> internal constructor(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val StringArrayType: NavType<Array<String>> = object : NavType<Array<String>>(true) {
+        public val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
+            true
+        ) {
             override val name: String
                 get() = "string[]"
 
-            override fun put(bundle: Bundle, key: String, value: Array<String>) {
+            override fun put(bundle: Bundle, key: String, value: Array<String>?) {
                 bundle.putStringArray(key, value)
             }
 
             @Suppress("UNCHECKED_CAST")
-            override fun get(bundle: Bundle, key: String): Array<String> {
-                return bundle[key] as Array<String>
+            override fun get(bundle: Bundle, key: String): Array<String>? {
+                return bundle[key] as Array<String>?
             }
 
-            override fun parseValue(value: String): Array<String> {
+            override fun parseValue(value: String): Array<String>? {
                 throw UnsupportedOperationException("Arrays don't support default values.")
             }
         }
