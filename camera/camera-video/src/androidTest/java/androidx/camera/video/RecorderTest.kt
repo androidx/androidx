@@ -22,6 +22,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
@@ -36,6 +37,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.core.util.Consumer
@@ -103,6 +105,7 @@ class RecorderTest {
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
+        assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
         CameraX.initialize(context, Camera2Config.defaultConfig()).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)

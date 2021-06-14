@@ -19,6 +19,7 @@ import android.Manifest
 import android.media.AudioFormat
 import android.media.MediaRecorder
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.testing.AudioUtil
 import androidx.camera.video.internal.encoder.FakeInputBuffer
 import androidx.camera.video.internal.encoder.noInvocation
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -57,6 +58,7 @@ class AudioSourceTest {
     @Before
     fun setUp() {
         assumeTrue(AudioSource.isSettingsSupported(SAMPLE_RATE, CHANNEL_COUNT, AUDIO_FORMAT))
+        assumeTrue(AudioUtil.canStartAudioRecord(AUDIO_SOURCE))
 
         fakeBufferProvider = FakeBufferProvider {
             bufferFactoryInvocations.call()
