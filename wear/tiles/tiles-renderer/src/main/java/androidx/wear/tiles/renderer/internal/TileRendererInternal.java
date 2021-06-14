@@ -1049,12 +1049,15 @@ public final class TileRendererInternal {
             }
         }
 
+        // We don't want the text to be screen-reader focusable, unless wrapped in a Semantics
+        // modifier. This prevents automatically reading out partial text (e.g. text in a row) etc.
+        //
+        // This **must** be done before applying modifiers; applying a Semantics modifier will set
+        // importantForAccessibility, so we don't want to override it after applying modifiers.
+        textView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+
         View wrappedView = applyModifiers(textView, text.getModifiers());
         parent.addView(wrappedView, layoutParams);
-
-        // We don't want the text to be screen-reader focusable, unless wrapped in a Audible. This
-        // prevents automatically reading out partial text (e.g. text in a row) etc.
-        textView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         return wrappedView;
     }
@@ -1537,7 +1540,27 @@ public final class TileRendererInternal {
             tv.setMaxLines(TEXT_MAX_LINES_DEFAULT);
         }
 
-        if (spannable.hasLineSpacing()) {
+        if (spannable.hasLineHeight()) {
+            // We use a Span here instead of just calling TextViewCompat#setLineHeight.
+            // setLineHeight is implemented by taking the difference between the current font height
+            // (via the font metrics, not just the size in SP), subtracting that from the desired
+            // line height, and setting that as the inter-line spacing. This doesn't work for our
+            // Spannables; we don't use a default height, yet TextView still has a default font (and
+            // size) that it tries to base the requested line height on, despite that never actually
+            // being used. The end result is that the line height never actually drops out as
+            // expected.
+            //
+            // Instead, wrap the whole thing in a LineHeightSpan with the desired line height. This
+            // gets calculated properly as the TextView is calculating its per-line font metrics,
+            // and will actually work correctly.
+            StandardLineHeightSpan span =
+                    new StandardLineHeightSpan((int) toPx(spannable.getLineHeight()));
+            builder.setSpan(
+                    span,
+                    /* start= */ 0,
+                    /* end= */ builder.length(),
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        } else if (spannable.hasLineSpacing()) {
             tv.setLineSpacing(toPx(spannable.getLineSpacing()), 1f);
         }
 
@@ -1629,18 +1652,21 @@ public final class TileRendererInternal {
             List<LayoutElement> elements) {
         // We can't measure a container if it's set to wrap-contents but all of its contents are set
         // to expand-to-parent. Such containers must not be displayed.
-        if (containerWidth.hasWrappedDimension() && !containsMeasurableWidth(elements)) {
+        if (containerWidth.hasWrappedDimension()
+                && !containsMeasurableWidth(containerHeight, elements)) {
             return false;
         }
-        if (containerHeight.hasWrappedDimension() && !containsMeasurableHeight(elements)) {
+        if (containerHeight.hasWrappedDimension()
+                && !containsMeasurableHeight(containerWidth, elements)) {
             return false;
         }
         return true;
     }
 
-    private boolean containsMeasurableWidth(List<LayoutElement> elements) {
+    private boolean containsMeasurableWidth(
+            ContainerDimension containerHeight, List<LayoutElement> elements) {
         for (LayoutElement element : elements) {
-            if (isWidthMeasurable(element)) {
+            if (isWidthMeasurable(element, containerHeight)) {
                 // Enough to find a single element that is measurable.
                 return true;
             }
@@ -1648,9 +1674,10 @@ public final class TileRendererInternal {
         return false;
     }
 
-    private boolean containsMeasurableHeight(List<LayoutElement> elements) {
+    private boolean containsMeasurableHeight(
+            ContainerDimension containerWidth, List<LayoutElement> elements) {
         for (LayoutElement element : elements) {
-            if (isHeightMeasurable(element)) {
+            if (isHeightMeasurable(element, containerWidth)) {
                 // Enough to find a single element that is measurable.
                 return true;
             }
@@ -1658,7 +1685,7 @@ public final class TileRendererInternal {
         return false;
     }
 
-    private boolean isWidthMeasurable(LayoutElement element) {
+    private boolean isWidthMeasurable(LayoutElement element, ContainerDimension containerHeight) {
         switch (element.getInnerCase()) {
             case COLUMN:
                 return isMeasurable(element.getColumn().getWidth());
@@ -1669,7 +1696,19 @@ public final class TileRendererInternal {
             case SPACER:
                 return isMeasurable(element.getSpacer().getWidth());
             case IMAGE:
-                return isMeasurable(element.getImage().getWidth());
+                // Special-case. If the image width is proportional, then the height must be
+                // measurable. This means either a fixed size, or expanded where we know the parent
+                // dimension.
+                Image img = element.getImage();
+                if (img.getWidth().hasProportionalDimension()) {
+                    boolean isContainerHeightKnown =
+                            (containerHeight.hasExpandedDimension()
+                                    || containerHeight.hasLinearDimension());
+                    return img.getHeight().hasLinearDimension()
+                            || (img.getHeight().hasExpandedDimension() && isContainerHeightKnown);
+                } else {
+                    return isMeasurable(element.getImage().getWidth());
+                }
             case ARC:
             case TEXT:
             case SPANNABLE:
@@ -1680,7 +1719,7 @@ public final class TileRendererInternal {
         }
     }
 
-    private boolean isHeightMeasurable(LayoutElement element) {
+    private boolean isHeightMeasurable(LayoutElement element, ContainerDimension containerWidth) {
         switch (element.getInnerCase()) {
             case COLUMN:
                 return isMeasurable(element.getColumn().getHeight());
@@ -1691,7 +1730,19 @@ public final class TileRendererInternal {
             case SPACER:
                 return isMeasurable(element.getSpacer().getHeight());
             case IMAGE:
-                return isMeasurable(element.getImage().getHeight());
+                // Special-case. If the image height is proportional, then the width must be
+                // measurable. This means either a fixed size, or expanded where we know the parent
+                // dimension.
+                Image img = element.getImage();
+                if (img.getHeight().hasProportionalDimension()) {
+                    boolean isContainerWidthKnown =
+                            (containerWidth.hasExpandedDimension()
+                                    || containerWidth.hasLinearDimension());
+                    return img.getWidth().hasLinearDimension()
+                            || (img.getWidth().hasExpandedDimension() && isContainerWidthKnown);
+                } else {
+                    return isMeasurable(element.getImage().getHeight());
+                }
             case ARC:
             case TEXT:
             case SPANNABLE:
