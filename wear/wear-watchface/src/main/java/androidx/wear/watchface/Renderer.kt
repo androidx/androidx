@@ -122,7 +122,7 @@ public sealed class Renderer @WorkerThread constructor(
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
-    internal lateinit var watchFaceHostApi: WatchFaceHostApi
+    internal var watchFaceHostApi: WatchFaceHostApi? = null
 
     init {
         surfaceHolder.addCallback(
@@ -195,7 +195,7 @@ public sealed class Renderer @WorkerThread constructor(
                             "must be >= 0"
                     }
                 }
-                watchFaceHostApi.updateContentDescriptionLabels()
+                watchFaceHostApi?.updateContentDescriptionLabels()
             }
 
     /** Called when the Renderer is destroyed. */
@@ -277,9 +277,7 @@ public sealed class Renderer @WorkerThread constructor(
      */
     @UiThread
     public fun invalidate() {
-        if (this::watchFaceHostApi.isInitialized) {
-            watchFaceHostApi.invalidate()
-        }
+        watchFaceHostApi?.invalidate()
     }
 
     /**
@@ -288,9 +286,7 @@ public sealed class Renderer @WorkerThread constructor(
      * on any thread.
      */
     public fun postInvalidate() {
-        if (this::watchFaceHostApi.isInitialized) {
-            watchFaceHostApi.getUiThreadHandler().post { watchFaceHostApi.invalidate() }
-        }
+        watchFaceHostApi?.getUiThreadHandler()?.post { watchFaceHostApi!!.invalidate() }
     }
 
     @UiThread
@@ -671,8 +667,8 @@ public sealed class Renderer @WorkerThread constructor(
         @WorkerThread
         public fun makeBackgroundThreadContextCurrent() {
             require(
-                !this::watchFaceHostApi.isInitialized ||
-                    watchFaceHostApi.getBackgroundThreadHandler().looper.isCurrentThread
+                watchFaceHostApi == null ||
+                    watchFaceHostApi!!.getBackgroundThreadHandler().looper.isCurrentThread
             ) {
                 "makeBackgroundThreadContextCurrent must be called from the Background Thread"
             }
@@ -727,7 +723,7 @@ public sealed class Renderer @WorkerThread constructor(
          */
         @UiThread
         public fun makeUiThreadContextCurrent() {
-            require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
+            require(watchFaceHostApi!!.getUiThreadHandler().looper.isCurrentThread) {
                 "makeUiThreadContextCurrent must be called from the UiThread"
             }
             if (!EGL14.eglMakeCurrent(
