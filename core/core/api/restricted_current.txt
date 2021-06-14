@@ -1258,6 +1258,11 @@ package androidx.core.content.pm {
   @IntDef(flag=true, value={androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_MANIFEST, androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_DYNAMIC, androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_PINNED, androidx.core.content.pm.ShortcutManagerCompat.FLAG_MATCH_CACHED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutManagerCompat.ShortcutMatchFlags {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ShortcutXmlParser {
+    method @WorkerThread public static java.util.List<java.lang.String!> getShortcutIds(android.content.Context);
+    method @VisibleForTesting public static java.util.List<java.lang.String!> parseShortcutIds(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
 }
 
 package androidx.core.content.res {
