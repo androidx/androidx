@@ -106,9 +106,21 @@ def selectProjectsFromAndroidX(filter) {
     }
 }
 
+/**
+ * Checks if a project is necessary for playground projects that involve compose.
+ */
+def isNeededForComposePlayground(name) {
+    if (name == ":compose:lint:common") return true
+    if (name == ":compose:lint:internal-lint-checks") return true
+    if (name == ":compose:test-utils") return true
+    if (name == ":compose:lint:common-test") return true
+    return false
+}
+
 // define functions that can be called by the main settings.gradle file
 ext.includeProject = this.&includeProject
 ext.selectProjectsFromAndroidX = this.&selectProjectsFromAndroidX
+ext.isNeededForComposePlayground = this.&isNeededForComposePlayground
 ext.setupPlayground = this.&setupPlayground
 
 // validate JVM version to print an understandable error if it is not set to the
