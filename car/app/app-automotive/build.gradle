@@ -41,6 +41,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation("androidx.fragment:fragment-testing:1.2.3")
+    testImplementation project(path: ':car:app:app-testing')
 }
 
 android {
