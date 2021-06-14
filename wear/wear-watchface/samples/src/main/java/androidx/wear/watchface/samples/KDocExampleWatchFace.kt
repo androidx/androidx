@@ -113,7 +113,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 }
             return ComplicationSlotsManager(
                 listOf(
-                    ComplicationSlot.createRoundRectComplicationBuilder(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 0,
                         canvasComplicationFactory,
                         listOf(
@@ -127,7 +127,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
-                    ComplicationSlot.createRoundRectComplicationBuilder(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 1,
                         canvasComplicationFactory,
                         listOf(

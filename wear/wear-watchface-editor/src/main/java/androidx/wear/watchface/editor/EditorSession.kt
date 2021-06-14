@@ -738,7 +738,7 @@ internal class HeadlessEditorSession(
 
     override val previewReferenceTimeMillis = headlessWatchFaceClient.previewReferenceTimeMillis
 
-    override val complicationSlotsState = headlessWatchFaceClient.complicationsSlotState
+    override val complicationSlotsState = headlessWatchFaceClient.complicationSlotsState
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,

@@ -304,9 +304,9 @@ public class WatchFaceControlClientTest {
             400
         )!!
 
-        assertThat(headlessInstance.complicationsSlotState.size).isEqualTo(2)
+        assertThat(headlessInstance.complicationSlotsState.size).isEqualTo(2)
 
-        val leftComplicationDetails = headlessInstance.complicationsSlotState[
+        val leftComplicationDetails = headlessInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
         ]!!
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
@@ -327,7 +327,7 @@ public class WatchFaceControlClientTest {
         )
         assertTrue(leftComplicationDetails.isEnabled)
 
-        val rightComplicationDetails = headlessInstance.complicationsSlotState[
+        val rightComplicationDetails = headlessInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
         ]!!
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
@@ -501,9 +501,9 @@ public class WatchFaceControlClientTest {
             )
         )
 
-        assertThat(interactiveInstance.complicationsSlotState.size).isEqualTo(2)
+        assertThat(interactiveInstance.complicationSlotsState.size).isEqualTo(2)
 
-        val leftComplicationDetails = interactiveInstance.complicationsSlotState[
+        val leftComplicationDetails = interactiveInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
         ]!!
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
@@ -527,7 +527,7 @@ public class WatchFaceControlClientTest {
             ComplicationType.SHORT_TEXT
         )
 
-        val rightComplicationDetails = interactiveInstance.complicationsSlotState[
+        val rightComplicationDetails = interactiveInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
         ]!!
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
@@ -689,7 +689,7 @@ public class WatchFaceControlClientTest {
         // We need to wait for watch face init to have completed before lateinit
         // wallpaperService.watchFace will be assigned. To do this we issue an arbitrary API
         // call which by necessity awaits full initialization.
-        interactiveInstance.complicationsSlotState
+        interactiveInstance.complicationSlotsState
 
         // Add some additional ContentDescriptionLabels
         wallpaperService.watchFace.renderer.additionalContentDescriptionLabels = listOf(
@@ -785,10 +785,10 @@ public class WatchFaceControlClientTest {
         assertThat(interactiveInstance.instanceId).isEqualTo("testId2")
 
         // The complicationSlots should have been cleared.
-        val leftComplication = interactiveInstance.complicationsSlotState[
+        val leftComplication = interactiveInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
         ]!!
-        val rightComplication = interactiveInstance.complicationsSlotState[
+        val rightComplication = interactiveInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
         ]!!
         assertThat(leftComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
@@ -867,7 +867,7 @@ public class WatchFaceControlClientTest {
 
         try {
             // The first call on the interface should report the crash.
-            awaitWithTimeout(client).complicationsSlotState
+            awaitWithTimeout(client).complicationSlotsState
             fail("Expected an exception to be thrown because the watchface crashed on init")
         } catch (e: Exception) {
             assertThat(e.toString()).contains("Deliberately crashing")
@@ -978,7 +978,7 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
     ): ComplicationSlotsManager {
         return ComplicationSlotsManager(
             listOf(
-                ComplicationSlot.createRoundRectComplicationBuilder(
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
                     COMPLICATION_ID,
                     { _, _ -> throw Exception("Deliberately crashing") },
                     listOf(ComplicationType.LONG_TEXT),

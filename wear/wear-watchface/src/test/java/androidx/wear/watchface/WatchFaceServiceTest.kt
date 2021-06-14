@@ -169,7 +169,7 @@ public class WatchFaceServiceTest {
         ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", icon = null)
 
     private val leftComplication =
-        ComplicationSlot.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -191,7 +191,7 @@ public class WatchFaceServiceTest {
             .build()
 
     private val rightComplication =
-        ComplicationSlot.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -214,7 +214,7 @@ public class WatchFaceServiceTest {
 
     private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
     private val edgeComplication =
-        ComplicationSlot.createEdgeComplicationBuilder(
+        ComplicationSlot.createEdgeComplicationSlotBuilder(
             EDGE_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -237,7 +237,7 @@ public class WatchFaceServiceTest {
             .build()
 
     private val backgroundComplication =
-        ComplicationSlot.createBackgroundComplicationBuilder(
+        ComplicationSlot.createBackgroundComplicationSlotBuilder(
             BACKGROUND_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -1535,7 +1535,7 @@ public class WatchFaceServiceTest {
     public fun defaultProvidersWithFallbacks_newApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = ComplicationSlot.createRoundRectComplicationBuilder(
+        val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
@@ -1565,7 +1565,7 @@ public class WatchFaceServiceTest {
     public fun defaultProvidersWithFallbacks_oldApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = ComplicationSlot.createRoundRectComplicationBuilder(
+        val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
@@ -1958,7 +1958,7 @@ public class WatchFaceServiceTest {
 
         val manager = ComplicationSlotsManager(
             listOf(
-                ComplicationSlot.createRoundRectComplicationBuilder(
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
                     complicationSlotId1,
                     { watchState, listener ->
                         CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
@@ -1972,7 +1972,7 @@ public class WatchFaceServiceTest {
                     .setEnabled(false)
                     .build(),
 
-                ComplicationSlot.createRoundRectComplicationBuilder(
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
                     complicationSlotId2,
                     { watchState, listener ->
                         CanvasComplicationDrawable(complicationDrawableRight, watchState, listener)
@@ -2582,7 +2582,7 @@ public class WatchFaceServiceTest {
     public fun canvasComplication_onRendererCreated() {
         val leftCanvasComplication = mock<CanvasComplication>()
         val leftComplication =
-            ComplicationSlot.createRoundRectComplicationBuilder(
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 LEFT_COMPLICATION_ID,
                 { _, _ -> leftCanvasComplication },
                 listOf(
@@ -2595,7 +2595,7 @@ public class WatchFaceServiceTest {
 
         val rightCanvasComplication = mock<CanvasComplication>()
         val rightComplication =
-            ComplicationSlot.createRoundRectComplicationBuilder(
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 RIGHT_COMPLICATION_ID,
                 { _, _ -> rightCanvasComplication },
                 listOf(

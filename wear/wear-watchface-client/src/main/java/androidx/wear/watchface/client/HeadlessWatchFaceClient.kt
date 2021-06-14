@@ -67,7 +67,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * [ComplicationSlotsUserStyleSetting]. Because the style can't change, ComplicationSlotState is
      * immutable for a headless watch face.
      */
-    public val complicationsSlotState: Map<Int, ComplicationSlotState>
+    public val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
@@ -170,7 +170,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iHeadlessWatchFace.userStyleSchema)
 
-    override val complicationsSlotState: Map<Int, ComplicationSlotState>
+    override val complicationSlotsState: Map<Int, ComplicationSlotState>
         get() = iHeadlessWatchFace.complicationState.associateBy(
             { it.id },
             { ComplicationSlotState(it.complicationState) }
