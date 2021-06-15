@@ -34,13 +34,19 @@ import androidx.car.app.SurfaceContainer;
 import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.info.Accelerometer;
+import androidx.car.app.hardware.info.CarHardwareLocation;
 import androidx.car.app.hardware.info.CarInfo;
+import androidx.car.app.hardware.info.CarSensors;
+import androidx.car.app.hardware.info.Compass;
+import androidx.car.app.hardware.info.Gyroscope;
 import androidx.car.app.hardware.info.Model;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /** A very simple implementation of a renderer for the app's background surface. */
@@ -65,8 +71,11 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
     private final Paint mCarInfoPaint = new Paint();
     private boolean mShowCarHardwareSurfaceInfo;
 
-    @Nullable
-    Model mModel;
+    @Nullable Model mModel;
+    @Nullable Accelerometer mAccelerometer;
+    @Nullable Gyroscope mGyroscope;
+    @Nullable Compass mCompass;
+    @Nullable CarHardwareLocation mCarHardwareLocation;
 
     private OnCarDataListener<Model> mModelListener = new OnCarDataListener<Model>() {
         @Override
@@ -76,6 +85,38 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                 mModel = data;
                 renderFrame();
             }
+        }
+    };
+
+    private OnCarDataListener<Accelerometer> mAccelerometerListener = data -> {
+        synchronized (SurfaceRenderer.this) {
+            Log.i(TAG, String.format("Received accelerometer %s", data));
+            mAccelerometer = data;
+            renderFrame();
+        }
+    };
+
+    private OnCarDataListener<Gyroscope> mGyroscopeListener = data -> {
+        synchronized (SurfaceRenderer.this) {
+            Log.i(TAG, String.format("Received gyroscope %s", data));
+            mGyroscope = data;
+            renderFrame();
+        }
+    };
+
+    private OnCarDataListener<Compass> mCompassListener = data -> {
+        synchronized (SurfaceRenderer.this) {
+            Log.i(TAG, String.format("Received compass %s", data));
+            mCompass = data;
+            renderFrame();
+        }
+    };
+
+    private OnCarDataListener<CarHardwareLocation> mCarLocationListener = data -> {
+        synchronized (SurfaceRenderer.this) {
+            Log.i(TAG, String.format("Received car location %s", data));
+            mCarHardwareLocation = data;
+            renderFrame();
         }
     };
 
@@ -142,7 +183,6 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         mCarInfoPaint.setAntiAlias(true);
         mCarInfoPaint.setStyle(Style.STROKE);
         mCarInfoPaint.setTextAlign(Align.CENTER);
-
         mCarHardwareExecutor = ContextCompat.getMainExecutor(mCarContext);
 
         lifecycle.addObserver(this);
@@ -158,14 +198,39 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         if (isEnabled == mShowCarHardwareSurfaceInfo) {
             return;
         }
+        CarHardwareManager carHardwareManager =
+                mCarContext.getCarService(CarHardwareManager.class);
         if (isEnabled) {
-            CarHardwareManager carHardwareManager =
-                    mCarContext.getCarService(CarHardwareManager.class);
-
             // Request any single shot values.
             CarInfo carInfo = carHardwareManager.getCarInfo();
             mModel = null;
             carInfo.getModel(mCarHardwareExecutor, mModelListener);
+
+            // Request sensors
+            CarSensors carSensors = carHardwareManager.getCarSensors();
+            mCompass = null;
+            carSensors.addCompassListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
+                    mCompassListener);
+            mGyroscope = null;
+            carSensors.addGyroscopeListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
+                    mGyroscopeListener);
+            mAccelerometer = null;
+            carSensors.addAccelerometerListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
+                    mAccelerometerListener);
+            mCarHardwareLocation = null;
+            carSensors.addCarHardwareLocationListener(CarSensors.UPDATE_RATE_NORMAL,
+                    mCarHardwareExecutor, mCarLocationListener);
+        } else {
+            // Unsubscribe sensors
+            CarSensors carSensors = carHardwareManager.getCarSensors();
+            mCompass = null;
+            carSensors.removeCompassListener(mCompassListener);
+            mGyroscope = null;
+            carSensors.removeGyroscopeListener(mGyroscopeListener);
+            mAccelerometer = null;
+            carSensors.removeAccelerometerListener(mAccelerometerListener);
+            mCarHardwareLocation = null;
+            carSensors.removeCarHardwareLocationListener(mCarLocationListener);
         }
         mShowCarHardwareSurfaceInfo = isEnabled;
         renderFrame();
@@ -204,6 +269,10 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                 visibleArea.set(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
             }
 
+            Paint.FontMetrics fm = mCarInfoPaint.getFontMetrics();
+            float height = fm.descent - fm.ascent;
+            float verticalPos = visibleArea.top + VERTICAL_TEXT_MARGIN_FROM_TOP;
+
             StringBuilder info = new StringBuilder();
             if (mModel == null) {
                 info.append("Fetching model info.");
@@ -226,9 +295,69 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                     info.append(mModel.getYear());
                 }
             }
-            canvas.drawText(info.toString(), visibleArea.centerX(),
-                    visibleArea.top + VERTICAL_TEXT_MARGIN_FROM_TOP, mCarInfoPaint);
+            canvas.drawText(info.toString(), visibleArea.centerX(), verticalPos, mCarInfoPaint);
+            verticalPos += height;
+            info = new StringBuilder();
+            if (mAccelerometer == null) {
+                info.append("Fetching accelerometer");
+            } else {
+                if (mAccelerometer.getForces().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Accelerometer unavailable.");
+                } else {
+                    info.append("Accelerometer: ");
+                    appendFloatList(info, mAccelerometer.getForces().getValue());
+                }
+            }
+            canvas.drawText(info.toString(), visibleArea.centerX(), verticalPos, mCarInfoPaint);
+            verticalPos += height;
+            info = new StringBuilder();
+            if (mGyroscope == null) {
+                info.append("Fetching gyroscope");
+            } else {
+                if (mGyroscope.getRotations().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Gyroscope unavailable.");
+                } else {
+                    info.append("Gyroscope: ");
+                    appendFloatList(info, mGyroscope.getRotations().getValue());
+                }
+            }
+            canvas.drawText(info.toString(), visibleArea.centerX(), verticalPos, mCarInfoPaint);
+            verticalPos += height;
+            info = new StringBuilder();
+            if (mCompass == null) {
+                info.append("Fetching compass");
+            } else {
+                if (mCompass.getOrientations().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Compass unavailable.");
+                } else {
+                    info.append("Compass: ");
+                    appendFloatList(info, mCompass.getOrientations().getValue());
+                }
+            }
+            canvas.drawText(info.toString(), visibleArea.centerX(), verticalPos, mCarInfoPaint);
+            verticalPos += height;
+            info = new StringBuilder();
+            if (mCarHardwareLocation == null) {
+                info.append("Fetching location");
+            } else {
+                if (mCarHardwareLocation.getLocation().getStatus() != CarValue.STATUS_SUCCESS) {
+                    info.append("Car Hardware Location unavailable");
+                } else {
+                    info.append("Car Hardware location: ");
+                    info.append(mCarHardwareLocation.getLocation().getValue().toString());
+                }
+            }
+            canvas.drawText(info.toString(), visibleArea.centerX(), verticalPos, mCarInfoPaint);
         }
+    }
+
+    private void appendFloatList(StringBuilder builder, List<Float> values) {
+        builder.append("[ ");
+        for (Float value : values) {
+            builder.append(value);
+            builder.append(" ");
+        }
+        builder.append("]");
     }
 
     private void renderStandardFrame(Canvas canvas) {
