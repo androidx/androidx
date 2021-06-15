@@ -16,20 +16,18 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.XProcessingStep.Companion.asAutoCommonProcessor
-import androidx.room.compiler.processing.XProcessingStep.Companion.executeInKsp
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
-import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
-import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.ClassKind
-import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
@@ -79,12 +77,8 @@ class XProcessingStepTest {
                 )
             }
         }
-        val mainProcessor = object : BasicAnnotationProcessor() {
-            override fun steps(): Iterable<Step> {
-                return listOf(
-                    processingStep.asAutoCommonProcessor(processingEnv)
-                )
-            }
+        val mainProcessor = object : JavacBasicAnnotationProcessor() {
+            override fun processingSteps() = listOf(processingStep)
         }
         val main = JavaFileObjects.forSourceString(
             "foo.bar.Main",
@@ -187,19 +181,8 @@ class XProcessingStepTest {
         ).that(
             listOf(main)
         ).processedWith(
-            object : BasicAnnotationProcessor() {
-                override fun steps(): Iterable<Step> {
-                    return listOf(
-                        processingStep.asAutoCommonProcessor(processingEnv)
-                    )
-                }
-
-                override fun getSupportedOptions(): Set<String> {
-                    return setOf(
-                        MainAnnotation::class.qualifiedName!!,
-                        OtherAnnotation::class.qualifiedName!!
-                    )
-                }
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(processingStep)
             }
         ).compilesWithoutError()
         assertThat(otherAnnotatedElements).containsExactly(
@@ -267,19 +250,8 @@ class XProcessingStepTest {
         ).that(
             listOf(main)
         ).processedWith(
-            object : BasicAnnotationProcessor() {
-                override fun steps(): Iterable<Step> {
-                    return listOf(
-                        processingStep.asAutoCommonProcessor(processingEnv)
-                    )
-                }
-
-                override fun getSupportedOptions(): Set<String> {
-                    return setOf(
-                        MainAnnotation::class.qualifiedName!!,
-                        OtherAnnotation::class.qualifiedName!!
-                    )
-                }
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(processingStep)
             }
         ).compilesWithoutError()
         assertThat(elementPerRound).hasSize(2)
@@ -298,6 +270,7 @@ class XProcessingStepTest {
     @Test
     fun kspReturnsUnprocessed() {
         CompilationTestCapabilities.assumeKspIsEnabled()
+        var returned: Set<XElement>? = null
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
@@ -306,26 +279,17 @@ class XProcessingStepTest {
                 return elementsByAnnotation.values
                     .flatten()
                     .toSet()
+                    .also { returned = it }
             }
 
             override fun annotations(): Set<String> {
                 return setOf(OtherAnnotation::class.qualifiedName!!)
             }
         }
-        var returned: List<KSAnnotated>? = null
         val processorProvider = object : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-                return object : SymbolProcessor {
-                    override fun process(resolver: Resolver): List<KSAnnotated> {
-                        val env = XProcessingEnv.create(
-                            emptyMap(),
-                            resolver,
-                            environment.codeGenerator,
-                            environment.logger
-                        )
-                        return processingStep.executeInKsp(env)
-                            .also { returned = it }
-                    }
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(processingStep)
                 }
             }
         }
@@ -352,8 +316,137 @@ class XProcessingStepTest {
             isNotNull()
             isNotEmpty()
         }
-        val element = returned!!.first() as KSClassDeclaration
+        val element =
+            returned!!.map { (it as KspElement).declaration }.first() as KSClassDeclaration
         assertThat(element.classKind).isEqualTo(ClassKind.CLASS)
         assertThat(element.qualifiedName!!.asString()).isEqualTo("foo.bar.Other")
+    }
+
+    @Test
+    fun javacAnnotatedElementsByStep() {
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = Object.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {
+            }
+            """.trimIndent()
+        )
+        val other = JavaFileObjects.forSourceString(
+            "foo.bar.Other",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @OtherAnnotation("x")
+            class Other {
+            }
+            """.trimIndent()
+        )
+        val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                elementsByStep[this] = elementsByAnnotation.values.flatten()
+                    .map { (it as XTypeElement).qualifiedName }
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                elementsByStep[this] = elementsByAnnotation.values.flatten()
+                    .map { (it as XTypeElement).qualifiedName }
+                return emptySet()
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, other)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep, otherStep)
+            }
+        ).compilesWithoutError()
+        assertThat(elementsByStep[mainStep])
+            .containsExactly("foo.bar.Main")
+        assertThat(elementsByStep[otherStep])
+            .containsExactly("foo.bar.Other")
+    }
+
+    @Test
+    fun kspAnnotatedElementsByStep() {
+        val main = SourceFile.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {
+            }
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+        val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                elementsByStep[this] = elementsByAnnotation.values.flatten()
+                    .map { (it as XTypeElement).qualifiedName }
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                elementsByStep[this] = elementsByAnnotation.values.flatten()
+                    .map { (it as XTypeElement).qualifiedName }
+                return emptySet()
+            }
+        }
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(mainStep, otherStep)
+                }
+            }
+        }
+        KotlinCompilation().apply {
+            workingDir = temporaryFolder.root
+            inheritClassPath = true
+            symbolProcessorProviders = listOf(processorProvider)
+            sources = listOf(main)
+            verbose = false
+        }.compile()
+        assertThat(elementsByStep[mainStep])
+            .containsExactly("foo.bar.Main")
+        assertThat(elementsByStep[otherStep])
+            .containsExactly("foo.bar.Other")
     }
 }

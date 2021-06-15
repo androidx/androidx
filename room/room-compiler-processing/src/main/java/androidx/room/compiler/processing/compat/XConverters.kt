@@ -19,15 +19,18 @@ package androidx.room.compiler.processing.compat
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -36,6 +39,9 @@ import javax.lang.model.type.TypeMirror
 
 // Migration APIs for converting between Javac and XProcessing types.
 object XConverters {
+
+    @JvmStatic
+    fun XRoundEnv.toJavac(): RoundEnvironment = (this as JavacRoundEnv).delegate
 
     @JvmStatic
     fun XElement.toJavac(): Element = (this as JavacElement).element
