@@ -25,7 +25,9 @@ import org.gradle.api.logging.Logger
 /**
  * Creates a project graph for fast lookup by file path
  */
-class ProjectGraph(project: Project, val logger: Logger? = null) {
+class ProjectGraph(
+    project: Project,
+    val logger: Logger? = null) {
     private val rootNode: Node
 
     init {
@@ -33,7 +35,12 @@ class ProjectGraph(project: Project, val logger: Logger? = null) {
         logger?.info("initializing ProjectGraph")
         rootNode = Node(logger)
         val rootProjectDir = project.getSupportRootFolder().canonicalFile
-        project.subprojects.forEach {
+        val projects = if (rootProjectDir == project.rootDir.canonicalFile) {
+            project.subprojects
+        } else {
+            project.subprojects + project
+        }
+        projects.forEach {
             logger?.info("creating node for ${it.path}")
             val relativePath = it.projectDir.canonicalFile.toRelativeString(rootProjectDir)
             val sections = relativePath.split(File.separatorChar)

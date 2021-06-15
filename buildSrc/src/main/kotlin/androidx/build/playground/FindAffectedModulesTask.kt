@@ -26,12 +26,21 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
 
-abstract class CheckAffectedPlaygroundTask : DefaultTask() {
+/**
+ * A task to print the list of affected modules based on given parameters.
+ *
+ * The list of changed files can be passed via [changedFiles] property and the the list of module
+ * paths will be written to the given [outputFilePath].
+ *
+ * This task is specialized for Playground projects where any change in .github or
+ * playground-common will be considered as an `INFRA` change and will be listed in the outputs.
+ */
+abstract class FindAffectedModulesTask : DefaultTask() {
     @get:Input
     @set:Option(
         option = "changedFilePath",
         description = "Changed file in the build (including removed files). Can be passed " +
-            "multiple times, e.g.: --changedFile=a.kt --changedFile=b.kt " +
+            "multiple times, e.g.: --changedFilePath=a.kt --changedFilePath=b.kt " +
             "File paths must be relative to the root directory of the main checkout"
     )
     abstract var changedFiles: List<String>
@@ -92,6 +101,5 @@ abstract class CheckAffectedPlaygroundTask : DefaultTask() {
             keepMerges: Boolean,
             fullProjectDir: File
         ): List<Commit> = emptyList()
-
     }
 }
