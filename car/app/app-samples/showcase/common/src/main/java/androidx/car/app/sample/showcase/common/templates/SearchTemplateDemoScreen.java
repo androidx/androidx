@@ -24,6 +24,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.SearchTemplate;
@@ -71,11 +72,26 @@ public class SearchTemplateDemoScreen extends Screen {
                     }
                 };
 
+        ActionStrip actionStrip = new ActionStrip.Builder()
+                .addAction(
+                        new Action.Builder()
+                                .setTitle("Settings")
+                                .setOnClickListener(
+                                        () ->
+                                                CarToast.makeText(
+                                                        getCarContext(),
+                                                        "Clicked Settings",
+                                                        LENGTH_LONG)
+                                                        .show())
+                                .build())
+                .build();
+
         return new SearchTemplate.Builder(searchListener)
                 .setSearchHint("Search here")
                 .setHeaderAction(Action.BACK)
                 .setShowKeyboardByDefault(false)
                 .setItemList(listBuilder.build())
+                .setActionStrip(actionStrip)
                 .build();
     }
 }
