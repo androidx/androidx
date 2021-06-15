@@ -538,7 +538,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     init {
         renderer.watchFaceHostApi = watchFaceHostApi
-        renderer.uiThreadInit()
+        renderer.uiThreadInitInternal()
 
         if (renderer.additionalContentDescriptionLabels.isNotEmpty()) {
             watchFaceHostApi.updateContentDescriptionLabels()

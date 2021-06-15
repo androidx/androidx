@@ -280,6 +280,8 @@ package androidx.wear.watchface {
     ctor @WorkerThread public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
     method @UiThread public abstract void renderHighlightLayer(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
+    method @UiThread public void uiThreadInit();
+    method public void uiThreadInitInternal$metalava_module();
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
@@ -292,8 +294,8 @@ package androidx.wear.watchface {
     method public final android.opengl.EGLContext getEglUiThreadContext();
     method @WorkerThread public final void makeBackgroundThreadContextCurrent();
     method @UiThread public final void makeUiThreadContextCurrent();
-    method @WorkerThread public void onGlContextCreated();
-    method @UiThread public void onGlSurfaceCreated(@Px int width, @Px int height);
+    method @WorkerThread public void onBackgroundThreadGlContextCreated();
+    method @UiThread public void onUiThreadGlSurfaceCreated(@Px int width, @Px int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
     method @UiThread public abstract void renderHighlightLayer(android.icu.util.Calendar calendar);
     method public final void setEglConfig(android.opengl.EGLConfig p);
