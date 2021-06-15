@@ -30,6 +30,7 @@ package androidx.core.app {
     method public static void finishAfterTransition(android.app.Activity);
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
+    method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
