@@ -1,0 +1,113 @@
+name: AndroidX Presubmits
+on:
+  push:
+    branches:
+      - yigit/playground-build-needed-check
+
+jobs:
+  setup:
+    # Both `run_workflow` and `retry_workflow` will trigger the workflow
+    if: ${{ (github.event_name == 'push' || contains(github.event.label.name, 'workflow')) }}
+    runs-on: ubuntu-latest
+    outputs:
+      gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
+    steps:
+      - name: "Start webhook"
+        uses: androidx/github-workflow-webhook-action@main
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
+      - name: "Setup global constants"
+        id: global-constants
+        run: |
+          set -x
+          GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=300000 \
+            -Dorg.gradle.internal.http.socketTimeout=300000                  \
+            -Dorg.gradle.internal.repository.max.retries=10                  \
+            -Dorg.gradle.internal.repository.initial.backoff=500             \
+            --stacktrace"
+          echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    steps:
+      - name: Pull request format
+        uses: 'androidx/check-pr-format-action@main'
+        with:
+          # Enforces a `Test: <stanza>` in the pull request
+          checks: '["(.*)?Test:(.*)?"]'
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "Get changed files in push or pull_request"
+        id: changed-files
+        uses: androidx/changed-files-action@main
+
+      - name: "Parse changed-files as ktlint args"
+        id: ktlint-file-args
+        run: |
+          set -x
+          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g' | grep -v "*.txt"`
+          echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
+      - name: "Parse changed-files as changed files aargs"
+        id: changed-file-args
+        run: |
+          set -x
+          CHANGED_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--changedFile=&|g'`
+          echo "::set-output name=files::$CHANGED_FILES"
+  build-modules:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        project: ["room"]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    env:
+      artifact-id: ${{matrix.project}}
+      project-root: ${{matrix.project-root || matrix.project}}
+    steps:
+      - name: "print changed files"
+        id: create-changed-files-args
+        run: |
+          set -x
+          echo "|${{ needs.lint.changed-file-args.files }}|"
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: "Run gradle to check if any of its projects is affected by changes"
+        id: check-affected-projected
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+        with:
+          arguments: findAffectedModules ${{ needs.lint.changed-file-args.files }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
+          build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
+      - name: "Parse the output of affected modules to see if we should build"
+        id: should-build
+        run: |
+          set -x
+          SHOULD_BUILD_PROJECT=[ -s ${{ github.workspace }}/affected.txt ] && echo "true" || echo "false"
+          echo "::set-output name=shouldBuildProject::$SHOULD_BUILD_PROJECT"
