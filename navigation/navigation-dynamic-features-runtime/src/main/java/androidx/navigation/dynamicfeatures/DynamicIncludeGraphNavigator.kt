@@ -60,9 +60,17 @@ public class DynamicIncludeGraphNavigator(
     }
 
     /**
+     * Navigates to a dynamically included graph from a `com.android.dynamic-feature` module.
+     *
+     * @param entries destination(s) to navigate to
+     * @param navOptions additional options for navigation
+     * @param navigatorExtras extras unique to your Navigator.
+     *
      * @throws Resources.NotFoundException if one of the [entries] does not have a valid
      * `graphResourceName` and `graphPackage`.
      * @throws IllegalStateException if one of the [entries] does not have a parent.
+
+     * @see Navigator.navigate
      */
     override fun navigate(
         entries: List<NavBackStackEntry>,
