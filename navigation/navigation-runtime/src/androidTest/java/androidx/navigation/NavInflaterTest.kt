@@ -233,6 +233,14 @@ class NavInflaterTest {
     }
 
     @Test
+    fun testDefaultArgumentsStringArray() {
+        val defaultArguments = inflateDefaultArgumentsFromGraph()
+
+        assertThat(defaultArguments["test_string_array"]?.run { type to defaultValue })
+            .isEqualTo(NavType.StringArrayType to null)
+    }
+
+    @Test
     fun testDefaultArgumentsReference() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
