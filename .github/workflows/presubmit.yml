@@ -52,6 +52,7 @@ jobs:
     needs: [setup]
     outputs:
       status: ${{ steps.output-status.outputs.status }}
+      affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -83,6 +84,12 @@ jobs:
         id: changed-files
         uses: androidx/changed-files-action@main
 
+      - name: "Get affected files in push or pull_request"
+        id: affected-files
+        uses: androidx/changed-files-action@main
+        with:
+          includeRemoved: true
+
       - name: "Warn on missing updateApi"
         run: |
           set -x
@@ -94,7 +101,13 @@ jobs:
           set -x
           KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g' | grep -v "*.txt"`
           echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
-
+       
+      - name: "Parse changed-files as changed files aargs"
+        id: affected-file-args
+        run: |
+          set -x
+          AFFECTED_FILES=`echo "${{ steps.affected-files.outputs.files }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
+          echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
         uses: eskatos/gradle-command-action@v1
         env:
@@ -153,35 +166,29 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-      - name: "Parse changed-files as args to the check affected task"
-        id: create-changed-files-args
-        run: |
-          set -x
-          CHANGED_FILES=`echo "${{ needs.lint.steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--changedFile=&|g'
-          echo "::set-output name=changedFilesArgs::$CHANGED_FILES"
       - name: "Run gradle to check if any of its projects is affected by changes"
-        id: check-affected-projected
+        id: find-affected-modules
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
-          arguments: findAffectedModules ${{ steps.create-changed-files-args.outputs.changedFilesArgs }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
+          arguments: findAffectedModules ${{ needs.lint.outputs.affectedFileArgs }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
           wrapper-cache-enabled: true
-      - name: "Parse the output of affected modules to see if we should build"
-        id: should-build
+      - name: "Parse the output of find affected modules step to see if we should build"
+        id: affected-module-count
         run: |
           set -x
-          SHOULD_BUILD_PROJECT=[ -s ${{ github.workspace }}/affected.txt ] && echo "true" || echo "false"
-          echo "::set-output name=shouldBuildProject::$SHOULD_BUILD_PROJECT"
+          AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt`
+          echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "./gradlew buildOnServer buildTestApks"
         uses: eskatos/gradle-command-action@v1
-        if: steps.should-build.outputs.shouldBuildProject
+        if: ${{ steps.affected-module-count.outputs.count > 0 }}
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}

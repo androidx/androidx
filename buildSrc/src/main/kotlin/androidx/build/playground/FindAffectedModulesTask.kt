@@ -59,7 +59,6 @@ abstract class FindAffectedModulesTask : DefaultTask() {
             it.contains(".github") ||
                 it.contains("playground-common") ||
                 it.contains("buildSrc")
-                // TODO cover root module
             }
         val detector = AffectedModuleDetectorImpl(
             rootProject = project,

@@ -58,7 +58,10 @@ class ProjectGraphTest {
                 .build()
         val graph = ProjectGraph(root)
         assertNull(graph.findContainingProject("nowhere"))
-        assertNull(graph.findContainingProject("rootfile.java"))
+        assertNull(
+            "When root project is the root folder, changes in it shouldn't be detected",
+            graph.findContainingProject("rootfile.java")
+        )
         assertEquals(
                 p1,
                 graph.findContainingProject("p1/px/x.java".toLocalPath())
@@ -74,6 +77,32 @@ class ProjectGraphTest {
         assertEquals(
                 p2,
                 graph.findContainingProject("p2/a/b/c/d/e/f/a.java".toLocalPath())
+        )
+        assertNull(graph.findContainingProject("root/x.java"))
+    }
+
+    @Test
+    fun rootProjectChange() {
+        val tmpDir = tmpFolder.root
+        val root = ProjectBuilder.builder()
+            .withProjectDir(tmpDir.resolve("subRoot"))
+            .withName("subRoot")
+            .build()
+        (root.properties.get("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
+        val p1 = ProjectBuilder.builder()
+            .withProjectDir(tmpDir.resolve("p1"))
+            .withName("p1")
+            .withParent(root)
+            .build()
+        val graph = ProjectGraph(root)
+        assertEquals(
+            p1,
+            graph.findContainingProject("p1/px/x.java".toLocalPath())
+        )
+        assertEquals(
+            "When root project is not support root, changes in it should be detected",
+            root,
+            graph.findContainingProject("subRoot/x.gradle".toLocalPath())
         )
     }
     private fun String.toLocalPath() = this.split("/").joinToString(File.separator)
