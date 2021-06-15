@@ -58,6 +58,11 @@ jobs:
       - name: "Get changed files in push or pull_request"
         id: changed-files
         uses: androidx/changed-files-action@main
+      - name: "Get affected files in push or pull_request"
+        id: affected-files
+        uses: yigit/changed-files-action@yigit/add-deleted-files-option
+        with:
+          includeRemoved: true
 
       - name: "Parse changed-files as ktlint args"
         id: ktlint-file-args
@@ -69,7 +74,7 @@ jobs:
         id: changed-file-args
         run: |
           set -x
-          CHANGED_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
+          CHANGED_FILES=`echo "${{ steps.affected-files.outputs.files }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
           echo "::set-output name=files::$CHANGED_FILES"
   build-modules:
     strategy:
@@ -113,12 +118,12 @@ jobs:
           AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt`
           echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "affected"
-        if: ${{ stepes.affected-module-count.outputs.count > 0 }}
+        if: ${{ steps.affected-module-count.outputs.count > 0 }}
         run: |
           set -x
-          echo "affected module count is gt 0, in fact, it is ${{ stepes.affected-module-count.outputs.count }}"
+          echo "affected module count is gt 0, in fact, it is ${{ steps.affected-module-count.outputs.count }}"
       - name: "not affected"
-        if: ${{ stepes.affected-module-count.outputs.count < 1 }}
+        if: ${{ steps.affected-module-count.outputs.count < 1 }}
         run: |
           set -x
-          echo "affected module count is lt 1, in fact, it is ${{ stepes.affected-module-count.outputs.count }}"
+          echo "affected module count is lt 1, in fact, it is ${{ steps.affected-module-count.outputs.count }}"
