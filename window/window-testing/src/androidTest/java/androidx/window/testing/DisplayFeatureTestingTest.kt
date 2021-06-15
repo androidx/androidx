@@ -24,7 +24,7 @@ import androidx.window.FoldingFeature.Orientation.Companion.VERTICAL
 import androidx.window.FoldingFeature.State.Companion.FLAT
 import androidx.window.FoldingFeature.Type.Companion.FOLD
 import androidx.window.FoldingFeature.Type.Companion.HINGE
-import androidx.window.windowInfoRepository
+import androidx.window.WindowMetricsCalculator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -40,13 +40,10 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_emptyWidthIsFold() {
         activityRule.scenario.onActivity { activity ->
-            val bounds = activity.windowInfoRepository().currentWindowMetrics.bounds
+            val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+            val bounds = metrics.bounds
             val center = bounds.centerX()
-            val actual = FoldingFeature(
-                activity = activity,
-                state = FLAT,
-                orientation = VERTICAL
-            )
+            val actual = FoldingFeature(activity = activity, state = FLAT, orientation = VERTICAL)
             val expected = FoldingFeature(Rect(center, 0, center, bounds.height()), FOLD, FLAT)
             assertEquals(expected, actual)
         }
@@ -56,13 +53,10 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_boundsMatchOrientation() {
         activityRule.scenario.onActivity { activity ->
-            val bounds = activity.windowInfoRepository().currentWindowMetrics.bounds
+            val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+            val bounds = metrics.bounds
             val center = bounds.centerX()
-            val actual = FoldingFeature(
-                activity = activity,
-                state = FLAT,
-                orientation = HORIZONTAL
-            )
+            val actual = FoldingFeature(activity = activity, state = FLAT, orientation = HORIZONTAL)
             val expected = FoldingFeature(Rect(0, center, bounds.width(), center), FOLD, FLAT)
             assertEquals(expected, actual)
         }
@@ -72,7 +66,8 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_nonEmptyWidthIsFold() {
         activityRule.scenario.onActivity { activity ->
-            val bounds = activity.windowInfoRepository().currentWindowMetrics.bounds
+            val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+            val bounds = metrics.bounds
             val center = bounds.centerX()
             val width = 20
             val actual = FoldingFeature(

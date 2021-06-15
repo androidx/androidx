@@ -2,8 +2,10 @@
 package androidx.window.rxjava2 {
 
   public final class WindowInfoRepoRx {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static io.reactivex.Flowable<androidx.window.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.WindowInfoRepo);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static io.reactivex.Observable<androidx.window.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.Flowable<androidx.window.WindowMetrics> currentWindowMetricsFlowable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.Observable<androidx.window.WindowMetrics> currentWindowMetricsObservable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.Flowable<androidx.window.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.Observable<androidx.window.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.WindowInfoRepo);
   }
 
 }
