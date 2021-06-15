@@ -16,7 +16,6 @@
 
 package androidx.build.playground
 
-import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.dependencyTracker.AffectedModuleDetectorImpl
 import androidx.build.gitclient.Commit
 import androidx.build.gitclient.GitClient
@@ -32,28 +31,51 @@ abstract class CheckAffectedPlaygroundTask : DefaultTask() {
     @set:Option(
         option = "changedFile",
         description = "Changed file in the build (including removed files). Can be passed " +
-            "multiple times, e.g.: --changedFile=a.kt --changedFile=b.kt "
+            "multiple times, e.g.: --changedFile=a.kt --changedFile=b.kt " +
+            "File paths must be relative to the root directory of the main checkout"
     )
     abstract var changedFiles: List<String>
+
+    @get:Input
+    @set:Option(
+        option = "outputFilePath",
+        description = "The file path where the result of whether this project is affected by " +
+            "changes or not is written."
+    )
+    abstract var outputFilePath: String
 
     @TaskAction
     fun checkAffectedModules() {
         val hasChangedGithubInfraFiles = changedFiles.any {
-            it.startsWith(".github") ||
-                it.startsWith("playground-common")
+            it.contains(".github") ||
+                it.contains("playground-common") ||
+                it.contains("buildSrc")
+                // TODO cover root module
             }
         val detector = AffectedModuleDetectorImpl(
             rootProject = project,
             injectedGitClient = ChangedFilesGitClient(changedFiles),
             logger = logger
         )
-        println("changed files:")
-        detector.affectedProjects.forEach { module ->
-            println(module.path)
+        val changedProjectPaths = detector.affectedProjects.map {
+            it.path
+        } + if (hasChangedGithubInfraFiles) {
+            listOf("INFRA")
+        } else {
+            emptyList()
         }
-        println("end of changed files")
+        val outputFile = File(outputFilePath)
+        check(outputFile.parentFile?.exists() == true) {
+            "invalid output file argument: $outputFile. Make sure to pass an absolute path"
+        }
+        val changedProjects = changedProjectPaths.joinToString(System.lineSeparator())
+        outputFile.writeText(changedProjects, charset = Charsets.UTF_8)
+        logger.info("putting result $changedProjects into ${outputFile.absolutePath}")
     }
 
+    /**
+     * GitClient implementation that just returns the files that were passed in as changed files
+     */
     private class ChangedFilesGitClient(
         val changedFiles: List<String>
     ) : GitClient {
@@ -63,7 +85,7 @@ abstract class CheckAffectedPlaygroundTask : DefaultTask() {
             includeUncommitted: Boolean
         ): List<String> = changedFiles
 
-        override fun findPreviousSubmittedChange(): String? = "ignored"
+        override fun findPreviousSubmittedChange(): String = "ignored"
 
         override fun getGitLog(
             gitCommitRange: GitCommitRange,
