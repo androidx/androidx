@@ -26,7 +26,6 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -66,7 +65,7 @@ class NavDeepLinkBuilderTest {
         deepLinkBuilder.setGraph(R.navigation.nav_simple)
         deepLinkBuilder.setDestination(R.id.second_test)
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @Test
@@ -76,7 +75,7 @@ class NavDeepLinkBuilderTest {
         deepLinkBuilder.setGraph(nav_simple_route_graph)
         deepLinkBuilder.setDestination("second_test")
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @Test
@@ -92,7 +91,7 @@ class NavDeepLinkBuilderTest {
         deepLinkBuilder.setGraph(navGraph)
         deepLinkBuilder.setDestination(R.id.second_test)
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @Test
@@ -102,7 +101,7 @@ class NavDeepLinkBuilderTest {
         deepLinkBuilder.setGraph(nav_simple_route_graph)
         deepLinkBuilder.setDestination("second_test")
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @Suppress("DEPRECATION")
@@ -120,7 +119,7 @@ class NavDeepLinkBuilderTest {
         deepLinkBuilder.setGraph(navGraph)
         deepLinkBuilder.setDestination(1)
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @Test
@@ -139,7 +138,7 @@ class NavDeepLinkBuilderTest {
         deepLinkBuilder.setGraph(navGraph)
         deepLinkBuilder.setDestination("test")
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -153,7 +152,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setDestination(R.id.second_test)
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -167,7 +166,7 @@ class NavDeepLinkBuilderTest {
 
         deepLinkBuilder.setDestination("second_test")
         val taskStackBuilder = deepLinkBuilder.createTaskStackBuilder()
-        assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
+        assertWithMessage("Expected one Intent").that(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @Test
