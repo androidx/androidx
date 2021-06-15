@@ -64,6 +64,8 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
+    testImplementation(project(":camera:camera-testing"))
+    testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-truth"))
 
     androidTestImplementation(libs.testExtJunit)
