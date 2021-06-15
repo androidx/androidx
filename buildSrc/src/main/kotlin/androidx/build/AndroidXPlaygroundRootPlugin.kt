@@ -90,7 +90,7 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
                 printed into output.
                 
                 ./gradlew findAffectedModules --changedFilePath=file1 --changedFilePath=file2 \
-                          --outputFilePath=~/changes.txt
+                          --outputFilePath=changes.txt
             """.trimIndent()
         }
     }

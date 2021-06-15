@@ -25,9 +25,7 @@ import org.gradle.api.logging.Logger
 /**
  * Creates a project graph for fast lookup by file path
  */
-class ProjectGraph(
-    project: Project,
-    val logger: Logger? = null) {
+class ProjectGraph(project: Project, val logger: Logger? = null) {
     private val rootNode: Node
 
     init {
@@ -38,6 +36,7 @@ class ProjectGraph(
         val projects = if (rootProjectDir == project.rootDir.canonicalFile) {
             project.subprojects
         } else {
+            // include root project if it is not the main AndroidX project.
             project.subprojects + project
         }
         projects.forEach {

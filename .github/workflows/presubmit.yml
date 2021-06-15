@@ -101,7 +101,7 @@ jobs:
           set -x
           KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g' | grep -v "*.txt"`
           echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
-       
+
       - name: "Parse changed-files as changed files aargs"
         id: affected-file-args
         run: |
