@@ -22,8 +22,6 @@ plugins {
 }
 
 android {
-    compileSdk 30
-
     defaultConfig {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25
@@ -56,7 +54,6 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:runtime:runtime"))
-
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testCore)
