@@ -57,5 +57,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
-    description = "Automotive OS specific funationaltiy to build navigation, parking, and charging apps for cars"
+    description = "Automotive OS specific functionality to build navigation, parking, and charging apps for cars"
 }
