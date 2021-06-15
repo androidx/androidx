@@ -16,12 +16,9 @@
 
 package androidx.fragment.app
 
-import android.os.Bundle
 import androidx.fragment.app.test.FragmentTestActivity
-import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -43,7 +40,7 @@ class SaveRestoreBackStackTest {
                 supportFragmentManager
             }
             val fragmentBase = StrictFragment()
-            val fragmentReplacement = ViewModelStrictFragment()
+            val fragmentReplacement = StateSaveFragment()
 
             fm.beginTransaction()
                 .add(R.id.content, fragmentBase)
@@ -431,34 +428,6 @@ class SaveRestoreBackStackTest {
             assertThat(fragmentReplacement.unsavedState).isEqualTo("unsaved")
             assertThat(fragmentReplacement.viewModel).isSameInstanceAs(originalViewModel)
             assertThat(fm.backStackEntryCount).isEqualTo(1)
-        }
-    }
-
-    public open class ViewModelStrictFragment : StrictFragment() {
-        public val viewModel: TestViewModel by lazy {
-            ViewModelProvider(this).get(TestViewModel::class.java)
-        }
-    }
-
-    public class StateSaveFragment(
-        public var savedState: String? = null,
-        public val unsavedState: String? = null
-    ) : ViewModelStrictFragment() {
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            if (savedInstanceState != null) {
-                savedState = savedInstanceState.getString(STATE_KEY)
-            }
-        }
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putString(STATE_KEY, savedState)
-        }
-
-        private companion object {
-            private const val STATE_KEY = "state"
         }
     }
 }
