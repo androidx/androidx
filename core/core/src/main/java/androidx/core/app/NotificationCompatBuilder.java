@@ -249,7 +249,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
         }
         if (BuildCompat.isAtLeastS()) {
-            mBuilder.setForegroundServiceBehavior(b.mFgsDeferBehavior);
+            if (b.mFgsDeferBehavior != NotificationCompat.FOREGROUND_SERVICE_DEFAULT) {
+                mBuilder.setForegroundServiceBehavior(b.mFgsDeferBehavior);
+            }
         }
 
         if (b.mSilent) {
