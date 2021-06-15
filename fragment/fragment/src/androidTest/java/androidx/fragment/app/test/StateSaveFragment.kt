@@ -17,6 +17,8 @@
 package androidx.fragment.app
 
 import android.os.Bundle
+import androidx.fragment.app.test.TestViewModel
+import androidx.lifecycle.ViewModelProvider
 
 class StateSaveFragment(
     var savedState: String? = null,
@@ -38,6 +40,10 @@ class StateSaveFragment(
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(STATE_KEY, savedState)
+    }
+
+    public val viewModel: TestViewModel by lazy {
+        ViewModelProvider(this).get(TestViewModel::class.java)
     }
 
     companion object {
