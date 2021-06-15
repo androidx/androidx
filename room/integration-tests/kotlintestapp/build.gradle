@@ -88,6 +88,7 @@ android {
 dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
+    implementation(project(":room:room-paging"))
     implementation(projectOrArtifact(":arch:core:core-runtime"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
@@ -118,13 +119,15 @@ dependencies {
         exclude module: "hamcrest-core"
     })
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
+    androidTestImplementation(project(":room:room-paging")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
-    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
+    androidTestImplementation("androidx.paging:paging-runtime:3.0.0")
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.rxjava2)
     testImplementation(libs.mockitoCore)
