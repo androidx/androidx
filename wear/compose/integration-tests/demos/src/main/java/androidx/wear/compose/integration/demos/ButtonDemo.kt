@@ -29,15 +29,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
+import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleButton
 
 @Composable
 fun ButtonDemo() {
-    val enabled by remember { mutableStateOf(true) }
+    var enabled by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -81,7 +84,21 @@ fun ButtonDemo() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // TODO(stevebower): add ToggleButton when available to toggle enable = true/false.
+            Text(
+                text = "Enabled",
+                style = MaterialTheme.typography.caption2,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            ToggleButton(
+                checked = enabled,
+                onCheckedChange = {
+                    enabled = it
+                },
+                modifier = Modifier.size(ButtonDefaults.SmallButtonSize)
+            ) {
+                Text(text = if (enabled) "Yes" else "No")
+            }
         }
     }
 }

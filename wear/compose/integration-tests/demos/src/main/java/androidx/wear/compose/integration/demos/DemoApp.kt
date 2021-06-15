@@ -31,9 +31,11 @@ import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 
 @Composable
@@ -71,7 +73,13 @@ private fun DisplayDemoList(category: DemoCategory, onNavigate: (Demo) -> Unit) 
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(16.dp))
+        Text(
+            text = category.title,
+            style = MaterialTheme.typography.caption1,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.size(4.dp))
         category.demos.forEach { demo ->
             CompactChip(
                 onClick = { onNavigate(demo) },
