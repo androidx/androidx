@@ -16,8 +16,6 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -93,7 +91,6 @@ public class ImageCaptureExtenderTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
-        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
 
         CameraX.initialize(mContext, Camera2Config.defaultConfig()).get();

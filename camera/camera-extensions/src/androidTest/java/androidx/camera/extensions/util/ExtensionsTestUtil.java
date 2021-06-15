@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,8 +50,6 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.testing.CameraUtil;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
-import org.junit.AssumptionViolatedException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -468,12 +465,6 @@ public class ExtensionsTestUtil {
         assertNotNull(extender);
 
         return extender;
-    }
-
-    public static void assumeCompatibleDevice() {
-        if (Build.DEVICE.equalsIgnoreCase("sailfish") && Build.VERSION.SDK_INT == 26) {
-            throw new AssumptionViolatedException("Known issue, b/187711991.");
-        }
     }
 
     @Nullable
