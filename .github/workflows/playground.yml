@@ -69,7 +69,7 @@ jobs:
         id: changed-file-args
         run: |
           set -x
-          CHANGED_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--changedFile=&|g'`
+          CHANGED_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
           echo "::set-output name=files::$CHANGED_FILES"
   build-modules:
     strategy:
@@ -107,8 +107,18 @@ jobs:
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
           wrapper-cache-enabled: true
       - name: "Parse the output of affected modules to see if we should build"
-        id: should-build
+        id: affected-module-count
         run: |
           set -x
-          SHOULD_BUILD_PROJECT=[ -s ${{ github.workspace }}/affected.txt ] && echo "true" || echo "false"
-          echo "::set-output name=shouldBuildProject::$SHOULD_BUILD_PROJECT"
+          AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt`
+          echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
+      - name: "affected"
+        if: ${{ stepes.affected-module-count.outputs.count > 0 }}
+        run: |
+          set -x
+          echo "affected module count is gt 0, in fact, it is ${{ stepes.affected-module-count.outputs.count }}"
+      - name: "not affected"
+        if: ${{ stepes.affected-module-count.outputs.count < 1 }}
+        run: |
+          set -x
+          echo "affected module count is lt 1, in fact, it is ${{ stepes.affected-module-count.outputs.count }}"

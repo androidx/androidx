@@ -29,7 +29,7 @@ import java.io.File
 abstract class CheckAffectedPlaygroundTask : DefaultTask() {
     @get:Input
     @set:Option(
-        option = "changedFile",
+        option = "changedFilePath",
         description = "Changed file in the build (including removed files). Can be passed " +
             "multiple times, e.g.: --changedFile=a.kt --changedFile=b.kt " +
             "File paths must be relative to the root directory of the main checkout"
