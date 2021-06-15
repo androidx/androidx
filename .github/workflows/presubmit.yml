@@ -166,7 +166,7 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-      - name: "Run gradle to check if any of its projects is affected by changes"
+      - name: "Run gradle to check if any of its projects are affected by changes"
         id: find-affected-modules
         uses: eskatos/gradle-command-action@v1
         env:
