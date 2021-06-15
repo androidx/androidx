@@ -142,7 +142,7 @@ public class ComplicationSlotsManager(
                             userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
                         if (previousOption != newlySelectedOption) {
                             previousOption = newlySelectedOption
-                            applyComplicationsSlotStyleCategoryOption(newlySelectedOption)
+                            applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
                         }
                     }
                 }
@@ -177,7 +177,7 @@ public class ComplicationSlotsManager(
         onComplicationsUpdated()
     }
 
-    internal fun applyComplicationsSlotStyleCategoryOption(styleOption: ComplicationSlotsOption) {
+    internal fun applyComplicationSlotsStyleCategoryOption(styleOption: ComplicationSlotsOption) {
         for ((id, complication) in complicationSlots) {
             val override = styleOption.complicationSlotOverlays.find { it.complicationSlotId == id }
             val initialConfig = initialComplicationConfigs[id]!!

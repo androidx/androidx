@@ -74,7 +74,7 @@ package androidx.wear.watchface.client {
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
     method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.HeadlessWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
     method public default static androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBundle(android.os.Bundle bundle);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationsSlotState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method @AnyThread public boolean isConnectionAlive();
@@ -82,7 +82,7 @@ package androidx.wear.watchface.client {
     method @RequiresApi(27) public android.graphics.Bitmap? renderComplicationToBitmap(int complicationSlotId, androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
     method @RequiresApi(27) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
     method public android.os.Bundle toBundle();
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationsSlotState;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     field public static final String BINDER_KEY = "HeadlessWatchFaceClient";
@@ -101,7 +101,7 @@ package androidx.wear.watchface.client {
     method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
     method public void displayPressedAnimation(int complicationSlotId);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationsSlotState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
@@ -115,7 +115,7 @@ package androidx.wear.watchface.client {
     method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> slotIdToComplicationData);
     method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
     method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyleData userStyle);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationsSlotState;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
     property public abstract java.util.List<androidx.wear.watchface.ContentDescriptionLabel> contentDescriptionLabels;
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;

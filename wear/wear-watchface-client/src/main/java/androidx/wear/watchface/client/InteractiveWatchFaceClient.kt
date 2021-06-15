@@ -110,7 +110,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * [ComplicationSlotsUserStyleSetting]. As a consequence ComplicationSlotState may update based
      * on style changes.
      */
-    public val complicationsSlotState: Map<Int, ComplicationSlotState>
+    public val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
      * Returns the ID of the [androidx.wear.watchface.ComplicationSlot] at the given coordinates or
@@ -118,7 +118,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      */
     @SuppressWarnings("AutoBoxing")
     public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
-        complicationsSlotState.asSequence().firstOrNull {
+        complicationSlotsState.asSequence().firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
                 ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
                 ComplicationSlotBoundsType.BACKGROUND -> false
@@ -281,7 +281,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iInteractiveWatchFace.userStyleSchema)
 
-    override val complicationsSlotState: Map<Int, ComplicationSlotState>
+    override val complicationSlotsState: Map<Int, ComplicationSlotState>
         get() = iInteractiveWatchFace.complicationDetails.associateBy(
             { it.id },
             { ComplicationSlotState(it.complicationState) }

@@ -256,7 +256,7 @@ public class ComplicationSlot internal constructor(
          * @param bounds The complication's [ComplicationSlotBounds].
          */
         @JvmStatic
-        public fun createRoundRectComplicationBuilder(
+        public fun createRoundRectComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
@@ -290,7 +290,7 @@ public class ComplicationSlot internal constructor(
          * the initial complication provider when the watch is first installed.
          */
         @JvmStatic
-        public fun createBackgroundComplicationBuilder(
+        public fun createBackgroundComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
@@ -331,7 +331,7 @@ public class ComplicationSlot internal constructor(
          * not a tap hit the complication.
          */
         @JvmStatic
-        public fun createEdgeComplicationBuilder(
+        public fun createEdgeComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,

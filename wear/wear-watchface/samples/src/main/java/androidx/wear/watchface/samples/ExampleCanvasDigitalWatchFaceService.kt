@@ -509,7 +509,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             )
         }
 
-    private val leftComplication = ComplicationSlot.createRoundRectComplicationBuilder(
+    private val leftComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LEFT.ordinal,
         canvasComplicationFactory,
         listOf(
@@ -528,7 +528,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
 
-    private val rightComplication = ComplicationSlot.createRoundRectComplicationBuilder(
+    private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.RIGHT.ordinal,
         canvasComplicationFactory,
         listOf(
@@ -555,7 +555,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ComplicationType.SMALL_IMAGE
     )
     // The upper and lower complicationSlots change shape depending on the complication's type.
-    private val upperComplication = ComplicationSlot.createRoundRectComplicationBuilder(
+    private val upperComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.UPPER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
@@ -578,7 +578,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     ).setDefaultProviderType(ComplicationType.LONG_TEXT)
         .build()
 
-    private val lowerComplication = ComplicationSlot.createRoundRectComplicationBuilder(
+    private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LOWER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
@@ -601,7 +601,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     ).setDefaultProviderType(ComplicationType.LONG_TEXT)
         .build()
 
-    private val backgroundComplication = ComplicationSlot.createBackgroundComplicationBuilder(
+    private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
         ComplicationID.BACKGROUND.ordinal,
         canvasComplicationFactory,
         listOf(ComplicationType.PHOTO_IMAGE),
