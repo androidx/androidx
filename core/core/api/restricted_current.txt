@@ -44,6 +44,7 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
+    method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
