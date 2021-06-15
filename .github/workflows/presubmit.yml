@@ -181,7 +181,7 @@ jobs:
           echo "::set-output name=shouldBuildProject::$SHOULD_BUILD_PROJECT"
       - name: "./gradlew buildOnServer buildTestApks"
         uses: eskatos/gradle-command-action@v1
-        if: steps.should-build.outputs.shouldBuildProject == "true"
+        if: steps.should-build.outputs.shouldBuildProject
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
