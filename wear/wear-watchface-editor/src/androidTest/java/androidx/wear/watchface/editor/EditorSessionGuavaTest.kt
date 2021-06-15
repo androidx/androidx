@@ -73,7 +73,7 @@ public class EditorSessionGuavaTest {
             mockInvalidateCallback
         )
     private val leftComplication =
-        ComplicationSlot.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { _, _, -> mockLeftCanvasComplication },
             listOf(
@@ -95,7 +95,7 @@ public class EditorSessionGuavaTest {
             mockInvalidateCallback
         )
     private val rightComplication =
-        ComplicationSlot.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
             { _, _, -> mockRightCanvasComplication },
             listOf(

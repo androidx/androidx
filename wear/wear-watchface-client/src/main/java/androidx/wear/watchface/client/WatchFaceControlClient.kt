@@ -385,7 +385,7 @@ internal class WatchFaceControlClientImpl internal constructor(
 
             // NB .use {} syntax doesn't compile here.
             try {
-                headlessClient.complicationsSlotState.mapValues {
+                headlessClient.complicationSlotsState.mapValues {
                     DefaultComplicationProviderPolicyAndType(
                         it.value.defaultProviderPolicy,
                         it.value.defaultProviderType

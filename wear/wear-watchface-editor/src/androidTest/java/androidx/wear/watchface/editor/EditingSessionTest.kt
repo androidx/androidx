@@ -321,7 +321,7 @@ public class EditorSessionTest {
         mockInvalidateCallback
     )
     private val leftComplication =
-        ComplicationSlot.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { _, _ -> mockLeftCanvasComplication },
             listOf(
@@ -342,7 +342,7 @@ public class EditorSessionTest {
         mockInvalidateCallback
     )
     private val rightComplication =
-        ComplicationSlot.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
             { _, _ -> mockRightCanvasComplication },
             listOf(
@@ -369,7 +369,7 @@ public class EditorSessionTest {
             mockInvalidateCallback
         )
     private val backgroundComplication =
-        ComplicationSlot.createBackgroundComplicationBuilder(
+        ComplicationSlot.createBackgroundComplicationSlotBuilder(
             BACKGROUND_COMPLICATION_ID,
             { _, _ -> mockBackgroundCanvasComplication },
             emptyList(),
@@ -624,7 +624,7 @@ public class EditorSessionTest {
                 mockInvalidateCallback
             )
         val fixedLeftComplication =
-            ComplicationSlot.createRoundRectComplicationBuilder(
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 LEFT_COMPLICATION_ID,
                 { _, _ -> mockLeftCanvasComplication },
                 listOf(

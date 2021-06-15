@@ -231,7 +231,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                     listener
                 )
             }
-        val leftComplication = ComplicationSlot.createRoundRectComplicationBuilder(
+        val leftComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
             canvasComplicationFactory,
             listOf(
@@ -245,7 +245,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
-        val rightComplication = ComplicationSlot.createRoundRectComplicationBuilder(
+        val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
             canvasComplicationFactory,
             listOf(

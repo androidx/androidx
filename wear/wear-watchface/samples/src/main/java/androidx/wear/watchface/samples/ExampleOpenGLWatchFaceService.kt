@@ -105,7 +105,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         )
     }
 
-    private val complication = ComplicationSlot.createRoundRectComplicationBuilder(
+    private val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         EXAMPLE_OPENGL_COMPLICATION_ID,
         { watchState, listener ->
             CanvasComplicationDrawable(

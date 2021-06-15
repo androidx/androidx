@@ -666,7 +666,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    private class RendererAndComplicationsSlotManager(
+    private class RendererAndComplicationSlotsManager(
         val renderer: Renderer,
         val complicationSlotsManager: ComplicationSlotsManager
     )
@@ -693,7 +693,7 @@ public abstract class WatchFaceService : WallpaperService() {
          * [deferredRendererAndComplicationManager] will complete before [deferredWatchFaceImpl].
          */
         private var deferredRendererAndComplicationManager =
-            CompletableDeferred<RendererAndComplicationsSlotManager>()
+            CompletableDeferred<RendererAndComplicationSlotsManager>()
 
         /**
          * [deferredWatchFaceImpl] will complete after [deferredRendererAndComplicationManager].
@@ -1351,7 +1351,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         )
                     }
                     deferredRendererAndComplicationManager.complete(
-                        RendererAndComplicationsSlotManager(
+                        RendererAndComplicationSlotsManager(
                             watchFace.renderer,
                             complicationSlotsManager
                         )
