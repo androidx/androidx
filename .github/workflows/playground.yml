@@ -34,6 +34,7 @@ jobs:
     needs: [setup]
     outputs:
       status: ${{ steps.output-status.outputs.status }}
+      changedFileArgs: ${{ steps.changed-file-args.outputs.files }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -86,7 +87,7 @@ jobs:
         id: create-changed-files-args
         run: |
           set -x
-          echo "|${{ needs.lint.changed-file-args.files }}|"
+          echo "|${{ needs.lint.outputs.changedFileArgs }}|"
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
         with:
@@ -98,7 +99,7 @@ jobs:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
-          arguments: findAffectedModules ${{ needs.lint.changed-file-args.files }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
+          arguments: findAffectedModules ${{ needs.lint.outputs.changedFileArgs }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
