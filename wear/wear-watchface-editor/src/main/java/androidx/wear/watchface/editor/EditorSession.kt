@@ -784,7 +784,7 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
     ComplicationProviderChooserRequest, ComplicationProviderChooserResult?>() {
 
     internal companion object {
-        const val EXTRA_PROVIDER_INFO = "android.support.wearable.complication.EXTRA_PROVIDER_INFO"
+        const val EXTRA_PROVIDER_INFO = "android.support.wearable.complications.EXTRA_PROVIDER_INFO"
 
         /**
          * Whether to invoke a test activity instead of the [ComplicationHelperActivity].

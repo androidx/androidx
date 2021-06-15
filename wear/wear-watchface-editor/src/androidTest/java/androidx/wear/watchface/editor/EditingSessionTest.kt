@@ -842,7 +842,7 @@ public class EditorSessionTest {
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                     chosenComplicationProviderInfo.toWireComplicationProviderInfo()
                 )
             }
@@ -900,7 +900,7 @@ public class EditorSessionTest {
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                     ComplicationProviderInfo(
                         "TestProvider3App",
                         "TestProvider3",
@@ -967,7 +967,7 @@ public class EditorSessionTest {
                 TestComplicationHelperActivity.resultIntent!!.complete(
                     Intent().apply {
                         putExtra(
-                            "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                            "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                             ComplicationProviderInfo(
                                 "TestProvider3App",
                                 "TestProvider3",
@@ -1059,7 +1059,7 @@ public class EditorSessionTest {
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                     chosenComplicationProviderInfo.toWireComplicationProviderInfo()
                 )
                 putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
@@ -1117,7 +1117,7 @@ public class EditorSessionTest {
         )
         TestComplicationProviderChooserActivity.resultIntent = Intent().apply {
             putExtra(
-                "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                 chosenComplicationProviderInfo.toWireComplicationProviderInfo()
             )
             putExtra(PROVIDER_CHOOSER_RESULT_EXTRA_KEY, PROVIDER_CHOOSER_RESULT_EXTRA_VALUE)
@@ -1482,7 +1482,7 @@ public class EditorSessionTest {
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                     ComplicationProviderInfo(
                         "TestProvider3App",
                         "TestProvider3",
