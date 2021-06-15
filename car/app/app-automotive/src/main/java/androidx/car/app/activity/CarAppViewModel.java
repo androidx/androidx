@@ -36,6 +36,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.lang.ref.WeakReference;
+
 /**
  * The view model to keep track of the CarAppActivity data.
  *
@@ -52,7 +54,7 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
     @Nullable private IRendererCallback mIRendererCallback;
-    @Nullable private Activity mActivity;
+    private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
     public enum State {
@@ -92,8 +94,8 @@ public class CarAppViewModel extends AndroidViewModel implements
     }
 
     /** Updates the activity hosting this view model */
-    void setActivity(@NonNull Activity activity) {
-        mActivity = activity;
+    void setActivity(@Nullable Activity activity) {
+        sActivity = new WeakReference<>(activity);
     }
 
     /**
@@ -175,10 +177,10 @@ public class CarAppViewModel extends AndroidViewModel implements
     /** Attempts to rebind to the host service */
     @SuppressWarnings("NullAway")
     public void retryBinding() {
-        requireNonNull(mActivity);
+        Activity activity = requireNonNull(sActivity.get());
         mState.postValue(State.CONNECTING);
         mError.postValue(null);
-        mActivity.recreate();
+        activity.recreate();
     }
 
     /** Host update detected */
@@ -186,5 +188,32 @@ public class CarAppViewModel extends AndroidViewModel implements
         if (mError.getValue() != null) {
             retryBinding();
         }
+    }
+
+    /**
+     * Update the result of the {@link androidx.car.app.activity.CarAppActivity} associated with
+     * this view model.
+     *
+     * @see Activity#setResult(int, Intent)
+     */
+    public static void setActivityResult(int resultCode, @Nullable Intent data) {
+        Activity activity = sActivity.get();
+        if (activity != null) {
+            activity.setResult(resultCode, data);
+        }
+    }
+
+    /**
+     * Returns the activity calling this {@link CarAppActivity}
+     *
+     * @see Activity#getCallingActivity()
+     */
+    @Nullable
+    public static ComponentName getCallingActivity() {
+        Activity activity = sActivity.get();
+        if (activity != null) {
+            return activity.getCallingActivity();
+        }
+        return null;
     }
 }

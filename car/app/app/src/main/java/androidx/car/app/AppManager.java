@@ -27,11 +27,12 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.lifecycle.Lifecycle;
 
 /** Manages the communication between the app and the host. */
-public class AppManager {
+public class AppManager implements Manager {
     @NonNull
     private final CarContext mCarContext;
     @NonNull

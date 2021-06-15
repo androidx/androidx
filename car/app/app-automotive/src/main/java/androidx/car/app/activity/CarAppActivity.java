@@ -296,6 +296,7 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         requireNonNull(mHostUpdateReceiver).unregister(this);
+        requireNonNull(mViewModel).setActivity(null);
         super.onDestroy();
     }
 

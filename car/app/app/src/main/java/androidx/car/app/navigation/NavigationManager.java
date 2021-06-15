@@ -35,6 +35,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.serialization.Bundleable;
@@ -62,7 +63,7 @@ import java.util.concurrent.Executor;
  * <p>Navigation apps must also register a {@link NavigationManagerCallback} to handle callbacks to
  * {@link NavigationManagerCallback#onStopNavigation()} issued by the host.
  */
-public class NavigationManager {
+public class NavigationManager implements Manager {
     private final CarContext mCarContext;
     private final INavigationManager.Stub mNavigationManager;
     private final HostDispatcher mHostDispatcher;

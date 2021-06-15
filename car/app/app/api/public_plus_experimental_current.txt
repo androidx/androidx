@@ -9,7 +9,7 @@ package androidx.car.app {
     field public static final String MIN_API_LEVEL_METADATA_KEY = "androidx.car.app.minCarApiLevel";
   }
 
-  public class AppManager {
+  public class AppManager implements androidx.car.app.managers.Manager {
     method public void invalidate();
     method public void setSurfaceCallback(androidx.car.app.SurfaceCallback?);
     method public void showToast(CharSequence, int);
@@ -40,14 +40,16 @@ package androidx.car.app {
 
   public class CarContext extends android.content.ContextWrapper {
     method public void finishCarApp();
+    method @androidx.car.app.annotations.RequiresCarApi(2) public android.content.ComponentName? getCallingComponent();
     method public int getCarAppApiLevel();
     method public Object getCarService(String);
-    method public <T> T getCarService(Class<T!>);
-    method public String getCarServiceName(Class<?>);
+    method public <T extends androidx.car.app.managers.Manager> T getCarService(Class<T!>);
+    method public String getCarServiceName(Class<? extends androidx.car.app.managers.Manager>);
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
     method public void requestPermissions(java.util.List<java.lang.String!>, androidx.car.app.OnRequestPermissionsListener);
     method public void requestPermissions(java.util.List<java.lang.String!>, java.util.concurrent.Executor, androidx.car.app.OnRequestPermissionsListener);
+    method @androidx.car.app.annotations.RequiresCarApi(2) public void setCarAppResult(int, android.content.Intent?);
     method public void startCarApp(android.content.Intent);
     method @Deprecated public static void startCarApp(android.content.Intent, android.content.Intent);
     field public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
@@ -128,7 +130,7 @@ package androidx.car.app {
     method public void setResult(Object?);
   }
 
-  @MainThread public class ScreenManager {
+  @MainThread public class ScreenManager implements androidx.car.app.managers.Manager {
     method public androidx.car.app.Screen getTop();
     method public void pop();
     method public void popTo(String);
@@ -197,7 +199,7 @@ package androidx.car.app.connection {
 
 package androidx.car.app.constraints {
 
-  @androidx.car.app.annotations.RequiresCarApi(2) public class ConstraintManager {
+  @androidx.car.app.annotations.RequiresCarApi(2) public class ConstraintManager implements androidx.car.app.managers.Manager {
     method public int getContentLimit(int);
     field public static final int CONTENT_LIMIT_TYPE_GRID = 1; // 0x1
     field public static final int CONTENT_LIMIT_TYPE_LIST = 0; // 0x0
@@ -210,7 +212,7 @@ package androidx.car.app.constraints {
 
 package androidx.car.app.hardware {
 
-  @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarHardwareManager {
+  @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarHardwareManager extends androidx.car.app.managers.Manager {
     method public default androidx.car.app.hardware.info.CarInfo getCarInfo();
     method public default androidx.car.app.hardware.info.CarSensors getCarSensors();
   }
@@ -411,6 +413,13 @@ package androidx.car.app.hardware.info {
     ctor public TollCard.Builder();
     method public androidx.car.app.hardware.info.TollCard build();
     method public androidx.car.app.hardware.info.TollCard.Builder setCardState(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+  }
+
+}
+
+package androidx.car.app.managers {
+
+  public interface Manager {
   }
 
 }
@@ -1031,7 +1040,7 @@ package androidx.car.app.model.signin {
 
 package androidx.car.app.navigation {
 
-  public class NavigationManager {
+  public class NavigationManager implements androidx.car.app.managers.Manager {
     method @MainThread public void clearNavigationManagerCallback();
     method @MainThread public void navigationEnded();
     method @MainThread public void navigationStarted();

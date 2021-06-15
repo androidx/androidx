@@ -31,6 +31,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
 import androidx.car.app.sample.showcase.common.misc.PreSeedingFlowScreen;
+import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.SurfaceRenderer;
 import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
@@ -57,24 +58,28 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
             // Handle the navigation Intent by pushing first the "home" screen onto the stack, then
             // returning the screen that we want to show a template for.
             // Doing this allows the app to go back to the previous screen when the user clicks on a
-            // back
-            // action.
+            // back action.
             getCarContext()
                     .getCarService(ScreenManager.class)
                     .push(new StartScreen(getCarContext(), this));
             return new NavigatingDemoScreen(getCarContext());
         }
 
+        if (getCarContext().getCallingComponent() != null) {
+            // Similarly, if the application has been called "for result", we push a "home"
+            // screen onto the stack and return the results demo screen.
+            getCarContext()
+                    .getCarService(ScreenManager.class)
+                    .push(new StartScreen(getCarContext(), this));
+            return new ResultDemoScreen(getCarContext());
+        }
+
         // For demo purposes this uses a shared preference setting to store whether we should
-        // pre-seed
-        // the screen back stack.  This allows the app to have a way to go back to the home/start
-        // screen
-        // making the home/start screen the 0th position.
+        // pre-seed the screen back stack. This allows the app to have a way to go back to the
+        // home/start screen making the home/start screen the 0th position.
         // For a real application, it would probably check if it has all the needed system
-        // permissions,
-        // and if any are missing, it would pre-seed the start screen and return a screen that will
-        // send
-        // the user to the phone to grant the needed permissions.
+        // permissions, and if any are missing, it would pre-seed the start screen and return a
+        // screen that will send the user to the phone to grant the needed permissions.
         boolean shouldPreSeedBackStack =
                 getCarContext()
                         .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
@@ -112,6 +117,13 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
                 return;
             }
             screenManager.push(new NavigatingDemoScreen(getCarContext()));
+            return;
+        }
+
+        if (getCarContext().getCallingComponent() != null) {
+            // Remove any other instances of the results screen.
+            screenManager.popToRoot();
+            screenManager.push(new ResultDemoScreen(getCarContext()));
             return;
         }
 
