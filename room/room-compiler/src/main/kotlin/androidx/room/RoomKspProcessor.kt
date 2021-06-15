@@ -16,44 +16,25 @@
 
 package androidx.room
 
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XProcessingStep.Companion.executeInKsp
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
-import com.google.devtools.ksp.symbol.KSAnnotated
 
 /**
  * Entry point for processing using KSP.
  */
 class RoomKspProcessor(
-    private val options: Map<String, String>,
-    private val codeGenerator: CodeGenerator,
-    private val logger: KSPLogger
-) : SymbolProcessor {
-    override fun process(resolver: Resolver): List<KSAnnotated> {
-        val processingEnv = XProcessingEnv.create(
-            options,
-            resolver,
-            codeGenerator,
-            logger
-        )
+    environment: SymbolProcessorEnvironment
+) : KspBasicAnnotationProcessor(environment) {
 
-        return DatabaseProcessingStep().executeInKsp(
-            processingEnv
-        )
-    }
+    override fun processingSteps() = listOf(
+        DatabaseProcessingStep()
+    )
 
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-            return RoomKspProcessor(
-                options = environment.options,
-                codeGenerator = environment.codeGenerator,
-                logger = environment.logger
-            )
+            return RoomKspProcessor(environment)
         }
     }
 }

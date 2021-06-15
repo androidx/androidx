@@ -17,12 +17,11 @@
 package androidx.room
 
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XProcessingStep.Companion.asAutoCommonProcessor
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.util.SimpleJavaVersion
 import androidx.room.vo.Warning
-import com.google.auto.common.BasicAnnotationProcessor
 import javax.lang.model.SourceVersion
 
 /**
@@ -34,20 +33,18 @@ private const val ISOLATING_ANNOTATION_PROCESSORS_INDICATOR =
 /**
  * The annotation processor for Room.
  */
-class RoomProcessor : BasicAnnotationProcessor() {
+class RoomProcessor : JavacBasicAnnotationProcessor() {
 
     /** Helper variable to avoid reporting the warning twice. */
     private var jdkVersionHasBugReported = false
 
-    override fun steps(): MutableIterable<Step> {
-        return mutableListOf(
-            DatabaseProcessingStep().asAutoCommonProcessor(processingEnv)
-        )
-    }
+    override fun processingSteps() = listOf(
+        DatabaseProcessingStep()
+    )
 
     override fun getSupportedOptions(): MutableSet<String> {
         val supportedOptions = Context.ARG_OPTIONS.toMutableSet()
-        // x processing is a cheap wrapper so it is fine to re-create.
+        // XProcessingEnv is a cheap wrapper so it is fine to re-create.
         val xProcessing = XProcessingEnv.create(processingEnv)
         if (Context.BooleanProcessorOptions.INCREMENTAL.getValue(xProcessing)) {
             if (methodParametersVisibleInClassFiles()) {
