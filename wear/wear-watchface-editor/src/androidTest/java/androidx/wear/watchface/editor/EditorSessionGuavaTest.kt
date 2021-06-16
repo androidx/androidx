@@ -189,7 +189,7 @@ public class EditorSessionGuavaTest {
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complication.EXTRA_PROVIDER_INFO",
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
                     chosenComplicationProviderInfo.toWireComplicationProviderInfo()
                 )
             }
