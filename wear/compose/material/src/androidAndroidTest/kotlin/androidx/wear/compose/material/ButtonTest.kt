@@ -64,7 +64,7 @@ class ButtonBehaviourTest {
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -92,7 +92,7 @@ class ButtonBehaviourTest {
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -121,7 +121,7 @@ class ButtonBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -151,7 +151,7 @@ class ButtonBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -181,7 +181,7 @@ class ButtonBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -213,7 +213,7 @@ class ButtonBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -234,7 +234,7 @@ class ButtonBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -294,7 +294,7 @@ class ButtonBehaviourTest {
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -439,7 +439,7 @@ class ButtonSizeTest {
                 onClick = {},
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
     }
@@ -451,7 +451,7 @@ class ButtonSizeTest {
                 onClick = {},
                 modifier = Modifier.size(ButtonDefaults.LargeButtonSize)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
     }
