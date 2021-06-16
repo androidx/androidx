@@ -21,6 +21,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.media.MediaRecorder
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
@@ -33,6 +34,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider
@@ -93,6 +95,7 @@ public class VideoCaptureTest {
         )
 
         assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
         cameraSelector = if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
             CameraSelector.DEFAULT_BACK_CAMERA

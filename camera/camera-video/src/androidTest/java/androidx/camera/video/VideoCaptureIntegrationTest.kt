@@ -21,6 +21,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
@@ -42,6 +43,7 @@ import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
+import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
@@ -131,6 +133,7 @@ class VideoCaptureIntegrationTest(
                         .SDK_INT == 28
                     )
         )
+        assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
         CameraX.initialize(context, Camera2Config.defaultConfig())
         assumeTrue(

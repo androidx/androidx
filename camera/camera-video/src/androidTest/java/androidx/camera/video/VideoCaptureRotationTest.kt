@@ -19,6 +19,7 @@ import android.Manifest
 import android.content.ContentResolver
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.view.Surface
@@ -29,6 +30,7 @@ import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -105,6 +107,8 @@ class VideoCaptureRotationTest(
             Build.DEVICE == "sailfish" &&
                 (Build.VERSION.SDK_INT == 26 || Build.VERSION.SDK_INT == 27)
         )
+        Assume.assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
+
         context = ApplicationProvider.getApplicationContext()
         CameraX.initialize(context, Camera2Config.defaultConfig())
         Assume.assumeTrue(
