@@ -17,10 +17,19 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 
-/** Listener called when any extensions error occurs. */
+/** Listener called when any extensions error occurs.
+ *
+ * @deprecated Currently, this interface is only used to monitor whether a {@link Preview} or
+ * {@link ImageCapture} is lacking when enabling extension modes. CameraX will automatically add
+ * an extra {@link Preview} or {@link ImageCapture} to make the extension functions work well.
+ * After that, no error will be reported via this interface.
+ */
+@Deprecated
 public interface ExtensionsErrorListener {
-    /** Types of error when extensions function is enabled. */
+    /** Types of error when extensions function is enabled.*/
     enum ExtensionsErrorCode {
         /** Unknown error. */
         UNKNOWN,

@@ -43,7 +43,6 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.Config;
-import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -239,10 +238,10 @@ public abstract class ImageCaptureExtender {
 
         if (isMismatched) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
         } else if (!isPreviewExtenderEnabled) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
         }
     }
 
