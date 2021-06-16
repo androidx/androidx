@@ -88,15 +88,34 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
      */
     public void addListener(@NonNull Executor executor,
             @NonNull OnCarDataListener<T> listener) {
-        if (mListeners.put(requireNonNull(listener), executor) != null) {
-            // Listener is already registered.
+        boolean alreadySubscribedToHost = !mListeners.isEmpty();
+        mListeners.put(requireNonNull(listener), executor);
+
+        if (alreadySubscribedToHost) {
             return;
         }
         if (mIsSingleShot) {
             mHostDispatcher.dispatchGetCarHardwareResult(mResultType, mBundle, this);
         } else {
-            // TODO(b/188137613): Add multi callback.
+            mHostDispatcher.dispatchSubscribeCarHardwareResult(mResultType, mBundle, this);
         }
+    }
+
+    /**
+     * Removes a previously registered listener and returns {@code true} if there are no more
+     * listeners attached to this stub.
+     *
+     * @throws NullPointerException if {@code listener} is {@code null}
+     */
+    public boolean removeListener(@NonNull OnCarDataListener<T> listener) {
+        mListeners.remove(requireNonNull(listener));
+        if (!mListeners.isEmpty()) {
+            return false;
+        }
+        if (!mIsSingleShot) {
+            mHostDispatcher.dispatchUnsubscribeCarHardwareResult(mResultType, mBundle);
+        }
+        return true;
     }
 
     @Override
@@ -121,7 +140,7 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
         }
     }
 
-    @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
+    @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof T
     private T convertAndRecast(@NonNull Bundleable bundleable) throws BundlerException {
         Object object = bundleable.get();
         T data;

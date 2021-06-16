@@ -26,11 +26,9 @@ import static org.mockito.Mockito.when;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
-import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.hardware.ICarHardwareHost;
 import androidx.car.app.hardware.ICarHardwareResult;
 import androidx.car.app.hardware.ICarHardwareResultTypes;
@@ -57,11 +55,14 @@ public class CarHardwareHostDispatcherTest {
     private HostDispatcher mHostDispatcher = new HostDispatcher();
     private CarHardwareHostDispatcher mCarHardwareHostDispatcher =
             new CarHardwareHostDispatcher(mHostDispatcher);
-    private CarHardwareHostStub mCarHardwareHost = new CarHardwareHostStub();
+    private TestCarHardwareHostStub mCarHardwareHost;
 
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);
+        // Perform after mocks initialized.
+        mCarHardwareHost = new TestCarHardwareHostStub(mMockCarHardwareHost);
+
         when(mMockCarHost.getHost(CarContext.HARDWARE_SERVICE))
                 .thenReturn(mCarHardwareHost.asBinder());
         mHostDispatcher.setCarHost(mMockCarHost);
@@ -73,12 +74,9 @@ public class CarHardwareHostDispatcherTest {
         Integer desiredResult = 5;
         Bundleable desiredBundleable = Bundleable.create(desiredResult);
         int desiredResultType = ICarHardwareResultTypes.TYPE_INFO_MODEL;
-        Integer unsupportedResult = new Integer(-1);
 
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);
-
-        mCarHardwareHost.setResult(true, desiredBundleable, 3);
 
         mCarHardwareHostDispatcher.dispatchGetCarHardwareResult(desiredResultType, paramBundle,
                 new ICarHardwareResult.Stub() {
@@ -93,55 +91,39 @@ public class CarHardwareHostDispatcherTest {
                 });
         verify(mMockCarHardwareHost).getCarHardwareResult(eq(desiredResultType),
                 eq(paramBundle), any());
-
     }
 
-    private class CarHardwareHostStub extends ICarHardwareHost.Stub {
+    @Test
+    public void dispatchSubscribeCarHardwareResult() throws BundlerException, RemoteException {
+        Integer desiredResult = 5;
+        Bundleable desiredBundleable = Bundleable.create(desiredResult);
+        int desiredResultType = ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER;
 
-        private boolean mIsSupported;
-        @Nullable
-        private Bundleable mResult;
-        private int mCallbackTimes;
-        private ICarHardwareResult mCallback;
+        String param = "param";
+        Bundleable paramBundle = Bundleable.create(param);
 
-        IOnDoneCallback.Stub mDoneCallback = new IOnDoneCallback.Stub() {
-            @Override
-            public void onSuccess(Bundleable response) throws RemoteException {
+        mCarHardwareHostDispatcher.dispatchSubscribeCarHardwareResult(desiredResultType,
+                paramBundle,
+                new ICarHardwareResult.Stub() {
 
-            }
+                    @Override
+                    public void onCarHardwareResult(int resultType, boolean isSupported,
+                            Bundleable result, IBinder callback) throws RemoteException {
+                        assertThat(resultType).isEqualTo(desiredResultType);
+                        assertThat(isSupported).isTrue();
+                        assertThat(result).isEqualTo(desiredBundleable);
+                    }
+                });
+        verify(mMockCarHardwareHost).subscribeCarHardwareResult(eq(desiredResultType),
+                eq(paramBundle), any());
+    }
 
-            @Override
-            public void onFailure(Bundleable failureResponse) throws RemoteException {
-
-            }
-        };
-
-        public void setResult(boolean isSupported, Bundleable bundleable, int times) {
-            mIsSupported = isSupported;
-            mResult = bundleable;
-            mCallbackTimes = times;
-        }
-
-        @Override
-        public void getCarHardwareResult(int resultType, @Nullable Bundleable params,
-                ICarHardwareResult callback) throws RemoteException {
-            mCallback = callback;
-            // Record the call in the mock
-            mMockCarHardwareHost.getCarHardwareResult(resultType, params, callback);
-            // Send the result back.
-            for (int i = 0; i < mCallbackTimes; ++i) {
-                callback.onCarHardwareResult(resultType, mIsSupported, mResult, mDoneCallback);
-            }
-        }
-
-        @Override
-        public void subscribeCarHardwareResult(int resultType, @Nullable Bundleable params,
-                ICarHardwareResult callback) throws RemoteException {
-        }
-
-        @Override
-        public void unsubscribeCarHardwareResult(int resultType, @Nullable Bundleable params)
-                throws RemoteException {
-        }
+    @Test
+    public void dispatchUnsubscribeCarHardwareResult() throws RemoteException, BundlerException {
+        int desiredResultType = ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER;
+        Bundleable bundle = Bundleable.create(new Integer(10));
+        mCarHardwareHostDispatcher.dispatchUnsubscribeCarHardwareResult(desiredResultType, bundle);
+        verify(mMockCarHardwareHost).unsubscribeCarHardwareResult(eq(desiredResultType),
+                eq(bundle));
     }
 }
