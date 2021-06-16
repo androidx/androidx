@@ -70,7 +70,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -1343,8 +1342,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                             @Override
                             public void onAnimationStart(View view) {
                                 mActionModeView.setVisibility(VISIBLE);
-                                mActionModeView.sendAccessibilityEvent(
-                                        AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
                                 if (mActionModeView.getParent() instanceof View) {
                                     ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                                 }
@@ -1360,8 +1357,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                     } else {
                         mActionModeView.setAlpha(1f);
                         mActionModeView.setVisibility(VISIBLE);
-                        mActionModeView.sendAccessibilityEvent(
-                                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
                         if (mActionModeView.getParent() instanceof View) {
                             ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                         }
