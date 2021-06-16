@@ -71,7 +71,7 @@ class ChipBehaviourTest {
                 colors = ChipDefaults.primaryChipColors(),
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -87,7 +87,7 @@ class ChipBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -103,7 +103,7 @@ class ChipBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -119,7 +119,7 @@ class ChipBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -135,7 +135,7 @@ class ChipBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -153,7 +153,7 @@ class ChipBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -175,7 +175,7 @@ class ChipBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -195,7 +195,7 @@ class ChipBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag("test-item")
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -246,7 +246,7 @@ class ChipSizeTest {
                 Chip(
                     onClick = {},
                     label = { Text("Blue green orange") },
-                    icon = { CreateImage(iconTag) },
+                    icon = { TestImage(iconTag) },
                     modifier = Modifier.testTag(chipTag)
                 )
             }
@@ -267,7 +267,7 @@ class ChipSizeTest {
                 CompactChip(
                     onClick = {},
                     modifier = Modifier.testTag(chipTag),
-                    icon = { CreateImage(iconTag) }
+                    icon = { TestImage(iconTag) }
                 )
             }
 
@@ -314,7 +314,7 @@ class ChipSizeTest {
                     modifier = Modifier
                         .testTag(chipTag)
                         .width(100.dp),
-                    icon = { CreateImage(iconTag) }
+                    icon = { TestImage(iconTag) }
                 )
             }
 
@@ -330,7 +330,7 @@ class ChipSizeTest {
                 CompactChip(
                     onClick = {},
                     label = { Text("Blue green orange") },
-                    icon = { CreateImage(iconTag) },
+                    icon = { TestImage(iconTag) },
                     modifier = Modifier.testTag(chipTag)
                 )
             }
@@ -351,7 +351,7 @@ class ChipSizeTest {
                 CompactChip(
                     onClick = {},
                     modifier = Modifier.testTag(chipTag),
-                    icon = { CreateImage(iconTag) }
+                    icon = { TestImage(iconTag) }
                 )
             }
         val itemBounds = rule.onNodeWithTag(chipTag).getUnclippedBoundsInRoot()
@@ -368,7 +368,7 @@ class ChipSizeTest {
                 onClick = {},
                 colors = ChipDefaults.primaryChipColors(),
             ) {
-                CreateImage()
+                TestImage()
             }
         }
     }

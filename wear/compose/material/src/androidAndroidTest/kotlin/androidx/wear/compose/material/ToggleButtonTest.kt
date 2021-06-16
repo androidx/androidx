@@ -65,7 +65,7 @@ class ToggleButtonBehaviourTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                content = { CreateImage() },
+                content = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -80,7 +80,7 @@ class ToggleButtonBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 enabled = true,
-                content = { CreateImage() },
+                content = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -95,7 +95,7 @@ class ToggleButtonBehaviourTest {
                 checked = true,
                 onCheckedChange = {},
                 enabled = false,
-                content = { CreateImage() },
+                content = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -109,7 +109,7 @@ class ToggleButtonBehaviourTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                content = { CreateImage() },
+                content = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -123,7 +123,7 @@ class ToggleButtonBehaviourTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                content = { CreateImage() },
+                content = { TestImage() },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -138,7 +138,7 @@ class ToggleButtonBehaviourTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                content = { CreateImage() },
+                content = { TestImage() },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -153,7 +153,7 @@ class ToggleButtonBehaviourTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                content = { CreateImage() },
+                content = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -167,7 +167,7 @@ class ToggleButtonBehaviourTest {
             ToggleButton(
                 checked = false,
                 onCheckedChange = {},
-                content = { CreateImage() },
+                content = { TestImage() },
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -180,7 +180,7 @@ class ToggleButtonBehaviourTest {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
             ToggleButton(
-                content = { CreateImage() },
+                content = { TestImage() },
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
@@ -200,7 +200,7 @@ class ToggleButtonBehaviourTest {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(true) }
             ToggleButton(
-                content = { CreateImage() },
+                content = { TestImage() },
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
@@ -220,7 +220,7 @@ class ToggleButtonBehaviourTest {
         rule.setContentWithTheme {
             val (checked, onCheckedChange) = remember { mutableStateOf(false) }
             ToggleButton(
-                content = { CreateImage() },
+                content = { TestImage() },
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
@@ -239,7 +239,7 @@ class ToggleButtonBehaviourTest {
     fun has_role_checkbox() {
         rule.setContentWithTheme {
             ToggleButton(
-                content = { CreateImage() },
+                content = { TestImage() },
                 checked = false,
                 onCheckedChange = {},
                 modifier = Modifier.testTag(TEST_TAG)
@@ -314,7 +314,7 @@ class ToggleButtonSizeTest {
     fun gives_small_correct_tapsize() {
         rule.verifyTapSize(TapSize.Small) {
             ToggleButton(
-                content = { CreateImage() },
+                content = { TestImage() },
                 checked = true,
                 onCheckedChange = {},
                 modifier = Modifier.size(ToggleButtonDefaults.SmallToggleButtonSize)
