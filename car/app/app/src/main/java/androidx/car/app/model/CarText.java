@@ -190,6 +190,7 @@ public final class CarText {
         mTextVariants = Collections.emptyList();
         mSpansForVariants = Collections.emptyList();
     }
+
     CarText(Builder builder) {
         mText = builder.mText.toString();
         mSpans = getSpans(builder.mText);
@@ -357,6 +358,11 @@ public final class CarText {
          * preferred (for instance, from longest to shortest). If the text provided via
          * {@link #Builder} does not fit in the screen, the host will display the
          * first variant that fits in the screen.
+         *
+         * <p>For instance, if the variant order is ["long string", "shorter", "short"], and the
+         * screen can fit 7 characters, "shorter" will be chosen. However, if the order is
+         * ["short", "shorter", "long string"], "short" will be chosen, because "short" fits
+         * within the 7 character limit.
          *
          * @throws NullPointerException if the text is {@code null}
          */
