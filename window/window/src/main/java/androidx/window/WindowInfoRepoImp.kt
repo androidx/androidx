@@ -31,13 +31,13 @@ import kotlinx.coroutines.flow.callbackFlow
  * [WindowMetrics] for the given [Activity].
  *
  * @param activity that the provided window is based on.
- * @param windowBoundsHelper a helper to calculate the [WindowMetrics] for the [Activity].
+ * @param windowMetricsCalculator a helper to calculate the [WindowMetrics] for the [Activity].
  * @param windowBackend a helper to provide the [WindowLayoutInfo].
  */
 @ExperimentalCoroutinesApi
 internal class WindowInfoRepoImp(
     private val activity: Activity,
-    private val windowBoundsHelper: WindowBoundsHelper,
+    private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend
 ) : WindowInfoRepo {
 
@@ -60,7 +60,7 @@ internal class WindowInfoRepoImp(
      */
     override val currentWindowMetrics: WindowMetrics
         get() {
-            return WindowMetrics(windowBoundsHelper.computeCurrentWindowBounds(activity))
+            return windowMetricsCalculator.computeCurrentWindowMetrics(activity)
         }
 
     /**
@@ -90,7 +90,7 @@ internal class WindowInfoRepoImp(
      */
     override val maximumWindowMetrics: WindowMetrics
         get() {
-            return WindowMetrics(windowBoundsHelper.computeMaximumWindowBounds(activity))
+            return windowMetricsCalculator.computeMaximumWindowMetrics(activity)
         }
 
     /**

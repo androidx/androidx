@@ -19,13 +19,11 @@ import android.app.Activity
 import android.graphics.Rect
 
 /**
- * Subclass of [WindowBoundsHelper] used to override the results for testing.
+ * Implementation of [WindowMetricsCalculator] for testing.
  *
- * @see WindowBoundsHelper
- *
- * @see WindowBoundsHelper.setForTesting
+ * @see WindowMetricsCalculator
  */
-internal class TestWindowBoundsHelper : WindowBoundsHelper() {
+internal class TestWindowMetricsCalculator : WindowMetricsCalculator {
     private var globalOverriddenBounds: Rect? = null
     private val overriddenBounds = mutableMapOf<Activity, Rect?>()
     private val overriddenMaximumBounds = mutableMapOf<Activity, Rect?>()
@@ -57,14 +55,13 @@ internal class TestWindowBoundsHelper : WindowBoundsHelper() {
         globalOverriddenBounds = bounds
     }
 
-    override fun computeCurrentWindowBounds(activity: Activity): Rect {
-        return globalOverriddenBounds ?: overriddenBounds[activity]
-            ?: super.computeCurrentWindowBounds(activity)
+    override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
+        val bounds = globalOverriddenBounds ?: overriddenBounds[activity] ?: Rect()
+        return WindowMetrics(bounds)
     }
 
-    override fun computeMaximumWindowBounds(activity: Activity): Rect {
-        val bounds = overriddenMaximumBounds[activity]
-        return bounds ?: super.computeMaximumWindowBounds(activity)
+    override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
+        return WindowMetrics(overriddenMaximumBounds[activity] ?: Rect())
     }
 
     /**

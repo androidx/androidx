@@ -40,7 +40,6 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -55,9 +54,6 @@ public class SidecarCompatUnitTest {
 
     @Before
     public fun setUp() {
-        val windowBoundsHelper = TestWindowBoundsHelper()
-        windowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
-        WindowBoundsHelper.setForTesting(windowBoundsHelper)
         activity = mock()
         val window: Window = spy(TestWindow(activity))
         val params = WindowManager.LayoutParams()
@@ -72,11 +68,6 @@ public class SidecarCompatUnitTest {
             newWindowLayoutInfo(emptyList())
         )
         sidecarCompat = SidecarCompat(mockSidecarInterface, SidecarAdapter())
-    }
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
     }
 
     @Test
