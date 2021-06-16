@@ -29,7 +29,6 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.Preview
@@ -545,10 +544,9 @@ class RecorderTest {
         val qualitySelector = QualitySelector.of(QualitySelector.QUALITY_HIGHEST)
         val recorder = Recorder.Builder()
             .setQualitySelector(qualitySelector)
-            .setAspectRatio(RATIO_16_9).build()
+            .build()
 
         assertThat(recorder.qualitySelector).isEqualTo(qualitySelector)
-        assertThat(recorder.aspectRatio).isEqualTo(RATIO_16_9)
     }
 
     private fun invokeSurfaceRequest() {
