@@ -53,7 +53,7 @@ public class CardBehaviourTest {
                 onClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -68,7 +68,7 @@ public class CardBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -83,7 +83,7 @@ public class CardBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -98,7 +98,7 @@ public class CardBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -113,7 +113,7 @@ public class CardBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -130,7 +130,7 @@ public class CardBehaviourTest {
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -151,7 +151,7 @@ public class CardBehaviourTest {
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 
@@ -171,7 +171,7 @@ public class CardBehaviourTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 role = Role.Button
             ) {
-                CreateImage()
+                TestImage()
             }
         }
 

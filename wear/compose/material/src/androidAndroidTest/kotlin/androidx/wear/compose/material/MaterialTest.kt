@@ -120,7 +120,7 @@ fun assertTextStyleEquals(expectedStyle: TextStyle, actualStyle: TextStyle) {
 }
 
 @Composable
-fun CreateImage(iconLabel: String = "TestIcon") {
+fun TestImage(iconLabel: String = "TestIcon") {
     val testImage = Icons.Outlined.Add
     Image(
         testImage, iconLabel,
