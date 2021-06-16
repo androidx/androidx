@@ -29,7 +29,7 @@ import java.io.File
 /**
  * A task to print the list of affected modules based on given parameters.
  *
- * The list of changed files can be passed via [changedFiles] property and the the list of module
+ * The list of changed files can be passed via [changedFiles] property and the list of module
  * paths will be written to the given [outputFilePath].
  *
  * This task is specialized for Playground projects where any change in .github or

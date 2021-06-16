@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 The Android Open Source Project
  *
@@ -15,6 +14,7 @@
  * limitations under the License.
  */
 package androidx.build.dependencyTracker
+
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import org.gradle.api.plugins.ExtraPropertiesExtension
@@ -36,26 +36,26 @@ class ProjectGraphTest {
     fun testSimple() {
         val tmpDir = tmpFolder.root
         val root = ProjectBuilder.builder()
-                .withProjectDir(tmpDir)
-                .withName("root")
-                .build()
+            .withProjectDir(tmpDir)
+            .withName("root")
+            .build()
         // Project Graph expects supportRootFolder.
         (root.properties.get("ext") as ExtraPropertiesExtension).set("supportRootFolder", tmpDir)
         val p1 = ProjectBuilder.builder()
-                .withProjectDir(tmpDir.resolve("p1"))
-                .withName("p1")
-                .withParent(root)
-                .build()
+            .withProjectDir(tmpDir.resolve("p1"))
+            .withName("p1")
+            .withParent(root)
+            .build()
         val p2 = ProjectBuilder.builder()
-                .withProjectDir(tmpDir.resolve("p2"))
-                .withName("p2")
-                .withParent(root)
-                .build()
+            .withProjectDir(tmpDir.resolve("p2"))
+            .withName("p2")
+            .withParent(root)
+            .build()
         val p3 = ProjectBuilder.builder()
-                .withProjectDir(tmpDir.resolve("p1").resolve("p3"))
-                .withName("p3")
-                .withParent(p1)
-                .build()
+            .withProjectDir(tmpDir.resolve("p1").resolve("p3"))
+            .withName("p3")
+            .withParent(p1)
+            .build()
         val graph = ProjectGraph(root)
         assertNull(graph.findContainingProject("nowhere"))
         assertNull(
@@ -63,20 +63,20 @@ class ProjectGraphTest {
             graph.findContainingProject("rootfile.java")
         )
         assertEquals(
-                p1,
-                graph.findContainingProject("p1/px/x.java".toLocalPath())
+            p1,
+            graph.findContainingProject("p1/px/x.java".toLocalPath())
         )
         assertEquals(
-                p1,
-                graph.findContainingProject("p1/a.java".toLocalPath())
+            p1,
+            graph.findContainingProject("p1/a.java".toLocalPath())
         )
         assertEquals(
-                p3,
-                graph.findContainingProject("p1/p3/a.java".toLocalPath())
+            p3,
+            graph.findContainingProject("p1/p3/a.java".toLocalPath())
         )
         assertEquals(
-                p2,
-                graph.findContainingProject("p2/a/b/c/d/e/f/a.java".toLocalPath())
+            p2,
+            graph.findContainingProject("p2/a/b/c/d/e/f/a.java".toLocalPath())
         )
         assertNull(graph.findContainingProject("root/x.java"))
     }
@@ -105,5 +105,6 @@ class ProjectGraphTest {
             graph.findContainingProject("subRoot/x.gradle".toLocalPath())
         )
     }
+
     private fun String.toLocalPath() = this.split("/").joinToString(File.separator)
 }

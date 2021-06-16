@@ -84,12 +84,6 @@ jobs:
         id: changed-files
         uses: androidx/changed-files-action@main
 
-      - name: "Get affected files in push or pull_request"
-        id: affected-files
-        uses: androidx/changed-files-action@main
-        with:
-          includeRemoved: true
-
       - name: "Warn on missing updateApi"
         run: |
           set -x
@@ -102,11 +96,11 @@ jobs:
           KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g' | grep -v "*.txt"`
           echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
 
-      - name: "Parse changed-files as changed files aargs"
+      - name: "Parse changed-files as affected files args"
         id: affected-file-args
         run: |
           set -x
-          AFFECTED_FILES=`echo "${{ steps.affected-files.outputs.files }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
+          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
         uses: eskatos/gradle-command-action@v1
@@ -166,7 +160,7 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-      - name: "Run gradle to check if any of its projects are affected by changes"
+      - name: "./gradlew findAffectedModules"
         id: find-affected-modules
         uses: eskatos/gradle-command-action@v1
         env:
