@@ -100,6 +100,8 @@ internal fun generateInspectionCompanion(
                         )
                     }
                 }
+
+                addStatement("mPropertiesMapped = true")
             }.build()
         )
 
