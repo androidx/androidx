@@ -59,7 +59,7 @@ abstract class FindAffectedModulesTask : DefaultTask() {
             it.contains(".github") ||
                 it.contains("playground-common") ||
                 it.contains("buildSrc")
-            }
+        }
         val detector = AffectedModuleDetectorImpl(
             rootProject = project,
             injectedGitClient = ChangedFilesGitClient(changedFiles),
