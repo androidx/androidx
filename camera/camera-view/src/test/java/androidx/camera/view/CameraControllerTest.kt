@@ -193,7 +193,7 @@ public class CameraControllerTest {
     @Test
     public fun sensorRotationChanges_useCaseTargetRotationUpdated() {
         // Act.
-        controller.mRotationReceiver.onRotationChanged(Surface.ROTATION_180)
+        controller.mDeviceRotationListener.onRotationChanged(Surface.ROTATION_180)
 
         // Assert.
         assertThat(controller.mImageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_180)

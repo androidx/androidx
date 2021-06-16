@@ -271,10 +271,11 @@ public abstract class CameraController {
     @Nullable
     Display mPreviewDisplay;
 
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
+    private final RotationProvider mRotationProvider;
+
+    @VisibleForTesting
     @NonNull
-    final RotationReceiver mRotationReceiver;
+    final RotationProvider.Listener mDeviceRotationListener;
 
     @Nullable
     private final DisplayRotationListener mDisplayRotationListener;
@@ -310,18 +311,17 @@ public abstract class CameraController {
                     return null;
                 }, CameraXExecutors.mainThreadExecutor());
 
-        // Listen to display rotation and set target rotation for Preview.
+        // Listen for display rotation changes and set Preview rotation. Preview does not
+        // need rotation in fixed landscape/portrait mode.
         mDisplayRotationListener = new DisplayRotationListener();
-
-        // Listen to motion sensor reading and set target rotation for ImageCapture and
-        // VideoCapture.
-        mRotationReceiver = new RotationReceiver(mAppContext) {
-            @Override
-            public void onRotationChanged(int rotation) {
-                mImageAnalysis.setTargetRotation(rotation);
-                mImageCapture.setTargetRotation(rotation);
-                mVideoCapture.setTargetRotation(rotation);
-            }
+        // Listen for device rotation changes and set target rotation for non-preview use cases.
+        // The output of non-preview use cases need to be corrected in fixed landscape/portrait
+        // mode.
+        mRotationProvider = new RotationProvider(mAppContext);
+        mDeviceRotationListener = rotation -> {
+            mImageAnalysis.setTargetRotation(rotation);
+            mImageCapture.setTargetRotation(rotation);
+            mVideoCapture.setTargetRotation(rotation);
         };
     }
 
@@ -524,14 +524,12 @@ public abstract class CameraController {
     private void startListeningToRotationEvents() {
         getDisplayManager().registerDisplayListener(mDisplayRotationListener,
                 new Handler(Looper.getMainLooper()));
-        if (mRotationReceiver.canDetectOrientation()) {
-            mRotationReceiver.enable();
-        }
+        mRotationProvider.setListener(mDeviceRotationListener);
     }
 
     private void stopListeningToRotationEvents() {
         getDisplayManager().unregisterDisplayListener(mDisplayRotationListener);
-        mRotationReceiver.disable();
+        mRotationProvider.clearListener();
     }
 
     private DisplayManager getDisplayManager() {
