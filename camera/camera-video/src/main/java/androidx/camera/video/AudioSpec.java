@@ -38,17 +38,15 @@ public abstract class AudioSpec {
     /**
      * The audio source format representing no preference for audio source format.
      */
-    public static final int SOURCE_FORMAT_AUTO = -1;
+    static final int SOURCE_FORMAT_AUTO = -1;
     /**
      * The PCM 16 bit per sample audio source format. Guaranteed to be supported by all devices.
      */
-    public static final int SOURCE_FORMAT_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+    static final int SOURCE_FORMAT_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
 
-    /** @hide */
     @IntDef({SOURCE_FORMAT_AUTO, SOURCE_FORMAT_PCM_16BIT})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @interface SourceFormat {
+    @interface SourceFormat {
     }
 
     /**
@@ -127,30 +125,6 @@ public abstract class AudioSpec {
                 .setSampleRate(SAMPLE_RATE_RANGE_AUTO);
     }
 
-    /**
-     * Transforms channel count to corresponding {@link AudioFormat} channel config.
-     */
-    static int channelCountToConfig(@ChannelCount int channelCount) {
-        int channelConfig;
-        switch (channelCount) {
-            case CHANNEL_COUNT_AUTO:
-                channelConfig = AudioFormat.CHANNEL_IN_DEFAULT;
-                break;
-            case CHANNEL_COUNT_MONO:
-                channelConfig = AudioFormat.CHANNEL_IN_MONO;
-                break;
-            case CHANNEL_COUNT_STEREO:
-                channelConfig = AudioFormat.CHANNEL_IN_STEREO;
-                break;
-            case CHANNEL_COUNT_NONE:
-                throw new IllegalArgumentException("Unable to get channel config with zero "
-                        + "channel count");
-            default:
-                throw new IllegalArgumentException("Invalid channel count " + channelCount + ".");
-        }
-        return channelConfig;
-    }
-
     /** Gets the bitrate. */
     @NonNull
     public abstract Range<Integer> getBitrate();
@@ -160,7 +134,7 @@ public abstract class AudioSpec {
 
     /** Gets the audio format. */
     @SourceFormat
-    public abstract int getSourceFormat();
+    abstract int getSourceFormat();
 
     /** Gets the audio source. */
     @Source
@@ -209,7 +183,7 @@ public abstract class AudioSpec {
          * <p>If not set, defaults to {@link #SOURCE_FORMAT_AUTO}.
          */
         @NonNull
-        public abstract Builder setSourceFormat(@SourceFormat int audioFormat);
+        abstract Builder setSourceFormat(@SourceFormat int audioFormat);
 
         /**
          * Sets the audio source.

@@ -15,7 +15,6 @@
  */
 package androidx.camera.video.internal.encoder
 
-import android.media.AudioFormat
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
@@ -81,7 +80,6 @@ class AudioEncoderTest {
                 .setMimeType(MIME_TYPE)
                 .setBitrate(BIT_RATE)
                 .setSampleRate(SAMPLE_RATE)
-                .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
                 .setChannelCount(CHANNEL_COUNT)
                 .build()
         )
