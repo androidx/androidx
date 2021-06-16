@@ -35,10 +35,30 @@ import java.util.concurrent.Executor;
 public class ProjectedCarInfo implements CarInfo {
 
     private final CarResultStub<Model> mModelCarResultStub;
+    private final CarResultStub<EnergyProfile> mEnergyProfileCarResultStub;
+    private final CarResultStub<Toll> mTollCarResultStub;
+    private final CarResultStub<EnergyLevel> mEnergyLevelCarResultStub;
+    private final CarResultStub<Speed> mSpeedCarResultStub;
+    private final CarResultStub<Mileage> mMileageCarResultStub;
 
     public ProjectedCarInfo(@NonNull CarHardwareHostDispatcher hostDispatcher) {
         mModelCarResultStub = new CarResultStub<Model>(ICarHardwareResultTypes.TYPE_INFO_MODEL,
                 null, /* isSingleShot= */ true, new Model.Builder().build(), hostDispatcher);
+        mEnergyProfileCarResultStub =
+                new CarResultStub<EnergyProfile>(ICarHardwareResultTypes.TYPE_INFO_ENERGY_PROFILE,
+                        null, /* isSingleShot= */ true, new EnergyProfile.Builder().build(),
+                        hostDispatcher);
+        mTollCarResultStub = new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_TOLL, null,
+                /* isSingleShot= */ false, new Toll.Builder().build(), hostDispatcher);
+        mEnergyLevelCarResultStub =
+                new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_ENERGY_LEVEL,
+                        null, /* isSingleShot= */ false, new EnergyLevel.Builder().build(),
+                        hostDispatcher);
+        mSpeedCarResultStub = new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_SPEED,
+                null, /* isSingleShot= */ false, new Speed.Builder().build(), hostDispatcher);
+        mMileageCarResultStub = new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_MILEAGE,
+                null, /* isSingleShot= */ false, new Mileage.Builder().build(),
+                hostDispatcher);
     }
 
     @Override
@@ -50,51 +70,51 @@ public class ProjectedCarInfo implements CarInfo {
     @Override
     public void getEnergyProfile(@NonNull Executor executor,
             @NonNull OnCarDataListener<EnergyProfile> listener) {
-        // TODO(b/188144401): Implement calls to host
+        mEnergyProfileCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void addTollListener(@NonNull Executor executor,
             @NonNull OnCarDataListener<Toll> listener) {
-        // TODO(b/188143193): Implement calls to host
+        mTollCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void removeTollListener(@NonNull OnCarDataListener<Toll> listener) {
-        // TODO(b/188143193): Implement calls to host
+        mTollCarResultStub.removeListener(listener);
     }
 
     @Override
     public void addEnergyLevelListener(@NonNull Executor executor,
             @NonNull OnCarDataListener<EnergyLevel> listener) {
-        // TODO(b/188144402): Implement calls to host
+        mEnergyLevelCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void removeEnergyLevelListener(@NonNull OnCarDataListener<EnergyLevel> listener) {
-        // TODO(b/188144402): Implement calls to host
+        mEnergyLevelCarResultStub.removeListener(listener);
     }
 
     @Override
     public void addSpeedListener(@NonNull Executor executor,
             @NonNull OnCarDataListener<Speed> listener) {
-        // TODO(b/188143193): Implement calls to host
+        mSpeedCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void removeSpeedListener(@NonNull OnCarDataListener<Speed> listener) {
-        // TODO(b/188143193): Implement calls to host
+        mSpeedCarResultStub.removeListener(listener);
     }
 
     @Override
     public void addMileageListener(@NonNull Executor executor,
             @NonNull OnCarDataListener<Mileage> listener) {
-        // TODO(b/188143193): Implement calls to host
+        mMileageCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void removeMileageListener(@NonNull OnCarDataListener<Mileage> listener) {
-        // TODO(b/188143193): Implement calls to host
+        mMileageCarResultStub.removeListener(listener);
     }
 
 }
