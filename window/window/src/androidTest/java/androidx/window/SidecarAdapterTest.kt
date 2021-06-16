@@ -22,27 +22,11 @@ import android.graphics.Rect
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 
 public class SidecarAdapterTest : TranslatorTestInterface {
-
-    private lateinit var windowBoundsHelper: TestWindowBoundsHelper
-
-    @Before
-    public fun setUp() {
-        windowBoundsHelper = TestWindowBoundsHelper()
-        windowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
-        WindowBoundsHelper.setForTesting(windowBoundsHelper)
-    }
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
-    }
 
     @Test
     override fun testTranslate_validFeature() {
