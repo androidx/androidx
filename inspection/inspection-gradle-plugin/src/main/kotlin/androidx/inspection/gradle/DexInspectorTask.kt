@@ -106,8 +106,10 @@ abstract class DexInspectorTask : DefaultTask() {
         d8Executable.set(File(sdkDir, "build-tools/$toolsVersion/d8"))
     }
 
-    fun setAndroidJar(sdkDir: File, version: Int) {
-        androidJar.set(File(sdkDir, "platforms/android-$version/android.jar"))
+    fun setAndroidJar(sdkDir: File, compileSdk: String) {
+        // Preview SDK compileSdkVersions are prefixed with "android-", e.g. "android-S".
+        val platform = if (compileSdk.startsWith("android")) compileSdk else "android-$compileSdk"
+        androidJar.set(File(sdkDir, "platforms/$platform/android.jar"))
     }
 }
 
@@ -135,7 +137,7 @@ fun Project.registerBundleInspectorTask(
     val dex = tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.minSdkVersion = extension.defaultConfig.minSdk!!
         it.setD8(extension.sdkDirectory, extension.buildToolsVersion)
-        it.setAndroidJar(extension.sdkDirectory, extension.defaultConfig.targetSdk!!)
+        it.setAndroidJar(extension.sdkDirectory, extension.compileSdkVersion!!)
         it.jars.from(jar.get().archiveFile)
         it.outputFile.set(out)
         it.compileClasspath.from(
