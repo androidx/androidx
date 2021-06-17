@@ -232,12 +232,12 @@ package androidx.wear.watchface {
     method public final android.opengl.EGLConfig getEglConfig();
     method public final android.opengl.EGLDisplay getEglDisplay();
     method public final android.opengl.EGLContext getEglUiThreadContext();
-    method @WorkerThread public final void makeBackgroundThreadContextCurrent();
-    method @UiThread public final void makeUiThreadContextCurrent();
     method @WorkerThread public void onBackgroundThreadGlContextCreated();
     method @UiThread public void onUiThreadGlSurfaceCreated(@Px int width, @Px int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
     method @UiThread public abstract void renderHighlightLayer(android.icu.util.Calendar calendar);
+    method @WorkerThread public final void runBackgroundThreadGlCommands(Runnable runnable);
+    method @UiThread public final void runUiThreadGlCommands(Runnable runnable);
     method public final void setEglConfig(android.opengl.EGLConfig p);
     method public final void setEglDisplay(android.opengl.EGLDisplay p);
     property public final android.opengl.EGLContext eglBackgroundThreadContext;
