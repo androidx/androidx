@@ -155,7 +155,7 @@ dependencies {
     docs("androidx.media2:media2-player:1.2.0-alpha01")
     docs("androidx.media2:media2-session:1.2.0-alpha01")
     docs("androidx.media2:media2-widget:1.2.0-alpha01")
-    docs("androidx.media:media:1.3.0")
+    docs("androidx.media:media:1.4.0-beta01")
     docs("androidx.mediarouter:mediarouter:1.2.4")
     docs("androidx.navigation:navigation-common:2.4.0-alpha03")
     docs("androidx.navigation:navigation-common-ktx:2.4.0-alpha03")
