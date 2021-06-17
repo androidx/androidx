@@ -178,7 +178,7 @@ jobs:
         id: affected-module-count
         run: |
           set -x
-          AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt`
+          AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt || true`
           echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "./gradlew buildOnServer buildTestApks"
         uses: eskatos/gradle-command-action@v1
