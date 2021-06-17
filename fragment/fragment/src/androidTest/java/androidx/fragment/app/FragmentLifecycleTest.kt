@@ -358,6 +358,47 @@ class FragmentLifecycleTest {
         assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    @UiThreadTest
+    fun removeFragmentAfterOnSaveInstanceStateCycle() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictViewFragment()
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment1)
+            .commitNow()
+
+        val fragment2 = StrictViewFragment()
+        fm.beginTransaction()
+            .replace(android.R.id.content, fragment2)
+            .addToBackStack(null)
+            .commit()
+        fm.executePendingTransactions()
+
+        // Now go through a cycle of onSaveInstanceState
+        fc.dispatchPause()
+        fc.dispatchStop()
+        fc.saveAllState()
+        fc.noteStateNotSaved()
+        fc.dispatchStart()
+        fc.dispatchResume()
+
+        // Now remove fragment2, which will clear out all of its state
+        fm.popBackStackImmediate()
+
+        // And go through a full Fragment restart
+        val fc2 = fc.restart(activityRule, viewModelStore, false)
+        val fm2 = fc2.supportFragmentManager
+
+        // All saved state should have been re-associated with the remaining
+        // fragments, with no state saved for fragments that have been popped
+        assertThat(fm2.fragmentStore.allSavedState).isEmpty()
+    }
+
     @Test
     @UiThreadTest
     fun addChildFragmentInAttach() {
