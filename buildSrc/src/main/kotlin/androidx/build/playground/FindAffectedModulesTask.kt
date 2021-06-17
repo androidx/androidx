@@ -17,9 +17,6 @@
 package androidx.build.playground
 
 import androidx.build.dependencyTracker.AffectedModuleDetectorImpl
-import androidx.build.gitclient.Commit
-import androidx.build.gitclient.GitClient
-import androidx.build.gitclient.GitCommitRange
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -81,8 +78,10 @@ abstract class FindAffectedModulesTask : DefaultTask() {
         }
         val detector = AffectedModuleDetectorImpl(
             rootProject = project,
-            injectedGitClient = ChangedFilesGitClient(changedFiles),
-            logger = logger
+            logger = logger,
+            changedFilesProvider = {
+                changedFiles
+            }
         )
         val changedProjectPaths = detector.affectedProjects.map {
             it.path
@@ -97,27 +96,6 @@ abstract class FindAffectedModulesTask : DefaultTask() {
         val changedProjects = changedProjectPaths.joinToString(System.lineSeparator())
         outputFile.writeText(changedProjects, charset = Charsets.UTF_8)
         logger.info("putting result $changedProjects into ${outputFile.absolutePath}")
-    }
-
-    /**
-     * GitClient implementation that just returns the files that were passed in as changed files
-     */
-    private class ChangedFilesGitClient(
-        val changedFiles: List<String>
-    ) : GitClient {
-        override fun findChangedFilesSince(
-            sha: String,
-            top: String,
-            includeUncommitted: Boolean
-        ): List<String> = changedFiles
-
-        override fun findPreviousSubmittedChange(): String = "ignored"
-
-        override fun getGitLog(
-            gitCommitRange: GitCommitRange,
-            keepMerges: Boolean,
-            fullProjectDir: File
-        ): List<Commit> = emptyList()
     }
 
     companion object {

@@ -18,7 +18,6 @@ package androidx.build.dependencyTracker
 
 import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.ENABLE_ARG
 import androidx.build.getDistributionDirectory
-import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitClientImpl
 import androidx.build.gradle.isRoot
 import org.gradle.api.GradleException
@@ -46,6 +45,13 @@ import org.gradle.api.logging.Logger
  */
 enum class ProjectSubset { DEPENDENT_PROJECTS, CHANGED_PROJECTS, NONE }
 
+/**
+ * Provides the list of file paths (relative to the git root) that have changed (can include
+ * removed files).
+ *
+ * Returns `null` if changed files cannot be detected.
+ */
+typealias ChangedFilesProvider = () -> List<String>?
 /**
  * A utility class that can discover which files are changed based on git history.
  *
@@ -107,13 +113,21 @@ abstract class AffectedModuleDetector(
             if (baseCommitOverride != null) {
                 logger.info("using base commit override $baseCommitOverride")
             }
-            gradle.taskGraph.whenReady({
+            val gitClient = GitClientImpl(
+                workingDir = rootProject.projectDir,
+                logger = rootProject.logger
+            )
+            val changedFilesProvider : ChangedFilesProvider = {
+                val baseSha = baseCommitOverride ?: gitClient.findPreviousSubmittedChange()
+                baseSha?.let(gitClient::findChangedFilesSince)
+            }
+            gradle.taskGraph.whenReady {
                 logger.lifecycle("projects evaluated")
                 AffectedModuleDetectorImpl(
                     rootProject = rootProject,
                     logger = logger,
                     ignoreUnknownProjects = false,
-                    baseCommitOverride = baseCommitOverride
+                    changedFilesProvider = changedFilesProvider
                 ).also {
                     if (!enabled) {
                         logger.info("swapping with accept all")
@@ -124,7 +138,7 @@ abstract class AffectedModuleDetector(
                         setInstance(rootProject, it)
                     }
                 }
-            })
+            }
         }
 
         private fun setInstance(
@@ -209,17 +223,13 @@ class AffectedModuleDetectorImpl constructor(
     private val rootProject: Project,
     logger: Logger?,
     // used for debugging purposes when we want to ignore non module files
+    @Suppress("unused")
     private val ignoreUnknownProjects: Boolean = false,
     private val cobuiltTestPaths: Set<Set<String>> = COBUILT_TEST_PATHS,
     private val alwaysBuildIfExistsPaths: Set<String> = ALWAYS_BUILD_IF_EXISTS,
     private val ignoredPaths: Set<String> = IGNORED_PATHS,
-    private val injectedGitClient: GitClient? = null,
-    private val baseCommitOverride: String? = null
+    private val changedFilesProvider: ChangedFilesProvider
 ) : AffectedModuleDetector(logger) {
-    private val git by lazy {
-        injectedGitClient ?: GitClientImpl(rootProject.projectDir, logger)
-    }
-
     private val dependencyTracker by lazy {
         DependencyTracker(rootProject, logger)
     }
@@ -300,12 +310,7 @@ class AffectedModuleDetectorImpl constructor(
      * Returns allProjects if there are no previous merge CLs, which shouldn't happen.
      */
     private fun findChangedProjects(): Set<Project> {
-        val lastMergeSha = baseCommitOverride
-            ?: git.findPreviousSubmittedChange() ?: return allProjects
-        val changedFiles = git.findChangedFilesSince(
-            sha = lastMergeSha,
-            includeUncommitted = true
-        )
+        val changedFiles = changedFilesProvider() ?: return allProjects
 
         val changedProjects: MutableSet<Project> = alwaysBuild.toMutableSet()
 
