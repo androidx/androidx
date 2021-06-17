@@ -365,7 +365,7 @@ public final class Recorder implements VideoOutput {
      * Gets the aspect ratio of this Recorder.
      */
     @VideoSpec.AspectRatio
-    public int getAspectRatio() {
+    int getAspectRatio() {
         return getObservableData(mMediaSpec).getVideoSpec().getAspectRatio();
     }
 
@@ -1180,7 +1180,7 @@ public final class Recorder implements VideoOutput {
          * Sets the aspect ratio of this Recorder.
          */
         @NonNull
-        public Builder setAspectRatio(@AspectRatio.Ratio int aspectRatio) {
+        Builder setAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             mMediaSpecBuilder.configureVideo(builder -> builder.setAspectRatio(aspectRatio));
             return this;
         }
