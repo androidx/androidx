@@ -58,7 +58,6 @@ class ExtensionsManagerTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        ExtensionsTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.deviceHasCamera())
 
         cameraProvider =

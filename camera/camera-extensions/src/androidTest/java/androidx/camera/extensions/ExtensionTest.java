@@ -16,7 +16,6 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
 import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -114,7 +113,6 @@ public class ExtensionTest {
 
     @Before
     public void setUp() throws Exception {
-        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
 
