@@ -23,8 +23,7 @@ import androidx.navigation.NoOpNavigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
 import androidx.navigation.testing.TestNavigatorState
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -73,7 +72,7 @@ public class DynamicNavGraphTest {
         )
         navigator.navigateToProgressDestination(dynamicNavGraph, null)
         val progressDestination = noOpState.backStack.value.lastOrNull()?.destination
-        assertNotNull(progressDestination)
+        assertThat(progressDestination).isNotNull()
         progressDestination?.let {
             DynamicNavGraph.getOrThrow(progressDestination)
             // Assume not having thrown an exception
@@ -95,7 +94,7 @@ public class DynamicNavGraphTest {
         )
         navigator.navigateToProgressDestination(dynamicNavGraph, null)
         val destination = noOpState.backStack.value.lastOrNull()?.destination
-        assertTrue(destination?.parent is DynamicNavGraph)
+        assertThat(destination?.parent).isInstanceOf(DynamicNavGraph::class.java)
     }
 
     private fun setupProgressDestination(progressDestination: NavDestination?) {
