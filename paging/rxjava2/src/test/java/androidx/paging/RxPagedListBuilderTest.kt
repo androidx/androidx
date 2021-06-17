@@ -22,6 +22,7 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.TestScheduler
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -280,6 +281,20 @@ class RxPagedListBuilderTest {
 
         fetchScheduler.triggerActions()
         assertEquals(1, pagingSourcesCreated)
+    }
+
+    @Test
+    fun initialValueAllowsGetDataSource() {
+        val rxPagedList = RxPagedListBuilder(
+            pagingSourceFactory = { TestPagingSource(loadDelay = 0) },
+            pageSize = 10,
+        ).apply {
+            setNotifyScheduler(Schedulers.from { it.run() })
+            setFetchScheduler(Schedulers.from { it.run() })
+        }.buildObservable()
+
+        // Calling .dataSource should never throw from the initial paged list.
+        rxPagedList.firstOrError().blockingGet().dataSource
     }
 
     companion object {

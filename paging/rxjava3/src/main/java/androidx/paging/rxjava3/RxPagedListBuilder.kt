@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.paging.DataSource
 import androidx.paging.InitialPagedList
-import androidx.paging.InitialPagingSource
 import androidx.paging.LegacyPagingSource
 import androidx.paging.LoadState
 import androidx.paging.LoadState.Loading
@@ -367,7 +366,6 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
         init {
             currentData = InitialPagedList(
-                pagingSource = InitialPagingSource(),
                 coroutineScope = GlobalScope,
                 notifyDispatcher = notifyDispatcher,
                 backgroundDispatcher = fetchDispatcher,

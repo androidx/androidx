@@ -16,24 +16,24 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
-
 /**
- * [InitialPagingSource] is a placeholder [PagingSource] implementation that only returns empty
+ * [InitialDataSource] is a placeholder [DataSource] implementation that only returns empty
  * pages and `null` keys.
  *
  * It should be used exclusively in [InitialPagedList] since it is required to be supplied
  * synchronously, but [DataSource.Factory] should run on background thread.
- *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class InitialPagingSource<K : Any, V : Any> : PagingSource<K, V>() {
-    override suspend fun load(params: LoadParams<K>): LoadResult<K, V> {
-        return LoadResult.Page.empty()
+@Suppress("DEPRECATION")
+internal class InitialDataSource<K : Any, V : Any> : PageKeyedDataSource<K, V>() {
+    override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<K, V>) {
+        callback.onResult(listOf(), 0, 0, null, null)
     }
 
-    override fun getRefreshKey(state: PagingState<K, V>): K? {
-        return null
+    override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<K, V>) {
+        callback.onResult(listOf(), null)
+    }
+
+    override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<K, V>) {
+        callback.onResult(listOf(), null)
     }
 }
