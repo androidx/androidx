@@ -66,7 +66,7 @@ abstract class FindAffectedModulesTask : DefaultTask() {
             given list of files.
             ./gradlew findAffectedModules --changedFilePath=file1 --changedFilePath=file2 \
                       --outputFilePath=`pwd`/changes.txt
-            """.trimIndent()
+        """.trimIndent()
     }
 
     @TaskAction

@@ -52,6 +52,7 @@ enum class ProjectSubset { DEPENDENT_PROJECTS, CHANGED_PROJECTS, NONE }
  * Returns `null` if changed files cannot be detected.
  */
 typealias ChangedFilesProvider = () -> List<String>?
+
 /**
  * A utility class that can discover which files are changed based on git history.
  *
@@ -117,7 +118,7 @@ abstract class AffectedModuleDetector(
                 workingDir = rootProject.projectDir,
                 logger = rootProject.logger
             )
-            val changedFilesProvider : ChangedFilesProvider = {
+            val changedFilesProvider: ChangedFilesProvider = {
                 val baseSha = baseCommitOverride ?: gitClient.findPreviousSubmittedChange()
                 baseSha?.let(gitClient::findChangedFilesSince)
             }
@@ -316,8 +317,8 @@ class AffectedModuleDetectorImpl constructor(
 
         for (filePath in changedFiles) {
             if (ignoredPaths.any {
-                filePath.startsWith(it)
-            }
+                    filePath.startsWith(it)
+                }
             ) {
                 ignoredFiles.add(filePath)
                 logger?.info(
