@@ -316,10 +316,7 @@ class AffectedModuleDetectorImpl constructor(
         val changedProjects: MutableSet<Project> = alwaysBuild.toMutableSet()
 
         for (filePath in changedFiles) {
-            if (ignoredPaths.any {
-                    filePath.startsWith(it)
-                }
-            ) {
+            if (ignoredPaths.any { filePath.startsWith(it) }) {
                 ignoredFiles.add(filePath)
                 logger?.info(
                     "Ignoring file: $filePath"
