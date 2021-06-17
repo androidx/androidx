@@ -133,6 +133,15 @@ class LivePagedListBuilderTest {
     }
 
     @Test
+    fun initialValueAllowsGetDataSource() {
+        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
+            .build()
+
+        // Calling .dataSource should never throw from the initial paged list.
+        livePagedList.value!!.dataSource
+    }
+
+    @Test
     fun initialValueOnMainThread() {
         // Reset ArchTaskExecutor delegate so that main thread != default test executor, to
         // represent the common case when writing tests.
