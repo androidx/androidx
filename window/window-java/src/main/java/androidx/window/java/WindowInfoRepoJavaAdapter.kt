@@ -52,7 +52,7 @@ public class WindowInfoRepoJavaAdapter(private val repo: WindowInfoRepo) : Windo
             if (consumerToJobMap[consumer] == null) {
                 val scope = CoroutineScope(executor.asCoroutineDispatcher())
                 consumerToJobMap[consumer] = scope.launch {
-                    repo.windowLayoutInfo.collect(consumer::accept)
+                    repo.windowLayoutInfo.collect { consumer.accept(it) }
                 }
             }
         }
