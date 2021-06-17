@@ -22,6 +22,7 @@ import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitCommitRange
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
@@ -48,10 +49,28 @@ abstract class FindAffectedModulesTask : DefaultTask() {
     @get:Input
     @set:Option(
         option = "outputFilePath",
-        description = "The file path where the result of whether this project is affected by " +
-            "changes or not is written."
+        description = """
+            The output file path which will contain the list of project paths (line separated) that
+            are affected by the given list of changed files. It might also include "$INFRA_CHANGE"
+            if the change affects any of the common playground build files outside the project.
+        """
     )
     abstract var outputFilePath: String
+
+    @get:OutputFile
+    val outputFile by lazy {
+        File(outputFilePath)
+    }
+
+    init {
+        group = "Tooling"
+        description = """
+            Outputs the list of projects in the playground project that are affected by the
+            given list of files.
+            ./gradlew findAffectedModules --changedFilePath=file1 --changedFilePath=file2 \
+                      --outputFilePath=`pwd`/changes.txt
+            """.trimIndent()
+    }
 
     @TaskAction
     fun checkAffectedModules() {
@@ -68,11 +87,10 @@ abstract class FindAffectedModulesTask : DefaultTask() {
         val changedProjectPaths = detector.affectedProjects.map {
             it.path
         } + if (hasChangedGithubInfraFiles) {
-            listOf("INFRA")
+            listOf(INFRA_CHANGE)
         } else {
             emptyList()
         }
-        val outputFile = File(outputFilePath)
         check(outputFile.parentFile?.exists() == true) {
             "invalid output file argument: $outputFile. Make sure to pass an absolute path"
         }
@@ -100,5 +118,12 @@ abstract class FindAffectedModulesTask : DefaultTask() {
             keepMerges: Boolean,
             fullProjectDir: File
         ): List<Commit> = emptyList()
+    }
+
+    companion object {
+        /**
+         * Denotes that the changes affect common playground build files / configuration.
+         */
+        const val INFRA_CHANGE = "INFRA"
     }
 }

@@ -82,17 +82,7 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
         target.findProject(":navigation:navigation-dynamic-features-fragment")
             ?.disableInvalidFragmentVersionForActivityResultLint()
 
-        rootProject.tasks.register("findAffectedModules", FindAffectedModulesTask::class.java) {
-            it.description = """
-                Outputs the list of projects in the playground project that are affected by the
-                given list of files. Note that any change affecting playground (e.g. .github,
-                playground-common) will be considered as an INFRA change such that INFRA will be
-                printed into output.
-
-                ./gradlew findAffectedModules --changedFilePath=file1 --changedFilePath=file2 \
-                          --outputFilePath=changes.txt
-            """.trimIndent()
-        }
+        rootProject.tasks.register("findAffectedModules", FindAffectedModulesTask::class.java)
     }
 
     private fun Project.disableInvalidFragmentVersionForActivityResultLint() {
