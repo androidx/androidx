@@ -107,6 +107,7 @@ public final class ExtensionsManager {
 
     @GuardedBy("ERROR_LOCK")
     private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
+    @SuppressWarnings("deprecation")
     @GuardedBy("ERROR_LOCK")
     private static volatile ExtensionsErrorListener sExtensionsErrorListener = null;
 
@@ -592,7 +593,13 @@ public final class ExtensionsManager {
      * extensions error is encountered.
      *
      * @param listener The {@link ExtensionsErrorListener} listener that will be run.
+     *
+     * @deprecated Currently, this is only used to monitor whether a {@link Preview} or
+     * {@link ImageCapture} is lacking when enabling extension modes. CameraX will automatically
+     * add an extra {@link Preview} or {@link ImageCapture} to make the extension functions work
+     *  well. After that, no error will be reported via this interface.
      */
+    @Deprecated
     public static void setExtensionsErrorListener(@Nullable ExtensionsErrorListener listener) {
         synchronized (ERROR_LOCK) {
             sExtensionsErrorListener = listener;
@@ -604,6 +611,7 @@ public final class ExtensionsManager {
      *
      * @hide
      */
+    @SuppressWarnings("deprecation")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void postExtensionsError(
             @NonNull ExtensionsErrorListener.ExtensionsErrorCode errorCode) {

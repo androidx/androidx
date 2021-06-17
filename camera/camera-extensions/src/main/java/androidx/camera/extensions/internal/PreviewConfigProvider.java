@@ -43,7 +43,6 @@ import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.ExtensionsErrorListener;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
@@ -185,6 +184,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void checkImageCaptureEnabled(@ExtensionMode.Mode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isImageCaptureExtenderEnabled = false;
@@ -209,10 +209,12 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
 
         if (isMismatched) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+                    androidx.camera.extensions.ExtensionsErrorListener
+                            .ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
         } else if (!isImageCaptureExtenderEnabled) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                    androidx.camera.extensions.ExtensionsErrorListener
+                            .ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
         }
     }
 

@@ -37,7 +37,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
@@ -101,7 +100,8 @@ public final class ExtensionsErrorListenerTest {
     private CameraUseCaseAdapter mCamera;
     private ExtensionsManager mExtensionsManager;
 
-    final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
+    final AtomicReference<ExtensionsErrorListener.ExtensionsErrorCode> mErrorCode =
+            new AtomicReference<>();
     ExtensionsErrorListener mExtensionsErrorListener = new ExtensionsErrorListener() {
         @Override
         public void onError(@NonNull ExtensionsErrorCode errorCode) {
@@ -172,7 +172,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -188,7 +189,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -206,7 +208,7 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -221,7 +223,7 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -280,7 +282,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
     }
 
     @Test
@@ -297,7 +300,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -315,7 +319,7 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
     }
 
     @Test
