@@ -261,6 +261,35 @@ public open class NavController(
                 navigatorState[destinationNavigator]!!.pop(popUpTo, saveState)
             }
         }
+
+        override fun addWithTransition(
+            backStackEntry: NavBackStackEntry
+        ): OnTransitionCompleteListener {
+            val innerListener = super.addWithTransition(backStackEntry)
+            val listener = OnTransitionCompleteListener {
+                innerListener.onTransitionComplete()
+                if (!this@NavControllerNavigatorState.isNavigating) {
+                    updateBackStackLifecycle()
+                }
+            }
+            addInProgressTransition(backStackEntry, listener)
+            return listener
+        }
+
+        override fun popWithTransition(
+            popUpTo: NavBackStackEntry,
+            saveState: Boolean
+        ): OnTransitionCompleteListener {
+            val innerListener = super.popWithTransition(popUpTo, saveState)
+            val listener = OnTransitionCompleteListener {
+                innerListener.onTransitionComplete()
+                if (backQueue.contains(popUpTo)) {
+                    updateBackStackLifecycle()
+                }
+            }
+            addInProgressTransition(popUpTo, listener)
+            return listener
+        }
     }
 
     /**
@@ -555,6 +584,10 @@ public open class NavController(
                 "(${entry.destination})"
         }
         backQueue.removeLast()
+        val navigator = navigatorProvider
+            .getNavigator<Navigator<NavDestination>>(entry.destination.navigatorName)
+        val state = navigatorState[navigator]
+        val transitioning = state?.transitionsInProgress?.value?.containsKey(entry)
         if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             if (saveState) {
                 // Move the state through STOPPED
@@ -562,9 +595,13 @@ public open class NavController(
                 // Then save the state of the NavBackStackEntry
                 savedState.addFirst(NavBackStackEntryState(entry))
             }
-            entry.maxLifecycle = Lifecycle.State.DESTROYED
+            if (transitioning != true) {
+                entry.maxLifecycle = Lifecycle.State.DESTROYED
+            } else {
+                entry.maxLifecycle = Lifecycle.State.CREATED
+            }
         }
-        if (!saveState) {
+        if (!saveState && transitioning != true) {
             viewModel?.clear(entry.id)
         }
     }
@@ -658,68 +695,7 @@ public open class NavController(
             // Keep popping
         }
         if (!backQueue.isEmpty()) {
-            // First determine what the current resumed destination is and, if and only if
-            // the current resumed destination is a FloatingWindow, what destination is
-            // underneath it that must remain started.
-            var nextResumed: NavDestination? = backQueue.last().destination
-            var nextStarted: NavDestination? = null
-            if (nextResumed is FloatingWindow) {
-                // Find the next destination in the back stack as that destination
-                // should still be STARTED when the FloatingWindow destination is above it.
-                val iterator = backQueue.reversed().iterator()
-                while (iterator.hasNext()) {
-                    val destination = iterator.next().destination
-                    if (destination !is NavGraph && destination !is FloatingWindow) {
-                        nextStarted = destination
-                        break
-                    }
-                }
-            }
-            // First iterate downward through the stack, applying downward Lifecycle
-            // transitions and capturing any upward Lifecycle transitions to apply afterwards.
-            // This ensures proper nesting where parent navigation graphs are started before
-            // their children and stopped only after their children are stopped.
-            val upwardStateTransitions = HashMap<NavBackStackEntry, Lifecycle.State>()
-            var iterator = backQueue.reversed().iterator()
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
-                val currentMaxLifecycle = entry.maxLifecycle
-                val destination = entry.destination
-                if (nextResumed != null && destination.id == nextResumed.id) {
-                    // Upward Lifecycle transitions need to be done afterwards so that
-                    // the parent navigation graph is resumed before their children
-                    if (currentMaxLifecycle != Lifecycle.State.RESUMED) {
-                        upwardStateTransitions[entry] = Lifecycle.State.RESUMED
-                    }
-                    nextResumed = nextResumed.parent
-                } else if (nextStarted != null && destination.id == nextStarted.id) {
-                    if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
-                        // Downward transitions should be done immediately so children are
-                        // paused before their parent navigation graphs
-                        entry.maxLifecycle = Lifecycle.State.STARTED
-                    } else if (currentMaxLifecycle != Lifecycle.State.STARTED) {
-                        // Upward Lifecycle transitions need to be done afterwards so that
-                        // the parent navigation graph is started before their children
-                        upwardStateTransitions[entry] = Lifecycle.State.STARTED
-                    }
-                    nextStarted = nextStarted.parent
-                } else {
-                    entry.maxLifecycle = Lifecycle.State.CREATED
-                }
-            }
-            // Apply all upward Lifecycle transitions by iterating through the stack again,
-            // this time applying the new lifecycle to the parent navigation graphs first
-            iterator = backQueue.iterator()
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
-                val newState = upwardStateTransitions[entry]
-                if (newState != null) {
-                    entry.maxLifecycle = newState
-                } else {
-                    // Ensure the state is up to date
-                    entry.updateState()
-                }
-            }
+            updateBackStackLifecycle()
 
             // Now call all registered OnDestinationChangedListener instances
             val backStackEntry = backQueue.last()
@@ -734,6 +710,79 @@ public open class NavController(
             return true
         }
         return false
+    }
+
+    internal fun updateBackStackLifecycle() {
+        // First determine what the current resumed destination is and, if and only if
+        // the current resumed destination is a FloatingWindow, what destination is
+        // underneath it that must remain started.
+        var nextResumed: NavDestination? = backQueue.last().destination
+        var nextStarted: NavDestination? = null
+        if (nextResumed is FloatingWindow) {
+            // Find the next destination in the back stack as that destination
+            // should still be STARTED when the FloatingWindow destination is above it.
+            val iterator = backQueue.reversed().iterator()
+            while (iterator.hasNext()) {
+                val destination = iterator.next().destination
+                if (destination !is NavGraph && destination !is FloatingWindow) {
+                    nextStarted = destination
+                    break
+                }
+            }
+        }
+        // First iterate downward through the stack, applying downward Lifecycle
+        // transitions and capturing any upward Lifecycle transitions to apply afterwards.
+        // This ensures proper nesting where parent navigation graphs are started before
+        // their children and stopped only after their children are stopped.
+        val upwardStateTransitions = HashMap<NavBackStackEntry, Lifecycle.State>()
+        var iterator = backQueue.reversed().iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            val currentMaxLifecycle = entry.maxLifecycle
+            val destination = entry.destination
+            if (nextResumed != null && destination.id == nextResumed.id) {
+                // Upward Lifecycle transitions need to be done afterwards so that
+                // the parent navigation graph is resumed before their children
+                if (currentMaxLifecycle != Lifecycle.State.RESUMED) {
+                    val navigator = navigatorProvider
+                        .getNavigator<Navigator<*>>(entry.destination.navigatorName)
+                    val state = navigatorState[navigator]
+                    val transitioning = state?.transitionsInProgress?.value?.containsKey(entry)
+                    if (transitioning != true) {
+                        upwardStateTransitions[entry] = Lifecycle.State.RESUMED
+                    } else {
+                        upwardStateTransitions[entry] = Lifecycle.State.STARTED
+                    }
+                }
+                nextResumed = nextResumed.parent
+            } else if (nextStarted != null && destination.id == nextStarted.id) {
+                if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
+                    // Downward transitions should be done immediately so children are
+                    // paused before their parent navigation graphs
+                    entry.maxLifecycle = Lifecycle.State.STARTED
+                } else if (currentMaxLifecycle != Lifecycle.State.STARTED) {
+                    // Upward Lifecycle transitions need to be done afterwards so that
+                    // the parent navigation graph is started before their children
+                    upwardStateTransitions[entry] = Lifecycle.State.STARTED
+                }
+                nextStarted = nextStarted.parent
+            } else {
+                entry.maxLifecycle = Lifecycle.State.CREATED
+            }
+        }
+        // Apply all upward Lifecycle transitions by iterating through the stack again,
+        // this time applying the new lifecycle to the parent navigation graphs first
+        iterator = backQueue.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            val newState = upwardStateTransitions[entry]
+            if (newState != null) {
+                entry.maxLifecycle = newState
+            } else {
+                // Ensure the state is up to date
+                entry.updateState()
+            }
+        }
     }
 
     /**
@@ -1355,6 +1404,9 @@ public open class NavController(
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ) {
+        navigatorState.values.forEach { state ->
+            state.isNavigating = true
+        }
         var popped = false
         var launchSingleTop = false
         var navigated = false
@@ -1442,8 +1494,13 @@ public open class NavController(
             }
         }
         updateOnBackPressedCallbackEnabled()
+        navigatorState.values.forEach { state ->
+            state.isNavigating = false
+        }
         if (popped || navigated || launchSingleTop) {
             dispatchOnDestinationChanged()
+        } else if (backQueue.isNotEmpty()) {
+            updateBackStackLifecycle()
         }
     }
 

@@ -27,8 +27,6 @@ BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromMimeType(Str
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkRequest.Builder.fromMimeType(String)
 BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromUri(android.net.Uri):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkRequest.Builder.fromUri(android.net.Uri)
-BuilderSetStyle: androidx.navigation.NavDestinationBuilder#action(int, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit>):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.action(int,kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit>)
 BuilderSetStyle: androidx.navigation.NavDestinationBuilder#argument(String, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.argument(String,kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit>)
 BuilderSetStyle: androidx.navigation.NavDestinationBuilder#deepLink(String):
