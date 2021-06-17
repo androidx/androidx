@@ -7,10 +7,11 @@ on:
 jobs:
   ping_androidx_dev:
     runs-on: ubuntu-latest
-    - name: "Start webhook"
-      uses: androidx/github-workflow-webhook-action@main
-      with:
-        url: 'https://androidx.dev/github/androidX/presubmit/hook'
-        secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-        payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started", "src" : "workflow_run"}'
-
+    name: "Start webhook"
+    steps:
+      - name: "Ping AndroidX hook"
+        uses: androidx/github-workflow-webhook-action@main
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started", "src" : "workflow_run"}'

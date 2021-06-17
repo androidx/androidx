@@ -32,9 +32,7 @@ jobs:
           path: ${{ steps.dirs.outputs.output-dir }}
   teardown:
     runs-on: ubuntu-latest
-    needs: [
-      run_integration_tests
-    ]
+    needs: [run_integration_tests]
     if: always()
     steps:
       - name: Parse workflow status
@@ -44,9 +42,9 @@ jobs:
           if [ "${{ needs.run_integration_tests.result }}" == "success" ]                  && \
             [ "${{ github.event.workflow_run.conclusion }}" == "success" ]
           then
-            echo "::set-output name=result::success"
+            echo "::set-output name=result::true"
           else
-            echo "::set-output name=result::failure"
+            echo "::set-output name=result::false"
           fi
 
       - name: Result WebHook
@@ -54,4 +52,4 @@ jobs:
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "src" : "workflow_run", "success": ${{ steps.workflow-status.outputs.result == 'success' }} }'
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": ${{ steps.workflow-status.outputs.result }}, "src" : "workflow_run" }'
