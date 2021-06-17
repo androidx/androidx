@@ -340,7 +340,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@inheritDoc}
      */
     @Override
-    public void setKeyListener(@NonNull KeyListener keyListener) {
+    public void setKeyListener(@Nullable KeyListener keyListener) {
         super.setKeyListener(mAppCompatEmojiEditTextHelper.getKeyListener(keyListener));
     }
 
