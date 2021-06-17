@@ -733,6 +733,10 @@ class FragmentStateManager {
             Log.d(TAG, "movefrom CREATED: " + mFragment);
         }
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
+        // Clear any previous saved state
+        if (beingRemoved && !mFragment.mBeingSaved) {
+            mFragmentStore.setSavedState(mFragment.mWho, null);
+        }
         boolean shouldDestroy = beingRemoved
                 || mFragmentStore.getNonConfig().shouldDestroy(mFragment);
         if (shouldDestroy) {
