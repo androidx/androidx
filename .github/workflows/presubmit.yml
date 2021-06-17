@@ -52,6 +52,7 @@ jobs:
     needs: [setup]
     outputs:
       status: ${{ steps.output-status.outputs.status }}
+      affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -95,6 +96,12 @@ jobs:
           KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g' | grep -v "*.txt"`
           echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
 
+      - name: "Parse changed-files as affected files args"
+        id: affected-file-args
+        run: |
+          set -x
+          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
+          echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
         uses: eskatos/gradle-command-action@v1
         env:
@@ -153,9 +160,29 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-
+      - name: "./gradlew findAffectedModules"
+        id: find-affected-modules
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+        with:
+          arguments: findAffectedModules ${{ needs.lint.outputs.affectedFileArgs }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
+          build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
+      - name: "Parse the output of find affected modules step to see if we should build"
+        id: affected-module-count
+        run: |
+          set -x
+          AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt`
+          echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "./gradlew buildOnServer buildTestApks"
         uses: eskatos/gradle-command-action@v1
+        if: ${{ steps.affected-module-count.outputs.count > 0 }}
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
