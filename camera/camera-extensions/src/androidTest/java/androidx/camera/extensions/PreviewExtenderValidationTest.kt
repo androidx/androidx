@@ -61,7 +61,6 @@ class PreviewExtenderValidationTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        ExtensionsTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         Assume.assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
