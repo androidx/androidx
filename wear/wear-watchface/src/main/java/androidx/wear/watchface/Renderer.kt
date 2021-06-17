@@ -297,7 +297,7 @@ public sealed class Renderer @WorkerThread constructor(
      * any subsequent calls to [renderInternal] or [takeScreenshot].
      */
     @UiThread
-    internal open fun uiThreadInit() {}
+    internal open fun uiThreadInitInternal() {}
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
@@ -403,12 +403,25 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
+        override fun uiThreadInitInternal() {
+            uiThreadInit()
+        }
+
+        /**
+         * Perform UiThread specific initialization.  Will be called once during initialization
+         * before any subsequent calls to [render].
+         */
+        @UiThread
+        public open fun uiThreadInit() {}
+
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
          * where possible. For correct behavior this function must use the supplied [Calendar]
          * in favor of any other ways of getting the time.
+         *
+         * Before any calls to render, [uiThreadInit] will be called once.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
          * the [SurfaceHolder] backing the display
@@ -471,9 +484,10 @@ public sealed class Renderer @WorkerThread constructor(
      * (e.g. shaders and textures) can be used on the other. Caution must be exercised with
      * multi-threaded OpenGl API use, concurrent usage may not be supported.
      *
-     * If you need to make any OpenGl calls outside of [render], [onGlContextCreated] or
-     * [onGlSurfaceCreated] then you must first call either [makeUiThreadContextCurrent] or
-     * [makeBackgroundThreadContextCurrent] depending on which thread you're on.
+     * If you need to make any OpenGl calls outside of [render],
+     * [onBackgroundThreadGlContextCreated] or [onUiThreadGlSurfaceCreated] then you must first
+     * call either [makeUiThreadContextCurrent] or [makeBackgroundThreadContextCurrent] depending
+     * on which thread you're on.
      *
      * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
      * into.
@@ -633,7 +647,7 @@ public sealed class Renderer @WorkerThread constructor(
                 calledOnGlContextCreated = true
             }
             TraceEvent("GlesRenderer.onGlSurfaceCreated").use {
-                onGlSurfaceCreated(width, height)
+                onUiThreadGlSurfaceCreated(width, height)
             }
         }
 
@@ -658,7 +672,7 @@ public sealed class Renderer @WorkerThread constructor(
         /**
          * Sets the GL context associated with the [WatchFaceService.getBackgroundThreadHandler]'s
          * looper thread as the current one. The library does this on your behalf before calling
-         * [onGlContextCreated]. If you need to make any OpenGL calls on
+         * [onBackgroundThreadGlContextCreated]. If you need to make any OpenGL calls on
          * [WatchFaceService.getBackgroundThreadHandler] outside that function, this method
          * *must* be called first.
          *
@@ -686,8 +700,8 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         /**
-         * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
-         * a [WatchFace] before this method has been called.
+         * Initializes the GlesRenderer, and calls [onUiThreadGlSurfaceCreated]. It is an error to
+         * construct a [WatchFace] before this method has been called.
          *
          * @throws [GlesException] If any GL calls fail.
          */
@@ -710,7 +724,7 @@ public sealed class Renderer @WorkerThread constructor(
                 makeBackgroundThreadContextCurrent()
 
                 TraceEvent("GlesRenderer.onGlContextCreated").use {
-                    onGlContextCreated()
+                    onBackgroundThreadGlContextCreated()
                 }
             }
 
@@ -740,14 +754,14 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         /**
-         * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
-         * a [WatchFace] before this method has been called.
+         * Initializes the GlesRenderer, and calls [onUiThreadGlSurfaceCreated]. It is an error to
+         * construct a [WatchFace] before this method has been called.
          *
          * @throws [GlesException] If any GL calls fail.
          */
         @UiThread
         @Throws(GlesException::class)
-        internal override fun uiThreadInit() =
+        internal override fun uiThreadInitInternal() =
             TraceEvent("GlesRenderer.initUiThreadOpenGlContext").use {
                 eglUiThreadContext = EGL14.eglCreateContext(
                     eglDisplay,
@@ -794,24 +808,25 @@ public sealed class Renderer @WorkerThread constructor(
             }
 
         /**
-         * Called when a new GL context is created on the background thread. It's safe to use GL
-         * APIs in this method. Note [makeBackgroundThreadContextCurrent] is called by the library
-         * before this method.
+         * Called once a background thread when a new GL context is created on the background
+         * thread, before any subsequent calls to [render]. It's safe to use GL APIs in this
+         * method. Note [makeBackgroundThreadContextCurrent] is called by the library before this
+         * method.
          */
         @WorkerThread
-        public open fun onGlContextCreated() {
+        public open fun onBackgroundThreadGlContextCreated() {
         }
 
         /**
-         * Called when a new GL surface is created on the UiThread. It's safe to use GL APIs in
-         * this method. Note [makeUiThreadContextCurrent] is called by the library before this
-         * method.
+         * Called once when a new GL surface is created on the UiThread, before any subsequent calls
+         * to [render]. It's safe to use GL APIs in this method. Note
+         * [makeUiThreadContextCurrent] is called by the library before this method.
          *
          * @param width width of surface in pixels
          * @param height height of surface in pixels
          */
         @UiThread
-        public open fun onGlSurfaceCreated(@Px width: Int, @Px height: Int) {
+        public open fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int) {
         }
 
         internal override fun renderInternal(
@@ -915,6 +930,9 @@ public sealed class Renderer @WorkerThread constructor(
          * in favor of any other ways of getting the time. Note [makeUiThreadContextCurrent] and
          * `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` are called by the library before this
          * method.
+         *
+         * Before any calls to this function [onBackgroundThreadGlContextCreated] and
+         * [onUiThreadGlSurfaceCreated] will have been called once on their respective threads.
          *
          * @param calendar The current [Calendar]
          */
