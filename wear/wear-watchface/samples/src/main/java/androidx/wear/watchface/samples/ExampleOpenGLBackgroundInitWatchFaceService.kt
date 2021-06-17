@@ -93,7 +93,7 @@ internal class MainThreadRenderer(
     private lateinit var minuteHandQuad: Gles2TexturedTriangleList
     private lateinit var hourHandQuad: Gles2TexturedTriangleList
 
-    override fun onGlContextCreated() {
+    override fun onBackgroundThreadGlContextCreated() {
         triangleTextureProgram = Gles2TexturedTriangleList.Program()
         backgroundQuad = createTexturedQuad(
             triangleTextureProgram, -10f, -10f, 20f, 20f
@@ -148,7 +148,7 @@ internal class MainThreadRenderer(
         }
     }
 
-    override fun onGlSurfaceCreated(width: Int, height: Int) {
+    override fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         GLES20.glEnable(GLES20.GL_TEXTURE_2D)
 
         // Update the projection matrix based on the new aspect ratio.
