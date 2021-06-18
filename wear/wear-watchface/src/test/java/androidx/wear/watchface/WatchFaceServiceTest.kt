@@ -2696,6 +2696,59 @@ public class WatchFaceServiceTest {
         ).isEqualTo("Example")
     }
 
+    @Test
+    public fun setComplicationDataList() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            )
+        )
+
+        val interactiveInstance = InteractiveInstanceManager.getAndRetainInstance("TestID")
+        interactiveInstance!!.updateComplicationData(
+            mutableListOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("LEFT!"))
+                        .build()
+                ),
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("RIGHT!"))
+                        .build()
+                )
+            )
+        )
+
+        assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(3)
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1].text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("LEFT!")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[2].text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("RIGHT!")
+    }
+
     @Suppress("DEPRECATION")
     private fun getChinWindowInsetsApi25(@Px chinHeight: Int): WindowInsets =
         WindowInsets.Builder().setSystemWindowInsets(
