@@ -336,8 +336,10 @@ public class NavDeepLinkBuilder(private val context: Context) {
                 }
             }
         }
-        return createTaskStackBuilder()
-            .getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT)!!
+        return createTaskStackBuilder().getPendingIntent(
+            requestCode,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )!!
     }
 
     /**
