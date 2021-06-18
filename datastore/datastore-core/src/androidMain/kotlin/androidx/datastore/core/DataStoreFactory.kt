@@ -26,7 +26,7 @@ import java.io.File
 /**
  * Public factory for creating DataStore instances.
  */
-public object DataStoreFactory {
+public actual object DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
@@ -55,17 +55,28 @@ public object DataStoreFactory {
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public fun <T> create(
-        serializer: Serializer<T>,
+        // serializer: Serializer<T>,
+        codec: Codec<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
         produceFile: () -> File
-    ): DataStore<T> =
-        SingleProcessDataStore(
-            produceFile = produceFile,
-            serializer = serializer,
-            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-            scope = scope
-        )
+    ): DataStore<T> = create(
+        corruptionHandler,
+        migrations,
+        scope,
+        AndroidStorage(produceFile, codec))
+
+    actual fun <T> create(
+        corruptionHandler: ReplaceFileCorruptionHandler<T>?,
+        migrations: List<DataMigration<T>>,
+        scope: CoroutineScope,
+        storage: Storage<T>
+    ): DataStore<T> = SingleProcessDataStore(
+        storage = storage,
+        corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+        initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
+        scope = scope
+    )
+
 }
