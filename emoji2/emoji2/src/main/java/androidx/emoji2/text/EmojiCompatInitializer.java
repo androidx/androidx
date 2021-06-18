@@ -22,7 +22,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
+import android.view.Choreographer;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -79,18 +81,34 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     @Override
     public Boolean create(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
-            final Handler mainHandler;
-            if (Build.VERSION.SDK_INT >= 28) {
-                mainHandler = Handler28Impl.createAsync(Looper.getMainLooper());
-            } else {
-                mainHandler = new Handler(Looper.getMainLooper());
-            }
             EmojiCompat.init(new BackgroundDefaultConfig(context));
-            mainHandler.postDelayed(new LoadEmojiCompatRunnable(),
-                    STARTUP_THREAD_CREATION_DELAY_MS);
+            delayAfterFirstFrame();
             return true;
         }
         return false;
+    }
+
+    /**
+     * Wait until the first frame of the application to do anything.
+     *
+     * This allows startup code to run before the delay is scheduled.
+     */
+    @RequiresApi(19)
+    void delayAfterFirstFrame() {
+        // schedule delay after first frame callback
+        Choreographer16Impl.postFrameCallback(this::loadEmojiCompatAfterDelay);
+    }
+
+    @RequiresApi(19)
+    private void loadEmojiCompatAfterDelay() {
+        final Handler mainHandler;
+        if (Build.VERSION.SDK_INT >= 28) {
+            mainHandler = Handler28Impl.createAsync(Looper.getMainLooper());
+        } else {
+            mainHandler = new Handler(Looper.getMainLooper());
+        }
+        mainHandler.postDelayed(new LoadEmojiCompatRunnable(),
+                STARTUP_THREAD_CREATION_DELAY_MS);
     }
 
     /**
@@ -195,13 +213,25 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
         }
     }
 
+    @RequiresApi(16)
+    private static class Choreographer16Impl {
+        private Choreographer16Impl() {
+            // Non-instantiable.
+        }
+
+        @DoNotInline
+        public static void postFrameCallback(Runnable r) {
+            Choreographer.getInstance().postFrameCallback(frameTimeNanos -> r.run());
+        }
+    }
+
     @RequiresApi(28)
     private static class Handler28Impl {
         private Handler28Impl() {
             // Non-instantiable.
         }
 
-        // avoid aligning with vsync when available (API 28+)
+        @DoNotInline
         public static Handler createAsync(Looper looper) {
             return Handler.createAsync(looper);
         }
