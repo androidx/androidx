@@ -81,10 +81,9 @@ class AppSearchMigrationHelper implements Closeable {
      *
      * <p>This method will be invoked on the background worker thread.
      *
-     * @param schemaType     The schema that need be updated and migrated {@link GenericDocument}
-     *                       under this type.
-     * @param migrator       The map of active {@link Migrator}s that will upgrade or downgrade a
-     *                       {@link GenericDocument} to new version.
+     * @param migrators      The map of active {@link Migrator}s that will upgrade or downgrade a
+     *                       {@link GenericDocument} to new version. The key is the schema type that
+     *                       {@link Migrator} applies to.
      * @param currentVersion The current version of the document's schema.
      * @param finalVersion   The final version that documents need to be migrated to.
      *
@@ -153,6 +152,10 @@ class AppSearchMigrationHelper implements Closeable {
      *
      * <p> This method should be only called once.
      *
+     * @param responseBuilder a SetSchemaResponse builder whose result will be returned by this
+     *                        function with any
+     *                        {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure}
+     *                        added in.
      * @return  the {@link SetSchemaResponse} for this
      *          {@link androidx.appsearch.app.AppSearchSession#setSchema} call.
      *
