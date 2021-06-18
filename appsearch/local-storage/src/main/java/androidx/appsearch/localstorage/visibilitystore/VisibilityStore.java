@@ -63,8 +63,8 @@ public class VisibilityStore {
     public void setVisibility(
             @NonNull String packageName,
             @NonNull String databaseName,
-            @NonNull Set<String> schemasNotPlatformSurfaceable,
-            @NonNull Map<String, List<PackageIdentifier>> schemasPackageAccessible)
+            @NonNull Set<String> schemasNotDisplayedBySystem,
+            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
             throws AppSearchException {
     }
 

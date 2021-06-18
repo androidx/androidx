@@ -345,12 +345,12 @@ public final class AppSearchImpl implements Closeable {
      * @param packageName                   The package name that owns the schemas.
      * @param databaseName                  The name of the database where this schema lives.
      * @param schemas                       Schemas to set for this app.
-     * @param visibilityStore               If set, {@code schemasNotPlatformSurfaceable} and {@code
-     *                                      schemasPackageAccessible} will be saved here if the
+     * @param visibilityStore               If set, {@code schemasNotDisplayedBySystem} and {@code
+     *                                      schemasVisibleToPackages} will be saved here if the
      *                                      schema is successfully applied.
-     * @param schemasNotPlatformSurfaceable Schema types that should not be surfaced on platform
+     * @param schemasNotDisplayedBySystem   Schema types that should not be surfaced on platform
      *                                      surfaces.
-     * @param schemasPackageAccessible      Schema types that are visible to the specified packages.
+     * @param schemasVisibleToPackages      Schema types that are visible to the specified packages.
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
@@ -367,8 +367,8 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
             @Nullable VisibilityStore visibilityStore,
-            @NonNull List<String> schemasNotPlatformSurfaceable,
-            @NonNull Map<String, List<PackageIdentifier>> schemasPackageAccessible,
+            @NonNull List<String> schemasNotDisplayedBySystem,
+            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages,
             boolean forceOverride,
             int version) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
@@ -429,25 +429,25 @@ public final class AppSearchImpl implements Closeable {
             }
 
             if (visibilityStore != null) {
-                Set<String> prefixedSchemasNotPlatformSurfaceable =
-                        new ArraySet<>(schemasNotPlatformSurfaceable.size());
-                for (int i = 0; i < schemasNotPlatformSurfaceable.size(); i++) {
-                    prefixedSchemasNotPlatformSurfaceable.add(
-                            prefix + schemasNotPlatformSurfaceable.get(i));
+                Set<String> prefixedSchemasNotDisplayedBySystem =
+                        new ArraySet<>(schemasNotDisplayedBySystem.size());
+                for (int i = 0; i < schemasNotDisplayedBySystem.size(); i++) {
+                    prefixedSchemasNotDisplayedBySystem.add(
+                            prefix + schemasNotDisplayedBySystem.get(i));
                 }
 
-                Map<String, List<PackageIdentifier>> prefixedSchemasPackageAccessible =
-                        new ArrayMap<>(schemasPackageAccessible.size());
+                Map<String, List<PackageIdentifier>> prefixedSchemasVisibleToPackages =
+                        new ArrayMap<>(schemasVisibleToPackages.size());
                 for (Map.Entry<String, List<PackageIdentifier>> entry
-                        : schemasPackageAccessible.entrySet()) {
-                    prefixedSchemasPackageAccessible.put(prefix + entry.getKey(), entry.getValue());
+                        : schemasVisibleToPackages.entrySet()) {
+                    prefixedSchemasVisibleToPackages.put(prefix + entry.getKey(), entry.getValue());
                 }
 
                 visibilityStore.setVisibility(
                         packageName,
                         databaseName,
-                        prefixedSchemasNotPlatformSurfaceable,
-                        prefixedSchemasPackageAccessible);
+                        prefixedSchemasNotDisplayedBySystem,
+                        prefixedSchemasVisibleToPackages);
             }
 
             return SetSchemaResponseToProtoConverter
