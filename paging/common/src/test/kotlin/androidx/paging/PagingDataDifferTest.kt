@@ -27,6 +27,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -483,6 +486,178 @@ class PagingDataDifferTest {
         assertThat(uiReceiver.hints).isEqualTo(
             listOf(ViewportHint.Initial(0, 0, 0, 0))
         )
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedListener_empty() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        differ.addOnPagesUpdatedListener {
+            listenerEvents.add(Unit)
+        }
+
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // No change to LoadState or presented list should still trigger the listener.
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
+        val job = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(3)
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedListener_insertDrop() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        differ.addOnPagesUpdatedListener {
+            listenerEvents.add(Unit)
+        }
+
+        val pager = Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
+            TestPagingSource()
+        }
+        val job = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger PREPEND.
+        differ[50]
+        assertThat(listenerEvents.size).isEqualTo(1)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        // Trigger APPEND + Drop
+        differ[52]
+        assertThat(listenerEvents.size).isEqualTo(2)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(4)
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_empty() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        val job1 = testScope.launch {
+            differ.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+            }
+        }
+
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // No change to LoadState or presented list should still trigger the listener.
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
+        val job2 = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(3)
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_insertDrop() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        val job1 = testScope.launch {
+            differ.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+            }
+        }
+
+        val pager = Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
+            TestPagingSource()
+        }
+        val job2 = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger PREPEND.
+        differ[50]
+        assertThat(listenerEvents.size).isEqualTo(1)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        // Trigger APPEND + Drop
+        differ[52]
+        assertThat(listenerEvents.size).isEqualTo(2)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(4)
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_buffer() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+
+        // Trigger update, which should get ignored due to onPagesUpdatedFlow being hot.
+        differ.collectFrom(PagingData.empty())
+
+        val job = testScope.launch {
+            differ.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+                // Await advanceUntilIdle() before accepting another event.
+                delay(100)
+            }
+        }
+
+        // Previous update before collection happened should be ignored.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        // Trigger update; should get immediately received.
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger 64 update while collector is still processing; should all get buffered.
+        repeat(64) { differ.collectFrom(PagingData.empty()) }
+
+        // Trigger another update while collector is still processing; should cause event to drop.
+        differ.collectFrom(PagingData.empty())
+
+        // Await all; we should now receive the buffered event.
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(65)
 
         job.cancel()
     }
