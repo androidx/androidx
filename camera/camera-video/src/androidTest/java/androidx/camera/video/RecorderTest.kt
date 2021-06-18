@@ -294,7 +294,7 @@ class RecorderTest {
             .setFileDescriptor(fd)
             .build()
 
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(IllegalStateException::class.java) {
             recorder.prepareRecording(outputOptions)
         }
     }
