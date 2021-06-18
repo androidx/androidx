@@ -301,7 +301,7 @@ public final class NavigationTemplate implements Template {
          * Sets the background color to use for the navigation information.
          *
          * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
-         *  factors, the color may be ignored by the host or overridden by the vehicle system.
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
@@ -358,6 +358,11 @@ public final class NavigationTemplate implements Template {
          *
          * <p>The host will draw the buttons in an area that is associated with map controls.
          *
+         * <p>If the app does not include the {@link Action#PAN} button in this
+         * {@link ActionStrip}, the app will not receive the user input for panning gestures from
+         * {@link SurfaceCallback} methods, and the host will exit any previously activated pan
+         * mode.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 4 {@link Action}s in its map {@link ActionStrip}. Only
@@ -379,6 +384,11 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets a {@link PanModeListener} that notifies when the user enters and exits
          * the pan mode.
+         *
+         * <p>If the app does not include the {@link Action#PAN} button in the map
+         * {@link ActionStrip}, the app will not receive the user input for panning gestures from
+         * {@link SurfaceCallback} methods, and the host will exit any previously activated pan
+         * mode.
          *
          * @throws NullPointerException if {@code panModeListener} is {@code null}
          */
