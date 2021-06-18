@@ -74,11 +74,8 @@ public class VisibilityStore {
             @NonNull String databaseName,
             @NonNull String prefixedSchema,
             @NonNull String callerPackageName,
-            int callerUid) {
+            int callerUid,
+            boolean callerHasSystemAccess) {
         return false;
-    }
-
-    /** No-op implementation in local storage. */
-    public void handleReset() {
     }
 }
