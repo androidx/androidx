@@ -52,6 +52,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="androidx.wear.widget.drawer.DrawerRecyclerViewTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name="androidx.wear.ambient.AmbientModeTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
