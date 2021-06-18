@@ -650,7 +650,7 @@ public final class VideoCapture extends UseCase {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
-        mDeferrableSurface = new ImmediateSurface(mCameraSurface);
+        mDeferrableSurface = new ImmediateSurface(mCameraSurface, resolution, getImageFormat());
         mDeferrableSurface.getTerminationFuture().addListener(
                 cameraSurface::release, CameraXExecutors.mainThreadExecutor()
         );

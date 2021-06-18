@@ -16,7 +16,9 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -103,10 +105,26 @@ public abstract class DeferrableSurface {
     private CallbackToFutureAdapter.Completer<Void> mTerminationCompleter;
     private final ListenableFuture<Void> mTerminationFuture;
 
+    @NonNull
+    private final Size mPrescribedSize;
+    private final int mPrescribedStreamFormat;
+
     /**
      * Creates a new DeferrableSurface which has no use count.
      */
     public DeferrableSurface() {
+        this(new Size(0, 0), ImageFormat.UNKNOWN);
+    }
+
+    /**
+     * Creates a new DeferrableSurface which has no use count.
+     *
+     * @param size  the {@link Size} of the surface
+     * @param format the stream configuration format that the provided Surface will be used on.
+     */
+    public DeferrableSurface(@NonNull Size size, int format) {
+        mPrescribedSize = size;
+        mPrescribedStreamFormat = format;
         mTerminationFuture = CallbackToFutureAdapter.getFuture(completer -> {
             synchronized (mLock) {
                 mTerminationCompleter = completer;
@@ -289,6 +307,21 @@ public abstract class DeferrableSurface {
         if (terminationCompleter != null) {
             terminationCompleter.set(null);
         }
+    }
+
+    /**
+     * @return the {@link Size} of the surface
+     */
+    @NonNull
+    public Size getPrescribedSize() {
+        return mPrescribedSize;
+    }
+
+    /**
+     * @return the stream configuration format that the provided Surface will be used on.
+     */
+    public int getPrescribedStreamFormat() {
+        return mPrescribedStreamFormat;
     }
 
     /** @hide */
