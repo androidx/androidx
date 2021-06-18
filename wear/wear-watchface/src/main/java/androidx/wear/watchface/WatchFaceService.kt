@@ -994,6 +994,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         idAndComplicationData.complicationData.toApiComplicationData()
                     )
                 }
+                watchFaceImpl.complicationSlotsManager.onComplicationsUpdated()
             } else {
                 // If the watchface hasn't been created yet, update pendingInitialComplications so
                 // it can be applied later.
