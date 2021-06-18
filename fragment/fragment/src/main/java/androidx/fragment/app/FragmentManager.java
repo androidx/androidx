@@ -2042,11 +2042,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     continue;
                 }
                 if (!op.mFromExpandedOp || op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE
                         || op.mCmd == FragmentTransaction.OP_SET_PRIMARY_NAV) {
                     allFragments.add(f);
                     affectedFragments.add(f);
                 }
-                if (op.mCmd == FragmentTransaction.OP_ADD) {
+                if (op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE) {
                     addedFragments.add(f);
                 }
             }

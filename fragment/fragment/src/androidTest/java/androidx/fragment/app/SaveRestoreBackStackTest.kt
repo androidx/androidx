@@ -84,6 +84,41 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    fun saveBackStackWithoutExecutePendingTransactions() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            withActivity {
+                fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragmentReplacement)
+                    .addToBackStack("replacement")
+                    .commit()
+                // Immediately save the back stack without calling executePendingTransactions
+                fm.saveBackStack("replacement")
+            }
+            executePendingTransactions()
+
+            // Now restore the back stack to ensure that the replacement fragment is restored
+            fm.restoreBackStack("replacement")
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun savePreviouslyReferencedFragment() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
