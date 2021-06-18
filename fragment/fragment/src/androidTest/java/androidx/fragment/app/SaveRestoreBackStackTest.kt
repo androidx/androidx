@@ -39,7 +39,7 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
+            val fragmentBase = StrictViewFragment()
             val fragmentReplacement = StateSaveFragment()
 
             fm.beginTransaction()
@@ -89,8 +89,8 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
-            val fragmentReplacement = StrictFragment()
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StrictViewFragment()
 
             fm.beginTransaction()
                 .add(R.id.content, fragmentBase)
@@ -128,8 +128,8 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
-            val fragmentReplacement = StrictFragment()
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StrictViewFragment()
 
             fm.beginTransaction()
                 .add(R.id.content, fragmentBase)
@@ -167,8 +167,8 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
-            val fragmentReplacement = StrictFragment()
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StrictViewFragment()
             fragmentReplacement.retainInstance = true
 
             fm.beginTransaction()
@@ -207,8 +207,8 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
-            val fragmentReplacement = StrictFragment()
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StrictViewFragment()
 
             fm.beginTransaction()
                 .add(R.id.content, fragmentBase)
@@ -250,7 +250,7 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
+            val fragmentBase = StrictViewFragment()
             val fragmentReplacement = StateSaveFragment("saved", "unsaved")
 
             fm.beginTransaction()
@@ -312,7 +312,7 @@ class SaveRestoreBackStackTest {
             var fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
+            val fragmentBase = StrictViewFragment()
             val fragmentReplacement = StateSaveFragment("saved", "unsaved")
 
             fm.beginTransaction()
@@ -381,7 +381,7 @@ class SaveRestoreBackStackTest {
             val fm = withActivity {
                 supportFragmentManager
             }
-            val fragmentBase = StrictFragment()
+            val fragmentBase = StrictViewFragment()
             val fragmentReplacement = StateSaveFragment("saved", "unsaved")
 
             fm.beginTransaction()
