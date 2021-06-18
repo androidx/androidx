@@ -28,18 +28,22 @@ package androidx.paging {
     ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
     ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
     method public void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
+    method public void addOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public T? getItem(@IntRange(from=0) int index);
     method public int getItemCount();
     method public kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> getLoadStateFlow();
+    method public kotlinx.coroutines.flow.Flow<kotlin.Unit> getOnPagesUpdatedFlow();
     method public T? peek(@IntRange(from=0) int index);
     method public void refresh();
     method public void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
+    method public void removeOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public void retry();
     method public androidx.paging.ItemSnapshotList<T> snapshot();
     method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     property public final int itemCount;
     property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
+    property public final kotlinx.coroutines.flow.Flow<kotlin.Unit> onPagesUpdatedFlow;
   }
 
   @Deprecated public final class LivePagedListBuilder<Key, Value> {
@@ -102,13 +106,16 @@ package androidx.paging {
     ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
     ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     method public final void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
+    method public final void addOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method protected final T? getItem(@IntRange(from=0) int position);
     method public int getItemCount();
     method public final long getItemId(int position);
     method public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> getLoadStateFlow();
+    method public final kotlinx.coroutines.flow.Flow<kotlin.Unit> getOnPagesUpdatedFlow();
     method public final T? peek(@IntRange(from=0) int index);
     method public final void refresh();
     method public final void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
+    method public final void removeOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public final void retry();
     method public final void setHasStableIds(boolean hasStableIds);
     method public final androidx.paging.ItemSnapshotList<T> snapshot();
@@ -118,6 +125,7 @@ package androidx.paging {
     method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<?> header);
     method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<?> header, androidx.paging.LoadStateAdapter<?> footer);
     property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
+    property public final kotlinx.coroutines.flow.Flow<kotlin.Unit> onPagesUpdatedFlow;
   }
 
   public final class PagingLiveData {
