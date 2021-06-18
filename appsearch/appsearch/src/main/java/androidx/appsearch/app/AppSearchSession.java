@@ -52,8 +52,6 @@ public interface AppSearchSession extends Closeable {
      * @param  request the schema to set or update the AppSearch database to.
      * @return a {@link ListenableFuture} which resolves to a {@link SetSchemaResponse} object.
      */
-    // TODO(b/169883602): Change @code references to @link when setPlatformSurfaceable APIs are
-    //  exposed.
     @NonNull
     ListenableFuture<SetSchemaResponse> setSchema(
             @NonNull SetSchemaRequest request);

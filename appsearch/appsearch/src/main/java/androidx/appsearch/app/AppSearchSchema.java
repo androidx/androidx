@@ -510,8 +510,8 @@ public final class AppSearchSchema {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated
-    /*@exportToFramework:UnsupportedAppUsage*/
     public static class Int64PropertyConfig extends PropertyConfig {
+        /*@exportToFramework:UnsupportedAppUsage*/
         Int64PropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
         }
