@@ -24,7 +24,10 @@ import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -67,8 +70,13 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @Override
     public ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
         Preconditions.checkNotNull(request);
-        // TODO(b/183031844): Call system reportSystemUsage API when it's created
-        throw new UnsupportedOperationException();
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        mPlatformSession.reportSystemUsage(
+                RequestToPlatformConverter.toPlatformReportSystemUsageRequest(request),
+                mExecutor,
+                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                        result, future));
+        return future;
     }
 
     @Override
