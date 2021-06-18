@@ -99,4 +99,14 @@ public class AppCompatEditTextEmojiTest
 
         assertThat(textEmailAddress.getInputType()).isEqualTo(platformTextView.getInputType());
     }
+
+    @Test
+    @UiThreadTest
+    public void setKeyListener_null_setsToNull() {
+        AppCompatEditText textEmailAddress =
+                mActivityTestRule.getActivity().findViewById(R.id.text_email_address);
+
+        textEmailAddress.setKeyListener(null);
+        assertThat(textEmailAddress.getKeyListener()).isNull();
+    }
 }

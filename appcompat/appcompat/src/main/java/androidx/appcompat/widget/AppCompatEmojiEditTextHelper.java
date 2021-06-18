@@ -121,10 +121,10 @@ class AppCompatEmojiEditTextHelper {
      *
      * @param keyListener KeyListener passed into {@link TextView#setKeyListener(KeyListener)}
      *
-     * @return a new KeyListener instance that wraps {@code keyListener}.
+     * @return a new KeyListener instance that wraps {@code keyListener}, or null if passed null.
      */
-    @NonNull
-    KeyListener getKeyListener(@NonNull KeyListener keyListener) {
+    @Nullable
+    KeyListener getKeyListener(@Nullable KeyListener keyListener) {
         return mEmojiEditTextHelper.getKeyListener(keyListener);
     }
 
