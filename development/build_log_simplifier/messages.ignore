@@ -739,6 +739,14 @@ Creating pages\: *[0-9]+
 Transforming pages\: *[0-9]+
 Rendering\: *[0-9]+
 WARNING\: unable to find what is referred to by
+@param _value
+in DClass ObservableWatchData
+@param currentUserStyleRepository,
+@param watchState
+in DClass Renderer
+@param bounds
+in DClass Complication
+in DClass ComplicationSlot
 @param maxSlotsToRetainForReuse
 in DClass SubcomposeLayoutState
 @param initVal
@@ -880,6 +888,12 @@ in DClass PointerId
 @param downChange
 in DClass ConsumedData
 @param id,
+@param canvasComplicationFactory,
+@param supportedTypes,
+@param defaultProviderPolicy,
+@param boundsType,
+@param bounds,
+@param complicationTapFilter
 @param uptimeMillis,
 @param position,
 @param pressed,
