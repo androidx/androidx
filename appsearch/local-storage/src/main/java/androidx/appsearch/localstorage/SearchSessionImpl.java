@@ -94,19 +94,19 @@ class SearchSessionImpl implements AppSearchSession {
 
         ListenableFuture<SetSchemaResponse> future = execute(() -> {
             // Convert the inner set into a List since Binder can't handle Set.
-            Map<String, Set<PackageIdentifier>> schemasPackageAccessible =
+            Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
                     request.getSchemasVisibleToPackagesInternal();
-            Map<String, List<PackageIdentifier>> copySchemasPackageAccessible = new ArrayMap<>();
+            Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages = new ArrayMap<>();
             for (Map.Entry<String, Set<PackageIdentifier>> entry :
-                    schemasPackageAccessible.entrySet()) {
-                copySchemasPackageAccessible.put(entry.getKey(),
+                    schemasVisibleToPackages.entrySet()) {
+                copySchemasVisibleToPackages.put(entry.getKey(),
                         new ArrayList<>(entry.getValue()));
             }
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
             if (migrators.size() == 0) {
-                return setSchemaNoMigrations(request, copySchemasPackageAccessible);
+                return setSchemaNoMigrations(request, copySchemasVisibleToPackages);
             }
 
             // Migration process
@@ -119,7 +119,7 @@ class SearchSessionImpl implements AppSearchSession {
                     getSchemaResponse.getSchemas(), migrators, currentVersion, finalVersion);
             // No need to trigger migration if no migrator is active.
             if (activeMigrators.size() == 0) {
-                return setSchemaNoMigrations(request, copySchemasPackageAccessible);
+                return setSchemaNoMigrations(request, copySchemasVisibleToPackages);
             }
 
             // 2. SetSchema with forceOverride=false, to retrieve the list of incompatible/deleted
@@ -130,7 +130,7 @@ class SearchSessionImpl implements AppSearchSession {
                     new ArrayList<>(request.getSchemas()),
                     /*visibilityStore=*/ null,
                     new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                    copySchemasPackageAccessible,
+                    copySchemasVisibleToPackages,
                     /*forceOverride=*/false,
                     request.getVersion());
 
@@ -157,7 +157,7 @@ class SearchSessionImpl implements AppSearchSession {
                             new ArrayList<>(request.getSchemas()),
                             /*visibilityStore=*/ null,
                             new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                            copySchemasPackageAccessible,
+                            copySchemasVisibleToPackages,
                             /*forceOverride=*/ true,
                             request.getVersion());
                 }
@@ -390,7 +390,7 @@ class SearchSessionImpl implements AppSearchSession {
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull Map<String, List<PackageIdentifier>> copySchemasPackageAccessible)
+            @NonNull Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages)
             throws AppSearchException {
         SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
                 mPackageName,
@@ -398,7 +398,7 @@ class SearchSessionImpl implements AppSearchSession {
                 new ArrayList<>(request.getSchemas()),
                 /*visibilityStore=*/ null,
                 new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                copySchemasPackageAccessible,
+                copySchemasVisibleToPackages,
                 request.isForceOverride(),
                 request.getVersion());
         if (!request.isForceOverride()) {

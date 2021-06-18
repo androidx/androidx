@@ -327,8 +327,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         GenericDocument doc1 =
@@ -375,8 +375,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -425,8 +425,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -466,8 +466,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -507,8 +507,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         GenericDocument document1 =
@@ -575,8 +575,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -612,8 +612,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         GenericDocument document =
@@ -646,8 +646,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -685,8 +685,8 @@ public class AppSearchLoggerTest {
                 testDatabase,
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         GenericDocument document1 =

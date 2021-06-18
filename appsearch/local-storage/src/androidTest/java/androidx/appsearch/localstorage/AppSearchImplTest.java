@@ -358,8 +358,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -406,8 +406,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -489,8 +489,8 @@ public class AppSearchImplTest {
                 "database1",
                 Collections.singletonList(new AppSearchSchema.Builder("Type1").build()),
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -527,8 +527,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -561,8 +561,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         mAppSearchImpl.setSchema(
@@ -570,8 +570,8 @@ public class AppSearchImplTest {
                 "database2",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -610,8 +610,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -650,8 +650,8 @@ public class AppSearchImplTest {
                 "database1",
                 schema1,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -663,8 +663,8 @@ public class AppSearchImplTest {
                 "database2",
                 schema2,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -705,8 +705,8 @@ public class AppSearchImplTest {
                 "database1",
                 schema1,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -718,8 +718,8 @@ public class AppSearchImplTest {
                 "database2",
                 schema2,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -800,8 +800,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -837,8 +837,8 @@ public class AppSearchImplTest {
                 "database1",
                 oldSchemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -852,8 +852,8 @@ public class AppSearchImplTest {
                 "database1",
                 newSchemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0);
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Text");
@@ -874,8 +874,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -903,8 +903,8 @@ public class AppSearchImplTest {
                 "database1",
                 finalSchemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -917,8 +917,8 @@ public class AppSearchImplTest {
                 "database1",
                 finalSchemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0);
 
@@ -952,8 +952,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         mAppSearchImpl.setSchema(
@@ -961,8 +961,8 @@ public class AppSearchImplTest {
                 "database2",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -994,8 +994,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0);
 
@@ -1034,8 +1034,8 @@ public class AppSearchImplTest {
                 "database",
                 schema,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1087,8 +1087,8 @@ public class AppSearchImplTest {
                 "database",
                 schema,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         mAppSearchImpl.setSchema(
@@ -1096,8 +1096,8 @@ public class AppSearchImplTest {
                 "database",
                 schema,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1138,8 +1138,8 @@ public class AppSearchImplTest {
                 "package1", "database1",
                 Collections.singletonList(new AppSearchSchema.Builder("schema").build()),
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
@@ -1151,8 +1151,8 @@ public class AppSearchImplTest {
                 "package1", "database2",
                 Collections.singletonList(new AppSearchSchema.Builder("schema").build()),
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
@@ -1164,8 +1164,8 @@ public class AppSearchImplTest {
                 "package2", "database1",
                 Collections.singletonList(new AppSearchSchema.Builder("schema").build()),
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
@@ -1223,8 +1223,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1312,8 +1312,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1335,8 +1335,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1351,8 +1351,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1399,8 +1399,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1422,8 +1422,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1444,8 +1444,8 @@ public class AppSearchImplTest {
                 "database1",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
         mAppSearchImpl.setSchema(
@@ -1453,8 +1453,8 @@ public class AppSearchImplTest {
                 "database2",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1500,8 +1500,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1513,8 +1513,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0));
 
@@ -1590,8 +1590,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1629,8 +1629,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
@@ -1693,8 +1693,8 @@ public class AppSearchImplTest {
                 "database",
                 schemas,
                 /*visibilityStore=*/ null,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0);
 
