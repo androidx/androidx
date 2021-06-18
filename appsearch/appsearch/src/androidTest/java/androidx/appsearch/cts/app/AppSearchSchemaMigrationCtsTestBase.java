@@ -687,7 +687,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
 
-
     @Test
     public void testSchemaMigration_sourceToNowhere() throws Exception {
         // set the source schema to AppSearch
@@ -732,6 +731,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // Source type exist, destination type doesn't exist.
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchema(new SetSchemaRequest.Builder()
+                        .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("sourceSchema", migrator_sourceToNowhere)
                         .setVersion(2).build())   // upgrade version
                         .get());
@@ -743,6 +743,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // Source type exist, destination type doesn't exist.
         exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchema(new SetSchemaRequest.Builder()
+                        .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("sourceSchema", migrator_sourceToNowhere)
                         .setForceOverride(true)
                         .setVersion(2).build())   // upgrade version
@@ -787,6 +788,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=false
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
+                        .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToDestination)
                         .setVersion(2) //  upgrade version
                         .build()).get();
@@ -795,6 +797,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=true
         setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
+                        .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToDestination)
                         .setVersion(2) //  upgrade version
                         .setForceOverride(true).build()).get();
@@ -833,6 +836,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=false
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder()
+                        .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToNowhere)
                         .setVersion(2)  //  upgrade version
                         .build()).get();
@@ -841,6 +845,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=true
         setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder()
+                        .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
                         .setMigrator("nonExistSchema", migrator_nowhereToNowhere)
                         .setVersion(2) //  upgrade version
                         .setForceOverride(true).build()).get();
