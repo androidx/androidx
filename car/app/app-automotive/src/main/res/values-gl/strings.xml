@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_action_finish" msgid="7621130025103996211">"Pechar aplicación"</string>
+    <string name="error_action_update_host" msgid="4802951804749609593">"Buscar actualizacións"</string>
+    <string name="error_action_retry" msgid="985347670495166517">"Tentar de novo"</string>
+    <string name="error_message_client_side_error" msgid="3323186720368387787">"Produciuse un erro na aplicación. Notifícallo ao programador pertinente"</string>
+    <string name="error_message_host_error" msgid="5484419926049675696">"Produciuse un erro do sistema"</string>
+    <string name="error_message_host_connection_lost" msgid="5723205987837759151">"O sistema non está dispoñible temporalmente"</string>
+    <string name="error_message_host_not_found" msgid="3241065067065670113">"O sistema require unha actualización"</string>
+    <string name="error_message_host_incompatible" msgid="160406216155183851">"O sistema require unha actualización"</string>
+    <string name="error_message_multiple_hosts" msgid="2591031904206928207">"O sistema non é compatible"</string>
+    <string name="error_message_unknown_error" msgid="1918523834689044166">"Produciuse un erro descoñecido"</string>
+</resources>
