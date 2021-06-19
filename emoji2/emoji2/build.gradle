@@ -20,12 +20,12 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    implementation project(path: ':annotation:annotation')
     bundleInside(project(":noto-emoji-compat-flatbuffers"))
 
     api("androidx.core:core:1.3.0")
     api("androidx.startup:startup-runtime:1.0.0")
     implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.annotation:annotation:1.2.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
