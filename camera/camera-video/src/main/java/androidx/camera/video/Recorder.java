@@ -744,22 +744,22 @@ public final class Recorder implements VideoOutput {
 
             @Override
             public void onEncodedData(@NonNull EncodedData encodedData) {
-                if (!mMuted && mAudioTrackIndex == null) {
-                    // Throw an exception if the data comes before the track is added.
-                    throw new IllegalStateException(
-                            "Audio data comes before the track is added to MediaMuxer.");
-                }
-                if (mVideoTrackIndex == null) {
-                    Logger.d(TAG, "Drop audio data since video track hasn't been added.");
-                    encodedData.close();
-                    return;
-                }
+                try (EncodedData encodedDataToClose = encodedData) {
+                    if (!mMuted && mAudioTrackIndex == null) {
+                        // Throw an exception if the data comes before the track is added.
+                        throw new IllegalStateException(
+                                "Audio data comes before the track is added to MediaMuxer.");
+                    }
+                    if (mVideoTrackIndex == null) {
+                        Logger.d(TAG, "Drop audio data since video track hasn't been added.");
+                        return;
+                    }
 
-                mRecordingBytes += encodedData.size();
+                    mRecordingBytes += encodedData.size();
 
-                Preconditions.checkNotNull(mMediaMuxer).writeSampleData(mAudioTrackIndex,
-                        encodedData.getByteBuffer(), encodedData.getBufferInfo());
-                encodedData.close();
+                    mMediaMuxer.writeSampleData(mAudioTrackIndex, encodedData.getByteBuffer(),
+                            encodedData.getBufferInfo());
+                }
             }
 
             @Override
@@ -870,32 +870,40 @@ public final class Recorder implements VideoOutput {
 
             @Override
             public void onEncodedData(@NonNull EncodedData encodedData) {
-                if (mVideoTrackIndex == null) {
-                    // Throw an exception if the data comes before the track is added.
-                    throw new IllegalStateException(
-                            "Video data comes before the track is added to MediaMuxer.");
-                }
-                if (!mMuted && mAudioTrackIndex == null) {
-                    Logger.d(TAG, "Drop video data since audio track hasn't been added.");
-                    encodedData.close();
-                    return;
-                }
+                try (EncodedData encodedDataToClose = encodedData) {
+                    if (mVideoTrackIndex == null) {
+                        // Throw an exception if the data comes before the track is added.
+                        throw new IllegalStateException(
+                                "Video data comes before the track is added to MediaMuxer.");
+                    }
+                    if (!mMuted && mAudioTrackIndex == null) {
+                        Logger.d(TAG, "Drop video data since audio track hasn't been added.");
+                        return;
+                    }
+                    // If the first video data is not a key frame, MediaMuxer#writeSampleData
+                    // will drop it. It will cause incorrect estimated record bytes and should
+                    // be dropped.
+                    if (mFirstRecordingVideoDataTimeUs == 0L && !encodedData.isKeyFrame()) {
+                        Logger.d(TAG, "Drop video data since first video data is no key frame.");
+                        mVideoEncoder.requestKeyFrame();
+                        return;
+                    }
 
-                if (mFirstRecordingVideoDataTimeUs == 0L) {
-                    mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
+                    if (mFirstRecordingVideoDataTimeUs == 0L) {
+                        mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
+                    }
+                    mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                            encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
+                    mRecordingBytes += encodedData.size();
+
+                    mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
+                            encodedData.getBufferInfo());
+
+                    updateVideoRecordEvent(
+                            VideoRecordEvent.status(
+                                    mRunningRecording.getOutputOptions(),
+                                    getCurrentRecordingStats()));
                 }
-                mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
-                        encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
-                mRecordingBytes += encodedData.size();
-
-                Preconditions.checkNotNull(mMediaMuxer).writeSampleData(mVideoTrackIndex,
-                        encodedData.getByteBuffer(), encodedData.getBufferInfo());
-                encodedData.close();
-
-                updateVideoRecordEvent(
-                        VideoRecordEvent.status(
-                                Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                                getCurrentRecordingStats()));
             }
 
             @Override
@@ -916,6 +924,7 @@ public final class Recorder implements VideoOutput {
         }, mSequentialExecutor);
     }
 
+    @ExecutedBy("mSequentialExecutor")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void startMediaMuxer() {
         Futures.addCallback(Futures.allAsList(mEncodingFutures),
