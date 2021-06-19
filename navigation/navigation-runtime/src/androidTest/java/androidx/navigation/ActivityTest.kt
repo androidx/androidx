@@ -22,7 +22,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -40,10 +40,8 @@ class ActivityTest {
         Navigation.setViewNavController(view, navController)
 
         val foundNavController = activityRule.activity.findNavController(VIEW_ID)
-        assertTrue(
-            "View should have NavController set",
-            foundNavController == navController
-        )
+        assertWithMessage("View should have NavController set")
+            .that(foundNavController).isSameInstanceAs(navController)
     }
 
     @Test fun findNavControllerNull() {
