@@ -21,8 +21,7 @@ import androidx.navigation.get
 import androidx.navigation.navigation
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,10 +36,9 @@ class TestNavigatorDestinationBuilderTest {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID)
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
     }
 
     @Test
@@ -48,10 +46,9 @@ class TestNavigatorDestinationBuilderTest {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
             test(DESTINATION_ROUTE)
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
     }
 
     @Suppress("DEPRECATION")
@@ -62,14 +59,12 @@ class TestNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Destination should have label set",
-            LABEL, graph[DESTINATION_ID].label
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Destination should have label set")
+            .that(graph[DESTINATION_ID].label)
+            .isEqualTo(LABEL)
     }
 
     @Test
@@ -79,14 +74,12 @@ class TestNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Destination should have label set",
-            LABEL, graph[DESTINATION_ROUTE].label
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have label set")
+            .that(graph[DESTINATION_ROUTE].label)
+            .isEqualTo(LABEL)
     }
 }
 
