@@ -2019,7 +2019,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // atomic operation and intermediate fragments aren't moved all the way
         // up to the RESUMED state
         for (int i = index; i < mBackStack.size(); i++) {
-            BackStackRecord record = mBackStack.get(index);
+            BackStackRecord record = mBackStack.get(i);
             if (!record.mReorderingAllowed) {
                 throwException(new IllegalArgumentException("saveBackStack(\"" + name + "\") "
                         + "included FragmentTransactions must use setReorderingAllowed(true) "
@@ -2033,7 +2033,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // that fragment includes an OP_ADD
         HashSet<Fragment> allFragments = new HashSet<>();
         for (int i = index; i < mBackStack.size(); i++) {
-            BackStackRecord record = mBackStack.get(index);
+            BackStackRecord record = mBackStack.get(i);
             HashSet<Fragment> affectedFragments = new HashSet<>();
             HashSet<Fragment> addedFragments = new HashSet<>();
             for (FragmentTransaction.Op op : record.mOps) {
@@ -2042,11 +2042,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     continue;
                 }
                 if (!op.mFromExpandedOp || op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE
                         || op.mCmd == FragmentTransaction.OP_SET_PRIMARY_NAV) {
                     allFragments.add(f);
                     affectedFragments.add(f);
                 }
-                if (op.mCmd == FragmentTransaction.OP_ADD) {
+                if (op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE) {
                     addedFragments.add(f);
                 }
             }

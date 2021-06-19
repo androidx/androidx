@@ -136,7 +136,14 @@ final class BackStackRecordState implements Parcelable {
         for (int num = 0; num < mFragmentWhos.size(); num++) {
             String fWho = mFragmentWhos.get(num);
             if (fWho != null) {
-                bse.mOps.get(num).mFragment = fragments.get(fWho);
+                Fragment fragment = fragments.get(fWho);
+                if (fragment != null) {
+                    bse.mOps.get(num).mFragment = fragment;
+                } else {
+                    throw new IllegalStateException("Restoring FragmentTransaction "
+                            + mName + " failed due to missing saved state for Fragment ("
+                            + fWho + ")");
+                }
             }
         }
         return bse;
