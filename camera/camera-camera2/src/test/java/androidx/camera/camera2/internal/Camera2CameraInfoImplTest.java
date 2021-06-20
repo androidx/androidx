@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,8 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -81,6 +84,7 @@ public class Camera2CameraInfoImplTest {
     private ZoomControl mMockZoomControl;
     private TorchControl mMockTorchControl;
     private ExposureControl mExposureControl;
+    private FocusMeteringControl mFocusMeteringControl;
     private Camera2CameraControlImpl mMockCameraControl;
 
     @Before
@@ -102,10 +106,12 @@ public class Camera2CameraInfoImplTest {
         mMockTorchControl = mock(TorchControl.class);
         mExposureControl = mock(ExposureControl.class);
         mMockCameraControl = mock(Camera2CameraControlImpl.class);
+        mFocusMeteringControl = mock(FocusMeteringControl.class);
 
         when(mMockCameraControl.getZoomControl()).thenReturn(mMockZoomControl);
         when(mMockCameraControl.getTorchControl()).thenReturn(mMockTorchControl);
         when(mMockCameraControl.getExposureControl()).thenReturn(mExposureControl);
+        when(mMockCameraControl.getFocusMeteringControl()).thenReturn(mFocusMeteringControl);
     }
 
     @Test
@@ -352,6 +358,23 @@ public class Camera2CameraInfoImplTest {
         cameraInfo.linkWithCameraControl(mMockCameraControl);
         verify(mMockCameraControl, never()).addSessionCameraCaptureCallback(executor1, callback1);
         verify(mMockCameraControl).addSessionCameraCaptureCallback(executor2, callback2);
+    }
+
+    @Test
+    public void cameraInfoWithCameraControl_canReturnIsFocusMeteringSupported() {
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraCharacteristics0);
+
+        cameraInfo.linkWithCameraControl(mMockCameraControl);
+
+        when(mFocusMeteringControl.isFocusMeteringSupported(any(FocusMeteringAction.class)))
+                .thenReturn(true);
+
+        SurfaceOrientedMeteringPointFactory factory =
+                new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f);
+        FocusMeteringAction action = new FocusMeteringAction.Builder(
+                factory.createPoint(0.5f, 0.5f)).build();
+        assertThat(cameraInfo.isFocusMeteringSupported(action)).isTrue();
     }
 
     private void initCameras() {
