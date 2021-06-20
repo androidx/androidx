@@ -113,12 +113,19 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
+    method public androidx.camera.core.CameraSelector? getAvailableCamerasLimiter(androidx.camera.core.CameraSelector?);
+    method public java.util.concurrent.Executor? getCameraExecutor(java.util.concurrent.Executor?);
+    method public int getMinimumLoggingLevel();
+    method public android.os.Handler? getSchedulerHandler(android.os.Handler?);
   }
 
   public static final class CameraXConfig.Builder {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
+    method public androidx.camera.core.CameraXConfig.Builder setAvailableCamerasLimiter(androidx.camera.core.CameraSelector);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
+    method public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
+    method public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
 
   public static interface CameraXConfig.Provider {
