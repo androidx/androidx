@@ -54,6 +54,10 @@ public class NavDeepLink internal constructor(
 
     private var mimeTypePattern: Pattern? = null
 
+    /** Arguments present in the deep link, including both path and query arguments. */
+    internal val argumentsNames: List<String>
+        get() = arguments + paramArgMap.keys
+
     public var isExactDeepLink: Boolean = false
         /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
