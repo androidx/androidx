@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2021 The Android Open Source Project
 
@@ -14,10 +13,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.core.splashscreen">
-
-    <application>
-        <activity android:name=".test.SplashScreenAppCompatTestActivity" />
-    </application>
-</manifest>
+<resources>
+    <public name="windowSplashScreenAnimatedIcon" type="attr" />
+    <public name="windowSplashScreenBackground" type="attr" />
+    <public name="windowSplashScreenAnimationDuration" type="attr" />
+    <public name="postSplashScreenTheme" type="attr" />
+    <public name="Theme.SplashScreen" type="style" />
+</resources>

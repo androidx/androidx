@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 /**
  * This Splash Screen library provides compatibility support for the
- * <code>android.window.SplashScreen</code> APIs.
+ * <code>android.window.SplashScreen</code> APIs down to API 21, with support of the splash
+ * screen icon from API 23.
  * <p>
  * It is composed of a compatibility theme
- * {@link androidx.core.splashscreen.R.style#Theme_SplashScreenCompat}
+ * {@link androidx.core.splashscreen.R.style#Theme_SplashScreen}
  * that needs to be set as the starting theme of the activity and a programmatic API in
- * {@link androidx.core.splashscreen.SplashScreenCompat}.
+ * {@link androidx.core.splashscreen.SplashScreen}.
  * <p>
  * To use it, the theme of the launching Activity must inherit from
- * <code>Theme.SplashScreenCompat</code>
+ * <code>Theme.SplashScreen</code>
  * <p>
  * <i>AndroidManifest.xml:</i>
  * <pre class="prettyprint">
@@ -42,7 +43,7 @@
  *     ...
  *     &lt;/style>
  *
- *    &lt;style name="Theme.App.Starting" parent="Theme.SplashScreenCompat">
+ *    &lt;style name="Theme.App.Starting" parent="Theme.SplashScreen">
  *        &lt;item name="windowSplashScreenBackground">@color/splashScreenBackground&lt;/item>
  *        &lt;item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon&lt;/item>
  *        &lt;item name="windowSplashScreenAnimationDuration">2000&lt;/item>
@@ -55,7 +56,7 @@
  *     class MainActivity : Activity {
  *         fun onCreate() {
  *             super.onCreate()
- *             val splashScreen = SplashScreenCompat#installOnActivity(this)
+ *             val splashScreen = installSplashScreen()
  *
  *             // Set the content view right after installing the splash screen
  *             setContentView(R.layout.main_activity)
@@ -63,4 +64,4 @@
  *     }
  * </pre>
  */
-package androidx.core;
+package androidx.core.splashscreen;

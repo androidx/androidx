@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2021 The Android Open Source Project
 
@@ -14,10 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.core.splashscreen">
 
-    <application>
-        <activity android:name=".test.SplashScreenAppCompatTestActivity" />
-    </application>
-</manifest>
+<androidx.core.splashscreen.test.TestView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#00FF00">
+
+</androidx.core.splashscreen.test.TestView>
