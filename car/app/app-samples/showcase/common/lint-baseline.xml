@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                        context.startForegroundService(intent);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/showcase/common/navigation/NavigationNotificationsDemoScreen.java"
+            line="59"
+            column="49"/>
+    </issue>
+
+</issues>

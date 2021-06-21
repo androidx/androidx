@@ -20,6 +20,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.SessionConfiguration;
 
 /**
  * Provides interfaces that the OEM needs to implement to handle the state change.
@@ -51,8 +52,10 @@ public interface ExtenderStateListener {
      * This will be invoked before creating a
      * {@link android.hardware.camera2.CameraCaptureSession}. The {@link CaptureRequest}
      * parameters returned via {@link CaptureStageImpl} will be passed to the camera device as
-     * part of the capture session initialization via setSessionParameters(). The valid parameter
-     * is a subset of the available capture request parameters.
+     * part of the capture session initialization via
+     * {@link SessionConfiguration#setSessionParameters(CaptureRequest)} which only supported
+     * from API level 28. The valid parameter is a subset of the available capture request
+     * parameters.
      *
      * @return The request information to set the session wide camera parameters.
      */

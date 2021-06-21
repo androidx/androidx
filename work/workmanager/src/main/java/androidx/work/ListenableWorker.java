@@ -178,15 +178,16 @@ public abstract class ListenableWorker {
      * Override this method to start your actual background processing. This method is called on
      * the main thread.
      * <p>
-     * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
-     * {@link Result}.  After this time has expired, the worker will be signalled to stop and its
-     * {@link ListenableFuture} will be cancelled.
+     * A ListenableWorker has a well defined
+     * <a href="https://d.android.com/reference/android/app/job/JobScheduler">execution window</a>
+     * to to finish its execution and return a {@link Result}.  After this time has expired, the
+     * worker will be signalled to stop and its {@link ListenableFuture} will be cancelled.
      * <p>
      * The future will also be cancelled if this worker is stopped for any reason
      * (see {@link #onStopped()}).
      *
      * @return A {@link ListenableFuture} with the {@link Result} of the computation.  If you
-     *         cancel this Future, WorkManager will treat this unit of work as failed.
+     * cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread
     public abstract @NonNull ListenableFuture<Result> startWork();
@@ -199,7 +200,7 @@ public abstract class ListenableWorker {
      * Cancelling this future is a no-op.
      */
     @NonNull
-    public final ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
+    public ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
         return mWorkerParams.getProgressUpdater()
                 .updateProgress(getApplicationContext(), getId(), data);
     }

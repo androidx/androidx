@@ -26,6 +26,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.ApiCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,7 +123,7 @@ public final class Camera2CaptureCallbacks {
                 @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
                 @NonNull Surface surface, long frame) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
-                callback.onCaptureBufferLost(session, request, surface, frame);
+                ApiCompat.Api24Impl.onCaptureBufferLost(callback, session, request, surface, frame);
             }
         }
 

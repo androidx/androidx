@@ -16,9 +16,11 @@
 
 package androidx.work.impl.constraints.controllers;
 
+import static androidx.work.NetworkType.TEMPORARILY_UNMETERED;
 import static androidx.work.NetworkType.UNMETERED;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.work.impl.constraints.NetworkState;
@@ -39,7 +41,9 @@ public class NetworkUnmeteredController extends ConstraintController<NetworkStat
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.constraints.getRequiredNetworkType() == UNMETERED;
+        return workSpec.constraints.getRequiredNetworkType() == UNMETERED
+                || (Build.VERSION.SDK_INT >= 30
+                && workSpec.constraints.getRequiredNetworkType() == TEMPORARILY_UNMETERED);
     }
 
     @Override

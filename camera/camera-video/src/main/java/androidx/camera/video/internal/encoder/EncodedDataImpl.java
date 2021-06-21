@@ -69,15 +69,18 @@ public class EncodedDataImpl implements EncodedData {
     @Override
     @NonNull
     public MediaCodec.BufferInfo getBufferInfo() {
-        throwIfClosed();
         return mBufferInfo;
     }
 
     /** {@inheritDoc} */
     @Override
     public long getPresentationTimeUs() {
-        throwIfClosed();
-        return getBufferInfo().presentationTimeUs;
+        return mBufferInfo.presentationTimeUs;
+    }
+
+    @Override
+    public long size() {
+        return mBufferInfo.size;
     }
 
     /** {@inheritDoc} */

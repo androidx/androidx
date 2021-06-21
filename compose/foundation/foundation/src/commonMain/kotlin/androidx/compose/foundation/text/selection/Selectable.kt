@@ -43,8 +43,7 @@ internal interface Selectable {
      * @param startPosition graphical position of the start of the selection
      * @param endPosition graphical position of the end of the selection
      * @param containerLayoutCoordinates [LayoutCoordinates] of the widget
-     * @param longPress true represents that selection is either initiated via a long press or
-     *  being dragged after long press
+     * @param adjustment [Selection] range is adjusted according to this param
      * @param previousSelection previous selection result
      * @param isStartHandle true if the start handle is being dragged
      *
@@ -55,10 +54,19 @@ internal interface Selectable {
         startPosition: Offset,
         endPosition: Offset,
         containerLayoutCoordinates: LayoutCoordinates,
-        longPress: Boolean,
+        adjustment: SelectionAdjustment,
         previousSelection: Selection? = null,
         isStartHandle: Boolean = true
     ): Selection?
+
+    /**
+     * Returns selectAll [Selection] information for a selectable composable. If no selection can be
+     * provided null should be returned.
+     *
+     * @return selectAll [Selection] information for a selectable composable. If no selection can be
+     * provided null should be returned.
+     */
+    fun getSelectAllSelection(): Selection?
 
     /**
      * Return the [Offset] of a [SelectionHandle].

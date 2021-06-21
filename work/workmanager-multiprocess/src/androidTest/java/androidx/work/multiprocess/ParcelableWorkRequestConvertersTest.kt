@@ -17,8 +17,8 @@
 package androidx.work.multiprocess
 
 import android.net.Uri
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -39,6 +39,11 @@ public class ParcelableWorkRequestConvertersTest {
     @Test
     @SmallTest
     public fun converterTest1() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .addTag("Test Worker")
             .keepResultsForAtLeast(1, TimeUnit.DAYS)
@@ -49,6 +54,11 @@ public class ParcelableWorkRequestConvertersTest {
     @Test
     @SmallTest
     public fun converterTest2() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialDelay(1, TimeUnit.HOURS)
             .setInputData(
@@ -69,8 +79,12 @@ public class ParcelableWorkRequestConvertersTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 24)
     public fun converterTest3() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val uri = Uri.parse("test://foo")
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialDelay(1, TimeUnit.HOURS)
@@ -96,6 +110,11 @@ public class ParcelableWorkRequestConvertersTest {
     @Test
     @SmallTest
     public fun converterTest4() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val requests = mutableListOf<WorkRequest>()
         repeat(10) {
             requests += OneTimeWorkRequest.Builder(TestWorker::class.java)

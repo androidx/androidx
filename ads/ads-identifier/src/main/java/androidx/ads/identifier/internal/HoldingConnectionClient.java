@@ -27,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 
-import androidx.ads.identifier.AdvertisingIdNotAvailableException;
 import androidx.ads.identifier.AdvertisingIdUtils;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
 import androidx.annotation.NonNull;
@@ -43,6 +42,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** A client which keeps the ServiceConnection to the {@link IAdvertisingIdService}. */
+@SuppressWarnings("deprecation")
 public class HoldingConnectionClient {
 
     private static final long SERVICE_CONNECTION_TIMEOUT_SECONDS = 10;
@@ -80,7 +80,8 @@ public class HoldingConnectionClient {
 
     @WorkerThread
     public HoldingConnectionClient(@NonNull Context context)
-            throws AdvertisingIdNotAvailableException, IOException, TimeoutException,
+            throws androidx.ads.identifier.AdvertisingIdNotAvailableException, IOException,
+            TimeoutException,
             InterruptedException {
         mContext = context;
         ComponentName componentName = getProviderComponentName(mContext);
@@ -143,14 +144,14 @@ public class HoldingConnectionClient {
     }
 
     private static ComponentName getProviderComponentName(Context context)
-            throws AdvertisingIdNotAvailableException {
+            throws androidx.ads.identifier.AdvertisingIdNotAvailableException {
         PackageManager packageManager = context.getPackageManager();
         List<ServiceInfo> serviceInfos =
                 AdvertisingIdUtils.getAdvertisingIdProviderServices(packageManager);
         ServiceInfo serviceInfo =
                 AdvertisingIdUtils.selectServiceByPriority(serviceInfos, packageManager);
         if (serviceInfo == null) {
-            throw new AdvertisingIdNotAvailableException(
+            throw new androidx.ads.identifier.AdvertisingIdNotAvailableException(
                     "No compatible AndroidX Advertising ID Provider available.");
         }
         return new ComponentName(serviceInfo.packageName, serviceInfo.name);

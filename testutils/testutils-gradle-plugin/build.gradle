@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
-    implementation(ANDROIDX_TEST_EXT_JUNIT)
-    implementation(ANDROIDX_TEST_CORE)
-    implementation(ANDROIDX_TEST_RULES)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRules)
 }

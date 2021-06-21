@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -13,41 +13,30 @@
     </issue>
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Uses @TargetApi annotation"
-        errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
-            line="47"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 20, the call containing class androidx.slice.widget.ActionRow is not annotated with @RequiresApi(x) where x is at least 20. Either annotate the containing class with at least @RequiresApi(20) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(20)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.slice.widget.ActionRow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (input.getRemoteInput().getAllowFreeFormInput()) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/ActionRow.java"
-            line="161"
+            line="162"
             column="36"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.slice.widget.GridRowView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.slice.widget.GridRowView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mForeground.getBackground().setHotspot(x, y);"
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="770"
+            line="818"
             column="41"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            view.performAccessibilityAction(ACTION_ACCESSIBILITY_FOCUS, null);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -57,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.slice.widget.LocationBasedViewTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.slice.widget.LocationBasedViewTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (child.isAccessibilityFocused()) {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -68,41 +57,41 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.slice.widget.RemoteInputView.RemoteEditText is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.slice.widget.RemoteInputView.RemoteEditText is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return isTemporarilyDetached();"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="329"
+            line="330"
             column="24"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.slice.widget.RemoteInputView.RemoteEditText is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.slice.widget.RemoteInputView.RemoteEditText is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setBackground(mBackground);"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="414"
+            line="415"
             column="17"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.slice.widget.RemoteInputView.RemoteEditText is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.slice.widget.RemoteInputView.RemoteEditText is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setBackground(null);"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="416"
+            line="417"
             column="17"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.slice.widget.SliceView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.slice.widget.SliceView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -112,14 +101,80 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.slice.widget.TemplateView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.slice.widget.TemplateView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mForeground.getBackground().setHotspot(x, y);"
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="116"
+            line="125"
             column="41"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/strings.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/strings.xml"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="32"
+            column="5"/>
     </issue>
 
     <issue
@@ -131,149 +186,6 @@
             file="src/main/java/androidx/slice/widget/ActionRow.java"
             line="68"
             column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public GridContent(SliceItem gridItem, int position) {"
-        errorLine2="                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="76"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
-        errorLine2="                         ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="255"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="255"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CellContent(SliceItem cellItem) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="278"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean populate(SliceItem cellItem) {"
-        errorLine2="                                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="285"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public GridRowView(Context context) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="127"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public GridRowView(Context context, AttributeSet attrs) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="131"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public GridRowView(Context context, AttributeSet attrs) {"
-        errorLine2="                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="131"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSliceItem(SliceContent slice, boolean isHeader, int rowIndex,"
-        errorLine2="                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="197"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int rowCount, SliceView.OnSliceActionListener observer) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="198"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onClick(View view) {"
-        errorLine2="                        ~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="739"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onTouch(View view, MotionEvent event) {"
-        errorLine2="                           ~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="760"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onTouch(View view, MotionEvent event) {"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="760"
-            column="39"/>
     </issue>
 
     <issue
@@ -481,7 +393,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="87"
+            line="88"
             column="28"/>
     </issue>
 
@@ -492,7 +404,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="87"
+            line="88"
             column="45"/>
     </issue>
 
@@ -503,7 +415,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="162"
+            line="163"
             column="19"/>
     </issue>
 
@@ -514,7 +426,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="162"
+            line="163"
             column="43"/>
     </issue>
 
@@ -525,7 +437,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="162"
+            line="163"
             column="60"/>
     </issue>
 
@@ -536,7 +448,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="170"
+            line="171"
             column="25"/>
     </issue>
 
@@ -547,7 +459,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="177"
+            line="178"
             column="33"/>
     </issue>
 
@@ -558,7 +470,7 @@
         errorLine2="                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="191"
+            line="192"
             column="27"/>
     </issue>
 
@@ -569,7 +481,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="198"
+            line="199"
             column="32"/>
     </issue>
 
@@ -580,7 +492,7 @@
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="198"
+            line="199"
             column="60"/>
     </issue>
 
@@ -591,7 +503,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="240"
+            line="241"
             column="52"/>
     </issue>
 
@@ -602,7 +514,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="240"
+            line="241"
             column="64"/>
     </issue>
 
@@ -613,7 +525,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="255"
+            line="256"
             column="35"/>
     </issue>
 
@@ -624,7 +536,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="259"
+            line="260"
             column="31"/>
     </issue>
 
@@ -635,7 +547,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="263"
+            line="264"
             column="34"/>
     </issue>
 
@@ -646,7 +558,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="305"
+            line="306"
             column="31"/>
     </issue>
 
@@ -657,7 +569,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="305"
+            line="306"
             column="48"/>
     </issue>
 
@@ -668,7 +580,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="335"
+            line="336"
             column="44"/>
     </issue>
 
@@ -679,7 +591,7 @@
         errorLine2="                                                                      ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="344"
+            line="345"
             column="71"/>
     </issue>
 
@@ -690,7 +602,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="352"
+            line="353"
             column="36"/>
     </issue>
 
@@ -701,7 +613,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="359"
+            line="360"
             column="47"/>
     </issue>
 
@@ -712,7 +624,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="368"
+            line="369"
             column="45"/>
     </issue>
 
@@ -723,7 +635,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="377"
+            line="378"
             column="16"/>
     </issue>
 
@@ -734,7 +646,7 @@
         errorLine2="                                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="377"
+            line="378"
             column="56"/>
     </issue>
 
@@ -745,7 +657,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="401"
+            line="402"
             column="40"/>
     </issue>
 
@@ -756,7 +668,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="427"
+            line="428"
             column="58"/>
     </issue>
 
@@ -800,7 +712,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="356"
+            line="360"
             column="26"/>
     </issue>
 
@@ -811,7 +723,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="356"
+            line="360"
             column="44"/>
     </issue>
 
@@ -866,7 +778,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="401"
+            line="409"
             column="33"/>
     </issue>
 
@@ -877,7 +789,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1147"
+            line="1155"
             column="35"/>
     </issue>
 
@@ -932,7 +844,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="85"
+            line="86"
             column="28"/>
     </issue>
 
@@ -943,7 +855,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="85"
+            line="86"
             column="45"/>
     </issue>
 
@@ -954,7 +866,7 @@
         errorLine2="                                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="85"
+            line="86"
             column="63"/>
     </issue>
 
@@ -965,7 +877,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="101"
+            line="102"
             column="60"/>
     </issue>
 
@@ -976,7 +888,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="102"
+            line="103"
             column="13"/>
     </issue>
 
@@ -987,7 +899,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="103"
+            line="104"
             column="13"/>
     </issue>
 
@@ -1108,7 +1020,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="350"
+            line="362"
             column="32"/>
     </issue>
 
@@ -1119,7 +1031,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="390"
+            line="402"
             column="29"/>
     </issue>
 
@@ -1130,7 +1042,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="398"
+            line="410"
             column="32"/>
     </issue>
 
@@ -1141,7 +1053,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="398"
+            line="410"
             column="40"/>
     </issue>
 
@@ -1229,7 +1141,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="187"
+            line="186"
             column="40"/>
     </issue>
 
@@ -1240,7 +1152,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="195"
+            line="194"
             column="47"/>
     </issue>
 
@@ -1251,7 +1163,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="204"
+            line="203"
             column="34"/>
     </issue>
 
@@ -1262,7 +1174,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="212"
+            line="211"
             column="35"/>
     </issue>
 
@@ -1273,7 +1185,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="228"
+            line="227"
             column="12"/>
     </issue>
 
@@ -1284,7 +1196,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceChildView.java"
-            line="237"
+            line="236"
             column="26"/>
     </issue>
 
@@ -2054,7 +1966,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="106"
+            line="115"
             column="39"/>
     </issue>
 
@@ -2065,7 +1977,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="133"
+            line="142"
             column="27"/>
     </issue>
 
@@ -2076,7 +1988,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="144"
+            line="153"
             column="34"/>
     </issue>
 
@@ -2087,7 +1999,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="153"
+            line="162"
             column="35"/>
     </issue>
 
@@ -2098,7 +2010,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="162"
+            line="171"
             column="12"/>
     </issue>
 
@@ -2109,7 +2021,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="181"
+            line="189"
             column="40"/>
     </issue>
 
@@ -2120,7 +2032,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="193"
+            line="201"
             column="33"/>
     </issue>
 
@@ -2131,7 +2043,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="202"
+            line="210"
             column="33"/>
     </issue>
 
@@ -2142,7 +2054,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="213"
+            line="221"
             column="26"/>
     </issue>
 

@@ -60,7 +60,7 @@ import kotlin.reflect.KProperty
  *
  * @return a property delegate that manages a datastore as a singleton.
  */
-@JvmOverloads
+@Suppress("MissingJvmstatic")
 public fun rxPreferencesDataStore(
     name: String,
     corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
@@ -94,10 +94,13 @@ internal class RxDataStoreSingletonDelegate internal constructor(
      */
     override fun getValue(thisRef: Context, property: KProperty<*>): RxDataStore<Preferences> {
         return INSTANCE ?: synchronized(lock) {
+            val applicationContext = thisRef.applicationContext
+
             if (INSTANCE == null) {
-                INSTANCE = with(RxPreferenceDataStoreBuilder(thisRef, fileName)) {
+                INSTANCE = with(RxPreferenceDataStoreBuilder(applicationContext, fileName)) {
                     setIoScheduler(scheduler)
-                    produceMigrations(thisRef.applicationContext).forEach {
+                    @Suppress("NewApi", "ClassVerificationFailure") // b/187418647
+                    produceMigrations(applicationContext).forEach {
                         addDataMigration(it)
                     }
                     corruptionHandler?.let { setCorruptionHandler(it) }

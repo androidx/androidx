@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
 dependencies {
-    api(TRUTH)
-    api(KOTLIN_STDLIB)
+    api(libs.truth)
+    api(libs.kotlinStdlib)
 }

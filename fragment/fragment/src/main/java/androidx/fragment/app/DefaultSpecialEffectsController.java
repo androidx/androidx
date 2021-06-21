@@ -112,8 +112,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         }
 
         // Start transition special effects
-        Map<Operation, Boolean> startedTransitions = startTransitions(transitions, isPop,
-                firstOut, lastIn);
+        Map<Operation, Boolean> startedTransitions = startTransitions(transitions,
+                awaitingContainerChanges, isPop, firstOut, lastIn);
         boolean startedAnyTransition = startedTransitions.containsValue(true);
 
         // Start animation special effects
@@ -282,6 +282,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
     @NonNull
     private Map<Operation, Boolean> startTransitions(@NonNull List<TransitionInfo> transitionInfos,
+            @NonNull List<Operation> awaitingContainerChanges,
             final boolean isPop, @Nullable final Operation firstOut,
             @Nullable final Operation lastIn) {
         Map<Operation, Boolean> startedTransitions = new HashMap<>();
@@ -459,11 +460,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         }
                     });
 
-                    // Capture all views from the firstOut Fragment under the shared element views
-                    for (View sharedElementView : firstOutViews.values()) {
-                        captureTransitioningViews(sharedElementFirstOutViews,
-                                sharedElementView);
-                    }
+                    sharedElementFirstOutViews.addAll(firstOutViews.values());
 
                     // Compute the epicenter of the firstOut transition
                     if (!exitingNames.isEmpty()) {
@@ -473,11 +470,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                                 firstOutEpicenterView);
                     }
 
-                    // Capture all views from the lastIn Fragment under the shared element views
-                    for (View sharedElementView : lastInViews.values()) {
-                        captureTransitioningViews(sharedElementLastInViews,
-                                sharedElementView);
-                    }
+                    sharedElementLastInViews.addAll(lastInViews.values());
 
                     // Compute the epicenter of the lastIn transition
                     if (!enteringNames.isEmpty()) {
@@ -565,6 +558,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                             null, null, null, null);
                     if (operation.getFinalState() == Operation.State.GONE) {
                         // We're hiding the Fragment. This requires a bit of extra work
+                        // First, we need to avoid immediately applying the container change as
+                        // that will stop the Transition from occurring.
+                        awaitingContainerChanges.remove(operation);
+                        // Then schedule the actual hide of the fragment's view,
+                        // essentially doing what applyState() would do for us
                         transitionImpl.scheduleHideFragmentView(transition,
                                 operation.getFragment().mView,
                                 transitioningViews);
@@ -688,8 +686,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     /**
      * Gets the Views in the hierarchy affected by entering and exiting transitions.
      *
-     * @param transitioningViews This View will be added to transitioningViews if it is VISIBLE and
-     *                           a normal View or a ViewGroup with
+     * @param transitioningViews This View will be added to transitioningViews if it has a
+     *                           transition name, is VISIBLE and a normal View, or a ViewGroup with
      *                           {@link android.view.ViewGroup#isTransitionGroup()} true.
      * @param view               The base of the view hierarchy to look in.
      */
@@ -697,7 +695,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
             if (ViewGroupCompat.isTransitionGroup(viewGroup)) {
-                transitioningViews.add(viewGroup);
+                if (!transitioningViews.contains(view)) {
+                    transitioningViews.add(viewGroup);
+                }
             } else {
                 int count = viewGroup.getChildCount();
                 for (int i = 0; i < count; i++) {

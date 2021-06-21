@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -25,15 +23,12 @@ plugins {
     id("kotlin")
 }
 
-targetCompatibility = JavaVersion.VERSION_1_7
-sourceCompatibility = JavaVersion.VERSION_1_7
-
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    annotationProcessor(NULLAWAY)
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+    annotationProcessor(libs.nullaway)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {

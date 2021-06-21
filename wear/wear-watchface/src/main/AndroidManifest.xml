@@ -15,10 +15,19 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="androidx.wear.watchface">
+  <queries>
+    <intent>
+      <!-- Needed to have visibility on complication providers installed on the device. -->
+      <action
+          android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+    </intent>
+  </queries>
   <application>
     <uses-library android:name="com.google.android.wearable" android:required="false" />
     <service
-        android:name="androidx.wear.watchface.control.WatchFaceControlService">
+        android:name="androidx.wear.watchface.control.WatchFaceControlService"
+        android:enabled="@bool/watch_face_instance_service_enabled"
+        android:permission="com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL">
       <meta-data android:name="androidx.wear.watchface.api_version" android:value="3" />
       <intent-filter>
         <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>

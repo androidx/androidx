@@ -18,25 +18,19 @@ package androidx.emoji2.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
-import android.app.Instrumentation;
+import android.content.Context;
+import android.view.LayoutInflater;
 
 import androidx.emoji2.text.EmojiCompat;
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.EmojiMatcher;
-import androidx.emoji2.util.TestString;
 import androidx.emoji2.widget.test.R;
-import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,92 +38,40 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class EmojiEditTextTest {
 
-    @SuppressWarnings("deprecation")
-    @Rule
-    public androidx.test.rule.ActivityTestRule<ViewsTestActivity> mActivityRule =
-            new androidx.test.rule.ActivityTestRule<>(ViewsTestActivity.class);
-    private Instrumentation mInstrumentation;
-
     @BeforeClass
     public static void setupEmojiCompat() {
-        EmojiCompat.reset(TestConfigBuilder.config());
-    }
-
-    @Before
-    public void setup() {
-        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        EmojiCompat.reset(mock(EmojiCompat.class));
     }
 
     @Test
     public void testInflateWithMaxEmojiCount() {
-        final ViewsTestActivity activity = mActivityRule.getActivity();
-        final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);
+        Context context = ApplicationProvider.getApplicationContext();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            final EmojiEditText editText =
+                    LayoutInflater.from(context)
+                            .inflate(R.layout.edit_text_layout, null)
+                            .findViewById(R.id.editTextWithMaxCount);
 
-        // value set in XML
-        assertEquals(5, editText.getMaxEmojiCount());
+            // value set in XML
+            assertEquals(5, editText.getMaxEmojiCount());
 
-        // set max emoji count
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                editText.setMaxEmojiCount(1);
-            }
+            editText.setMaxEmojiCount(1);
+            assertEquals(1, editText.getMaxEmojiCount());
         });
-        mInstrumentation.waitForIdleSync();
 
-        assertEquals(1, editText.getMaxEmojiCount());
     }
 
     @Test
-    @UiThreadTest
     public void testSetKeyListener_withNull() {
-        final ViewsTestActivity activity = mActivityRule.getActivity();
-        final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);
-        editText.setKeyListener(null);
-        assertNull(editText.getKeyListener());
-    }
+        Context context = ApplicationProvider.getApplicationContext();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            final EmojiEditText editText =
+                    LayoutInflater.from(context)
+                            .inflate(R.layout.edit_text_layout, null)
+                            .findViewById(R.id.editTextWithMaxCount);
+            editText.setKeyListener(null);
+            assertNull(editText.getKeyListener());
 
-    //TODO(seanmcq): re-enable without dependency on font
-    @Test
-    @SdkSuppress(minSdkVersion = 19)
-    @Ignore("Disabled to avoid adding dependency on emoji font to this artifact")
-    public void testSetMaxCount() {
-        final ViewsTestActivity activity = mActivityRule.getActivity();
-        final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);
-
-        // set max emoji count to 1 and set text with 2 emojis
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                editText.setMaxEmojiCount(1);
-                final String string = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).append(
-                        Emoji.EMOJI_SINGLE_CODEPOINT).toString();
-                editText.setText(string);
-            }
         });
-        mInstrumentation.waitForIdleSync();
-
-        assertThat(editText.getText(), EmojiMatcher.hasEmojiCount(1));
-    }
-
-    //TODO(seanmcq): re-enable without dependency on font
-    @Test
-    @SdkSuppress(minSdkVersion = 19)
-    @Ignore("Disabled to avoid adding dependency on emoji font to this artifact")
-    public void testDoesReplaceEmoji() {
-        final ViewsTestActivity activity = mActivityRule.getActivity();
-        final EmojiEditText editText = activity.findViewById(R.id.editText);
-
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                final String string = new TestString(Emoji.EMOJI_FLAG).append(
-                        Emoji.EMOJI_FLAG).toString();
-                editText.setText(string);
-            }
-        });
-        mInstrumentation.waitForIdleSync();
-
-        assertThat(editText.getText(), EmojiMatcher.hasEmojiCount(2));
     }
 }

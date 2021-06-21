@@ -38,6 +38,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -95,10 +96,16 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @GuardedBy("mLock")
     private ListenableFuture<List<Surface>> mStartingSurface;
 
+    @Nullable
+    @GuardedBy("mLock")
+    private List<DeferrableSurface> mHeldDeferrableSurfaces = null;
+
     @GuardedBy("mLock")
     private boolean mClosed = false;
     @GuardedBy("mLock")
     private boolean mOpenerDisabled = false;
+    @GuardedBy("mLock")
+    private boolean mSessionFinished = false;
 
     SynchronizedCaptureSessionBaseImpl(@NonNull CaptureSessionRepository repository,
             @NonNull @CameraExecutor Executor executor,
@@ -126,7 +133,8 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @NonNull
     @Override
     public ListenableFuture<Void> openCaptureSession(@NonNull CameraDevice cameraDevice,
-            @NonNull SessionConfigurationCompat sessionConfigurationCompat) {
+            @NonNull SessionConfigurationCompat sessionConfigurationCompat,
+            @NonNull List<DeferrableSurface> deferrableSurfaces) {
         synchronized (mLock) {
             if (mOpenerDisabled) {
                 return Futures.immediateFailedFuture(
@@ -138,6 +146,10 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
             mOpenCaptureSessionFuture = CallbackToFutureAdapter.getFuture(
                     completer -> {
                         synchronized (mLock) {
+                            // Attempt to set all the configured deferrable surfaces is in used
+                            // before adding them to the session.
+                            holdDeferrableSurfaces(deferrableSurfaces);
+
                             Preconditions.checkState(mOpenCaptureSessionCompleter == null,
                                     "The openCaptureSessionCompleter can only set once!");
 
@@ -147,6 +159,20 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                                     + SynchronizedCaptureSessionBaseImpl.this + "]";
                         }
                     });
+
+            Futures.addCallback(mOpenCaptureSessionFuture, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(@Nullable Void result) {
+                    // Nothing to do.
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    SynchronizedCaptureSessionBaseImpl.this.finishClose();
+                    mCaptureSessionRepository.onCaptureSessionConfigureFail(
+                            SynchronizedCaptureSessionBaseImpl.this);
+                }
+            }, CameraXExecutors.directExecutor());
 
             return Futures.nonCancellationPropagating(mOpenCaptureSessionFuture);
         }
@@ -274,7 +300,9 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
             mStartingSurface = FutureChain.from(
                     DeferrableSurfaces.surfaceListWithTimeout(deferrableSurfaces, false, timeout,
                             getExecutor(), mScheduledExecutorService)).transformAsync(surfaces -> {
-                                debugLog("getSurface...done");
+                                Logger.d(TAG,
+                                        "[" + SynchronizedCaptureSessionBaseImpl.this
+                                                + "] getSurface...done");
                                 // If a Surface in configuredSurfaces is null it means the
                                 // Surface was not retrieved from the ListenableFuture. Only
                                 // handle the first failed Surface since subsequent calls to
@@ -433,6 +461,9 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 + "before using this API.");
         mCaptureSessionRepository.onCaptureSessionClosing(this);
         mCameraCaptureSessionCompat.toCameraCaptureSession().close();
+        // Invoke the onSessionFinished callback directly to inform the closing
+        // step can be finished.
+        getExecutor().execute(() -> onSessionFinished(this));
     }
 
     @Override
@@ -466,10 +497,21 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @Override
     public void onConfigureFailed(@NonNull SynchronizedCaptureSession session) {
+        finishClose();
         mCaptureSessionRepository.onCaptureSessionConfigureFail(this);
         mCaptureSessionStateCallback.onConfigureFailed(session);
     }
 
+    /**
+     * The onClosed will be invoked when the CameraCaptureSession is closed or when we apply the
+     * workaround the issues like b/140955560, b/144817309 to force close the session.
+     *
+     * <p>This callback will be invoked after the SynchronizedCaptureSession#openCaptureSession
+     * is completed, and at most be called once.
+     *
+     * @param session the SynchronizedCaptureSession that is created by
+     * {@link SynchronizedCaptureSessionImpl#openCaptureSession}
+     */
     @Override
     public void onClosed(@NonNull SynchronizedCaptureSession session) {
         ListenableFuture<Void> openFuture = null;
@@ -482,17 +524,78 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 openFuture = mOpenCaptureSessionFuture;
             }
         }
+        finishClose();
         if (openFuture != null) {
             openFuture.addListener(() -> {
                 // Set the CaptureSession closed before invoke the state callback.
                 mCaptureSessionRepository.onCaptureSessionClosed(
                         SynchronizedCaptureSessionBaseImpl.this);
+
+                // Invoke the onSessionFinished since the SynchronizedCaptureSession receives
+                // the onClosed callback, we can treat this session is already in closed state.
+                onSessionFinished(session);
+
                 mCaptureSessionStateCallback.onClosed(session);
             }, CameraXExecutors.directExecutor());
         }
     }
 
-    private void debugLog(String message) {
-        Logger.d(TAG, "[" + SynchronizedCaptureSessionBaseImpl.this + "] " + message);
+    @Override
+    void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
+        ListenableFuture<Void> openFuture = null;
+        synchronized (mLock) {
+            if (!mSessionFinished) {
+                mSessionFinished = true;
+                Preconditions.checkNotNull(mOpenCaptureSessionFuture,
+                        "Need to call openCaptureSession before using this API.");
+                // Only callback onClosed after the capture session is configured.
+                openFuture = mOpenCaptureSessionFuture;
+            }
+        }
+        if (openFuture != null) {
+            openFuture.addListener(() -> {
+                mCaptureSessionStateCallback.onSessionFinished(session);
+            }, CameraXExecutors.directExecutor());
+        }
+    }
+
+    /**
+     * Hold the DeferrableSurfaces to be used for this session to prevent the DeferrableSurfaces
+     * from being released.
+     *
+     * <p>Only one set of DeferrableSurfaces will be set to in used at the same time, it will unset
+     * the previous deferrableSurfaces if it has been set before.
+     *
+     * @param deferrableSurfaces will be set to in used.
+     * @throws DeferrableSurface.SurfaceClosedException if the deferrableSurfaces contains any
+     * closed surface.
+     */
+    void holdDeferrableSurfaces(@NonNull List<DeferrableSurface> deferrableSurfaces)
+            throws DeferrableSurface.SurfaceClosedException {
+        synchronized (mLock) {
+            releaseDeferrableSurfaces();
+            DeferrableSurfaces.incrementAll(deferrableSurfaces);
+            mHeldDeferrableSurfaces = deferrableSurfaces;
+        }
+    }
+
+    /**
+     * Release the DeferrableSurfaces that is held by the holdDeferrableSurfaces()
+     */
+    void releaseDeferrableSurfaces() {
+        synchronized (mLock) {
+            if (mHeldDeferrableSurfaces != null) {
+                DeferrableSurfaces.decrementAll(mHeldDeferrableSurfaces);
+
+                // Clears the mRegisteredDeferrableSurfaces to prevent from duplicate
+                // decrement calls.
+                mHeldDeferrableSurfaces = null;
+            }
+        }
+    }
+
+    @Override
+    public void finishClose() {
+        releaseDeferrableSurfaces();
     }
 }

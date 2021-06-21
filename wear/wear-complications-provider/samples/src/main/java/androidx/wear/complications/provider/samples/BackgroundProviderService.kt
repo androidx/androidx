@@ -20,7 +20,9 @@ import android.content.ComponentName
 import android.os.Handler
 import android.os.Looper
 import androidx.wear.complications.ComplicationProviderService
+import androidx.wear.complications.ComplicationRequest
 import androidx.wear.complications.ProviderUpdateRequester
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -44,7 +46,7 @@ class BackgroundProviderService : ComplicationProviderService() {
         }
     }
 
-    override fun onComplicationActivated(complicationId: Int, type: Int) {
+    override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
         // Start requesting background updates.
         backgroundUpdate()
     }
@@ -55,18 +57,23 @@ class BackgroundProviderService : ComplicationProviderService() {
         handler.postDelayed(this::backgroundUpdate, UPDATE_CADEANCE_MS)
     }
 
-    override fun onComplicationUpdate(
-        complicationId: Int,
-        type: ComplicationType,
-        callback: ComplicationUpdateCallback
+    override fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     ) {
-        callback.onUpdateComplication(
-            when (type) {
+        listener.onComplicationData(
+            when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
-                    ShortTextComplicationData.Builder(plainText("# $counter")).build()
+                    ShortTextComplicationData.Builder(
+                        plainText("# $counter"),
+                        ComplicationText.EMPTY
+                    ).build()
 
                 ComplicationType.LONG_TEXT ->
-                    LongTextComplicationData.Builder(plainText("Count $counter")).build()
+                    LongTextComplicationData.Builder(
+                        plainText("Count $counter"),
+                        ComplicationText.EMPTY
+                    ).build()
 
                 else -> null
             }
@@ -75,10 +82,16 @@ class BackgroundProviderService : ComplicationProviderService() {
 
     override fun getPreviewData(type: ComplicationType) = when (type) {
         ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(plainText("# 123")).build()
+            ShortTextComplicationData.Builder(
+                plainText("# 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(plainText("Count 123")).build()
+            LongTextComplicationData.Builder(
+                plainText("Count 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         else -> null
     }

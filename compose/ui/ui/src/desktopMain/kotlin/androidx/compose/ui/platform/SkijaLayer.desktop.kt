@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.MutableRect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
@@ -45,15 +48,17 @@ import org.jetbrains.skija.Point3
 import org.jetbrains.skija.ShadowUtils
 
 internal class SkijaLayer(
-    private val getDensity: () -> Density,
+    private var density: Density,
     private val invalidateParentLayer: () -> Unit,
-    private val drawBlock: (Canvas) -> Unit
+    private val drawBlock: (Canvas) -> Unit,
+    private val onDestroy: () -> Unit = {}
 ) : OwnedLayer {
     private var size = IntSize.Zero
     private var position = IntOffset.Zero
     private var outlineCache =
-        OutlineCache(getDensity(), size, RectangleShape, LayoutDirection.Ltr)
-    private val matrix = Matrix()
+        OutlineCache(density, size, RectangleShape, LayoutDirection.Ltr)
+    // Internal for testing
+    internal val matrix = Matrix()
     private val pictureRecorder = PictureRecorder()
     private var picture: Picture? = null
     private var isDestroyed = false
@@ -72,10 +77,15 @@ internal class SkijaLayer(
 
     override val layerId = lastId++
 
+    @ExperimentalComposeUiApi
+    override val ownerViewId: Long
+        get() = 0
+
     override fun destroy() {
         picture?.close()
         pictureRecorder.close()
         isDestroyed = true
+        onDestroy()
     }
 
     override fun resize(size: IntSize) {
@@ -94,8 +104,37 @@ internal class SkijaLayer(
         }
     }
 
-    override fun getMatrix(matrix: Matrix) {
-        matrix.setFrom(this.matrix)
+    override fun mapOffset(point: Offset, inverse: Boolean): Offset {
+        return getMatrix(inverse).map(point)
+    }
+
+    override fun mapBounds(rect: MutableRect, inverse: Boolean) {
+        getMatrix(inverse).map(rect)
+    }
+
+    override fun isInLayer(position: Offset): Boolean {
+        if (!clip) {
+            return true
+        }
+
+        val x = position.x
+        val y = position.y
+        if (outlineCache.shape === RectangleShape) {
+            return 0f <= x && x < size.width && 0f <= y && y < size.height
+        }
+
+        return isInOutline(outlineCache.outline!!, x, y)
+    }
+
+    private fun getMatrix(inverse: Boolean): Matrix {
+        return if (inverse) {
+            Matrix().apply {
+                setFrom(matrix)
+                invert()
+            }
+        } else {
+            matrix
+        }
     }
 
     override fun updateLayerProperties(
@@ -112,7 +151,8 @@ internal class SkijaLayer(
         transformOrigin: TransformOrigin,
         shape: Shape,
         clip: Boolean,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
+        density: Density
     ) {
         this.transformOrigin = transformOrigin
         this.translationX = translationX
@@ -125,8 +165,10 @@ internal class SkijaLayer(
         this.alpha = alpha
         this.clip = clip
         this.shadowElevation = shadowElevation
+        this.density = density
         outlineCache.shape = shape
         outlineCache.layoutDirection = layoutDirection
+        outlineCache.density = density
         updateMatrix()
         invalidate()
     }
@@ -164,7 +206,6 @@ internal class SkijaLayer(
     }
 
     override fun drawLayer(canvas: Canvas) {
-        outlineCache.density = getDensity()
         if (picture == null) {
             val bounds = size.toSize().toRect()
             val pictureCanvas = pictureRecorder.beginRecording(bounds.toSkijaRect())
@@ -210,7 +251,7 @@ internal class SkijaLayer(
     override fun updateDisplayList() = Unit
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    fun drawShadow(canvas: DesktopCanvas) = with(getDensity()) {
+    fun drawShadow(canvas: DesktopCanvas) = with(density) {
         val path = when (val outline = outlineCache.outline) {
             is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
             is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
@@ -222,7 +263,7 @@ internal class SkijaLayer(
         val zParams = Point3(0f, 0f, shadowElevation)
 
         // TODO: configurable?
-        val lightPos = Point3(0f, 0f, 600.dp.toPx())
+        val lightPos = Point3(0f, -300.dp.toPx(), 600.dp.toPx())
         val lightRad = 800.dp.toPx()
 
         val ambientAlpha = 0.039f * alpha

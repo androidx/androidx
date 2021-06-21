@@ -29,7 +29,7 @@ import java.io.Serializable
  *
  * You should only use one of the static NavType instances and subclasses defined in this class.
  *
- * @param <T> the type of the data that is supported by this NavType
+ * @param T the type of the data that is supported by this NavType
  */
 public abstract class NavType<T> internal constructor(
     /**
@@ -73,6 +73,7 @@ public abstract class NavType<T> internal constructor(
      * @param key    bundle key under which to put the value
      * @param value  parsed value
      * @return parsed value of the type represented by this NavType
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun parseAndPut(bundle: Bundle, key: String, value: String): T {
@@ -82,7 +83,7 @@ public abstract class NavType<T> internal constructor(
     }
 
     /**
-     * Returns the name of this type.
+     * The name of this type.
      *
      * This is the same value that is used in Navigation XML `argType` attribute.
      *
@@ -166,6 +167,7 @@ public abstract class NavType<T> internal constructor(
             return StringType
         }
 
+        /** @suppress */
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -202,6 +204,7 @@ public abstract class NavType<T> internal constructor(
         /**
          * @param value nothing
          * @throws IllegalArgumentException not real
+         * @suppress
          */
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic
@@ -524,20 +527,22 @@ public abstract class NavType<T> internal constructor(
          * Default values in Navigation XML files are not supported.
          */
         @JvmField
-        public val StringArrayType: NavType<Array<String>> = object : NavType<Array<String>>(true) {
+        public val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
+            true
+        ) {
             override val name: String
                 get() = "string[]"
 
-            override fun put(bundle: Bundle, key: String, value: Array<String>) {
+            override fun put(bundle: Bundle, key: String, value: Array<String>?) {
                 bundle.putStringArray(key, value)
             }
 
             @Suppress("UNCHECKED_CAST")
-            override fun get(bundle: Bundle, key: String): Array<String> {
-                return bundle[key] as Array<String>
+            override fun get(bundle: Bundle, key: String): Array<String>? {
+                return bundle[key] as Array<String>?
             }
 
-            override fun parseValue(value: String): Array<String> {
+            override fun parseValue(value: String): Array<String>? {
                 throw UnsupportedOperationException("Arrays don't support default values.")
             }
         }
@@ -749,12 +754,9 @@ public abstract class NavType<T> internal constructor(
          */
         @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         public override fun parseValue(value: String): D {
-            for (constant in type.enumConstants) {
-                if ((constant as Enum<*>).name == value) {
-                    return constant
-                }
-            }
-            throw IllegalArgumentException(
+            return type.enumConstants.firstOrNull { constant ->
+                constant.name.equals(value, ignoreCase = true)
+            } ?: throw IllegalArgumentException(
                 "Enum value $value not found for type ${type.name}."
             )
         }

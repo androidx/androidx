@@ -19,6 +19,7 @@ package androidx.benchmark.macro.junit4
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.macro.perfetto.PerfettoCapture
@@ -48,8 +49,12 @@ import org.junit.runners.model.Statement
  * > adb pull /storage/emulated/0/Android/data/mypackage.test/files/PerfettoCaptureTest.trace
  * ```
  */
-class PerfettoRule : TestRule {
-    override fun apply(base: Statement, description: Description) = object : Statement() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class PerfettoRule : TestRule {
+    override fun apply(
+        base: Statement,
+        description: Description
+    ): Statement = object : Statement() {
         override fun evaluate() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val prefix = "${description.className}_${description.methodName}"
@@ -65,7 +70,7 @@ class PerfettoRule : TestRule {
         }
     }
 
-    companion object {
+    internal companion object {
         internal const val TAG = "PerfettoRule"
     }
 }

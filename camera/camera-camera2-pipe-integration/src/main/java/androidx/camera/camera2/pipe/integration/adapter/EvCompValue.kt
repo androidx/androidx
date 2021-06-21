@@ -24,7 +24,7 @@ import androidx.camera.core.ExposureState
 /**
  * Immutable adaptor to the ExposureState interface.
  */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
 data class EvCompValue(
     private val supported: Boolean,
     private val index: Int,

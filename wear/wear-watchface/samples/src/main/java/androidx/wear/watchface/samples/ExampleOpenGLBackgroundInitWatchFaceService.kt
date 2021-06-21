@@ -16,25 +16,21 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.res.Resources
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.icu.util.Calendar
-import android.opengl.EGL14
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import android.os.Handler
-import android.os.HandlerThread
 import android.view.SurfaceHolder
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.withContext
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 
 /** Expected frame rate in interactive mode.  */
 private const val FPS: Long = 60
@@ -47,116 +43,26 @@ private const val FRAME_PERIOD_MS: Long = 1000 / FPS
  * which are used for rendering on the main thread.
  */
 class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
-    // The CoroutineScope upon which we want to load our textures.
-    private val backgroundThreadCoroutineScope = CoroutineScope(
-        Handler(HandlerThread("BackgroundInit").apply { start() }.looper).asCoroutineDispatcher()
-    )
-
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
-        val styleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
-
-        // Create the renderer on the main thread. It's EGLContext is bound to this thread.
-        val renderer = MainThreadRenderer(surfaceHolder, styleRepository, watchState)
-        renderer.initOpenGlContext()
-
-        // Load the textures on a background thread.
-        return withContext(backgroundThreadCoroutineScope.coroutineContext) {
-            // Create a context for the background thread.
-            val backgroundThreadContext = EGL14.eglCreateContext(
-                renderer.eglDisplay,
-                renderer.eglConfig,
-                renderer.eglContext,
-                intArrayOf(
-                    EGL14.EGL_CONTEXT_CLIENT_VERSION,
-                    2,
-                    EGL14.EGL_NONE
-                ),
-                0
-            )
-
-            // Create a 1x1 surface which is needed by EGL14.eglMakeCurrent.
-            val backgroundSurface = EGL14.eglCreatePbufferSurface(
-                renderer.eglDisplay,
-                renderer.eglConfig,
-                intArrayOf(
-                    EGL14.EGL_WIDTH,
-                    1,
-                    EGL14.EGL_HEIGHT,
-                    1,
-                    EGL14.EGL_TEXTURE_TARGET,
-                    EGL14.EGL_NO_TEXTURE,
-                    EGL14.EGL_TEXTURE_FORMAT,
-                    EGL14.EGL_NO_TEXTURE,
-                    EGL14.EGL_NONE
-                ),
-                0
-            )
-
-            EGL14.eglMakeCurrent(
-                renderer.eglDisplay,
-                backgroundSurface,
-                backgroundSurface,
-                backgroundThreadContext
-            )
-
-            // Load our textures.
-            renderer.watchBodyTexture = loadTextureFromResource(R.drawable.wf_background)
-            checkGLError("Load watchBodyTexture")
-            renderer.watchHandTexture = loadTextureFromResource(R.drawable.hand)
-            checkGLError("Load watchHandTexture")
-
-            WatchFace(
-                WatchFaceType.ANALOG,
-                styleRepository,
-                renderer
-            )
-        }
-    }
-
-    fun checkGLError(op: String) {
-        var error: Int
-        while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
-            System.err.println("OpenGL Error $op: glError $error")
-        }
-    }
-
-    private fun loadTextureFromResource(resourceId: Int): Int {
-        val textureHandle = IntArray(1)
-        GLES20.glGenTextures(1, textureHandle, 0)
-        if (textureHandle[0] != 0) {
-            val bitmap = BitmapFactory.decodeResource(
-                resources,
-                resourceId,
-                BitmapFactory.Options().apply {
-                    inScaled = false // No pre-scaling
-                }
-            )
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0])
-            GLES20.glTexParameteri(
-                GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_NEAREST
-            )
-            GLES20.glTexParameteri(
-                GLES20.GL_TEXTURE_2D,
-                GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_NEAREST
-            )
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
-            bitmap.recycle()
-        }
-        return textureHandle[0]
+        // Init is performed on a worker thread, however all rendering is done on the UiThread so
+        // it's expected to construct the MainThreadRenderer here.
+        val renderer =
+            MainThreadRenderer(surfaceHolder, currentUserStyleRepository, watchState, resources)
+        return WatchFace(WatchFaceType.ANALOG, renderer)
     }
 }
 
 internal class MainThreadRenderer(
     surfaceHolder: SurfaceHolder,
-    userStyleRepository: UserStyleRepository,
-    watchState: WatchState
-) : Renderer.GlesRenderer(surfaceHolder, userStyleRepository, watchState, FRAME_PERIOD_MS) {
+    currentUserStyleRepository: CurrentUserStyleRepository,
+    watchState: WatchState,
+    private val resources: Resources
+) : Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, FRAME_PERIOD_MS) {
 
     internal var watchBodyTexture: Int = -1
     internal var watchHandTexture: Int = -1
@@ -187,7 +93,7 @@ internal class MainThreadRenderer(
     private lateinit var minuteHandQuad: Gles2TexturedTriangleList
     private lateinit var hourHandQuad: Gles2TexturedTriangleList
 
-    override fun onGlContextCreated() {
+    override fun onBackgroundThreadGlContextCreated() {
         triangleTextureProgram = Gles2TexturedTriangleList.Program()
         backgroundQuad = createTexturedQuad(
             triangleTextureProgram, -10f, -10f, 20f, 20f
@@ -201,9 +107,48 @@ internal class MainThreadRenderer(
         hourHandQuad = createTexturedQuad(
             triangleTextureProgram, -0.25f, -3f, 0.5f, 4f
         )
+        watchBodyTexture = loadTextureFromResource(R.drawable.wf_background)
+        checkGLError("Load watchBodyTexture")
+        watchHandTexture = loadTextureFromResource(R.drawable.hand)
+        checkGLError("Load watchHandTexture")
     }
 
-    override fun onGlSurfaceCreated(width: Int, height: Int) {
+    private fun loadTextureFromResource(resourceId: Int): Int {
+        val textureHandle = IntArray(1)
+        GLES20.glGenTextures(1, textureHandle, 0)
+        if (textureHandle[0] != 0) {
+            val bitmap = BitmapFactory.decodeResource(
+                resources,
+                resourceId,
+                BitmapFactory.Options().apply {
+                    inScaled = false // No pre-scaling
+                }
+            )
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0])
+            GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_NEAREST
+            )
+            GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_NEAREST
+            )
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
+            bitmap.recycle()
+        }
+        return textureHandle[0]
+    }
+
+    fun checkGLError(op: String) {
+        var error: Int
+        while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
+            System.err.println("OpenGL Error $op: glError $error")
+        }
+    }
+
+    override fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         GLES20.glEnable(GLES20.GL_TEXTURE_2D)
 
         // Update the projection matrix based on the new aspect ratio.
@@ -275,6 +220,7 @@ internal class MainThreadRenderer(
     )
 
     override fun render(calendar: Calendar) {
+        checkGLError("renders")
         GLES20.glClearColor(0f, 1f, 0f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
@@ -314,5 +260,16 @@ internal class MainThreadRenderer(
         hourHandQuad.draw(vpMatrix)
 
         triangleTextureProgram.unbindAttribs()
+    }
+
+    override fun renderHighlightLayer(calendar: Calendar) {
+        val highlightLayer = renderParameters.highlightLayer!!
+        GLES20.glClearColor(
+            Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.green(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.blue(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f
+        )
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
     }
 }

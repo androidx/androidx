@@ -19,13 +19,14 @@ package androidx.navigation.dynamicfeatures.fragment
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.dynamicfeatures.fragment.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,32 +35,35 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class DynamicNavHostFragmentTest {
 
-    @Suppress("DEPRECATION")
     @get:Rule
-    public val activityTestRule: ActivityScenarioRule<NavigationActivity> = ActivityScenarioRule(
+    public val rule: ActivityScenarioRule<NavigationActivity> = ActivityScenarioRule(
         NavigationActivity::class.java
     )
 
     @Test
     public fun createSplitInstallManager() {
-        val fragment = TestDynamicNavHostFragment()
+        lateinit var fragment: TestDynamicNavHostFragment
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
+                fragment = TestDynamicNavHostFragment()
                 supportFragmentManager.beginTransaction()
                     .add(R.id.nav_host, fragment, null)
                     .setPrimaryNavigationFragment(fragment)
                     .commitNow()
             }
         }
-        assertEquals(fragment.createSplitInstallManager(), fragment.createSplitInstallManager())
+        assertThat(fragment.createSplitInstallManager())
+            .isEqualTo(fragment.createSplitInstallManager())
     }
 
+    @UiThreadTest
     @Test
     public fun create_noArgs() {
         val fragment = DynamicNavHostFragment.create(R.id.nav_host)
-        assertEquals(fragment.arguments!!.size(), 1)
+        assertThat(fragment.arguments!!.size()).isEqualTo(1)
     }
 
+    @UiThreadTest
     @Test
     public fun create_withArgs() {
         val fragment = DynamicNavHostFragment.create(
@@ -68,7 +72,7 @@ public class DynamicNavHostFragmentTest {
                 putInt("Test", 1)
             }
         )
-        assertEquals(fragment.arguments!!.size(), 2)
+        assertThat(fragment.arguments!!.size()).isEqualTo(2)
     }
 }
 

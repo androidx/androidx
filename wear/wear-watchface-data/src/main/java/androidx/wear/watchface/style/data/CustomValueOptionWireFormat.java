@@ -32,7 +32,7 @@ public class CustomValueOptionWireFormat extends OptionWireFormat {
     CustomValueOptionWireFormat() {
     }
 
-    public CustomValueOptionWireFormat(@NonNull String id) {
+    public CustomValueOptionWireFormat(@NonNull byte[] id) {
         super(id);
     }
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.work.lint
 
 import androidx.work.lint.Stubs.ANDROID_APPLICATION
@@ -21,6 +23,7 @@ import androidx.work.lint.Stubs.WORK_MANAGER_CONFIGURATION_PROVIDER
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class RemoveWorkManagerInitializerDetectorTest {
@@ -117,6 +120,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             .expectClean()
     }
 
+    @Ignore("b/187541663")
     @Test
     fun failWhenUsingDefaultManifestMergeStrategy() {
         val customApplication = kotlin(
@@ -159,7 +163,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             .run()
             .expect(
                 """
-                project0: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
+                project0: Error: Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
                 1 errors, 0 warnings
                 """.trimIndent()
             )
@@ -196,7 +200,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                           android:name="androidx.startup.InitializationProvider"
                           android:authorities="com.example.workmanager-init">
                           <meta-data
-                            android:name="androidx.work.impl.WorkManagerInitializer"
+                            android:name="androidx.work.WorkManagerInitializer"
                             android:value="@string/androidx_startup" />
                       </provider>
                   </application>
@@ -216,7 +220,7 @@ class RemoveWorkManagerInitializerDetectorTest {
             .run()
             .expect(
                 """
-                AndroidManifest.xml:8: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
+                AndroidManifest.xml:8: Error: Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
                            <meta-data
                            ^
                 1 errors, 0 warnings

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.lifecycle.CoroutineLiveDataKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.lifecycle.CoroutineLiveDataKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="): LiveData&lt;T> = CoroutineLiveData(context, timeout.toMillis(), block)"
         errorLine2="                                                    ~~~~~~~~">
         <location
@@ -13,14 +13,25 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.lifecycle.FlowLiveDataConversions is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.lifecycle.FlowLiveDataConversions is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="): LiveData&lt;T> = asLiveData(context, timeout.toMillis())"
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/FlowLiveData.kt"
             line="148"
             column="46"/>
+    </issue>
+
+    <issue
+        id="NullSafeMutableLiveData"
+        message="Expected non-nullable value"
+        errorLine1="        target.value = value"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/CoroutineLiveData.kt"
+            line="99"
+            column="24"/>
     </issue>
 
 </issues>

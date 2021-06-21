@@ -18,6 +18,7 @@ package androidx.navigation
 
 import android.content.Context
 import androidx.annotation.IdRes
+import androidx.navigation.NavDestination.Companion.hierarchy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -150,7 +151,7 @@ class NavDestinationTest {
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
         val parent = navGraphNavigator.createDestination().apply {
             id = parentId
-            startDestination = DESTINATION_ID
+            setStartDestination(DESTINATION_ID)
         }
         destination.parent = parent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -181,13 +182,13 @@ class NavDestinationTest {
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
         val parent = navGraphNavigator.createDestination().apply {
             id = parentId
-            startDestination = DESTINATION_ID
+            setStartDestination(DESTINATION_ID)
         }
         destination.parent = parent
         val grandparentId = 3
         val grandparent = navGraphNavigator.createDestination().apply {
             id = grandparentId
-            startDestination = parentId
+            setStartDestination(parentId)
         }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -208,7 +209,7 @@ class NavDestinationTest {
         val grandparentId = 3
         val grandparent = navGraphNavigator.createDestination().apply {
             id = grandparentId
-            startDestination = parentId
+            setStartDestination(parentId)
         }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -229,7 +230,7 @@ class NavDestinationTest {
         val grandparentId = 3
         val grandparent = navGraphNavigator.createDestination().apply {
             id = grandparentId
-            startDestination = parentId
+            setStartDestination(parentId)
         }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
@@ -299,5 +300,21 @@ class NavDestinationTest {
         destination.removeArgument("stringArg")
         assertThat(destination.arguments.size).isEqualTo(0)
         assertThat(destination.arguments["stringArg"]).isNull()
+    }
+
+    @Test
+    fun hierarchy() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+            setStartDestination(DESTINATION_ID)
+        }
+        destination.parent = parent
+
+        val found = destination.hierarchy.any { it.id == 2 }
+        assertThat(found).isTrue()
     }
 }

@@ -38,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
+import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
@@ -353,7 +354,7 @@ public final class ResourceManagerInternal {
             @NonNull VectorEnabledTintResources resources, @DrawableRes final int resId) {
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
-            drawable = resources.superGetDrawable(resId);
+            drawable = resources.getDrawableCanonical(resId);
         }
         if (drawable != null) {
             return tintDrawable(context, resId, false, drawable);
@@ -562,7 +563,8 @@ public final class ResourceManagerInternal {
                                     .asSubclass(Drawable.class);
                     Drawable drawable = drawableClass.getDeclaredConstructor().newInstance();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        drawable.inflate(context.getResources(), parser, attrs, theme);
+                        Compatibility.Api21Impl.inflate(drawable, context.getResources(), parser,
+                                attrs, theme);
                     } else {
                         drawable.inflate(context.getResources(), parser, attrs);
                     }

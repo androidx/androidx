@@ -21,15 +21,13 @@ setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     // Compose projects are not supported in playground yet
     if (name.startsWith(":navigation")) return true
-    if (name == ":activity:activity-compose") return true
     if (name == ":annotation:annotation-sampled") return true
     if (name == ":compose:integration-tests:demos:common") return true
     if (name == ":lifecycle:lifecycle-viewmodel-savedstate") return true
-    if (name.startsWith(":internal-testutils-navigation")) return true
-    if (name.startsWith(":internal-testutils-runtime")) return true
-    if (name.startsWith(":internal-testutils-truth")) return true
-    if (name == ":compose:lint:common") return true
-    if (name == ":compose:lint:internal-lint-checks") return true
+    if (name == ":internal-testutils-navigation") return true
+    if (name == ":internal-testutils-runtime") return true
+    if (name == ":internal-testutils-truth") return true
+    if (isNeededForComposePlayground(name)) return true
     return false
 })
 

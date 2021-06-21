@@ -50,7 +50,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * <li>Call {@link #getAdvertisingIdInfo} to get Advertising ID info (the Advertising ID and LAT
  * setting).
  * </ol>
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 public class AdvertisingIdClient {
 
     /**
@@ -90,6 +95,8 @@ public class AdvertisingIdClient {
             new AtomicReference<>(null);
 
     @AutoValue
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("deprecation")
     abstract static class ConnectionPair {
         @NonNull
         abstract HoldingConnectionClient getConnectionClient();

@@ -53,10 +53,10 @@ public class ComplicationHelperActivityTest {
     }
 
     @Test
-    public fun createProviderChooserHelperIntent_complicationId() {
-        assertThat(createIntent(complicationId = -1).complicationId).isEqualTo(-1)
-        assertThat(createIntent(complicationId = 1234).complicationId).isEqualTo(1234)
-        assertThat(createIntent(complicationId = 30000).complicationId).isEqualTo(30000)
+    public fun createProviderChooserHelperIntent_complicationSlotId() {
+        assertThat(createIntent(complicationSlotId = -1).complicationSlotId).isEqualTo(-1)
+        assertThat(createIntent(complicationSlotId = 1234).complicationSlotId).isEqualTo(1234)
+        assertThat(createIntent(complicationSlotId = 30000).complicationSlotId).isEqualTo(30000)
     }
 
     @Test
@@ -83,13 +83,13 @@ public class ComplicationHelperActivityTest {
     /** Creates an intent with default values for unspecified parameters. */
     private fun createIntent(
         watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
-        complicationId: Int = defaultComplicationId,
+        complicationSlotId: Int = defaultComplicationSlotId,
         instanceId: String? = null,
         vararg supportedTypes: ComplicationType = defaultSupportedTypes
     ) = ComplicationHelperActivity.createProviderChooserHelperIntent(
         context,
         watchFaceComponentName,
-        complicationId,
+        complicationSlotId,
         supportedTypes.asList(),
         instanceId
     )
@@ -101,8 +101,8 @@ public class ComplicationHelperActivityTest {
         /** The default watch face component name used in the test. */
         private val defaultWatchFaceComponentName = ComponentName("test.package", "test.class")
 
-        /** The default complication ID used in the test. */
-        private const val defaultComplicationId = 1234
+        /** The default complication slot ID used in the test. */
+        private const val defaultComplicationSlotId = 1234
 
         /** The default supported types used in the test. */
         private val defaultSupportedTypes = arrayOf(SHORT_TEXT, LONG_TEXT)
@@ -114,7 +114,7 @@ private val Intent.watchFaceComponentName
     get() = getParcelableExtra<ComponentName>(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME)
 
 /** The complication ID encoded in the intent. */
-private val Intent.complicationId
+private val Intent.complicationSlotId
     get() = getIntExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, -1)
 
 /** The support types encoded in the intent. */

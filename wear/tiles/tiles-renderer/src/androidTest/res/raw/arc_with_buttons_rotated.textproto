@@ -1,0 +1,374 @@
+arc {
+  anchor_angle: {
+    value: 0
+  }
+  anchor_type: {
+    value: ARC_ANCHOR_CENTER
+  }
+  contents {
+    adapter {
+      rotate_contents: {
+        value: true
+      }
+      content {
+        box {
+          horizontal_alignment {
+            value: HORIZONTAL_ALIGN_CENTER
+          }
+          vertical_alignment {
+            value: VERTICAL_ALIGN_CENTER
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+              corner {
+                radius {
+                  value: 12
+                }
+              }
+            }
+          }
+          contents {
+            spacer {
+              width {
+                linear_dimension {
+                  value: 24
+                }
+              }
+              height {
+                linear_dimension {
+                  value: 24
+                }
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "1"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFFFFFF
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    adapter {
+      rotate_contents: {
+        value: true
+      }
+      content {
+        box {
+          horizontal_alignment {
+            value: HORIZONTAL_ALIGN_CENTER
+          }
+          vertical_alignment {
+            value: VERTICAL_ALIGN_CENTER
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+              corner {
+                radius {
+                  value: 12
+                }
+              }
+            }
+          }
+          contents {
+            spacer {
+              width {
+                linear_dimension {
+                  value: 24
+                }
+              }
+              height {
+                linear_dimension {
+                  value: 24
+                }
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "2"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFFFFFF
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    adapter {
+      content {
+        box {
+          horizontal_alignment {
+            value: HORIZONTAL_ALIGN_CENTER
+          }
+          vertical_alignment {
+            value: VERTICAL_ALIGN_CENTER
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFF0000FF
+              }
+              corner {
+                radius {
+                  value: 12
+                }
+              }
+            }
+          }
+          contents {
+            spacer {
+              width {
+                linear_dimension {
+                  value: 24
+                }
+              }
+              height {
+                linear_dimension {
+                  value: 24
+                }
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "3"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFFFFFF
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    adapter {
+      rotate_contents: {
+        value: true
+      }
+      content {
+        box {
+          horizontal_alignment {
+            value: HORIZONTAL_ALIGN_CENTER
+          }
+          vertical_alignment {
+            value: VERTICAL_ALIGN_CENTER
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF00FF
+              }
+              corner {
+                radius {
+                  value: 12
+                }
+              }
+            }
+          }
+          contents {
+            spacer {
+              width {
+                linear_dimension {
+                  value: 24
+                }
+              }
+              height {
+                linear_dimension {
+                  value: 24
+                }
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "4"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFFFFFF
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    adapter {
+      rotate_contents: {
+        value: true
+      }
+      content {
+        box {
+          horizontal_alignment {
+            value: HORIZONTAL_ALIGN_CENTER
+          }
+          vertical_alignment {
+            value: VERTICAL_ALIGN_CENTER
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FFFF
+              }
+              corner {
+                radius {
+                  value: 12
+                }
+              }
+            }
+          }
+          contents {
+            spacer {
+              width {
+                linear_dimension {
+                  value: 24
+                }
+              }
+              height {
+                linear_dimension {
+                  value: 24
+                }
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "5"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFFFFFF
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    adapter {
+      rotate_contents: {
+        value: true
+      }
+      content {
+        box {
+          horizontal_alignment {
+            value: HORIZONTAL_ALIGN_CENTER
+          }
+          vertical_alignment {
+            value: VERTICAL_ALIGN_CENTER
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFFFF00
+              }
+              corner {
+                radius {
+                  value: 12
+                }
+              }
+            }
+          }
+          contents {
+            spacer {
+              width {
+                linear_dimension {
+                  value: 24
+                }
+              }
+              height {
+                linear_dimension {
+                  value: 24
+                }
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "6"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFFFFFF
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

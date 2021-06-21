@@ -23,6 +23,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,6 +38,7 @@ import java.util.Objects;
  *
  * @see Lane
  */
+@CarProtocol
 public final class LaneDirection {
     /**
      * Turn amount and direction.

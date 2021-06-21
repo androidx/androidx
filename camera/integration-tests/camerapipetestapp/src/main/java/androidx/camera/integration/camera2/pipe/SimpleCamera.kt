@@ -17,6 +17,7 @@
 package androidx.camera.integration.camera2.pipe
 
 import android.graphics.ImageFormat
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.media.ImageReader
 import android.os.Handler
@@ -59,7 +60,9 @@ class SimpleCamera(
             Log.i("CXCP-App", "Selected $cameraId to open.")
 
             val cameraMetadata = cameraPipe.cameras().awaitMetadata(cameraId)
-            var yuvSizes = cameraMetadata.streamMap.getOutputSizes(ImageFormat.YUV_420_888).toList()
+            var yuvSizes =
+                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+                    .getOutputSizes(ImageFormat.YUV_420_888).toList()
 
             val closestAspectRatioSize = yuvSizes.minByOrNull {
                 (it.aspectRatio() - defaultAspectRatio).absoluteValue

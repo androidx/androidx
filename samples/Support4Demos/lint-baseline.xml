@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="WifiManagerLeak"
@@ -68,6 +68,72 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv4.media.MediaNotificationManager is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                notificationManager.createNotificationChannel("
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="117"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv4.media.MediaNotificationManager is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        new NotificationChannel(NOTIFICATION_CHANNEL_ID, TAG,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="118"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv4.media.MediaNotificationManager is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="161"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class com.example.android.supportv4.widget.SlidingPaneLayoutActivity.FirstLayoutListener is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
+            line="205"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getWindow().setStatusBarColor(0x80000000);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
+            line="72"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getWindow().setNavigationBarColor(0x80000000);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
+            line="73"
+            column="25"/>
+    </issue>
+
+    <issue
         id="MetadataTagInsideApplicationTag"
         message="Detected &lt;application>-level meta-data tag."
         errorLine1="        &lt;meta-data android:name=&quot;com.google.android.gms.car.notification.SmallIcon&quot;"
@@ -90,245 +156,10 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv4.media.MediaNotificationManager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                notificationManager.createNotificationChannel("
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="117"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv4.media.MediaNotificationManager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                        new NotificationChannel(NOTIFICATION_CHANNEL_ID, TAG,"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="118"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv4.media.MediaNotificationManager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="161"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class com.example.android.supportv4.widget.SlidingPaneLayoutActivity.FirstLayoutListener is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="150"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.supportv4.view.WindowInsetsPlayground is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            getWindow().setStatusBarColor(0x80000000);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="72"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.supportv4.view.WindowInsetsPlayground is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            getWindow().setNavigationBarColor(0x80000000);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="73"
-            column="25"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v11"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.red` appears to be unused"
-        errorLine1="    &lt;drawable name=&quot;red&quot;>#7f00&lt;/drawable>"
-        errorLine2="              ~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="18"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.blue` appears to be unused"
-        errorLine1="    &lt;drawable name=&quot;blue&quot;>#770000ff&lt;/drawable>"
-        errorLine2="              ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="19"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.yellow` appears to be unused"
-        errorLine1="    &lt;drawable name=&quot;yellow&quot;>#77ffff00&lt;/drawable>"
-        errorLine2="              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="21"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.gradient` appears to be unused"
-        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/gradient.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_drawer` appears to be unused"
-        errorLine1="&lt;bitmap xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_drawer.xml"
-            line="20"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_drawer_am` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/ic_drawer_am.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_drawer_am.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_drawer_am.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.menu.shortcuts` appears to be unused"
-        errorLine1="&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fragment_nesting_tabs_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fragment_nesting_tabs_support&quot;>Fragment/Nesting Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fragment_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fragment_tabs&quot;>Fragment/Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="85"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fragment_tabs_pager` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fragment_tabs_pager&quot;>Fragment/Tabs and Pager&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="87"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.accessibility_delegate_button` appears to be unused"
-        errorLine1="    &lt;string name=&quot;accessibility_delegate_button&quot;>Button&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="144"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_transport_controller_activity` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_transport_controller_activity&quot;>Media/TransportController&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="187"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.error_cannot_skip` appears to be unused"
-        errorLine1="    &lt;string name=&quot;error_cannot_skip&quot;>Cannot skip&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="204"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.error_empty_metadata` appears to be unused"
-        errorLine1="    &lt;string name=&quot;error_empty_metadata&quot;>Empty metadata!&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="215"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.ThemeHolo` appears to be unused"
-        errorLine1="    &lt;style name=&quot;ThemeHolo&quot; parent=&quot;android:Theme&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="22"
-            column="12"/>
-        <location
-            file="src/main/res/values-v11/styles.xml"
-            line="19"
-            column="12"/>
     </issue>
 
     <issue
@@ -503,7 +334,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="138"
+            line="139"
             column="56"/>
     </issue>
 
@@ -514,7 +345,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="140"
+            line="141"
             column="17"/>
     </issue>
 
@@ -525,7 +356,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="144"
+            line="145"
             column="21"/>
     </issue>
 
@@ -536,7 +367,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="147"
+            line="148"
             column="17"/>
     </issue>
 
@@ -547,7 +378,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="148"
+            line="149"
             column="28"/>
     </issue>
 
@@ -558,7 +389,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="148"
+            line="149"
             column="17"/>
     </issue>
 
@@ -569,7 +400,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="151"
+            line="152"
             column="17"/>
     </issue>
 
@@ -580,7 +411,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="152"
+            line="153"
             column="17"/>
     </issue>
 
@@ -591,7 +422,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="191"
+            line="192"
             column="53"/>
     </issue>
 
@@ -602,7 +433,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="212"
+            line="213"
             column="21"/>
     </issue>
 
@@ -613,7 +444,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="213"
+            line="214"
             column="21"/>
     </issue>
 
@@ -624,7 +455,7 @@
         errorLine2="                              ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="214"
+            line="215"
             column="31"/>
     </issue>
 
@@ -635,7 +466,7 @@
         errorLine2="                    ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="214"
+            line="215"
             column="21"/>
     </issue>
 
@@ -2164,7 +1995,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="233"
+            line="234"
             column="13"/>
     </issue>
 
@@ -2175,7 +2006,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="235"
+            line="236"
             column="41"/>
     </issue>
 
@@ -2186,7 +2017,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="237"
+            line="238"
             column="17"/>
     </issue>
 
@@ -2197,7 +2028,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="245"
+            line="246"
             column="13"/>
     </issue>
 
@@ -2208,7 +2039,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="358"
+            line="360"
             column="21"/>
     </issue>
 
@@ -2219,7 +2050,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="358"
+            line="360"
             column="42"/>
     </issue>
 
@@ -2230,7 +2061,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="359"
+            line="361"
             column="35"/>
     </issue>
 
@@ -2241,7 +2072,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="363"
+            line="365"
             column="21"/>
     </issue>
 
@@ -2296,7 +2127,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="62"
+            line="63"
             column="56"/>
     </issue>
 
@@ -2307,7 +2138,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="64"
+            line="65"
             column="17"/>
     </issue>
 
@@ -2318,7 +2149,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="68"
+            line="69"
             column="13"/>
     </issue>
 
@@ -2329,7 +2160,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="69"
+            line="70"
             column="21"/>
     </issue>
 
@@ -2340,7 +2171,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="70"
+            line="71"
             column="34"/>
     </issue>
 
@@ -2351,7 +2182,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="70"
+            line="71"
             column="13"/>
     </issue>
 
@@ -2362,7 +2193,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="71"
+            line="72"
             column="13"/>
     </issue>
 
@@ -2373,7 +2204,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="71"
+            line="72"
             column="47"/>
     </issue>
 
@@ -2384,7 +2215,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="73"
+            line="74"
             column="70"/>
     </issue>
 
@@ -2395,7 +2226,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="74"
+            line="75"
             column="30"/>
     </issue>
 
@@ -2406,7 +2237,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="74"
+            line="75"
             column="13"/>
     </issue>
 
@@ -2417,7 +2248,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="76"
+            line="77"
             column="56"/>
     </issue>
 
@@ -2428,17 +2259,6 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="78"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
-        errorLine1="                mQueueAdapter.notifyDataSetInvalidated();"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
             line="79"
             column="17"/>
     </issue>
@@ -2446,7 +2266,7 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
-        errorLine1="                mQueueAdapter.addAll(queue);"
+        errorLine1="                mQueueAdapter.notifyDataSetInvalidated();"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
@@ -2457,11 +2277,22 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
-        errorLine1="                mQueueAdapter.notifyDataSetChanged();"
+        errorLine1="                mQueueAdapter.addAll(queue);"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
             line="81"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
+        errorLine1="                mQueueAdapter.notifyDataSetChanged();"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
+            line="82"
             column="17"/>
     </issue>
 
@@ -2472,7 +2303,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="83"
+            line="84"
             column="36"/>
     </issue>
 
@@ -2483,7 +2314,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="83"
+            line="84"
             column="13"/>
     </issue>
 
@@ -2494,7 +2325,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="94"
+            line="95"
             column="13"/>
     </issue>
 
@@ -2505,7 +2336,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="94"
+            line="95"
             column="49"/>
     </issue>
 
@@ -2516,7 +2347,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="95"
+            line="96"
             column="13"/>
     </issue>
 
@@ -2527,7 +2358,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="96"
+            line="97"
             column="13"/>
     </issue>
 
@@ -2538,7 +2369,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="116"
+            line="117"
             column="13"/>
     </issue>
 
@@ -2549,7 +2380,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="117"
+            line="118"
             column="13"/>
     </issue>
 
@@ -2560,7 +2391,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="124"
+            line="125"
             column="17"/>
     </issue>
 
@@ -2571,7 +2402,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="125"
+            line="126"
             column="17"/>
     </issue>
 
@@ -2582,7 +2413,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="126"
+            line="127"
             column="17"/>
     </issue>
 
@@ -2593,7 +2424,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="127"
+            line="128"
             column="17"/>
     </issue>
 
@@ -2604,7 +2435,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="161"
+            line="162"
             column="53"/>
     </issue>
 
@@ -2615,7 +2446,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="162"
+            line="163"
             column="17"/>
     </issue>
 
@@ -2626,7 +2457,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="254"
+            line="256"
             column="31"/>
     </issue>
 
@@ -2637,7 +2468,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="255"
+            line="257"
             column="54"/>
     </issue>
 
@@ -2648,7 +2479,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="262"
+            line="264"
             column="25"/>
     </issue>
 
@@ -2659,7 +2490,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="264"
+            line="266"
             column="25"/>
     </issue>
 
@@ -2670,7 +2501,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="269"
+            line="271"
             column="21"/>
     </issue>
 
@@ -2681,7 +2512,7 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="272"
+            line="274"
             column="21"/>
     </issue>
 
@@ -2694,160 +2525,6 @@
             file="src/main/java/com/example/android/supportv4/graphics/RoundedBitmapDrawableActivity.java"
             line="58"
             column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `SliderListener` requires synthetic accessor"
-        errorLine1="        mSlidingLayout.setPanelSlideListener(new SliderListener());"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="83"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ListItemClickListener` requires synthetic accessor"
-        errorLine1="        mList.setOnItemClickListener(new ListItemClickListener());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="88"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `FirstLayoutListener` requires synthetic accessor"
-        errorLine1="        mSlidingLayout.getViewTreeObserver().addOnGlobalLayoutListener(new FirstLayoutListener());"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="93"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mContent` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mContent.setText(LoremIpsum.DIALOGUE[position]);"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.setTitle(LoremIpsum.TITLES[position]);"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mSlidingLayout.closePane();"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="119"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.onPanelOpened();"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="129"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.onPanelClosed();"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="134"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.onFirstLayout();"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="148"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="150"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="152"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ActionBarHelper` requires synthetic accessor"
-        errorLine1="            return new ActionBarHelper();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="164"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            if (mSlidingLayout.isSlideable() &amp;&amp; !mSlidingLayout.isOpen()) {"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="216"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            if (mSlidingLayout.isSlideable() &amp;&amp; !mSlidingLayout.isOpen()) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="216"
-            column="50"/>
     </issue>
 
     <issue
@@ -3095,17 +2772,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void setContent(T content) {"
-        errorLine2="                               ~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/BaseSwipeRefreshLayoutActivity.java"
-            line="97"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -3209,7 +2875,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="168"
+            line="169"
             column="19"/>
     </issue>
 
@@ -3220,7 +2886,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="168"
+            line="169"
             column="46"/>
     </issue>
 
@@ -3231,7 +2897,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="177"
+            line="178"
             column="12"/>
     </issue>
 
@@ -3242,7 +2908,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="177"
+            line="178"
             column="30"/>
     </issue>
 
@@ -3253,7 +2919,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="177"
+            line="178"
             column="55"/>
     </issue>
 
@@ -3264,7 +2930,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="178"
+            line="179"
             column="13"/>
     </issue>
 
@@ -6212,7 +5878,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="132"
+            line="133"
             column="19"/>
     </issue>
 
@@ -6223,7 +5889,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="137"
+            line="138"
             column="12"/>
     </issue>
 
@@ -6234,7 +5900,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="137"
+            line="138"
             column="30"/>
     </issue>
 
@@ -6245,7 +5911,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="137"
+            line="138"
             column="55"/>
     </issue>
 
@@ -6256,7 +5922,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="138"
+            line="139"
             column="30"/>
     </issue>
 
@@ -6399,7 +6065,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/utils/ResourceHelper.java"
-            line="36"
+            line="37"
             column="37"/>
     </issue>
 
@@ -6476,7 +6142,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/app/SharingSupport.java"
-            line="73"
+            line="74"
             column="34"/>
     </issue>
 
@@ -6487,7 +6153,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/app/SharingSupport.java"
-            line="93"
+            line="95"
             column="42"/>
     </issue>
 
@@ -6775,28 +6441,6 @@
             file="src/main/java/com/example/android/supportv4/content/SimpleWakefulService.java"
             line="31"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="74"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
-        errorLine2="                                         ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="97"
-            column="42"/>
     </issue>
 
     <issue

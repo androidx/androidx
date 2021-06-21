@@ -35,6 +35,20 @@ fun getBuildId(): String {
 }
 
 /**
+ * Gets set to true when the build id is prefixed with P.
+ *
+ * In AffectedModuleDetector, we return a different ProjectSubset in presubmit vs.
+ * postsubmit, to get the desired test behaviors.
+ */
+fun isPresubmitBuild(): Boolean {
+    return if (System.getenv("BUILD_NUMBER") != null) {
+        System.getenv("BUILD_NUMBER").startsWith("P")
+    } else {
+        false
+    }
+}
+
+/**
  * The DIST_DIR is where you want to save things from the build. The build server will copy
  * the contents of DIST_DIR to somewhere and make it available.
  */
@@ -85,12 +99,6 @@ fun Project.getReleaseNotesDirectory(): File =
  */
 fun Project.getHostTestResultDirectory(): File =
     File(getDistributionDirectory(), "host-test-reports")
-
-/**
- * Directory to put host test coverage results so they can be consumed by the testing dashboard.
- */
-fun Project.getHostTestCoverageDirectory(): File =
-    File(getDistributionDirectory(), "host-test-coverage")
 
 /**
  * Whether the build should force all versions to be snapshots.

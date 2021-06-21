@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 
@@ -43,7 +44,7 @@ internal class InteractiveInstanceManager {
 
     class PendingWallpaperInteractiveWatchFaceInstance(
         val params: WallpaperInteractiveWatchFaceInstanceParams,
-        val callback: IPendingInteractiveWatchFaceWCS
+        val callback: IPendingInteractiveWatchFace
     )
 
     companion object {
@@ -108,13 +109,15 @@ internal class InteractiveInstanceManager {
         @RequiresApi(27)
         fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
             value: PendingWallpaperInteractiveWatchFaceInstance
-        ): IInteractiveWatchFaceWCS? {
+        ): IInteractiveWatchFace? {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 val instance = instances[value.params.instanceId]
                 return if (instance != null) {
-                    instance.impl.createWCSApi()
+                    instance.impl
                 } else {
-                    pendingWallpaperInteractiveWatchFaceInstance = value
+                    TraceEvent("Set pendingWallpaperInteractiveWatchFaceInstance").use {
+                        pendingWallpaperInteractiveWatchFaceInstance = value
+                    }
                     null
                 }
             }

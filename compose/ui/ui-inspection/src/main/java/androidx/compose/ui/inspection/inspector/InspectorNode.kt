@@ -18,6 +18,8 @@ package androidx.compose.ui.inspection.inspector
 
 import androidx.compose.ui.layout.LayoutInfo
 
+internal const val UNDEFINED_ID = 0L
+
 /**
  * Node representing a Composable for the Layout Inspector.
  */
@@ -96,10 +98,31 @@ class InspectorNode internal constructor(
     val parameters: List<RawParameter>,
 
     /**
+     * The id of a android View embedded under this node.
+     */
+    val viewId: Long,
+
+    /**
+     * The merged semantics information of this Composable.
+     */
+    val mergedSemantics: List<RawParameter>,
+
+    /**
+     * The un-merged semantics information of this Composable.
+     */
+    val unmergedSemantics: List<RawParameter>,
+
+    /**
      * The children nodes of this Composable.
      */
     val children: List<InspectorNode>
-)
+) {
+    fun parametersByKind(kind: ParameterKind): List<RawParameter> = when (kind) {
+        ParameterKind.Normal -> parameters
+        ParameterKind.MergedSemantics -> mergedSemantics
+        ParameterKind.UnmergedSemantics -> unmergedSemantics
+    }
+}
 
 data class QuadBounds(
     val x0: Int,
@@ -121,8 +144,10 @@ class RawParameter(val name: String, val value: Any?)
  * Mutable version of [InspectorNode].
  */
 internal class MutableInspectorNode {
-    var id = 0L
-    var layoutNodes = mutableListOf<LayoutInfo>()
+    var id = UNDEFINED_ID
+    val layoutNodes = mutableListOf<LayoutInfo>()
+    val mergedSemantics = mutableListOf<RawParameter>()
+    val unmergedSemantics = mutableListOf<RawParameter>()
     var name = ""
     var fileName = ""
     var packageHash = -1
@@ -135,16 +160,20 @@ internal class MutableInspectorNode {
     var height = 0
     var bounds: QuadBounds? = null
     val parameters = mutableListOf<RawParameter>()
+    var viewId = UNDEFINED_ID
     val children = mutableListOf<InspectorNode>()
 
     fun reset() {
         markUnwanted()
-        id = 0L
+        id = UNDEFINED_ID
+        viewId = UNDEFINED_ID
         left = 0
         top = 0
         width = 0
         height = 0
         layoutNodes.clear()
+        mergedSemantics.clear()
+        unmergedSemantics.clear()
         bounds = null
         children.clear()
     }
@@ -161,6 +190,7 @@ internal class MutableInspectorNode {
 
     fun shallowCopy(node: InspectorNode): MutableInspectorNode = apply {
         id = node.id
+        viewId = node.viewId
         name = node.name
         fileName = node.fileName
         packageHash = node.packageHash
@@ -172,13 +202,18 @@ internal class MutableInspectorNode {
         width = node.width
         height = node.height
         bounds = node.bounds
+        mergedSemantics.addAll(node.mergedSemantics)
+        unmergedSemantics.addAll(node.unmergedSemantics)
         parameters.addAll(node.parameters)
         children.addAll(node.children)
     }
 
-    fun build(): InspectorNode =
+    fun build(withSemantics: Boolean = true): InspectorNode =
         InspectorNode(
             id, name, fileName, packageHash, lineNumber, offset, length, left, top, width, height,
-            bounds, parameters.toList(), children.toList()
+            bounds, parameters.toList(), viewId,
+            if (withSemantics) mergedSemantics.toList() else emptyList(),
+            if (withSemantics) unmergedSemantics.toList() else emptyList(),
+            children.toList()
         )
 }

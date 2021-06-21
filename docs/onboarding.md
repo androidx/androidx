@@ -13,9 +13,10 @@ constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the `repo` tool, which is used for Git branch and
-commit management. If you want to learn more about `repo`, see the
-[Repo Command Reference](https://source.android.com/setup/develop/repo).
+You will need to install the
+[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
+Git branch and commit management. If you want to learn more about `repo`, see
+the [Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -161,10 +162,11 @@ compatibility between various components of the development workflow.
 
 From the `frameworks/support` directory, you can use `./studiow m` (short for
 `ANDROIDX_PROJECTS=main ./gradlew studio`) to automatically download and run the
-correct version of Studio to work on the `main` set of androidx projects.
+correct version of Studio to work on the `main` set of androidx projects
+(non-Compose Jetpack libraries).
 [studiow](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:studiow)
 also supports several other arguments like `all` for other subsets of the
-projects.
+projects (run `./studiow` for help).
 
 Next, open the `framework/support` project root from your checkout. If Studio
 asks you which SDK you would like to use, select `Use project SDK`. Importing
@@ -210,7 +212,10 @@ repo upload --cbr -t .
 ```
 
 The `--cbr` switch automatically picks the current repo branch for upload. The
-`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`.
+`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`. You
+can refer to the
+[Android documentation](https://source.android.com/setup/create/coding-tasks#workflow)
+for a high level overview of this basic workflow.
 
 NOTE If you encounter issues with `repo upload`, consider running upload with
 trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
@@ -265,7 +270,7 @@ right-clicking on it, and then selecting `Debug...`.
 
 Note that debugging will not be available until Gradle sync has completed.
 
-## From the command line
+#### From the command line
 
 Tasks may also be debugged from the command line, which may be useful if
 `./studiow` cannot run due to a Gradle task configuration issue.
@@ -289,7 +294,7 @@ killing the running gradle daemons:
 ./gradlew --stop
 ```
 
-Note: This is described in more detail in this
+NOTE This is described in more detail in this
 [Medium article](https://medium.com/grandcentrix/how-to-debug-gradle-plugins-with-intellij-eef2ef681a7b).
 
 #### Attaching to an annotation processor
@@ -365,10 +370,10 @@ based on the version specified in
 `{androidx-main-checkout}/frameworks/support/buildSrc/src/main/kotlin/androidx/build/PublishDocsRules.kt`
 and uses the prebuilt checked into
 `{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
-colloquially refer to this two step process of (1) updating PublishDocsRules.kt
-and (2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](releasing.md#the-prebuilts-dance™). So, to build javadocs
-that will be published to
+colloquially refer to this two step process of (1) updating
+`PublishDocsRules.kt` and (2) checking in a prebuilt artifact into the prebuilts
+directory as [The Prebuilts Dance](releasing_detailed.md#the-prebuilts-dance™).
+So, to build javadocs that will be published to
 https://developer.android.com/reference/androidx/packages, both of these steps
 need to be completed.
 
@@ -507,7 +512,7 @@ If you are developing against pre-release platform APIs in the internal
 `androidx-platform-dev` branch, you may need to update these prebuilts to obtain
 the latest API changes.
 
-### Missing external dependency
+#### Missing external dependency
 
 If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
 need to import the corresponding artifact into `prebuilts/androidx/external`.
@@ -597,10 +602,10 @@ Libraries are encouraged to write and monitor performance benchmarks. See the
 
 ## Library snapshots {#snapshots}
 
-### Quick how to
+### Quick how-to
 
 Add the following snippet to your build.gradle file, replacing `buildId` with a
-snapshot build Id.
+snapshot build ID.
 
 ```groovy {highlight=context:[buildId]}
 allprojects {
@@ -612,8 +617,8 @@ allprojects {
 }
 ```
 
-You must define dependencies on artifacts using the SNAPSHOT version suffix, for
-example:
+You must define dependencies on artifacts using the `SNAPSHOT` version suffix,
+for example:
 
 ```groovy {highlight=context:SNAPSHOT}
 dependencies {

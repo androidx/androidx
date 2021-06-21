@@ -62,13 +62,13 @@ class InspectionPlugin : Plugin<Project> {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
                     val shadowJar = project.registerShadowDependenciesTask(variant, unzip)
-                    val dexTask = project.registerDexInspectorTask(
+                    val bundleTask = project.registerBundleInspectorTask(
                         variant, libExtension, extension.name, shadowJar
                     )
 
                     publishInspector.outgoing.variants {
                         val configVariant = it.create("inspectorJar")
-                        configVariant.artifact(dexTask)
+                        configVariant.artifact(bundleTask)
                     }
                 }
             }
@@ -80,6 +80,8 @@ class InspectionPlugin : Plugin<Project> {
         project.apply(plugin = "com.google.protobuf")
         project.plugins.all {
             if (it is ProtobufPlugin) {
+                // https://github.com/google/protobuf-gradle-plugin/issues/505
+                @Suppress("DEPRECATION")
                 val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
                 protobufConvention.protobuf.apply {
                     protoc {
@@ -136,9 +138,7 @@ private fun includeMetaInfServices(library: LibraryExtension) {
  */
 @ExperimentalStdlibApi
 fun packageInspector(libraryProject: Project, inspectorProject: Project) {
-    val consumeInspector = libraryProject.configurations.create("consumeInspector") {
-        it.setupInspectorAttribute()
-    }
+    val consumeInspector = libraryProject.createConsumeInspectionConfiguration()
 
     libraryProject.dependencies {
         add(consumeInspector.name, inspectorProject)
@@ -157,6 +157,11 @@ fun packageInspector(libraryProject: Project, inspectorProject: Project) {
         }
     }
 }
+
+fun Project.createConsumeInspectionConfiguration(): Configuration =
+    configurations.create("consumeInspector") {
+        it.setupInspectorAttribute()
+    }
 
 private fun Configuration.setupInspectorAttribute() {
     attributes {

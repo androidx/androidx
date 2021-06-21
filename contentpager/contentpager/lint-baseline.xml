@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.contentpager.content.ContentPager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.contentpager.content.ContentPager is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            extras = extras.deepCopy();"
         errorLine2="                            ~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (mCancellationSignal != null &amp;&amp; !mCancellationSignal.isCanceled()) {"
         errorLine2="                                                                    ~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mCancellationSignal.cancel();"
         errorLine2="                                    ~~~~~~">
         <location

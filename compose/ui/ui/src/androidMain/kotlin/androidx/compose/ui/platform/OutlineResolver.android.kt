@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import android.os.Build
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
@@ -34,7 +35,7 @@ import android.graphics.Outline as AndroidOutline
 /**
  * Resolves the [AndroidOutline] from the [Shape] of an [OwnedLayer].
  */
-internal class OutlineResolver(private val density: Density) {
+internal class OutlineResolver(private var density: Density) {
 
     /**
      * Flag to determine if the shape specified on the outline is supported.
@@ -111,6 +112,10 @@ internal class OutlineResolver(private val density: Density) {
 
     private var layoutDirection = LayoutDirection.Ltr
 
+    private var tmpTouchPointPath: Path? = null
+    private var tmpOpPath: Path? = null
+    private var calculatedOutline: Outline? = null
+
     /**
      * Updates the values of the outline. Returns `true` when the shape has changed.
      */
@@ -119,7 +124,8 @@ internal class OutlineResolver(private val density: Density) {
         alpha: Float,
         clipToOutline: Boolean,
         elevation: Float,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
+        density: Density
     ): Boolean {
         cachedOutline.alpha = alpha
         val shapeChanged = this.shape != shape
@@ -136,7 +142,23 @@ internal class OutlineResolver(private val density: Density) {
             this.layoutDirection = layoutDirection
             cacheIsDirty = true
         }
+        if (this.density != density) {
+            this.density = density
+            cacheIsDirty = true
+        }
         return shapeChanged
+    }
+
+    /**
+     * Returns true if there is a outline and [position] is outside the outline.
+     */
+    fun isInOutline(position: Offset): Boolean {
+        if (!outlineNeeded) {
+            return true
+        }
+        val outline = calculatedOutline ?: return true
+
+        return isInOutline(outline, position.x, position.y, tmpTouchPointPath, tmpOpPath)
     }
 
     /**
@@ -158,7 +180,9 @@ internal class OutlineResolver(private val density: Density) {
                 // The methods to configure the outline will determine/update the flag
                 // if it not supported on the API level
                 isSupportedOutline = true
-                when (val outline = shape.createOutline(size, layoutDirection, density)) {
+                val outline = shape.createOutline(size, layoutDirection, density)
+                calculatedOutline = outline
+                when (outline) {
                     is Outline.Rectangle -> updateCacheWithRect(outline.rect)
                     is Outline.Rounded -> updateCacheWithRoundRect(outline.roundRect)
                     is Outline.Generic -> updateCacheWithPath(outline.path)
@@ -208,5 +232,11 @@ internal class OutlineResolver(private val density: Density) {
             usePathForClip = true
         }
         outlinePath = composePath
+    }
+
+    companion object {
+        // Because we only use these on the main thread, we can allocate just one
+        private val tmpOpPath = Path()
+        private val tmpTouchPointPath = Path()
     }
 }

@@ -92,7 +92,7 @@ public class AppManager {
      *
      * @param text     the text to show
      * @param duration how long to display the message
-     * @throws HostException if the remote call fails
+     * @throws HostException        if the remote call fails
      * @throws NullPointerException if {@code text} is {@code null}
      */
     public void showToast(@NonNull CharSequence text, @CarToast.Duration int duration) {
@@ -144,7 +144,7 @@ public class AppManager {
             public void getTemplate(IOnDoneCallback callback) {
                 RemoteUtils.dispatchCallFromHost(getLifecycle(), callback, "getTemplate",
                         getCarContext().getCarService(
-                        ScreenManager.class)::getTopTemplate);
+                                ScreenManager.class)::getTopTemplate);
             }
 
             @Override

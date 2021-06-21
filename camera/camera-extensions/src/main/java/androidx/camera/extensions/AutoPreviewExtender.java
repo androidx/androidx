@@ -17,14 +17,24 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
 
 /**
  * Load the OEM extension Preview implementation for auto effect type.
+ *
+ * @deprecated Use
+ * {@link ExtensionsManager#isExtensionAvailable(CameraProvider, CameraSelector, int)}
+ * to check whether extension function can support with the given {@link CameraSelector}. Use
+ * {@link ExtensionsManager#getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}
+ * to get a {@link CameraSelector} for the specific extension mode, then use it to bind the use
+ * cases to a lifecycle owner.
  */
+@Deprecated
 public class AutoPreviewExtender extends PreviewExtender {
     private static final String TAG = "AutoPreviewExtender";
 
@@ -68,7 +78,7 @@ public class AutoPreviewExtender extends PreviewExtender {
 
         VendorAutoPreviewExtender(Preview.Builder builder) {
             mImpl = new AutoPreviewExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_AUTO);
+            init(builder, mImpl, ExtensionMode.AUTO);
         }
     }
 

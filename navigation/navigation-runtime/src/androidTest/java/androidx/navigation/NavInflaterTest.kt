@@ -48,7 +48,7 @@ class NavInflaterTest {
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
         assertThat(graph).isNotNull()
-        assertThat(graph.startDestination)
+        assertThat(graph.startDestinationId)
             .isEqualTo(R.id.start_test)
     }
 
@@ -233,6 +233,14 @@ class NavInflaterTest {
     }
 
     @Test
+    fun testDefaultArgumentsStringArray() {
+        val defaultArguments = inflateDefaultArgumentsFromGraph()
+
+        assertThat(defaultArguments["test_string_array"]?.run { type to defaultValue })
+            .isEqualTo(NavType.StringArrayType to null)
+    }
+
+    @Test
     fun testDefaultArgumentsReference() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
@@ -264,7 +272,7 @@ class NavInflaterTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_default_arguments)
-        val startDestination = graph.findNode(graph.startDestination)
+        val startDestination = graph.findNode(graph.startDestinationId)
         val action = startDestination?.getAction(R.id.my_action)
         assertThat(action?.defaultArguments?.get("test_action_arg"))
             .isEqualTo(123L)
@@ -275,7 +283,7 @@ class NavInflaterTest {
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_default_arguments)
 
-        val startDestination = graph.findNode(graph.startDestination)
+        val startDestination = graph.findNode(graph.startDestinationId)
         val defaultArguments = startDestination?.arguments
 
         assertThat(defaultArguments).isNotNull()

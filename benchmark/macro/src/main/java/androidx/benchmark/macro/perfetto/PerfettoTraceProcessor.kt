@@ -16,10 +16,8 @@
 
 package androidx.benchmark.macro.perfetto
 
-import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.benchmark.macro.device
 import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
@@ -28,17 +26,9 @@ import java.io.File
 /**
  * Enables parsing perfetto traces on-device on Q+ devices.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(29)
-object PerfettoTraceProcessor {
+internal object PerfettoTraceProcessor {
     private const val TAG = "PerfettoTraceProcessor"
-
-    @TestOnly
-    fun isAbiSupported(): Boolean {
-        Log.d(TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
-        return !Build.MODEL.contains("Cuttlefish") && // b/180022458
-            Build.SUPPORTED_64_BIT_ABIS.any { it == "arm64-v8a" }
-    }
 
     /**
      * The actual [File] path to the `trace_processor_shell`.
@@ -47,21 +37,8 @@ object PerfettoTraceProcessor {
      */
     @get:TestOnly
     val shellPath: String by lazy {
-        if (!isAbiSupported()) {
-            throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
-        }
-
-        val suffix = when {
-            Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm") } -> "aarch64"
-            else -> IllegalStateException(
-                "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
-            )
-        }
-
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val inputStream = instrumentation.context.assets.open("trace_processor_shell_$suffix")
-        val device = instrumentation.device()
-        device.createRunnableExecutable("trace_processor_shell", inputStream)
+        // Checks for ABI support
+        PerfettoHelper.createExecutable("trace_processor_shell")
     }
 
     fun getJsonMetrics(absoluteTracePath: String, metric: String): String {

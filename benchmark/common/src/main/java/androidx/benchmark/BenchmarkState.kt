@@ -52,7 +52,10 @@ import java.util.concurrent.TimeUnit
  *
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
-public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
+public class BenchmarkState {
+
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor()
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
@@ -115,6 +118,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
     private var stats = mutableListOf<Stats>()
     private var allData = mutableListOf<LongArray>()
 
+    /** @suppress */
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMinTimeNanos(): Long {
@@ -124,10 +128,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
 
     private fun checkState() {
         check(state != NOT_STARTED) {
-            "The benchmark wasn't started! Every test in a class " +
-                "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                "benchmarkRule.measureRepeated {}, or in Java, call " +
-                "benchmarkRule.getState().keepRunning() to run your benchmark."
+            "Attempting to interact with a benchmark that wasn't started!"
         }
         check(state == FINISHED) {
             "The benchmark hasn't finished! In Java, use " +
@@ -501,6 +502,10 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
         simpleClassName: String,
         methodName: String
     ) {
+        if (state == NOT_STARTED) {
+            return; // nothing to report, BenchmarkState wasn't used
+        }
+
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
         val bundle = getFullStatusReport(

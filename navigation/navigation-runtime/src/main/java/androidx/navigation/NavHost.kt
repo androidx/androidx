@@ -16,6 +16,8 @@
 
 package androidx.navigation
 
+import androidx.annotation.IdRes
+
 /**
  * A host is a single context or container for navigation via a [NavController].
  *
@@ -43,9 +45,33 @@ package androidx.navigation
  */
 public interface NavHost {
     /**
-     * Returns the [navigation controller][NavController] for this navigation host.
-     *
-     * @return this host's navigation controller
+     * The [navigation controller][NavController] for this navigation host.
      */
     public val navController: NavController
 }
+
+/**
+ * Construct a new [NavGraph]
+ */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your NavGraph instead",
+    ReplaceWith(
+        "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
+public inline fun NavHost.createGraph(
+    @IdRes id: Int = 0,
+    @IdRes startDestination: Int,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navController.createGraph(id, startDestination, builder)
+
+/**
+ * Construct a new [NavGraph]
+ */
+public inline fun NavHost.createGraph(
+    startDestination: String,
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navController.createGraph(startDestination, route, builder)

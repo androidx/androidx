@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import androidx.build.lint.SampledAnnotationEnforcer.Companion.SAMPLED_ANNOTATION
@@ -169,10 +171,10 @@ class SampledAnnotationEnforcer {
             return sampleFunctionCache
         }
 
-        override fun getApplicableUastTypes(): List<Class<out UElement>>? =
+        override fun getApplicableUastTypes(): List<Class<out UElement>> =
             listOf(UDeclaration::class.java)
 
-        override fun createUastHandler(context: JavaContext): UElementHandler? =
+        override fun createUastHandler(context: JavaContext): UElementHandler =
             KDocSampleLinkHandler(context)
 
         /**
@@ -300,10 +302,10 @@ class SampledAnnotationEnforcer {
             return sampleLinkCache!!
         }
 
-        override fun getApplicableUastTypes(): List<Class<out UElement>>? =
+        override fun getApplicableUastTypes(): List<Class<out UElement>> =
             listOf(UMethod::class.java)
 
-        override fun createUastHandler(context: JavaContext): UElementHandler? =
+        override fun createUastHandler(context: JavaContext): UElementHandler =
             SampledAnnotationHandler(context)
 
         /**

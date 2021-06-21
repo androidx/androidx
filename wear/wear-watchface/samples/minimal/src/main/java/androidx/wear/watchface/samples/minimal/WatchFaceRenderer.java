@@ -24,10 +24,11 @@ import android.graphics.Rect;
 import android.icu.util.Calendar;
 import android.view.SurfaceHolder;
 
+import androidx.annotation.NonNull;
 import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
-import androidx.wear.watchface.style.UserStyleRepository;
+import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -42,15 +43,17 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     private static final long UPDATE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(1);
     private static final char[] DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
+    private final WatchState mWatchState;
     private final Paint mPaint;
     private final char[] mTimeText = new char[5];
 
     public WatchFaceRenderer(
             @NotNull SurfaceHolder surfaceHolder,
-            @NotNull UserStyleRepository userStyleRepository,
+            @NotNull CurrentUserStyleRepository currentUserStyleRepository,
             @NotNull WatchState watchState) {
-        super(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE,
+        super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
+        mWatchState = watchState;
         mPaint = new Paint();
         mPaint.setTextAlign(Align.CENTER);
         mPaint.setTextSize(64f);
@@ -69,6 +72,17 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
         mTimeText[2] = second % 2 == 0 ? ':' : ' ';
         mTimeText[3] = DIGITS[minute / 10];
         mTimeText[4] = DIGITS[minute % 10];
-        canvas.drawText(mTimeText, 0, 5, rect.centerX(), rect.centerY(), mPaint);
+        canvas.drawText(mTimeText,
+                0,
+                5,
+                rect.centerX(),
+                rect.centerY() - mWatchState.getChinHeight(),
+                mPaint);
+    }
+
+    @Override
+    public void renderHighlightLayer(@NonNull Canvas canvas, @NonNull Rect bounds,
+            @NonNull Calendar calendar) {
+        canvas.drawColor(getRenderParameters().getHighlightLayer().getBackgroundTint());
     }
 }

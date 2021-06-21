@@ -26,6 +26,7 @@ import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.room.TypeConverter;
 import androidx.work.BackoffPolicy;
@@ -76,6 +77,7 @@ public class WorkTypeConverters {
         int UNMETERED = 2;
         int NOT_ROAMING = 3;
         int METERED = 4;
+        int TEMPORARILY_UNMETERED = 5;
     }
 
     /**
@@ -211,8 +213,13 @@ public class WorkTypeConverters {
                 return NetworkTypeIds.METERED;
 
             default:
+                if (Build.VERSION.SDK_INT >= 30
+                        && networkType == NetworkType.TEMPORARILY_UNMETERED) {
+                    return NetworkTypeIds.TEMPORARILY_UNMETERED;
+                }
                 throw new IllegalArgumentException(
                         "Could not convert " + networkType + " to int");
+
         }
     }
 
@@ -241,6 +248,9 @@ public class WorkTypeConverters {
                 return NetworkType.METERED;
 
             default:
+                if (Build.VERSION.SDK_INT >= 30 && value == NetworkTypeIds.TEMPORARILY_UNMETERED) {
+                    return NetworkType.TEMPORARILY_UNMETERED;
+                }
                 throw new IllegalArgumentException(
                         "Could not convert " + value + " to NetworkType");
         }

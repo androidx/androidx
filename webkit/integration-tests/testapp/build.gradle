@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -24,21 +23,21 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.core:core:1.1.0")
     implementation(project(":webkit:webkit"))
-    implementation(GUAVA_ANDROID)
-    implementation(ESPRESSO_IDLING_NET)
-    implementation(ESPRESSO_IDLING_RESOURCE)
+    implementation(libs.guavaAndroid)
+    implementation(libs.espressoIdlingNet)
+    implementation(libs.espressoIdlingResource)
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
-    androidTestImplementation(ESPRESSO_WEB, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(libs.espressoWeb, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
 
 rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":assembleRelease")

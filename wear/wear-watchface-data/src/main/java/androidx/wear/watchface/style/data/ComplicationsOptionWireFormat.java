@@ -56,7 +56,7 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     }
 
     public ComplicationsOptionWireFormat(
-            @NonNull String id,
+            @NonNull byte[] id,
             @NonNull CharSequence displayName,
             @Nullable Icon icon,
             @NonNull ComplicationOverlayWireFormat[]

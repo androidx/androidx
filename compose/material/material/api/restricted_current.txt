@@ -47,36 +47,7 @@ package androidx.compose.material {
   public final class BackdropScaffoldKt {
   }
 
-  public final class BottomDrawerState {
-    ctor public BottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
-    method public suspend Object? close(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public final T! getCurrentValue();
-    method public final float getDirection();
-    method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
-    method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
-    method public final T! getTargetValue();
-    method public final boolean isAnimationRunning();
-    method public boolean isClosed();
-    method public boolean isExpanded();
-    method public boolean isOpen();
-    method public suspend Object? open(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public final float performDrag(float delta);
-    method public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    property public final boolean isClosed;
-    property public final boolean isExpanded;
-    property public final boolean isOpen;
-    field public static final androidx.compose.material.BottomDrawerState.Companion Companion;
-  }
-
-  public static final class BottomDrawerState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomDrawerState,androidx.compose.material.BottomDrawerValue> Saver(kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
-  }
-
-  public enum BottomDrawerValue {
-    enum_constant public static final androidx.compose.material.BottomDrawerValue Closed;
-    enum_constant public static final androidx.compose.material.BottomDrawerValue Expanded;
-    enum_constant public static final androidx.compose.material.BottomDrawerValue Open;
+  public final class BadgeKt {
   }
 
   public final class BottomNavigationDefaults {
@@ -243,24 +214,19 @@ package androidx.compose.material {
 
   public final class DrawerKt {
     method @androidx.compose.runtime.Composable public static void ModalDrawer-TlzqArY(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.DrawerState drawerState, optional boolean gesturesEnabled, optional androidx.compose.ui.graphics.Shape drawerShape, optional float drawerElevation, optional long drawerBackgroundColor, optional long drawerContentColor, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static androidx.compose.material.BottomDrawerState rememberBottomDrawerState(androidx.compose.material.BottomDrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
     method @androidx.compose.runtime.Composable public static androidx.compose.material.DrawerState rememberDrawerState(androidx.compose.material.DrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerValue,java.lang.Boolean> confirmStateChange);
   }
 
   @androidx.compose.runtime.Stable public final class DrawerState {
     ctor public DrawerState(androidx.compose.material.DrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerValue,java.lang.Boolean> confirmStateChange);
     method public suspend Object? close(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public final T! getCurrentValue();
-    method public final float getDirection();
-    method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
-    method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
-    method public final T! getTargetValue();
-    method public final boolean isAnimationRunning();
+    method public androidx.compose.material.DrawerValue getCurrentValue();
+    method public boolean isAnimationRunning();
     method public boolean isClosed();
     method public boolean isOpen();
     method public suspend Object? open(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public final float performDrag(float delta);
-    method public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    property public final androidx.compose.material.DrawerValue currentValue;
+    property public final boolean isAnimationRunning;
     property public final boolean isClosed;
     property public final boolean isOpen;
     field public static final androidx.compose.material.DrawerState.Companion Companion;
@@ -287,9 +253,20 @@ package androidx.compose.material {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ElevationOverlay> getLocalElevationOverlay();
   }
 
-  public enum FabPosition {
-    enum_constant public static final androidx.compose.material.FabPosition Center;
-    enum_constant public static final androidx.compose.material.FabPosition End;
+  public final inline class FabPosition {
+    ctor public FabPosition();
+    method public static inline boolean equals-impl(int p, Object? p1);
+    method public static boolean equals-impl0(int p1, int p2);
+    method public static inline int hashCode-impl(int p);
+    method public static String toString-impl(int $this);
+    field public static final androidx.compose.material.FabPosition.Companion Companion;
+  }
+
+  public static final class FabPosition.Companion {
+    method public int getCenter-5ygKITE();
+    method public int getEnd-5ygKITE();
+    property public final int Center;
+    property public final int End;
   }
 
   public final class FloatingActionButtonDefaults {
@@ -358,8 +335,8 @@ package androidx.compose.material {
   }
 
   public final class OutlinedTextFieldKt {
-    method @androidx.compose.runtime.Composable public static void OutlinedTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.material.TextFieldColors colors);
-    method @androidx.compose.runtime.Composable public static void OutlinedTextField(androidx.compose.ui.text.input.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.material.TextFieldColors colors);
+    method @androidx.compose.runtime.Composable public static void OutlinedTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material.TextFieldColors colors);
+    method @androidx.compose.runtime.Composable public static void OutlinedTextField(androidx.compose.ui.text.input.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material.TextFieldColors colors);
   }
 
   public final class ProgressIndicatorDefaults {
@@ -403,7 +380,7 @@ package androidx.compose.material {
   }
 
   public final class ScaffoldKt {
-    method @androidx.compose.runtime.Composable public static void Scaffold-axyFlp8(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.ScaffoldState scaffoldState, optional kotlin.jvm.functions.Function0<kotlin.Unit> topBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> bottomBar, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.SnackbarHostState,kotlin.Unit> snackbarHost, optional kotlin.jvm.functions.Function0<kotlin.Unit> floatingActionButton, optional androidx.compose.material.FabPosition floatingActionButtonPosition, optional boolean isFloatingActionButtonDocked, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? drawerContent, optional boolean drawerGesturesEnabled, optional androidx.compose.ui.graphics.Shape drawerShape, optional float drawerElevation, optional long drawerBackgroundColor, optional long drawerContentColor, optional long drawerScrimColor, optional long backgroundColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Scaffold-axyFlp8(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.ScaffoldState scaffoldState, optional kotlin.jvm.functions.Function0<kotlin.Unit> topBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> bottomBar, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.SnackbarHostState,kotlin.Unit> snackbarHost, optional kotlin.jvm.functions.Function0<kotlin.Unit> floatingActionButton, optional int floatingActionButtonPosition, optional boolean isFloatingActionButtonDocked, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? drawerContent, optional boolean drawerGesturesEnabled, optional androidx.compose.ui.graphics.Shape drawerShape, optional float drawerElevation, optional long drawerBackgroundColor, optional long drawerContentColor, optional long drawerScrimColor, optional long backgroundColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static androidx.compose.material.ScaffoldState rememberScaffoldState(optional androidx.compose.material.DrawerState drawerState, optional androidx.compose.material.SnackbarHostState snackbarHostState);
   }
 
@@ -493,6 +470,9 @@ package androidx.compose.material {
   public enum SnackbarResult {
     enum_constant public static final androidx.compose.material.SnackbarResult ActionPerformed;
     enum_constant public static final androidx.compose.material.SnackbarResult Dismissed;
+  }
+
+  public final class Strings_androidKt {
   }
 
   public final class SurfaceKt {
@@ -597,8 +577,8 @@ package androidx.compose.material {
 
   public final class TextKt {
     method @androidx.compose.runtime.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void Text-TPAwlIA(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional androidx.compose.ui.text.style.TextOverflow overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
-    method @androidx.compose.runtime.Composable public static void Text-Vh6c2nE(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional androidx.compose.ui.text.style.TextOverflow overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
+    method @androidx.compose.runtime.Composable public static void Text-TPAwlIA(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
+    method @androidx.compose.runtime.Composable public static void Text-Vh6c2nE(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
   }
 

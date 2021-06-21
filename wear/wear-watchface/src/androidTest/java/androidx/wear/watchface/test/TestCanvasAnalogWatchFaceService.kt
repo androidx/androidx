@@ -19,12 +19,14 @@ package androidx.wear.watchface.test
 import android.content.Context
 import android.os.Handler
 import android.view.SurfaceHolder
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.samples.createExampleCanvasAnalogWatchFaceBuilder
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 
 /** A simple canvas test analog watch face for integration tests. */
 internal class TestCanvasAnalogWatchFaceService(
@@ -38,20 +40,37 @@ internal class TestCanvasAnalogWatchFaceService(
 
     private val mutableWatchState = MutableWatchState()
 
+    // We can't subclass ExampleCanvasAnalogWatchFaceService because we want to override internal
+    // methods, so instead we use composition.
+    private val delegate = object : ExampleCanvasAnalogWatchFaceService() {
+        init {
+            attachBaseContext(testContext)
+        }
+    }
+
     init {
         attachBaseContext(testContext)
     }
 
+    override fun createUserStyleSchema() = delegate.createUserStyleSchema()
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = delegate.createComplicationSlotsManager(currentUserStyleRepository)
+
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
-        return createExampleCanvasAnalogWatchFaceBuilder(
-            this,
+        return delegate.createWatchFace(
             surfaceHolder,
-            watchState
+            watchState,
+            complicationSlotsManager,
+            currentUserStyleRepository
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
                 return mockSystemTimeMillis
@@ -61,7 +80,7 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getMutableWatchState() = mutableWatchState
 
-    override fun getHandler() = handler
+    override fun getUiThreadHandlerImpl() = handler
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false

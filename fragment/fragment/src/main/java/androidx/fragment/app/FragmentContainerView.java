@@ -32,9 +32,12 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
+
 /**
  * FragmentContainerView is a customized Layout designed specifically for Fragments. It extends
  * {@link FrameLayout}, so it can reliably handle Fragment Transactions, and it also has additional
@@ -99,6 +102,8 @@ public final class FragmentContainerView extends FrameLayout {
     private ArrayList<View> mDisappearingFragmentChildren;
 
     private ArrayList<View> mTransitioningFragmentViews;
+
+    private OnApplyWindowInsetsListener mApplyWindowInsetsListener;
 
     // Used to indicate whether the FragmentContainerView should override the default ViewGroup
     // drawing order.
@@ -207,6 +212,18 @@ public final class FragmentContainerView extends FrameLayout {
                         + "animateLayoutChanges=\"true\".");
     }
 
+    @Override
+    public void setOnApplyWindowInsetsListener(@NonNull OnApplyWindowInsetsListener listener) {
+        mApplyWindowInsetsListener = listener;
+    }
+
+    @NonNull
+    @RequiresApi(20)
+    @Override
+    public WindowInsets onApplyWindowInsets(@NonNull WindowInsets insets) {
+        return insets;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -215,11 +232,17 @@ public final class FragmentContainerView extends FrameLayout {
     @NonNull
     @RequiresApi(20)
     @Override
-    public WindowInsets onApplyWindowInsets(@NonNull WindowInsets insets) {
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            // Give child views fresh insets.
-            child.dispatchApplyWindowInsets(new WindowInsets(insets));
+    public WindowInsets dispatchApplyWindowInsets(@NonNull WindowInsets insets) {
+        WindowInsetsCompat insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets);
+        WindowInsetsCompat dispatchInsets = mApplyWindowInsetsListener != null
+                ? WindowInsetsCompat.toWindowInsetsCompat(
+                Api20Impl.onApplyWindowInsets(mApplyWindowInsetsListener, this, insets)
+        ) : ViewCompat.onApplyWindowInsets(this, insetsCompat);
+        if (!dispatchInsets.isConsumed()) {
+            int count = getChildCount();
+            for (int i = 0; i < count; i++) {
+                ViewCompat.dispatchApplyWindowInsets(getChildAt(i), dispatchInsets);
+            }
         }
         return insets;
     }
@@ -375,6 +398,34 @@ public final class FragmentContainerView extends FrameLayout {
                 mDisappearingFragmentChildren = new ArrayList<>();
             }
             mDisappearingFragmentChildren.add(v);
+        }
+    }
+
+    /**
+     * This method grabs the {@link Fragment} whose view was most recently
+     * added to the container. This may used as an alternative to calling
+     * {@link FragmentManager#findFragmentById(int)} and passing in the
+     * {@link FragmentContainerView}'s id.
+     *
+     * @return The fragment if any exist, null otherwise.
+     */
+    @Nullable
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"}) // a ClassCastException is
+    // automatically thrown if the given type of F is wrong
+    public <F extends Fragment> F getFragment() {
+        return (F) FragmentManager.findFragmentManager(this).findFragmentById(this.getId());
+    }
+
+    @RequiresApi(20)
+    static class Api20Impl {
+        private Api20Impl() { }
+
+        static WindowInsets onApplyWindowInsets(
+                @NonNull OnApplyWindowInsetsListener onApplyWindowInsetsListener,
+                @NonNull View v,
+                @NonNull WindowInsets insets
+        ) {
+            return onApplyWindowInsetsListener.onApplyWindowInsets(v, insets);
         }
     }
 }

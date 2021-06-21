@@ -18,6 +18,8 @@ package androidx.navigation
 
 import android.net.Uri
 import android.os.Bundle
+import androidx.core.net.toUri
+import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.stringArgument
 import androidx.test.filters.SmallTest
@@ -27,6 +29,61 @@ import org.junit.Test
 
 @SmallTest
 class NavDestinationAndroidTest {
+    @Test
+    fun setBlankRoute() {
+        val destination = NoOpNavigator().createDestination()
+        assertThat(destination.route).isNull()
+        assertThat(destination.id).isEqualTo(0)
+
+        try {
+            destination.route = ""
+        } catch (e: IllegalArgumentException) {
+            assertWithMessage("setting blank route should throw an error")
+                .that(e).hasMessageThat()
+                .contains("Cannot have an empty route")
+        }
+    }
+
+    @Test
+    fun setNullRoute() {
+        val destination = NoOpNavigator().createDestination()
+        assertThat(destination.route).isNull()
+        assertThat(destination.id).isEqualTo(0)
+
+        destination.route = "route"
+        destination.id = 1
+        assertThat(destination.route).isEqualTo("route")
+        assertThat(destination.id).isEqualTo(1)
+        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isTrue()
+
+        destination.route = null
+        assertThat(destination.route).isNull()
+        assertThat(destination.id).isEqualTo(0)
+        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isFalse()
+    }
+
+    @Test
+    fun setRouteChangesId() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = 1
+        assertThat(destination.id).isEqualTo(1)
+
+        destination.route = "test"
+        assertThat(destination.route).isEqualTo("test")
+        assertThat(destination.id).isNotEqualTo(1)
+    }
+
+    @Test
+    fun setIdKeepsRoute() {
+        val destination = NoOpNavigator().createDestination()
+        destination.route = "test"
+        assertThat(destination.route).isEqualTo("test")
+
+        destination.id = 1
+        assertThat(destination.id).isEqualTo(1)
+        assertThat(destination.route).isEqualTo("test")
+    }
+
     @Test
     fun matchDeepLink() {
         val destination = NoOpNavigator().createDestination()
@@ -112,6 +169,26 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchPathTail() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("id", stringArgument())
+        destination.addDeepLink("www.example.com/users/{id}")
+        destination.addDeepLink("www.example.com/users/{id}/posts")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users/u43/posts")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should extract id argument correctly")
+            .that(match?.matchingArgs?.getString("id"))
+            .isEqualTo("u43")
+    }
+
+    @Test
     fun matchDeepLinkBestMimeType() {
         val destination = NoOpNavigator().createDestination()
 
@@ -157,6 +234,17 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun testRouteCreatesValidDeepLink() {
+        val destination = NoOpNavigator().createDestination()
+        destination.route = "route"
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/route")
+        destination.addDeepLink(deepLink.toString())
+
+        assertWithMessage("Deep link should match")
+            .that(destination.hasDeepLink(deepLink)).isTrue()
+    }
+
+    @Test
     fun testIsValidDeepLinkValidLinkPattern() {
         val destination = NoOpNavigator().createDestination()
         destination.addArgument("testString", stringArgument())
@@ -173,6 +261,18 @@ class NavDestinationAndroidTest {
         val destination = NoOpNavigator().createDestination()
 
         val deepLink = Uri.parse("android-app://androidx.navigation.test/invalid")
+
+        assertWithMessage("Deep link should not match")
+            .that(destination.hasDeepLink(deepLink)).isFalse()
+    }
+
+    @Test
+    fun testIsValidDeepLinkInvalidLinkPathTail() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("testString", stringArgument())
+        destination.addDeepLink("android-app://androidx.navigation.test/{testString}")
+
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/extra")
 
         assertWithMessage("Deep link should not match")
             .that(destination.hasDeepLink(deepLink)).isFalse()

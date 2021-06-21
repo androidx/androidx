@@ -19,31 +19,28 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusDirection.Down
-import androidx.compose.ui.focus.FocusDirection.Left
-import androidx.compose.ui.focus.FocusDirection.Next
-import androidx.compose.ui.focus.FocusDirection.Previous
-import androidx.compose.ui.focus.FocusDirection.Right
-import androidx.compose.ui.focus.FocusDirection.Up
+import androidx.compose.ui.focus.FocusDirection.Companion.In
+import androidx.compose.ui.focus.FocusDirection.Companion.Next
+import androidx.compose.ui.focus.FocusDirection.Companion.Out
+import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusManagerImpl
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.DesktopCanvas
-import androidx.compose.ui.input.key.Key.Companion.DirectionDown
-import androidx.compose.ui.input.key.Key.Companion.DirectionLeft
-import androidx.compose.ui.input.key.Key.Companion.DirectionRight
-import androidx.compose.ui.input.key.Key.Companion.DirectionUp
+import androidx.compose.ui.input.key.Key.Companion.Back
+import androidx.compose.ui.input.key.Key.Companion.DirectionCenter
 import androidx.compose.ui.input.key.Key.Companion.Tab
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.KeyInputModifier
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
@@ -55,6 +52,7 @@ import androidx.compose.ui.input.pointer.PointerInputEventProcessor
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerMoveEventFilter
 import androidx.compose.ui.input.pointer.PositionCalculator
+import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.pointer.TestPointerInputEventData
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.layout.boundsInWindow
@@ -71,7 +69,11 @@ import androidx.compose.ui.text.platform.FontLoader
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+
+private typealias Command = () -> Unit
 
 @OptIn(
     ExperimentalComposeUiApi::class,
@@ -79,9 +81,19 @@ import androidx.compose.ui.unit.LayoutDirection
 )
 internal class DesktopOwner(
     val container: DesktopOwners,
-    density: Density = Density(1f, 1f)
+    density: Density = Density(1f, 1f),
+    val isPopup: Boolean = false,
+    val isFocusable: Boolean = true,
+    val onDismissRequest: (() -> Unit)? = null,
+    private val onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    private val onKeyEvent: (KeyEvent) -> Boolean = { false },
 ) : Owner, RootForTest, DesktopRootForTest, PositionCalculator {
-    internal var size by mutableStateOf(IntSize(0, 0))
+
+    internal fun isHovered(point: IntOffset): Boolean {
+        return bounds.contains(point)
+    }
+
+    internal var bounds by mutableStateOf(IntRect.Zero)
 
     override var density by mutableStateOf(density)
 
@@ -108,13 +120,11 @@ internal class DesktopOwner(
     //  that this common logic can be used by all owners.
     private val keyInputModifier: KeyInputModifier = KeyInputModifier(
         onKeyEvent = {
-            if (it.type == KeyEventType.KeyDown) {
-                getFocusDirection(it)?.let { direction ->
-                    focusManager.moveFocus(direction)
-                    return@KeyInputModifier true
-                }
-            }
-            false
+            val focusDirection = getFocusDirection(it)
+            if (focusDirection == null || it.type != KeyDown) return@KeyInputModifier false
+
+            // Consume the key event if we moved focus.
+            focusManager.moveFocus(focusDirection)
         },
         onPreviewKeyEvent = null
     )
@@ -124,12 +134,18 @@ internal class DesktopOwner(
         it.modifier = semanticsModifier
             .then(_focusManager.modifier)
             .then(keyInputModifier)
+            .then(
+                KeyInputModifier(
+                    onKeyEvent = onKeyEvent,
+                    onPreviewKeyEvent = onPreviewKeyEvent
+                )
+            )
     }
 
     override val rootForTest = this
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
-        command()
+        onDispatchCommand?.invoke(command)
     }
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
     private val measureAndLayoutDelegate = MeasureAndLayoutDelegate(root)
@@ -138,6 +154,9 @@ internal class DesktopOwner(
         container.register(this)
         snapshotObserver.startObserving()
         root.attach(this)
+        if (isFocusable) {
+            container.focusedOwner = this
+        }
         _focusManager.takeFocus()
     }
 
@@ -191,6 +210,7 @@ internal class DesktopOwner(
     override fun onDetach(node: LayoutNode) {
         measureAndLayoutDelegate.onNodeDetached(node)
         snapshotObserver.clear(node)
+        needClearObservations = true
     }
 
     override val measureIteration: Long get() = measureAndLayoutDelegate.measureIteration
@@ -200,6 +220,7 @@ internal class DesktopOwner(
 
     val needsRender get() = needsLayout || needsDraw
     var onNeedsRender: (() -> Unit)? = null
+    var onDispatchCommand: ((Command) -> Unit)? = null
 
     fun render(canvas: org.jetbrains.skija.Canvas, width: Int, height: Int) {
         needsLayout = false
@@ -207,6 +228,16 @@ internal class DesktopOwner(
         measureAndLayout()
         needsDraw = false
         draw(canvas)
+        clearInvalidObservations()
+    }
+
+    private var needClearObservations = false
+
+    private fun clearInvalidObservations() {
+        if (needClearObservations) {
+            snapshotObserver.clearInvalidObservations()
+            needClearObservations = false
+        }
     }
 
     private fun requestLayout() {
@@ -243,25 +274,30 @@ internal class DesktopOwner(
         drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
     ) = SkijaLayer(
-        this::density,
+        density,
         invalidateParentLayer = {
             invalidateParentLayer()
             requestDraw()
         },
-        drawBlock = drawBlock
+        drawBlock = drawBlock,
+        onDestroy = { needClearObservations = true }
     )
 
     override fun onSemanticsChange() = Unit
 
     override fun onLayoutChange(layoutNode: LayoutNode) = Unit
 
-    override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? = when (keyEvent.key) {
-        Tab -> if (keyEvent.isShiftPressed) Previous else Next
-        DirectionRight -> Right
-        DirectionLeft -> Left
-        DirectionUp -> Up
-        DirectionDown -> Down
-        else -> null
+    override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
+        return when (keyEvent.key) {
+            Tab -> if (keyEvent.isShiftPressed) Previous else Next
+            DirectionCenter -> In
+            Back -> Out
+            else -> null
+        }
+    }
+
+    override fun requestRectangleOnScreen(rect: Rect) {
+        // TODO: Scroll the owner to bring the specified rectangle into view.
     }
 
     override fun calculatePositionInWindow(localPosition: Offset): Offset = localPosition
@@ -274,7 +310,12 @@ internal class DesktopOwner(
 
     fun setSize(width: Int, height: Int) {
         val constraints = Constraints(0, width, 0, height)
-        this.size = IntSize(width, height)
+        if (!isPopup) {
+            this.bounds = IntRect(
+                IntOffset(bounds.left, bounds.top),
+                IntSize(width, height)
+            )
+        }
         measureAndLayoutDelegate.updateRootConstraints(constraints)
     }
 
@@ -282,9 +323,9 @@ internal class DesktopOwner(
         root.draw(DesktopCanvas(canvas))
     }
 
-    internal fun processPointerInput(event: PointerInputEvent) {
+    internal fun processPointerInput(event: PointerInputEvent): ProcessResult {
         measureAndLayout()
-        pointerInputEventProcessor.process(event, this)
+        return pointerInputEventProcessor.process(event, this)
     }
 
     override fun processPointerInput(nanoTime: Long, pointers: List<TestPointerInputEventData>) {
@@ -356,6 +397,36 @@ internal class DesktopOwner(
         }
 
         oldMoveFilters = newMoveFilters.filterIsInstance<PointerMoveEventFilter>()
+        newMoveFilters = mutableListOf()
+    }
+
+    internal fun onPointerEnter(position: Offset) {
+        var onEnterConsumed = false
+        // TODO: do we actually need that?
+        measureAndLayout()
+        root.hitTest(position, newMoveFilters)
+        for (
+            filter in newMoveFilters
+                .asReversed()
+                .asSequence()
+                .filterIsInstance<PointerMoveEventFilter>()
+        ) {
+            if (!onEnterConsumed) {
+                onEnterConsumed = filter.onEnterHandler()
+            }
+        }
+        oldMoveFilters = newMoveFilters.filterIsInstance<PointerMoveEventFilter>()
+        newMoveFilters = mutableListOf()
+    }
+
+    internal fun onPointerExit() {
+        var onExitConsumed = false
+        for (filter in oldMoveFilters.asReversed()) {
+            if (!onExitConsumed) {
+                onExitConsumed = filter.onExitHandler()
+            }
+        }
+        oldMoveFilters = listOf()
         newMoveFilters = mutableListOf()
     }
 }

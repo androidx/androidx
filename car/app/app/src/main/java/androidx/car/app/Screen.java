@@ -244,12 +244,13 @@ public abstract class Screen implements LifecycleOwner {
      *   <li>{@link androidx.car.app.model.MessageTemplate}
      * </ul>
      *
-     * If the 5 template quota is exhausted and the app attempts to send a new template, the host
-     * will display an error message to the user. Note that this limit applies to the number of
-     * templates, and not the number of screen instances in the stack. For example, if while in
-     * screen A an app sends 2 templates, and then pushes screen B, it can now send 3 more
-     * templates. Alternatively, if each screen is structured to send a single template, then the
-     * app can push 5 {@link Screen} instances onto the {@link ScreenManager} stack.
+     * <p><b>If the 5 template quota is exhausted and the app attempts to send a new template, the
+     * host will display an error message to the user before closing the app.</b> Note that this
+     * limit applies to the number of templates, and not the number of screen instances in the
+     * stack. For example, if while in screen A an app sends 2 templates, and then pushes screen
+     * B, it can now send 3 more templates. Alternatively, if each screen is structured to send a
+     * single template, then the app can push 5 {@link Screen} instances onto the
+     * {@link ScreenManager} stack.
      *
      * <p>There are special cases to these restrictions: template refreshes, back and reset
      * operations.
@@ -314,6 +315,12 @@ public abstract class Screen implements LifecycleOwner {
     void dispatchLifecycleEvent(Event event) {
         ThreadUtils.runOnMain(
                 () -> {
+                    State currentState = mLifecycleRegistry.getCurrentState();
+                    // Avoid handling further events if the screen is already marked as destroyed.
+                    if (!currentState.isAtLeast(State.INITIALIZED)) {
+                        return;
+                    }
+
                     if (event == Event.ON_DESTROY) {
                         mOnScreenResultListener.onScreenResult(mResult);
                     }

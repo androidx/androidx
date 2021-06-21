@@ -39,12 +39,12 @@ public class OptionWireFormat implements VersionedParcelable, Parcelable {
     /** Identifier for the option, must be unique within the UserStyleCategory. */
     @ParcelField(1)
     @NonNull
-    public String mId = "";
+    public byte[] mId = new byte[0];
 
     OptionWireFormat() {
     }
 
-    public OptionWireFormat(@NonNull String id) {
+    public OptionWireFormat(@NonNull byte[] id) {
         mId = id;
     }
 

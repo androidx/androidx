@@ -22,6 +22,7 @@ import androidx.compose.ui.inspection.testdata.ParametersTestActivity
 import androidx.compose.ui.inspection.util.GetComposablesCommand
 import androidx.compose.ui.inspection.util.GetParameterDetailsCommand
 import androidx.compose.ui.inspection.util.GetParametersCommand
+import androidx.compose.ui.inspection.util.flatten
 import androidx.compose.ui.inspection.util.toMap
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -48,7 +49,7 @@ class ParametersTest {
         val params = rule.inspectorTester.sendCommand(GetParametersCommand(rule.rootId, text.id))
             .getParametersResponse
 
-        val resourceValue = params.find("fontFamily")!!.resourceValue
+        val resourceValue = params.find("fontFamily").resourceValue
         assertThat(resourceValue.type.resolve(params)).isEqualTo("font")
         assertThat(resourceValue.namespace.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.test")
@@ -65,10 +66,28 @@ class ParametersTest {
         val params = rule.inspectorTester.sendCommand(GetParametersCommand(rule.rootId, buttonId))
             .getParametersResponse
 
-        val lambdaValue = params.find("onClick")!!.lambdaValue
+        val lambdaValue = params.find("onClick").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
-        assertThat(lambdaValue.startLineNumber).isEqualTo(48)
-        assertThat(lambdaValue.endLineNumber).isEqualTo(48)
+        assertThat(lambdaValue.startLineNumber).isEqualTo(52)
+        assertThat(lambdaValue.endLineNumber).isEqualTo(52)
+        assertThat(lambdaValue.packageName.resolve(params))
+            .isEqualTo("androidx.compose.ui.inspection.testdata")
+    }
+
+    @Test
+    fun contentLambda(): Unit = runBlocking {
+        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
+            .getComposablesResponse
+
+        val buttons = composables.filter("SomeContent")
+        val someId = buttons.single().id
+        val params = rule.inspectorTester.sendCommand(GetParametersCommand(rule.rootId, someId))
+            .getParametersResponse
+
+        val lambdaValue = params.find("content").lambdaValue
+        assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
+        assertThat(lambdaValue.startLineNumber).isEqualTo(61)
+        assertThat(lambdaValue.endLineNumber).isEqualTo(64)
         assertThat(lambdaValue.packageName.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.testdata")
     }
@@ -83,10 +102,10 @@ class ParametersTest {
         val params = rule.inspectorTester.sendCommand(GetParametersCommand(rule.rootId, buttonId))
             .getParametersResponse
 
-        val lambdaValue = params.find("onClick")!!.lambdaValue
+        val lambdaValue = params.find("onClick").lambdaValue
         assertThat(lambdaValue.fileName.resolve(params)).isEqualTo("ParametersTestActivity.kt")
-        assertThat(lambdaValue.startLineNumber).isEqualTo(51)
-        assertThat(lambdaValue.endLineNumber).isEqualTo(51)
+        assertThat(lambdaValue.startLineNumber).isEqualTo(55)
+        assertThat(lambdaValue.endLineNumber).isEqualTo(55)
         assertThat(lambdaValue.functionName.resolve(params)).isEqualTo("testClickHandler")
         assertThat(lambdaValue.packageName.resolve(params))
             .isEqualTo("androidx.compose.ui.inspection.testdata")
@@ -101,7 +120,7 @@ class ParametersTest {
         val params = tester.sendCommand(GetParametersCommand(rule.rootId, function.id))
             .getParametersResponse
 
-        val intArray = params.find("intArray")!!
+        val intArray = params.find("intArray")
         var strings = params.stringsList
 
         checkStringParam(strings, intArray, "intArray", "IntArray[8]", 0)
@@ -129,17 +148,76 @@ class ParametersTest {
         checkIntParam(strings, intArray2.elementsList[1], "[6]", 16, 6)
         checkIntParam(strings, intArray2.elementsList[2], "[7]", 17, 7)
     }
+
+    @Test
+    fun unmergedSemantics(): Unit = runBlocking {
+        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
+            .getComposablesResponse
+
+        val texts = composables.filter("Text")
+        val textOne = texts.first().id
+        val params = rule.inspectorTester.sendCommand(GetParametersCommand(rule.rootId, textOne))
+            .getParametersResponse
+
+        val text = params.findUnmerged("Text")
+        assertThat(text.type).isEqualTo(Parameter.Type.ITERABLE)
+        val strings = params.stringsList
+        val first = text.elementsList[0]
+
+        assertThat(strings.toMap()[text.name]).isEqualTo("Text")
+        assertThat(strings.toMap()[first.int32Value]).isEqualTo("one")
+        assertThat(text.elementsList.size).isEqualTo(1)
+    }
+
+    @Test
+    fun mergedSemantics(): Unit = runBlocking {
+        val composables = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
+            .getComposablesResponse
+
+        val texts = composables.filter("Column")
+        val id = texts.first().id
+        val params = rule.inspectorTester.sendCommand(GetParametersCommand(rule.rootId, id))
+            .getParametersResponse
+
+        val text = params.findMerged("Text")
+        val strings = params.stringsList
+
+        assertThat(text.type).isEqualTo(Parameter.Type.ITERABLE)
+        val first = text.elementsList[0]
+        val second = text.elementsList[1]
+        val third = text.elementsList[2]
+
+        assertThat(strings.toMap()[text.name]).isEqualTo("Text")
+        assertThat(strings.toMap()[first.int32Value]).isEqualTo("three")
+        assertThat(strings.toMap()[second.int32Value]).isEqualTo("four")
+        assertThat(strings.toMap()[third.int32Value]).isEqualTo("five")
+        assertThat(text.elementsList.size).isEqualTo(3)
+    }
 }
 
 private fun Int.resolve(response: GetParametersResponse): String? {
     return response.stringsList.toMap()[this]
 }
 
-private fun GetParametersResponse.find(name: String): Parameter? {
+private fun GetParametersResponse.find(name: String): Parameter {
     val strings = stringsList.toMap()
-    return parameterGroup.parameterList.find {
-        strings[it.name] == name
-    }
+    val params = parameterGroup.parameterList.associateBy { strings[it.name] }
+    return params[name]
+        ?: error("$name not found in parameters. Found: ${params.keys.joinToString()}")
+}
+
+private fun GetParametersResponse.findUnmerged(name: String): Parameter {
+    val strings = stringsList.toMap()
+    val semantics = parameterGroup.unmergedSemanticsList.associateBy { strings[it.name] }
+    return semantics[name]
+        ?: error("$name not found in unmerged semantics. Found: ${semantics.keys.joinToString()}")
+}
+
+private fun GetParametersResponse.findMerged(name: String): Parameter {
+    val strings = stringsList.toMap()
+    val semantics = parameterGroup.mergedSemanticsList.associateBy { strings[it.name] }
+    return semantics[name]
+        ?: error("$name not found in merged semantics. Found: ${semantics.keys.joinToString()}")
 }
 
 private fun GetComposablesResponse.filter(name: String): List<ComposableNode> {
@@ -148,9 +226,6 @@ private fun GetComposablesResponse.filter(name: String): List<ComposableNode> {
         strings[it.name] == name
     }
 }
-
-private fun ComposableNode.flatten(): List<ComposableNode> =
-    listOf(this).plus(this.childrenList.flatMap { it.flatten() })
 
 @Suppress("SameParameterValue")
 private fun checkStringParam(

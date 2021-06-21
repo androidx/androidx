@@ -21,8 +21,8 @@ import androidx.compose.desktop.WindowEvents
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.window.Menu
-import androidx.compose.ui.window.MenuBar
+import androidx.compose.ui.window.v1.Menu
+import androidx.compose.ui.window.v1.MenuBar
 import javax.swing.SwingUtilities
 
 fun main() = SwingUtilities.invokeLater {
@@ -78,7 +78,7 @@ fun main() = SwingUtilities.invokeLater {
         )
     ).show {
         CompositionLocalProvider(
-            AmbientTest provides 42
+            LocalTest provides 42
         ) {
             content()
         }

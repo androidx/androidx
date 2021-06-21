@@ -27,8 +27,8 @@ import javax.lang.model.SourceVersion
 @AutoService(Processor::class)
 @IncrementalAnnotationProcessor(ISOLATING)
 class ResourceInspectionProcessor : BasicAnnotationProcessor() {
-    override fun initSteps(): Iterable<ProcessingStep> {
-        return listOf(LayoutInspectionProcessingStep(processingEnv, this::class.java))
+    override fun steps(): Iterable<Step> {
+        return listOf(LayoutInspectionStep(processingEnv, this::class.java))
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {

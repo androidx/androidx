@@ -528,7 +528,6 @@ public class DetailsFragment extends BaseFragment {
         }
         mRootView = null;
         mBackgroundView = null;
-        mBackgroundDrawable = null;
         mRowsFragment = null;
         mVideoFragment = null;
         mSceneAfterEntranceTransition = null;

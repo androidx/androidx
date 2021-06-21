@@ -56,6 +56,8 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
@@ -83,6 +85,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class PreviewExtenderTest {
     private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
@@ -401,7 +404,7 @@ public class PreviewExtenderTest {
 
     private class FakePreviewExtender extends PreviewExtender {
         FakePreviewExtender(Preview.Builder builder, PreviewExtenderImpl impl) {
-            init(builder, impl, Extensions.EXTENSION_MODE_NONE);
+            init(builder, impl, ExtensionMode.NONE);
         }
     }
 

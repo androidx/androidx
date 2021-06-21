@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
 
 plugins {
@@ -30,7 +25,7 @@ plugins {
 
 dependencies {
     api project(":work:work-runtime")
-    implementation(GCM_NETWORK_MANAGER)
+    implementation(libs.gcmNetworkManager)
     // Using -Pandroidx.useMaxDepVersions does not use the right version of the annotation processor
     // Remove this workaround after b/127495641 is fixed
     if (project.hasProperty("androidx.useMaxDepVersions")) {
@@ -44,13 +39,13 @@ dependencies {
     }
 
     androidTestImplementation(project(":work:work-runtime-ktx"))
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
-    testImplementation(JUNIT)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
+    testImplementation(libs.junit)
 }
 
 androidx {

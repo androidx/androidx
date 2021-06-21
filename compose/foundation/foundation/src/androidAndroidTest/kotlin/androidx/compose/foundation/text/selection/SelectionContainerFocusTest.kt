@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.CoreText
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -33,6 +34,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasTestTag
@@ -41,11 +43,6 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performGesture
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.test.R
-import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -72,11 +69,7 @@ class SelectionContainerFocusTest {
     private lateinit var view: View
 
     private val textContent = "Text Demo Text"
-    private val fontFamily = Font(
-        resId = R.font.sample_font,
-        weight = FontWeight.Normal,
-        style = FontStyle.Normal
-    ).toFontFamily()
+    private val fontFamily = TEST_FONT_FAMILY
 
     private val selection1 = mutableStateOf<Selection?>(null)
     private val selection2 = mutableStateOf<Selection?>(null)
@@ -163,7 +156,8 @@ class SelectionContainerFocusTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalHapticFeedback provides hapticFeedback,
-                LocalLayoutDirection provides layoutDirection
+                LocalLayoutDirection provides layoutDirection,
+                LocalTextToolbar provides mock()
             ) {
                 Column {
                     SelectionContainer(

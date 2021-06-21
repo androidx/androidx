@@ -16,16 +16,20 @@
 
 package androidx.benchmark.macro
 
-import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.macro.perfetto.UiState
+import androidx.benchmark.macro.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
@@ -39,7 +43,6 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
         )
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         !applicationInfo.isProfileableByShell
     } else {
@@ -89,7 +92,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
  *
  * This function is a building block for public testing APIs
  */
-internal fun macrobenchmark(
+private fun macrobenchmark(
     uniqueName: String,
     className: String,
     testName: String,
@@ -110,6 +113,9 @@ internal fun macrobenchmark(
     require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         "Macrobenchmark currently requires Android 10 (API 29) or greater."
     }
+
+    // skip benchmark if not supported by vm settings
+    compilationMode.assumeSupportedWithVmSettings()
 
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
@@ -152,11 +158,23 @@ internal fun macrobenchmark(
             }!!
 
             tracePaths.add(tracePath)
-            metrics
+            val metricsWithUiState = metrics
                 // capture list of Map<String,Long> per metric
                 .map { it.getMetrics(packageName, tracePath) }
                 // merge into one map
                 .reduce { sum, element -> sum + element }
+
+            // append UI state to trace, so tools opening trace will highlight relevant part in UI
+            val uiState = UiState(
+                timelineStart = metricsWithUiState.timelineStart,
+                timelineEnd = metricsWithUiState.timelineEnd,
+                highlightPackage = packageName
+            )
+            File(tracePath).appendUiState(uiState)
+            Log.d(TAG, "Iteration $iteration captured $uiState")
+
+            // report just the metrics
+            metricsWithUiState.metrics
         }.mergeToMetricResults(tracePaths)
 
         require(metricResults.isNotEmpty()) {
@@ -202,7 +220,13 @@ internal fun macrobenchmark(
     }
 }
 
-fun macrobenchmarkWithStartupMode(
+/**
+ * Run a macrobenchmark with the specified StartupMode
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
     testName: String,

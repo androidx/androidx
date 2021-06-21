@@ -1,0 +1,17 @@
+// Signature format: 4.0
+package androidx.wear.tiles.testing {
+
+  public final class TestingTileProviderClient<T extends androidx.wear.tiles.TileProviderService> implements androidx.wear.tiles.client.TileProviderClient {
+    ctor public TestingTileProviderClient(T service, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    ctor public TestingTileProviderClient(T service, java.util.concurrent.Executor executor);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> getApiVersion();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileAdded();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileEnter();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileLeave();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileRemoved();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> resourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> tileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+  }
+
+}
+

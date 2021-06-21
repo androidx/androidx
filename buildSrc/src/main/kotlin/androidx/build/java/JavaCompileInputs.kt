@@ -18,13 +18,11 @@ package androidx.build.java
 
 import androidx.build.doclava.androidJarFile
 import androidx.build.multiplatformExtension
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.SourceKind
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
-import java.io.File
 
 // JavaCompileInputs contains the information required to compile Java/Kotlin code
 // This can be helpful for creating Metalava and Dokka tasks with the same settings
@@ -36,14 +34,14 @@ data class JavaCompileInputs(
     val dependencyClasspath: FileCollection,
 
     // Android's boot classpath.
-    val bootClasspath: Collection<File>
+    val bootClasspath: FileCollection
 ) {
     companion object {
         // Constructs a JavaCompileInputs from a library and its variant
         fun fromLibraryVariant(
-            library: LibraryExtension,
             variant: BaseVariant,
-            project: Project
+            project: Project,
+            bootClasspath: FileCollection
         ): JavaCompileInputs {
             val sourceCollection = getSourceCollection(variant, project)
 
@@ -54,7 +52,7 @@ data class JavaCompileInputs(
             return JavaCompileInputs(
                 sourceCollection,
                 dependencyClasspath,
-                library.bootClasspath
+                bootClasspath
             )
         }
 
@@ -66,16 +64,7 @@ data class JavaCompileInputs(
                 })
             )
             val dependencyClasspath = sourceSet.compileClasspath
-            return fromSourcesAndDeps(sourcePaths, dependencyClasspath, project)
-        }
-
-        fun fromSourcesAndDeps(
-            sourcePaths: FileCollection,
-            dependencyClasspath: FileCollection,
-            project: Project
-        ): JavaCompileInputs {
-            val bootClasspath: Collection<File> = androidJarFile(project).files
-            return JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
+            return JavaCompileInputs(sourcePaths, dependencyClasspath, androidJarFile(project))
         }
 
         private fun getSourceCollection(variant: BaseVariant, project: Project): FileCollection {

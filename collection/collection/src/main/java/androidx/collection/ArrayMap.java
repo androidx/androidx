@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -190,108 +191,15 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         return values;
     }
 
-    final class EntrySet implements Set<Map.Entry<K, V>> {
+    final class EntrySet extends AbstractSet<Map.Entry<K, V>> {
         @Override
-        public boolean add(Map.Entry<K, V> object) {
-            // TODO support
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends Map.Entry<K, V>> collection) {
-            int oldSize = mSize;
-            for (Map.Entry<K, V> entry : collection) {
-                put(entry.getKey(), entry.getValue());
-            }
-            return oldSize != mSize; // TODO broken heuristic
-        }
-
-        @Override
-        public void clear() {
-            ArrayMap.this.clear();
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            if (!(o instanceof Map.Entry))
-                return false;
-            Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-            int index = indexOfKey(e.getKey());
-            if (index < 0) {
-                return false;
-            }
-            V foundVal = valueAt(index);
-            return ContainerHelpers.equal(foundVal, e.getValue());
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> collection) {
-            for (Object o : collection) {
-                if (!contains(o)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return ArrayMap.this.isEmpty();
-        }
-
-        @Override
-        public Iterator<Map.Entry<K, V>> iterator() {
+        public Iterator<Entry<K, V>> iterator() {
             return new MapIterator();
-        }
-
-        @Override
-        public boolean remove(Object object) {
-            // TODO support
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> collection) {
-            // TODO support
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> collection) {
-            // TODO support
-            throw new UnsupportedOperationException();
         }
 
         @Override
         public int size() {
             return mSize;
-        }
-
-        @Override
-        public Object[] toArray() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public <T> T[] toArray(T[] array) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            return equalsSetHelper(this, object);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = 0;
-            for (int i=mSize-1; i>=0; i--) {
-                K key = keyAt(i);
-                V value = valueAt(i);
-                result += ( (key == null ? 0 : key.hashCode()) ^
-                        (value == null ? 0 : value.hashCode()) );
-            }
-            return result;
         }
     }
 

@@ -1,0 +1,145 @@
+column {
+  width {
+    expanded_dimension {}
+  }
+  horizontal_alignment {
+    value: HORIZONTAL_ALIGN_CENTER
+  }
+  contents {
+    box {
+      modifiers {
+        border {
+          width {
+            value: 1
+          }
+          color {
+            argb: 0xFFFF0000
+          }
+        }
+      }
+      horizontal_alignment {
+        value: HORIZONTAL_ALIGN_START
+      }
+      width {
+        linear_dimension {
+          value: 24
+        }
+      }
+      height {
+        linear_dimension {
+          value: 48
+        }
+      }
+      contents {
+        image {
+          resource_id {
+            value: "android_withbg_120dp"
+          }
+          width {
+            proportional_dimension {
+              aspect_ratio_width: 1
+              aspect_ratio_height: 1
+            }
+          }
+          height {
+            linear_dimension {
+              value: 48
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    box {
+      modifiers {
+        border {
+          width {
+            value: 1
+          }
+          color {
+            argb: 0xFFFFFF00
+          }
+        }
+      }
+      horizontal_alignment {
+        value: HORIZONTAL_ALIGN_CENTER
+      }
+      width {
+        linear_dimension {
+          value: 24
+        }
+      }
+      height {
+        linear_dimension {
+          value: 48
+        }
+      }
+      contents {
+        image {
+          resource_id {
+            value: "android_withbg_120dp"
+          }
+          width {
+            proportional_dimension {
+              aspect_ratio_width: 1
+              aspect_ratio_height: 1
+            }
+          }
+          height {
+            linear_dimension {
+              value: 48
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    box {
+      modifiers {
+        border {
+          width {
+            value: 1
+          }
+          color {
+            argb: 0xFF0000FF
+          }
+        }
+      }
+      horizontal_alignment {
+        value: HORIZONTAL_ALIGN_END
+      }
+      width {
+        linear_dimension {
+          value: 24
+        }
+      }
+      height {
+        linear_dimension {
+          value: 48
+        }
+      }
+      contents {
+        image {
+          resource_id {
+            value: "android_withbg_120dp"
+          }
+          width {
+            proportional_dimension {
+              aspect_ratio_width: 1
+              aspect_ratio_height: 1
+            }
+          }
+          height {
+            linear_dimension {
+              value: 48
+            }
+          }
+        }
+      }
+    }
+  }
+}

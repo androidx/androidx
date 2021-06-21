@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.R;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 
 class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
     private static final String TAG = FragmentManager.TAG;
@@ -130,6 +131,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
                         + "re-attached via the <fragment> tag: id=0x" + Integer.toHexString(id));
             }
         }
+        FragmentStrictMode.onFragmentTagUsage(fragment, (ViewGroup) parent);
 
         // Explicitly set the container for the fragment as we already know
         // the parent that the fragment will be added to by the LayoutInflater

@@ -130,7 +130,12 @@ private const val PointerInputModifierNoParamError =
  */
 // This deprecated-error function shadows the varargs overload so that the varargs version
 // is not used without key parameters.
-@Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER", "unused")
+@Suppress(
+    "DeprecatedCallableAddReplaceWith",
+    "UNUSED_PARAMETER",
+    "unused",
+    "ModifierFactoryUnreferencedReceiver"
+)
 @Deprecated(PointerInputModifierNoParamError, level = DeprecationLevel.ERROR)
 fun Modifier.pointerInput(
     block: suspend PointerInputScope.() -> Unit
@@ -142,7 +147,8 @@ fun Modifier.pointerInput(
  * [pointerInput] [block]s may call [PointerInputScope.awaitPointerEventScope] to install a pointer
  * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume
  * pointer input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope]
- * may be defined to perform higher-level gesture detection.
+ * may be defined to perform higher-level gesture detection. The pointer input handling [block]
+ * will be cancelled and **re-started** when [pointerInput] is recomposed with a different [key1].
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -169,7 +175,9 @@ fun Modifier.pointerInput(
  * [pointerInput] [block]s may call [PointerInputScope.awaitPointerEventScope] to install a pointer
  * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume
  * pointer input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope]
- * may be defined to perform higher-level gesture detection.
+ * may be defined to perform higher-level gesture detection. The pointer input handling [block]
+ * will be cancelled and **re-started** when [pointerInput] is recomposed with a different [key1] or
+ * [key2].
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -198,7 +206,8 @@ fun Modifier.pointerInput(
  * [pointerInput] [block]s may call [PointerInputScope.awaitPointerEventScope] to install a pointer
  * input handler that can [AwaitPointerEventScope.awaitPointerEvent] to receive and consume
  * pointer input events. Extension functions on [PointerInputScope] or [AwaitPointerEventScope]
- * may be defined to perform higher-level gesture detection.
+ * may be defined to perform higher-level gesture detection. The pointer input handling [block]
+ * will be cancelled and **re-started** when [pointerInput] is recomposed with any different [keys].
  */
 fun Modifier.pointerInput(
     vararg keys: Any?,
@@ -220,6 +229,8 @@ fun Modifier.pointerInput(
 }
 
 private val DownChangeConsumed = ConsumedData(downChange = true)
+
+private val EmptyPointerEvent = PointerEvent(emptyList())
 
 /**
  * Implementation notes:
@@ -247,7 +258,7 @@ internal class SuspendingPointerInputFilter(
     override val pointerInputFilter: PointerInputFilter
         get() = this
 
-    private var currentEvent: PointerEvent? = null
+    private var currentEvent: PointerEvent = EmptyPointerEvent
 
     /**
      * Actively registered input handlers from currently ongoing calls to [awaitPointerEventScope].
@@ -407,9 +418,7 @@ internal class SuspendingPointerInputFilter(
         private var awaitPass: PointerEventPass = PointerEventPass.Main
 
         override val currentEvent: PointerEvent
-            get() = checkNotNull(this@SuspendingPointerInputFilter.currentEvent) {
-                "cannot access currentEvent outside of input dispatch"
-            }
+            get() = this@SuspendingPointerInputFilter.currentEvent
         override val size: IntSize
             get() = this@SuspendingPointerInputFilter.boundsSize
         override val viewConfiguration: ViewConfiguration

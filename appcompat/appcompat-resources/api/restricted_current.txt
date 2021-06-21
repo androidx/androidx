@@ -51,7 +51,7 @@ package androidx.appcompat.widget {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DrawableUtils {
     method public static boolean canSafelyMutateDrawable(android.graphics.drawable.Drawable);
-    method public static android.graphics.Rect! getOpticalBounds(android.graphics.drawable.Drawable!);
+    method public static android.graphics.Rect getOpticalBounds(android.graphics.drawable.Drawable);
     method public static android.graphics.PorterDuff.Mode! parseTintMode(int, android.graphics.PorterDuff.Mode!);
     field public static final android.graphics.Rect! INSETS_NONE;
   }

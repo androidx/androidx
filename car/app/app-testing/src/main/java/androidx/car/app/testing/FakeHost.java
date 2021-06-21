@@ -33,7 +33,10 @@ import androidx.car.app.ICarHost;
 import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.Screen;
 import androidx.car.app.navigation.INavigationHost;
+import androidx.car.app.notification.CarAppNotificationBroadcastReceiver;
 import androidx.car.app.serialization.Bundleable;
+
+import org.robolectric.Shadows;
 
 /**
  * A fake that simulates the behavior of the host of a car app.
@@ -53,15 +56,6 @@ public class FakeHost {
     /**
      * Sends the given pending intent as if the user clicked on a notification action.
      *
-     * <p>You can retrieve the sent {@link Intent} using:
-     *
-     * <pre>
-     *   {@code Shadows.shadowOf(TestCarContext.getCarContext()).getBroadcastIntents()}
-     * </pre>
-     *
-     * <p>You can then test your {@link android.content.BroadcastReceiver} by calling {@link
-     * android.content.BroadcastReceiver#onReceive} with the {@link Intent} that was fired.
-     *
      * @throws NullPointerException if {@code pendingIntent} is {@code null}
      */
     public void performNotificationActionClick(@NonNull PendingIntent pendingIntent) {
@@ -78,6 +72,10 @@ public class FakeHost {
         } catch (CanceledException e) {
             throw new IllegalStateException("Unable to broadcast intent " + pendingIntent, e);
         }
+
+        Intent broadcastedIntent = Shadows.shadowOf(mTestCarContext).getBroadcastIntents().get(0);
+
+        new CarAppNotificationBroadcastReceiver().onReceive(mTestCarContext, broadcastedIntent);
     }
 
     FakeHost(TestCarContext testCarContext) {

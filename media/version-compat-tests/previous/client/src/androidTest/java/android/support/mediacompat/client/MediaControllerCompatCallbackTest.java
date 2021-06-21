@@ -18,6 +18,7 @@ package android.support.mediacompat.client;
 
 import static android.media.AudioManager.STREAM_MUSIC;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
+import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE_AND_THEN_SET_PLAYBACK_STATE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_EXTRAS;
@@ -46,7 +47,6 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_QUE
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.TEST_VALUE;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
-import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaSessionMethod;
 import static android.support.mediacompat.testlib.util.TestUtil.assertBundleEquals;
@@ -68,6 +68,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -77,7 +78,6 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -85,9 +85,11 @@ import android.support.v4.media.session.ParcelableVolumeInfo;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
+import androidx.media.VolumeProviderCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -97,6 +99,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test {@link MediaControllerCompat.Callback}.
@@ -197,6 +201,7 @@ public class MediaControllerCompatCallbackTest {
     /**
      * Tests {@link MediaSessionCompat#setFlags}.
      */
+    @SuppressWarnings("deprecation")
     @Test
     @SmallTest
     public void testSetFlags() throws Exception {
@@ -208,10 +213,8 @@ public class MediaControllerCompatCallbackTest {
                 @Override
                 public boolean check() {
                     int expectedFlags = TEST_FLAGS;
-                    if (VERSION_TOT.equals(mServiceVersion)) {
-                        expectedFlags |= MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS;
-                        expectedFlags |= MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
-                    }
+                    expectedFlags |= MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS;
+                    expectedFlags |= MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
                     return expectedFlags == mController.getFlags();
                 }
             }.run();
@@ -569,33 +572,251 @@ public class MediaControllerCompatCallbackTest {
 
     @Test
     @SmallTest
-    public void testSessionReady() throws Exception {
-        if (android.os.Build.VERSION.SDK_INT < 21) {
-            return;
-        }
-
-        final MediaSessionCompat.Token tokenWithoutExtraBinder =
-                MediaSessionCompat.Token.fromToken(mSessionToken.getToken());
-
-        final MediaControllerCallback callback = new MediaControllerCallback();
-        synchronized (mWaitLock) {
+    @SdkSuppress(minSdkVersion = 21)
+    public void testOnSessionReadyCalled_extraBinderIsReadyWhenRegisteringCallback()
+            throws Exception {
+        mController = null;
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        synchronized (callback.mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
                 @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {
-                        MediaControllerCompat controller = new MediaControllerCompat(
-                                getInstrumentation().getTargetContext(), tokenWithoutExtraBinder);
-                        controller.registerCallback(callback, new Handler());
-                        assertFalse(controller.isSessionReady());
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                mSessionToken /* This token has an extra binder in it */);
+                        mController.registerCallback(callback, new Handler());
+                        assertTrue(mController.isSessionReady());
+                        assertFalse(callback.mOnSessionReadyCalled);
                     } catch (Exception e) {
                         fail();
                     }
                 }
             });
-            mWaitLock.wait(TIME_OUT_MS);
+            callback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(callback.mOnSessionReadyCalled);
+            assertTrue(mController.isSessionReady());
         }
+    }
+
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = 21)
+    public void testOnSessionReadyCalled_extraBinderIsNotReadyWhenRegisteringCallback()
+            throws Exception {
+        mController = null;
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        final MediaSessionCompat.Token tokenWithoutExtraBinder =
+                MediaSessionCompat.Token.fromToken(mSessionToken.getToken());
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public void run() {
+                    try {
+                        // onSessionReady() should be posted when the controller receives the
+                        // extra binder from session.
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                tokenWithoutExtraBinder);
+                        mController.registerCallback(callback, new Handler());
+                        // Since mController.isSessionReady() can be both true/false,
+                        // we don't check the return value at this point.
+                        assertFalse(callback.mOnSessionReadyCalled);
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnSessionReadyCalled);
+            assertTrue(mController.isSessionReady());
+        }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(maxSdkVersion = 19)
+    public void testOnSessionReadyCalled_underApi21() throws Exception {
+        mController = null;
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public void run() {
+                    try {
+                        // No extra binder exists in API 19. (i.e. session is always ready.)
+                        // onSessionReady() should be posted by registerCallback().
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                mSessionToken);
+                        mController.registerCallback(callback, new Handler());
+                        assertTrue(mController.isSessionReady());
+                        assertFalse(callback.mOnSessionReadyCalled);
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnSessionReadyCalled);
+            assertTrue(mController.isSessionReady());
+        }
+    }
+
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = 21)
+    public void testOnSessionReadyCalled_fwkMediaSession() throws Exception {
+        mController = null;
+        final MediaSession session = new MediaSession(getInstrumentation().getTargetContext(),
+                "TestFwkSession");
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public void run() {
+                    try {
+                        // No extra binder exists in API 19. (i.e. session is always ready.)
+                        // onSessionReady() should be posted by registerCallback().
+                        MediaSession.Token fwkToken = session.getSessionToken();
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                MediaSessionCompat.Token.fromToken(fwkToken));
+                        mController.registerCallback(callback, new Handler());
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertFalse(mController.isSessionReady());
+            assertFalse(callback.mOnSessionReadyCalled);
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testReceivingParcelables() throws Exception {
+        Bundle arguments = new Bundle();
+        arguments.putString("event", TEST_SESSION_EVENT);
+
+        final MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
+                .setMediaId("testMediaId")
+                .build();
+        final MediaSessionCompat.QueueItem queueItem =
+                new MediaSessionCompat.QueueItem(desc, 1 /* flags */);
+        final MediaBrowserCompat.MediaItem mediaItem =
+                new MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+        final PlaybackStateCompat state = new PlaybackStateCompat.Builder()
+                .setBufferedPosition(1000)
+                .build();
+
+        Bundle extras = new Bundle();
+        extras.putParcelable("description", desc);
+        extras.putParcelable("queueItem", queueItem);
+        extras.putParcelable("mediaItem", mediaItem);
+        extras.putParcelable("state", state);
+
+        arguments.putBundle("extras", extras);
+
+        synchronized (mWaitLock) {
+            mMediaControllerCallback.resetLocked();
+            callMediaSessionMethod(SEND_SESSION_EVENT, arguments, getApplicationContext());
+            mWaitLock.wait(TIME_OUT_MS);
+
+            assertTrue(mMediaControllerCallback.mOnSessionEventCalled);
+            assertEquals(TEST_SESSION_EVENT, mMediaControllerCallback.mEvent);
+
+            Bundle extrasOut = mMediaControllerCallback.mExtras;
+            // Viewing the contents of bundle from remote process should not throw any exceptions.
+            // Also check whether the bundle has expected contents.
+            assertNotNull(extrasOut);
+            assertNotNull(extrasOut.getClassLoader());
+
+            MediaDescriptionCompat descOut = extrasOut.getParcelable("description");
+            assertEquals(desc.getMediaId(), descOut.getMediaId());
+
+            MediaSessionCompat.QueueItem queueItemOut = extrasOut.getParcelable("queueItem");
+            assertEquals(queueItem.getQueueId(), queueItemOut.getQueueId());
+
+            MediaBrowserCompat.MediaItem mediaItemOut = extrasOut.getParcelable("mediaItem");
+            assertEquals(mediaItem.getFlags(), mediaItemOut.getFlags());
+
+            PlaybackStateCompat stateOut = extrasOut.getParcelable("state");
+            assertEquals(state.getBufferedPosition(), stateOut.getBufferedPosition());
+        }
+    }
+
+    @Test
+    @LargeTest
+    public void testRegisterCallbackTwice() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(2);
+
+        MediaControllerMultipleCallback callback = new MediaControllerMultipleCallback(latch);
+        mController.registerCallback(callback, mHandler);
+        mController.registerCallback(callback, mHandler); // it must be ignored
+
+        callMediaSessionMethod(SET_EXTRAS, new Bundle(), getApplicationContext());
+        assertFalse(latch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, latch.getCount());
+    }
+
+    @Test
+    @LargeTest
+    public void testUnregisterCallbackTwice() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        MediaControllerMultipleCallback callback = new MediaControllerMultipleCallback(latch);
+        mController.registerCallback(callback, mHandler);
+        mController.unregisterCallback(callback);
+        mController.unregisterCallback(callback); // it must be ignored
+
+        callMediaSessionMethod(SET_EXTRAS, new Bundle(), getApplicationContext());
+        assertFalse(latch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @LargeTest
+    public void testUnregisterUnknownCallback() throws InterruptedException {
+        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch2 = new CountDownLatch(1);
+        MediaControllerMultipleCallback callback1 = new MediaControllerMultipleCallback(latch1);
+        MediaControllerMultipleCallback callback2 = new MediaControllerMultipleCallback(latch2);
+        mController.registerCallback(callback1, mHandler);
+        mController.unregisterCallback(callback2); // it must be ignored
+
+        callMediaSessionMethod(SET_EXTRAS, new Bundle(), getApplicationContext());
+        assertTrue(latch1.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(latch2.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * Tests callbacks are not called after {@link MediaSessionCompat#release}.
+     */
+    @Test
+    @LargeTest
+    public void testCallbacksAreNotCalledAfterRelease() throws Exception {
+        final CountDownLatch latchForDestroy = new CountDownLatch(1);
+        final CountDownLatch latchForPlaybackState = new CountDownLatch(1);
+
+        mController.registerCallback(new MediaControllerCompat.Callback() {
+            @Override
+            public void onSessionDestroyed() {
+                latchForDestroy.countDown();
+            }
+            @Override
+            public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                latchForPlaybackState.countDown();
+            }
+        }, mHandler);
+
+        callMediaSessionMethod(RELEASE_AND_THEN_SET_PLAYBACK_STATE, null, getApplicationContext());
+        assertTrue(latchForDestroy.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(latchForPlaybackState.await(1000, TimeUnit.MILLISECONDS));
     }
 
     private void assertQueueEquals(List<QueueItem> expected, List<QueueItem> observed) {
@@ -627,7 +848,6 @@ public class MediaControllerCompatCallbackTest {
         private volatile boolean mOnCaptioningEnabledChangedCalled;
         private volatile boolean mOnRepeatModeChangedCalled;
         private volatile boolean mOnShuffleModeChangedCalled;
-        private volatile boolean mOnSessionReadyCalled;
 
         private volatile PlaybackStateCompat mPlaybackState;
         private volatile MediaMetadataCompat mMediaMetadata;
@@ -761,6 +981,24 @@ public class MediaControllerCompatCallbackTest {
                 mWaitLock.notify();
             }
         }
+    }
+
+    private class MediaControllerMultipleCallback extends MediaControllerCompat.Callback {
+        private CountDownLatch mLatch;
+
+        MediaControllerMultipleCallback(CountDownLatch latch) {
+            mLatch = latch;
+        }
+
+        @Override
+        public void onExtrasChanged(Bundle extras) {
+            mLatch.countDown();
+        }
+    }
+
+    private class SessionReadyCallback extends MediaControllerCompat.Callback {
+        final Object mWaitLock = new Object();
+        private volatile boolean mOnSessionReadyCalled;
 
         @Override
         public void onSessionReady() {

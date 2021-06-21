@@ -28,9 +28,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.camera.camera2.interop.Camera2CameraFilter;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.core.CameraFilter;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -127,20 +127,20 @@ public class CameraSelectionOptimizerTest {
     public void requireLensFacingBack_andSelectWidestAngle() throws Exception {
         setupNormalCameras();
 
-        CameraFilter widestAngleFilter = Camera2CameraFilter.createCameraFilter(
-                cameraInfoList -> {
-                    float minFocalLength = 10000;
-                    Camera2CameraInfo minFocalCameraInfo = null;
-                    for (Camera2CameraInfo camera2CameraInfo : cameraInfoList) {
-                        float focalLength = camera2CameraInfo.getCameraCharacteristic(
+        CameraFilter widestAngleFilter = cameraInfoList -> {
+            float minFocalLength = 10000;
+            CameraInfo minFocalCameraInfo = null;
+            for (CameraInfo cameraInfo : cameraInfoList) {
+                float focalLength =
+                        Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
                                 CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)[0];
-                        if (focalLength < minFocalLength) {
-                            minFocalLength = focalLength;
-                            minFocalCameraInfo = camera2CameraInfo;
-                        }
-                    }
-                    return Arrays.asList(minFocalCameraInfo);
-                });
+                if (focalLength < minFocalLength) {
+                    minFocalLength = focalLength;
+                    minFocalCameraInfo = cameraInfo;
+                }
+            }
+            return Arrays.asList(minFocalCameraInfo);
+        };
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder()
@@ -155,7 +155,6 @@ public class CameraSelectionOptimizerTest {
         assertThat(cameraIds).containsExactly("2");
         // only camera "1" 's getCameraCharacteristics can be avoided.
         verify(mCamera2CameraFactory, never()).getCameraInfo("1");
-
     }
 
     @Test

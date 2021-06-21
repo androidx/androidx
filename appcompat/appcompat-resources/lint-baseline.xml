@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        /**"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="1128"
-            column="9"/>
-    </issue>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -19,7 +8,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="89"
+            line="92"
             column="5"/>
     </issue>
 
@@ -30,7 +19,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="127"
+            line="130"
             column="5"/>
     </issue>
 
@@ -41,7 +30,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="131"
+            line="134"
             column="5"/>
     </issue>
 
@@ -52,7 +41,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="135"
+            line="138"
             column="5"/>
     </issue>
 
@@ -63,7 +52,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="158"
+            line="161"
             column="5"/>
     </issue>
 
@@ -74,7 +63,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="313"
+            line="316"
             column="5"/>
     </issue>
 
@@ -85,7 +74,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="334"
+            line="337"
             column="5"/>
     </issue>
 
@@ -96,7 +85,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="349"
+            line="352"
             column="5"/>
     </issue>
 
@@ -107,7 +96,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="377"
+            line="380"
             column="5"/>
     </issue>
 
@@ -118,294 +107,8 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="467"
+            line="470"
             column="5"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                final Object insets = getOpticalInsetsMethod.invoke(drawable);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="90"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat.AnimationDrawableTransition is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="                anim.setAutoCancel(true);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="401"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            state.mChangingConfigurations |= a.getChangingConfigurations();"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="452"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                dr = Drawable.createFromXmlInner(resources, parser, attrs, theme);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="541"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                dr = Drawable.createFromXmlInner(resources, parser, attrs, theme);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="591"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.content.res.AppCompatResources is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            return context.getColorStateList(resId);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
-            line="69"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            mCurrDrawable.getOutline(outline);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="132"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                d.setLayoutDirection(getLayoutDirection());"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="518"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                d.setLayoutDirection(getLayoutDirection());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="518"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="                d.setAutoMirrored(mDrawableContainerState.mAutoMirrored);"
-        errorLine2="                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="521"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                d.setHotspotBounds(hotspotBounds.left, hotspotBounds.top,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="525"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                child.setLayoutDirection(mLayoutDirection);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="813"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                        childChanged = drawables[i].setLayoutDirection(layoutDirection);"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="859"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    if (drawables[i] != null &amp;&amp; drawables[i].canApplyTheme()) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="898"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                        drawables[i].applyTheme(theme);"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="899"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                updateDensity(theme.getResources());"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="904"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    if (d.canApplyTheme()) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="916"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    if (future != null &amp;&amp; future.canApplyTheme()) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
-            line="921"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.DrawableUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="            final android.graphics.Insets insets = drawable.getOpticalInsets();"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="74"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ResourceManagerInternal.DrawableDelegate is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                        drawable.inflate(context.getResources(), parser, attrs, theme);"
-        errorLine2="                                 ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="562"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="        return mResources.getDrawable(id, theme);"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="137"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 15, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 15. Either annotate the containing class with at least @RequiresApi(15) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(15)."
-        errorLine1="        return mResources.getDrawableForDensity(id, density);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="144"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="        return mResources.getDrawableForDensity(id, density, theme);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="150"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 15, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 15. Either annotate the containing class with at least @RequiresApi(15) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(15)."
-        errorLine1="        mResources.getValueForDensity(id, density, outValue, resolveRefs);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
-            line="221"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.StateListDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            state.mChangingConfigurations |= a.getChangingConfigurations();"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawable.java"
-            line="159"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.StateListDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    dr = Drawable.createFromXmlInner(r, parser, attrs, theme);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawable.java"
-            line="218"
-            column="35"/>
     </issue>
 
     <issue
@@ -420,7 +123,8 @@
         <location
             file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
             line="112"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -474,30 +178,8 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
-            line="66"
+            line="47"
             column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Rect getOpticalBounds(Drawable drawable) {"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="72"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Rect getOpticalBounds(Drawable drawable) {"
-        errorLine2="                                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="72"
-            column="41"/>
     </issue>
 
     <issue
@@ -507,7 +189,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="199"
+            line="159"
             column="19"/>
     </issue>
 
@@ -518,7 +200,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="199"
+            line="159"
             column="60"/>
     </issue>
 
@@ -727,7 +409,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="92"
+            line="95"
             column="32"/>
     </issue>
 
@@ -738,7 +420,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="127"
+            line="130"
             column="39"/>
     </issue>
 
@@ -749,7 +431,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="131"
+            line="134"
             column="25"/>
     </issue>
 
@@ -760,7 +442,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="467"
+            line="470"
             column="32"/>
     </issue>
 
@@ -771,7 +453,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="468"
+            line="471"
             column="24"/>
     </issue>
 
@@ -848,7 +530,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"
-            line="67"
+            line="66"
             column="12"/>
     </issue>
 

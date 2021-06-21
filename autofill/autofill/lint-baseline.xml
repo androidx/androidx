@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Style is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Style is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            singleIconChipView.setLayoutDirection(getLayoutDirection());"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Style is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Style is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            chipView.setLayoutDirection(getLayoutDirection());"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            for (SliceItem sliceItem : slice.getItems()) {"
         errorLine2="                                             ~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mTitle = sliceItem.getText().toString();"
         errorLine2="                                           ~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mSubtitle = sliceItem.getText().toString();"
         errorLine2="                                              ~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mStartIcon = sliceItem.getIcon();"
         errorLine2="                                               ~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mEndIcon = sliceItem.getIcon();"
         errorLine2="                                             ~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mAttributionIntent = sliceItem.getAction();"
         errorLine2="                                                       ~~~~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mContentDescription = sliceItem.getText();"
         errorLine2="                                                        ~~~~~~~">
         <location
@@ -101,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            switch (sliceItem.getFormat()) {"
         errorLine2="                              ~~~~~~~~~">
         <location
@@ -112,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (sliceItem.getIcon() == null) {"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -123,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (sliceItem.getHints().contains(HINT_INLINE_START_ICON)) {"
         errorLine2="                                  ~~~~~~~~">
         <location
@@ -134,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    } else if (sliceItem.getHints().contains(HINT_INLINE_END_ICON)) {"
         errorLine2="                                         ~~~~~~~~">
         <location
@@ -145,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (TextUtils.isEmpty(sliceItem.getText())) {"
         errorLine2="                                                    ~~~~~~~">
         <location
@@ -156,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (sliceItem.getHints().contains(HINT_INLINE_TITLE)) {"
         errorLine2="                                  ~~~~~~~~">
         <location
@@ -167,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    } else if (sliceItem.getHints().contains(HINT_INLINE_SUBTITLE)) {"
         errorLine2="                                         ~~~~~~~~">
         <location
@@ -178,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    } else if (sliceItem.getHints().contains(HINT_INLINE_CONTENT_DESCRIPTION)) {"
         errorLine2="                                         ~~~~~~~~">
         <location
@@ -189,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (sliceItem.getAction() != null &amp;&amp; sliceItem.getHints().contains("
         errorLine2="                                  ~~~~~~~~~">
         <location
@@ -200,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (sliceItem.getAction() != null &amp;&amp; sliceItem.getHints().contains("
         errorLine2="                                                                   ~~~~~~~~">
         <location
@@ -211,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addIcon(mStartIcon, null,"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -222,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addText(mTitle, null,"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -233,8 +233,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addText(mSubtitle, null,"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -244,8 +244,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addIcon(mEndIcon, null,"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -255,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addAction(mAttributionIntent, new Slice.Builder("
         errorLine2="                                  ~~~~~~~~~">
         <location
@@ -266,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addAction(mAttributionIntent, new Slice.Builder("
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
         <location
@@ -277,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                    mSliceBuilder).addHints("
         errorLine2="                                                   ~~~~~~~~">
         <location
@@ -288,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            Collections.singletonList(HINT_INLINE_ATTRIBUTION_INTENT)).build(),"
         errorLine2="                                                                                       ~~~~~">
         <location
@@ -299,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addText(mContentDescription, null,"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -310,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mSliceBuilder.addHints(mHints);"
         errorLine2="                                  ~~~~~~~~">
         <location
@@ -321,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return new Content(mSliceBuilder.build());"
         errorLine2="                                                 ~~~~~">
         <location
@@ -332,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.common.SlicedContent.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.common.SlicedContent.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mSliceBuilder = new Slice.Builder(INLINE_SLICE_URI, new SliceSpec(version, 1));"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
@@ -343,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.common.SlicedContent.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.autofill.inline.common.SlicedContent.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mSliceBuilder = new Slice.Builder(INLINE_SLICE_URI, new SliceSpec(version, 1));"
         errorLine2="                                                                ~~~~~~~~~~~~~">
         <location

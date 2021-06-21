@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
@@ -317,8 +318,21 @@ public abstract class RemoteWorkManager {
      * @return A {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for work
      * referenced by this {@link WorkQuery}.
      */
-    public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfos(
-            @NonNull WorkQuery workQuery);
+    @NonNull
+    public abstract ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull WorkQuery workQuery);
+
+    /**
+     * Updates progress information for a {@link ListenableWorker}.
+     *
+     * @param id   The {@link WorkRequest} id
+     * @param data The progress {@link Data}
+     * @return A {@link ListenableFuture} that can be used to determine when the setProgress
+     * has completed.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract ListenableFuture<Void> setProgress(@NonNull UUID id, @NonNull Data data);
 
     /**
      * Gets the instance of {@link RemoteWorkManager} which provides a subset of

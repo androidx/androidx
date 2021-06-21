@@ -28,9 +28,9 @@ import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class ConfigurationErrorTest {
+public class ConfigurationErrorTest {
     @Test
-    fun constructor_valid() {
+    public fun constructor_valid() {
         ConfigurationError(
             id = "ID",
             summary = "summary",
@@ -39,7 +39,7 @@ class ConfigurationErrorTest {
     }
 
     @Test
-    fun constructor_throw() {
+    public fun constructor_throw() {
         assertFailsWith<IllegalArgumentException> {
             ConfigurationError(
                 id = "idCanNotHaveLowercase", // invalid, IDs always uppercase
@@ -65,13 +65,13 @@ class ConfigurationErrorTest {
     }
 
     @Test
-    fun checkAndGetSuppressionState_empty() {
+    public fun checkAndGetSuppressionState_empty() {
         // no throw or suppressed error
         assertNull(listOf<ConfigurationError>().checkAndGetSuppressionState(setOf()))
     }
 
     @Test
-    fun checkAndGetSuppressionState_suppressed() {
+    public fun checkAndGetSuppressionState_suppressed() {
         // two suppressed errors
         val suppression = listOf(
             ConfigurationError(
@@ -102,7 +102,7 @@ class ConfigurationErrorTest {
     }
 
     @Test
-    fun checkAndGetSuppressionState_unsuppressed() {
+    public fun checkAndGetSuppressionState_unsuppressed() {
         // one unsuppressed error, so throw
         val exception = assertFailsWith<AssertionError> {
             listOf(
@@ -135,7 +135,8 @@ class ConfigurationErrorTest {
         // suppression warning should contain *both* errors to be suppressed
         assertTrue(
             message.contains(
-                "testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'ID1,ID2'"
+                """testInstrumentationRunnerArguments""" +
+                    """["androidx.benchmark.suppressErrors"] = "ID1,ID2""""
             )
         )
     }

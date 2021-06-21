@@ -81,47 +81,20 @@ public class ViewModelTest {
     @Test
     public fun viewModelCreatedViaDefaultFactory() {
         val owner = FakeViewModelStoreOwner()
+        var createdInComposition: Any? = null
         rule.setContent {
             CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-                viewModel<TestViewModel>()
+                createdInComposition = viewModel<TestViewModel>()
             }
         }
 
         assertThat(owner.factory.createCalled).isTrue()
+        val createdManually = ViewModelProvider(owner).get(TestViewModel::class.java)
+        assertThat(createdInComposition).isEqualTo(createdManually)
     }
 
     @Test
     public fun viewModelCreatedViaDefaultFactoryWithKey() {
-        val owner = FakeViewModelStoreOwner()
-        var createdInComposition: Any? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-                createdInComposition = viewModel<TestViewModel>()
-            }
-        }
-
-        assertThat(owner.factory.createCalled).isTrue()
-        val createdManually = ViewModelProvider(owner).get(TestViewModel::class.java)
-        assertThat(createdInComposition).isEqualTo(createdManually)
-    }
-
-    @Test
-    public fun createdViewModelIsEqualsToCreatedManually() {
-        val owner = FakeViewModelStoreOwner()
-        var createdInComposition: Any? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
-                createdInComposition = viewModel<TestViewModel>()
-            }
-        }
-
-        assertThat(owner.factory.createCalled).isTrue()
-        val createdManually = ViewModelProvider(owner).get(TestViewModel::class.java)
-        assertThat(createdInComposition).isEqualTo(createdManually)
-    }
-
-    @Test
-    public fun createdViewModelIsEqualsToCreatedManuallyWithKey() {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
@@ -137,6 +110,23 @@ public class ViewModelTest {
     }
 
     @Test
+    public fun viewModelCreatedViaDefaultFactoryWithCustomOwner() {
+        val customOwner = FakeViewModelStoreOwner()
+        val owner = FakeViewModelStoreOwner()
+        var createdInComposition: Any? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+                createdInComposition = viewModel<TestViewModel>(customOwner)
+            }
+        }
+
+        assertThat(owner.factory.createCalled).isFalse()
+        assertThat(customOwner.factory.createCalled).isTrue()
+        val createdManually = ViewModelProvider(customOwner).get(TestViewModel::class.java)
+        assertThat(createdInComposition).isEqualTo(createdManually)
+    }
+
+    @Test
     public fun customFactoryIsUsedWhenProvided() {
         val owner = FakeViewModelStoreOwner()
         val customFactory = FakeViewModelProviderFactory()
@@ -144,6 +134,17 @@ public class ViewModelTest {
             CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 viewModel<TestViewModel>(factory = customFactory)
             }
+        }
+
+        assertThat(customFactory.createCalled).isTrue()
+    }
+
+    @Test
+    public fun customFactoryProducerIsUsedWhenProvided() {
+        val owner = FakeViewModelStoreOwner()
+        val customFactory = FakeViewModelProviderFactory()
+        rule.setContent {
+            viewModel<TestViewModel>(owner, factory = customFactory)
         }
 
         assertThat(customFactory.createCalled).isTrue()

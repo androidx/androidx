@@ -32,12 +32,18 @@ package androidx.compose.foundation {
   }
 
   public final class ClickableKt {
-    method public static androidx.compose.ui.Modifier clickable(androidx.compose.ui.Modifier, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
-    method public static androidx.compose.ui.Modifier clickable(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static androidx.compose.ui.Modifier clickable-BZ_EYKE(androidx.compose.ui.Modifier, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static androidx.compose.ui.Modifier clickable-h9bCOVY(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional String? onClickLabel, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+  }
+
+  public final class Clickable_androidKt {
+  }
+
+  public final class DarkThemeKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static boolean isSystemInDarkTheme();
   }
 
   public final class DarkTheme_androidKt {
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static boolean isSystemInDarkTheme();
   }
 
   public final class FocusableKt {
@@ -149,7 +155,7 @@ package androidx.compose.foundation.gestures {
     method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
   }
 
-  public interface FlingBehavior {
+  @androidx.compose.runtime.Stable public interface FlingBehavior {
     method public suspend Object? performFling(androidx.compose.foundation.gestures.ScrollScope, float initialVelocity, kotlin.coroutines.Continuation<? super java.lang.Float> p);
   }
 
@@ -169,6 +175,9 @@ package androidx.compose.foundation.gestures {
   public interface PressGestureScope extends androidx.compose.ui.unit.Density {
     method public suspend Object? awaitRelease(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public suspend Object? tryAwaitRelease(kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+  }
+
+  public final class RelativeVelocityTrackerKt {
   }
 
   public final class ScrollExtensionsKt {
@@ -350,6 +359,9 @@ package androidx.compose.foundation.lazy {
     method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional float fraction);
   }
 
+  public final class LazyListHeadersKt {
+  }
+
   public final class LazyListItemContentFactoryKt {
   }
 
@@ -379,6 +391,9 @@ package androidx.compose.foundation.lazy {
   }
 
   public final class LazyListMeasureKt {
+  }
+
+  public final class LazyListPrefetcher_androidKt {
   }
 
   @androidx.compose.foundation.lazy.LazyScopeMarker public interface LazyListScope {
@@ -420,20 +435,10 @@ package androidx.compose.foundation.lazy {
   @kotlin.DslMarker public @interface LazyScopeMarker {
   }
 
+  public final class LazySemanticsKt {
+  }
+
   public final class Lazy_androidKt {
-  }
-
-}
-
-package androidx.compose.foundation.legacygestures {
-
-  public final class DragGestureFilterKt {
-  }
-
-  public final class PressIndicatorGestureFilterKt {
-  }
-
-  public final class TapGestureFilterKt {
   }
 
 }
@@ -445,15 +450,15 @@ package androidx.compose.foundation.selection {
   }
 
   public final class SelectableKt {
-    method public static androidx.compose.ui.Modifier selectable(androidx.compose.ui.Modifier, boolean selected, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
-    method public static androidx.compose.ui.Modifier selectable(androidx.compose.ui.Modifier, boolean selected, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static androidx.compose.ui.Modifier selectable-1gxKe7Q(androidx.compose.ui.Modifier, boolean selected, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static androidx.compose.ui.Modifier selectable-LEETLVc(androidx.compose.ui.Modifier, boolean selected, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
   }
 
   public final class ToggleableKt {
-    method public static androidx.compose.ui.Modifier toggleable(androidx.compose.ui.Modifier, boolean value, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange);
-    method public static androidx.compose.ui.Modifier toggleable(androidx.compose.ui.Modifier, boolean value, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange);
-    method public static androidx.compose.ui.Modifier triStateToggleable(androidx.compose.ui.Modifier, androidx.compose.ui.state.ToggleableState state, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
-    method public static androidx.compose.ui.Modifier triStateToggleable(androidx.compose.ui.Modifier, androidx.compose.ui.state.ToggleableState state, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static androidx.compose.ui.Modifier toggleable-RP-hrYQ(androidx.compose.ui.Modifier, boolean value, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange);
+    method public static androidx.compose.ui.Modifier toggleable-rafqdns(androidx.compose.ui.Modifier, boolean value, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onValueChange);
+    method public static androidx.compose.ui.Modifier triStateToggleable-9kOUaIQ(androidx.compose.ui.Modifier, androidx.compose.ui.state.ToggleableState state, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static androidx.compose.ui.Modifier triStateToggleable-lQGob-I(androidx.compose.ui.Modifier, androidx.compose.ui.state.ToggleableState state, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, androidx.compose.foundation.Indication? indication, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
   }
 
 }
@@ -567,12 +572,12 @@ package androidx.compose.foundation.text {
   }
 
   public final class BasicTextKt {
-    method @androidx.compose.runtime.Composable public static void BasicText(String text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle style, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.style.TextOverflow overflow, optional boolean softWrap, optional int maxLines);
-    method @androidx.compose.runtime.Composable public static void BasicText(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle style, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.style.TextOverflow overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent);
+    method @androidx.compose.runtime.Composable public static void BasicText-0jxMD7A(String text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle style, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional int overflow, optional boolean softWrap, optional int maxLines);
+    method @androidx.compose.runtime.Composable public static void BasicText-wGg1G4c(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle style, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent);
   }
 
   public final class ClickableTextKt {
-    method @androidx.compose.runtime.Composable public static void ClickableText(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle style, optional boolean softWrap, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onClick);
+    method @androidx.compose.runtime.Composable public static void ClickableText-kVZBHUE(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle style, optional boolean softWrap, optional int overflow, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onClick);
   }
 
   public final class CoreTextFieldKt {
@@ -600,7 +605,7 @@ package androidx.compose.foundation.text {
   }
 
   public interface KeyboardActionScope {
-    method public void defaultKeyboardAction(androidx.compose.ui.text.input.ImeAction imeAction);
+    method public void defaultKeyboardAction-KlQnJC8(int imeAction);
   }
 
   public final class KeyboardActions {
@@ -630,16 +635,15 @@ package androidx.compose.foundation.text {
   }
 
   @androidx.compose.runtime.Immutable public final class KeyboardOptions {
-    ctor public KeyboardOptions(optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, optional boolean autoCorrect, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction);
-    method public androidx.compose.foundation.text.KeyboardOptions copy(optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, optional boolean autoCorrect, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction);
+    method public androidx.compose.foundation.text.KeyboardOptions copy-C1cpEnM(optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
     method public boolean getAutoCorrect();
-    method public androidx.compose.ui.text.input.KeyboardCapitalization getCapitalization();
-    method public androidx.compose.ui.text.input.ImeAction getImeAction();
-    method public androidx.compose.ui.text.input.KeyboardType getKeyboardType();
+    method public int getCapitalization-IUNYP9k();
+    method public int getImeAction-eUduSuo();
+    method public int getKeyboardType-PjHm6EE();
     property public final boolean autoCorrect;
-    property public final androidx.compose.ui.text.input.KeyboardCapitalization capitalization;
-    property public final androidx.compose.ui.text.input.ImeAction imeAction;
-    property public final androidx.compose.ui.text.input.KeyboardType keyboardType;
+    property public final int capitalization;
+    property public final int imeAction;
+    property public final int keyboardType;
     field public static final androidx.compose.foundation.text.KeyboardOptions.Companion Companion;
   }
 
@@ -648,7 +652,16 @@ package androidx.compose.foundation.text {
     property public final androidx.compose.foundation.text.KeyboardOptions Default;
   }
 
+  public final class LongPressTextDragObserverKt {
+  }
+
   public final class MaxLinesHeightModifierKt {
+  }
+
+  public final class StringHelpersKt {
+  }
+
+  public final class StringHelpers_androidKt {
   }
 
   public final class StringHelpers_jvmKt {
@@ -678,10 +691,19 @@ package androidx.compose.foundation.text {
   public final class TextFieldSizeKt {
   }
 
+  public final class TextLayoutHelperKt {
+  }
+
   public final class TextLayoutResultProxyKt {
   }
 
   public final class TouchMode_androidKt {
+  }
+
+  public final class UndoManagerKt {
+  }
+
+  public final class UndoManager_jvmKt {
   }
 
 }
@@ -737,11 +759,7 @@ package androidx.compose.foundation.text.selection {
   public final class TextSelectionDelegateKt {
   }
 
-}
-
-package androidx.compose.ui.text {
-
-  public final class TextLayoutHelperKt {
+  public final class TextSelectionMouseDetectorKt {
   }
 
 }

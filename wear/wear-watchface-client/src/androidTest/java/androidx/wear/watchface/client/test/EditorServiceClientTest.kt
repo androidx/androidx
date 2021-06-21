@@ -18,7 +18,7 @@ package androidx.wear.watchface.client.test
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.wear.watchface.client.EditorObserverCallback
+import androidx.wear.watchface.client.EditorListener
 import androidx.wear.watchface.client.EditorServiceClientImpl
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.editor.EditorService
@@ -31,33 +31,43 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class EditorServiceClientTest {
+public class EditorServiceClientTest {
     private val editorServiceClient = EditorServiceClientImpl(EditorService.globalEditorService)
 
     @Test
-    fun registerObserver() {
+    public fun registerObserver() {
         lateinit var observedEditorState: EditorState
-        val observer = object : EditorObserverCallback {
-            override fun onEditorStateChange(editorState: EditorState) {
+        val observer = object : EditorListener {
+            override fun onEditorStateChanged(editorState: EditorState) {
                 observedEditorState = editorState
             }
         }
-        editorServiceClient.registerObserver(observer)
+        editorServiceClient.addListener(observer) { runnable -> runnable.run() }
 
         val watchFaceInstanceId = "id-1"
         EditorService.globalEditorService.broadcastEditorState(
             EditorStateWireFormat(
                 watchFaceInstanceId,
-                UserStyleWireFormat(mapOf("color" to "red", "size" to "small")),
+                UserStyleWireFormat(
+                    mapOf(
+                        "color" to "red".encodeToByteArray(),
+                        "size" to "small".encodeToByteArray()
+                    )
+                ),
                 emptyList(),
                 true
             )
         )
 
-        editorServiceClient.unregisterObserver(observer)
+        editorServiceClient.removeListener(observer)
 
-        assertThat(observedEditorState.watchFaceInstanceId).isEqualTo(watchFaceInstanceId)
+        assertThat(observedEditorState.watchFaceId.id).isEqualTo(watchFaceInstanceId)
         assertThat(observedEditorState.userStyle.toString()).isEqualTo("{color=red, size=small}")
-        assertTrue(observedEditorState.commitChanges)
+        assertTrue(observedEditorState.shouldCommitChanges)
+
+        val editorStateString = observedEditorState.toString()
+        assertThat(editorStateString).contains("watchFaceId: $watchFaceInstanceId")
+        assertThat(editorStateString).contains("{color=red, size=small}")
+        assertThat(editorStateString).contains("shouldCommitChanges: true")
     }
 }

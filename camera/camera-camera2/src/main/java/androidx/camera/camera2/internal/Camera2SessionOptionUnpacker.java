@@ -17,7 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -35,7 +35,7 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
 
     static final Camera2SessionOptionUnpacker INSTANCE = new Camera2SessionOptionUnpacker();
 
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void unpack(@NonNull UseCaseConfig<?> config,
             @NonNull final SessionConfig.Builder builder) {

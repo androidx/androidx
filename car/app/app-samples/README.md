@@ -9,45 +9,51 @@ In order to build app APKs,
 
 1. Open the [AndroidX project][5] in Android Studio.
 
-2. Select a sample app directory (e.g. `helloworld`) in the `Project Structure` UI on the top left.
+2. Select a sample app directory (e.g. `helloworld-mobile`) in the `Project Structure` UI on the top
+ left. Each sample app has two build targets, one for the mobile platform and the other for the
+  automotive platform.
 
-3. Go to Build -> Make Module 'androidx.car.app.app-samples.<sample_app>'. The apks will be generated in `<repo root>/out/androidx/car/app/app-samples/<sample_app>/build/outputs/apk`.
+3. Go to `Build -> Make Module 'androidx.car.app.app-samples.<sample_app>-<platform>'`. The apks
+ will be generated in `<repo root>/out/androidx/car/app/app-samples/<sample_app>-<platform>/build
+ /outputs/apk`.
 
 In order to install and run the apps,
 
 1. Open the [AndroidX project][5] in Android Studio.
 
-2. Go to Run -> Edit Configurations, select your app (e.g. `car.app.app-samples.helloworld`), and in the General tab, under Launch Options, select Launch: Nothing, then click OK to close the dialog.
+2. Go to `Run -> Edit Configurations`, select a sample app target (e.g. `car.app.app-samples
+.helloworld-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing
+` in `General -> Launch Options`. Click `OK` to close the dialog.
 
-3. Select Run -> Run ‘<your app>’, to run the app, which will just install it in the selected
+3. Select `Run -> Run <sample_app>`, to run the app, which will just install it in the selected
  device.
 
 Run From the Command Line
 ---------------------
-Run `./gradlew :car:app:app-samples:<sample_app>:assemble` to assemble the APKs. E.g.
+Run `./gradlew :car:app:app-samples:<sample_app>-<platform>:assemble` to assemble the APKs. E.g.
 
 ```bash
-./gradlew :car:app:app-samples:helloworld:assemble
+./gradlew :car:app:app-samples:helloworld-mobile:assemble
+ ./gradlew :car:app:app-samples:helloworld-automotive:assemble
 ```
 
-The APKs will be generated in `<repo root>/out/androidx/car/app/app-samples/<sample_app>/build
-/outputs/apk`.
+The APKs will be generated in `<repo root>/out/androidx/car/app/app-samples/<sample_app>-<platform>/build/outputs/apk`.
 
 Install the APK with ADB:
 
 ```bash
-adb install -t <path_to_your_apk>
+adb install <path_to_sample_app_apk>
 ```
 
 In order to install to a device directly, run the `installDebug` or `installRelease` gradle task
 . E.g.
 
 ```bash
-./gradlew :car:app:app-samples:helloworld:installDebug
-./gradlew :car:app:app-samples:helloworld:installRelease
+./gradlew :car:app:app-samples:helloworld-mobile:installDebug
+./gradlew :car:app:app-samples:helloworld-automotive:installRelease
 ```
 
-Run the Apps in the Desktop Head Unit (DHU)
+Run the Mobile App in the Desktop Head Unit (DHU)
 -------------------------------------------
 Follow the instructions in [Test Android apps for cars][1] to run the sample apps in the DHU.
 
@@ -65,3 +71,14 @@ In short:
 [3]: https://developer.android.com/training/cars/testing#step1
 [4]: https://developer.android.com/training/cars/testing#running-dhu
 [5]: https://android.googlesource.com/platform/frameworks/support/+/ac0c1d466abcfdcab2babb2e10eca574247e3c92/README.md#using-android-studio
+
+Run the Automotive App in the Automotive OS Emulator
+-------------------------------------------
+In order to use the Automotive OS emulator, download the Android Studio 4.2 or higher (currently
+ only available in the Beta and Canary tracks), and do the following:
+
+ 1. Select `Tools -> AVD Manager`.
+ 2. Select `Create Virtual Device...`.
+ 3. Select `Automotive` in the device category, and click `Next`.
+ 4. Select `X86 Images`, then download an image for Android Q.
+ 5. Finish creating the emulator, and run it.

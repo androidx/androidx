@@ -29,8 +29,6 @@ import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
-import java.util.List;
-
 /**
  * Wire format for {@link androidx.wear.watchface.RenderParameters}.
  *
@@ -40,70 +38,138 @@ import java.util.List;
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class RenderParametersWireFormat implements VersionedParcelable, Parcelable {
-    private static final int NO_COMPLICATION_ID = -1;
+    /** Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is `null`. */
+    public static int ELEMENT_TYPE_NONE = 0;
+
+    /**
+     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is
+     * {@link androidx.wear.watchface.HighlightedElement.AllComplications}.
+     */
+    public static int ELEMENT_TYPE_ALL_COMPLICATIONS = 1;
+
+    /**
+     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is
+     * {@link androidx.wear.watchface.HighlightedElement.Complication}.
+     */
+    public static int ELEMENT_TYPE_COMPLICATION = 2;
+
+    /**
+     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is
+     * {@link androidx.wear.watchface.HighlightedElement.UserStyle}.
+     */
+    public static int ELEMENT_TYPE_USER_STYLE = 3;
 
     /** Wire format for {@link androidx.wear.watchface.DrawMode}. */
     @ParcelField(1)
     int mDrawMode;
 
     /**
-     * Optional parameter which if non null specifies that a particular complication, should be
-     * drawn with a special highlight to indicate it's been selected.
+     * A bitfield where each bit represents one layer in the set of
+     * {@link androidx.wear.watchface.style.WatchFaceLayer}s.
      */
     @ParcelField(2)
-    int mSelectedComplicationId;
+    int mWatchFaceLayerSetBitfield;
 
     /**
-     * Specifies the tint for any outlined element.
+     * One of {@link #ELEMENT_TYPE_NONE}, {@link #ELEMENT_TYPE_ALL_COMPLICATIONS},
+     * {@link #ELEMENT_TYPE_COMPLICATION} or {@link #ELEMENT_TYPE_USER_STYLE}.
      */
     @ParcelField(3)
-    int mOutlineTint;
+    int mElementType;
 
     /**
-     * Wire format for Map<{@link androidx.wear.watchface.style.Layer},
-     * {@link androidx.wear.watchface.LayerMode}>.
-     *
-     * This list needs to go last because VersionedParcelable has a design flaw, if the format
-     * changes the reader can't determine the correct size of the list and data afterwards would get
-     * corrupted. We try to avoid this by putting the list last.
+     * Optional ID of a single complication slot to render highlighted, only used with
+     * {@link #ELEMENT_TYPE_COMPLICATION}.
      */
-    @NonNull
-    @ParcelField(100)
-    List<LayerParameterWireFormat> mLayerParameters;
+    @ParcelField(4)
+    int mElementComplicationSlotId;
+
+    /**
+     * Optional UserStyleSetting to render highlighted, only non-null with
+     * {@link #ELEMENT_TYPE_USER_STYLE}.
+     */
+    @ParcelField(5)
+    @Nullable
+    String mElementUserStyleSettingId;
+
+    /**
+     * Specifies the tint for the highlighted element. Only used when {@link #mElementType} isn't
+     * {@link #ELEMENT_TYPE_NONE}.
+     */
+    @ParcelField(6)
+    @ColorInt
+    int mHighlightTint;
+
+    /**
+     * Specifies the tint for everything else. Only used when {@link #mElementType} isn't
+     * {@link #ELEMENT_TYPE_NONE}.
+     */
+    @ParcelField(7)
+    @ColorInt
+    int mBackgroundTint;
 
     RenderParametersWireFormat() {
     }
 
     public RenderParametersWireFormat(
             int drawMode,
-            @NonNull List<LayerParameterWireFormat> layerParameters,
-            @Nullable Integer selectedComplicationId,
-            @ColorInt int outlineTint) {
+            int watchFaceLayerSetBitfield,
+            int elementType,
+            int complicationSlotId,
+            @Nullable String elementUserStyleSettingId,
+            @ColorInt int highlightTint,
+            @ColorInt int backgroundTint) {
         mDrawMode = drawMode;
-        mLayerParameters = layerParameters;
-        mSelectedComplicationId = (selectedComplicationId != null)
-                ? selectedComplicationId : NO_COMPLICATION_ID;
-        mOutlineTint = outlineTint;
+        mWatchFaceLayerSetBitfield = watchFaceLayerSetBitfield;
+        mElementType = elementType;
+        mElementComplicationSlotId = complicationSlotId;
+        mElementUserStyleSettingId = elementUserStyleSettingId;
+        mHighlightTint = highlightTint;
+        mBackgroundTint = backgroundTint;
+        if (elementType == ELEMENT_TYPE_USER_STYLE) {
+            if (elementUserStyleSettingId == null) {
+                throw new IllegalArgumentException(
+                        "selectedUserStyleSettingId must be non-null when elementType is "
+                                + "ELEMENT_TYPE_USER_STYLE");
+            }
+        } else {
+            if (elementUserStyleSettingId != null) {
+                throw new IllegalArgumentException(
+                        "selectedUserStyleSettingId must be null when elementType isn't "
+                                + "ELEMENT_TYPE_USER_STYLE");
+            }
+        }
     }
 
     public int getDrawMode() {
         return mDrawMode;
     }
 
+    public int getWatchFaceLayerSetBitfield() {
+        return mWatchFaceLayerSetBitfield;
+    }
+
+    public int getElementType() {
+        return mElementType;
+    }
+
+    public int getElementComplicationSlotId() {
+        return mElementComplicationSlotId;
+    }
+
     @Nullable
-    public Integer getSelectedComplicationId() {
-        return (mSelectedComplicationId == NO_COMPLICATION_ID) ? null :
-                mSelectedComplicationId;
+    public String getElementUserStyleSettingId() {
+        return mElementUserStyleSettingId;
     }
 
     @ColorInt
-    public int getOutlineTint() {
-        return mOutlineTint;
+    public int getHighlightTint() {
+        return mHighlightTint;
     }
 
-    @NonNull
-    public List<LayerParameterWireFormat> getLayerParameters() {
-        return mLayerParameters;
+    @ColorInt
+    public int getBackgroundTint() {
+        return mBackgroundTint;
     }
 
     /** Serializes this IndicatorState to the specified {@link Parcel}. */

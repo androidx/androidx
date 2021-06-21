@@ -16,6 +16,7 @@
 
 package androidx.work.multiprocess
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.Data
@@ -31,9 +32,16 @@ import java.util.UUID
 @RunWith(AndroidJUnit4::class)
 public class ParcelableWorkInfoTest {
 
+    // Setting the minSdkVersion to 27 otherwise we end up with SIGSEGVs.
+
     @Test
     @SmallTest
     public fun converterTest1() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
@@ -48,6 +56,11 @@ public class ParcelableWorkInfoTest {
     @Test
     @SmallTest
     public fun converterTest2() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val data = Data.Builder()
             .put("test", "testString")
             .put("int", 10)
@@ -67,6 +80,11 @@ public class ParcelableWorkInfoTest {
     @Test
     @SmallTest
     public fun arrayConverterTest1() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val data = Data.Builder()
             .put("test", "testString")
             .put("int", 10)

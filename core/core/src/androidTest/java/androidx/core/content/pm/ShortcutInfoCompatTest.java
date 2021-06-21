@@ -37,7 +37,6 @@ import android.content.pm.ShortcutInfo;
 import android.net.Uri;
 import android.os.PersistableBundle;
 
-import androidx.collection.ArrayMap;
 import androidx.core.app.Person;
 import androidx.core.app.TestActivity;
 import androidx.core.content.ContextCompat;
@@ -58,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @MediumTest
@@ -181,16 +179,13 @@ public class ShortcutInfoCompatTest {
          * {
          *     "START_EXERCISE": {
          *         "exerciseName": ["jogging;running","sleeping"],
-         *         "duration": null
+         *         "duration": []
          *     }
          * }
          */
-        final Map<String, List<String>> capability1Params = new ArrayMap<>();
         final List<String> capability1Params1Values = new ArrayList<>();
         capability1Params1Values.add(capability1Param1Value1);
         capability1Params1Values.add(capability1Param1Value2);
-        capability1Params.put(capability1Param1, capability1Params1Values);
-        capability1Params.put(capability1Param2, null);
 
         /*
          * Setup capability 2
@@ -200,14 +195,13 @@ public class ShortcutInfoCompatTest {
          *     }
          * }
          */
-        final Map<String, List<String>> capability2Params = new ArrayMap<>();
         final List<String> capability2Param2Values = new ArrayList<>();
         capability2Param2Values.add(capability2Param2Value1);
-        capability2Params.put(capability2Param1, capability2Param2Values);
 
         final ShortcutInfoCompat compat = mBuilder
-                .addCapabilityBinding(capability1, capability1Params)
-                .addCapabilityBinding(capability2, capability2Params)
+                .addCapabilityBinding(capability1, capability1Param1, capability1Params1Values)
+                .addCapabilityBinding(capability1, capability1Param2, new ArrayList<String>())
+                .addCapabilityBinding(capability2, capability2Param1, capability2Param2Values)
                 .setSliceUri(Uri.parse(sliceUri))
                 .build();
 
@@ -230,11 +224,11 @@ public class ShortcutInfoCompatTest {
         final String[] paramNamesForCapability2 = extra.getStringArray(capability2);
         assertNotNull(paramNamesForCapability1);
         assertNotNull(paramNamesForCapability2);
-        assertEquals(2, paramNamesForCapability1.length);
+        assertEquals(1, paramNamesForCapability1.length);
         assertEquals(1, paramNamesForCapability2.length);
         final List<String> parameterListForCapability1 = Arrays.asList(paramNamesForCapability1);
         assertTrue(parameterListForCapability1.contains(capability1Param1));
-        assertTrue(parameterListForCapability1.contains(capability1Param2));
+        assertFalse(parameterListForCapability1.contains(capability1Param2));
         assertEquals(capability2Param1, paramNamesForCapability2[0]);
 
         /*
@@ -249,22 +243,105 @@ public class ShortcutInfoCompatTest {
         final String capability1Param2Key = capability1 + "/" + capability1Param2;
         final String capability2Param1Key = capability2 + "/" + capability2Param1;
         assertTrue(extra.containsKey(capability1Param1Key));
-        assertTrue(extra.containsKey(capability1Param2Key));
+        assertFalse(extra.containsKey(capability1Param2Key));
         assertTrue(extra.containsKey(capability2Param1Key));
         final String[] actualCapability1Params1 = extra.getStringArray(capability1Param1Key);
-        final String[] actualCapability1Params2 = extra.getStringArray(capability1Param2Key);
         final String[] actualCapability2Params1 = extra.getStringArray(capability2Param1Key);
         assertNotNull(actualCapability1Params1);
         assertEquals(2, actualCapability1Params1.length);
         assertEquals(capability1Param1Value1, actualCapability1Params1[0]);
         assertEquals(capability1Param1Value2, actualCapability1Params1[1]);
-        assertNotNull(actualCapability1Params2);
-        assertEquals(0, actualCapability1Params2.length);
         assertNotNull(actualCapability2Params1);
         assertEquals(1, actualCapability2Params1.length);
         assertEquals(capability2Param2Value1, actualCapability2Params1[0]);
         assertTrue(extra.containsKey("extraSliceUri"));
         assertEquals(sliceUri, extra.getString("extraSliceUri"));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testBuilder_setCapabilities_noParameters() {
+        final String capability = "actions.intent.TWEET";
+
+        final ShortcutInfoCompat compat = mBuilder
+                .addCapabilityBinding(capability)
+                .build();
+
+        /*
+         * Verify the extras contains mapping of capability to their parameter names.
+         * {
+         *     "actions.intent.TWEET": null
+         * }
+         */
+        final Set<String> categories = compat.mCategories;
+        assertNotNull(categories);
+        assertTrue(categories.contains(capability));
+        final PersistableBundle extra = compat.getExtras();
+        assertNull(extra);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testBuilder_setCapabilityWithParameters() {
+        final String capability = "actions.intent.START_EXERCISE";
+        final String capabilityParam1 = "exercise.name";
+        final String capabilityParam2 = "duration";
+        final String capabilityParam3 = "difficulty";
+        final String capabilityParam1Value1 = "running";
+        final String capabilityParam1Value2 = "jogging";
+        final String capabilityParam2Value1 = "60 minutes";
+        final String capabilityParam2Value2 = "1 hour";
+
+        final ShortcutInfoCompat compat = mBuilder
+                .addCapabilityBinding(capability, capabilityParam1,
+                        Arrays.asList(capabilityParam1Value1, capabilityParam1Value2))
+                .addCapabilityBinding(capability, capabilityParam2,
+                        Arrays.asList(capabilityParam2Value1, capabilityParam2Value2))
+                // This one should be ignored since its values are empty.
+                .addCapabilityBinding(capability, capabilityParam3, new ArrayList<String>())
+                .build();
+
+        /*
+         * Verify the extras contains mapping of capability to their parameter names.
+         * {
+         *     "actions.intent.START_EXERCISE": ["exercise.name", "duration"],
+         * }
+         */
+        final Set<String> categories = compat.mCategories;
+        assertNotNull(categories);
+        assertTrue(categories.contains(capability));
+        final PersistableBundle extra = compat.getExtras();
+        assertNotNull(extra);
+        assertTrue(extra.containsKey(capability));
+        final String[] paramNamesForCapability = extra.getStringArray(capability);
+        assertNotNull(paramNamesForCapability);
+        assertEquals(2, paramNamesForCapability.length);
+        final List<String> parameterListForCapability = Arrays.asList(paramNamesForCapability);
+        assertTrue(parameterListForCapability.contains(capabilityParam1));
+        assertTrue(parameterListForCapability.contains(capabilityParam2));
+        assertFalse(parameterListForCapability.contains(capabilityParam3));
+
+        /*
+         * Verify the extras contains mapping of capability params to their values.
+         * {
+         *     "START_EXERCISE/exercise.name": ["running","jogging"],
+         *     "START_EXERCISE/duration": ["60 minutes", "1 hour"],
+         * }
+         */
+        final String capabilityParam1Key = capability + "/" + capabilityParam1;
+        final String capabilityParam2Key = capability + "/" + capabilityParam2;
+        assertTrue(extra.containsKey(capabilityParam1Key));
+        assertTrue(extra.containsKey(capabilityParam2Key));
+        final String[] actualCapabilityParams1 = extra.getStringArray(capabilityParam1Key);
+        final String[] actualCapabilityParams2 = extra.getStringArray(capabilityParam2Key);
+        assertNotNull(actualCapabilityParams1);
+        assertEquals(2, actualCapabilityParams1.length);
+        assertEquals(capabilityParam1Value1, actualCapabilityParams1[0]);
+        assertEquals(capabilityParam1Value2, actualCapabilityParams1[1]);
+        assertNotNull(actualCapabilityParams2);
+        assertEquals(2, actualCapabilityParams2.length);
+        assertEquals(capabilityParam2Value1, actualCapabilityParams2[0]);
+        assertEquals(capabilityParam2Value2, actualCapabilityParams2[1]);
     }
 
     @Test

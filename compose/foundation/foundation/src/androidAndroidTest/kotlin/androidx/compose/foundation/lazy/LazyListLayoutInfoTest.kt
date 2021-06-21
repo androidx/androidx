@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -126,14 +127,14 @@ class LazyListLayoutInfoTest(
         }
     }
 
+    @Composable
+    fun ObservingFun(state: LazyListState, currentInfo: StableRef<LazyListLayoutInfo?>) {
+        currentInfo.value = state.layoutInfo
+    }
     @Test
     fun visibleItemsAreObservableWhenWeScroll() {
         lateinit var state: LazyListState
-        var currentInfo: LazyListLayoutInfo? = null
-        @Composable
-        fun observingFun() {
-            currentInfo = state.layoutInfo
-        }
+        val currentInfo = StableRef<LazyListLayoutInfo?>(null)
         rule.setContent {
             LazyColumn(
                 state = rememberLazyListState().also { state = it },
@@ -144,20 +145,20 @@ class LazyListLayoutInfoTest(
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
             }
-            observingFun()
+            ObservingFun(state, currentInfo)
         }
 
         rule.runOnIdle {
             // empty it here and scrolling should invoke observingFun again
-            currentInfo = null
+            currentInfo.value = null
             runBlocking {
                 state.scrollToItem(1, 0)
             }
         }
 
         rule.runOnIdle {
-            assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 4, startIndex = 1)
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value!!.assertVisibleItems(count = 4, startIndex = 1)
         }
     }
 
@@ -246,11 +247,15 @@ class LazyListLayoutInfoTest(
     @Test
     fun viewportOffsetsAreCorrectWithContentPadding() {
         val sizePx = 45
-        val topPaddingPx = 10
-        val bottomPaddingPx = 15
+        val startPaddingPx = 10
+        val endPaddingPx = 15
         val sizeDp = with(rule.density) { sizePx.toDp() }
-        val topPaddingDp = with(rule.density) { topPaddingPx.toDp() }
-        val bottomPaddingDp = with(rule.density) { bottomPaddingPx.toDp() }
+        val topPaddingDp = with(rule.density) {
+            if (!reverseLayout) startPaddingPx.toDp() else endPaddingPx.toDp()
+        }
+        val bottomPaddingDp = with(rule.density) {
+            if (!reverseLayout) endPaddingPx.toDp() else startPaddingPx.toDp()
+        }
         lateinit var state: LazyListState
         rule.setContent {
             LazyColumn(
@@ -266,8 +271,8 @@ class LazyListLayoutInfoTest(
         }
 
         rule.runOnIdle {
-            assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(-topPaddingPx)
-            assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx - topPaddingPx)
+            assertThat(state.layoutInfo.viewportStartOffset).isEqualTo(-startPaddingPx)
+            assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(sizePx - startPaddingPx)
         }
     }
 
@@ -291,3 +296,6 @@ class LazyListLayoutInfoTest(
         }
     }
 }
+
+@Stable
+class StableRef<T>(var value: T)

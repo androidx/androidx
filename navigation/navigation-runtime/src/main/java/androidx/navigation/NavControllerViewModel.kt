@@ -19,18 +19,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
-import java.util.UUID
 
 /**
  * NavControllerViewModel is the always up to date view of the NavController's
  * non configuration state
  */
-internal class NavControllerViewModel : ViewModel() {
-    private val viewModelStores = mutableMapOf<UUID, ViewModelStore>()
+internal class NavControllerViewModel : ViewModel(), NavViewModelStoreProvider {
+    private val viewModelStores = mutableMapOf<String, ViewModelStore>()
 
-    fun clear(backStackEntryUUID: UUID) {
+    fun clear(backStackEntryId: String) {
         // Clear and remove the NavGraph's ViewModelStore
-        val viewModelStore = viewModelStores.remove(backStackEntryUUID)
+        val viewModelStore = viewModelStores.remove(backStackEntryId)
         viewModelStore?.clear()
     }
 
@@ -41,11 +40,11 @@ internal class NavControllerViewModel : ViewModel() {
         viewModelStores.clear()
     }
 
-    fun getViewModelStore(backStackEntryUUID: UUID): ViewModelStore {
-        var viewModelStore = viewModelStores[backStackEntryUUID]
+    override fun getViewModelStore(backStackEntryId: String): ViewModelStore {
+        var viewModelStore = viewModelStores[backStackEntryId]
         if (viewModelStore == null) {
             viewModelStore = ViewModelStore()
-            viewModelStores[backStackEntryUUID] = viewModelStore
+            viewModelStores[backStackEntryId] = viewModelStore
         }
         return viewModelStore
     }
@@ -54,7 +53,7 @@ internal class NavControllerViewModel : ViewModel() {
         val sb = StringBuilder("NavControllerViewModel{")
         sb.append(Integer.toHexString(System.identityHashCode(this)))
         sb.append("} ViewModelStores (")
-        val viewModelStoreIterator: Iterator<UUID> = viewModelStores.keys.iterator()
+        val viewModelStoreIterator: Iterator<String> = viewModelStores.keys.iterator()
         while (viewModelStoreIterator.hasNext()) {
             sb.append(viewModelStoreIterator.next())
             if (viewModelStoreIterator.hasNext()) {

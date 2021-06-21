@@ -19,8 +19,6 @@ import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -29,23 +27,23 @@ plugins {
 
 dependencies {
     api(project(":wear:wear-watchface-editor"))
-    api(KOTLIN_COROUTINES_GUAVA)
+    api(libs.kotlinCoroutinesGuava)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.truth)
 }
 
 androidx {
     name = "Android Wear Watchface Client Editor"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_WATCHFACE_EDITOR
+    mavenVersion = LibraryVersions.WEAR_WATCHFACE_EDITOR_GUAVA
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface Editor library"
 }

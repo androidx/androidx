@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -48,6 +49,7 @@ internal class Controller3ASetTorchTest {
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSetTorchOn() = runBlocking {
         initGraphProcessor()
@@ -76,10 +78,11 @@ internal class Controller3ASetTorchTest {
             )
         }
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSetTorchOff() = runBlocking {
         initGraphProcessor()
@@ -108,10 +111,11 @@ internal class Controller3ASetTorchTest {
             )
         }
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testSetTorchDoesNotChangeAeModeIfNotNeeded() = runBlocking {
         initGraphProcessor()
@@ -144,7 +148,7 @@ internal class Controller3ASetTorchTest {
             )
         }
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 

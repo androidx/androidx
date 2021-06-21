@@ -52,7 +52,12 @@ import java.util.concurrent.Callable;
  * <li>Register the Advertising Id settings UI with the intent filter
  * "androidx.ads.identifier.provider.OPEN_SETTINGS".
  * </ol>
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 public class AdvertisingIdProviderManager {
 
     @VisibleForTesting

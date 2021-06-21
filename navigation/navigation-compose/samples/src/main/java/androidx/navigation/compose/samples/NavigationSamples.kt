@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -40,9 +41,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
-import androidx.navigation.compose.navigation
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Profile : Screen("profile", R.string.profile)
@@ -50,7 +51,6 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Scrollable : Screen("scrollable", R.string.scrollable)
 }
 
-@Sampled
 @Composable
 fun BasicNav() {
     val navController = rememberNavController()
@@ -61,7 +61,6 @@ fun BasicNav() {
     }
 }
 
-@Sampled
 @Composable
 fun NestedNavStartDestination() {
     val navController = rememberNavController()
@@ -74,7 +73,6 @@ fun NestedNavStartDestination() {
     }
 }
 
-@Sampled
 @Composable
 fun NestedNavInGraph() {
     val navController = rememberNavController()
@@ -84,6 +82,34 @@ fun NestedNavInGraph() {
             composable("nested") { Dashboard(navController) }
         }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
+    }
+}
+
+@Sampled
+@Composable
+fun NavScaffold() {
+    val navController = rememberNavController()
+    Scaffold { innerPadding ->
+        NavHost(navController, Screen.Profile.route, Modifier.padding(innerPadding)) {
+            composable(Screen.Profile.route) { Profile(navController) }
+            composable(Screen.Dashboard.route) { Dashboard(navController) }
+            composable(Screen.Scrollable.route) { Scrollable(navController) }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun NavWithArgs() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        composable(
+            Screen.Dashboard.route,
+            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
+        ) { backStackEntry ->
+            Dashboard(navController, backStackEntry.arguments?.getString("userId"))
+        }
     }
 }
 

@@ -17,17 +17,22 @@
 package androidx.compose.ui.platform
 
 import android.os.Build
+import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.MutableRect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -45,10 +50,17 @@ internal class RenderNodeLayer(
      * True when the RenderNodeLayer has been invalidated and not yet drawn.
      */
     private var isDirty = false
+        set(value) {
+            if (value != field) {
+                field = value
+                ownerView.notifyLayerIsDirty(this, value)
+            }
+        }
     private val outlineResolver = OutlineResolver(ownerView.density)
     private var isDestroyed = false
-    private var androidMatrixCache: android.graphics.Matrix? = null
     private var drawnWithZ = false
+
+    private val matrixCache = RenderNodeMatrixCache()
 
     private val canvasHolder = CanvasHolder()
 
@@ -68,6 +80,23 @@ internal class RenderNodeLayer(
     override val layerId: Long
         get() = renderNode.uniqueId
 
+    @ExperimentalComposeUiApi
+    override val ownerViewId: Long
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            UniqueDrawingIdApi29.getUniqueDrawingId(ownerView)
+        } else {
+            -1
+        }
+
+    @RequiresApi(29)
+    private class UniqueDrawingIdApi29 {
+        @RequiresApi(29)
+        companion object {
+            @JvmStatic
+            fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
+        }
+    }
+
     override fun updateLayerProperties(
         scaleX: Float,
         scaleY: Float,
@@ -82,7 +111,8 @@ internal class RenderNodeLayer(
         transformOrigin: TransformOrigin,
         shape: Shape,
         clip: Boolean,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
+        density: Density
     ) {
         this.transformOrigin = transformOrigin
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
@@ -105,7 +135,8 @@ internal class RenderNodeLayer(
             renderNode.alpha,
             renderNode.clipToOutline,
             renderNode.elevation,
-            layoutDirection
+            layoutDirection,
+            density
         )
         renderNode.setOutline(outlineResolver.outline)
         val isClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
@@ -117,6 +148,21 @@ internal class RenderNodeLayer(
         if (!drawnWithZ && renderNode.elevation > 0f) {
             invalidateParentLayer()
         }
+        matrixCache.invalidate()
+    }
+
+    override fun isInLayer(position: Offset): Boolean {
+        val x = position.x
+        val y = position.y
+        if (renderNode.clipToBounds) {
+            return 0f <= x && x < renderNode.width && 0f <= y && y < renderNode.height
+        }
+
+        if (renderNode.clipToOutline) {
+            return outlineResolver.isInOutline(position)
+        }
+
+        return true
     }
 
     override fun resize(size: IntSize) {
@@ -134,6 +180,7 @@ internal class RenderNodeLayer(
             outlineResolver.update(Size(width.toFloat(), height.toFloat()))
             renderNode.setOutline(outlineResolver.outline)
             invalidate()
+            matrixCache.invalidate()
         }
     }
 
@@ -146,13 +193,13 @@ internal class RenderNodeLayer(
             renderNode.offsetLeftAndRight(newLeft - oldLeft)
             renderNode.offsetTopAndBottom(newTop - oldTop)
             triggerRepaint()
+            matrixCache.invalidate()
         }
     }
 
     override fun invalidate() {
         if (!isDirty && !isDestroyed) {
             ownerView.invalidate()
-            ownerView.dirtyLayers += this
             isDirty = true
         }
     }
@@ -185,32 +232,133 @@ internal class RenderNodeLayer(
             }
         } else {
             drawBlock(canvas)
+            isDirty = false
         }
-        isDirty = false
     }
 
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList) {
-            val clipPath = if (renderNode.clipToOutline) outlineResolver.clipPath else null
-
-            renderNode.record(canvasHolder, clipPath, drawBlock)
-
             isDirty = false
+            val clipPath = if (renderNode.clipToOutline) outlineResolver.clipPath else null
+            renderNode.record(canvasHolder, clipPath, drawBlock)
         }
     }
 
     override fun destroy() {
         isDestroyed = true
-        ownerView.dirtyLayers -= this
+        isDirty = false
         ownerView.requestClearInvalidObservations()
     }
 
-    override fun getMatrix(matrix: Matrix) {
-        val androidMatrix = androidMatrixCache ?: android.graphics.Matrix().also {
-            androidMatrixCache = it
+    override fun mapOffset(point: Offset, inverse: Boolean): Offset {
+        return if (inverse) {
+            matrixCache.getInverseMatrix(renderNode).map(point)
+        } else {
+            matrixCache.getMatrix(renderNode).map(point)
         }
-        renderNode.getMatrix(androidMatrix)
-        matrix.setFrom(androidMatrix)
+    }
+
+    override fun mapBounds(rect: MutableRect, inverse: Boolean) {
+        if (inverse) {
+            matrixCache.getInverseMatrix(renderNode).map(rect)
+        } else {
+            matrixCache.getMatrix(renderNode).map(rect)
+        }
+    }
+}
+
+/**
+ * Helper class to cache a [Matrix] and inverse [Matrix], allowing the instance to be reused until
+ * the [RenderNodeLayer]'s properties have changed, causing it to call [invalidate].
+ *
+ * This caches both the inverse and normal matrix as a slight fast path which lets us use
+ * [DeviceRenderNode.getInverseMatrix], instead of needing to manually invert the matrix.
+ *
+ * This allows us to avoid repeated calls to [android.graphics.Matrix.getValues], which calls
+ * an expensive native method (nGetValues). If we know the matrix hasn't changed, we can just
+ * re-use it without needing to read and update values.
+ */
+private class RenderNodeMatrixCache {
+    private var oldAndroidMatrixCache: android.graphics.Matrix? = null
+    private var newAndroidMatrixCache: android.graphics.Matrix? = null
+    private var matrixCache: Matrix? = null
+
+    private var oldInverseAndroidMatrixCache: android.graphics.Matrix? = null
+    private var newInverseAndroidMatrixCache: android.graphics.Matrix? = null
+    private var inverseMatrixCache: Matrix? = null
+
+    private var isDirty = true
+    private var isInverseDirty = true
+
+    /**
+     * Ensures that the internal matrix will be updated next time [getMatrix] or [getInverseMatrix]
+     * is called - this should be called when something that will change the matrix calculation
+     * has happened.
+     */
+    fun invalidate() {
+        isDirty = true
+        isInverseDirty = true
+    }
+
+    /**
+     * Returns the cached [Matrix], updating it if required (if [invalidate] was previously called).
+     */
+    fun getMatrix(renderNode: DeviceRenderNode): Matrix {
+        val matrix = matrixCache ?: Matrix().also {
+            matrixCache = it
+        }
+        if (!isDirty) {
+            return matrix
+        }
+
+        val new = newAndroidMatrixCache ?: android.graphics.Matrix().also {
+            newAndroidMatrixCache = it
+        }
+
+        renderNode.getMatrix(new)
+
+        if (oldAndroidMatrixCache != new) {
+            // Update the Compose matrix if the underlying Android matrix has changed
+            matrix.setFrom(new)
+            if (oldAndroidMatrixCache == null) {
+                oldAndroidMatrixCache = android.graphics.Matrix(new)
+            } else {
+                oldAndroidMatrixCache!!.set(new)
+            }
+        }
+        isDirty = false
+        return matrix
+    }
+
+    /**
+     * Returns the cached inverse [Matrix], updating it if required (if [invalidate] was previously
+     * called).
+     */
+    fun getInverseMatrix(renderNode: DeviceRenderNode): Matrix {
+        val matrix = inverseMatrixCache ?: Matrix().also {
+            inverseMatrixCache = it
+        }
+        if (!isInverseDirty) {
+            return matrix
+        }
+
+        val new = newInverseAndroidMatrixCache ?: android.graphics.Matrix().also {
+            newInverseAndroidMatrixCache = it
+        }
+
+        renderNode.getInverseMatrix(new)
+
+        if (oldInverseAndroidMatrixCache != new) {
+            // Update the Compose matrix if the underlying Android matrix has changed
+            matrix.setFrom(new)
+            if (oldInverseAndroidMatrixCache == null) {
+                oldInverseAndroidMatrixCache = android.graphics.Matrix(new)
+            } else {
+                oldInverseAndroidMatrixCache!!.set(new)
+            }
+        }
+        isInverseDirty = false
+        return matrix
     }
 }
 

@@ -25,25 +25,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Switch
-            android:id="@+id/enable"
+        <Spinner
+            android:id="@+id/fontSource"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="EmojiCompat"
-            android:layout_marginBottom="@dimen/spacing_small"/>
+            android:layout_height="wrap_content" />
 
         <Switch
             android:id="@+id/replaceAll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Replace All"
-            android:layout_marginBottom="@dimen/spacing_small"/>
-
-        <Switch
-            android:id="@+id/useDownloadable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Downloadable"
             android:layout_marginBottom="@dimen/spacing_small"/>
 
         <Switch

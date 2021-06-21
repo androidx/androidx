@@ -48,6 +48,8 @@ class NavTypeTest {
         private val parcelable = ActivityInfo()
         private val parcelables = arrayOf(parcelable)
         private val en = Bitmap.Config.ALPHA_8
+        private val enString = "ALPHA_8"
+        private val enStringCasing = "alpha_8"
         private val serializable = Person()
         private val serializables = arrayOf(Bitmap.Config.ALPHA_8)
         private val parcelableNavType = NavType.ParcelableType(ActivityInfo::class.java)
@@ -241,5 +243,14 @@ class NavTypeTest {
 
         assertThat(NavType.ReferenceType.parseValue(referenceHex))
             .isEqualTo(reference)
+    }
+
+    @Test
+    fun parseEnumValue() {
+        assertThat(enumNavType.parseValue(enString))
+            .isEqualTo(en)
+
+        assertThat(enumNavType.parseValue(enStringCasing))
+            .isEqualTo(en)
     }
 }

@@ -28,18 +28,18 @@ private object DummyComponent : Component()
  * The [KeyEvent] is usually created by the system. This function creates an instance of
  * [KeyEvent] that can be used in tests.
  */
-fun keyEvent(key: Key, keyEventType: KeyEventType): KeyEvent {
+fun keyEvent(key: Key, keyEventType: KeyEventType, modifiers: Int = 0): KeyEvent {
     val action = when (keyEventType) {
         KeyEventType.KeyDown -> KEY_PRESSED
         KeyEventType.KeyUp -> KEY_RELEASED
-        KeyEventType.Unknown -> error("Unknown key event type")
+        else -> error("Unknown key event type")
     }
     return KeyEvent(
         KeyEventAwt(
             DummyComponent,
             action,
             0L,
-            0,
+            modifiers,
             key.nativeKeyCode,
             KeyEventAwt.getKeyText(key.nativeKeyCode)[0],
             key.nativeKeyLocation

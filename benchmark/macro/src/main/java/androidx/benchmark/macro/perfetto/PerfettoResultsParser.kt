@@ -16,50 +16,37 @@
 
 package androidx.benchmark.macro.perfetto
 
-import org.json.JSONArray
+import androidx.benchmark.macro.MetricsWithUiState
 import org.json.JSONObject
 
-object PerfettoResultsParser {
-    fun parseResult(jsonTrace: String, packageName: String): Map<String, Long> {
-        val map = mutableMapOf<String, Long>()
-        val json = JSONObject(jsonTrace)
-        val androidStartup = json.optJSONObject(ANDROID_STARTUP)
-        if (androidStartup != null) {
-            val startup = androidStartup.optJSONArray(STARTUP)
-            if (startup != null && startup.length() > 0) {
-                parseStartupResult(startup, packageName, map)
-            }
-        }
-        return map
-    }
-
-    private fun parseStartupResult(
-        json: JSONArray,
-        packageName: String,
-        map: MutableMap<String, Long>
-    ) {
-        val length = json.length()
-        for (i in 0 until length) {
-            val startupResult = json.getJSONObject(i)
-            val targetPackageName = startupResult.optString(PACKAGE_NAME)
-            if (packageName == targetPackageName) {
-                val firstFrameMetric = startupResult.optJSONObject(TO_FIRST_FRAME)
-                if (firstFrameMetric != null) {
-                    val duration = firstFrameMetric.optDouble(DUR_MS, 0.0)
-                    map[STARTUP_MS] = duration.toLong()
+internal object PerfettoResultsParser {
+    fun parseStartupResult(jsonMetricResults: String, packageName: String): MetricsWithUiState {
+        val json = JSONObject(jsonMetricResults)
+        json.optJSONObject("android_startup")?.let { androidStartup ->
+            androidStartup.optJSONArray("startup")?.let { startup ->
+                for (i in 0 until startup.length()) {
+                    val startupResult = startup.getJSONObject(i)
+                    if (startupResult.optString("package_name") == packageName) {
+                        // NOTE: we return the startup for this process, and ignore any more
+                        return startupResult.parseStartupMetricsWithUiState()
+                    }
                 }
             }
         }
+
+        return MetricsWithUiState.EMPTY
     }
 
-    private const val ANDROID_STARTUP = "android_startup"
-    private const val STARTUP = "startup"
-    private const val PACKAGE_NAME = "package_name"
-    private const val TO_FIRST_FRAME = "to_first_frame"
-    private const val DUR_MS = "dur_ms"
-    private const val TIME_ACTIVITY_START = "time_activity_start"
-    private const val TIME_ACTIVITY_RESUME = "time_activity_resume"
+    private fun JSONObject.parseStartupMetricsWithUiState(): MetricsWithUiState {
+        val durMs = getJSONObject("to_first_frame").getDouble("dur_ms")
 
-    // Metric Keys
-    private const val STARTUP_MS = "startupMs"
+        val eventTimestamps = optJSONObject("event_timestamps")
+        val timelineStart = eventTimestamps?.optLong("intent_received")
+        val timelineEnd = eventTimestamps?.optLong("first_frame")
+        return MetricsWithUiState(
+            metrics = mapOf("startupMs" to durMs.toLong()),
+            timelineStart = timelineStart,
+            timelineEnd = timelineEnd
+        )
+    }
 }

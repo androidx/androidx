@@ -47,14 +47,17 @@ import java.util.concurrent.Executor;
 
 class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
         MediaLibrarySession.MediaLibrarySessionImpl {
+    private final boolean mThrowsWhenInvalidReturn;
     @GuardedBy("mLock")
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
     MediaLibrarySessionImplBase(MediaSession instance, Context context, String id,
             SessionPlayer player, PendingIntent sessionActivity, Executor callbackExecutor,
-            MediaSession.SessionCallback callback, Bundle tokenExtras) {
+            MediaSession.SessionCallback callback, Bundle tokenExtras,
+            boolean throwsWhenInvalidReturn) {
         super(instance, context, id, player, sessionActivity, callbackExecutor, callback,
                 tokenExtras);
+        mThrowsWhenInvalidReturn = throwsWhenInvalidReturn;
     }
 
     @Override
@@ -146,7 +149,8 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
 
     private LibraryResult ensureNonNullResult(LibraryResult returnedResult) {
         if (returnedResult == null) {
-            throw new RuntimeException("LibraryResult shouldn't be null");
+            handleError("LibraryResult shouldn't be null");
+            returnedResult = new LibraryResult(RESULT_ERROR_UNKNOWN);
         }
         return returnedResult;
     }
@@ -158,12 +162,14 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
             List<MediaItem> items = returnedResult.getMediaItems();
 
             if (items == null) {
-                throw new RuntimeException("List shouldn't be null for the success");
+                handleError("List shouldn't be null for the success");
+                return new LibraryResult(RESULT_ERROR_UNKNOWN);
             }
             if (items.size() > pageSize) {
-                throw new RuntimeException("List shouldn't contain items more than pageSize"
+                handleError("List shouldn't contain items more than pageSize"
                         + ", size=" + returnedResult.getMediaItems().size()
                         + ", pageSize" + pageSize);
+                return new LibraryResult(RESULT_ERROR_UNKNOWN);
             }
             for (MediaItem item : items) {
                 if (!isValidItem(item)) {
@@ -186,24 +192,29 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
 
     private boolean isValidItem(MediaItem item) {
         if (item == null) {
-            throw new RuntimeException("Item shouldn't be null for the success");
+            handleError("Item shouldn't be null for the success");
+            return false;
         }
         if (TextUtils.isEmpty(item.getMediaId())) {
-            throw new RuntimeException(
+            handleError(
                     "Media ID of an item shouldn't be empty for the success");
+            return false;
         }
         MediaMetadata metadata = item.getMetadata();
         if (metadata == null) {
-            throw new RuntimeException(
+            handleError(
                     "Metadata of an item shouldn't be null for the success");
+            return false;
         }
         if (!metadata.containsKey(MediaMetadata.METADATA_KEY_BROWSABLE)) {
-            throw new RuntimeException(
+            handleError(
                     "METADATA_KEY_BROWSABLE should be specified in metadata of an item");
+            return false;
         }
         if (!metadata.containsKey(MediaMetadata.METADATA_KEY_PLAYABLE)) {
-            throw new RuntimeException(
+            handleError(
                     "METADATA_KEY_PLAYABLE should be specified in metadata of an item");
+            return false;
         }
         return true;
     }
@@ -330,6 +341,14 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
                     Log.d(TAG, "  - " + parentId);
                 }
             }
+        }
+    }
+
+    private void handleError(@NonNull String message) {
+        if (mThrowsWhenInvalidReturn) {
+            throw new RuntimeException(message);
+        } else {
+            Log.e(TAG, message);
         }
     }
 }

@@ -15,7 +15,12 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.v7.appcompat.test">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.appcompat.test">
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        tools:overrideLibrary="android_libs.ub_uiautomator" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
@@ -93,6 +98,11 @@
             android:configChanges="orientation"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatAutoCompleteTextViewActivity"
+            android:label="@string/app_compat_auto_complete_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
             android:label="@string/app_compat_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
@@ -103,7 +113,17 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatTextViewEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatEditTextActivity"
+            android:label="@string/app_compat_edit_text_activity"
+            android:theme="@style/Theme.TextColors"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatEditTextEmojiActivity"
             android:label="@string/app_compat_edit_text_activity"
             android:theme="@style/Theme.TextColors"/>
 
@@ -133,6 +153,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatButtonEmojiActivity"
+            android:label="@string/app_compat_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatIconsActivity"
             android:label="@string/app_compat_icons_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
@@ -148,9 +173,29 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatCheckedTextViewActivity"
+            android:label="@string/app_compat_checkedtextview_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatCheckedTextViewEmojiActivity"
+            android:label="@string/app_compat_checkedtextview_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatToggleButtonActivity"
             android:label="@string/app_compat_toggle_button_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatToggleButtonEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name="androidx.appcompat.widget.SwitchCompatEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
             android:name="androidx.appcompat.widget.SwitchCompatActivity"
@@ -190,6 +235,16 @@
 
         <activity
             android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="uiMode"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivityB"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="uiMode"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivityC"
             android:theme="@style/Theme.AppCompat.DayNight"
             android:configChanges="uiMode"/>
 

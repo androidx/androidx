@@ -24,10 +24,12 @@ import com.android.tools.build.jetifier.processor.archive.Archive
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.archive.ArchiveItemVisitor
 import com.android.tools.build.jetifier.processor.archive.FileSearchResult
-import com.android.tools.build.jetifier.processor.com.android.tools.build.jetifier.processor.transform.java.JavaTransformer
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.android.tools.build.jetifier.processor.transform.Transformer
 import com.android.tools.build.jetifier.processor.transform.bytecode.ByteCodeTransformer
+import com.android.tools.build.jetifier.processor.transform.java.JavaTransformer
+import com.android.tools.build.jetifier.processor.transform.kotlin.KotlinTransformer
+import com.android.tools.build.jetifier.processor.transform.metainf.KotlinModuleTransformer
 import com.android.tools.build.jetifier.processor.transform.metainf.MetaInfTransformer
 import com.android.tools.build.jetifier.processor.transform.pom.PomDocument
 import com.android.tools.build.jetifier.processor.transform.pom.PomScanner
@@ -59,7 +61,9 @@ class Processor private constructor(
             ByteCodeTransformer(context),
             XmlResourcesTransformer(context),
             ProGuardTransformer(context),
-            JavaTransformer(context)
+            JavaTransformer(context),
+            KotlinModuleTransformer(context),
+            KotlinTransformer(context),
         )
 
         /**
@@ -70,7 +74,8 @@ class Processor private constructor(
             ByteCodeTransformer(context),
             XmlResourcesTransformer(context),
             ProGuardTransformer(context),
-            MetaInfTransformer(context)
+            MetaInfTransformer(context),
+            KotlinModuleTransformer(context)
         )
 
         /**

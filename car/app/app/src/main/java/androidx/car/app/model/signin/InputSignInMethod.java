@@ -28,9 +28,11 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.InputCallback;
+import androidx.car.app.model.InputCallbackDelegate;
+import androidx.car.app.model.InputCallbackDelegateImpl;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -42,22 +44,8 @@ import java.util.Objects;
  *
  * <p>For example, this can be used to request a username, a password or an activation code.
  */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public final class InputSignInMethod implements SignInTemplate.SignInMethod {
-    /** A listener for handling text input completion event. */
-    public interface OnInputCompletedListener {
-        /**
-         * Notifies when the user finished entering text in an input box.
-         *
-         * <p>This event is sent when the user finishes typing in the keyboard and pressed enter.
-         * If the user simply stops typing and closes the keyboard, this event will not be sent.
-         *
-         * @param text the text that was entered, or an empty string if no text was typed.
-         */
-        void onInputCompleted(@NonNull String text);
-    }
-
     /**
      * The type of input represented by the {@link InputSignInMethod} instance.
      *
@@ -122,7 +110,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
 
     @Keep
     @Nullable
-    private final CarText mPrompt;
+    private final CarText mHint;
     @Keep
     @Nullable
     private final CarText mDefaultValue;
@@ -131,25 +119,24 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     private final int mInputType;
     @Keep
     @Nullable
-    private final CarText mMessage;
+    private final CarText mErrorMessage;
     @Keep
     @KeyboardType
     private final int mKeyboardType;
-    @Keep
     @Nullable
-    private final OnInputCompletedDelegate mOnInputCompletedDelegate;
+    private final InputCallbackDelegate mInputCallbackDelegate;
     @Keep
     private final boolean mShowKeyboardByDefault;
 
     /**
      * Returns the text explaining to the user what should be entered in this input box or
-     * {@code null} if no prompt is provided.
+     * {@code null} if no hint is provided.
      *
-     * @see Builder#setPrompt(CharSequence)
+     * @see Builder#setHint(CharSequence)
      */
     @Nullable
-    public CarText getPrompt() {
-        return mPrompt;
+    public CarText getHint() {
+        return mHint;
     }
 
     /**
@@ -174,16 +161,16 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     }
 
     /**
-     * Returns a message associated with the user input.
+     * Returns an error message associated with the user input.
      *
      * <p>For example, this can be used to indicate formatting errors, wrong username or
-     * password, or any other situation related to the user input.
+     * password, or any other problem related to the user input.
      *
-     * @see Builder#setMessage(CharSequence)
+     * @see Builder#setErrorMessage(CharSequence)
      */
     @Nullable
-    public CarText getMessage() {
-        return mMessage;
+    public CarText getErrorMessage() {
+        return mErrorMessage;
     }
 
     /**
@@ -196,13 +183,13 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     }
 
     /**
-     * Returns the {@link OnInputCompletedDelegate} for input callbacks.
+     * Returns the {@link InputCallbackDelegate} for input callbacks.
      *
-     * @see Builder#Builder(OnInputCompletedListener)
+     * @see Builder#Builder(InputCallback)
      */
     @NonNull
-    public OnInputCompletedDelegate getOnInputCompletedDelegate() {
-        return requireNonNull(mOnInputCompletedDelegate);
+    public InputCallbackDelegate getInputCallbackDelegate() {
+        return requireNonNull(mInputCallbackDelegate);
     }
 
     /**
@@ -234,64 +221,64 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         return mInputType == that.mInputType
                 && mKeyboardType == that.mKeyboardType
                 && mShowKeyboardByDefault == that.mShowKeyboardByDefault
-                && Objects.equals(mPrompt, that.mPrompt)
+                && Objects.equals(mHint, that.mHint)
                 && Objects.equals(mDefaultValue, that.mDefaultValue)
-                && Objects.equals(mMessage, that.mMessage);
+                && Objects.equals(mErrorMessage, that.mErrorMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mPrompt, mDefaultValue, mInputType, mMessage, mKeyboardType,
+        return Objects.hash(mHint, mDefaultValue, mInputType, mErrorMessage, mKeyboardType,
                 mShowKeyboardByDefault);
     }
 
     InputSignInMethod(Builder builder) {
-        mPrompt = builder.mPrompt;
+        mHint = builder.mHint;
         mDefaultValue = builder.mDefaultValue;
         mInputType = builder.mInputType;
-        mMessage = builder.mMessage;
+        mErrorMessage = builder.mErrorMessage;
         mKeyboardType = builder.mKeyboardType;
-        mOnInputCompletedDelegate = builder.mOnInputCompletedDelegate;
+        mInputCallbackDelegate = builder.mInputCallbackDelegate;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private InputSignInMethod() {
-        mPrompt = null;
+        mHint = null;
         mDefaultValue = null;
         mInputType = INPUT_TYPE_DEFAULT;
-        mMessage = null;
+        mErrorMessage = null;
         mKeyboardType = KEYBOARD_DEFAULT;
-        mOnInputCompletedDelegate = null;
+        mInputCallbackDelegate = null;
         mShowKeyboardByDefault = false;
     }
 
     /** A builder of {@link InputSignInMethod}. */
     public static final class Builder {
-        final OnInputCompletedDelegate mOnInputCompletedDelegate;
+        @Nullable final InputCallbackDelegate mInputCallbackDelegate;
         @Nullable
-        CarText mPrompt;
+        CarText mHint;
         @Nullable
         CarText mDefaultValue;
         int mInputType = INPUT_TYPE_DEFAULT;
         @Nullable
-        CarText mMessage;
+        CarText mErrorMessage;
         int mKeyboardType = KEYBOARD_DEFAULT;
         boolean mShowKeyboardByDefault;
 
         /**
          * Sets the text explaining to the user what should be entered in this input box.
          *
-         * <p>Unless set with this method, the sign-in method will not show any prompt.
+         * <p>Unless set with this method, the sign-in method will not show any hint.
          *
          * <p>Spans are supported in the input string.
          *
-         * @throws NullPointerException if {@code prompt} is {@code null}
+         * @throws NullPointerException if {@code hint} is {@code null}
          */
         // TODO(b/181569051): document supported span types.
         @NonNull
-        public Builder setPrompt(@NonNull CharSequence instructions) {
-            mPrompt = CarText.create(requireNonNull(instructions));
+        public Builder setHint(@NonNull CharSequence hint) {
+            mHint = CarText.create(requireNonNull(hint));
             return this;
         }
 
@@ -330,24 +317,23 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         }
 
         /**
-         * Sets the message associated with this input box.
+         * Sets the error message associated with this input box.
          *
          * <p>For example, this can be used to indicate formatting errors, wrong username or
-         * password or any other situation related to the user input.
+         * password or any other problem related to the user input.
          *
          * <h4>Requirements</h4>
          *
-         * Messages can have only up to 2 lines of text, amd additional texts beyond the
+         * Error messages can have only up to 2 lines of text, amd additional texts beyond the
          * second line may be truncated.
          *
-         * <p>Spans are supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code message} is {@code null}
          */
-        // TODO(b/181569051): document supported span types.
         @NonNull
-        public Builder setMessage(@NonNull CharSequence message) {
-            mMessage = CarText.create(requireNonNull(message));
+        public Builder setErrorMessage(@NonNull CharSequence message) {
+            mErrorMessage = CarText.create(requireNonNull(message));
             return this;
         }
 
@@ -393,12 +379,12 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
          *
-         * @param listener the {@link OnInputCompletedListener} to be notified of input events
+         * @param listener the {@link InputCallbackDelegate} to be notified of input events
          * @throws NullPointerException if {@code listener} is {@code null}
          */
         @SuppressLint("ExecutorRegistration")
-        public Builder(@NonNull OnInputCompletedListener listener) {
-            mOnInputCompletedDelegate = OnInputCompletedDelegateImpl.create(
+        public Builder(@NonNull InputCallback listener) {
+            mInputCallbackDelegate = InputCallbackDelegateImpl.create(
                     requireNonNull(listener));
         }
 

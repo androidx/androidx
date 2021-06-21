@@ -25,7 +25,8 @@ import java.util.ArrayList;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentManagerState implements Parcelable {
-    ArrayList<FragmentState> mActive;
+    ArrayList<FragmentState> mSavedState;
+    ArrayList<String> mActive;
     ArrayList<String> mAdded;
     BackStackRecordState[] mBackStack;
     int mBackStackIndex;
@@ -40,7 +41,8 @@ final class FragmentManagerState implements Parcelable {
     }
 
     public FragmentManagerState(Parcel in) {
-        mActive = in.createTypedArrayList(FragmentState.CREATOR);
+        mSavedState = in.createTypedArrayList(FragmentState.CREATOR);
+        mActive = in.createStringArrayList();
         mAdded = in.createStringArrayList();
         mBackStack = in.createTypedArray(BackStackRecordState.CREATOR);
         mBackStackIndex = in.readInt();
@@ -59,7 +61,8 @@ final class FragmentManagerState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedList(mActive);
+        dest.writeTypedList(mSavedState);
+        dest.writeStringList(mActive);
         dest.writeStringList(mAdded);
         dest.writeTypedArray(mBackStack, flags);
         dest.writeInt(mBackStackIndex);

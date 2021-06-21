@@ -1,71 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected Cursor mCursor;"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="62"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected Context mContext;"
-        errorLine2="              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="68"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected ChangeObserver mChangeObserver;"
-        errorLine2="              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="80"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected DataSetObserver mDataSetObserver;"
-        errorLine2="              ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="86"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected CursorFilter mCursorFilter;"
-        errorLine2="              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="92"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected FilterQueryProvider mFilterQueryProvider;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="98"
-            column="15"/>
-    </issue>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="UnknownNullness"
@@ -74,7 +8,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="136"
+            line="87"
             column="26"/>
     </issue>
 
@@ -85,7 +19,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="136"
+            line="87"
             column="43"/>
     </issue>
 
@@ -96,7 +30,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="153"
+            line="104"
             column="26"/>
     </issue>
 
@@ -107,7 +41,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="153"
+            line="104"
             column="43"/>
     </issue>
 
@@ -118,7 +52,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="166"
+            line="117"
             column="26"/>
     </issue>
 
@@ -129,7 +63,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="166"
+            line="117"
             column="43"/>
     </issue>
 
@@ -140,7 +74,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="176"
+            line="127"
             column="25"/>
     </issue>
 
@@ -151,7 +85,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="176"
+            line="127"
             column="42"/>
     </issue>
 
@@ -162,7 +96,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="213"
+            line="164"
             column="12"/>
     </issue>
 
@@ -173,7 +107,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="233"
+            line="184"
             column="12"/>
     </issue>
 
@@ -184,7 +118,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="267"
+            line="218"
             column="12"/>
     </issue>
 
@@ -195,7 +129,7 @@
         errorLine2="                                      ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="267"
+            line="218"
             column="39"/>
     </issue>
 
@@ -206,7 +140,7 @@
         errorLine2="                                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="267"
+            line="218"
             column="57"/>
     </issue>
 
@@ -217,7 +151,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="285"
+            line="236"
             column="12"/>
     </issue>
 
@@ -228,7 +162,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="285"
+            line="236"
             column="47"/>
     </issue>
 
@@ -239,7 +173,7 @@
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="285"
+            line="236"
             column="65"/>
     </issue>
 
@@ -250,7 +184,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="309"
+            line="260"
             column="21"/>
     </issue>
 
@@ -261,7 +195,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="309"
+            line="260"
             column="34"/>
     </issue>
 
@@ -272,7 +206,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="309"
+            line="260"
             column="51"/>
     </issue>
 
@@ -283,7 +217,7 @@
         errorLine2="                                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="309"
+            line="260"
             column="66"/>
     </issue>
 
@@ -294,7 +228,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="319"
+            line="270"
             column="12"/>
     </issue>
 
@@ -305,7 +239,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="319"
+            line="270"
             column="33"/>
     </issue>
 
@@ -316,7 +250,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="319"
+            line="270"
             column="50"/>
     </issue>
 
@@ -327,7 +261,7 @@
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="319"
+            line="270"
             column="65"/>
     </issue>
 
@@ -338,7 +272,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="330"
+            line="281"
             column="35"/>
     </issue>
 
@@ -349,7 +283,7 @@
         errorLine2="                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="330"
+            line="281"
             column="46"/>
     </issue>
 
@@ -360,7 +294,7 @@
         errorLine2="                                                              ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="330"
+            line="281"
             column="63"/>
     </issue>
 
@@ -371,7 +305,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="339"
+            line="290"
             column="30"/>
     </issue>
 
@@ -382,7 +316,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="356"
+            line="307"
             column="12"/>
     </issue>
 
@@ -393,7 +327,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="356"
+            line="307"
             column="30"/>
     </issue>
 
@@ -404,7 +338,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="392"
+            line="343"
             column="12"/>
     </issue>
 
@@ -415,7 +349,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="392"
+            line="343"
             column="41"/>
     </issue>
 
@@ -426,7 +360,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="422"
+            line="373"
             column="12"/>
     </issue>
 
@@ -437,7 +371,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="422"
+            line="373"
             column="46"/>
     </issue>
 
@@ -448,7 +382,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="431"
+            line="382"
             column="12"/>
     </issue>
 
@@ -459,7 +393,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="447"
+            line="398"
             column="12"/>
     </issue>
 
@@ -470,7 +404,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="463"
+            line="414"
             column="40"/>
     </issue>
 

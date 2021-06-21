@@ -22,7 +22,6 @@ import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_O
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -58,7 +57,6 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
-        updateSessionConfig();
     }
 
     /** Notifies all submitted requests onCaptureCancelled */
@@ -137,7 +135,6 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
         return Futures.immediateFuture(null);
     }
@@ -153,12 +150,14 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public Rect getSensorRect() {
-        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
+    public SessionConfig getSessionConfig() {
+        return mSessionConfigBuilder.build();
     }
 
-    private void updateSessionConfig() {
-        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+    @NonNull
+    @Override
+    public Rect getSensorRect() {
+        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
     }
 
     @NonNull

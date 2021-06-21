@@ -1,20 +1,20 @@
 // Signature format: 4.0
 package androidx.ads.identifier {
 
-  public class AdvertisingIdClient {
-    method public static com.google.common.util.concurrent.ListenableFuture<androidx.ads.identifier.AdvertisingIdInfo!> getAdvertisingIdInfo(android.content.Context);
-    method public static boolean isAdvertisingIdProviderAvailable(android.content.Context);
+  @Deprecated public class AdvertisingIdClient {
+    method @Deprecated public static com.google.common.util.concurrent.ListenableFuture<androidx.ads.identifier.AdvertisingIdInfo!> getAdvertisingIdInfo(android.content.Context);
+    method @Deprecated public static boolean isAdvertisingIdProviderAvailable(android.content.Context);
   }
 
-  @com.google.auto.value.AutoValue public abstract class AdvertisingIdInfo {
-    method public abstract String getId();
-    method public abstract String getProviderPackageName();
-    method public abstract boolean isLimitAdTrackingEnabled();
+  @Deprecated @com.google.auto.value.AutoValue @com.google.auto.value.AutoValue.CopyAnnotations public abstract class AdvertisingIdInfo {
+    method @Deprecated public abstract String getId();
+    method @Deprecated public abstract String getProviderPackageName();
+    method @Deprecated public abstract boolean isLimitAdTrackingEnabled();
   }
 
-  public class AdvertisingIdNotAvailableException extends java.lang.Exception {
-    ctor public AdvertisingIdNotAvailableException(String);
-    ctor public AdvertisingIdNotAvailableException(String, Throwable);
+  @Deprecated public class AdvertisingIdNotAvailableException extends java.lang.Exception {
+    ctor @Deprecated public AdvertisingIdNotAvailableException(String);
+    ctor @Deprecated public AdvertisingIdNotAvailableException(String, Throwable);
   }
 
 }

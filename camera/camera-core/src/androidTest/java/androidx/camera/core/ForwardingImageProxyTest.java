@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -129,7 +129,7 @@ public final class ForwardingImageProxyTest {
     }
 
     @Test
-    @UseExperimental(markerClass = ExperimentalGetImage.class)
+    @OptIn(markerClass = ExperimentalGetImage.class)
     public void getImage_returnsImageForWrappedImage() {
         assertThat(mImageProxy.getImage()).isEqualTo(mBaseImageProxy.getImage());
     }

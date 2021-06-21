@@ -55,6 +55,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertNotEquals
 import java.util.concurrent.CountDownLatch
@@ -1807,6 +1808,7 @@ class SizeTest : LayoutTest() {
     }
 
     @Test
+    @FlakyTest(bugId = 183713100)
     fun testModifiers_doNotCauseUnnecessaryRemeasure() {
         var first by mutableStateOf(true)
         var totalMeasures = 0
@@ -1948,6 +1950,27 @@ class SizeTest : LayoutTest() {
             }
         }
         // The test tests that the measure pass should not crash.
+        val root = findComposeView()
+        waitForDraw(root)
+    }
+
+    @Test
+    fun sizeModifiers_doNotCauseCrashesWhenCreatingConstraints() {
+        show {
+            Box(Modifier.sizeIn(minWidth = -1.dp))
+            Box(Modifier.sizeIn(minWidth = 10.dp, maxWidth = 5.dp))
+            Box(Modifier.sizeIn(minHeight = -1.dp))
+            Box(Modifier.sizeIn(minHeight = 10.dp, maxHeight = 5.dp))
+            Box(
+                Modifier.sizeIn(
+                    minWidth = Dp.Infinity,
+                    maxWidth = Dp.Infinity,
+                    minHeight = Dp.Infinity,
+                    maxHeight = Dp.Infinity
+                )
+            )
+            Box(Modifier.defaultMinSize(minWidth = -1.dp, minHeight = -1.dp))
+        }
         val root = findComposeView()
         waitForDraw(root)
     }

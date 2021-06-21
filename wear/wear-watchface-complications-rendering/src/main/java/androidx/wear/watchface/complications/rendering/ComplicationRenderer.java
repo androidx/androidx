@@ -129,9 +129,9 @@ class ComplicationRenderer {
     Drawable mLargeImage;
 
     // Drawables for rendering rounded images
-    private final RoundedDrawable mRoundedBackgroundDrawable = new RoundedDrawable();
-    private final RoundedDrawable mRoundedLargeImage = new RoundedDrawable();
-    private final RoundedDrawable mRoundedSmallImage = new RoundedDrawable();
+    private RoundedDrawable mRoundedBackgroundDrawable = null;
+    private RoundedDrawable mRoundedLargeImage = null;
+    private RoundedDrawable mRoundedSmallImage = null;
 
     // Text renderers
     private final TextRenderer mMainTextRenderer = new TextRenderer();
@@ -175,8 +175,8 @@ class ComplicationRenderer {
      * Initializes complication renderer.
      *
      * @param context      Current context.
-     * @param activeStyle  Complication style to be used when in active mode.
-     * @param ambientStyle Complication style to be used when in ambient mode.
+     * @param activeStyle  ComplicationSlot style to be used when in active mode.
+     * @param ambientStyle ComplicationSlot style to be used when in ambient mode.
      */
     ComplicationRenderer(
             Context context, ComplicationStyle activeStyle, ComplicationStyle ambientStyle) {
@@ -208,7 +208,7 @@ class ComplicationRenderer {
     /**
      * Sets the complication data to be rendered.
      *
-     * @param data Complication data to be rendered. If this is null, nothing is drawn.
+     * @param data ComplicationSlot data to be rendered. If this is null, nothing is drawn.
      * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise
      *     they will be loaded synchronously.
      */
@@ -218,6 +218,10 @@ class ComplicationRenderer {
         }
         if (data == null) {
             mComplicationData = null;
+            // Free unnecessary RoundedDrawables.
+            mRoundedBackgroundDrawable = null;
+            mRoundedLargeImage = null;
+            mRoundedSmallImage = null;
             return;
         }
         if (data.getType() == ComplicationData.TYPE_NO_DATA) {
@@ -244,6 +248,13 @@ class ComplicationRenderer {
             loadDrawableIconAndImages();
         }
         calculateBounds();
+
+        // Based on the results of calculateBounds we know if mRoundedLargeImage or
+        // mSmallImageBounds are needed for rendering and can null the references if not required.
+        // NOTE mRoundedBackgroundDrawable has a different lifecycle which is based on the current
+        // paint mode so it doesn't make sense to clear it's reference here.
+        mRoundedLargeImage = null;
+        mRoundedSmallImage = null;
     }
 
     /**
@@ -322,10 +333,8 @@ class ComplicationRenderer {
         if (mComplicationData == null
                 || mComplicationData.getType() == ComplicationData.TYPE_EMPTY
                 || mComplicationData.getType() == ComplicationData.TYPE_NOT_CONFIGURED
-                || !mComplicationData.isActiveAt(currentTimeMillis)) {
-            return;
-        }
-        if (mBounds.isEmpty()) {
+                || !mComplicationData.isActiveAt(currentTimeMillis)
+                || mBounds.isEmpty()) {
             return;
         }
         // If in ambient mode but paint set is not usable with current ambient properties,
@@ -406,10 +415,15 @@ class ComplicationRenderer {
         canvas.drawRoundRect(mBackgroundBoundsF, radius, radius, paintSet.mBackgroundPaint);
         if (paintSet.mStyle.getBackgroundDrawable() != null
                 && !paintSet.isInBurnInProtectionMode()) {
+            if (mRoundedBackgroundDrawable == null) {
+                mRoundedBackgroundDrawable = new RoundedDrawable();
+            }
             mRoundedBackgroundDrawable.setDrawable(paintSet.mStyle.getBackgroundDrawable());
             mRoundedBackgroundDrawable.setRadius(radius);
             mRoundedBackgroundDrawable.setBounds(mBackgroundBounds);
             mRoundedBackgroundDrawable.draw(canvas);
+        } else {
+            mRoundedBackgroundDrawable = null;
         }
     }
 
@@ -520,6 +534,9 @@ class ComplicationRenderer {
         if (DEBUG_MODE) {
             canvas.drawRect(mSmallImageBounds, mDebugPaint);
         }
+        if (mRoundedSmallImage == null) {
+            mRoundedSmallImage = new RoundedDrawable();
+        }
         if (!paintSet.isInBurnInProtectionMode()) {
             mRoundedSmallImage.setDrawable(mSmallImage);
             if (mSmallImage == null) {
@@ -552,6 +569,9 @@ class ComplicationRenderer {
         }
         // Draw the image if not in burn in protection mode (in active mode or burn in not enabled)
         if (!paintSet.isInBurnInProtectionMode()) {
+            if (mRoundedLargeImage == null) {
+                mRoundedLargeImage = new RoundedDrawable();
+            }
             mRoundedLargeImage.setDrawable(mLargeImage);
             // Large image is always treated as photo style
             mRoundedLargeImage.setRadius(getImageBorderRadius(paintSet.mStyle, mLargeImageBounds));

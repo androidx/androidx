@@ -3,74 +3,91 @@ package androidx.wear.watchface.editor {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class BaseEditorSession extends androidx.wear.watchface.editor.EditorSession {
     method public void close();
-    method protected final void fetchComplicationPreviewData();
-    method public Integer? getBackgroundComplicationId();
+    method protected final void fetchComplicationsData();
+    method public Integer? getBackgroundComplicationSlotId();
     method protected final boolean getClosed();
-    method public Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method public suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
+    method public Integer? getComplicationSlotIdAt(@Px int x, @Px int y);
+    method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
+    method public suspend Object? getComplicationsProviderInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> $completion);
     method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
     method protected final boolean getForceClosed();
-    method public suspend Object? launchComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super java.lang.Boolean> $completion);
+    method public suspend Object? openComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationProvider> $completion);
     method @UiThread protected abstract void releaseResources();
     method protected final void requireNotClosed();
     method protected final void setClosed(boolean p);
     method protected final void setForceClosed(boolean p);
-    property public Integer? backgroundComplicationId;
+    property public Integer? backgroundComplicationSlotId;
     property protected final boolean closed;
     property public final kotlinx.coroutines.CoroutineScope coroutineScope;
     property protected final boolean forceClosed;
   }
 
+  public final class ChosenComplicationProvider {
+    ctor public ChosenComplicationProvider(int complicationSlotId, androidx.wear.complications.ComplicationProviderInfo? complicationProviderInfo, android.os.Bundle extras);
+    method public androidx.wear.complications.ComplicationProviderInfo? getComplicationProviderInfo();
+    method public int getComplicationSlotId();
+    method public android.os.Bundle getExtras();
+    property public final androidx.wear.complications.ComplicationProviderInfo? complicationProviderInfo;
+    property public final int complicationSlotId;
+    property public final android.os.Bundle extras;
+  }
+
   public final class EditorRequest {
-    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, String? watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
-    method public static androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi(android.os.Build.VERSION_CODES.R) androidx.wear.watchface.client.WatchFaceId watchFaceId);
+    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle);
+    method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
     method public String getEditorPackageName();
-    method public java.util.Map<java.lang.String,java.lang.String>? getInitialUserStyle();
+    method public androidx.wear.watchface.style.UserStyleData? getInitialUserStyle();
     method public android.content.ComponentName getWatchFaceComponentName();
-    method public String? getWatchFaceInstanceId();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     property public final String editorPackageName;
-    property public final java.util.Map<java.lang.String,java.lang.String>? initialUserStyle;
+    property public final androidx.wear.watchface.style.UserStyleData? initialUserStyle;
     property public final android.content.ComponentName watchFaceComponentName;
-    property public final String? watchFaceInstanceId;
+    property @RequiresApi(android.os.Build.VERSION_CODES.R) public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorRequest.Companion Companion;
   }
 
   public static final class EditorRequest.Companion {
-    method public androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
+    method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
   }
 
   public abstract class EditorSession implements java.lang.AutoCloseable {
     ctor public EditorSession();
-    method @RequiresApi(27) @UiThread public static final androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
-    method @UiThread public static final kotlinx.coroutines.Deferred<androidx.wear.watchface.editor.EditorSession> createOnWatchEditingSessionAsync(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
-    method public abstract Integer? getBackgroundComplicationId();
-    method @UiThread public abstract Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method @UiThread public abstract suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
-    method public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
-    method public abstract String? getInstanceId();
+    method @RequiresApi(27) @UiThread public static final androidx.wear.watchface.editor.EditorSession createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static final suspend Object? createOnWatchEditingSession(androidx.activity.ComponentActivity p, android.content.Intent activity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession> editIntent) throws kotlinx.coroutines.TimeoutCancellationException;
+    method public abstract Integer? getBackgroundComplicationSlotId();
+    method @UiThread public abstract Integer? getComplicationSlotIdAt(@Px int x, @Px int y);
+    method public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
+    method @UiThread public abstract suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
+    method @UiThread public abstract suspend Object? getComplicationsProviderInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> p);
     method public abstract long getPreviewReferenceTimeMillis();
     method public abstract androidx.wear.watchface.style.UserStyle getUserStyle();
     method public abstract androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public abstract android.content.ComponentName getWatchFaceComponentName();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method @UiThread public final boolean isCommitChangesOnClose();
-    method @UiThread public abstract suspend Object? launchComplicationProviderChooser(int complicationId, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+    method @UiThread public abstract suspend Object? openComplicationProviderChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationProvider> p);
+    method @UiThread public abstract android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
     method @UiThread public final void setCommitChangesOnClose(boolean p);
     method public abstract void setUserStyle(androidx.wear.watchface.style.UserStyle p);
-    method @UiThread public abstract android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
-    property public abstract Integer? backgroundComplicationId;
+    property public abstract Integer? backgroundComplicationSlotId;
     property @UiThread public final boolean commitChangesOnClose;
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
-    property public abstract String? instanceId;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyle userStyle;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     property public abstract android.content.ComponentName watchFaceComponentName;
+    property @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorSession.Companion Companion;
+    field public static final long EDITING_SESSION_TIMEOUT_MILLIS = 4000L; // 0xfa0L
   }
 
   public static final class EditorSession.Companion {
-    method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
-    method @UiThread public kotlinx.coroutines.Deferred<androidx.wear.watchface.editor.EditorSession> createOnWatchEditingSessionAsync(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
+    method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.EditorSession createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public suspend Object? createOnWatchEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession> p) throws kotlinx.coroutines.TimeoutCancellationException;
+  }
+
+  public final class EditorSessionKt {
   }
 
   public class WatchFaceEditorContract extends androidx.activity.result.contract.ActivityResultContract<androidx.wear.watchface.editor.EditorRequest,kotlin.Unit> {

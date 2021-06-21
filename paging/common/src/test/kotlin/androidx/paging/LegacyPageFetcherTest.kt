@@ -27,6 +27,7 @@ import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -110,6 +111,7 @@ class LegacyPageFetcherTest {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun createPager(
         consumer: MockConsumer,
         start: Int = 0,

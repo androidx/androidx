@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
@@ -34,6 +35,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -83,6 +85,21 @@ class DialogFragmentTest {
         assertWithMessage("Dialog should be added to the layout")
             .that(activityTestRule.activity.findViewById<View>(R.id.textA))
             .isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentCreateFragmentContainer() {
+        val parentDialogfragment = ContainerDialogFragment()
+        parentDialogfragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+
+        val fragment = StrictViewFragment(R.layout.fragment_a)
+
+        parentDialogfragment.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .commitNow()
+
+        assertThat(fragment.requireView().parent).isEqualTo(parentDialogfragment.requireView())
     }
 
     @UiThreadTest
@@ -239,6 +256,7 @@ class DialogFragmentTest {
         }
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -281,6 +299,7 @@ class DialogFragmentTest {
         }
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -317,6 +336,7 @@ class DialogFragmentTest {
             .commitNow()
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -468,6 +488,23 @@ class DialogFragmentTest {
                 .setView(view)
                 .setPositiveButton("Button", null)
                 .create()
+        }
+    }
+
+    class WrappedDialog(innerContext: Context) : Dialog(innerContext) {
+        override fun setContentView(view: View) {
+            super.setContentView(
+                FrameLayout(context).apply {
+                    id = R.id.fragmentContainer
+                    addView(view)
+                }
+            )
+        }
+    }
+
+    class ContainerDialogFragment : DialogFragment(R.layout.simple_container) {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return WrappedDialog(requireContext())
         }
     }
 }

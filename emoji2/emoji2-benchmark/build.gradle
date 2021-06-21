@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -26,19 +25,23 @@ plugins {
 }
 
 dependencies {
+    androidTestImplementation(project(":emoji2:emoji2"))
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation project(':internal-testutils-runtime')
+    androidTestImplementation(libs.kotlinStdlib)
 }
 
 androidx {
     name = "Emoji2 Benchmarks"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.NAVIGATION
-    inceptionYear = "2018"
-    description = "Navigation Benchmarks"
+    mavenGroup = LibraryGroups.EMOJI2
+    inceptionYear = "2021"
+    description = "Emoji2 Benchmarks"
 }

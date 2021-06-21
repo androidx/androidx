@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -57,7 +54,8 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":camera:camera-view"))
-    implementation(GUAVA_ANDROID)
+    implementation(libs.guavaAndroid)
+    implementation("androidx.exifinterface:exifinterface:1.3.2")
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")
@@ -66,17 +64,17 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    androidTestImplementation(TRUTH)
-    debugImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(libs.truth)
+    debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
     // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
     debugImplementation(project(":camera:camera-testing")) {

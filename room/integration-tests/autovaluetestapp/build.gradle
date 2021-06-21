@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
@@ -36,19 +34,19 @@ dependencies {
     // depend on the shadowed version so that it tests with the shipped artifact
     androidTestAnnotationProcessor project(path: ":room:room-compiler",
             configuration: "shadowAndImplementation")
-    androidTestAnnotationProcessor(AUTO_VALUE)
-    androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
+    androidTestAnnotationProcessor(libs.autoValue)
+    androidTestAnnotationProcessor(libs.autoValueParcel)
 
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
-    androidTestImplementation(AUTO_VALUE_ANNOTATIONS)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.autoValueAnnotations)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
 
-    testImplementation(JUNIT)
+    testImplementation(libs.junit)
 }

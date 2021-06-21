@@ -15,6 +15,7 @@
  */
 package androidx.collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -121,5 +122,13 @@ public class ArrayMapCompatTest {
             fail();
         } catch (NoSuchElementException expected) {
         }
+    }
+
+    @Test public void toArray() {
+        Map<String, String> map = new ArrayMap<>();
+        map.put("key 1", "value 1");
+        map.put("key 2", "value 2");
+        Object[] array = map.entrySet().toArray();
+        assertEquals(2, array.length);
     }
 }

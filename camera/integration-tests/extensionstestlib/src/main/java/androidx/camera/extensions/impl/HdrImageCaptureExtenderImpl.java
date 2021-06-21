@@ -24,6 +24,7 @@ import android.media.ImageWriter;
 import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -229,6 +230,12 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
     @Override
     public CaptureStageImpl onPresetSession() {
+        // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
+        // (CaptureRequest) which only supported from API level 28.
+        if (Build.VERSION.SDK_INT < 28) {
+            return null;
+        }
+
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
         return captureStage;
     }
@@ -255,4 +262,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return null;
     }
 
+    @Nullable
+    @Override
+    public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
+        return new Range<>(300L, 1000L);
+    }
 }

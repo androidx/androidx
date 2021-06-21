@@ -15,12 +15,19 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.core.google.shortcuts">
+    <uses-sdk tools:overrideLibrary="com.google.firebase.icing"/>
     <application>
         <activity android:name=".TrampolineActivity"
             android:noHistory="true"
             android:theme="@android:style/Theme.NoDisplay"
-            android:exported="false">
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.core.content.pm.SHORTCUT_LISTENER"/>
+            </intent-filter>
+            <meta-data android:name="androidx.core.content.pm.shortcut_listener_impl"
+                android:value="androidx.core.google.shortcuts.ShortcutInfoChangeListenerImpl"/>
         </activity>
     </application>
 </manifest>

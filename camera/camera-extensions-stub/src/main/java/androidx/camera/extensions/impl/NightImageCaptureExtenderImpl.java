@@ -18,6 +18,7 @@ package androidx.camera.extensions.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -89,6 +90,12 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
 
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Nullable
+    @Override
+    public Range<Long> getEstimatedCaptureLatencyRange(@NonNull Size captureOutputSize) {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }

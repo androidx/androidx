@@ -23,6 +23,7 @@ import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.WorkManager
+import androidx.work.await
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.Event
 import androidx.work.inspection.WorkManagerInspectorProtocol.Response
@@ -66,11 +67,14 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
 
     override fun after() {
         runBlocking {
-            workManager.cancelAllWork()
-            workManager.pruneWork()
+            // first let's stop inspector
             application.executor.runAllCommands()
             inspectorTester.dispose()
             job.cancelAndJoin()
+            // then clear workmanager. Reverse order
+            // will trigger unnecessary events and work in inspector
+            workManager.cancelAllWork().await()
+            workManager.pruneWork().await()
         }
     }
 

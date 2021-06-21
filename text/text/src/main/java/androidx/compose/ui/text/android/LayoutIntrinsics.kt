@@ -18,7 +18,10 @@ package androidx.compose.ui.text.android
 
 import android.text.BoringLayout
 import android.text.Layout
+import android.text.Spanned
 import android.text.TextPaint
+import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
+import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import java.text.BreakIterator
 import java.util.PriorityQueue
 
@@ -37,7 +40,7 @@ class LayoutIntrinsics(
      * Compute Android platform BoringLayout metrics. A null value means the provided CharSequence
      * cannot be laid out using a BoringLayout.
      */
-    val boringMetrics: BoringLayout.Metrics? by lazy {
+    val boringMetrics: BoringLayout.Metrics? by lazy(LazyThreadSafetyMode.NONE) {
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
         BoringLayoutFactory.measure(charSequence, textPaint, frameworkTextDir)
     }
@@ -47,7 +50,7 @@ class LayoutIntrinsics(
      *
      * @see androidx.compose.ui.text.android.minIntrinsicWidth
      */
-    val minIntrinsicWidth: Float by lazy {
+    val minIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
         minIntrinsicWidth(charSequence, textPaint)
     }
 
@@ -55,9 +58,15 @@ class LayoutIntrinsics(
      * Calculate maximum intrinsic width for the CharSequence. Maximum intrinsic width is the width
      * of text where no soft line breaks are applied.
      */
-    val maxIntrinsicWidth: Float by lazy {
-        boringMetrics?.width?.toFloat()
+    val maxIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
+        var desiredWidth: Float = boringMetrics?.width?.toFloat()
             ?: Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
+        if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
+            // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
+            // lines for the given maxIntrinsicWidth
+            desiredWidth += 0.5f
+        }
+        desiredWidth
     }
 }
 
@@ -73,7 +82,7 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     // 10 is just a random number that limits the size of the candidate list
     val heapSize = 10
     // min heap that will hold [heapSize] many words with max length
-    val longestWordCandidates = PriorityQueue<Pair<Int, Int>>(
+    val longestWordCandidates = PriorityQueue(
         heapSize,
         Comparator<Pair<Int, Int>> { left, right ->
             (left.second - left.first) - (right.second - right.first)
@@ -106,4 +115,28 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     }
 
     return minWidth
+}
+
+/**
+ * b/173574230
+ * on Android 11 and above, creating a StaticLayout when
+ * - desiredWidth is an Integer,
+ * - letterSpacing is set
+ * - lineHeight is set
+ * StaticLayout forms 2 lines for the given desiredWidth.
+ *
+ * This function checks if those conditions are met.
+ */
+@OptIn(InternalPlatformTextApi::class)
+private fun shouldIncreaseMaxIntrinsic(
+    desiredWidth: Float,
+    charSequence: CharSequence,
+    textPaint: TextPaint
+): Boolean {
+    return desiredWidth != 0f &&
+        charSequence is Spanned && (
+        textPaint.letterSpacing != 0f ||
+            charSequence.hasSpan(LetterSpacingSpanPx::class.java) ||
+            charSequence.hasSpan(LetterSpacingSpanEm::class.java)
+        )
 }

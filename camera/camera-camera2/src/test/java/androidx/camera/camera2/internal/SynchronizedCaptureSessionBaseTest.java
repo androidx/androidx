@@ -31,6 +31,8 @@ import android.view.Surface;
 
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +42,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -66,7 +69,7 @@ public class SynchronizedCaptureSessionBaseTest {
 
         mSyncCaptureSessionBaseImpl =
                 new SynchronizedCaptureSessionBaseImpl(mMockCaptureSessionRepository,
-                        android.os.AsyncTask.THREAD_POOL_EXECUTOR, mScheduledExecutorService,
+                        CameraXExecutors.directExecutor(), mScheduledExecutorService,
                         mock(Handler.class));
 
         mMockCaptureSession = mock(CameraCaptureSession.class);
@@ -142,7 +145,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         verify(mMockStateCallback).onConfigured(any(SynchronizedCaptureSession.class));
@@ -159,7 +163,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigureFailed(mMockCaptureSession);
 
         verify(mMockStateCallback).onConfigureFailed(any(SynchronizedCaptureSession.class));
@@ -174,12 +179,49 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
         sessionConfigurationCompat.getStateCallback().onClosed(mMockCaptureSession);
 
         verify(mMockStateCallback).onClosed(any(SynchronizedCaptureSession.class));
         verify(mMockCaptureSessionRepository, times(1)).onCaptureSessionClosed(
+                any(SynchronizedCaptureSession.class));
+    }
+
+    @Test
+    public void callClose_onSessionFinished_shouldBeCalled() {
+        SessionConfigurationCompat sessionConfigurationCompat =
+                mSyncCaptureSessionBaseImpl.createSessionConfigurationCompat(
+                        SessionConfigurationCompat.SESSION_REGULAR,
+                        mOutputs,
+                        mMockStateCallback);
+
+        mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
+        sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
+        mSyncCaptureSessionBaseImpl.close();
+
+        verify(mMockStateCallback).onSessionFinished(
+                any(SynchronizedCaptureSession.class));
+    }
+
+    @Test
+    public void callbackShouldWork_onSessionFinished() {
+        SessionConfigurationCompat sessionConfigurationCompat =
+                mSyncCaptureSessionBaseImpl.createSessionConfigurationCompat(
+                        SessionConfigurationCompat.SESSION_REGULAR,
+                        mOutputs,
+                        mMockStateCallback);
+
+        mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
+        sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
+        sessionConfigurationCompat.getStateCallback().onClosed(mMockCaptureSession);
+
+        verify(mMockStateCallback).onSessionFinished(
                 any(SynchronizedCaptureSession.class));
     }
 
@@ -192,7 +234,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.captureSingleRequest(mock(CaptureRequest.class),
@@ -208,7 +251,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.captureBurstRequests(mock(List.class),
@@ -225,7 +269,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.setRepeatingBurstRequests(mock(List.class),
@@ -242,7 +287,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.setSingleRepeatingRequest(mock(CaptureRequest.class),
@@ -259,7 +305,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.abortCaptures();
@@ -275,7 +322,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.stopRepeating();
@@ -290,7 +338,8 @@ public class SynchronizedCaptureSessionBaseTest {
                         mMockStateCallback);
 
         mSyncCaptureSessionBaseImpl.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mSyncCaptureSessionBaseImpl.getDevice();

@@ -24,8 +24,8 @@ import java.io.Writer
  * Lightweight wrapper around [java.io.PrintWriter] that automatically indents newlines based
  * on internal state.
  *
- * Delays writing indent until first actual write on a newline, enabling indent modification
- * after newline.
+ * Delays writing indent until first actual write on a newline, enabling indent modification after
+ * newline.
  */
 internal class IndentingPrintWriter(
     writer: Writer,
@@ -36,7 +36,7 @@ internal class IndentingPrintWriter(
     /** Mutable version of current indent  */
     private val indentBuilder = StringBuilder()
 
-    /** Cache of current [.indentBuilder] value  */
+    /** Cache of current [indentBuilder] value  */
     private var currentIndent: CharArray? = null
 
     /**

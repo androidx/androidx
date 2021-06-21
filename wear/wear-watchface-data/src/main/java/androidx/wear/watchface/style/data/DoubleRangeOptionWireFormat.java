@@ -18,7 +18,6 @@ package androidx.wear.watchface.style.data;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
@@ -30,15 +29,10 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 public class DoubleRangeOptionWireFormat extends OptionWireFormat {
-    /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */
-    @ParcelField(2)
-    public double mValue;
-
     DoubleRangeOptionWireFormat() {
     }
 
-    public DoubleRangeOptionWireFormat(@NonNull String id, double value) {
+    public DoubleRangeOptionWireFormat(@NonNull byte[] id) {
         super(id);
-        this.mValue = value;
     }
 }

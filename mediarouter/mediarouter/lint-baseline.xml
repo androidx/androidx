@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanUncheckedReflection"
@@ -46,32 +46,450 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (newController == mMediaRouter2.getSystemController()) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="377"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                List&lt;MediaRoute2Info> selectedRoutes = newController.getSelectedRoutes();"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="380"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                String routeId = selectedRoutes.get(0).getId();"
+        errorLine2="                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="386"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.setVolume(volume);"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="482"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            int volumeBefore = mOptimisticVolume &lt; 0 ? mRoutingController.getVolume() :"
+        errorLine2="                                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="492"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mRoutingController.getVolumeMax()));"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="495"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.setVolume(mOptimisticVolume);"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="496"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="502"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.release();"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="530"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mMediaRouter2.transferTo(route);"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="548"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.selectRoute(route);"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="564"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.deselectRoute(route);"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="580"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="684"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="689"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);"
+        errorLine2="                                                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="689"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mSessionInfo = builder.setControlHints(controlHints).build();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="691"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mSessionInfo = builder.setControlHints(controlHints).build();"
+        errorLine2="                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="691"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="708"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                builder.setName(groupRoute.getName())"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="711"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .setVolume(groupRoute.getVolume())"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="712"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .setVolumeMax(groupRoute.getVolumeMax())"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="713"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .setVolumeHandling(groupRoute.getVolumeHandling());"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="714"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                Bundle controlHints = sessionInfo.getControlHints();"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="716"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                builder.setControlHints(controlHints);"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="724"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mSessionInfo = builder.build();"
+        errorLine2="                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="727"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                builder.clearSelectedRoutes();"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="732"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                builder.clearSelectableRoutes();"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="733"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                builder.clearDeselectableRoutes();"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="734"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                builder.clearTransferableRoutes();"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="735"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        builder.addSelectedRoute(routeId);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="741"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        builder.addSelectableRoute(routeId);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="745"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        builder.addDeselectableRoute(routeId);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="748"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        builder.addTransferableRoute(routeId);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="751"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mSessionInfo = builder.build();"
+        errorLine2="                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="757"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                notifySessionUpdated(mSessionInfo);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="769"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                notifySessionReleased(mSessionId);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="797"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    oldSession.getSelectedRoutes();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="804"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    newSession.getSelectedRoutes();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="806"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(mRequestId, mSessionInfo);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
+            line="828"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));"
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="661"
+            line="662"
             column="62"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        blurScript.setRadius(radius);"
         errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="662"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="        blurScript.setInput(allocation);"
-        errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
             line="663"
@@ -79,10 +497,10 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="        blurScript.forEach(blurAllocation);"
-        errorLine2="                   ~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        blurScript.setInput(allocation);"
+        errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
             line="664"
@@ -90,8 +508,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.MediaRouterApi24.RouteInfo is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        blurScript.forEach(blurAllocation);"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="665"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.mediarouter.media.MediaRouterApi24.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDeviceType();"
         errorLine2="                                                                   ~~~~~~~~~~~~~">
         <location
@@ -101,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getName(context);"
         errorLine2="                                                                   ~~~~~~~">
         <location
@@ -112,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getStatus();"
         errorLine2="                                                                   ~~~~~~~~~">
         <location
@@ -123,8 +552,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getSupportedTypes();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +563,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getCategory();"
         errorLine2="                                                                   ~~~~~~~~~~~">
         <location
@@ -145,8 +574,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getIconDrawable();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~">
         <location
@@ -156,8 +585,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getPlaybackType();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~">
         <location
@@ -167,8 +596,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getPlaybackStream();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
@@ -178,8 +607,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolume();"
         errorLine2="                                                                   ~~~~~~~~~">
         <location
@@ -189,8 +618,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolumeMax();"
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
@@ -200,8 +629,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolumeHandling();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
@@ -211,8 +640,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getTag();"
         errorLine2="                                                                   ~~~~~~">
         <location
@@ -222,8 +651,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).setTag(tag);"
         errorLine2="                                                            ~~~~~~">
         <location
@@ -233,8 +662,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).requestSetVolume(volume);"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~">
         <location
@@ -244,8 +673,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).requestUpdateVolume(direction);"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -255,8 +684,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getGroup();"
         errorLine2="                                                                   ~~~~~~~~">
         <location
@@ -266,8 +695,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            final int count = group.getRouteCount();"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
@@ -277,8 +706,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                out.add(group.getRouteAt(i));"
         errorLine2="                              ~~~~~~~~~~">
         <location
@@ -288,8 +717,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setName(name);"
         errorLine2="                                                                ~~~~~~~">
         <location
@@ -299,8 +728,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setStatus(status);"
         errorLine2="                                                                ~~~~~~~~~">
         <location
@@ -310,8 +739,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setIconDrawable(icon);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~">
         <location
@@ -321,8 +750,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setPlaybackType(type);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~">
         <location
@@ -332,8 +761,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setPlaybackStream(stream);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
         <location
@@ -343,8 +772,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolume(volume);"
         errorLine2="                                                                ~~~~~~~~~">
         <location
@@ -354,8 +783,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeMax(volumeMax);"
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
@@ -365,8 +794,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeHandling(volumeHandling);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
         <location
@@ -376,8 +805,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeCallback("
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
         <location
@@ -387,8 +816,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setRemoteControlClient("
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -398,8 +827,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getName(context);"
         errorLine2="                                                                          ~~~~~~~">
         <location
@@ -409,8 +838,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteCategory)categoryObj).getRoutes(out);"
         errorLine2="                                                                   ~~~~~~~~~">
         <location
@@ -420,8 +849,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getSupportedTypes();"
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
         <location
@@ -431,8 +860,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).isGroupable();"
         errorLine2="                                                                          ~~~~~~~~~~~">
         <location
@@ -442,8 +871,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            int routeTypes = route.getSupportedTypes();"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~">
         <location
@@ -453,8 +882,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            router.selectRoute(types, route);"
         errorLine2="                   ~~~~~~~~~~~">
         <location
@@ -464,8 +893,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.GetDefaultRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.GetDefaultRouteWorkaround is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return router.getRouteAt(0);"
         errorLine2="                          ~~~~~~~~~~">
         <location
@@ -475,8 +904,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isEnabled();"
         errorLine2="                                                                   ~~~~~~~~~">
         <location
@@ -486,8 +915,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -497,8 +926,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDescription();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~">
         <location
@@ -508,8 +937,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();"
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
@@ -519,8 +948,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);"
         errorLine2="                                                                ~~~~~~~~~~~~~~">
         <location

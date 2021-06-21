@@ -3,10 +3,21 @@ package androidx.wear.ongoing {
 
   @RequiresApi(24) public final class OngoingActivity {
     method public void apply(android.content.Context);
-    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivityData!>);
-    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context);
-    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context, int);
-    method public void update(android.content.Context, androidx.wear.ongoing.OngoingActivityStatus);
+    method public android.graphics.drawable.Icon? getAnimatedIcon();
+    method public String? getCategory();
+    method public androidx.core.content.LocusIdCompat? getLocusId();
+    method public int getNotificationId();
+    method public int getOngoingActivityId();
+    method public android.graphics.drawable.Icon getStaticIcon();
+    method public androidx.wear.ongoing.Status? getStatus();
+    method public String? getTag();
+    method public long getTimestamp();
+    method public String? getTitle();
+    method public android.app.PendingIntent getTouchIntent();
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivity!>);
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context);
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, int);
+    method public void update(android.content.Context, androidx.wear.ongoing.Status);
   }
 
   public static final class OngoingActivity.Builder {
@@ -20,61 +31,50 @@ package androidx.wear.ongoing {
     method public androidx.wear.ongoing.OngoingActivity.Builder setOngoingActivityId(int);
     method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon);
     method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(@DrawableRes int);
-    method public androidx.wear.ongoing.OngoingActivity.Builder setStatus(androidx.wear.ongoing.OngoingActivityStatus);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setStatus(androidx.wear.ongoing.Status);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setTitle(String);
     method public androidx.wear.ongoing.OngoingActivity.Builder setTouchIntent(android.app.PendingIntent);
   }
 
-  public class OngoingActivityData implements androidx.versionedparcelable.VersionedParcelable {
+  public class SerializationHelper {
     method public static void copy(android.os.Bundle, android.os.Bundle);
-    method public static androidx.wear.ongoing.OngoingActivityData? create(android.app.Notification);
-    method public static androidx.wear.ongoing.OngoingActivityData? create(android.os.Bundle);
-    method public android.graphics.drawable.Icon? getAnimatedIcon();
-    method public String? getCategory();
-    method public androidx.core.content.LocusIdCompat? getLocusId();
-    method public int getOngoingActivityId();
-    method public android.graphics.drawable.Icon getStaticIcon();
-    method public androidx.wear.ongoing.OngoingActivityStatus? getStatus();
-    method public long getTimestamp();
-    method public android.app.PendingIntent getTouchIntent();
+    method public static androidx.wear.ongoing.OngoingActivity? create(android.app.Notification);
+    method public static androidx.wear.ongoing.OngoingActivity? create(android.os.Bundle);
     method public static boolean hasOngoingActivity(android.app.Notification);
   }
 
-  public class OngoingActivityStatus implements androidx.wear.ongoing.TimeDependentText androidx.versionedparcelable.VersionedParcelable {
-    method public static androidx.wear.ongoing.OngoingActivityStatus forPart(androidx.wear.ongoing.StatusPart);
+  public final class Status implements androidx.wear.ongoing.TimeDependentText {
+    method public static androidx.wear.ongoing.Status forPart(androidx.wear.ongoing.Status.Part);
     method public long getNextChangeTimeMillis(long);
-    method public androidx.wear.ongoing.StatusPart? getPart(String);
+    method public androidx.wear.ongoing.Status.Part? getPart(String);
     method public java.util.Set<java.lang.String!> getPartNames();
     method public java.util.List<java.lang.CharSequence!> getTemplates();
     method public CharSequence getText(android.content.Context, long);
   }
 
-  public static final class OngoingActivityStatus.Builder {
-    ctor public OngoingActivityStatus.Builder();
-    method public androidx.wear.ongoing.OngoingActivityStatus.Builder addPart(String, androidx.wear.ongoing.StatusPart);
-    method public androidx.wear.ongoing.OngoingActivityStatus.Builder addTemplate(CharSequence);
-    method public androidx.wear.ongoing.OngoingActivityStatus build();
+  public static final class Status.Builder {
+    ctor public Status.Builder();
+    method public androidx.wear.ongoing.Status.Builder addPart(String, androidx.wear.ongoing.Status.Part);
+    method public androidx.wear.ongoing.Status.Builder addTemplate(CharSequence);
+    method public androidx.wear.ongoing.Status build();
   }
 
-  public abstract class StatusPart implements androidx.wear.ongoing.TimeDependentText androidx.versionedparcelable.VersionedParcelable {
-    ctor public StatusPart();
+  public abstract static class Status.Part implements androidx.wear.ongoing.TimeDependentText {
   }
 
-  public class TextStatusPart extends androidx.wear.ongoing.StatusPart {
-    ctor public TextStatusPart(String);
+  public static final class Status.StopwatchPart extends androidx.wear.ongoing.Status.TimerOrStopwatchPart {
+    ctor public Status.StopwatchPart(long, long, long);
+    ctor public Status.StopwatchPart(long, long);
+    ctor public Status.StopwatchPart(long);
+  }
+
+  public static final class Status.TextPart extends androidx.wear.ongoing.Status.Part {
+    ctor public Status.TextPart(String);
     method public long getNextChangeTimeMillis(long);
     method public CharSequence getText(android.content.Context, long);
   }
 
-  public interface TimeDependentText {
-    method public long getNextChangeTimeMillis(long);
-    method public CharSequence getText(android.content.Context, long);
-  }
-
-  public class TimerStatusPart extends androidx.wear.ongoing.StatusPart {
-    ctor public TimerStatusPart(long, boolean, long, long);
-    ctor public TimerStatusPart(long, boolean, long);
-    ctor public TimerStatusPart(long, boolean);
-    ctor public TimerStatusPart(long);
+  public abstract static class Status.TimerOrStopwatchPart extends androidx.wear.ongoing.Status.Part {
     method public long getNextChangeTimeMillis(long);
     method public long getPausedAtMillis();
     method public CharSequence getText(android.content.Context, long);
@@ -83,6 +83,17 @@ package androidx.wear.ongoing {
     method public boolean hasTotalDuration();
     method public boolean isCountDown();
     method public boolean isPaused();
+  }
+
+  public static final class Status.TimerPart extends androidx.wear.ongoing.Status.TimerOrStopwatchPart {
+    ctor public Status.TimerPart(long, long, long);
+    ctor public Status.TimerPart(long, long);
+    ctor public Status.TimerPart(long);
+  }
+
+  public interface TimeDependentText {
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
   }
 
 }

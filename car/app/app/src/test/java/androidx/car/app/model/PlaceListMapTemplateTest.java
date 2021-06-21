@@ -268,6 +268,22 @@ public class PlaceListMapTemplateTest {
     }
 
     @Test
+    public void createInstance_title_variants() {
+        CarText title = new CarText.Builder("Very Long Title").addVariant("Short Title").build();
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+
+        PlaceListMapTemplate template =
+                new PlaceListMapTemplate.Builder()
+                        .setItemList(itemList)
+                        .setTitle(title)
+                        .setCurrentLocationEnabled(true)
+                        .build();
+        assertThat(template.getTitle()).isNotNull();
+        assertThat(template.getTitle().toString()).isEqualTo("Very Long Title");
+        assertThat(template.getTitle().getVariants().get(0).toString()).isEqualTo("Short Title");
+    }
+
+    @Test
     public void createInstance_noHeaderTitleOrAction_throws() {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
 

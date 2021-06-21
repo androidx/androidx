@@ -39,7 +39,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -259,12 +258,12 @@ public class BiometricFragment extends Fragment {
      * fragment.
      */
     private void connectViewModel() {
-        final FragmentActivity activity = getActivity();
-        if (activity == null) {
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (host == null) {
             return;
         }
-        mViewModel = new ViewModelProvider(getActivity()).get(BiometricViewModel.class);
-        mViewModel.setClientActivity(activity);
+        mViewModel = BiometricPrompt.getViewModel(host);
+        mViewModel.setClientActivity(getActivity());
         mViewModel.getAuthenticationResult().observe(
                 this,
                 new Observer<BiometricPrompt.AuthenticationResult>() {
@@ -356,9 +355,9 @@ public class BiometricFragment extends Fragment {
             @NonNull BiometricPrompt.PromptInfo info,
             @Nullable BiometricPrompt.CryptoObject crypto) {
 
-        final FragmentActivity activity = getActivity();
-        if (activity == null) {
-            Log.e(TAG, "Not launching prompt. Client activity was null.");
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (host == null) {
+            Log.e(TAG, "Not launching prompt. Client context was null.");
             return;
         }
 
@@ -387,7 +386,7 @@ public class BiometricFragment extends Fragment {
         // Fall back to device credential immediately if no known biometrics are available.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
                 && isManagingDeviceCredentialButton()
-                && BiometricManager.from(activity).canAuthenticate(Authenticators.BIOMETRIC_WEAK)
+                && BiometricManager.from(host).canAuthenticate(Authenticators.BIOMETRIC_WEAK)
                         != BiometricManager.BIOMETRIC_SUCCESS) {
             mViewModel.setAwaitingResult(true);
             launchConfirmCredentialActivity();
@@ -784,14 +783,14 @@ public class BiometricFragment extends Fragment {
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private void launchConfirmCredentialActivity() {
-        final FragmentActivity activity = getActivity();
-        if (activity == null) {
-            Log.e(TAG, "Failed to check device credential. Client FragmentActivity not found.");
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        if (host == null) {
+            Log.e(TAG, "Failed to check device credential. Client Context not found.");
             return;
         }
 
         // Get the KeyguardManager service in whichever way the platform supports.
-        final KeyguardManager keyguardManager = KeyguardUtils.getKeyguardManager(activity);
+        final KeyguardManager keyguardManager = KeyguardUtils.getKeyguardManager(host);
         if (keyguardManager == null) {
             sendErrorAndDismiss(
                     BiometricPrompt.ERROR_HW_NOT_PRESENT,
@@ -1011,11 +1010,11 @@ public class BiometricFragment extends Fragment {
      * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
      */
     private boolean isFingerprintDialogNeededForCrypto() {
-        final FragmentActivity activity = getActivity();
-        return activity != null
+        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        return host != null
                 && mViewModel.getCryptoObject() != null
                 && DeviceUtils.shouldUseFingerprintForCrypto(
-                        activity, Build.MANUFACTURER, Build.MODEL);
+                        host, Build.MANUFACTURER, Build.MODEL);
     }
 
     /**

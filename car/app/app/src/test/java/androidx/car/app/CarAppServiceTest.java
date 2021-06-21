@@ -16,9 +16,13 @@
 
 package androidx.car.app;
 
+import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
+import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -39,6 +43,7 @@ import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleRegistry;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -46,6 +51,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
@@ -101,6 +107,10 @@ public final class CarAppServiceTest {
                         return session;
                     }
                 };
+
+        AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
+                "blah");
+        mCarAppService.setAppInfo(appInfo);
 
         // Sets a default handshake info. OnAppCreate depends on this being non-null.
         String hostPackageName = "com.google.projection.gearhead";
@@ -346,7 +356,9 @@ public final class CarAppServiceTest {
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
         carApp.onAppStart(mMockOnDoneCallback);
 
-        mCarAppService.getCurrentSession().getLifecycle().addObserver(mLifecycleObserver);
+        // TODO(b/184154464): this should use the public getLifecycle() after the public
+        // LifecycleRegistry is properly hooked up to the TestLifecycleOwner.
+        mCarAppService.getCurrentSession().getLifecycleInternal().addObserver(mLifecycleObserver);
 
         assertThat(mCarAppService.onUnbind(null)).isTrue();
 
@@ -361,7 +373,9 @@ public final class CarAppServiceTest {
         carApp.onAppStart(mMockOnDoneCallback);
 
         Session currentSession = mCarAppService.getCurrentSession();
-        currentSession.getLifecycle().addObserver(mLifecycleObserver);
+        // TODO(b/184154464): this should use the public getLifecycle() after the public
+        // LifecycleRegistry is properly hooked up to the TestLifecycleOwner.
+        currentSession.getLifecycleInternal().addObserver(mLifecycleObserver);
         assertThat(mCarAppService.onUnbind(null)).isTrue();
 
         verify(mLifecycleObserver).onDestroy(any());
@@ -603,5 +617,32 @@ public final class CarAppServiceTest {
         verify(mMockOnDoneCallback).onFailure(any());
         assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
                 Lifecycle.State.DESTROYED);
+    }
+
+    @Test
+    public void session_screen_lifecycleEvents_inCorrectOrder()
+            throws RemoteException {
+        // We have to manually create the Session here instead of rely on using ICarApp because
+        // of two issues:
+        // 1. If we inject a TestCarContext, it will overwrite a TestLifeCycleOwner instance that
+        // is different than the one the ScreenManager used to register a listener to.
+        // 2. If we don't inject a TestCarContext, the existing logic of ICarApp in CarAppService
+        // throws a NPE when trying to update the configuration of the Session/CarContext.
+        Session session = createTestSession();
+        ((LifecycleRegistry) session.getLifecycleInternal()).handleLifecycleEvent(ON_CREATE);
+        Screen screen = session.onCreateScreen(new Intent());
+        session.getCarContext().getCarService(ScreenManager.class).push(screen);
+
+        DefaultLifecycleObserver sessionObserver = mock(DefaultLifecycleObserver.class);
+        DefaultLifecycleObserver screenObserver = mock(DefaultLifecycleObserver.class);
+        session.getLifecycle().addObserver(sessionObserver);
+        screen.getLifecycle().addObserver(screenObserver);
+
+        ((LifecycleRegistry) session.getLifecycleInternal()).handleLifecycleEvent(ON_DESTROY);
+        InOrder inOrder = inOrder(screenObserver, sessionObserver);
+        inOrder.verify(sessionObserver).onCreate(any());
+        inOrder.verify(screenObserver).onCreate(any());
+        inOrder.verify(screenObserver).onDestroy(any());
+        inOrder.verify(sessionObserver).onDestroy(any());
     }
 }

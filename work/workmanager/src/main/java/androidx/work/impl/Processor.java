@@ -144,7 +144,8 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     }
 
     @Override
-    public void startForeground(@NonNull String workSpecId, @NonNull ForegroundInfo info) {
+    public void startForeground(@NonNull String workSpecId,
+            @NonNull ForegroundInfo foregroundInfo) {
         synchronized (mLock) {
             Logger.get().info(TAG, String.format("Moving WorkSpec (%s) to the foreground",
                     workSpecId));
@@ -155,7 +156,8 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     mForegroundLock.acquire();
                 }
                 mForegroundWorkMap.put(workSpecId, wrapper);
-                Intent intent = createStartForegroundIntent(mAppContext, workSpecId, info);
+                Intent intent = createStartForegroundIntent(mAppContext, workSpecId,
+                        foregroundInfo);
                 ContextCompat.startForegroundService(mAppContext, intent);
             }
         }

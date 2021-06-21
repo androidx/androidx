@@ -20,7 +20,12 @@ import androidx.annotation.NonNull;
 
 /**
  * Indicates an AndroidX Advertising ID is not available.
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 public class AdvertisingIdNotAvailableException extends Exception {
     public AdvertisingIdNotAvailableException(@NonNull String message) {
         super(message);

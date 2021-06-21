@@ -1,0 +1,127 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import androidx.build.LibraryVersions
+import androidx.build.RunApiTasks
+import androidx.build.AndroidXComposePlugin
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+
+dependencies {
+    kotlinPlugin(project(":compose:compiler:compiler"))
+
+    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+        api(project(":compose:foundation:foundation"))
+        api(project(":compose:ui:ui"))
+        api(project(":compose:ui:ui-text"))
+        api(project(":compose:runtime:runtime"))
+
+        implementation(libs.kotlinStdlib)
+        implementation(project(":compose:material:material"))
+        implementation(project(":compose:material:material-ripple"))
+
+        androidTestImplementation project(path: ':compose:ui:ui-test')
+        androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
+        androidTestImplementation project(path: ':compose:test-utils')
+        androidTestImplementation project(":test-screenshot")
+        androidTestImplementation(libs.testRunner)
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    kotlin {
+        android()
+        jvm("desktop")
+
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
+                implementation(libs.kotlinStdlibCommon)
+
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-text"))
+                api(project(":compose:runtime:runtime"))
+
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:material:material-ripple"))
+            }
+            jvmMain.dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+            androidMain {
+                dependsOn(jvmMain)
+            }
+            desktopMain {
+                dependsOn(jvmMain)
+            }
+
+            commonTest.dependencies {
+                implementation(kotlin("test-junit"))
+            }
+            androidAndroidTest.dependencies {
+                implementation(libs.testExtJunit)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
+                implementation(project(path: ':compose:ui:ui-test'))
+                implementation(project(path: ':compose:ui:ui-test-junit4'))
+                implementation(project(path: ':compose:test-utils'))
+                implementation(project(":test-screenshot"))
+            }
+        }
+    }
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 25
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+}
+
+androidx {
+    name = "Android Wear Compose Material"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.WEAR_COMPOSE
+    mavenVersion = LibraryVersions.WEAR_COMPOSE
+    inceptionYear = "2021"
+    description = "WearOS Compose Material Library. This library makes it easier for developers " +
+            "to write Jetpack Compose applications for Wearable devices that implement Wear " +
+            "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
+            " libraries."
+    targetsJavaConsumers = false
+    runApiTasks = new RunApiTasks.No("API tracking disabled while the package is empty")
+}
+
+

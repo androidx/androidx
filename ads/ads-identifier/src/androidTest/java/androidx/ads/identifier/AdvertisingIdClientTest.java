@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class AdvertisingIdClientTest {
     private static final String MOCK_SERVICE_NAME = MockAdvertisingIdService.class.getName();
     private static final String MOCK_THROWS_NPE_SERVICE_NAME =

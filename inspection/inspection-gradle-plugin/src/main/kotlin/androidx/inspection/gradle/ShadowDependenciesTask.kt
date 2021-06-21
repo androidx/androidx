@@ -109,7 +109,7 @@ private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
  * live in meta-inf directory and their contents respecting the rules supplied into shadowJar.
  */
 class RenameServicesTransformer : Transformer {
-    val renamed = mutableMapOf<String, String>()
+    private val renamed = mutableMapOf<String, String>()
 
     override fun canTransformResource(element: FileTreeElement?): Boolean {
         return element?.relativePath?.startsWith("META-INF/services") ?: false
@@ -140,6 +140,8 @@ class RenameServicesTransformer : Transformer {
 
 private fun TransformerContext.relocateOrSelf(className: String): String {
     val relocateContext = RelocateClassContext(className, stats)
-    val relocator = relocators.find { it.canRelocateClass(relocateContext) }
+    val relocator = relocators.find {
+        it.canRelocateClass(className)
+    }
     return relocator?.relocateClass(relocateContext) ?: className
 }

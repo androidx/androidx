@@ -16,14 +16,13 @@
 
 package androidx.wear.ongoing;
 
+import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.VersionedParcelable;
 
 /**
- * Abstract class to represent An Ongoing activity status or part of it.
- *
- * Parts are used to create complex statuses, that may contain several timers, placeholders for
- * text, etc.
- * They may also be used to convey information to the system about this Ongoing Activity.
+ * Base class for objects that serialize/deserialize {@link Status.Part} objects.
+ * @hide
  */
-public abstract class StatusPart implements VersionedParcelable, TimeDependentText {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+abstract class StatusPart implements VersionedParcelable, TimeDependentText {
 }

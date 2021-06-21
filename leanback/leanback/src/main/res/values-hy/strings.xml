@@ -17,7 +17,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"Նավարկման ընտրացանկ"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"Նավիգացիայի ընտրացանկ"</string>
     <string name="orb_search_action" msgid="1301877238242752863">"Որոնում"</string>
     <string name="lb_search_bar_hint" msgid="5700349211583074131">"Որոնում"</string>
     <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"Խոսեք՝ որոնելու համար"</string>
@@ -53,7 +53,7 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"Մեդիայի կառավարման տարրերը թաքցված են։ Ցուցադրելու համար սեղմեք D-pad-ը:"</string>
     <string name="lb_guidedaction_finish_title" msgid="3330958750346333890">"Ավարտել"</string>
     <string name="lb_guidedaction_continue_title" msgid="893619591225519922">"Շարունակել"</string>
-    <string name="lb_media_player_error" msgid="3228326776757666747">"Մեդիա նվագարկիչի սխալի կոդ` %1$d (լրացուցիչ %2$d)"</string>
+    <string name="lb_media_player_error" msgid="3228326776757666747">"Մեդիա նվագարկչի սխալի կոդ` %1$d (լրացուցիչ %2$d)"</string>
     <string name="lb_onboarding_get_started" msgid="5549711907371161292">"ՍԿՍԵL"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2394451791544864917">"Հաջորդը"</string>
 </resources>

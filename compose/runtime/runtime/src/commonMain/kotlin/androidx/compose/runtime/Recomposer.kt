@@ -24,7 +24,7 @@ import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastMapNotNull
 import androidx.compose.runtime.tooling.CompositionData
-import kotlinx.collections.immutable.persistentSetOf
+import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -47,6 +47,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
+import kotlin.native.concurrent.ThreadLocal
 
 // TODO: Can we use rootKey for this since all compositions will have an eventual Recomposer parent?
 private const val RecomposerCompoundHashKey = 1000
@@ -413,10 +414,10 @@ class Recomposer(
             // each time, but because we've installed the broadcastFrameClock as the scope
             // clock above for user code to locate.
             parentFrameClock.withFrameNanos { frameTime ->
-                trace("recomposeFrame") {
-                    // Dispatch MonotonicFrameClock frames first; this may produce new
-                    // composer invalidations that we must handle during the same frame.
-                    if (broadcastFrameClock.hasAwaiters) {
+                // Dispatch MonotonicFrameClock frames first; this may produce new
+                // composer invalidations that we must handle during the same frame.
+                if (broadcastFrameClock.hasAwaiters) {
+                    trace("Recomposer:animation") {
                         // Propagate the frame time to anyone who is awaiting from the
                         // recomposer clock.
                         broadcastFrameClock.sendFrame(frameTime)
@@ -424,7 +425,9 @@ class Recomposer(
                         // Ensure any global changes are observed
                         Snapshot.sendApplyNotifications()
                     }
+                }
 
+                trace("Recomposer:recompose") {
                     // Drain any composer invalidations from snapshot changes and record
                     // composers to work on
                     synchronized(stateLock) {
@@ -436,24 +439,48 @@ class Recomposer(
 
                     // Perform recomposition for any invalidated composers
                     val modifiedValues = IdentityArraySet<Any>()
-                    try {
-                        toRecompose.fastForEach { composer ->
-                            performRecompose(composer, modifiedValues)?.let {
-                                toApply += it
+                    val alreadyComposed = IdentityArraySet<ControlledComposition>()
+                    while (toRecompose.isNotEmpty()) {
+                        try {
+                            toRecompose.fastForEach { composition ->
+                                alreadyComposed.add(composition)
+                                performRecompose(composition, modifiedValues)?.let {
+                                    toApply += it
+                                }
+                            }
+                        } finally {
+                            toRecompose.clear()
+                        }
+
+                        // Find any trailing recompositions that need to be composed because
+                        // of a value change by a composition. This can happen, for example, if
+                        // a CompositionLocal changes in a parent and was read in a child
+                        // composition that was otherwise valid.
+                        if (modifiedValues.isNotEmpty()) {
+                            synchronized(stateLock) {
+                                knownCompositions.fastForEach { value ->
+                                    if (
+                                        value !in alreadyComposed &&
+                                        value.observesAnyOf(modifiedValues)
+                                    ) {
+                                        toRecompose += value
+                                    }
+                                }
                             }
                         }
-                        if (toApply.isNotEmpty()) changeCount++
-                    } finally {
-                        toRecompose.clear()
                     }
 
-                    // Perform apply changes
-                    try {
-                        toApply.fastForEach { composition ->
-                            composition.applyChanges()
+                    if (toApply.isNotEmpty()) {
+                        changeCount++
+
+                        // Perform apply changes
+                        try {
+                            toApply.fastForEach { composition ->
+                                composition.applyChanges()
+                            }
+                        } finally {
+                            toApply.clear()
                         }
-                    } finally {
-                        toApply.clear()
                     }
 
                     synchronized(stateLock) {
@@ -531,10 +558,10 @@ class Recomposer(
             // each time, but because we've installed the broadcastFrameClock as the scope
             // clock above for user code to locate.
             parentFrameClock.withFrameNanos { frameTime ->
-                trace("recomposeFrame") {
-                    // Dispatch MonotonicFrameClock frames first; this may produce new
-                    // composer invalidations that we must handle during the same frame.
-                    if (broadcastFrameClock.hasAwaiters) {
+                // Dispatch MonotonicFrameClock frames first; this may produce new
+                // composer invalidations that we must handle during the same frame.
+                if (broadcastFrameClock.hasAwaiters) {
+                    trace("Recomposer:animation") {
                         // Propagate the frame time to anyone who is awaiting from the
                         // recomposer clock.
                         broadcastFrameClock.sendFrame(frameTime)
@@ -542,7 +569,9 @@ class Recomposer(
                         // Ensure any global changes are observed
                         Snapshot.sendApplyNotifications()
                     }
+                }
 
+                trace("Recomposer:recompose") {
                     // Drain any composer invalidations from snapshot changes and record
                     // composers to work on.
                     // We'll do these synchronously to make the current frame.
@@ -725,7 +754,13 @@ class Recomposer(
         if (composition.isComposing || composition.isDisposed) return null
         return if (
             composing(composition, modifiedValues) {
-                modifiedValues?.forEach { composition.recordWriteOf(it) }
+                if (modifiedValues?.isNotEmpty() == true) {
+                    // Record write performed by a previous composition as if they happened during
+                    // composition.
+                    composition.prepareCompose {
+                        modifiedValues.forEach { composition.recordWriteOf(it) }
+                    }
+                }
                 composition.recompose()
             }
         ) composition else null
@@ -834,6 +869,21 @@ class Recomposer(
         }?.resume(Unit)
     }
 
+    internal override fun invalidateScope(scope: RecomposeScopeImpl) {
+        synchronized(stateLock) {
+            snapshotInvalidations += setOf(scope)
+            deriveStateLocked()
+        }?.resume(Unit)
+    }
+
+    /**
+     * hack: the companion object is thread local in Kotlin/Native to avoid freezing
+     * [_runningRecomposers] with the current memory model. As a side effect,
+     * recomposers are now forced to be single threaded in Kotlin/Native targets.
+     *
+     * This annotation WILL BE REMOVED with the new memory model of Kotlin/Native.
+     */
+    @ThreadLocal
     companion object {
 
         private val _runningRecomposers = MutableStateFlow(persistentSetOf<RecomposerInfoImpl>())

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.ParkedOnlyOnClickListener;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,11 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class SignInTemplateTest {
+    private final Action mAction =
+            new Action.Builder().setTitle("Action").setOnClickListener(
+                    ParkedOnlyOnClickListener.create(() -> {
+                    })).build();
+
     @Test
     public void createInstance_noHeaderTitleOrAction_throws() {
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
@@ -44,6 +50,16 @@ public class SignInTemplateTest {
     }
 
     @Test
+    public void moreThanTwoActions_throws() {
+        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new SignInTemplate.Builder(signInMethod)
+                        .addAction(mAction)
+                        .addAction(mAction)
+                        .addAction(mAction));
+    }
+
+    @Test
     public void createInstance_defaultValues() {
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
@@ -51,6 +67,7 @@ public class SignInTemplateTest {
                 .build();
 
         assertThat(template.getTitle().toString()).isEqualTo("Title");
+        assertThat(template.isLoading()).isFalse();
         assertThat(template.getHeaderAction()).isNull();
         assertThat(template.getSignInMethod()).isEqualTo(signInMethod);
         assertThat(template.getActions()).isEmpty();
@@ -70,6 +87,16 @@ public class SignInTemplateTest {
                                         new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
                                                 }).build()));
+    }
+
+    @Test
+    public void createInstance_setLoading() {
+        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        SignInTemplate template = new SignInTemplate.Builder(signInMethod)
+                .setHeaderAction(Action.BACK)
+                .setLoading(true)
+                .build();
+        assertThat(template.isLoading()).isTrue();
     }
 
     @Test
@@ -117,8 +144,13 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_addActions() {
-        Action action1 = new Action.Builder().setTitle("Action").build();
-        Action action2 = new Action.Builder().setTitle("Action").build();
+        Action action1 = new Action.Builder()
+                .setTitle("Action")
+                .setOnClickListener(ParkedOnlyOnClickListener.create(() -> { }))
+                .build();
+        Action action2 = new Action.Builder()
+                .setTitle("Action").setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                })).build();
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
@@ -130,15 +162,16 @@ public class SignInTemplateTest {
     }
 
     @Test
-    public void createInstance_moreThanTwoActions_throws() {
-        Action action = new Action.Builder().setTitle("Action").build();
+    public void createInstance_notParkedOnlyAction_throws() {
+        Action action = new Action.Builder()
+                .setTitle("Action")
+                .setOnClickListener(() -> { })
+                .build();
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
-        assertThrows(IllegalStateException.class,
-                () -> new SignInTemplate.Builder(signInMethod)
-                        .setTitle("Title")
-                        .addAction(action)
-                        .addAction(action)
-                        .addAction(action));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new SignInTemplate.Builder(signInMethod).addAction(action));
     }
 
     @Test
@@ -147,24 +180,54 @@ public class SignInTemplateTest {
         String title = "Title";
         String instructions = "instructions";
         String additionalText = "Text";
-        Action action = Action.BACK;
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(action).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle(title)
+                .setLoading(true)
                 .setInstructions(instructions)
                 .setAdditionalText(additionalText)
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
 
         assertThat(template)
                 .isEqualTo(
                         new SignInTemplate.Builder(signInMethod)
+                                .setLoading(true)
                                 .setTitle(title)
                                 .setInstructions(instructions)
                                 .setAdditionalText(additionalText)
-                                .addAction(action)
+                                .addAction(mAction)
+                                .setActionStrip(actionStrip)
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentLoadingState() {
+        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        String title = "Title";
+        String instructions = "instructions";
+        String additionalText = "Text";
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
+
+        SignInTemplate template = new SignInTemplate.Builder(signInMethod)
+                .setTitle(title)
+                .setLoading(true)
+                .setInstructions(instructions)
+                .setAdditionalText(additionalText)
+                .addAction(mAction)
+                .setActionStrip(actionStrip)
+                .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new SignInTemplate.Builder(signInMethod)
+                                .setLoading(false)
+                                .setTitle(title)
+                                .setInstructions(instructions)
+                                .setAdditionalText(additionalText)
+                                .addAction(mAction)
                                 .setActionStrip(actionStrip)
                                 .build());
     }
@@ -175,14 +238,13 @@ public class SignInTemplateTest {
         String title = "Title";
         String instructions = "instructions";
         String additionalText = "Text";
-        Action action = Action.BACK;
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(action).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle(title)
                 .setInstructions(instructions)
                 .setAdditionalText(additionalText)
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
 
@@ -193,7 +255,7 @@ public class SignInTemplateTest {
                                 .setTitle(title)
                                 .setInstructions(instructions)
                                 .setAdditionalText(additionalText)
-                                .addAction(action)
+                                .addAction(mAction)
                                 .setActionStrip(actionStrip)
                                 .build());
     }
@@ -203,14 +265,13 @@ public class SignInTemplateTest {
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
         String instructions = "instructions";
         String additionalText = "Text";
-        Action action = Action.BACK;
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(action).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
                 .setInstructions(instructions)
                 .setAdditionalText(additionalText)
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
         assertThat(template)
@@ -219,7 +280,7 @@ public class SignInTemplateTest {
                                 .setTitle("Title2")
                                 .setInstructions(instructions)
                                 .setAdditionalText(additionalText)
-                                .addAction(action)
+                                .addAction(mAction)
                                 .setActionStrip(actionStrip)
                                 .build());
     }
@@ -229,14 +290,13 @@ public class SignInTemplateTest {
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
         String title = "Title";
         String additionalText = "Text";
-        Action action = Action.BACK;
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(action).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle(title)
                 .setInstructions("instructions1")
                 .setAdditionalText(additionalText)
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
         assertThat(template)
@@ -245,7 +305,7 @@ public class SignInTemplateTest {
                                 .setTitle(title)
                                 .setInstructions("instructions2")
                                 .setAdditionalText(additionalText)
-                                .addAction(action)
+                                .addAction(mAction)
                                 .setActionStrip(actionStrip)
                                 .build());
     }
@@ -255,14 +315,13 @@ public class SignInTemplateTest {
         PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
         String instructions = "instructions";
         String title = "Title";
-        Action action = Action.BACK;
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(action).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle(title)
                 .setInstructions(instructions)
                 .setAdditionalText("Text")
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
         assertThat(template)
@@ -271,7 +330,7 @@ public class SignInTemplateTest {
                                 .setTitle(title)
                                 .setInstructions(instructions)
                                 .setAdditionalText("Text2")
-                                .addAction(action)
+                                .addAction(mAction)
                                 .setActionStrip(actionStrip)
                                 .build());
     }
@@ -288,7 +347,7 @@ public class SignInTemplateTest {
                 .setTitle(title)
                 .setInstructions(instructions)
                 .setAdditionalText(additionalText)
-                .addAction(Action.BACK)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
         assertThat(template)
@@ -297,7 +356,6 @@ public class SignInTemplateTest {
                                 .setTitle(title)
                                 .setInstructions(instructions)
                                 .setAdditionalText(additionalText)
-                                .addAction(Action.APP_ICON)
                                 .setActionStrip(actionStrip)
                                 .build());
     }
@@ -308,14 +366,13 @@ public class SignInTemplateTest {
         String instructions = "instructions";
         String title = "Title";
         String additionalText = "Text";
-        Action action = Action.BACK;
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.APP_ICON).build();
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle(title)
                 .setInstructions(instructions)
                 .setAdditionalText(additionalText)
-                .addAction(action)
+                .addAction(mAction)
                 .setActionStrip(actionStrip)
                 .build();
         ActionStrip actionStrip2 = new ActionStrip.Builder().addAction(Action.BACK).build();
@@ -325,7 +382,7 @@ public class SignInTemplateTest {
                                 .setTitle(title)
                                 .setInstructions(instructions)
                                 .setAdditionalText(additionalText)
-                                .addAction(action)
+                                .addAction(mAction)
                                 .setActionStrip(actionStrip2)
                                 .build());
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,7 +8,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="154"
+            line="141"
             column="9"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="160"
+            line="147"
             column="9"/>
     </issue>
 
@@ -30,13 +30,13 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="166"
+            line="153"
             column="9"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mUriIdlingResource.beginLoad(request.getUrl().toString());"
         errorLine2="                                                     ~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                                                       ~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mUriIdlingResource.endLoad(request.getUrl().toString());"
         errorLine2="                                                   ~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderInternalStorageActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderInternalStorageActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderSimpleActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderSimpleActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.CustomInterstitialActivity.CustomInterstitialWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.CustomInterstitialActivity.CustomInterstitialWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            myIntent.putExtra(PopupInterstitialActivity.THREAT_URL, request.getUrl().toString());"
         errorLine2="                                                                            ~~~~~~">
         <location
@@ -101,19 +101,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.DocumentStartJavaScriptActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.DocumentStartJavaScriptActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/DocumentStartJavaScriptActivity.java"
-            line="70"
+            line="68"
             column="64"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.ErrorLoggingWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.ErrorLoggingWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            logErrors(request.getUrl().toString(), error.getErrorCode());"
         errorLine2="                              ~~~~~~">
         <location
@@ -123,19 +123,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.MenuListView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.MenuListView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="48"
+            line="46"
             column="9"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.WebMessageListenerActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.WebMessageListenerActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
@@ -145,47 +145,14 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.WebMessageListenerMaliciousWebsiteActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.WebMessageListenerMaliciousWebsiteActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                WebResourceResponse response = loader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/WebMessageListenerMaliciousWebsiteActivity.java"
             line="69"
             column="86"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `allowlistSafeBrowsingTestSite` of class `AllowlistActivity` requires synthetic accessor"
-        errorLine1="                    allowlistSafeBrowsingTestSite(null);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="63"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `clearAllowlist` of class `AllowlistActivity` requires synthetic accessor"
-        errorLine1="                    clearAllowlist();"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="65"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAllowlistWebView` of class `AllowlistActivity` requires synthetic accessor"
-        errorLine1="                mAllowlistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="83"
-            column="17"/>
     </issue>
 
     <issue
@@ -421,35 +388,24 @@
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` field `mContext` of class `MenuListView` requires synthetic accessor"
-        errorLine1="                featureArrayAdapter.getItem(position).start(mContext);"
-        errorLine2="                                                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="91"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
         message="Access to `private` method `recreateWebView` of class `RendererTerminationActivity` requires synthetic accessor"
-        errorLine1="                            ((RendererTerminationActivity) getActivity())"
-        errorLine2="                            ^">
+        errorLine1="                                ((RendererTerminationActivity) getActivity()).recreateWebView())"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="110"
-            column="29"/>
+            line="102"
+            column="33"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` method `terminateWebViewRenderer` of class `RendererTerminationActivity` requires synthetic accessor"
-        errorLine1="                            ((RendererTerminationActivity) getActivity())"
-        errorLine2="                            ^">
+        errorLine1="                                    ((RendererTerminationActivity) getActivity())"
+        errorLine2="                                    ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="136"
-            column="29"/>
+            line="126"
+            column="37"/>
     </issue>
 
     <issue
@@ -459,7 +415,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="151"
+            line="138"
             column="13"/>
     </issue>
 
@@ -470,7 +426,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="157"
+            line="144"
             column="13"/>
     </issue>
 
@@ -481,7 +437,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="162"
+            line="149"
             column="13"/>
     </issue>
 
@@ -492,7 +448,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="163"
+            line="150"
             column="13"/>
     </issue>
 
@@ -503,7 +459,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="216"
+            line="203"
             column="17"/>
     </issue>
 
@@ -514,7 +470,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="217"
+            line="204"
             column="17"/>
     </issue>
 
@@ -525,7 +481,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="222"
+            line="209"
             column="17"/>
     </issue>
 
@@ -536,7 +492,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="242"
+            line="229"
             column="21"/>
     </issue>
 
@@ -547,30 +503,8 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="252"
+            line="239"
             column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setupLayout` of class `SafeBrowsingActivity` requires synthetic accessor"
-        errorLine1="                                setupLayout();"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/SafeBrowsingActivity.java"
-            line="48"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `showSafeBrowsingRequirementsInBrowser` of class `SafeBrowsingActivity` requires synthetic accessor"
-        errorLine1="                                    showSafeBrowsingRequirementsInBrowser();"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/SafeBrowsingActivity.java"
-            line="54"
-            column="37"/>
     </issue>
 
     <issue
@@ -580,7 +514,7 @@
         errorLine2="                                ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="96"
+            line="97"
             column="33"/>
     </issue>
 
@@ -591,7 +525,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="97"
+            line="98"
             column="33"/>
     </issue>
 
@@ -602,7 +536,7 @@
         errorLine2="                                ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="98"
+            line="99"
             column="33"/>
     </issue>
 
@@ -613,7 +547,7 @@
         errorLine2="                                                                                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="99"
+            line="100"
             column="89"/>
     </issue>
 
@@ -624,7 +558,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="101"
+            line="102"
             column="37"/>
     </issue>
 
@@ -635,7 +569,7 @@
         errorLine2="                                    ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="103"
+            line="104"
             column="37"/>
     </issue>
 
@@ -668,7 +602,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="46"
+            line="44"
             column="29"/>
     </issue>
 
@@ -756,7 +690,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="34"
+            line="32"
             column="25"/>
     </issue>
 
@@ -767,7 +701,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="38"
+            line="36"
             column="25"/>
     </issue>
 
@@ -778,7 +712,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="38"
+            line="36"
             column="42"/>
     </issue>
 
@@ -789,7 +723,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="42"
+            line="40"
             column="25"/>
     </issue>
 
@@ -800,7 +734,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="42"
+            line="40"
             column="42"/>
     </issue>
 
@@ -811,7 +745,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="47"
+            line="45"
             column="25"/>
     </issue>
 
@@ -822,7 +756,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="47"
+            line="45"
             column="42"/>
     </issue>
 
@@ -833,7 +767,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="59"
+            line="57"
             column="25"/>
     </issue>
 
@@ -844,7 +778,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="59"
+            line="57"
             column="38"/>
     </issue>
 
@@ -855,7 +789,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="76"
+            line="74"
             column="27"/>
     </issue>
 
@@ -866,7 +800,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="84"
+            line="82"
             column="26"/>
     </issue>
 
@@ -899,7 +833,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/PopupInterstitialActivity.java"
-            line="51"
+            line="50"
             column="29"/>
     </issue>
 
@@ -910,7 +844,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/Proxy.java"
-            line="60"
+            line="61"
             column="28"/>
     </issue>
 
@@ -921,7 +855,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="95"
+            line="87"
             column="23"/>
     </issue>
 
@@ -932,7 +866,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="102"
+            line="94"
             column="16"/>
     </issue>
 
@@ -943,7 +877,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="102"
+            line="94"
             column="38"/>
     </issue>
 
@@ -954,7 +888,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="121"
+            line="111"
             column="23"/>
     </issue>
 
@@ -965,7 +899,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="128"
+            line="118"
             column="16"/>
     </issue>
 
@@ -976,7 +910,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="128"
+            line="118"
             column="38"/>
     </issue>
 

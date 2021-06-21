@@ -26,7 +26,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
-import androidx.camera.integration.antelope.MainActivity.Companion.LOG_DIR
+import androidx.camera.integration.antelope.MainActivity.Companion.LOG_PATH
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import com.google.common.math.Quantiles
 import com.google.common.math.Stats
@@ -281,7 +281,7 @@ class TestResults {
  * @param csv The comma-based csv string
  */
 fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
         writeCSVAfterQ(activity, filePrefix, csv)
     } else {
         writeCSVBeforeQ(activity, filePrefix, csv)
@@ -289,8 +289,10 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
 }
 
 /**
-* Original writeFile implementation. It is workable on Pie and Pei lower for
-* Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+ * When the platform is Android Pie and Pie below, Environment.getExternalStoragePublicDirectory
+ * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
+ * make it workable. Ref:
+ * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
 */
 fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
     val csvFile = File(
@@ -374,7 +376,7 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
 }
 
 /**
- * After Q, change to use MediaStore to access the shared media files.
+ * R and R above, change to use MediaStore to access the shared media files.
  * https://developer.android.com/training/data-storage/shared
  *
  * @param activity The main activity
@@ -383,17 +385,17 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
  */
 fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
     var output: OutputStream?
-    var csvUri: Uri?
     val resolver: ContentResolver = activity.contentResolver
-
-    val relativePath = Environment.DIRECTORY_DOCUMENTS + File.separatorChar + LOG_DIR
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, prefix + "_" + generateCSVTimestamp() + ".csv")
         put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+        put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_PATH)
     }
 
-    csvUri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+    val csvUri = resolver.insert(
+        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+        contentValues
+    )
     if (csvUri != null) {
         lateinit var bufferWriter: BufferedWriter
         try {
@@ -422,9 +424,45 @@ fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
 }
 
 /**
- * Delete all Antelope .csv files in the documents directory
+ * Delete all Antelope .csv files in the Documents directory
  */
 fun deleteCSVFiles(activity: MainActivity) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        deleteCSVFilesAfterQ(activity)
+    } else {
+        deleteCSVFilesBeforeQ(activity)
+    }
+
+    activity.runOnUiThread {
+        Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
+    }
+    logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
+}
+
+/**
+ * R and R above, change to use MediaStore to delete the log files. It will delete records in media
+ * store and the physical log files.
+ */
+fun deleteCSVFilesAfterQ(activity: MainActivity) {
+    val logDirUri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+    val resolver: ContentResolver = activity.contentResolver
+    val selection = MediaStore.MediaColumns.RELATIVE_PATH + " like ?"
+    val selectionArgs = arrayOf("%$LOG_PATH%")
+
+    resolver.delete(
+        logDirUri,
+        selection,
+        selectionArgs
+    )
+}
+
+/**
+ * When the platform is Android Pie and Pie below, Environment.getExternalStoragePublicDirectory
+ * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
+ * make it workable. Ref:
+ * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
+ */
+fun deleteCSVFilesBeforeQ(activity: MainActivity) {
     val csvDir = File(
         Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOCUMENTS
@@ -441,11 +479,6 @@ fun deleteCSVFiles(activity: MainActivity) {
         val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         scannerIntent.data = Uri.fromFile(csvDir)
         activity.sendBroadcast(scannerIntent)
-
-        activity.runOnUiThread {
-            Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
-        }
-        logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
     }
 }
 

@@ -114,17 +114,20 @@ abstract class SpecialEffectsController {
     @Nullable
     Operation.LifecycleImpact getAwaitingCompletionLifecycleImpact(
             @NonNull FragmentStateManager fragmentStateManager) {
+        Operation.LifecycleImpact lifecycleImpact = null;
         // First search through pending operations
         Operation pendingOperation = findPendingOperation(fragmentStateManager.getFragment());
         if (pendingOperation != null) {
-            return pendingOperation.getLifecycleImpact();
+            lifecycleImpact = pendingOperation.getLifecycleImpact();
         }
         // Then search through running operations
         Operation runningOperation = findRunningOperation(fragmentStateManager.getFragment());
-        if (runningOperation != null) {
+        // Only use the running operation if the pending operation is null or NONE
+        if (runningOperation != null
+                && (lifecycleImpact == null || lifecycleImpact == Operation.LifecycleImpact.NONE)) {
             return runningOperation.getLifecycleImpact();
         }
-        return null;
+        return lifecycleImpact;
     }
 
     @Nullable

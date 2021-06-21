@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -358,8 +359,11 @@ fun <T, V : AnimationVector> animateValueAsState(
 
     val animatable = remember { Animatable(targetValue, typeConverter) }
     val listener by rememberUpdatedState(finishedListener)
+    val animSpec by rememberUpdatedState(animationSpec)
     val channel = remember { Channel<T>(Channel.CONFLATED) }
-    channel.offer(targetValue)
+    SideEffect {
+        channel.trySend(targetValue)
+    }
     LaunchedEffect(channel) {
         for (target in channel) {
             // This additional poll is needed because when the channel suspends on receive and
@@ -367,10 +371,10 @@ fun <T, V : AnimationVector> animateValueAsState(
             // will be received.
             // It may not be an issue elsewhere, but in animation we want to avoid being one
             // frame late.
-            val newTarget = channel.poll() ?: target
+            val newTarget = channel.tryReceive().getOrNull() ?: target
             launch {
                 if (newTarget != animatable.targetValue) {
-                    animatable.animateTo(newTarget, animationSpec)
+                    animatable.animateTo(newTarget, animSpec)
                     listener?.invoke(animatable.value)
                 }
             }

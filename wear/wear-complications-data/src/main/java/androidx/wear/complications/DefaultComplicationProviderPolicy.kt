@@ -18,6 +18,7 @@ package androidx.wear.complications
 
 import android.content.ComponentName
 import androidx.annotation.RestrictTo
+import androidx.wear.complications.SystemProviders.ProviderId
 import java.util.ArrayList
 
 /**
@@ -37,14 +38,14 @@ public class DefaultComplicationProviderPolicy {
     public val secondaryProvider: ComponentName?
 
     /** Fallback in case none of the non-system providers could be used. */
-    @SystemProviders.ProviderId
+    @ProviderId
     public val systemProviderFallback: Int
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         providers: List<ComponentName>,
-        @SystemProviders.ProviderId systemProviderFallback: Int
+        @ProviderId systemProviderFallback: Int
     ) {
         this.primaryProvider = if (providers.isNotEmpty()) providers[0] else null
         this.secondaryProvider = if (providers.size >= 2) providers[1] else null
@@ -61,7 +62,7 @@ public class DefaultComplicationProviderPolicy {
     /**
      * Uses systemProvider as the default complication provider.
      */
-    public constructor(@SystemProviders.ProviderId systemProvider: Int) {
+    public constructor(@ProviderId systemProvider: Int) {
         primaryProvider = null
         secondaryProvider = null
         systemProviderFallback = systemProvider
@@ -73,7 +74,7 @@ public class DefaultComplicationProviderPolicy {
      */
     public constructor(
         provider: ComponentName,
-        @SystemProviders.ProviderId systemProviderFallback: Int
+        @ProviderId systemProviderFallback: Int
     ) {
         primaryProvider = provider
         secondaryProvider = null
@@ -88,7 +89,7 @@ public class DefaultComplicationProviderPolicy {
     public constructor(
         primaryProvider: ComponentName,
         secondaryProvider: ComponentName,
-        @SystemProviders.ProviderId systemProviderFallback: Int
+        @ProviderId systemProviderFallback: Int
     ) {
         this.primaryProvider = primaryProvider
         this.secondaryProvider = secondaryProvider
@@ -104,6 +105,26 @@ public class DefaultComplicationProviderPolicy {
     public fun providersAsList(): ArrayList<ComponentName> = ArrayList<ComponentName>().apply {
         primaryProvider?.let { add(it) }
         secondaryProvider?.let { add(it) }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DefaultComplicationProviderPolicy
+
+        if (primaryProvider != other.primaryProvider) return false
+        if (secondaryProvider != other.secondaryProvider) return false
+        if (systemProviderFallback != other.systemProviderFallback) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = primaryProvider?.hashCode() ?: 0
+        result = 31 * result + (secondaryProvider?.hashCode() ?: 0)
+        result = 31 * result + systemProviderFallback
+        return result
     }
 
     internal companion object {

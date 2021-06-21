@@ -19,6 +19,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.desktop.AppWindow
 import androidx.compose.desktop.DesktopMaterialTheme
+import androidx.compose.desktop.LocalAppWindow
 import androidx.compose.desktop.Window
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -86,6 +87,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.pointerMoveFilter
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.svgResource
 import androidx.compose.ui.res.vectorXmlResource
@@ -96,6 +98,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.Font
+import androidx.compose.ui.text.platform.FontLoader
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
@@ -108,7 +111,16 @@ import java.awt.event.MouseEvent
 
 private const val title = "Desktop Compose Elements"
 
-val italicFont = FontFamily(Font("NotoSans-Italic.ttf"))
+val italicFont = try {
+    FontFamily(
+        Font("NotoSans-Italic.ttf").also {
+            // Check that font is loadable.
+            FontLoader().load(it)
+        }
+    )
+} catch (e: Exception) {
+    FontFamily.SansSerif
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
@@ -119,6 +131,7 @@ fun main() {
 
 @Composable
 private fun App() {
+    val uriHandler = LocalUriHandler.current
     DesktopMaterialTheme {
         Scaffold(
             topBar = {
@@ -136,9 +149,9 @@ private fun App() {
             },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
-                    text = { Text("BUTTON") },
+                    text = { Text("Open URL") },
                     onClick = {
-                        println("Floating button clicked")
+                        uriHandler.openUri("https://google.com")
                     }
                 )
             },
@@ -176,11 +189,13 @@ private fun LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ScrollableContent(scrollState: ScrollState) {
-    val amount = remember { mutableStateOf(0) }
+    val amount = remember { mutableStateOf(0f) }
     val animation = remember { mutableStateOf(true) }
     Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
+        val window = LocalAppWindow.current.window
+        val info = "${window.renderApi} (${window.windowHandle})"
         Text(
-            text = "Привет! 你好! Desktop Compose ${amount.value}",
+            text = "Привет! 你好! Desktop Compose use $info: ${amount.value}",
             color = Color.Black,
             modifier = Modifier
                 .background(Color.Blue)
@@ -400,12 +415,12 @@ private fun ScrollableContent(scrollState: ScrollState) {
         }
 
         Slider(
-            value = amount.value.toFloat() / 100f,
-            onValueChange = { amount.value = (it * 100).toInt() }
+            value = amount.value / 100f,
+            onValueChange = { amount.value = (it * 100) }
         )
         TextField(
             value = amount.value.toString(),
-            onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
+            onValueChange = { amount.value = it.toFloatOrNull() ?: 42f },
             label = { Text(text = "Input1") }
         )
 
@@ -493,16 +508,16 @@ fun Animations(isCircularEnabled: Boolean) = Row {
 private fun RightColumn(modifier: Modifier) = Box {
     val state = rememberLazyListState()
     val itemCount = 100000
-    val itemHeight = 20.dp
 
     LazyColumn(modifier.graphicsLayer(alpha = 0.5f), state = state) {
         items((1..itemCount).toList()) { x ->
+            val itemHeight = 20.dp + 20.dp * Math.random().toFloat()
             Text(x.toString(), Modifier.graphicsLayer(alpha = 0.5f).height(itemHeight))
         }
     }
 
     VerticalScrollbar(
-        rememberScrollbarAdapter(state, itemCount, itemHeight),
+        rememberScrollbarAdapter(state),
         Modifier.align(Alignment.CenterEnd)
     )
 }

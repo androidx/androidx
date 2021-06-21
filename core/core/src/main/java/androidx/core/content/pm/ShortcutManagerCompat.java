@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
@@ -32,6 +33,7 @@ import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
@@ -125,11 +127,19 @@ public class ShortcutManagerCompat {
     private static volatile ShortcutInfoCompatSaver<?> sShortcutInfoCompatSaver = null;
 
     /**
-     * Will be instantiated by reflection to load an implementation from another module if possible.
+     * Will be instantiated by reflection to load an implementation from another module if
+     * possible. Modules can declare the class to be instantiated using the meta-data in their
+     * Manifest.
+     *
      * If fails to load an implementation via reflection, will use the default implementation which
      * is no-op.
      */
-    private static volatile ShortcutInfoChangeListener sShortcutInfoChangeListener = null;
+    private static volatile List<ShortcutInfoChangeListener> sShortcutInfoChangeListeners = null;
+
+    private static final String SHORTCUT_LISTENER_INTENT_FILTER_ACTION = "androidx.core.content.pm"
+            + ".SHORTCUT_LISTENER";
+    private static final String SHORTCUT_LISTENER_META_DATA_KEY = "androidx.core.content.pm"
+            + ".shortcut_listener_impl";
 
     private ShortcutManagerCompat() {
         /* Hide constructor */
@@ -317,7 +327,9 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
-        getShortcutInfoListenerInstance(context).onShortcutAdded(shortcutInfoList);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutAdded(shortcutInfoList);
+        }
         return true;
     }
 
@@ -406,8 +418,9 @@ public class ShortcutManagerCompat {
             context.getSystemService(ShortcutManager.class).reportShortcutUsed(shortcutId);
         }
 
-        getShortcutInfoListenerInstance(context)
-                .onShortcutUsageReported(Collections.singletonList(shortcutId));
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutUsageReported(Collections.singletonList(shortcutId));
+        }
     }
 
     /**
@@ -447,8 +460,10 @@ public class ShortcutManagerCompat {
         getShortcutInfoSaverInstance(context).removeAllShortcuts();
         getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
 
-        getShortcutInfoListenerInstance(context).onAllShortcutsRemoved();
-        getShortcutInfoListenerInstance(context).onShortcutAdded(shortcutInfoList);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onAllShortcutsRemoved();
+            listener.onShortcutAdded(shortcutInfoList);
+        }
         return true;
     }
 
@@ -507,7 +522,9 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
-        getShortcutInfoListenerInstance(context).onShortcutUpdated(shortcutInfoList);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutUpdated(shortcutInfoList);
+        }
         return true;
     }
 
@@ -571,7 +588,9 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).removeShortcuts(shortcutIds);
-        getShortcutInfoListenerInstance(context).onShortcutRemoved(shortcutIds);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutRemoved(shortcutIds);
+        }
     }
 
     /**
@@ -599,7 +618,9 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
-        getShortcutInfoListenerInstance(context).onShortcutAdded(shortcutInfoList);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutAdded(shortcutInfoList);
+        }
     }
 
     /**
@@ -616,7 +637,9 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).removeShortcuts(shortcutIds);
-        getShortcutInfoListenerInstance(context).onShortcutRemoved(shortcutIds);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutRemoved(shortcutIds);
+        }
     }
 
     /**
@@ -632,7 +655,9 @@ public class ShortcutManagerCompat {
         }
 
         getShortcutInfoSaverInstance(context).removeAllShortcuts();
-        getShortcutInfoListenerInstance(context).onAllShortcutsRemoved();
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onAllShortcutsRemoved();
+        }
     }
 
     /**
@@ -655,7 +680,9 @@ public class ShortcutManagerCompat {
 
         context.getSystemService(ShortcutManager.class).removeLongLivedShortcuts(shortcutIds);
         getShortcutInfoSaverInstance(context).removeShortcuts(shortcutIds);
-        getShortcutInfoListenerInstance(context).onShortcutRemoved(shortcutIds);
+        for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+            listener.onShortcutRemoved(shortcutIds);
+        }
     }
 
     /**
@@ -730,8 +757,10 @@ public class ShortcutManagerCompat {
         } catch (Exception e) {
             // Ignore
         } finally {
-            getShortcutInfoListenerInstance(context)
-                    .onShortcutAdded(Collections.singletonList(shortcut));
+            for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
+                listener.onShortcutAdded(Collections.singletonList(shortcut));
+            }
+            reportShortcutUsed(context, shortcut.getId());
         }
         return false;
     }
@@ -752,6 +781,16 @@ public class ShortcutManagerCompat {
     @VisibleForTesting
     static void setShortcutInfoCompatSaver(final ShortcutInfoCompatSaver<Void> saver) {
         sShortcutInfoCompatSaver = saver;
+    }
+
+    @VisibleForTesting
+    static void setShortcutInfoChangeListeners(final List<ShortcutInfoChangeListener> listeners) {
+        sShortcutInfoChangeListeners = listeners;
+    }
+
+    @VisibleForTesting
+    static List<ShortcutInfoChangeListener> getShortcutInfoChangeListeners() {
+        return sShortcutInfoChangeListeners;
     }
 
     private static int getIconDimensionInternal(@NonNull final Context context,
@@ -789,27 +828,47 @@ public class ShortcutManagerCompat {
         return sShortcutInfoCompatSaver;
     }
 
-    private static ShortcutInfoChangeListener getShortcutInfoListenerInstance(Context context) {
-        if (sShortcutInfoChangeListener == null) {
+    private static List<ShortcutInfoChangeListener> getShortcutInfoListeners(Context context) {
+        if (sShortcutInfoChangeListeners == null) {
+            List<ShortcutInfoChangeListener> result = new ArrayList<>();
             if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
-                    Class<?> listener =
-                            Class.forName(
-                                    "androidx.core.google.shortcuts.ShortcutInfoChangeListenerImpl",
-                                    false, loader);
-                    Method getInstanceMethod = listener.getMethod("getInstance", Context.class);
-                    sShortcutInfoChangeListener =
-                            (ShortcutInfoChangeListener) getInstanceMethod.invoke(null, context);
-                } catch (Exception e) { /* Do nothing */ }
+                PackageManager packageManager = context.getPackageManager();
+                Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
+                activityIntent.setPackage(context.getPackageName());
 
-                if (sShortcutInfoChangeListener == null) {
-                    // Implementation not available. Instantiate to the default no-op impl.
-                    sShortcutInfoChangeListener = new ShortcutInfoChangeListener.NoopImpl();
+                List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(
+                        activityIntent, PackageManager.GET_META_DATA);
+
+                for (ResolveInfo resolveInfo : resolveInfos) {
+                    ActivityInfo activityInfo = resolveInfo.activityInfo;
+                    if (activityInfo == null) {
+                        continue;
+                    }
+                    Bundle metaData = activityInfo.metaData;
+                    if (metaData == null) {
+                        continue;
+                    }
+                    String shortcutListenerImplName =
+                            metaData.getString(SHORTCUT_LISTENER_META_DATA_KEY);
+                    if (shortcutListenerImplName == null) {
+                        continue;
+                    }
+                    try {
+                        ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
+                        Class<?> listener = Class.forName(shortcutListenerImplName, false, loader);
+                        Method getInstanceMethod = listener.getMethod("getInstance", Context.class);
+                        result.add((ShortcutInfoChangeListener)
+                                getInstanceMethod.invoke(null, context));
+                    } catch (Exception e) { /* Do nothing */ }
                 }
             }
+
+            // Make sure the listeners are not already added while the loop is running.
+            if (sShortcutInfoChangeListeners == null) {
+                sShortcutInfoChangeListeners = result;
+            }
         }
-        return sShortcutInfoChangeListener;
+        return sShortcutInfoChangeListeners;
     }
 
     @RequiresApi(25)

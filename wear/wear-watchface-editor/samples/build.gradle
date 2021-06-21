@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -31,7 +29,7 @@ dependencies {
     api("androidx.fragment:fragment:1.3.0")
     implementation("androidx.wear:wear:1.1.0-rc01")
     api(project(":wear:wear-watchface-editor"))
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
 }
 
 androidx {

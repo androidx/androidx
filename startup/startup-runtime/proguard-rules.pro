@@ -5,4 +5,4 @@
     <init>();
 }
 
--assumenosideeffects class androidx.startup.StartupLogger
+-assumenosideeffects class androidx.startup.StartupLogger { public static <methods>; }

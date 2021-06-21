@@ -22,7 +22,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.text.emoji.flatbuffer.MetadataList;
+import androidx.emoji2.text.flatbuffer.MetadataList;
 
 import java.io.IOException;
 import java.io.InputStream;

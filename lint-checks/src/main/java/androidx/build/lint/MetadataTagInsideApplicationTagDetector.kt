@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.SdkConstants.TAG_META_DATA
@@ -29,7 +31,7 @@ import org.w3c.dom.Element
 
 class MetadataTagInsideApplicationTagDetector : Detector(), Detector.XmlScanner {
 
-    override fun getApplicableElements(): Collection<String>? {
+    override fun getApplicableElements(): Collection<String> {
         return listOf(TAG_META_DATA)
     }
 

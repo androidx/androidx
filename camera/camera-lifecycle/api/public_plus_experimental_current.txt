@@ -1,15 +1,15 @@
 // Signature format: 4.0
 package androidx.camera.lifecycle {
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraProviderConfiguration {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraProviderConfiguration {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroupLifecycle {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroupLifecycle {
   }
 
   public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCase!...);
-    method @MainThread @androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup);
+    method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup);
     method @androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration public static void configureInstance(androidx.camera.core.CameraXConfig);
     method public java.util.List<androidx.camera.core.CameraInfo!> getAvailableCameraInfos();
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.ProcessCameraProvider!> getInstance(android.content.Context);

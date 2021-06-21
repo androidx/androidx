@@ -20,62 +20,120 @@ import androidx.annotation.OptIn
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class UseJavaExperimentalFromKt {
-    /**
-     * Unsafe call into an experimental class.
-     */
-    fun getDateUnsafe(): Int {
-        val dateProvider = DateProvider()
-        return dateProvider.date
-    }
-
-    @ExperimentalDateTime
-    fun getDateExperimental(): Int {
-        val dateProvider = DateProvider()
-        return dateProvider.date
-    }
-
-    @OptIn(ExperimentalDateTime::class)
-    fun getDateUseExperimental(): Int {
-        val dateProvider = DateProvider()
-        return dateProvider.date
-    }
-
-    fun displayDate() {
-        println("" + getDateUnsafe())
-    }
-
-    // Tests involving multiple experimental markers.
 
     /**
-     * Unsafe call into an experimental class.
+     * Unsafe call into a field on an experimental class.
      */
-    @ExperimentalDateTime
-    fun getDateExperimentalLocationUnsafe(): Int {
-        val dateProvider = DateProvider()
-        val locationProvider = LocationProvider()
-        return dateProvider.date + locationProvider.location
+    fun unsafeExperimentalClassField(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.field
     }
 
-    @ExperimentalDateTime
-    @ExperimentalLocation
-    fun getDateAndLocationExperimental(): Int {
-        val dateProvider = DateProvider()
-        val locationProvider = LocationProvider()
-        return dateProvider.date + locationProvider.location
+    /**
+     * Unsafe call into a method on an experimental class.
+     */
+    fun unsafeExperimentalClassMethod(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method()
     }
 
-    @OptIn(ExperimentalDateTime::class)
-    @ExperimentalLocation
-    fun getDateUseExperimentalLocationExperimental(): Int {
-        val dateProvider = DateProvider()
-        val locationProvider = LocationProvider()
-        return dateProvider.date + locationProvider.location
+    /**
+     * Unsafe call into a static field on an experimental class.
+     */
+    fun unsafeExperimentalClassStaticField(): Int {
+        return AnnotatedJavaClass.FIELD_STATIC
     }
 
-    @OptIn(ExperimentalDateTime::class, ExperimentalLocation::class)
-    fun getDateAndLocationUseExperimental(): Int {
-        val dateProvider = DateProvider()
-        val locationProvider = LocationProvider()
-        return dateProvider.date + locationProvider.location
+    /**
+     * Unsafe call into a static method on an experimental class.
+     */
+    fun unsafeExperimentalClassStaticMethod(): Int {
+        return AnnotatedJavaClass.methodStatic()
+    }
+
+    /**
+     * Safe call due to propagation of experimental annotation.
+     */
+    @ExperimentalJavaAnnotation
+    fun safePropagateMarker(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method()
+    }
+
+    /**
+     * Safe call due to opting in to experimental annotation.
+     */
+    @OptIn(ExperimentalJavaAnnotation::class)
+    fun safeOptInMarker(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method()
+    }
+
+    /**
+     * Unsafe call into an experimental field on a stable class.
+     */
+    fun unsafeExperimentalField(): Int {
+        val stableObject = AnnotatedJavaMembers()
+        return stableObject.field
+    }
+
+    /**
+     * Unsafe call into an experimental method on a stable class.
+     */
+    fun unsafeExperimentalMethod(): Int {
+        val stableObject = AnnotatedJavaMembers()
+        return stableObject.method()
+    }
+
+    /**
+     * Unsafe call into an experimental static field on a stable class.
+     */
+    fun unsafeExperimentalStaticField(): Int {
+        return AnnotatedJavaMembers.FIELD_STATIC
+    }
+
+    /**
+     * Unsafe call into an experimental static method on a stable class.
+     */
+    fun unsafeExperimentalStaticMethod(): Int {
+        return AnnotatedJavaMembers.methodStatic()
+    }
+
+    /**
+     * Unsafe call into multiple experimental classes.
+     */
+    @ExperimentalJavaAnnotation
+    fun unsafeMultipleExperimentalClasses(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC
+    }
+
+    /**
+     * Safe call due to propagation of both annotations.
+     */
+    @ExperimentalJavaAnnotation
+    @ExperimentalJavaAnnotation2
+    fun safePropagateMultipleMarkers(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC
+    }
+
+    /**
+     * Safe call due to opt-in of one annotation and propagation of another.
+     */
+    @OptIn(ExperimentalJavaAnnotation::class)
+    @ExperimentalJavaAnnotation2
+    fun safePropagateAndOptInMarkers(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC
+    }
+
+    /**
+     * Safe call due to opt-in of both annotations.
+     */
+    @OptIn(ExperimentalJavaAnnotation::class, ExperimentalJavaAnnotation2::class)
+    fun safeOptInMultipleMarkers(): Int {
+        val experimentalObject = AnnotatedJavaClass()
+        return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC
     }
 }

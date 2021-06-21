@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.BuildOnServerKt
-import androidx.build.dependencyTracker.AffectedModuleDetector
-import androidx.build.uptodatedness.EnableCachingKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
 
 plugins {
     id("AndroidXPlugin")
@@ -29,7 +24,7 @@ plugins {
 
 dependencies {
     implementation(projectOrArtifact(":annotation:annotation"))
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 }
 
 // Allow usage of Kotlin's @Experimental and @RequiresOptIn annotations.
@@ -51,7 +46,7 @@ android {
     lintOptions {
         // lint is supposed to detect errors in this project
         // We don't need to see the errors in stdout
-        textOutput("${buildDir}/lint-output.txt")
+        textOutput("${buildDir}/lint-results-debug.txt") // Set to this value for b/189877657
         // We don't want errors to cause lint to fail
         abortOnError false
     }
@@ -83,27 +78,9 @@ class CompareFilesTask extends DefaultTask {
     }
 }
 
-def lintOutputFile = project.file("${buildDir}/reports/lint-results-debug.xml")
-def lintOutputFileNormalized = project.file("${buildDir}/lint-results-normalized/lint-results-debug.xml.normalized")
-
-def normalizeLintOutput = tasks.register("normalizeLintOutput", Copy) {
-    def supportRootFolder = project.rootProject.ext.supportRootFolder
-    from(lintOutputFile) {
-        filter { line ->
-            return line.replace(supportRootFolder.getAbsolutePath(), "\$SUPPORT")
-        }
+// workaround for b/189877657
+afterEvaluate {
+    tasks.named("copyDebugAndroidLintReports").configure {
+        enabled = false
     }
-    into(lintOutputFileNormalized.parentFile)
-    rename(".*", lintOutputFileNormalized.name)
-    dependsOn("lintDebug")
 }
-
-def validateLint = tasks.register("validateLint", CompareFilesTask) { task ->
-    task.actualFile = lintOutputFileNormalized
-    task.expectedFile = project.file("expected-lint-results.xml")
-    EnableCachingKt.cacheEvenIfNoOutputs(task)
-    dependsOn(normalizeLintOutput)
-    AffectedModuleDetector.configureTaskGuard(task)
-}
-
-BuildOnServerKt.addToBuildOnServer(project, validateLint)

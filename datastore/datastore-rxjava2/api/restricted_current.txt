@@ -25,9 +25,6 @@ package androidx.datastore.rxjava2 {
 
   public final class RxDataStoreDelegateKt {
     method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional io.reactivex.Scheduler scheduler);
-    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations);
-    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
-    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer);
   }
 
   public interface RxSharedPreferencesMigration<T> {

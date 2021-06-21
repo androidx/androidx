@@ -23,8 +23,14 @@ import com.google.auto.value.AutoValue;
 /**
  * Advertising ID Information.
  * Includes both the Advertising ID and the limit ad tracking setting.
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 @AutoValue
+@AutoValue.CopyAnnotations
 public abstract class AdvertisingIdInfo {
 
     // Create a no-args constructor so it doesn't appear in current.txt

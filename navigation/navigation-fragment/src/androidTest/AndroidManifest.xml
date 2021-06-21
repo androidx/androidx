@@ -28,5 +28,7 @@
         <activity android:name="androidx.navigation.fragment.ImmediateNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.StartDestinationArgsActivity" />
         <activity android:name="androidx.navigation.fragment.EmptyActivity" />
+        <activity android:name="androidx.navigation.fragment.TestActivity" />
+        <activity android:name="androidx.navigation.fragment.NavGraphActivity" />
     </application>
 </manifest>

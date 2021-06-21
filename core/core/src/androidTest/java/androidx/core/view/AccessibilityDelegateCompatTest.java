@@ -169,7 +169,7 @@ public class AccessibilityDelegateCompatTest extends
 
     @Test
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
-    @FlakyTest
+    @FlakyTest(bugId = 187190911)
     public void testAccessibilityPaneTitle_isntTrackedAsPaneWithoutTitle() {
         // This test isn't to test the propagation up, just that the event is sent correctly
         ViewCompat.setAccessibilityLiveRegion(mView,
@@ -334,15 +334,33 @@ public class AccessibilityDelegateCompatTest extends
         assertFalse(nodeHasActionWithId(id, label));
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testAddDuplicateAccessibilityAction() {
+        final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+        final CharSequence label = "Asad's action";
+        final int id = ViewCompat.addAccessibilityAction(mView, label, action);
+        assertThat(nodeActionCountsWithId(id, label), equalTo(1));
+
+        final int newId = ViewCompat.addAccessibilityAction(mView, label, action);
+        assertThat(nodeActionCountsWithId(id, label), equalTo(1));
+        assertEquals(id, newId);
+    }
+
     private boolean nodeHasActionWithId(int id, CharSequence label) {
+        return nodeActionCountsWithId(id, label) > 0;
+    }
+
+    private int nodeActionCountsWithId(int id, CharSequence label) {
+        int count = 0;
         final List<AccessibilityActionCompat> actions = getNodeCompatForView(mView).getActionList();
         for (int i = 0; i < actions.size(); i++) {
             final AccessibilityActionCompat action = actions.get(i);
             if (action.getId() == id && TextUtils.equals(action.getLabel(), label)) {
-                return true;
+                count++;
             }
         }
-        return false;
+        return count;
     }
 
     @Test
@@ -387,8 +405,6 @@ public class AccessibilityDelegateCompatTest extends
         verify(action).perform(mView, null);
     }
 
-
-
     @Test
     @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalledWithTwoReplacements() {
@@ -410,7 +426,7 @@ public class AccessibilityDelegateCompatTest extends
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
-    public void testActionRemovedAfterAfterNullReplacement() {
+    public void testActionRemovedAfterNullReplacement() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
 
         ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,

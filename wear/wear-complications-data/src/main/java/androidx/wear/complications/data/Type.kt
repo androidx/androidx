@@ -39,7 +39,7 @@ public enum class ComplicationType(private val wireType: Int) {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun asWireComplicationType(): Int = wireType
+    public fun toWireComplicationType(): Int = wireType
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -80,7 +80,7 @@ public enum class ComplicationType(private val wireType: Int) {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        public fun toWireTypes(types: Collection<ComplicationType>): IntArray = types.asWireTypes()
+        public fun toWireTypes(types: Collection<ComplicationType>): IntArray = types.toWireTypes()
 
         /**
          * Converts an array of integer values used for serialization into the corresponding array
@@ -95,7 +95,7 @@ public enum class ComplicationType(private val wireType: Int) {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun fromWireTypes(types: IntArray): Array<ComplicationType> =
-            types.asApiComplicationTypes()
+            types.toApiComplicationTypes()
 
         /**
          * Converts an array of integer values used for serialization into the corresponding list
@@ -119,8 +119,8 @@ public enum class ComplicationType(private val wireType: Int) {
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Collection<ComplicationType>.asWireTypes(): IntArray =
-    this.map { it.asWireComplicationType() }.toIntArray()
+public fun Collection<ComplicationType>.toWireTypes(): IntArray =
+    this.map { it.toWireComplicationType() }.toIntArray()
 
 /**
  * Converts an array of integer values uses for serialization into the corresponding array
@@ -131,5 +131,5 @@ public fun Collection<ComplicationType>.asWireTypes(): IntArray =
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun IntArray.asApiComplicationTypes(): Array<ComplicationType> =
+public fun IntArray.toApiComplicationTypes(): Array<ComplicationType> =
     this.map { ComplicationType.fromWireType(it) }.toTypedArray()

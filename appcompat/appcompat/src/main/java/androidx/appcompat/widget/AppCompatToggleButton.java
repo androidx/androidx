@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.widget.ToggleButton;
 
@@ -29,9 +30,9 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link ToggleButton} which supports compatible features on older versions of the platform,
@@ -39,18 +40,22 @@ import androidx.core.view.ViewCompat;
  * <ul>
  *     <li>Allows dynamic tint of its background via the background tint methods in
  *     {@link androidx.core.view.ViewCompat}.</li>
- *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
- *     {@link R.attr#backgroundTintMode}.</li>
+ *     <li>Allows setting of the background tint using
+ *     {@link androidx.appcompat.R.attr#backgroundTint} and
+ *     {@link androidx.appcompat.R.attr#backgroundTintMode}.</li>
  *     <li>Allows setting of the font family using {@link android.R.attr#fontFamily}</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link ToggleButton} in your layouts.
  * You should only need to manually use this class when writing custom views.</p>
  */
-public class AppCompatToggleButton extends ToggleButton implements TintableBackgroundView {
+@AppCompatShadowedAttributes
+public class AppCompatToggleButton extends ToggleButton implements TintableBackgroundView,
+        EmojiCompatConfigurationView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
 
     public AppCompatToggleButton(@NonNull Context context) {
         this(context, null);
@@ -71,6 +76,9 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
 
         mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        AppCompatEmojiTextHelper emojiTextViewHelper = getEmojiTextViewHelper();
+        emojiTextViewHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
     @Override
@@ -154,5 +162,39 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
         if (mTextHelper != null) {
             mTextHelper.applyCompoundDrawablesTints();
         }
+    }
+
+    @Override
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+        super.setFilters(getEmojiTextViewHelper().getFilters(filters));
+    }
+
+
+    /**
+     * This may be called from super constructors.
+     */
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+        //noinspection ConstantConditions
+        if (mAppCompatEmojiTextHelper == null) {
+            mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);
+        }
+        return mAppCompatEmojiTextHelper;
+    }
+
+    @Override
+    public void setAllCaps(boolean allCaps) {
+        super.setAllCaps(allCaps);
+        getEmojiTextViewHelper().setAllCaps(allCaps);
+    }
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        getEmojiTextViewHelper().setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return getEmojiTextViewHelper().isEnabled();
     }
 }

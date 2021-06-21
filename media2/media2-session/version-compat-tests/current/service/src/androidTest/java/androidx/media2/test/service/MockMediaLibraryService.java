@@ -154,6 +154,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
         mSession = new MediaLibrarySession.Builder(MockMediaLibraryService.this, player, executor,
                 callback != null ? callback : new TestLibrarySessionCallback())
                 .setId(ID)
+                .setThrowsWhenInvalidReturn(false)
                 .build();
         return mSession;
     }

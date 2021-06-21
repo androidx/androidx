@@ -60,11 +60,13 @@ internal fun errorMessage(whenMethodName: String) =
 
 internal const val SECONDARY_ERROR_MESSAGE = "Internal View access"
 
-internal val APPLICABLE_METHOD_NAMES = listOf("whenCreated", "whenStarted", "whenResumed")
+private val LIFECYCLE_WHEN_APPLICABLE_METHOD_NAMES = listOf(
+    "whenCreated", "whenStarted", "whenResumed"
+)
 
 class LifecycleWhenChecks : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames() = APPLICABLE_METHOD_NAMES
+    override fun getApplicableMethodNames() = LIFECYCLE_WHEN_APPLICABLE_METHOD_NAMES
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         val valueArguments = node.valueArguments
@@ -194,7 +196,7 @@ private const val DISPATCHER_CLASS_NAME = "androidx.lifecycle.PausingDispatcherK
 private const val LIFECYCLE_CLASS_NAME = "androidx.lifecycle.Lifecycle"
 
 private fun PsiMethod.isLifecycleWhenExtension(context: JavaContext): Boolean {
-    return name in APPLICABLE_METHOD_NAMES &&
+    return name in LIFECYCLE_WHEN_APPLICABLE_METHOD_NAMES &&
         context.evaluator.isMemberInClass(this, DISPATCHER_CLASS_NAME) &&
         context.evaluator.isStatic(this)
 }

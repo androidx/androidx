@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
@@ -22,11 +24,12 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@Suppress("UnstableApiUsage")
+@Ignore("b/187526328")
 @RunWith(JUnit4::class)
 class RequiresOptInDetectorTest {
 
@@ -42,34 +45,88 @@ class RequiresOptInDetectorTest {
     }
 
     @Test
-    fun useJavaExperimentalFromJava() {
+    fun useJavaExperimentalMembersFromJava() {
         val input = arrayOf(
-            javaSample("sample.optin.DateProvider"),
-            javaSample("sample.optin.ExperimentalDateTime"),
-            javaSample("sample.optin.ExperimentalLocation"),
-            javaSample("sample.optin.LocationProvider"),
-            javaSample("sample.optin.UseJavaExperimentalFromJava")
+            javaSample("sample.optin.AnnotatedJavaMembers"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.UseJavaExperimentalMembersFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/optin/UseJavaExperimentalFromJava.java:27: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalDateTime' or '@OptIn(markerClass = sample.optin.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
-        DateProvider dateProvider = new DateProvider();
-                                    ~~~~~~~~~~~~~~~~~~
-src/sample/optin/UseJavaExperimentalFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalDateTime' or '@OptIn(markerClass = sample.optin.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
-        return dateProvider.getDate();
-                            ~~~~~~~
-src/sample/optin/UseJavaExperimentalFromJava.java:55: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalLocation' or '@OptIn(markerClass = sample.optin.ExperimentalLocation.class)' [UnsafeOptInUsageError]
-        LocationProvider locationProvider = new LocationProvider();
-                                            ~~~~~~~~~~~~~~~~~~~~~~
-src/sample/optin/UseJavaExperimentalFromJava.java:56: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalLocation' or '@OptIn(markerClass = sample.optin.ExperimentalLocation.class)' [UnsafeOptInUsageError]
-        return dateProvider.getDate() + locationProvider.getLocation();
-                                                         ~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalMembersFromJava.java:30: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return stableObject.field;
+                            ~~~~~
+src/sample/optin/UseJavaExperimentalMembersFromJava.java:38: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return stableObject.method();
+                            ~~~~~~
+src/sample/optin/UseJavaExperimentalMembersFromJava.java:45: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return AnnotatedJavaMembers.FIELD_STATIC;
+                                    ~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalMembersFromJava.java:52: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return AnnotatedJavaMembers.methodStatic();
+                                    ~~~~~~~~~~~~
 4 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun useJavaExperimentalClassFromJava() {
+        val input = arrayOf(
+            javaSample("sample.optin.AnnotatedJavaClass"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.UseJavaExperimentalClassFromJava")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/optin/UseJavaExperimentalClassFromJava.java:31: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalClassFromJava.java:39: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalClassFromJava.java:40: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return experimentalObject.method();
+                                  ~~~~~~
+src/sample/optin/UseJavaExperimentalClassFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return AnnotatedJavaClass.methodStatic();
+                                  ~~~~~~~~~~~~
+4 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun useJavaExperimentalMultipleMarkersFromJava() {
+        val input = arrayOf(
+            javaSample("sample.optin.AnnotatedJavaClass"),
+            javaSample("sample.optin.AnnotatedJavaClass2"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation2"),
+            javaSample("sample.optin.UseJavaExperimentalMultipleMarkersFromJava")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java:33: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation2' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation2.class)' [UnsafeOptInUsageError]
+        AnnotatedJavaClass2 experimentalObject2 = new AnnotatedJavaClass2();
+                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -79,32 +136,49 @@ src/sample/optin/UseJavaExperimentalFromJava.java:56: Error: This declaration is
     @Test
     fun useJavaExperimentalFromKt() {
         val input = arrayOf(
-            javaSample("sample.optin.DateProvider"),
-            javaSample("sample.optin.ExperimentalDateTime"),
-            javaSample("sample.optin.ExperimentalLocation"),
-            javaSample("sample.optin.LocationProvider"),
+            javaSample("sample.optin.AnnotatedJavaClass"),
+            javaSample("sample.optin.AnnotatedJavaClass2"),
+            javaSample("sample.optin.AnnotatedJavaMembers"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation2"),
             ktSample("sample.optin.UseJavaExperimentalFromKt")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/optin/UseJavaExperimentalFromKt.kt:27: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalDateTime' or '@OptIn(markerClass = sample.optin.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
-        val dateProvider = DateProvider()
-                           ~~~~~~~~~~~~
 src/sample/optin/UseJavaExperimentalFromKt.kt:28: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalDateTime' or '@OptIn(markerClass = sample.optin.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
-        return dateProvider.date
-                            ~~~~
-src/sample/optin/UseJavaExperimentalFromKt.kt:55: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalLocation' or '@OptIn(markerClass = sample.optin.ExperimentalLocation.class)' [UnsafeOptInUsageError]
-        val locationProvider = LocationProvider()
-                               ~~~~~~~~~~~~~~~~
-src/sample/optin/UseJavaExperimentalFromKt.kt:56: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.ExperimentalLocation' or '@OptIn(markerClass = sample.optin.ExperimentalLocation.class)' [UnsafeOptInUsageError]
-        return dateProvider.date + locationProvider.location
-                                                    ~~~~~~~~
-4 errors, 0 warnings
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        val experimentalObject = AnnotatedJavaClass()
+                                 ~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:36: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        val experimentalObject = AnnotatedJavaClass()
+                                 ~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:37: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return experimentalObject.method()
+                                  ~~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:51: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return AnnotatedJavaClass.methodStatic()
+                                  ~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:77: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return stableObject.field
+                            ~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:85: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return stableObject.method()
+                            ~~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:92: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return AnnotatedJavaMembers.FIELD_STATIC
+                                    ~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalFromKt.kt:99: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        return AnnotatedJavaMembers.methodStatic()
+                                    ~~~~~~~~~~~~
+8 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -115,50 +189,37 @@ src/sample/optin/UseJavaExperimentalFromKt.kt:56: Error: This declaration is opt
     fun useKtExperimentalFromJava() {
         val input = arrayOf(
             OPT_IN_KT,
-            ktSample("sample.optin.DateProviderKt"),
-            ktSample("sample.optin.TimeProviderKt"),
-            ktSample("sample.optin.ExperimentalDateTimeKt"),
-            ktSample("sample.optin.ExperimentalLocationKt"),
-            ktSample("sample.optin.LocationProviderKt"),
-            javaSample("sample.optin.ExperimentalDateTime"),
+            ktSample("sample.optin.AnnotatedKotlinClass"),
+            ktSample("sample.optin.AnnotatedKotlinClass2"),
+            ktSample("sample.optin.AnnotatedKotlinMembers"),
+            ktSample("sample.optin.ExperimentalKotlinAnnotation"),
+            ktSample("sample.optin.ExperimentalKotlinAnnotation2"),
             javaSample("sample.optin.UseKtExperimentalFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
- src/sample/optin/UseKtExperimentalFromJava.java:27: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.optin.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
-         DateProviderKt dateProvider = new DateProviderKt();
-                                       ~~~~~~~~~~~~~~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.optin.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
-         return dateProvider.getDate();
-                             ~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:55: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalLocationKt' or '@OptIn(markerClass = sample.optin.ExperimentalLocationKt.class)' [UnsafeOptInUsageError]
-         LocationProviderKt locationProvider = new LocationProviderKt();
-                                               ~~~~~~~~~~~~~~~~~~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:56: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalLocationKt' or '@OptIn(markerClass = sample.optin.ExperimentalLocationKt.class)' [UnsafeOptInUsageError]
-         return dateProvider.getDate() + locationProvider.getLocation();
-                                                          ~~~~~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:89: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.optin.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
-         TimeProviderKt.getTimeStatically();
-                        ~~~~~~~~~~~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:90: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.optin.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
-         TimeProviderKt.Companion.getTimeStatically();
-                                  ~~~~~~~~~~~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:97: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.optin.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
-         new TimeProviderKt().getTime();
-                              ~~~~~~~
- src/sample/optin/UseKtExperimentalFromJava.java:98: Error: This declaration is opt-in and its usage should be marked with
- '@sample.optin.ExperimentalDateTime' or '@OptIn(markerClass = sample.optin.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
-         new TimeProviderKt().getTimeJava();
-                              ~~~~~~~~~~~
- 8 errors, 0 warnings
+src/sample/optin/UseKtExperimentalFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalKotlinAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalKotlinAnnotation.class)' [UnsafeOptInUsageError]
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseKtExperimentalFromJava.java:29: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalKotlinAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalKotlinAnnotation.class)' [UnsafeOptInUsageError]
+        return experimentalObject.method();
+                                  ~~~~~~
+src/sample/optin/UseKtExperimentalFromJava.java:97: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalKotlinAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalKotlinAnnotation.class)' [UnsafeOptInUsageError]
+        AnnotatedKotlinMembers.methodStatic();
+                               ~~~~~~~~~~~~
+src/sample/optin/UseKtExperimentalFromJava.java:98: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalKotlinAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalKotlinAnnotation.class)' [UnsafeOptInUsageError]
+        AnnotatedKotlinMembers.Companion.methodStatic();
+                                         ~~~~~~~~~~~~
+src/sample/optin/UseKtExperimentalFromJava.java:107: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalKotlinAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalKotlinAnnotation.class)' [UnsafeOptInUsageError]
+        new AnnotatedKotlinMembers().method();
+                                     ~~~~~~
+5 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -169,25 +230,25 @@ src/sample/optin/UseJavaExperimentalFromKt.kt:56: Error: This declaration is opt
     fun useJavaPackageFromJava() {
         val input = arrayOf(
             SAMPLE_FOO_PACKAGE_INFO,
-            javaSample("sample.optin.foo.Bar"),
-            javaSample("sample.optin.foo.ExperimentalPackage"),
+            javaSample("sample.optin.foo.AnnotatedJavaPackage"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
             javaSample("sample.optin.UseJavaPackageFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/optin/UseJavaPackageFromJava.java:30: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.optin.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
-        Bar bar = new Bar();
-                  ~~~~~~~~~
-src/sample/optin/UseJavaPackageFromJava.java:31: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.optin.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
-        bar.baz();
-            ~~~
-src/sample/optin/UseJavaPackageFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.optin.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
-        callPackageExperimental();
-        ~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaPackageFromJava.java:33: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        AnnotatedJavaPackage experimentalObject = new AnnotatedJavaPackage();
+                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaPackageFromJava.java:34: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        experimentalObject.method();
+                           ~~~~~~
+src/sample/optin/UseJavaPackageFromJava.java:67: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        safePropagateMarker();
+        ~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
@@ -199,23 +260,23 @@ src/sample/optin/UseJavaPackageFromJava.java:54: Error: This declaration is opt-
     fun useJavaPackageFromKt() {
         val input = arrayOf(
             SAMPLE_FOO_PACKAGE_INFO,
-            javaSample("sample.optin.foo.Bar"),
-            javaSample("sample.optin.foo.ExperimentalPackage"),
+            javaSample("sample.optin.foo.AnnotatedJavaPackage"),
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
             ktSample("sample.optin.UseJavaPackageFromKt")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
 src/sample/optin/UseJavaPackageFromKt.kt:30: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.optin.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
-        val bar = Bar()
-                  ~~~
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        val experimentalObject = AnnotatedJavaPackage()
+                                 ~~~~~~~~~~~~~~~~~~~~
 src/sample/optin/UseJavaPackageFromKt.kt:31: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.optin.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
-        bar.baz()
-            ~~~
-src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in and its usage should be marked with
-'@sample.optin.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.optin.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
+        experimentalObject.method()
+                           ~~~~~~
+src/sample/optin/UseJavaPackageFromKt.kt:64: Error: This declaration is opt-in and its usage should be marked with
+'@sample.optin.ExperimentalJavaAnnotation' or '@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)' [UnsafeOptInUsageError]
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
@@ -223,20 +284,6 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
-    }
-
-    /**
-     * Loads a [TestFile] from Java source code included in the JAR resources.
-     */
-    private fun javaSample(className: String): TestFile {
-        return java(javaClass.getResource("/java/${className.replace('.','/')}.java").readText())
-    }
-
-    /**
-     * Loads a [TestFile] from Kotlin source code included in the JAR resources.
-     */
-    private fun ktSample(className: String): TestFile {
-        return kotlin(javaClass.getResource("/java/${className.replace('.','/')}.kt").readText())
     }
 
     /* ktlint-disable max-line-length */
@@ -354,13 +401,35 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
          * 2. mkdir -p temp/sample/optin/foo/
          * 3. cp ../../out/androidx/annotation/annotation-experimental-lint-integration-tests/build/intermediates/javac/debug/classes/sample/optin/foo/package-info.class temp/sample/optin/foo/
          * 4. jar -c -f sample.optin.foo.package-info.jar -C temp . | openssl base64 < sample.optin.foo.package-info.jar | tr -d '\n' | pbcopy
-         * 5. rm -rf temp sample.optin.foo.package-info.jar
-         * 6. Paste here
+         * 5. Paste below
+         * 6. rm -rf temp sample.optin.foo.package-info.jar
          */
         val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip(
             "libs/sample.optin.foo.package-info.jar",
-            "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"
+            "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"
         )
     }
     /* ktlint-enable max-line-length */
+}
+
+/**
+ * Loads a [TestFile] from Java source code included in the JAR resources.
+ */
+fun javaSample(className: String): TestFile {
+    return java(
+        RequiresOptInDetectorTest::class.java.getResource(
+            "/java/${className.replace('.','/')}.java"
+        ).readText()
+    )
+}
+
+/**
+ * Loads a [TestFile] from Kotlin source code included in the JAR resources.
+ */
+fun ktSample(className: String): TestFile {
+    return kotlin(
+        RequiresOptInDetectorTest::class.java.getResource(
+            "/java/${className.replace('.','/')}.kt"
+        ).readText()
+    )
 }

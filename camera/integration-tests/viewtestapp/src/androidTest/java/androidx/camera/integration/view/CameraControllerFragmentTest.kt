@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -34,6 +35,11 @@ import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_SUCCESSFUL
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_UNSUCCESSFUL
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -46,6 +52,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -53,6 +61,7 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -98,6 +107,7 @@ class CameraControllerFragmentTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var fragment: CameraControllerFragment
     private lateinit var fragmentScenario: FragmentScenario<CameraControllerFragment>
+    private lateinit var uiDevice: UiDevice
 
     @Before
     fun setup() {
@@ -106,6 +116,7 @@ class CameraControllerFragmentTest {
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
+        uiDevice = UiDevice.getInstance(instrumentation)
     }
 
     @After
@@ -114,6 +125,55 @@ class CameraControllerFragmentTest {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
             CameraX.shutdown().get(10, TimeUnit.SECONDS)
         }
+    }
+
+    @Test
+    fun controllerBound_canGetCameraControl() {
+        fragment.assertPreviewIsStreaming()
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.cameraControl).isNotNull()
+        }
+    }
+
+    @Test
+    fun onPreviewViewTapped_previewIsFocused() {
+        Assume.assumeFalse(
+            "Ignore Cuttlefish",
+            Build.MODEL.contains("Cuttlefish")
+        )
+        // Arrange: listens to LiveData updates.
+        fragment.assertPreviewIsStreaming()
+        val focused = Semaphore(0)
+        var started = false
+        var finalState = TAP_TO_FOCUS_NOT_STARTED
+        instrumentation.runOnMainSync {
+            fragment.cameraController.tapToFocusState.observe(
+                fragment,
+                {
+                    // Make sure the LiveData receives STARTED first and then another update.
+                    if (it == TAP_TO_FOCUS_STARTED) {
+                        started = true
+                        return@observe
+                    }
+                    if (started) {
+                        finalState = it
+                        focused.release()
+                    }
+                }
+            )
+        }
+
+        // Act: click PreviewView.
+        val previewViewId = "androidx.camera.integration.view:id/preview_view"
+        uiDevice.findObject(UiSelector().resourceId(previewViewId)).click()
+
+        // Assert: got a LiveData update
+        assertThat(focused.tryAcquire(6 /* focus time out is 5s */, TimeUnit.SECONDS)).isTrue()
+        assertThat(finalState).isAnyOf(
+            TAP_TO_FOCUS_SUCCESSFUL,
+            TAP_TO_FOCUS_FAILED,
+            TAP_TO_FOCUS_UNSUCCESSFUL
+        )
     }
 
     @Test
@@ -183,6 +243,7 @@ class CameraControllerFragmentTest {
         fragment.assertAnalysisStreaming(true)
     }
 
+    @Ignore
     @Test
     fun analyzerCleared_isNotStreaming() {
         fragment.assertAnalysisStreaming(true)
@@ -229,6 +290,7 @@ class CameraControllerFragmentTest {
     }
 
     @Test
+    @Ignore
     fun capturedImage_sameAsPreviewSnapshot() {
         // TODO(b/147448711) Add back in once cuttlefish has correct user cropping functionality.
         Assume.assumeFalse(
@@ -520,11 +582,14 @@ class CameraControllerFragmentTest {
         val analysisStreaming = Semaphore(0)
         instrumentation.runOnMainSync {
             setWrappedAnalyzer {
-                it.close()
                 analysisStreaming.release()
             }
         }
-        assertThat(analysisStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(
+        // Wait for 2 analysis frames. It's necessary because even after the analyzer is removed on
+        // the main thread, there could already be a frame posted on user call back thread. For the
+        // default non-blocking mode, the max number of frame posted on user thread at the same
+        // time is 1. So we wait for one additional frame to make sure the analyzer has stopped.
+        assertThat(analysisStreaming.tryAcquire(2, TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(
             streaming
         )
     }

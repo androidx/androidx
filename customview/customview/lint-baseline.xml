@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="UnknownNullness"
@@ -93,17 +93,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        void obtainBounds(T data, Rect outBounds);"
-        errorLine2="                          ~">
-        <location
-            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
-            line="443"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void obtainBounds(T data, Rect outBounds);"
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/FocusStrategy.java"
@@ -114,44 +103,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        V get(T collection, int index);"
-        errorLine2="        ~">
-        <location
-            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
-            line="450"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        V get(T collection, int index);"
-        errorLine2="              ~">
-        <location
-            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
-            line="450"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        int size(T collection);"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
-            line="451"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static ViewDragHelper create(@NonNull ViewGroup forParent, @NonNull Callback cb) {"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ViewDragHelper.java"
-            line="356"
+            line="363"
             column="19"/>
     </issue>
 
@@ -162,7 +118,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ViewDragHelper.java"
-            line="369"
+            line="376"
             column="19"/>
     </issue>
 

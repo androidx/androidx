@@ -1,5 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TARGET_ID = 1;"
+        errorLine2="                        ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="43"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int EXCLUDE_ID = 2;"
+        errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="45"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int EXCLUDE_CLASS = 3;"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="47"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TARGET_NAME = 4;"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="49"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int EXCLUDE_NAME = 5;"
+        errorLine2="                           ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="51"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TO_SCENE = 1;"
+        errorLine2="                       ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="65"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int TRANSITION = 2;"
+        errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="67"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int DURATION = 1;"
+        errorLine2="                       ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="82"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int START_DELAY = 2;"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="84"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int MATCH_ORDER = 3;"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="86"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int REPARENT_WITH_OVERLAY = 1;"
+        errorLine2="                                    ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="129"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int MINIMUM_VERTICAL_ANGLE = 1;"
+        errorLine2="                                     ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="163"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="        int MAXIMUM_ANGLE = 2;"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="165"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="SoonBlockedPrivateApi"
+        message="Reflective access to mDrawMatrix will throw an exception when targeting API 30 and above"
+        errorLine1="                sDrawMatrixField = ImageView.class.getDeclaredField(&quot;mDrawMatrix&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ImageViewUtils.java"
+            line="102"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SoonBlockedPrivateApi"
+        message="Reflective access to mViewFlags will throw an exception when targeting API 30 and above"
+        errorLine1="                sViewFlagsField = View.class.getDeclaredField(&quot;mViewFlags&quot;);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsBase.java"
+            line="157"
+            column="35"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
@@ -41,7 +206,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/ViewOverlayApi14.java"
-            line="289"
+            line="290"
             column="21"/>
     </issue>
 
@@ -57,19 +222,8 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static class ArrayListManager {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="2379"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.transition.AnimatorUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.transition.AnimatorUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            animator.addPauseListener(listener);"
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
@@ -79,8 +233,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.transition.AnimatorUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.transition.AnimatorUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            animator.pause();"
         errorLine2="                     ~~~~~">
         <location
@@ -90,8 +244,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.transition.AnimatorUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.transition.AnimatorUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            animator.resume();"
         errorLine2="                     ~~~~~~">
         <location
@@ -101,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.CanvasUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.CanvasUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                canvas.enableZ();"
         errorLine2="                       ~~~~~~~">
         <location
@@ -112,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.CanvasUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.CanvasUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                canvas.disableZ();"
         errorLine2="                       ~~~~~~~~">
         <location
@@ -123,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.transition.GhostViewHolder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (view.getZ() != comparedWith.getZ()) {"
         errorLine2="                     ~~~~">
         <location
@@ -134,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.transition.GhostViewHolder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (view.getZ() != comparedWith.getZ()) {"
         errorLine2="                                            ~~~~">
         <location
@@ -145,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.transition.GhostViewHolder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return view.getZ() > comparedWith.getZ();"
         errorLine2="                            ~~~~">
         <location
@@ -156,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.transition.GhostViewHolder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return view.getZ() > comparedWith.getZ();"
         errorLine2="                                                  ~~~~">
         <location
@@ -167,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ImageViewUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ImageViewUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            view.animateTransform(matrix);"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
@@ -178,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ImageViewUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ImageViewUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                view.animateTransform(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
@@ -189,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.transition.ObjectAnimatorUtils is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.transition.ObjectAnimatorUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ObjectAnimator.ofObject(target, property, null, path);"
         errorLine2="                                  ~~~~~~~~">
         <location
@@ -200,8 +354,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.transition.PropertyValuesHolderUtils is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.transition.PropertyValuesHolderUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return PropertyValuesHolder.ofObject(property, null, path);"
         errorLine2="                                        ~~~~~~~~">
         <location
@@ -211,8 +365,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            addToOverlay = !view.isAttachedToWindow();"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
@@ -222,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            sceneRootIsAttached = sceneRoot == null ? false : sceneRoot.isAttachedToWindow();"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~">
         <location
@@ -233,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            sceneRoot.getOverlay().add(view);"
         errorLine2="                      ~~~~~~~~~~">
         <location
@@ -244,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            sceneRoot.getOverlay().add(view);"
         errorLine2="                                   ~~~">
         <location
@@ -255,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                bitmap = Bitmap.createBitmap(picture);"
         errorLine2="                                ~~~~~~~~~~~~">
         <location
@@ -266,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            sceneRoot.getOverlay().remove(view);"
         errorLine2="                      ~~~~~~~~~~">
         <location
@@ -277,8 +431,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.transition.TransitionUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            sceneRoot.getOverlay().remove(view);"
         errorLine2="                                   ~~~~~~">
         <location
@@ -288,8 +442,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewGroupUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewGroupUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            group.suppressLayout(suppress);"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -299,8 +453,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewGroupUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewGroupUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                group.suppressLayout(suppress);"
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
@@ -310,8 +464,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewGroupUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewGroupUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return viewGroup.getChildDrawingOrder(i);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -321,8 +475,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi19 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi19 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                view.setTransitionAlpha(alpha);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
@@ -332,8 +486,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi19 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi19 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return view.getTransitionAlpha();"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
@@ -343,8 +497,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                view.transformMatrixToGlobal(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -354,8 +508,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                view.transformMatrixToLocal(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -365,8 +519,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi21 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                view.setAnimationMatrix(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
@@ -376,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi22 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi22 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                v.setLeftTopRightBottom(left, top, right, bottom);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -387,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi23 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.transition.ViewUtilsApi23 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    view.setTransitionVisibility(visibility);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1280,66 +1434,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="701"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="701"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            TransitionValuesMaps endValues, ArrayList&lt;TransitionValues> startValuesList,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="702"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            TransitionValuesMaps endValues, ArrayList&lt;TransitionValues> startValuesList,"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="702"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ArrayList&lt;TransitionValues> endValuesList) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="703"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void pause(View sceneRoot) {"
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1715"
+            line="1712"
             column="23"/>
     </issue>
 
@@ -1350,7 +1449,7 @@
         errorLine2="                       ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1747"
+            line="1739"
             column="24"/>
     </issue>
 
@@ -1361,7 +1460,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1894"
+            line="1881"
             column="28"/>
     </issue>
 
@@ -1372,7 +1471,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2214"
+            line="2201"
             column="12"/>
     </issue>
 
@@ -1383,7 +1482,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2437"
+            line="2424"
             column="25"/>
     </issue>
 
@@ -1511,66 +1610,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="463"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="463"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            TransitionValuesMaps endValues, ArrayList&lt;TransitionValues> startValuesList,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="464"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            TransitionValuesMaps endValues, ArrayList&lt;TransitionValues> startValuesList,"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="464"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ArrayList&lt;TransitionValues> endValuesList) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="465"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void pause(View sceneRoot) {"
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="558"
+            line="554"
             column="23"/>
     </issue>
 
@@ -1581,7 +1625,7 @@
         errorLine2="                       ~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="569"
+            line="565"
             column="24"/>
     </issue>
 
@@ -1592,7 +1636,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="609"
+            line="605"
             column="32"/>
     </issue>
 
@@ -1603,7 +1647,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="619"
+            line="615"
             column="38"/>
     </issue>
 
@@ -1614,7 +1658,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="638"
+            line="634"
             column="12"/>
     </issue>
 

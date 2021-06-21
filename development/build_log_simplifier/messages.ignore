@@ -4,6 +4,9 @@
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
+.*\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
+WARN: The registry key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' accessed, but not loaded yet
+PROGRESS: Rendering
 No docs found on supertype with \{@inheritDoc\} method .*
 Can't find node by signature .*
 Exception while resolving link to Module: Package:androidx\.compose\.material Function:animateElevation Receiver:<this>
@@ -13,8 +16,6 @@ at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.mainUri\(JavaL
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.linkTo\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.linkTo\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
 at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
-at java\.base/jdk\.internal\.reflect\.DelegatingMethodAccessorImpl\.invoke\(DelegatingMethodAccessorImpl\.java:[0-9]+\)
-at java\.base/java\.lang\.reflect\.Method\.invoke\(Method\.java:[0-9]+\)
 at com\.google\.inject\.internal\.DelegatingInvocationHandler\.invoke\(DelegatingInvocationHandler\.java:[0-9]+\)
 at com\.sun\.proxy\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
@@ -64,93 +65,9 @@ at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPages\(Ja
 at org\.jetbrains\.dokka\.GeneratorKt\.buildAll\(Generator\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.DokkaGenerator\.generate\(DokkaGenerator\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.DokkaBootstrapImpl\.generate\(DokkaBootstrapImpl\.kt:[0-9]+\)
-at java\.base/jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke[0-9]+\(Native Method\)
-at java\.base/jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke\(NativeMethodAccessorImpl\.java:[0-9]+\)
 at org\.jetbrains\.dokka\.DelegatedInvocationHandler\.invoke\(ProxyUtils\.kt:[0-9]+\)
 at com\.sun\.proxy\.\$Proxy[0-9]+\.generate\(Unknown Source\)
 at org\.jetbrains\.dokka\.gradle\.DokkaTask\.generate\(main\.kt:[0-9]+\)
-at org\.gradle\.internal\.reflect\.JavaMethod\.invoke\(JavaMethod\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.project\.taskfactory\.StandardTaskAction\.doExecute\(StandardTaskAction\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.project\.taskfactory\.StandardTaskAction\.execute\(StandardTaskAction\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$[0-9]+\.run\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\$[0-9]+\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.run\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.lambda\$run\$[0-9]+\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.UnmanagedBuildOperationWrapper\.runWithUnmanagedSupport\(UnmanagedBuildOperationWrapper\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.run\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeAction\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeActions\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.access\$[0-9]+\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\.executeWithPreviousOutputFiles\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\.execute\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.lambda\$executeOperation\$[0-9]+\(ExecuteStep\.java:[0-9]+\)
-at java\.base/java\.util\.Optional\.orElseGet\(Optional\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.executeOperation\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.access\$[0-9]+\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\$[0-9]+\.call\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\$CallableBuildOperationWorker\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.call\(DefaultBuildOperationRunner\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.lambda\$call\$[0-9]+\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.UnmanagedBuildOperationWrapper\.callWithUnmanagedSupport\(UnmanagedBuildOperationWrapper\.java:[0-9]+\)
-at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.call\(DefaultBuildOperationExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.execute\(ExecuteStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.RemovePreviousOutputsStep\.execute\(RemovePreviousOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ResolveInputChangesStep\.execute\(ResolveInputChangesStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CancelExecutionStep\.execute\(CancelExecutionStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.TimeoutStep\.executeWithoutTimeout\(TimeoutStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.TimeoutStep\.execute\(TimeoutStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CreateOutputsStep\.execute\(CreateOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CaptureStateAfterExecutionStep\.execute\(CaptureStateAfterExecutionStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.BroadcastChangingOutputsStep\.execute\(BroadcastChangingOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.BuildCacheStep\.executeWithoutCache\(BuildCacheStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.BuildCacheStep\.execute\(BuildCacheStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.StoreExecutionStateStep\.execute\(StoreExecutionStateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.RecordOutputsStep\.execute\(RecordOutputsStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.executeBecause\(SkipUpToDateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.lambda\$execute\$[0-9]+\(SkipUpToDateStep\.java:[0-9]+\)
-at java\.base/java\.util\.Optional\.map\(Optional\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.execute\(SkipUpToDateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ResolveChangesStep\.execute\(ResolveChangesStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.legacy\.MarkSnapshottingInputsFinishedStep\.execute\(MarkSnapshottingInputsFinishedStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ResolveCachingStateStep\.execute\(ResolveCachingStateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.CaptureStateBeforeExecutionStep\.execute\(CaptureStateBeforeExecutionStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.ValidateStep\.execute\(ValidateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipEmptyWorkStep\.lambda\$execute\$[0-9]+\(SkipEmptyWorkStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.SkipEmptyWorkStep\.execute\(SkipEmptyWorkStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.legacy\.MarkSnapshottingInputsStartedStep\.execute\(MarkSnapshottingInputsStartedStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.LoadExecutionStateStep\.execute\(LoadExecutionStateStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.AssignWorkspaceStep\.lambda\$execute\$[0-9]+\(AssignWorkspaceStep\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\$[0-9]+\.withWorkspace\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.AssignWorkspaceStep\.execute\(AssignWorkspaceStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.IdentityCacheStep\.execute\(IdentityCacheStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.steps\.IdentifyStep\.execute\(IdentifyStep\.java:[0-9]+\)
-at org\.gradle\.internal\.execution\.impl\.DefaultExecutionEngine\.execute\(DefaultExecutionEngine\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.lambda\$executeIfValid\$[0-9]+\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeIfValid\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.execute\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.CleanupStaleOutputsExecuter\.execute\(CleanupStaleOutputsExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.FinalizePropertiesTaskExecuter\.execute\(FinalizePropertiesTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.ResolveTaskExecutionModeExecuter\.execute\(ResolveTaskExecutionModeExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.SkipTaskWithNoActionsExecuter\.execute\(SkipTaskWithNoActionsExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.SkipOnlyIfTaskExecuter\.execute\(SkipOnlyIfTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.CatchExceptionTaskExecuter\.execute\(CatchExceptionTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\$[0-9]+\.executeTask\(EventFiringTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\$[0-9]+\.call\(EventFiringTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\.execute\(EventFiringTaskExecuter\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.LocalTaskNodeExecutor\.execute\(LocalTaskNodeExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.taskgraph\.DefaultTaskExecutionGraph\$InvokeNodeExecutorsAction\.execute\(DefaultTaskExecutionGraph\.java:[0-9]+\)
-at org\.gradle\.execution\.taskgraph\.DefaultTaskExecutionGraph\$BuildOperationAwareExecutionAction\.execute\(DefaultTaskExecutionGraph\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.lambda\$run\$[0-9]+\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.execute\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.executeNextNode\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.run\(DefaultPlanExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.concurrent\.ExecutorPolicy\$CatchAndRecordFailures\.onExecute\(ExecutorPolicy\.java:[0-9]+\)
-at org\.gradle\.internal\.concurrent\.ManagedExecutorImpl\$[0-9]+\.run\(ManagedExecutorImpl\.java:[0-9]+\)
-at java\.base/java\.util\.concurrent\.ThreadPoolExecutor\.runWorker\(ThreadPoolExecutor\.java:[0-9]+\)
-at java\.base/java\.util\.concurrent\.ThreadPoolExecutor\$Worker\.run\(ThreadPoolExecutor\.java:[0-9]+\)
-at org\.gradle\.internal\.concurrent\.ThreadFactoryImpl\$ManagedThreadRunnable\.run\(ThreadFactoryImpl\.java:[0-9]+\)
-at java\.base/java\.lang\.Thread\.run\(Thread\.java:[0-9]+\)
 Exception while resolving link to Module: Package:androidx\.compose\.animation\.core Class:KeyframesSpec Class:KeyframesSpecConfig Function:at Receiver:<this>
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeContent\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
@@ -215,25 +132,31 @@ OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
-Downloading file\:\$SUPPORT\/gradle\/wrapper\/\.\.\/\.\.\/\.\.\/\.\.\/tools\/external\/gradle\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\.zip
-\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
-Welcome to Gradle [0-9]+\.[0-9]+\.[0-9]+\!
+To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
+Starting a Gradle Daemon \(subsequent builds will be faster\)
+Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
+\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
+Welcome to Gradle .*
 Here are the highlights of this release:
-\- Faster Kotlin DSL script compilation
-\- Vendor selection for Java toolchains
-\- Convenient execution of tasks in composite builds
-\- Consistent dependency resolution
-For more details see https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/release\-notes\.html
+\- File system watching enabled by default
+\- Support for running with and building Java 16 projects
+\- Native support for Apple Silicon processors
+\- Dependency catalog feature preview
+For more details see .*
 To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
 Daemon will be stopped at the end of the build
 # > Task :buildSrc:build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Type\-safe dependency accessors is an incubating feature\.
 # > Configure project :
 updated local\.properties
 # > Configure project :compose:test\-utils
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
 \* androidAndroidTestRelease
+\* androidTestFixtures
+\* androidTestFixturesDebug
+\* androidTestFixturesRelease
 \* androidTestRelease
 \* test
 You can add a source set to a target's compilation by connecting it with the compilation's default source set using 'dependsOn'\.
@@ -243,8 +166,12 @@ See https://kotlinlang\.org/docs/reference/building\-mpp\-with\-gradle\.html\#co
 Wrote \$DIST_DIR/task_outputs\.txt
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 Use '\-\-warning\-mode all' to show the individual deprecation warnings\.
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
+Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work during this build to ensure correctness\.
+Please consult deprecation warnings for more details\.
 See https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/userguide\/command_line_interface\.html\#sec\:command_line_warnings
 BUILD SUCCESSFUL in .*
+The remote build cache was disabled during the build due to errors\.
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
@@ -256,18 +183,47 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
-application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
+application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
+\$OUT_DIR/androidx/wear/compose/compose\-material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/profileinstaller/profileinstaller\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/emoji[0-9]+/emoji[0-9]+\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/benchmark\-utils/benchmark\-utils\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/material/material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/animation/animation\-core/animation\-core\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/foundation\-layout\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-text/ui\-text\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-graphics/ui\-graphics\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation\-layout/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
+\$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-graphics:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Float[0-9]+\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/runtime/runtime/compose\-runtime\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
 \[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
@@ -283,6 +239,16 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+symbol\:   static FLAG_MUTABLE
+location\: class PendingIntent
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
+symbol:   class ExtensionDeviceState
+location: package androidx\.window\.extensions
+DeviceState translate\(ExtensionDeviceState deviceState\) \{
+location: class ExtensionAdapter
+\$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionTranslatingCallback\.java:[0-9]+: error: cannot find symbol
+public void onDeviceStateChanged\(@NonNull ExtensionDeviceState newDeviceState\) \{
+location: class ExtensionTranslatingCallback
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
@@ -328,8 +294,8 @@ In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/inte
 # > Task :support-preference-demos:compileDebugJavaWithJavac
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-meta\-data\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
-provider\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
+meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
+provider\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugJavaWithJavac
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
@@ -343,6 +309,7 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
 # > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/ads/ads\-identifier\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :internal-testutils-runtime:processDebugAndroidTestManifest
 # > Task :slice-benchmark:processReleaseAndroidTestManifest
@@ -364,6 +331,7 @@ Build testing_surface_format_.*
 # > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/emoji2/emoji2\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
 # > Task :leanback:leanback:processDebugAndroidTestManifest
@@ -401,11 +369,13 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :inte
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/recyclerview/recyclerview\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/room/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
@@ -440,6 +410,14 @@ warning: The following options were not recognized by any processor: '\[dagger\.
 # b/166471969
 .*androidTest.*AndroidManifest.*xml Warning.*:
 Package name.*test' used in: .*AndroidManifest.*xml.*
+\$SUPPORT/slices/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/appcompat/appcompat\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/collection/collection\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/navigation/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/work/workmanager\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \[:internal\-testutils\-espresso\] \$OUT_DIR/androidx/internal\-testutils\-espresso/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-espresso, :internal\-testutils\-runtime\.
 \$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -452,15 +430,17 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$OUT_DIR/androidx/compose/compiler/compiler\-hosted/integration\-tests/kotlin\-compiler\-repackaged/build/repackaged/kotlin\-compiler\-repackaged\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper \(file\:\$GRADLE_USER_HOME\/caches\/[0-9]+\.[0-9]+\.[0-9]+\/generated\-gradle\-jars\/gradle\-api\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to class java\.lang\.ClassLoader
 WARNING\: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
 WARNING\: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/robolectric\/shadowapi\/[0-9]+\.[0-9]+\-alpha\-[0-9]+\/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to method java\.lang\.ClassLoader\.getPackage\(java\.lang\.String\)
 WARNING\: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers\$[0-9]+
 WARNING\: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/com\/android\/tools\/external\/com\-intellij\/intellij\-core\/[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
-WARNING\: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-compiler\-embeddable\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-compiler\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler\-embeddable/.+/kotlin\-compiler\-embeddable\-.+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/.+/kotlin\-compiler\-.+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Please consider reporting this to the maintainers of com\.intellij\.util\.ReflectionUtil
 WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
@@ -482,7 +462,9 @@ Run the build with '\-\-info' for more details\.
 w: Consider providing an explicit dependency on kotlin\-reflect [^/]* to prevent strange errors
 # > Task :room:room-compiler:test
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+
+WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :wear:wear-watchface-complications-rendering:compileDebugUnitTestJavaWithJavac
 # > Task :wear:wear-watchface:testDebugUnitTest
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
@@ -492,7 +474,13 @@ More than one file was found with OS independent path '.*'\. This version of the
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-reflect/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
+Package name 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
 \$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
 Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.
 # > Task :buildSrc:build UP-TO-DATE
@@ -501,6 +489,7 @@ A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :annotation:annotation-experimental-lint:compileKotlin
 w\: ATTENTION\!
 This build uses unsafe internal compiler arguments\:
+\-XXLanguage:\+NonParenthesizedAnnotationsOnFunctionalTypes
 This mode is not recommended for production use\,
 as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
@@ -514,6 +503,7 @@ Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-r
 # > Task :support-wear-demos:packageDebugAndroidTest
 PackagingOptions\.jniLibs\.useLegacyPackaging should be set to true because android:extractNativeLibs is set to "true" in AndroidManifest\.xml\.
 # > Task :camera:integration-tests:camera-testapp-camera2-pipe:dexBuilderDebug
+WARNING:\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-camera[0-9]+\-pipe/build/intermediates/jacoco_instrumented_classes/debug/out/androidx/camera/integration/camera[0-9]+/pipe/DebugKt\.class: D[0-9]+: Invalid stack map table at [0-9]+: aload [0-9]+, error: The expected type Initialized\(double\) is not assignable to java\.lang\.Object\.
 \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-camera[0-9]+\-pipe/build/intermediates/jacoco_instrumented_classes/debug/out/androidx/camera/integration/camera[0-9]+/pipe/DebugKt\.class: D[0-9]+: Invalid stack map table at [0-9]+: aload [0-9]+, error: The expected type Initialized\(double\) is not assignable to java\.lang\.Object\.
 # > Task :support-remotecallback-demos:lintDebug
 [0-9]+ errors\, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
@@ -527,17 +517,8 @@ w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/an
 # > Task :inspection:inspection-gradle-plugin:test
 There were failing tests\. See the report at: .*.html
 # > Task :compose:ui:ui:processDebugUnitTestManifest
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
-# > Task *:lintDebug
-# TODO: b/182321297 remove when this message isn't printed
-Lint: Unknown issue id "ComposableNaming"
-Lint: Unknown issue id "ComposableLambdaParameterNaming"
-Lint: Unknown issue id "ComposableLambdaParameterPosition"
-Lint: Unknown issue id "CompositionLocalNaming"
-Lint: Unknown issue id "ComposableModifierFactory"
-Lint: Unknown issue id "ModifierFactoryExtensionFunction"
-Lint: Unknown issue id "ModifierFactoryReturnType"
-Lint: Unknown issue id "ModifierParameter"
 # > Task :compose:foundation:foundation:reportLibraryMetrics
 Stripped invalid locals information from [0-9]+ methods\.
 Methods with invalid locals information:
@@ -547,13 +528,18 @@ java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorK
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitVerticalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint INT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformableKt\$detectZoom\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DraggableKt\$draggable\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+\(\$this\$fastAny\$iv\) by constraint FLOAT\.
 Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint FLOAT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformGestureDetectorKt\$detectTransformGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.lazy\.LazyListScrollingKt\$doSmoothScrollToItem\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint FLOAT\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: INT for value: v[0-9]+\(index\$iv\$iv\) by constraint FLOAT\.
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.translatePointerEventsToChannel\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlinx\.coroutines\.CoroutineScope, kotlinx\.coroutines\.channels\.SendChannel, androidx\.compose\.runtime\.State, androidx\.compose\.runtime\.MutableState, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancellation\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.ForEachGestureKt\.forEachGesture\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 # > Task :preference:preference:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/preference\/preference\/src\/androidTest\/java\/androidx\/preference\/tests\/PreferenceDialogFragmentCompatTest\.kt\: \([0-9]+\, [0-9]+\)\: \'setTargetFragment\(Fragment\?\, Int\)\: Unit\' is deprecated\. Deprecated in Java
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
@@ -570,42 +556,610 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeStableInsets\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
-# > Task :annotation:annotation-experimental-lint-integration-tests:lintDebug
-Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+Found an unresolved type in androidx\.compose\.animation\.AnimatedContentScope\$using\(androidx\.compose\.animation\.ContentTransform, androidx\.compose\.animation\.SizeTransform\) \(AnimatedContent\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.BroadcastFrameClock\$cancel\(\) \(BroadcastFrameClock\.kt:[0-9]+\)
+Found an unresolved type in androidx\.datastore\.rxjava[0-9]+\.RxDataStore\$dispose\(\) \(RxDataStore\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.Snapshot\.Companion\$openSnapshotCount\(\) \(Snapshot\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.geometry\.Offset\$getDistance\(\) \(Offset\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$rotate\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipRect\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipPath\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, androidx\.compose\.ui\.graphics\.Path, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$withTransform\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawTransform, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.vector\$group\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.String, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.collections\.List\(\(androidx\.compose\.ui\.graphics\.vector\.PathNode\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.Unit\)\)\) \(ImageVector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.unit\$constrainWidth\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.unit\$constrainHeight\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\$ActivityNavigatorExtras\(androidx\.core\.app\.ActivityOptionsCompat, kotlin\.Int\) \(ActivityNavigatorExtras\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\$navigation\(androidx\.navigation\.NavigatorProvider, kotlin\.Int, kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.navigation\.NavGraphBuilder, kotlin\.Unit\)\)\) \(NavGraphBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\.DynamicActivityNavigatorDestinationBuilder\$build\(\) \(DynamicActivityNavigatorDestinationBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\.fragment\.DynamicFragmentNavigatorDestinationBuilder\$build\(\) \(DynamicFragmentNavigatorDestinationBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.fragment\$FragmentNavigatorExtras\(kotlin\.Array\(\(kotlin\.Pair\(\(android\.view\.View, kotlin\.String\)\)\)\)\) \(FragmentNavigatorExtras\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.security\.crypto\$EncryptedFile\(android\.content\.Context, java\.io\.File, androidx\.security\.crypto\.MasterKey, androidx\.security\.crypto\.EncryptedFile\.FileEncryptionScheme, kotlin\.String, kotlin\.String\) \(EncryptedFile\.kt:[0-9]+\)
+Found an unresolved type in androidx\.slice\.builders\$list\(android\.content\.Context, android\.net\.Uri, kotlin\.Long, kotlin\.Function[0-9]+\(\(androidx\.slice\.builders\.ListBuilderDsl, kotlin\.Unit\)\)\) \(ListBuilder\.kt:[0-9]+\)
 # See b/180023439 for hiltNavGraphViewModel warning.
 Found an unresolved type in androidx\.hilt\.navigation\.compose\$hiltNavGraphViewModel\(androidx\.navigation\.NavController, kotlin\.String\) \(NavHostController\.kt:[0-9]+\)
 Unresolved link to .*
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutate\(androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutate\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutateWith\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.gestures\$detectTapGestures\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.gestures\.PressGestureScope, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\)\) \(TapGestureDetector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$mutableStateListOf\(kotlin\.Array\(\(androidx\.compose\.runtime\.mutableStateListOf\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$toMutableStateList\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.toMutableStateList\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$mutableStateMapOf\(kotlin\.Array\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.mutableStateMapOf\.K, androidx\.compose\.runtime\.mutableStateMapOf\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$toMutableStateMap\(kotlin\.collections\.Iterable\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.toMutableStateMap\.K, androidx\.compose\.runtime\.toMutableStateMap\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.collection\.MutableVector\$sortWith\(\(\(androidx\.compose\.runtime\.collection\.MutableVector\.T\)\)\) \(MutableVector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\$navigation\(androidx\.navigation\.NavigatorProvider, kotlin\.Int, kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.navigation\.dynamicfeatures\.DynamicNavGraphBuilder, kotlin\.Unit\)\)\) \(DynamicNavGraphBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.navigation\.dynamicfeatures\$createGraph\(androidx\.navigation\.NavController, kotlin\.Int, kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.navigation\.dynamicfeatures\.DynamicNavGraphBuilder, kotlin\.Unit\)\)\) \(NavController\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setCoroutineScope\(kotlinx\.coroutines\.CoroutineScope\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setInitialLoadKey\(androidx\.paging\.LivePagedListBuilder\.Key\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.LivePagedListBuilder\.Value\)\)\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExecutor\(java\.util\.concurrent\.Executor\) \(LivePagedListBuilder\.kt:[0-9]+\)
 Unresolved function .*
-at java.base.*
 # > Task :compose:ui:ui-inspection:externalNativeBuildDebug
 Build compose_inspection_jni_.*
-# > Task :security:security-identity-credential:lintDebug
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyFactorySpi\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyFactorySpi\$Ed[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyFactorySpi\$EdDSA\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyFactorySpi\$X[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyFactorySpi\$XDH\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$Ed[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$EdDSA\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$X[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$XDH\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
-Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/module\-info\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 # > Task :compose:foundation:foundation-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:material:material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/material/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/material\/material\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:foundation:foundation-layout:foundation-layout-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation\-layout/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-layout\/foundation\-layout\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-text:ui-text-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-text/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-text\/ui\-text\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:benchmark-utils:benchmark-utils-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/benchmark\-utils/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/benchmark\-utils\/benchmark\-utils\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:animation:animation-core:animation-core-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/animation/animation\-core/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/animation\/animation\-core\/animation\-core\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-graphics/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-graphics\/ui\-graphics\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :docs-public:doclavaDocs
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
+import static android\.app\.PendingIntent\.FLAG_MUTABLE\;
+\$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionAdapter\.java:[0-9]+: error: cannot find symbol
+import androidx\.window\.extensions\.ExtensionDeviceState;
+# > Task :docs-public:dackkaDocs
+PROGRESS: Initializing plugins
+Loaded plugins: \[org\.jetbrains\.dokka\.base\.DokkaBase, com\.google\.devsite\.DevsitePlugin\]
+Loaded: \[
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/immediateHtmlCommandConsumer,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/pageTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/htmlPreprocessors,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/outputWriter,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/externalLocationProviderFactory,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/locationProviderFactory,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/kotlinAnalysis,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/renderer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/tabSortingStrategy,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/pageMergerStrategy,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/commentsToContentConverter,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableToPageTranslator,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/signatureProvider,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/preMergeDocumentableTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableMerger,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/sourceToDocumentableTranslator,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/generation,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/pathToRootConsumer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/resolveLinkConsumer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultSamplesTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourceSetMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/pageMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/rootCreator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourcesetDependencyAppender,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/packageListCreator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/assetsInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/stylesInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/scriptsInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/customResourceInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/navigationSearchInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/navigationPageInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourceLinksTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/baseSearchbarDataInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fileWriter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/dokkaLocationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/javadocLocationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/locationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultKotlinAnalysis,
+Extension: com\.google\.devsite\.DevsitePlugin/renderer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultTabSortingStrategy,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sameMethodNameMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fallbackMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/docTagToContentConverter,
+Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: com\.google\.devsite\.DevsitePlugin/hideFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/extensionsExtractor,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/undocumentedCodeReporter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/inheritorsExtractor,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sinceKotlinTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/actualTypealiasAdder,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/kotlinSignatureProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/modulesAndPackagesDocumentation,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/inheritedEntriesVisbilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/obviousFunctionsVisbilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableVisibilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/suppressedBySuppressTagDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/suppressedDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/deprecatedDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/emptyPackagesFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/emptyModulesFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/psiToDocumentableTranslator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/descriptorToDocumentableTranslator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/singleGeneration
+\]
+Suppressed: \[
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableToPageTranslator by Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/htmlRenderer by Extension: com\.google\.devsite\.DevsitePlugin/renderer
+PROGRESS: Dokka is performing: documentation for
+PROGRESS: Validity check
+PROGRESS: Creating documentation models
+ERROR: An attempt to write .*
+Generation completed with.*
+# > Task :docs-tip-of-tree:dackkaDocs
+Conflicting documentation for .*
+PROGRESS: Transforming documentation model before merging
+PROGRESS: Merging documentation models
+PROGRESS: Transforming documentation model after merging
+PROGRESS: Creating pages
+PROGRESS: Transforming pages
+Unused extension points found:.*
+generation completed successfully
+PROGRESS:
+=== TIME MEASUREMENT ===
+Initializing plugins\: *[0-9]+
+Validity check\: *[0-9]+
+Creating documentation models: *[0-9]+
+Transforming documentation model before merging\: *[0-9]+
+Merging documentation models\: *[0-9]+
+Transforming documentation model after merging\: *[0-9]+
+Creating pages\: *[0-9]+
+Transforming pages\: *[0-9]+
+Rendering\: *[0-9]+
+WARNING\: unable to find what is referred to by
+@param _value
+in DClass ObservableWatchData
+@param currentUserStyleRepository,
+@param watchState
+in DClass Renderer
+@param bounds
+in DClass Complication
+in DClass ComplicationSlot
+@param maxSlotsToRetainForReuse
+in DClass SubcomposeLayoutState
+@param initVal
+in DClass AnimationVector[0-9]+D
+@param a,
+@param b,
+@param c,
+@param d
+in DClass CubicBezierEasing
+@param v[0-9]+,
+@param v[0-9]+
+@param frictionMultiplier,
+@param absVelocityThreshold
+in DClass FloatExponentialDecaySpec
+@param duration,
+@param delay,
+@param easing
+in DClass FloatTweenSpec
+@param dampingRatio,
+@param stiffness,
+@param visibilityThreshold
+in DClass SpringSpec
+@param durationMillis,
+in DClass TweenSpec
+in DClass FloatSpringSpec
+@param iterations,
+@param animation,
+@param repeatMode
+in DClass RepeatableSpec
+in DClass VectorizedInfiniteRepeatableSpec
+@param keyframes,
+@param delayMillis
+in DClass VectorizedKeyframesSpec
+@param delayMillis,
+in DClass VectorizedTweenSpec
+@param animationSpec,
+@param initialValue,
+@param targetValue,
+@param typeConverter,
+@param initialVelocityVector
+in DClass TargetBasedAnimation
+@param delay
+in DClass SnapSpec
+in DClass InfiniteRepeatableSpec
+in DClass VectorizedRepeatableSpec
+@param initialVelocityVector,
+@param lastFrameTimeNanos,
+@param finishedTimeNanos,
+@param isRunning
+in DClass AnimationState
+in DClass VectorizedSnapSpec
+in DClass Animatable
+@param width,
+@param brush
+in DClass BorderStroke
+@param initial
+in DClass ScrollState
+@param firstVisibleItemIndex,
+@param firstVisibleItemScrollOffset
+in DClass LazyListState
+@param builder
+in DClass GenericShape
+@param topLeft,
+@param topRight,
+@param bottomRight,
+@param bottomLeft
+in DClass AbsoluteCutCornerShape
+@param topStart,
+@param topEnd,
+@param bottomEnd,
+@param bottomStart
+in DClass RoundedCornerShape
+in DClass CutCornerShape
+in DClass AbsoluteRoundedCornerShape
+in DClass CornerBasedShape
+@param capitalization,
+@param autoCorrect,
+@param keyboardType,
+@param imeAction
+in DClass KeyboardOptions
+@param drawerState,
+@param bottomSheetState,
+@param snackbarHostState
+in DClass BottomSheetScaffoldState
+@param confirmStateChange,
+in DClass BackdropScaffoldState
+@param confirmStateChange
+in DClass DismissState
+in DClass BottomDrawerState
+in DClass ScaffoldState
+@param basis,
+@param factorAtMin,
+@param factorAtMax
+in DClass ResistanceConfig
+in DClass BottomSheetState
+in DClass DrawerState
+@param offset
+in DClass FixedThreshold
+@param fraction
+in DClass FractionalThreshold
+in DClass ModalBottomSheetState
+@param from,
+@param to,
+in DClass SwipeProgress
+in DClass SwipeableState
+@param file
+in DAnnotation LiveLiteralFileInfo
+@param name,
+@param id
+in DAnnotation DecoyImplementation
+@param key,
+in DAnnotation LiveLiteralInfo
+@param parameters
+in DAnnotation StabilityInferred
+@param targetName,
+@param signature
+in DAnnotation Decoy
+@param left,
+@param top,
+@param right,
+@param bottom
+in DClass MutableRect
+@param buffer,
+@param bufferOffset,
+@param height,
+@param stride
+in DClass PixelMap
+@param image,
+@param srcOffset,
+@param srcSize
+in DClass BitmapPainter
+@param imageVector
+in DClass AnimatedImageVector
+@param keyCode
+in DClass Key
+@param value
+in DClass PointerId
+@param positionChange,
+@param downChange
+in DClass ConsumedData
+@param id,
+@param canvasComplicationFactory,
+@param supportedTypes,
+@param defaultProviderPolicy,
+@param boundsType,
+@param bounds,
+@param complicationTapFilter
+@param uptimeMillis,
+@param position,
+@param pressed,
+@param previousUptimeMillis,
+@param previousPosition,
+@param previousPressed,
+@param consumed,
+@param type
+in DClass PointerInputChange
+@param merger
+in DClass VerticalAlignmentLine
+in DClass HorizontalAlignmentLine
+@param value,
+@param maxValue,
+@param reverseScrolling
+in DClass ScrollAxisRange
+@param current,
+@param range,
+@param steps
+in DClass ProgressBarRangeInfo
+@param label,
+@param action
+in DClass AccessibilityAction
+in DClass CustomAccessibilityAction
+@param selectedNodes,
+@param customErrorOnNoMatch
+in DClass SelectionResult
+@param description,
+@param requiresExactlyOneNode,
+@param chainedInputSelector,
+@param selector
+in DClass SemanticsSelector
+@param activityRule,
+@param activityProvider
+in DClass AndroidComposeTestRule
+@param placeholderVerticalAlign
+in DClass Placeholder
+@param item,
+@param start,
+@param end,
+@param tag
+in DClass Range
+@param verbatim
+in DClass VerbatimTtsAnnotation
+@param annotatedString,
+@param style,
+@param placeholders,
+@param density,
+@param resourceLoader
+in DClass MultiParagraphIntrinsics
+@param textAlign,
+@param textDirection,
+@param textIndent,
+@param lineHeight
+in DClass ParagraphStyle
+@param color,
+@param fontSize,
+@param fontWeight,
+@param fontStyle,
+@param fontSynthesis,
+@param fontFamily,
+@param fontFeatureSettings,
+@param letterSpacing,
+@param baselineShift,
+@param textGeometricTransform,
+@param localeList,
+@param background,
+@param textDecoration,
+@param shadow
+in DClass SpanStyle
+@param shadow,
+in DClass TextStyle
+@param intrinsics,
+@param maxLines,
+@param ellipsis,
+@param width
+in DClass MultiParagraph
+@param capacity
+in DClass Builder
+@param typeface
+in DClass LoadedFontFamily
+@param resId,
+@param weight,
+@param style
+in DClass ResourceFont
+@param name
+in DClass GenericFontFamily
+@param weight
+in DClass FontWeight
+@param singleLine,
+in DClass ImeOptions
+@param selection,
+@param composition
+in DClass TextFieldValue
+@param mask
+in DClass PasswordVisualTransformation
+@param multiplier
+in DClass BaselineShift
+@param firstLine,
+@param restLine
+in DClass TextIndent
+@param scaleX,
+@param skewX
+in DClass TextGeometricTransform
+@param provider,
+@param limit
+in DAnnotation PreviewParameter
+@param group,
+@param apiLevel,
+@param widthDp,
+@param heightDp,
+@param locale,
+@param fontScale,
+@param showSystemUi,
+@param showBackground,
+@param backgroundColor,
+@param uiMode,
+@param device
+in DAnnotation Preview
+@param words
+in DClass LoremIpsum
+@param securePolicy
+in DClass PopupProperties
+@param rowCount,
+@param columnCount
+in DClass CollectionInfo
+@param rowIndex,
+@param rowSpan,
+@param columnIndex,
+@param columnSpan
+in DClass CollectionItemInfo
+@param endOfPaginationReached
+in DClass LoadState
+in DClass NotLoading
+@param error
+in DClass Error
+@param pagingSourceFactory
+in DClass InvalidatingPagingSourceFactory
+@param flow
+in DClass LazyPagingItems
+@param density
+in DClass SplineBasedFloatDecayAnimationSpec
+Did you make a typo\? Are you trying to refer to something not visible to users\?
+# Wire proto generation, task :generateDebugProtos
+Writing .* to \$OUT_DIR/.*/build/generated/source/wire
+# > Task :docs-tip-of-tree:doclavaDocs
+javadoc\: warning \- Multiple sources of package comments found for package \"javax\.annotation\"
+[0-9]+ warning
+# > Task :profileinstaller:profileinstaller:integration-tests:testapp:compileReleaseKotlin
+w: Flag is not supported by this version of the compiler: \-Xallow\-jvm\-ir\-dependencies
+# > Task :room:room-compiler-processing-testing:sourceJar
+Execution optimizations have been disabled for task ':room:room\-compiler\-processing\-testing:sourceJar' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/room/room\-compiler\-processing\-testing/build/test\-config'\. Reason: Task ':room:room\-compiler\-processing\-testing:sourceJar' uses this output of task ':room:room\-compiler\-processing\-testing:prepareTestConfiguration' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :wear:tiles:tiles-proto:sourceJar
+Execution optimizations have been disabled for task ':wear:tiles:tiles\-proto:sourceJar' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/wear/tiles/tiles\-proto/build/generated/source/proto'\. Reason: Task ':wear:tiles:tiles\-proto:sourceJar' uses this output of task ':wear:tiles:tiles\-proto:generateProto' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :appsearch:appsearch-local-storage:desugarDebugAndroidTestFileDependencies
+Execution optimizations have been disabled for task ':appsearch:appsearch\-local\-storage:desugarDebugAndroidTestFileDependencies' to ensure correctness due to the following reasons:
+# > Task :appsearch:appsearch:desugarDebugAndroidTestFileDependencies
+Execution optimizations have been disabled for task ':appsearch:appsearch:desugarDebugAndroidTestFileDependencies' to ensure correctness due to the following reasons:
+# > Task :appsearch:appsearch-debug-view:desugarDebugAndroidTestFileDependencies
+Execution optimizations have been disabled for task ':appsearch:appsearch-debug-view:desugar.*AndroidTestFileDependencies' to ensure correctness due to the following reasons:
+# > Task :appsearch:appsearch-debug-view:samples:desugarDebugFileDependencies
+Execution optimizations have been disabled for task ':appsearch:appsearch-debug-view:samples:desugar.*FileDependencies' to ensure correctness due to the following reasons:
+# > Task :stripArchiveForPartialDejetification
+Execution optimizations have been disabled for task ':stripArchiveForPartialDejetification' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$DIST_DIR/top\-of\-tree\-m2repository\-all\-.*.zip'\. Reason: Task ':stripArchiveForPartialDejetification' uses this output of task ':benchmark:benchmark\-gradle\-plugin:buildOnServer' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :icing:lintDebug
+Wrote HTML report to file://\$OUT_DIR/androidx/icing/build/reports/lint\-results\-debug\.html
+Wrote XML report to file://\$OUT_DIR/androidx/icing/build/reports/lint\-results\-debug\.xml
+# > Task :zipConstrainedTestConfigsWithApks
+Execution optimizations have been disabled for task ':zipConstrainedTestConfigsWithApks' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$DIST_DIR/constrained\-test\-xml\-configs'\. Reason: Task ':zipConstrainedTestConfigsWithApks' uses this output of task ':benchmark:benchmark\-gradle\-plugin:buildOnServer' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :zipTestConfigsWithApks
+Execution optimizations have been disabled for task ':zipTestConfigsWithApks' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$DIST_DIR/test\-xml\-configs'\. Reason: Task ':zipTestConfigsWithApks' uses this output of task ':benchmark:benchmark\-gradle\-plugin:buildOnServer' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :room:room-compiler:checkArtifactTask
+Execution optimizations have been disabled for task ':room:room\-compiler:checkArtifactTask' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/room/room\-compiler/build/libs/room\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar'\. Reason: Task ':room:room\-compiler:checkArtifactTask' uses this output of task ':room:room\-compiler:shadowJar' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/room/room\-compiler/build/publications/maven/pom\-default\.xml'\. Reason: Task ':room:room\-compiler:checkArtifactTask' uses this output of task ':room:room\-compiler:generatePomFileForMavenPublication' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+\- Gradle detected a problem with the following location: '\$OUT_DIR'\. Reason: Task ':zipEcFiles' uses this output of task.*
+Execution optimizations have been disabled for task ':zipEcFiles' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$OUT_DIR/.*/build/repackaged/repackaged\-Debug\.jar'\. Reason:.*
+\- Gradle detected a problem with the following location: '\$OUT_DIR/.*/build/repackaged/repackaged\-Release\.jar'\. Reason:.*
+Execution optimizations have been disabled for task ':emoji.*
+Execution optimizations have been disabled for task ':support-emoji-demos:.*
+# https://issues.apache.org/jira/browse/GROOVY-8843
+WARNING: Illegal reflective access by org\.codehaus\.groovy\.vmplugin\.v7\.Java7\$1 .* to constructor java\.lang\.invoke\.MethodHandles\$Lookup\(java\.lang\.Class,int\)
+WARNING: Please consider reporting this to the maintainers of org\.codehaus\.groovy\.vmplugin\.v7\.Java7\$1
+# https://youtrack.jetbrains.com/issue/KT-30589
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.base\.javac\.KaptJavaFileManager .* to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
+# > Task :benchmark:benchmark-macro:compileReleaseKotlin
+Execution optimizations have been disabled for task ':benchmark:benchmark\-macro:.*' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/benchmark/benchmark\-macro/build/generated/source/wire'\. Reason: Task ':benchmark:benchmark\-macro:.*' uses this output of task ':benchmark:benchmark\-macro:.*' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :support-emoji-demos:lintDebug
+Error processing .* broken class file\? \(This feature requires ASM[0-9]+\)
+# > Task :profileinstaller:profileinstaller:processDebugUnitTestManifest
+\$SUPPORT/profileinstaller/profileinstaller/src/test/AndroidManifest\.xml Warning:
+Unknown flag --class-dir: Use --help for usage information
+Scanning .+: \.*
+\.+
+# > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+No issues found.*
+Incorrect detector reported disabled issue.*
+Scanning .* \(Phase 2\):
+dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
+# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ methods\.
+Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.openComplicationProviderChooser\$suspendImpl\(androidx\.wear\.watchface\.editor\.BaseEditorSession, int, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DraggableKt\$draggable\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.compose\.foundation\.gestures\.DragLogic \{\} for value: v[0-9]+\(\$this\$invokeSuspend_u[0-9]+lambda_u[0-9]+d[0-9]+\) by constraint INT\.
+java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.wear\.watchface\.WatchFaceService\$EngineWrapper\.createWatchFaceImpl\(android\.icu\.util\.Calendar, androidx\.wear\.watchface\.ComplicationSlotsManager, androidx\.wear\.watchface\.style\.CurrentUserStyleRepository, kotlinx\.coroutines\.CompletableDeferred, kotlinx\.coroutines\.CompletableDeferred, androidx\.wear\.watchface\.WatchState, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.wear\.watchface\.WatchFaceService\$EngineWrapper\.setUserStyle\$wear_watchface_release\(androidx\.wear\.watchface\.style\.data\.UserStyleWireFormat, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\$fetchComplicationsData\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.CameraDevicesKt\$find\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\$requestLoop\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.graph\.Controller[0-9]+A\.submit[0-9]+A\(androidx\.camera\.camera[0-9]+\.pipe\.AeMode, androidx\.camera\.camera[0-9]+\.pipe\.AfMode, androidx\.camera\.camera[0-9]+\.pipe\.AwbMode, java\.util\.List, java\.util\.List, java\.util\.List, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.graph\.Controller[0-9]+A\.lock[0-9]+A\(java\.util\.List, java\.util\.List, java\.util\.List, androidx\.camera\.camera[0-9]+\.pipe\.Lock[0-9]+ABehavior, androidx\.camera\.camera[0-9]+\.pipe\.Lock[0-9]+ABehavior, androidx\.camera\.camera[0-9]+\.pipe\.Lock[0-9]+ABehavior, int, java\.lang\.Long, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\.openCameraWithRetry\-RzXb[0-9]+QE\(java\.lang\.String, kotlinx\.coroutines\.CoroutineScope, kotlin\.coroutines\.Continuation\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint INT\.
+Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
+# > Task :paging:paging-samples:reportLibraryMetrics
+java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorItemKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorPageKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
+# > Task :wear:wear-complications-data:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ method\.
+java\.lang\.Object androidx\.wear\.complications\.ProviderInfoRetriever\.retrievePreviewComplicationData\(android\.content\.ComponentName, androidx\.wear\.complications\.data\.ComplicationType, kotlin\.coroutines\.Continuation\)
+# > Task :wear:wear-watchface-editor:reportLibraryMetrics
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.getPreviewData\$wear_watchface_editor_release\(androidx\.wear\.complications\.ProviderInfoRetriever, androidx\.wear\.complications\.ComplicationProviderInfo, kotlin\.coroutines\.Continuation\)
+# > Task :work:work-runtime-ktx:reportLibraryMetrics
+java\.lang\.Object androidx\.work\.OperationKt\.await\(androidx\.work\.Operation, kotlin\.coroutines\.Continuation\)
+# > Task :compose:material:material:reportLibraryMetrics
+java\.lang\.Object androidx\.compose\.material\.SnackbarHostState\.showSnackbar\(java\.lang\.String, java\.lang\.String, androidx\.compose\.material\.SnackbarDuration, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.material\.SwipeableState\.processNewAnchors\$material_release\(java\.util\.Map, java\.util\.Map, kotlin\.coroutines\.Continuation\)
+# > Task :car:app:app-samples:helloworld-automotive:processReleaseMainManifest
+\[:car:app:app\-automotive\] \$OUT_DIR/androidx/car/app/app\-automotive/build/intermediates/merged_manifest/release/AndroidManifest\.xml Warning:
+Package name 'androidx\.car\.app' used in: :car:app:app\-automotive, :car:app:app\.
+# > Task :car:app:app-automotive:processDebugUnitTestManifest
+\[:car:app:app\-automotive\] \$OUT_DIR/androidx/car/app/app\-automotive/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
+# > Task :camera:camera-video:lintDebug
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+# > Task :compose:foundation:foundation:androidReleaseSourcesJar
+Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
+# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.Camera[0-9]+DeviceCache\$getCameras\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.camera\.camera[0-9]+\.pipe\.core\.Debug \{\} for value: v[0-9]+\(this_\$iv\$iv\) by constraint INT\.
+# > Task :compose:foundation:foundation:integration-tests:foundation-demos:reportLibraryMetrics
+Stripped invalid locals information from [0-9]+ method\.
+java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+# > Task :compose:runtime:runtime-saveable-lint:compileKotlin
+at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$GradleKotlinCompilerWorkAction\.execute\(GradleCompilerRunnerWithWorkers\.kt\:[0-9]+\)
+# > Task :buildSrc:jetpad-integration:compileJava
+Could not store entry [0-9a-f]{32} in remote build cache: Storing entry at 'http://gradle\-remote\-cache\.uplink\.goog:[0-9]+/cache/[0-9a-f]{32}' response status [0-9]+: Uplink Bad Gateway
+# > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\..*
+# > Task :wear:wear-watchface:compileReleaseKotlin
+w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFaceService\.kt: \([0-9]+, [0-9]+\): Parameter 'surfaceHolder' is never used
+# > Task :lint-checks:integration-tests:copyDebugAndroidLintReports
+Copying lint text report to .*
+# > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/wear/compose/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Configure project :ads-identifier
+WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
+The current default is \'false\'\.

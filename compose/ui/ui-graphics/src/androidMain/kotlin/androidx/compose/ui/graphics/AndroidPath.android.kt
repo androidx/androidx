@@ -133,9 +133,7 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 
     override fun addRect(rect: Rect) {
         check(_rectIsValid(rect))
-        rectF.set(rect.toAndroidRect())
-        // TODO(njawad) figure out what to do with Path Direction,
-        // Flutter does not use it, Platform does
+        rectF.set(rect.toAndroidRectF())
         internalPath.addRect(rectF, android.graphics.Path.Direction.CCW)
     }
 
@@ -203,13 +201,11 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         path2: Path,
         operation: PathOperation
     ): Boolean {
-        // TODO njawad: determine requirements for potential API level
-        //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
         val op = when (operation) {
-            PathOperation.difference -> android.graphics.Path.Op.DIFFERENCE
-            PathOperation.intersect -> android.graphics.Path.Op.INTERSECT
-            PathOperation.reverseDifference -> android.graphics.Path.Op.REVERSE_DIFFERENCE
-            PathOperation.union -> android.graphics.Path.Op.UNION
+            PathOperation.Difference -> android.graphics.Path.Op.DIFFERENCE
+            PathOperation.Intersect -> android.graphics.Path.Op.INTERSECT
+            PathOperation.ReverseDifference -> android.graphics.Path.Op.REVERSE_DIFFERENCE
+            PathOperation.Union -> android.graphics.Path.Op.UNION
             else -> android.graphics.Path.Op.XOR
         }
         return internalPath.op(path1.asAndroidPath(), path2.asAndroidPath(), op)

@@ -20,13 +20,15 @@ plugins {
 }
 
 ext {
-    fontDir = project(":noto-emoji-compat").projectDir
+    fontDir = project(":noto-emoji-compat-font").projectDir
 }
 
 dependencies {
-    implementation(project(":emoji"))
-    implementation(project(":emoji-bundled"))
-    implementation(project(":emoji-appcompat"))
+    implementation(project(":emoji2:emoji2"))
+    implementation(project(":emoji2:emoji2-bundled"))
+    implementation(project(":emoji2:emoji2-views-helper"))
+    implementation(project(":emoji2:emoji2-views"))
+    implementation(project(":appcompat:appcompat"))
 }
 
 android {

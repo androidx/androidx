@@ -44,7 +44,7 @@ class BackPressedDispatcherOwnerTest {
     fun testGetBackPressedDispatcher() {
         lateinit var dispatcherOwner: OnBackPressedDispatcherOwner
         composeTestRule.setContent {
-            dispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+            dispatcherOwner = LocalOnBackPressedDispatcherOwner.current!!
         }
 
         assertWithMessage("There should be a dispatcherOwner set")
@@ -84,7 +84,7 @@ class BackPressedDispatcherOwnerTest {
 
         composeTestRule.setContent {
             BackHandler { backCounter++ }
-            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.onBackPressed() }) {
                 Text(text = "Press Back")
             }

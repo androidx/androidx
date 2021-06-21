@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_EXTRA_TENSION = 1;"
+        errorLine2="                                                                                ~">
+        <location
+            file="src/main/java/androidx/core/animation/AndroidResources.java"
+            line="29"
+            column="81"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
@@ -74,19 +85,8 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1485"
+            line="1486"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.animation.PathUtils is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            return path.approximate(precision);"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PathUtils.java"
-            line="34"
-            column="25"/>
     </issue>
 
     <issue
@@ -101,7 +101,8 @@
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"
             line="493"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue

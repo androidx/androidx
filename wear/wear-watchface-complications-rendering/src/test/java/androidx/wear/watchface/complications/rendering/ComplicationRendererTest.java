@@ -57,11 +57,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ComplicationRenderer}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
 public class ComplicationRendererTest {
 

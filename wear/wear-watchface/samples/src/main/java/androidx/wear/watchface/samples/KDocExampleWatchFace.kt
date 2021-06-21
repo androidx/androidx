@@ -24,92 +24,98 @@ import android.graphics.RectF
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.CanvasComplicationDrawable
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
-
     class ExampleCanvasWatchFaceService : WatchFaceService() {
-        override suspend fun createWatchFace(
-            surfaceHolder: SurfaceHolder,
-            watchState: WatchState
-        ): WatchFace {
-            val userStyleRepository = UserStyleRepository(
-                UserStyleSchema(
-                    listOf(
-                        ListUserStyleSetting(
-                            "color_style_setting",
-                            "Colors",
-                            "Watchface colorization",
-                            icon = null,
-                            options = listOf(
-                                ListUserStyleSetting.ListOption(
-                                    "red_style",
-                                    "Red",
-                                    icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    "green_style",
-                                    "Green",
-                                    icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    "bluestyle",
-                                    "Blue",
-                                    icon = null
-                                )
+        override fun createUserStyleSchema() =
+            UserStyleSchema(
+                listOf(
+                    ListUserStyleSetting(
+                        UserStyleSetting.Id("color_style_setting"),
+                        "Colors",
+                        "Watchface colorization",
+                        icon = null,
+                        options = listOf(
+                            ListUserStyleSetting.ListOption(
+                                Option.Id("red_style"),
+                                "Red",
+                                icon = null
                             ),
-                            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
+                            ListUserStyleSetting.ListOption(
+                                Option.Id("green_style"),
+                                "Green",
+                                icon = null
+                            ),
+                            ListUserStyleSetting.ListOption(
+                                Option.Id("bluestyle"),
+                                "Blue",
+                                icon = null
+                            )
                         ),
-                        ListUserStyleSetting(
-                            "hand_style_setting",
-                            "Hand Style",
-                            "Hand visual look",
-                            icon = null,
-                            options = listOf(
-                                ListUserStyleSetting.ListOption(
-                                    "classic_style", "Classic", icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    "modern_style", "Modern", icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    "gothic_style",
-                                    "Gothic",
-                                    icon = null
-                                )
-                            ),
-                            listOf(Layer.TOP_LAYER)
+                        listOf(
+                            WatchFaceLayer.BASE,
+                            WatchFaceLayer.COMPLICATIONS,
+                            WatchFaceLayer.COMPLICATIONS_OVERLAY
                         )
+                    ),
+                    ListUserStyleSetting(
+                        UserStyleSetting.Id("hand_style_setting"),
+                        "Hand Style",
+                        "Hand visual look",
+                        icon = null,
+                        options = listOf(
+                            ListUserStyleSetting.ListOption(
+                                Option.Id("classic_style"), "Classic", icon = null
+                            ),
+                            ListUserStyleSetting.ListOption(
+                                Option.Id("modern_style"), "Modern", icon = null
+                            ),
+                            ListUserStyleSetting.ListOption(
+                                Option.Id("gothic_style"),
+                                "Gothic",
+                                icon = null
+                            )
+                        ),
+                        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
                     )
                 )
             )
-            val complicationSlots = ComplicationsManager(
+
+        override fun createComplicationSlotsManager(
+            currentUserStyleRepository: CurrentUserStyleRepository
+        ): ComplicationSlotsManager {
+            val canvasComplicationFactory =
+                CanvasComplicationFactory { watchState, listener ->
+                    CanvasComplicationDrawable(ComplicationDrawable(this), watchState, listener)
+                }
+            return ComplicationSlotsManager(
                 listOf(
-                    Complication.createRoundRectComplicationBuilder(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 0,
-                        CanvasComplicationDrawable(
-                            ComplicationDrawable(this),
-                            watchState
-                        ),
+                        canvasComplicationFactory,
                         listOf(
                             ComplicationType.RANGED_VALUE,
                             ComplicationType.LONG_TEXT,
@@ -117,16 +123,13 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-                        ComplicationBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
+                        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                        ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
-                    Complication.createRoundRectComplicationBuilder(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 1,
-                        CanvasComplicationDrawable(
-                            ComplicationDrawable(this),
-                            watchState
-                        ),
+                        canvasComplicationFactory,
                         listOf(
                             ComplicationType.RANGED_VALUE,
                             ComplicationType.LONG_TEXT,
@@ -134,29 +137,38 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
-                        ComplicationBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
+                        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
+                        ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),
-                userStyleRepository
+                currentUserStyleRepository
             )
+        }
 
-            val renderer = object : Renderer.CanvasRenderer(
+        override suspend fun createWatchFace(
+            surfaceHolder: SurfaceHolder,
+            watchState: WatchState,
+            complicationSlotsManager: ComplicationSlotsManager,
+            currentUserStyleRepository: CurrentUserStyleRepository
+        ) = WatchFace(
+            WatchFaceType.ANALOG,
+            object : Renderer.CanvasRenderer(
                 surfaceHolder,
-                userStyleRepository,
+                currentUserStyleRepository,
                 watchState,
                 CanvasType.HARDWARE,
                 /* interactiveUpdateRateMillis */ 16,
             ) {
                 init {
-                    userStyleRepository.addUserStyleListener(
-                        object : UserStyleRepository.UserStyleListener {
+                    currentUserStyleRepository.addUserStyleChangeListener(
+                        object : CurrentUserStyleRepository.UserStyleChangeListener {
                             override fun onUserStyleChanged(userStyle: UserStyle) {
                                 // `userStyle` will contain two userStyle categories with options
                                 // from the lists above. ...
                             }
-                        })
+                        }
+                    )
                 }
 
                 override fun render(
@@ -166,15 +178,18 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 ) {
                     // ...
                 }
-            }
 
-            return WatchFace(
-                WatchFaceType.ANALOG,
-                userStyleRepository,
-                renderer,
-                complicationSlots
-            )
-        }
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    calendar: Calendar
+                ) {
+                    canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
+
+                    // ...
+                }
+            }
+        )
     }
 
     return ExampleCanvasWatchFaceService()

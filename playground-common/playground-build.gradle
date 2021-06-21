@@ -52,14 +52,13 @@ buildscript {
     }
 
     ext.repos = [:]
-    apply from: "$supportRootFolder/buildSrc/build_dependencies.gradle"
-
     dependencies {
-        classpath build_libs.agp
-        classpath build_libs.kotlin.gradle_plugin
-        classpath build_libs.kotlin.ksp_gradle_plugin
+        classpath(libs.androidGradlePlugin)
+        classpath(libs.kotlinGradlePlugin)
+        classpath(libs.kspGradlePlugin)
+        classpath(libs.gson)
         classpath "androidx.build:gradle-plugin:0.1.0"
-        classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
+        classpath(libs.shadow)
     }
 }
 

@@ -16,46 +16,195 @@
 
 package androidx.camera.extensions
 
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.extensions.internal.VersionName
+import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.concurrent.TimeUnit
 
 @SmallTest
-class ExtensionsManagerTest {
+@RunWith(Parameterized::class)
+@Suppress("DEPRECATION")
+class ExtensionsManagerTest(
+    @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
+    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
+) {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
 
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    private val effectMode: ExtensionsManager.EffectMode =
+        ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
+
+    private lateinit var cameraProvider: ProcessCameraProvider
+
+    private lateinit var extensionsManager: ExtensionsManager
+
+    @Before
+    @Throws(Exception::class)
+    fun setUp() {
+        assumeTrue(CameraUtil.deviceHasCamera())
+
+        cameraProvider =
+            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+
+        assumeTrue(
+            CameraUtil.hasCameraWithLensFacing(
+                lensFacing
+            )
+        )
+    }
+
     @After
     fun teardown() {
-        ExtensionsManager.deinit().get()
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
+
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        @get:Parameterized.Parameters(name = "extension = {0}, facing = {1}")
+        val parameters: Collection<Array<Any>>
+            get() = ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
     }
 
     @Test
-    fun retrieveExtensionAfterInit() {
-        val availabilityFuture = ExtensionsManager.init(context)
+    fun getInstanceSuccessfully_whenExtensionAvailabilityIsNotAvailable() {
+        extensionsManager = ExtensionsManager.getInstance(
+            context,
+            VersionName("99.0.0")
+        )[10000, TimeUnit.MILLISECONDS]
 
-        when (availabilityFuture.get(5000, TimeUnit.MILLISECONDS)!!) {
-            ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE,
-            ExtensionsManager.ExtensionsAvailability.NONE ->
-                assertThat(ExtensionsManager.getExtensions(context)).isNotNull()
+        assumeTrue(
+            extensionsManager.extensionsAvailability
+                != ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
+        )
+        assertThat(extensionsManager).isNotNull()
+    }
 
-            ExtensionsManager.ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
-            ExtensionsManager.ExtensionsAvailability
-                .LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION ->
-                assertThrows<IllegalStateException> {
-                    ExtensionsManager.getExtensions(context)
-                }
+    @Test
+    fun getExtensionsCameraSelectorThrowsException_whenExtensionAvailabilityIsNotAvailable() {
+        extensionsManager = ExtensionsManager.getInstance(
+            context,
+            VersionName("99.0.0")
+        )[10000, TimeUnit.MILLISECONDS]
+
+        assumeTrue(
+            extensionsManager.extensionsAvailability
+                != ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
+        )
+
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assertThrows<IllegalArgumentException> {
+            extensionsManager.getExtensionEnabledCameraSelector(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
         }
     }
 
     @Test
-    fun exceptionThrownIfNotInit() {
-        assertThrows<IllegalStateException> {
-            ExtensionsManager.getExtensions(context)
+    fun getExtensionsCameraSelectorThrowsException_whenExtensionModeIsNotSupported() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeFalse(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        assertThrows<IllegalArgumentException> {
+            extensionsManager.getExtensionEnabledCameraSelector(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
         }
+    }
+
+    @Test
+    fun returnNewCameraSelector_whenExtensionModeIsSupprted() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        val resultCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+        assertThat(resultCameraSelector).isNotNull()
+        assertThat(resultCameraSelector).isNotEqualTo(baseCameraSelector)
+    }
+
+    // TODO: Can be removed after the Extensions class is fully implemented.
+    @Test
+    fun isExtensionAvailable() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assertThat(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing)).isEqualTo(
+            extensionsManager.isExtensionAvailable(cameraProvider, cameraSelector, extensionMode)
+        )
+    }
+
+    @Test
+    fun correctCameraConfigIsSet_withSupportedExtensionCameraSelector() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+
+        lateinit var camera: Camera
+        instrumentation.runOnMainSync {
+            camera = cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        var extensionsConfig = camera.extendedConfig as ExtensionsConfig
+        assertThat(extensionsConfig.extensionMode).isEqualTo(extensionMode)
     }
 }

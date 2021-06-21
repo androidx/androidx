@@ -65,19 +65,10 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
      */
     public static final int STATE_HALF_OPENED = 2;
 
-    /**
-     * The foldable device's hinge is flipped with the flexible screen parts or physical screens
-     * facing opposite directions. See the
-     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
-     * section in the official documentation for visual samples and references.
-     */
-    public static final int STATE_FLIPPED = 3;
-
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             STATE_HALF_OPENED,
-            STATE_FLAT,
-            STATE_FLIPPED
+            STATE_FLAT
     })
     @interface State {}
 
@@ -156,8 +147,6 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
         switch (state) {
             case STATE_FLAT:
                 return "FLAT";
-            case STATE_FLIPPED:
-                return "FLIPPED";
             case STATE_HALF_OPENED:
                 return "HALF_OPENED";
             default:
@@ -190,9 +179,21 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
         return mBounds.equals(other.mBounds);
     }
 
+    /**
+     * Manually computes the hashCode for the {@link Rect} since it is not implemented
+     * on API 15
+     */
+    private static int hashBounds(Rect bounds) {
+        int result = bounds.left;
+        result = 31 * result + bounds.top;
+        result = 31 * result + bounds.right;
+        result = 31 * result + bounds.bottom;
+        return result;
+    }
+
     @Override
     public int hashCode() {
-        int result = mBounds.hashCode();
+        int result = hashBounds(mBounds);
         result = 31 * result + mType;
         result = 31 * result + mState;
         return result;

@@ -25,13 +25,17 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * Holder of details of a complication provider, for use by watch faces (for example, to show the
  * current provider in settings). A {@link androidx.wear.complications.ProviderInfoRetriever} can be
  * used to obtain instances of this class for each of a watch face's complications.
+ *
+ * @hide
  */
 @SuppressLint("BanParcelableUsage")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationProviderInfo implements Parcelable {
 
     @NonNull
@@ -58,21 +62,24 @@ public final class ComplicationProviderInfo implements Parcelable {
     @Nullable private String mProviderName;
     @Nullable private Icon mProviderIcon;
     @ComplicationData.ComplicationType private int mComplicationType;
+    /** This field is only populate in Android R and up and it is null otherwise. */
     @Nullable private ComponentName mProviderComponentName;
 
     /**
      * Constructs a {@link ComplicationProviderInfo} with the details of a complication provider.
      *
+     * <p>The providerComponentName field is only populated from Android R and up.
+     *
      * @param appName The name of the app providing the complication
      * @param providerName The name of the complication provider within the app
      * @param providerIcon The icon for the complication provider
      * @param complicationType The type of complication provided
-     * @param providerComponentName The preview complication data
+     * @param providerComponentName The component name of the complication provider
      */
     public ComplicationProviderInfo(
             @NonNull String appName, @NonNull String providerName, @NonNull Icon providerIcon,
             @ComplicationData.ComplicationType int complicationType,
-            @NonNull ComponentName providerComponentName) {
+            @Nullable ComponentName providerComponentName) {
         this.mAppName = appName;
         this.mProviderName = providerName;
         this.mProviderIcon = providerIcon;

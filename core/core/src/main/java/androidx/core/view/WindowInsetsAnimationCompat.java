@@ -730,7 +730,7 @@ public final class WindowInsetsAnimationCompat {
 
                 if (DEBUG) {
                     int allTypes = WindowInsetsCompat.Type.all();
-                    Log.d(TAG, String.format("lastInsets: %s\ntargetInsets: %s",
+                    Log.d(TAG, String.format("lastInsets:   %s\ntargetInsets: %s",
                             mLastInsets.getInsets(allTypes),
                             targetInsets.getInsets(allTypes)));
                 }
@@ -746,6 +746,9 @@ public final class WindowInsetsAnimationCompat {
                 // We only run the animation when the some insets are animating
                 final int animationMask = buildAnimationMask(targetInsets, mLastInsets);
                 if (animationMask == 0) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Insets applied bug no window animation to run");
+                    }
                     return forwardToViewIfNeeded(v, insets);
                 }
 

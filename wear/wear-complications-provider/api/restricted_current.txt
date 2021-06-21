@@ -3,13 +3,14 @@ package androidx.wear.complications {
 
   public abstract class ComplicationProviderService extends android.app.Service {
     ctor public ComplicationProviderService();
-    method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType);
-    method public android.os.IBinder? onBind(android.content.Intent);
-    method @UiThread public void onComplicationActivated(int, int);
-    method @UiThread public void onComplicationDeactivated(int);
-    method @UiThread public abstract void onComplicationUpdate(int, androidx.wear.complications.data.ComplicationType, androidx.wear.complications.ComplicationProviderService.ComplicationUpdateCallback);
+    method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType type);
+    method public final android.os.IBinder? onBind(android.content.Intent intent);
+    method @UiThread public void onComplicationActivated(int complicationInstanceId, androidx.wear.complications.data.ComplicationType type);
+    method @UiThread public void onComplicationDeactivated(int complicationInstanceId);
+    method @UiThread public abstract void onComplicationRequest(androidx.wear.complications.ComplicationRequest request, androidx.wear.complications.ComplicationProviderService.ComplicationRequestListener listener);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
     field public static final String CATEGORY_PROVIDER_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
+    field public static final androidx.wear.complications.ComplicationProviderService.Companion Companion;
     field public static final String EXTRA_CONFIG_COMPLICATION_ID = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
     field public static final String EXTRA_CONFIG_COMPLICATION_TYPE = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
     field public static final String EXTRA_CONFIG_PROVIDER_COMPONENT = "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
@@ -19,18 +20,33 @@ package androidx.wear.complications {
     field public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS = "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
   }
 
-  public static interface ComplicationProviderService.ComplicationUpdateCallback {
-    method public void onUpdateComplication(androidx.wear.complications.data.ComplicationData?) throws android.os.RemoteException;
+  public static final class ComplicationProviderService.Companion {
   }
 
-  public class ProviderUpdateRequester {
-    ctor public ProviderUpdateRequester(android.content.Context, android.content.ComponentName);
-    method public void requestUpdate(int...);
+  public static interface ComplicationProviderService.ComplicationRequestListener {
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onComplicationData(androidx.wear.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
+  }
+
+  public final class ComplicationRequest {
+    ctor public ComplicationRequest(int complicationInstanceId, androidx.wear.complications.data.ComplicationType complicationType);
+    method public int getComplicationInstanceId();
+    method public androidx.wear.complications.data.ComplicationType getComplicationType();
+    property public final int complicationInstanceId;
+    property public final androidx.wear.complications.data.ComplicationType complicationType;
+  }
+
+  public final class ProviderUpdateRequester {
+    ctor public ProviderUpdateRequester(android.content.Context context, android.content.ComponentName providerComponent);
+    method public void requestUpdate(int... complicationInstanceIds);
     method public void requestUpdateAll();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL";
+    field public static final androidx.wear.complications.ProviderUpdateRequester.Companion Companion;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_COMPLICATION_IDS = "android.support.wearable.complications.EXTRA_COMPLICATION_IDS";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_PROVIDER_COMPONENT = "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT";
+  }
+
+  public static final class ProviderUpdateRequester.Companion {
   }
 
 }

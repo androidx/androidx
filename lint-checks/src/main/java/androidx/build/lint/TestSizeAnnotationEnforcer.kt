@@ -46,7 +46,7 @@ class TestSizeAnnotationEnforcer : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes(): List<Class<out UElement>>? =
         Collections.singletonList(UClass::class.java)
 
-    override fun createUastHandler(context: JavaContext): UElementHandler? {
+    override fun createUastHandler(context: JavaContext): UElementHandler {
         return TestSizeAnnotationHandler(context)
     }
 

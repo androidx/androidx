@@ -130,7 +130,7 @@ class SelectionManagerTest {
         assertThat(selectable.lastEndPosition).isEqualTo(endCoordinates)
         assertThat(selectable.lastContainerLayoutCoordinates)
             .isEqualTo(selectionManager.requireContainerCoordinates())
-        assertThat(selectable.lastLongPress).isEqualTo(false)
+        assertThat(selectable.lastAdjustment).isEqualTo(SelectionAdjustment.NONE)
         assertThat(selectable.lastPreviousSelection).isEqualTo(fakeSelection)
 
         verify(
@@ -158,7 +158,7 @@ class SelectionManagerTest {
         assertThat(selectable.lastEndPosition).isEqualTo(endCoordinates)
         assertThat(selectable.lastContainerLayoutCoordinates)
             .isEqualTo(selectionManager.requireContainerCoordinates())
-        assertThat(selectable.lastLongPress).isEqualTo(false)
+        assertThat(selectable.lastAdjustment).isEqualTo(SelectionAdjustment.NONE)
         assertThat(selectable.lastPreviousSelection).isEqualTo(fakeSelection)
 
         verify(selectableAnother, times(1))
@@ -166,7 +166,7 @@ class SelectionManagerTest {
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
                 containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
-                longPress = false,
+                adjustment = SelectionAdjustment.NONE,
                 previousSelection = fakeSelection
             )
         verify(
@@ -189,6 +189,26 @@ class SelectionManagerTest {
         verify(
             hapticFeedback,
             times(0)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun mergeSelections_selectAll() {
+        val anotherSelectableId = 100L
+        val selectableAnother = mock<Selectable>()
+        whenever(selectableAnother.selectableId).thenReturn(anotherSelectableId)
+
+        selectionRegistrar.subscribe(selectableAnother)
+
+        selectionManager.mergeSelections(
+            selectableId = selectableId,
+            previousSelection = fakeSelection
+        )
+
+        verify(selectableAnother, times(0)).getSelectAllSelection()
+        verify(
+            hapticFeedback,
+            times(1)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 

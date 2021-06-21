@@ -812,34 +812,55 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * Associates a shortcut with a capability. Used when the shortcut is an instance
-         * of a capability.
+         * Associates a shortcut with a capability without any parameters. Used when the shortcut is
+         * an instance of a capability.
          *
          * <P>This method can be called multiple times to associate multiple capabilities with
          * this shortcut.
          *
-         * @param parameters Optional capability parameters associated with given
-         * capability. This will be a mapping of parameter names to zero or
-         * more parameter values. e.g. {"START_EXERCISE": ["jogging", "dancing"],
-         * "STOP_EXERCISE": []}
+         * @param capability capability associated with the shortcut. e.g. actions.intent
+         *                   .START_EXERCISE.
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder addCapabilityBinding(@NonNull String capability,
-                @Nullable Map<String, List<String>> parameters) {
+        public Builder addCapabilityBinding(@NonNull String capability) {
             if (mCapabilityBindings == null) {
                 mCapabilityBindings = new HashSet<>();
             }
             mCapabilityBindings.add(capability);
+            return this;
+        }
 
-            if (parameters != null) {
+        /**
+         * Associates a shortcut with a capability, and a parameter of that capability. Used when
+         * the shortcut is an instance of a capability.
+         *
+         * <P>This method can be called multiple times to associate multiple capabilities with
+         * this shortcut, or add multiple parameters to the same capability.
+         *
+         * @param capability capability associated with the shortcut. e.g. actions.intent
+         *                   .START_EXERCISE.
+         * @param parameter the parameter associated with the capability. e.g. exercise.name.
+         * @param parameterValues a list of values for that parameters. The first value will be
+         *                        the primary name, while the rest will be alternative names. If
+         *                        the values are empty, then the parameter will not be saved in
+         *                        the shortcut.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder addCapabilityBinding(@NonNull String capability,
+                @NonNull String parameter, @NonNull List<String> parameterValues) {
+            addCapabilityBinding(capability);
+
+            if (!parameterValues.isEmpty()) {
                 if (mCapabilityBindingParams == null) {
                     mCapabilityBindingParams = new HashMap<>();
                 }
                 if (mCapabilityBindingParams.get(capability) == null) {
                     mCapabilityBindingParams.put(capability, new HashMap<String, List<String>>());
                 }
-                mCapabilityBindingParams.get(capability).putAll(parameters);
+
+                mCapabilityBindingParams.get(capability).put(parameter, parameterValues);
             }
             return this;
         }
@@ -858,7 +879,6 @@ public class ShortcutInfoCompat {
         /**
          * Creates a {@link ShortcutInfoCompat} instance.
          */
-        @SuppressLint("UnsafeNewApiCall")
         @NonNull
         public ShortcutInfoCompat build() {
             // Verify the arguments

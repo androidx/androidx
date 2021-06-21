@@ -24,15 +24,16 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Sampled
 @Composable
 fun BackHandler() {
-    var backPressedCount by mutableStateOf(0)
+    var backPressedCount by remember { mutableStateOf(0) }
     BackHandler { backPressedCount++ }
 
-    val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+    val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
 
     Button(onClick = { dispatcher.onBackPressed() }) {
         Text("Press Back count $backPressedCount")

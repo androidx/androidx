@@ -17,7 +17,6 @@
 package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent
-import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -25,6 +24,7 @@ import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.key.KeyEvent
@@ -110,7 +110,13 @@ class PointerInputEventProcessorTest {
 
     @Test
     fun pointerTypePassed() {
-        val pointerTypes = PointerType.values()
+        val pointerTypes = listOf(
+            PointerType.Unknown,
+            PointerType.Touch,
+            PointerType.Mouse,
+            PointerType.Stylus,
+            PointerType.Eraser
+        )
 
         // Arrange
         val pointerInputFilter = PointerInputFilterMock()
@@ -3087,6 +3093,10 @@ private class TestOwner : Owner {
     }
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
+        TODO("Not yet implemented")
+    }
+
+    override fun requestRectangleOnScreen(rect: Rect) {
         TODO("Not yet implemented")
     }
 

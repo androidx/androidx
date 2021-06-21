@@ -27,7 +27,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
@@ -39,7 +39,6 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
@@ -261,7 +260,7 @@ final class CaptureSession {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     private ListenableFuture<Void> openCaptureSession(@NonNull List<Surface> configuredSurfaces,
             @NonNull SessionConfig sessionConfig, @NonNull CameraDevice cameraDevice) {
@@ -273,15 +272,6 @@ final class CaptureSession {
                     return Futures.immediateFailedFuture(new IllegalStateException(
                             "openCaptureSession() should not be possible in state: " + mState));
                 case GET_SURFACE:
-                    // Attempt to increase the usage count of all the configured deferrable
-                    // surfaces before adding them to the session.
-                    try {
-                        DeferrableSurfaces.incrementAll(mConfiguredDeferrableSurfaces);
-                    } catch (DeferrableSurface.SurfaceClosedException e) {
-                        mConfiguredDeferrableSurfaces.clear();
-                        return Futures.immediateFailedFuture(e);
-                    }
-
                     // Establishes the mapping of DeferrableSurface to Surface. Capture request
                     // will use this mapping to get the Surface from DeferrableSurface.
                     mConfiguredSurfaceMap.clear();
@@ -343,7 +333,7 @@ final class CaptureSession {
                     }
 
                     return mSynchronizedCaptureSessionOpener.openCaptureSession(cameraDevice,
-                            sessionConfigCompat);
+                            sessionConfigCompat, mConfiguredDeferrableSurfaces);
                 default:
                     return Futures.immediateFailedFuture(new CancellationException(
                             "openCaptureSession() not execute in state: " + mState));
@@ -480,16 +470,6 @@ final class CaptureSession {
         return Futures.immediateFuture(null);
     }
 
-    // Notify the surface is detached from current capture session.
-    @GuardedBy("mStateLock")
-    void clearConfiguredSurfaces() {
-        DeferrableSurfaces.decrementAll(mConfiguredDeferrableSurfaces);
-
-        // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
-        // decrement calls.
-        mConfiguredDeferrableSurfaces.clear();
-    }
-
     /**
      * Issues capture requests.
      *
@@ -544,8 +524,6 @@ final class CaptureSession {
 
         mState = State.RELEASED;
         mSynchronizedCaptureSession = null;
-
-        clearConfiguredSurfaces();
 
         if (mReleaseCompleter != null) {
             mReleaseCompleter.set(null);
@@ -888,13 +866,13 @@ final class CaptureSession {
         }
 
         @Override
-        public void onClosed(@NonNull SynchronizedCaptureSession session) {
+        public void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
             synchronized (mStateLock) {
                 if (mState == State.UNINITIALIZED) {
                     throw new IllegalStateException(
-                            "onClosed() should not be possible in state: " + mState);
+                            "onSessionFinished() should not be possible in state: " + mState);
                 }
-                Logger.d(TAG, "CameraCaptureSession.onClosed()");
+                Logger.d(TAG, "onSessionFinished()");
 
                 finishClose();
             }

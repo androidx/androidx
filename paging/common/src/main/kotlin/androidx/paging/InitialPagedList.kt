@@ -30,14 +30,13 @@ import kotlinx.coroutines.CoroutineScope
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InitialPagedList<K : Any, V : Any>(
-    pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
     notifyDispatcher: CoroutineDispatcher,
     backgroundDispatcher: CoroutineDispatcher,
     config: Config,
     initialLastKey: K?
 ) : ContiguousPagedList<K, V>(
-    pagingSource = pagingSource,
+    pagingSource = LegacyPagingSource(notifyDispatcher, InitialDataSource()),
     coroutineScope = coroutineScope,
     notifyDispatcher = notifyDispatcher,
     backgroundDispatcher = backgroundDispatcher,

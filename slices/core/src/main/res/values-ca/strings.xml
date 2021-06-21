@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"Vols permetre que <xliff:g id="APP_0">%1$s</xliff:g> mostri porcions de l\'aplicació <xliff:g id="APP_2">%2$s</xliff:g>?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- Pot llegir informació de l\'aplicació <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- Pot dur a terme accions dins de l\'aplicació <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"Permet que <xliff:g id="APP">%1$s</xliff:g> mostri porcions de qualsevol aplicació"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Permet"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Denega"</string>
 </resources>

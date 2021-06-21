@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="KotlinPropertyAccess"
@@ -24,7 +24,8 @@
         <location
             file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
             line="339"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -39,7 +40,8 @@
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
             line="217"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -54,7 +56,8 @@
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
             line="238"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -69,7 +72,8 @@
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
             line="260"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -147,17 +151,6 @@
             file="src/main/java/androidx/wear/ambient/AmbientMode.java"
             line="250"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T extends Activity> AmbientController attachAmbientSupport(T activity) {"
-        errorLine2="                                                                              ~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="250"
-            column="79"/>
     </issue>
 
     <issue
@@ -257,17 +250,6 @@
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
             line="280"
             column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T extends FragmentActivity> AmbientController attach(T activity) {"
-        errorLine2="                                                                        ~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="280"
-            column="73"/>
     </issue>
 
     <issue

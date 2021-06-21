@@ -16,9 +16,12 @@
 
 package androidx.build
 
-import androidx.build.AndroidXRootPlugin.Companion.PREBUILT_OR_SNAPSHOT_EXT_NAME
 import androidx.build.AndroidXRootPlugin.Companion.PROJECT_OR_ARTIFACT_EXT_NAME
+import androidx.build.gradle.getByType
 import androidx.build.gradle.isRoot
+import androidx.build.playground.FindAffectedModulesTask
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.LibraryPlugin
 import groovy.xml.DOMBuilder
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -55,12 +58,6 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
         }
     )
 
-    private val prebuiltOrSnapshotClosure = KotlinClosure1<String, String>(
-        function = {
-            prebuiltOrSnapshot(this)
-        }
-    )
-
     override fun apply(target: Project) {
         if (!target.isRoot) {
             throw GradleException("This plugin should only be applied to root project")
@@ -77,12 +74,35 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
         rootProject.subprojects {
             configureSubProject(it)
         }
+
+        // TODO(b/185539993): Re-enable InvalidFragmentVersionForActivityResult which was
+        //  temporarily disabled for navigation-dynamic-features-fragment since it depends on an old
+        //  (stable) version of activity, which doesn't include aosp/1670206, allowing use of
+        //  Fragment 1.4.x.
+        target.findProject(":navigation:navigation-dynamic-features-fragment")
+            ?.disableInvalidFragmentVersionForActivityResultLint()
+
+        rootProject.tasks.register("findAffectedModules", FindAffectedModulesTask::class.java)
+    }
+
+    private fun Project.disableInvalidFragmentVersionForActivityResultLint() {
+        plugins.all { plugin ->
+            when (plugin) {
+                is LibraryPlugin -> {
+                    val libraryExtension = extensions.getByType<LibraryExtension>()
+                    afterEvaluate {
+                        libraryExtension.lintOptions.apply {
+                            disable("InvalidFragmentVersionForActivityResult")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun configureSubProject(project: Project) {
         project.repositories.addPlaygroundRepositories()
         project.extra.set(PROJECT_OR_ARTIFACT_EXT_NAME, projectOrArtifactClosure)
-        project.extra.set(PREBUILT_OR_SNAPSHOT_EXT_NAME, prebuiltOrSnapshotClosure)
         project.configurations.all { configuration ->
             configuration.resolutionStrategy.dependencySubstitution.all { substitution ->
                 substitution.replaceIfSnapshot()
@@ -125,21 +145,6 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
 
             throw GradleException("projectOrArtifact cannot find/replace project $path")
         }
-    }
-
-    private fun prebuiltOrSnapshot(path: String): String {
-        val sections = path.split(":")
-
-        if (sections.size != 3) {
-            throw GradleException(
-                "Expected prebuiltOrSnapshot path to be of the form " +
-                    "<group>:<artifact>:<version>, but was $path"
-            )
-        }
-
-        val group = sections[0]
-        val artifact = sections[1]
-        return "$group:$artifact:$SNAPSHOT_MARKER"
     }
 
     private fun DependencySubstitution.replaceIfSnapshot() {
@@ -197,6 +202,7 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
         }
         google()
         mavenCentral()
+        @Suppress("DEPRECATION") // b/181908259
         jcenter()
     }
 

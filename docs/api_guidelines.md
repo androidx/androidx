@@ -41,9 +41,8 @@ Maven artifactId: `<feature-name>-<sub-feature>`
 *   `-core` for a low-level artifact that *may* contain public APIs but is
     primarily intended for use by other libraries in the group
 *   `-ktx` for an Kotlin artifact that exposes idiomatic Kotlin APIs as an
-    extension to a Java-only library
-*   `-java8` for a Java 8 artifact that exposes idiomatic Java 8 APIs as an
-    extension to a Java 7 library
+    extension to a Java-only library (see
+    [additional -ktx guidance](#module-ktx))
 *   `-<third-party>` for an artifact that integrates an optional third-party API
     surface, e.g. `-proto` or `-rxjava2`. Note that a major version is included
     in the sub-feature name for third-party API surfaces where the major version
@@ -79,6 +78,12 @@ While it is possible for the developer to fix this by manually specifying a
 dependency on `androidx.library:1.1.0`, there is no easy way for the developer
 to discover this solution from the class duplication error raised at compile
 time.
+
+Same-version groups are a special case for this rule. Existing modules that are
+already in a same-version group may be split into sub-modules provided that (a)
+the sub-modules are also in the same-version group and (b) the full API surface
+of the existing module is preserved through transitive dependencies, e.g. the
+sub-modules are added as dependencies of the existing module.
 
 #### Same-version (atomic) groups {#modules-atomic}
 
@@ -170,6 +175,25 @@ annotation to indicate divergence from the overall module's minimum SDK version.
 Note that this pattern is _not recommended_ because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
+
+### Kotlin extension `-ktx` libraries {#module-ktx}
+
+New libraries should prefer Kotlin sources with built-in Java compatibility via
+`@JvmName` and other affordances of the Kotlin language; however, existing Java
+sourced libraries may benefit from extending their API surface with
+Kotlin-friendly APIs in a `-ktx` library.
+
+A Kotlin extension library **may only** provide extensions for a single base
+library's API surface and its name **must** match the base library exactly. For
+example, `work:work-ktx` may only provide extensions for APIs exposed by
+`work:work`.
+
+Additionally, an extension library **must** specify an `api`-type dependency on
+the base library and **must** be versioned and released identically to the base
+library.
+
+Kotlin extension libraries _should not_ expose new functionality; they should
+only provide Kotlin-friendly versions of existing Java-facing functionality.
 
 ## Platform compatibility API patterns {#platform-compatibility-apis}
 
@@ -557,7 +581,8 @@ Alternatively, in Kotlin sources:
 
 ```kotlin {.good}
 @RequiresApi(29)
-object Api25 {
+private object Api29Impl {
+  @JvmStatic
   @DoNotInline
   fun saveAttributeDataForStyleable(view: View, ...) { ... }
 }
@@ -731,6 +756,10 @@ should migrate away from the API.
 
 Deprecation is an non-breaking API change that must occur in a **major** or
 **minor** release.
+
+APIs that are added during a pre-release cycle and marked as `@Deprecated`
+within the same cycle, e.g. added in `alpha01` and deprecated in `alpha06`,
+[must be removed](versioning.md#beta-checklist) before moving to `beta01`.
 
 ### Soft removal (@removed)
 
@@ -979,8 +1008,22 @@ public final class MetadataHolderService {
 
 ## Dependencies {#dependencies}
 
-Generally, Jetpack libraries should avoid dependencies that negatively impact
-developers without providing substantial benefit.
+### Specification types {#dependencies-spec}
+
+-   Project `project(":core:core")` uses the tip-of-tree sources for the
+    `androidx.core:core` library and requires that they be loaded in the
+    workspace.
+-   Playground `projectOrArtifact(":core:core")` is used for
+    [Playground](playground.md) projects and will use tip-of-tree sources, if
+    present in the workspace, or `SNAPSHOT` prebuilt artifacts from
+    [androidx.dev](http://androidx.dev) otherwise.
+-   Explicit `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires
+    that it be checked in to the `prebuilts/androidx/internal` local Maven
+    repository.
+
+Libraries should prefer explicit dependencies with the lowest possible versions
+that include the APIs or behaviors required by the library, using project or
+Playground specs only in cases where tip-of-tree APIs or behaviors are required.
 
 ### System health {#dependencies-health}
 
@@ -1022,14 +1065,9 @@ standalone `com.google.guava:listenablefuture` artifact. See
 
 #### Java 8 {#dependencies-java8}
 
-NOTE All Jetpack libraries will migrate to Java 8 as soon as Android Studio 4.2
-launches to stable. Until then, new dependencies on Java 8 should weigh the pros
-and cons as documented here.
-
 Libraries that take a dependency on a library targeting Java 8 must _also_
 target Java 8, which will incur a ~5% build performance (as of 8/2019) hit for
-clients. New libraries targeting Java 8 may use Java 8 dependencies; however,
-existing libraries targeting Java 7 should not.
+clients. New libraries targeting Java 8 may use Java 8 dependencies.
 
 The default language level for `androidx` libraries is Java 8, and we encourage
 libraries to stay on Java 8. However, if you have a business need to target Java
@@ -1166,10 +1204,10 @@ When making any change to the experimental API surface, you *must* run
 ### Restricted APIs {#restricted-api}
 
 Jetpack's library tooling supports hiding Java-visible (ex. `public` and
-`protected`) APIs from developers using a combination of the `@hide` docs
-annotation and `@RestrictTo` source annotation. These annotations **must** be
-paired together when used, and are validated as part of presubmit checks for
-Java code (Kotlin not yet supported by Checkstyle).
+`protected`) APIs from developers using a combination of the `@RestrictTo`
+source annotation, and the `@hide` docs annotation (`@suppress` in Kotlin).
+These annotations **must** be paired together when used, and are validated as
+part of presubmit checks for Java code (Kotlin not yet supported by Checkstyle).
 
 The effects of hiding an API are as follows:
 
@@ -1184,22 +1222,22 @@ Hiding an API does *not* provide strong guarantees about usage:
 
 #### When to use `@hide` {#restricted-api-usage}
 
-Generally, avoid using `@hide`. The `@hide` annotation indicates that developers
-should not call an API that is _technically_ public from a Java visibility
-perspective. Hiding APIs is often a sign of a poorly-abstracted API surface, and
-priority should be given to creating public, maintainable APIs and using Java
-visibility modifiers.
+In other cases, avoid using `@hide` / `@suppress`. These annotations indicates
+that developers should not call an API that is _technically_ public from a Java
+visibility perspective. Hiding APIs is often a sign of a poorly-abstracted API
+surface, and priority should be given to creating public, maintainable APIs and
+using Java visibility modifiers.
 
-*Do not* use `@hide` to bypass API tracking and review for production APIs;
-instead, rely on API+1 and API Council review to ensure APIs are reviewed on a
-timely basis.
+*Do not* use `@hide`/`@suppress` to bypass API tracking and review for
+production APIs; instead, rely on API+1 and API Council review to ensure APIs
+are reviewed on a timely basis.
 
-*Do not* use `@hide` for implementation detail APIs that are used between
-libraries and could reasonably be made public.
+*Do not* use `@hide`/`@suppress` for implementation detail APIs that are used
+between libraries and could reasonably be made public.
 
-*Do* use `@hide` paired with `@RestrictTo(LIBRARY)` for implementation detail
-APIs used within a single library (but prefer Java language `private` or
-`default` visibility).
+*Do* use `@hide`/`@suppress` paired with `@RestrictTo(LIBRARY)` for
+implementation detail APIs used within a single library (but prefer Java
+language `private` or `default` visibility).
 
 #### `RestrictTo.Scope` and inter- versus intra-library API surfaces {#private-api-types}
 
@@ -1386,6 +1424,75 @@ that are more lightweight, depending on your use case:
 
 ### Kotlin {#kotlin}
 
+#### Nullability from Java (new APIs)
+
+All new Java APIs should be annotated either `@Nullable` or `@NonNull` for all
+reference parameters and reference return types.
+
+```java
+    @Nullable
+    public Object someNewApi(@NonNull Thing arg1, @Nullable List<WhatsIt> arg2) {
+        if(/** something **/) {
+            return someObject;
+        } else {
+            return null;
+    }
+```
+
+#### Nullability from Java (existing APIs)
+
+Adding `@Nullable` or `@NonNull` annotations to existing APIs to document their
+existing nullability is OK. This is a source breaking change for Kotlin
+consumers, and you should ensure that it's noted in the release notes and try to
+minimize the frequency of these updates in releases.
+
+Changing the nullability of an API is a breaking change.
+
+#### Extending APIs that expose types without nullability annotations
+
+[Platform types](https://kotlinlang.org/docs/java-interop.html#null-safety-and-platform-types)
+are exposed by Java types that do not have a `@Nullable` or `@NonNull`
+annotation. In Kotlin they are indicated with the `!` suffix.
+
+When interacting with an Android platform API that exposes APIs with unknown
+nullability follow these rules:
+
+1.  If wrapping the type in a new API, define and handle `@Nullable` or
+    `@NonNull` in the library. Treat types with unknown nullability passed into
+    or return from Android as `@Nullable` in the library.
+2.  If extending an existing API (e.g. `@Override`), pass through the existing
+    types with unknown nullability and annotate each with
+    `@SuppressLint("UnknownNullness")`
+
+In Kotlin, a type with unknown nullability is exposed as a "platform type"
+(indicated with a `!` suffix) which has unknown nullability in the type checker,
+and may bypass type checking leading to runtime errors. When possible, do not
+directly expose types with unknown nullability in new public APIs.
+
+#### Extending `@RecentlyNonNull` and `@RecentlyNullable` APIs
+
+Platform APIs are annotated in the platform SDK artifacts with fake annotations
+`@RecentlyNonNull` and `@RecentlyNullable` to avoid breaking builds when we
+annotated platform APIs with nullability. These annotations cause warnings
+instead of build failures. The `RecentlyNonNull` and `RecentlyNullable`
+annotations are added by Metalava and do not appear in platform code.
+
+When extending an API that is annotated `@RecentlyNonNull`, you should annotate
+the override with `@NonNull`, and the same for `@RecentlyNullable` and
+`@Nullable`.
+
+For example `SpannableStringBuilder.append` is annotated `RecentlyNonNull` and
+an override should look like:
+
+```java
+    @NonNull
+    @Override
+    public SpannableStringBuilder append(@SuppressLint("UnknownNullness") CharSequence text) {
+        super.append(text);
+        return this;
+    }
+```
+
 #### Data classes {#kotlin-data}
 
 Kotlin `data` classes provide a convenient way to define simple container
@@ -1422,9 +1529,151 @@ See Jake Wharton's article on
 [Public API challenges in Kotlin](https://jakewharton.com/public-api-challenges-in-kotlin/)
 for more details.
 
+#### Exhaustive `when` and `sealed class`/`enum class` {#exhaustive-when}
+
+A key feature of Kotlin's `sealed class` and `enum class` declarations is that
+they permit the use of **exhaustive `when` expressions.** For example:
+
+```kotlin
+enum class CommandResult { Permitted, DeniedByUser }
+
+val message = when (commandResult) {
+    Permitted -> "the operation was permitted"
+    DeniedByUser -> "the user said no"
+}
+
+println(message)
+```
+
+This highlights challenges for library API design and compatibility. Consider
+the following addition to the `CommandResult` possibilities:
+
+```kotlin {.bad}
+enum class CommandResult {
+    Permitted,
+    DeniedByUser,
+    DeniedByAdmin // New in androidx.mylibrary:1.1.0!
+}
+```
+
+This change is both **source and binary breaking.**
+
+It is **source breaking** because the author of the `when` block above will see
+a compiler error about not handling the new result value.
+
+It is **binary breaking** because if the `when` block above was compiled as part
+of a library `com.example.library:1.0.0` that transitively depends on
+`androidx.mylibrary:1.0.0`, and an app declares the dependencies:
+
+```kotlin
+implementation("com.example.library:1.0.0")
+implementation("androidx.mylibrary:1.1.0") // Updated!
+```
+
+`com.example.library:1.0.0` does not handle the new result value, leading to a
+runtime exception.
+
+**Note:** The above example is one where Kotlin's `enum class` is the correct
+tool and the library should **not** add a new constant! Kotlin turns this
+semantic API design problem into a compiler or runtime error. This type of
+library API change could silently cause app logic errors or data corruption
+without the protection provided by exhaustive `when`. See
+[When to use exhaustive types](#when-to-use-exhaustive-types).
+
+`sealed class` exhibits the same characteristic; adding a new subtype of an
+existing sealed class is a breaking change for the following code:
+
+```kotlin
+val message = when (command) {
+    is Command.Migrate -> "migrating to ${command.destination}"
+    is Command.Quack -> "quack!"
+}
+```
+
+##### Non-exhaustive alternatives to `enum class`
+
+Kotlin's `@JvmInline value class` with a `private constructor` can be used to
+create type-safe sets of non-exhaustive constants as of Kotlin 1.5. Compose's
+`BlendMode` uses the following pattern:
+
+```kotlin {.good}
+@JvmInline
+value class BlendMode private constructor(val value: Int) {
+    companion object {
+        /** Drop both the source and destination images, leaving nothing. */
+        val Clear = BlendMode(0)
+        /** Drop the destination image, only paint the source image. */
+        val Src = BlendMode(1)
+        // ...
+    }
+}
+```
+
+**Note:** This recommendation may be temporary. Kotlin may add new annotations
+or other language features to declare non-exhaustive enum classes in the future.
+
+Alternatively, the existing `@IntDef` mechanism used in Java-language androidx
+libraries may also be used, but type checking of constants will only be
+performed by lint, and functions overloaded with parameters of different value
+class types are not supported. Prefer the `@JvmInline value class` solution for
+new code unless it would break local consistency with other API in the same
+module that already uses `@IntDef`.
+
+##### Non-exhaustive alternatives to `sealed class`
+
+Abstract classes with constructors marked as `internal` or `private` can
+represent the same subclassing restrictions of sealed classes as seen from
+outside of a library module's own codebase:
+
+```kotlin
+abstract class Command private constructor() {
+    class Migrate(val destination: String) : Command()
+    object Quack : Command()
+}
+```
+
+Using an `internal` constructor will permit non-nested subclasses, but will
+**not** restrict subclasses to the same package within the module, as sealed
+classes do.
+
+##### When to use exhaustive types
+
+Use `enum class` or `sealed class` when the values or subtypes are intended to
+be exhaustive by design from the API's initial release. Use non-exhaustive
+alternatives when the set of constants or subtypes might expand in a minor
+version release.
+
+Consider using an **exhaustive** (`enum class` or `sealed class`) type
+declaration if:
+
+*   The developer is expected to **accept** values of the type
+*   The developer is expected to **act** on **any and all** values received
+
+Consider using a **non-exhaustive** type declaration if:
+
+*   The developer is expected to **provide** values of the type to APIs exposed
+    by the same module **only**
+*   The developer is expected to **ignore** unknown values received
+
+The `CommandResult` example above is a good example of a type that **should**
+use the exhaustive `enum class`; `CommandResult`s are **returned** to the
+developer and the developer cannot implement correct app behavior by ignoring
+unrecognized result values. Adding a new result value would semantically break
+existing code regardless of the language facility used to express the type.
+
+```kotlin {.good}
+enum class CommandResult { Permitted, DeniedByUser, DeniedByAdmin }
+```
+
+Compose's `BlendMode` is a good example of a type that **should not** use the
+exhaustive `enum class`; blending modes are used as arguments to Compose
+graphics APIs and are not intended for interpretation by app code. Additionally,
+there is historical precedent from `android.graphics` for new blending modes to
+be added in the future.
+
 #### Extension and top-level functions {#kotlin-extension-functions}
 
-If your Kotlin file contains any sybmols outside of class-like types
+If your Kotlin file contains any symbols outside of class-like types
 (extension/top-level functions, properties, etc), the file must be annotated
 with `@JvmName`. This ensures unanticipated use-cases from Java callers don't
 get stuck using `BlahKt` files.
@@ -1688,7 +1937,7 @@ enforced by lint:
 
 For library groups with strongly related samples that want to share code.
 
-Gradle project name: `:foo-library:samples`
+Gradle project name: `:foo-library:foo-library-samples`
 
 ```
 foo-library/
@@ -1701,10 +1950,18 @@ foo-library/
 
 For library groups with complex, relatively independent sub-libraries
 
-Gradle project name: `:foo-library:foo-module:samples`
+Gradle project name: `:foo-library:foo-module:foo-module-samples`
 
 ```
 foo-library/
   foo-module/
     samples/
 ```
+
+**Samples module configuration**
+
+Samples modules are published to GMaven so that they are available to Android
+Studio, which displays code in @Sample annotations as hover-over pop-ups.
+
+To achieve this, samples modules must declare the same MavenGroup and `publish`
+as the library(s) they are samples for.

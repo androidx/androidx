@@ -23,8 +23,10 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.core.content.res.use
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
@@ -50,7 +52,7 @@ public open class FragmentNavigator(
     private val fragmentManager: FragmentManager,
     private val containerId: Int
 ) : Navigator<Destination>() {
-    private val backStack = ArrayDeque<Int>()
+    private val savedIds = mutableSetOf<String>()
 
     /**
      * {@inheritDoc}
@@ -64,22 +66,41 @@ public open class FragmentNavigator(
      * asynchronously, so the newly visible Fragment from the back stack
      * is not instantly available after this call completes.
      */
-    public override fun popBackStack(): Boolean {
-        if (backStack.isEmpty()) {
-            return false
-        }
+    override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG, "Ignoring popBackStack() call: FragmentManager has already saved its state"
             )
-            return false
+            return
         }
-        fragmentManager.popBackStack(
-            generateBackStackName(backStack.size, backStack.last()),
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-        backStack.removeLast()
-        return true
+        if (savedState) {
+            val beforePopList = state.backStack.value
+            val initialEntry = beforePopList.first()
+            // Get the set of entries that are going to be popped
+            val poppedList = beforePopList.subList(
+                beforePopList.indexOf(popUpTo),
+                beforePopList.size
+            )
+            // Now go through the list in reversed order (i.e., started from the most added)
+            // and save the back stack state of each.
+            for (entry in poppedList.reversed()) {
+                if (entry == initialEntry) {
+                    Log.i(
+                        TAG,
+                        "FragmentManager cannot save the state of the initial destination $entry"
+                    )
+                } else {
+                    fragmentManager.saveBackStack(entry.id)
+                    savedIds += entry.id
+                }
+            }
+        } else {
+            fragmentManager.popBackStack(
+                popUpTo.id,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+        }
+        state.pop(popUpTo, savedState)
     }
 
     public override fun createDestination(): Destination {
@@ -126,18 +147,42 @@ public open class FragmentNavigator(
      * asynchronously, so the new Fragment is not instantly available
      * after this call completes.
      */
-    public override fun navigate(
-        destination: Destination,
-        args: Bundle?,
+    override fun navigate(
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
-    ): NavDestination? {
+    ) {
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG, "Ignoring navigate() call: FragmentManager has already saved its state"
             )
-            return null
+            return
         }
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ) {
+        val backStack = state.backStack.value
+        val initialNavigation = backStack.isEmpty()
+        val restoreState = (
+            navOptions != null && !initialNavigation &&
+                navOptions.shouldRestoreState() &&
+                savedIds.remove(entry.id)
+            )
+        if (restoreState) {
+            // Restore back stack does all the work to restore the entry
+            fragmentManager.restoreBackStack(entry.id)
+            state.add(entry)
+            return
+        }
+        val destination = entry.destination as Destination
+        val args = entry.arguments
         var className = destination.className
         if (className[0] == '.') {
             className = context.packageName + className
@@ -159,15 +204,13 @@ public open class FragmentNavigator(
         ft.replace(containerId, frag)
         ft.setPrimaryNavigationFragment(frag)
         @IdRes val destId = destination.id
-        val initialNavigation = backStack.isEmpty()
         // TODO Build first class singleTop behavior for fragments
         val isSingleTopReplacement = (
             navOptions != null && !initialNavigation &&
                 navOptions.shouldLaunchSingleTop() &&
-                backStack.last() == destId
+                backStack.last().destination.id == destId
             )
-        val isAdded: Boolean
-        isAdded = when {
+        val isAdded = when {
             initialNavigation -> {
                 true
             }
@@ -179,15 +222,15 @@ public open class FragmentNavigator(
                     // remove it from the back stack and put our replacement
                     // on the back stack in its place
                     fragmentManager.popBackStack(
-                        generateBackStackName(backStack.size, backStack.last()),
+                        entry.id,
                         FragmentManager.POP_BACK_STACK_INCLUSIVE
                     )
-                    ft.addToBackStack(generateBackStackName(backStack.size, destId))
+                    ft.addToBackStack(entry.id)
                 }
                 false
             }
             else -> {
-                ft.addToBackStack(generateBackStackName(backStack.size + 1, destId))
+                ft.addToBackStack(entry.id)
                 true
             }
         }
@@ -199,55 +242,43 @@ public open class FragmentNavigator(
         ft.setReorderingAllowed(true)
         ft.commit()
         // The commit succeeded, update our view of the world
-        return if (isAdded) {
-            backStack.add(destId)
-            destination
-        } else {
-            null
+        if (isAdded) {
+            state.add(entry)
         }
     }
 
     public override fun onSaveState(): Bundle? {
-        val b = Bundle()
-        val backStack = backStack.toIntArray()
-        b.putIntArray(KEY_BACK_STACK_IDS, backStack)
-        return b
+        if (savedIds.isEmpty()) {
+            return null
+        }
+        return bundleOf(KEY_SAVED_IDS to ArrayList(savedIds))
     }
 
     public override fun onRestoreState(savedState: Bundle) {
-        val backStack = savedState.getIntArray(KEY_BACK_STACK_IDS)
-        if (backStack != null) {
-            this.backStack.clear()
-            for (destId in backStack) {
-                this.backStack.add(destId)
-            }
+        val savedIds = savedState.getStringArrayList(KEY_SAVED_IDS)
+        if (savedIds != null) {
+            this.savedIds.clear()
+            this.savedIds += savedIds
         }
-    }
-
-    private fun generateBackStackName(backStackIndex: Int, destId: Int): String {
-        return "$backStackIndex-$destId"
     }
 
     /**
      * NavDestination specific to [FragmentNavigator]
+     *
+     * Construct a new fragment destination. This destination is not valid until you set the
+     * Fragment via [setClassName].
+     *
+     * @param fragmentNavigator The [FragmentNavigator] which this destination will be associated
+     * with. Generally retrieved via a [NavController]'s [NavigatorProvider.getNavigator] method.
      */
     @NavDestination.ClassType(Fragment::class)
     public open class Destination
-    /**
-     * Construct a new fragment destination. This destination is not valid until you set the
-     * Fragment via [.setClassName].
-     *
-     * @param fragmentNavigator The [FragmentNavigator] which this destination
-     * will be associated with. Generally retrieved via a
-     * [NavController]'s
-     * [NavigatorProvider.getNavigator] method.
-     */
     public constructor(fragmentNavigator: Navigator<out Destination>) :
         NavDestination(fragmentNavigator) {
 
         /**
          * Construct a new fragment destination. This destination is not valid until you set the
-         * Fragment via [.setClassName].
+         * Fragment via [setClassName].
          *
          * @param navigatorProvider The [NavController] which this destination
          * will be associated with.
@@ -277,7 +308,7 @@ public open class FragmentNavigator(
 
         private var _className: String? = null
         /**
-         * Gets the Fragment's class name associated with this destination
+         * The Fragment's class name associated with this destination
          *
          * @throws IllegalStateException when no Fragment class was set.
          */
@@ -308,7 +339,7 @@ public open class FragmentNavigator(
         private val _sharedElements = LinkedHashMap<View, String>()
 
         /**
-         * Gets the map of shared elements associated with these Extras. The returned map
+         * The map of shared elements associated with these Extras. The returned map
          * is an [unmodifiable][Map] copy of the underlying map and should be treated as immutable.
          */
         public val sharedElements: Map<View, String>
@@ -368,6 +399,6 @@ public open class FragmentNavigator(
 
     private companion object {
         private const val TAG = "FragmentNavigator"
-        private const val KEY_BACK_STACK_IDS = "androidx-nav-fragment:navigator:backStackIds"
+        private const val KEY_SAVED_IDS = "androidx-nav-fragment:navigator:savedIds"
     }
 }

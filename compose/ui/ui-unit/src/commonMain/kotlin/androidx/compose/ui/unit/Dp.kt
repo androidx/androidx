@@ -41,7 +41,7 @@ import kotlin.math.min
  *     val lineThicknessPx = lineThickness.toPx(context)
  * [toPx] is normally needed only for painting operations.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
 inline class Dp(val value: Float) : Comparable<Dp> {
     /**
@@ -99,7 +99,7 @@ inline class Dp(val value: Float) : Comparable<Dp> {
     override /* TODO: inline */ operator fun compareTo(other: Dp) = value.compareTo(other.value)
 
     @Stable
-    override fun toString() = "$value.dp"
+    override fun toString() = if (isUnspecified) "Dp.Unspecified" else "$value.dp"
 
     companion object {
         /**
@@ -258,7 +258,7 @@ fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
  * A two-dimensional offset using [Dp] for units
  */
 @OptIn(ExperimentalUnsignedTypes::class)
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
 inline class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
 

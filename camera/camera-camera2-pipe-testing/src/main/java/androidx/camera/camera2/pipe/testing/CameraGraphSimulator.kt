@@ -29,22 +29,22 @@ import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 
 /** Simulator for observing and responding to interactions with the a [CameraGraph]. */
 class CameraGraphSimulator(
     private val config: CameraGraph.Config,
-    metadata: CameraMetadata
+    cameraMetadata: CameraMetadata
 ) {
     init {
-        check(config.camera == metadata.camera)
+        check(config.camera == cameraMetadata.camera)
     }
 
     private val fakeRequestProcessor = FakeRequestProcessor()
     private val cameraPipe = CameraPipe.External()
     public val cameraGraph = cameraPipe.create(
         config,
-        FakeCameraDevices(listOf(metadata)),
+        cameraMetadata,
         fakeRequestProcessor
     )
 
@@ -54,18 +54,17 @@ class CameraGraphSimulator(
 
     suspend fun simulateNextFrame(
         advanceClockByNanos: Long = 33_366_666 // (2_000_000_000 / (60  / 1.001))
-    ): FrameSimulator? = generateNextFrame().also {
+    ): FrameSimulator = generateNextFrame().also {
         val clockNanos = frameClockNanos.addAndGet(advanceClockByNanos)
-        it?.simulateStarted(clockNanos)
+        it.simulateStarted(clockNanos)
     }
 
-    private suspend fun generateNextFrame(): FrameSimulator? {
+    private suspend fun generateNextFrame(): FrameSimulator {
         // This checks the pending frame queue and polls for the next request. If no request is
         // available it will suspend until the next interaction with the request processor.
         if (pendingFrameQueue.isEmpty()) {
             val requestSequence =
-                withTimeoutOrNull(timeMillis = 200) { fakeRequestProcessor.nextRequestSequence() }
-                    ?: return null
+                withTimeout(timeMillis = 250) { fakeRequestProcessor.nextRequestSequence() }
 
             // Each sequence is processed as a group, and if a sequence contains multiple requests
             // the list of requests is processed in order before polling the next sequence.
@@ -73,7 +72,7 @@ class CameraGraphSimulator(
                 pendingFrameQueue.add(FrameSimulator(request, requestSequence))
             }
         }
-        return pendingFrameQueue.removeFirstOrNull()
+        return pendingFrameQueue.removeFirst()
     }
 
     /**

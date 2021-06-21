@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.slice.compat.CompatPermissionManager.PermissionState is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.slice.compat.CompatPermissionManager.PermissionState is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                if (!Objects.equals(path[i], prefix[i])) {"
         errorLine2="                             ~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.slice.Slice is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.slice.Slice is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return SliceConvert.wrap(context.getSystemService(SliceManager.class)"
         errorLine2="                                         ~~~~~~~~~~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.slice.Slice is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.slice.Slice is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .bindSlice(uri, unwrap(supportedSpecs)), context);"
         errorLine2="                 ~~~~~~~~~">
         <location
@@ -90,13 +90,13 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.slice.compat.SliceProviderCompat.ProviderHolder is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.slice.compat.SliceProviderCompat.ProviderHolder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mProvider.close();"
         errorLine2="                          ~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="709"
+            line="710"
             column="27"/>
     </issue>
 

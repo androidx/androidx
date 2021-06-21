@@ -26,12 +26,8 @@ import androidx.compose.ui.text.TextRange
  * @param rawStartOffset unprocessed start offset calculated directly from input position
  * @param rawEndOffset unprocessed end offset calculated directly from input position
  * @param previousSelection previous selection result
- * @param previousHandlesCrossed true if the previous selection's handles are crossed
  * @param isStartHandle true if the start handle is being dragged
- * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
- * the selection is modified by long press and drag gesture, the result selection will be
- * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
- * selection.
+ * @param adjustment selection is adjusted according to this param
  *
  * @return selected text range.
  */
@@ -40,34 +36,25 @@ internal fun getTextFieldSelection(
     rawStartOffset: Int,
     rawEndOffset: Int,
     previousSelection: TextRange?,
-    previousHandlesCrossed: Boolean,
     isStartHandle: Boolean,
-    wordBasedSelection: Boolean
+    adjustment: SelectionAdjustment
 ): TextRange {
     textLayoutResult?.let {
-        val lastOffset = it.layoutInput.text.text.length
+        val textRange = TextRange(rawStartOffset, rawEndOffset)
 
-        var (startOffset, endOffset, handlesCrossed) =
-            processAsSingleComposable(
-                rawStartOffset = rawStartOffset,
-                rawEndOffset = rawEndOffset,
-                previousSelection = previousSelection,
-                isStartHandle = isStartHandle,
-                lastOffset = lastOffset,
-                handlesCrossed = previousHandlesCrossed
-            )
-        if (wordBasedSelection) {
-            val (start, end) = updateWordBasedSelection(
-                textLayoutResult = it,
-                startOffset = startOffset,
-                endOffset = endOffset,
-                handlesCrossed = handlesCrossed
-            )
-            startOffset = start
-            endOffset = end
+        // When the previous selection is null, it's allowed to have collapsed selection.
+        // So we can ignore the SelectionAdjustment.CHARACTER.
+        if (previousSelection == null && adjustment == SelectionAdjustment.CHARACTER) {
+            return textRange
         }
 
-        return TextRange(startOffset, endOffset)
+        return adjustSelection(
+            textLayoutResult = textLayoutResult,
+            textRange = textRange,
+            isStartHandle = isStartHandle,
+            previousHandlesCrossed = previousSelection?.reversed ?: false,
+            adjustment = adjustment
+        )
     }
     return TextRange(0, 0)
 }

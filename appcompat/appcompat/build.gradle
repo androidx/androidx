@@ -1,4 +1,3 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -7,51 +6,53 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-
+    api("androidx.annotation:annotation:1.3.0-alpha01")
     api(project(":core:core"))
+
+    implementation(project(":emoji2:emoji2"))
+    implementation(project(":emoji2:emoji2-views-helper"))
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
-    api("androidx.activity:activity:1.2.2")
-    api("androidx.fragment:fragment:1.3.2")
+    api("androidx.activity:activity:1.2.3")
+    api("androidx.fragment:fragment:1.3.4")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
+    implementation(project(":resourceinspection:resourceinspection-annotation"))
     api("androidx.savedstate:savedstate:1.1.0")
 
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    kapt(project(":resourceinspection:resourceinspection-processor"))
+
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(project(":internal-testutils-appcompat"), {
         exclude group: "androidx.appcompat", module: "appcompat"
         exclude group: "androidx.core", module: "core"
     })
-    androidTestImplementation(MULTIDEX)
+    androidTestImplementation(libs.multidex)
 
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(JUNIT)
-    testImplementation(ROBOLECTRIC)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.testCore)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
 
-    // Uncomment once we want to start publishing the lint rules.
     lintPublish project(":appcompat:appcompat-lint")
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []

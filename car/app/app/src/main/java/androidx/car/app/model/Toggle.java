@@ -24,8 +24,10 @@ import android.os.Looper;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 /** Represents a toggle that can have either a checked or unchecked state. */
+@CarProtocol
 public final class Toggle {
     /** A listener for handling checked state change events. */
     public interface OnCheckedChangeListener {

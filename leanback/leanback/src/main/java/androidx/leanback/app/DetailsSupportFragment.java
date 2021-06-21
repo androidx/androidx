@@ -523,7 +523,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         }
         mRootView = null;
         mBackgroundView = null;
-        mBackgroundDrawable = null;
         mRowsSupportFragment = null;
         mVideoSupportFragment = null;
         mSceneAfterEntranceTransition = null;

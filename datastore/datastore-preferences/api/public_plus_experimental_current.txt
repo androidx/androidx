@@ -3,9 +3,6 @@ package androidx.datastore.preferences {
 
   public final class PreferenceDataStoreDelegateKt {
     method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> preferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>> produceMigrations, optional kotlinx.coroutines.CoroutineScope scope);
-    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> preferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>> produceMigrations);
-    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> preferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler);
-    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> preferencesDataStore(String name);
   }
 
   public final class PreferenceDataStoreFile {

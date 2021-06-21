@@ -42,6 +42,7 @@ internal class CameraPipeComponentTest {
         val config = CameraPipe.Config(context)
         val module = CameraPipeConfigModule(config)
         builder.cameraPipeConfigModule(module)
+        builder.threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
         val component = builder.build()
         assertThat(component).isNotNull()
     }
@@ -51,6 +52,7 @@ internal class CameraPipeComponentTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val component = DaggerCameraPipeComponent.builder()
             .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
+            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
             .build()
 
         val cameraId = fakeCameraId
@@ -70,6 +72,7 @@ internal class CameraPipeComponentTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val component = DaggerCameraPipeComponent.builder()
             .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
+            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
             .build()
 
         val graphComponent = component.cameraGraphComponentBuilder()

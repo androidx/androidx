@@ -16,7 +16,6 @@
 
 package androidx.security.identity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.icu.util.Calendar;
 import android.security.keystore.KeyProperties;
@@ -190,7 +189,6 @@ class SoftwareIdentityCredential extends IdentityCredential {
         return result;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public @NonNull KeyPair createEphemeralKeyPair() {
         if (mEphemeralKeyPair == null) {
@@ -237,7 +235,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
             byte[] sharedSecret = ka.generateSecret();
 
             byte[] sessionTranscriptBytes =
-                    Util.prependSemanticTagForEncodedCbor(mSessionTranscript);
+                    Util.cborEncode(Util.cborBuildTaggedByteString(mSessionTranscript));
             byte[] salt = MessageDigest.getInstance("SHA-256").digest(sessionTranscriptBytes);
 
             byte[] info = new byte[] {'S', 'K', 'D', 'e', 'v', 'i', 'c', 'e'};
@@ -483,11 +481,8 @@ class SoftwareIdentityCredential extends IdentityCredential {
                         "readerSignature non-null but requestMessage was null");
             }
 
-            try {
-                readerCertChain = Util.coseSign1GetX5Chain(readerSignature);
-            } catch (CertificateException e) {
-                throw new InvalidReaderSignatureException("Error getting x5chain element", e);
-            }
+            DataItem readerSignatureItem = Util.cborDecode(readerSignature);
+            readerCertChain = Util.coseSign1GetX5Chain(readerSignatureItem);
             if (readerCertChain.size() < 1) {
                 throw new InvalidReaderSignatureException("No x5chain element in reader signature");
             }
@@ -496,20 +491,21 @@ class SoftwareIdentityCredential extends IdentityCredential {
             }
             PublicKey readerTopmostPublicKey = readerCertChain.iterator().next().getPublicKey();
 
-            byte[] readerAuthentication = Util.buildReaderAuthenticationCbor(
-                    mSessionTranscript,
-                    requestMessage);
+            byte[] readerAuthentication = Util.cborEncode(new CborBuilder()
+                    .addArray()
+                    .add("ReaderAuthentication")
+                    .add(Util.cborDecode(mSessionTranscript))
+                    .add(Util.cborBuildTaggedByteString(requestMessage))
+                    .end()
+                    .build().get(0));
+
             byte[] readerAuthenticationBytes =
-                    Util.prependSemanticTagForEncodedCbor(readerAuthentication);
-            try {
-                if (!Util.coseSign1CheckSignature(
-                        readerSignature,
-                        readerAuthenticationBytes,
-                        readerTopmostPublicKey)) {
-                    throw new InvalidReaderSignatureException("Reader signature check failed");
-                }
-            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-                throw new InvalidReaderSignatureException("Error checking reader signature", e);
+                    Util.cborEncode(Util.cborBuildTaggedByteString(readerAuthentication));
+            if (!Util.coseSign1CheckSignature(
+                    Util.cborDecode(readerSignature),
+                    readerAuthenticationBytes,
+                    readerTopmostPublicKey)) {
+                throw new InvalidReaderSignatureException("Reader signature check failed");
             }
         }
 
@@ -548,22 +544,26 @@ class SoftwareIdentityCredential extends IdentityCredential {
             ensureAuthKey();
             resultBuilder.setStaticAuthenticationData(mAuthKeyAssociatedData);
 
-            byte[] deviceAuthentication = Util.buildDeviceAuthenticationCbor(
-                    mData.getDocType(),
-                    mSessionTranscript,
-                    authenticatedData);
+            byte[] deviceAuthentication = Util.cborEncode(new CborBuilder()
+                    .addArray()
+                    .add("DeviceAuthentication")
+                    .add(Util.cborDecode(mSessionTranscript))
+                    .add(mData.getDocType())
+                    .add(Util.cborBuildTaggedByteString(authenticatedData))
+                    .end()
+                    .build().get(0));
 
             byte[] deviceAuthenticationBytes =
-                    Util.prependSemanticTagForEncodedCbor(deviceAuthentication);
+                    Util.cborEncode(Util.cborBuildTaggedByteString(deviceAuthentication));
 
             try {
                 Signature authKeySignature = Signature.getInstance("SHA256withECDSA");
                 authKeySignature.initSign(mAuthKey);
                 resultBuilder.setEcdsaSignature(
-                        Util.coseSign1Sign(authKeySignature,
+                        Util.cborEncode(Util.coseSign1Sign(authKeySignature,
                                 null,
                                 deviceAuthenticationBytes,
-                                null));
+                                null)));
             } catch (NoSuchAlgorithmException
                     | InvalidKeyException
                     | CertificateEncodingException e) {
@@ -651,7 +651,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
                 deviceNamespaceBuilder = deviceNameSpacesMapBuilder.putMap(
                         namespaceName);
             }
-            DataItem dataItem = Util.cborToDataItem(value);
+            DataItem dataItem = Util.cborDecode(value);
             deviceNamespaceBuilder.put(new UnicodeString(requestedEntryName), dataItem);
         }
     }
@@ -754,13 +754,13 @@ class SoftwareIdentityCredential extends IdentityCredential {
             int authKeyCount = mData.getAuthKeyCount();
             int authMaxUsesPerKey = mData.getAuthMaxUsesPerKey();
 
-            byte[] encodedBytes =
+            DataItem signature =
                     SoftwareWritableIdentityCredential.buildProofOfProvisioningWithSignature(
                             docType,
                             personalizationData,
                             credentialKey);
 
-            byte[] proofOfProvisioning = Util.coseSign1GetData(encodedBytes);
+            byte[] proofOfProvisioning = Util.coseSign1GetData(signature);
             byte[] proofOfProvisioningSha256 = MessageDigest.getInstance("SHA-256").digest(
                     proofOfProvisioning);
 
@@ -781,7 +781,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
             //
             mData.setAvailableAuthenticationKeys(authKeyCount, authMaxUsesPerKey);
 
-            return encodedBytes;
+            return Util.cborEncode(signature);
 
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error digesting ProofOfProvisioning", e);

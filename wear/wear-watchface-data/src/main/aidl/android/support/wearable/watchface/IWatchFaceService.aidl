@@ -31,12 +31,12 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 interface IWatchFaceService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 8
+    // Next Id: 9
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int WATCHFACE_SERVICE_API_VERSION = 3;
+    const int WATCHFACE_SERVICE_API_VERSION = 4;
 
     /**
      * Requests that the style for the provided watch face be set to the given style.
@@ -97,4 +97,7 @@ interface IWatchFaceService {
      * @since API version 0.
      */
     int getApiVersion() = 7;
+
+    /** Reserved. Do not use. */
+    void reserved8() = 8;
 }

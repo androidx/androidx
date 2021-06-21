@@ -17,11 +17,15 @@
 package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 
+import androidx.appcompat.resources.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -50,11 +54,28 @@ public class TintResourcesTest {
         assertFalse(testResources.wasGetDrawableCalled());
 
         // Now wrap in a TintResources instance and get a Drawable
-        final Resources tintResources =
+        final TintResources tintResources =
                 new TintResources(mActivityTestRule.getActivity(), testResources);
         tintResources.getDrawable(android.R.drawable.ic_delete);
 
-        // ...and assert that the flag was flipped
-        assertTrue(testResources.wasGetDrawableCalled());
+        // We can't delegate to the wrapped Resource object's getDrawable() because it will break
+        // support for nested vector-enabled tinted resources.
+        assertFalse(testResources.wasGetDrawableCalled());
+
+        tintResources.getString(android.R.string.ok);
+
+        // However, we can still delegate other calls.
+        assertTrue(testResources.wasGetStringCalled());
+    }
+
+    public void testNestedTintResources() {
+        Resources tintResources = new TintResources(mActivityTestRule.getActivity(),
+                        mActivityTestRule.getActivity().getResources());
+        Drawable d = tintResources.getDrawable(R.drawable.tint_nested);
+        assertTrue(d instanceof LayerDrawable);
+
+        // Color filter is applied to nested drawable.
+        LayerDrawable ld = (LayerDrawable) d;
+        assertNotNull(ld.getDrawable(0).getColorFilter());
     }
 }

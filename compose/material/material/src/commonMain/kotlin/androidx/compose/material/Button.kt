@@ -19,8 +19,6 @@ package androidx.compose.material
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -54,19 +52,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collect
 
 /**
- * Material Design implementation of a
- * [Material Contained Button](https://material.io/design/components/buttons.html#contained-button).
+ * <a href="https://material.io/components/buttons#contained-button" class="external" target="_blank">Material Design contained button</a>.
  *
  * Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They
  * contain actions that are primary to your app.
  *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button
- * will display itself as disabled.
+ * ![Contained button image](https://developer.android.com/images/reference/androidx/compose/material/contained-button.png)
  *
- * The default text style for internal [Text] components will be set to [Typography.button]. Text
- * color will try to match the correlated color for the background color. For example if the
- * background color is set to [Colors.primary] then the text will by default use
- * [Colors.onPrimary].
+ * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.ButtonSample
  *
@@ -92,6 +85,7 @@ import kotlinx.coroutines.flow.collect
  * this button in different states. See [ButtonDefaults.buttonColors].
  * @param contentPadding The spacing values to apply internally between the container and the content
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -105,24 +99,19 @@ fun Button(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
-    // TODO(aelias): Avoid manually putting the clickable above the clip and
-    // the ripple below the clip once http://b/157687898 is fixed and we have
-    // more flexibility to move the clickable modifier (see candidate approach
-    // aosp/1361921)
     val contentColor by colors.contentColor(enabled)
     Surface(
+        modifier = modifier,
         shape = shape,
         color = colors.backgroundColor(enabled).value,
         contentColor = contentColor.copy(alpha = 1f),
         border = border,
         elevation = elevation?.elevation(enabled, interactionSource)?.value ?: 0.dp,
-        modifier = modifier.clickable(
-            onClick = onClick,
-            enabled = enabled,
-            role = Role.Button,
-            interactionSource = interactionSource,
-            indication = null
-        )
+        onClick = onClick,
+        enabled = enabled,
+        role = Role.Button,
+        interactionSource = interactionSource,
+        indication = rememberRipple()
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(
@@ -134,7 +123,6 @@ fun Button(
                             minWidth = ButtonDefaults.MinWidth,
                             minHeight = ButtonDefaults.MinHeight
                         )
-                        .indication(interactionSource, rememberRipple())
                         .padding(contentPadding),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -146,22 +134,14 @@ fun Button(
 }
 
 /**
- * Material Design implementation of a
- * [Material Outlined Button](https://material.io/design/components/buttons.html#outlined-button).
+ * <a href="https://material.io/components/buttons#outlined-button" class="external" target="_blank">Material Design outlined button</a>.
  *
- * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but are
- * not the primary action in an app.
+ * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but aren't
+ * the primary action in an app.
  *
- * Outlined buttons are also a lower emphasis alternative to contained buttons, or a higher emphasis
- * alternative to text buttons.
+ * ![Outlined button image](https://developer.android.com/images/reference/androidx/compose/material/outlined-button.png)
  *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button
- * will display itself as disabled.
- *
- * The default text style for internal [Text] components will be set to [Typography.button]. Text
- * color will try to match the correlated color for the background color. For example if the
- * background color is set to [Colors.primary] then the text will by default use
- * [Colors.onPrimary].
+ * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.OutlinedButtonSample
  *
@@ -207,19 +187,14 @@ fun OutlinedButton(
 )
 
 /**
- * Material Design implementation of a
- * [Material Text Button](https://material.io/design/components/buttons.html#text-button).
+ * <a href="https://material.io/components/buttons#text-button" class="external" target="_blank">Material Design text button</a>.
  *
- * Text buttons are typically used for less-pronounced actions, including those located in cards and
- * dialogs.
+ * Text buttons are typically used for less-pronounced actions, including those located in dialogs
+ * and cards. In cards, text buttons help maintain an emphasis on card content.
  *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button
- * will display itself as disabled.
+ * ![Text button image](https://developer.android.com/images/reference/androidx/compose/material/text-button.png)
  *
- * The default text style for internal [Text] components will be set to [Typography.button]. Text
- * color will try to match the correlated color for the background color. For example if the
- * background color is set to [Colors.primary] then the text will by default use
- * [Colors.onPrimary].
+ * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.TextButtonSample
  *

@@ -16,10 +16,24 @@
 
 package androidx.fragment.app.strictmode;
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 /** Root class for all FragmentStrictMode violations. */
 @SuppressWarnings("ExceptionName")
-@RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
 public abstract class Violation extends RuntimeException {
+
+    final Fragment mFragment;
+
+    Violation(@NonNull Fragment fragment) {
+        mFragment = fragment;
+    }
+
+    /**
+     * Gets the {@link Fragment} causing the Violation.
+     */
+    @NonNull
+    public Fragment getFragment() {
+        return mFragment;
+    }
 }

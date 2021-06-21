@@ -27,45 +27,46 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ShellUtilsTest {
+public class ShellUtilsTest {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
-    fun trivial() {
-        // validate piping works
+    public fun trivial() {
         assertEquals("foo\n", device.executeShellScript("echo foo"))
     }
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
     @Test
-    fun pipe_xargs() {
-        // validate piping works
+    public fun pipe_xargs() {
+        // validate piping works with xargs
         assertEquals("foo\n", device.executeShellScript("echo foo | xargs echo $1"))
     }
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    fun pipe_echo() {
+    public fun pipe_echo() {
         // validate piping works
         assertEquals("foo\n", device.executeShellScript("echo foo | echo $(</dev/stdin)"))
     }
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
     @Test
-    fun stdinArg_xargs() {
+    public fun stdinArg_xargs() {
         // validate stdin to first command in script
         assertEquals("foo\n", device.executeShellScript("xargs echo $1", stdin = "foo"))
     }
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    fun stdinArg_echo() {
+    public fun stdinArg_echo() {
         // validate stdin to first command in script
         assertEquals("foo\n", device.executeShellScript("echo $(</dev/stdin)", stdin = "foo"))
     }
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
-    fun multilineRedirect() {
+    public fun multilineRedirect() {
         assertEquals(
             "foo\n",
             device.executeShellScript(
@@ -79,7 +80,7 @@ class ShellUtilsTest {
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
     @Test
-    fun multilineRedirectStdin_xargs() {
+    public fun multilineRedirectStdin_xargs() {
         assertEquals(
             "foo\n",
             device.executeShellScript(
@@ -94,7 +95,7 @@ class ShellUtilsTest {
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    fun multilineRedirectStdin_echo() {
+    public fun multilineRedirectStdin_echo() {
         assertEquals(
             "foo\n",
             device.executeShellScript(
@@ -107,8 +108,9 @@ class ShellUtilsTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
-    fun createRunnableExecutable_simpleScript() {
+    public fun createRunnableExecutable_simpleScript() {
         val path = device.createRunnableExecutable(
             name = "myScript.sh",
             inputStream = "echo foo".byteInputStream()

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.media2.session.MediaControllerImplLegacy is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.media2.session.MediaControllerImplLegacy is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mHandlerThread.quitSafely();"
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaControllerImplLegacy.java"
-            line="199"
+            line="208"
             column="32"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return PendingIntent.getForegroundService("
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                || mNotificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        mNotificationManager.createNotificationChannel(channel);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -57,41 +57,41 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaSessionImplBase is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="222"
+            line="210"
             column="52"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.media2.session.MediaSessionImplBase is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (Build.VERSION.SDK_INT >= 21 &amp;&amp; mAudioManager.isVolumeFixed()) {"
         errorLine2="                                                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="317"
+            line="262"
             column="62"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.media2.session.MediaSessionImplBase is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mHandlerThread.quitSafely();"
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="386"
+            line="313"
             column="32"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.media2.session.SessionToken is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.media2.session.SessionToken is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            thread.quitSafely();"
         errorLine2="                   ~~~~~~~~~~">
         <location
@@ -107,7 +107,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1313"
+            line="1377"
             column="29"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaLibraryService.java"
-            line="483"
+            line="505"
             column="12"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="284"
+            line="286"
             column="19"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="284"
+            line="286"
             column="48"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="298"
+            line="300"
             column="19"/>
     </issue>
 
@@ -184,51 +184,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="298"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaItem convertToMediaItem(MediaMetadataCompat metadataCompat) {"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="314"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaItem convertToMediaItem(MediaMetadataCompat metadataCompat) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="314"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaItem convertToMediaItem(MediaDescriptionCompat descriptionCompat) {"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="349"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaItem convertToMediaItem(MediaDescriptionCompat descriptionCompat) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="349"
+            line="300"
             column="48"/>
     </issue>
 
@@ -239,7 +195,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="360"
+            line="367"
             column="19"/>
     </issue>
 
@@ -250,7 +206,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="361"
+            line="368"
             column="13"/>
     </issue>
 
@@ -261,7 +217,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="375"
+            line="382"
             column="19"/>
     </issue>
 
@@ -272,7 +228,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="375"
+            line="382"
             column="71"/>
     </issue>
 
@@ -283,7 +239,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="392"
+            line="399"
             column="19"/>
     </issue>
 
@@ -294,7 +250,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="392"
+            line="399"
             column="71"/>
     </issue>
 
@@ -305,7 +261,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="403"
+            line="410"
             column="19"/>
     </issue>
 
@@ -316,7 +272,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="403"
+            line="410"
             column="58"/>
     </issue>
 
@@ -327,7 +283,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="437"
+            line="444"
             column="19"/>
     </issue>
 
@@ -338,7 +294,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="438"
+            line="445"
             column="13"/>
     </issue>
 
@@ -349,7 +305,7 @@
         errorLine2="                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="458"
+            line="465"
             column="42"/>
     </issue>
 
@@ -360,7 +316,7 @@
         errorLine2="                                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="458"
+            line="465"
             column="75"/>
     </issue>
 
@@ -371,7 +327,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="553"
+            line="560"
             column="19"/>
     </issue>
 
@@ -382,7 +338,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="553"
+            line="560"
             column="56"/>
     </issue>
 
@@ -393,7 +349,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="570"
+            line="577"
             column="19"/>
     </issue>
 
@@ -404,7 +360,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="570"
+            line="577"
             column="68"/>
     </issue>
 
@@ -415,7 +371,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="605"
+            line="612"
             column="19"/>
     </issue>
 
@@ -426,7 +382,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="605"
+            line="612"
             column="42"/>
     </issue>
 
@@ -437,7 +393,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="641"
+            line="648"
             column="19"/>
     </issue>
 
@@ -448,7 +404,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="641"
+            line="648"
             column="54"/>
     </issue>
 
@@ -459,7 +415,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="671"
+            line="678"
             column="19"/>
     </issue>
 
@@ -470,7 +426,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="672"
+            line="679"
             column="13"/>
     </issue>
 
@@ -481,7 +437,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="687"
+            line="694"
             column="19"/>
     </issue>
 
@@ -492,7 +448,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="688"
+            line="695"
             column="13"/>
     </issue>
 
@@ -503,7 +459,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="729"
+            line="736"
             column="44"/>
     </issue>
 
@@ -514,7 +470,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="773"
+            line="780"
             column="19"/>
     </issue>
 
@@ -525,7 +481,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="774"
+            line="781"
             column="13"/>
     </issue>
 
@@ -536,7 +492,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="784"
+            line="791"
             column="48"/>
     </issue>
 
@@ -547,7 +503,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="800"
+            line="807"
             column="58"/>
     </issue>
 

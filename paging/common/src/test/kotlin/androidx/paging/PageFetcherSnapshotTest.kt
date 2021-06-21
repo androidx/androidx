@@ -35,6 +35,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -3338,6 +3339,7 @@ class PageFetcherSnapshotTest {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun pageEventSentAfterChannelClosed() {
         val pager = PageFetcherSnapshot(
@@ -3504,7 +3506,7 @@ class PageFetcherSnapshotTest {
     internal suspend fun <T : Any> PageFetcher<*, T>.assertEventByGeneration(
         expected: List<List<PageEvent<T>>>
     ) {
-        val total = expected.sumBy { it.size }
+        val total = expected.sumOf { it.size }
         val actual = collectEvents {
             awaitEventCount(total)
             stop()

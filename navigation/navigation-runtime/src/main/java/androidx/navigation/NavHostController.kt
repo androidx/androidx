@@ -56,20 +56,20 @@ public open class NavHostController
 
     /**
      * Sets the host's [OnBackPressedDispatcher]. If set, NavController will
-     * register a [OnBackPressedCallback] to handle system Back button events.
+     * register a [onBackPressedCallback] to handle system Back button events.
      *
-     * You must explicitly called [.setLifecycleOwner] before calling this
+     * You must explicitly called [setLifecycleOwner] before calling this
      * method as the owner set there will be used as the [LifecycleOwner] for registering
-     * the [OnBackPressedCallback].
+     * the [onBackPressedCallback].
      *
      * You can dynamically enable and disable whether the NavController should handle the
-     * system Back button events by calling [.enableOnBackPressed].
+     * system Back button events by calling [enableOnBackPressed].
      *
      * @param dispatcher The [OnBackPressedDispatcher] associated with the containing
      * [NavHost].
      * @throws IllegalStateException if you have not called
-     * [.setLifecycleOwner] before calling this method.
-     * @see .setLifecycleOwner
+     * [setLifecycleOwner] before calling this method.
+     * @see NavHostController.setLifecycleOwner
      */
     public final override fun setOnBackPressedDispatcher(dispatcher: OnBackPressedDispatcher) {
         super.setOnBackPressedDispatcher(dispatcher)
@@ -87,15 +87,15 @@ public open class NavHostController
 
     /**
      * Sets the host's ViewModelStore used by the NavController to store ViewModels at the
-     * navigation graph level. This is required to call [.getViewModelStoreOwner] and
+     * navigation graph level. This is required to call [getViewModelStoreOwner] and
      * should generally be called for you by your [NavHost].
      *
-     * You must call this method before [.setGraph] or similar methods, because the
+     * You must call this method before [setGraph] or similar methods, because the
      * [ViewModelStore] set here will be used by the created [NavBackStackEntry] items.
      *
      * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
      * @throws IllegalStateException if this method is called when graph was already set via
-     * [.setGraph] or similar methods.
+     * [setGraph] or similar methods.
      */
     public final override fun setViewModelStore(viewModelStore: ViewModelStore) {
         super.setViewModelStore(viewModelStore)

@@ -25,6 +25,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
@@ -33,6 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /** Describes how a place is to be displayed on a map. */
+@CarProtocol
 public final class PlaceMarker {
     /**
      * Describes the type of image a marker icon represents.
@@ -48,14 +50,21 @@ public final class PlaceMarker {
     /**
      * Represents a marker icon.
      *
-     * <p>Icons always have a tint applied to them.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 64 x 64 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
+     *
+     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
+     * default tint color as determined by the host will be applied.
      */
     public static final int TYPE_ICON = 0;
 
     /**
      * Represents a marker image.
      *
-     * <p>No background will be applied.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 72 x 72 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      */
     public static final int TYPE_IMAGE = 1;
 
@@ -178,18 +187,9 @@ public final class PlaceMarker {
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * <ul>
-         *   <li>For {@link #TYPE_IMAGE}, the provided image should be 36 x 36 dp. The host
-         *       applies 4 dp rounded corners before the icon is rendered on either the map or
-         *       the list.
-         *   <li>For {@link #TYPE_ICON}, the provided icon should be 32 x 32 dp and have its tint
-         *       value set via {@link CarIcon.Builder#setTint}. Otherwise, a default tint color as
-         *       determined by the host will be applied.
-         * </ul>
-         *
-         * <p>If the size of the provided icon exceeds the size requirements described above in
-         * either one of the dimensions, it will be scaled down and centered inside the bounding
-         * box while preserving the aspect ratio.
+         * If the input icon's size exceeds the sizing requirements for the given icon type in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -213,7 +213,7 @@ public final class PlaceMarker {
          *
          * <p>If an icon is specified with {@link #setIcon}, the icon will take precedence.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a

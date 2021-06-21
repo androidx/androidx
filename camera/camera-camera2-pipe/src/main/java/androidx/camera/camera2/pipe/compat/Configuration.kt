@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.annotation.SuppressLint
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
@@ -118,7 +117,6 @@ internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguratio
 }
 
 @RequiresApi(24)
-@SuppressLint("UnsafeNewApiCall")
 internal class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,
@@ -171,7 +169,7 @@ internal class AndroidOutputConfiguration(
                         "Unsupported OutputType: $outputType"
                     )
                 }
-                configuration = OutputConfiguration(size, outputKlass)
+                configuration = Api26Compat.newOutputConfiguration(size, outputKlass)
             }
 
             // Enable surface sharing, if set.
@@ -189,7 +187,7 @@ internal class AndroidOutputConfiguration(
                 configuration,
                 surfaceSharing,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    configuration.maxSharedSurfaceCount
+                    Api28Compat.getMaxSharedSurfaceCount(configuration)
                 } else {
                     1
                 },
@@ -200,14 +198,14 @@ internal class AndroidOutputConfiguration(
         private fun OutputConfiguration.enableSurfaceSharingCompat() {
             checkNOrHigher("surfaceSharing")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                this.enableSurfaceSharing()
+                Api26Compat.enableSurfaceSharing(this)
             }
         }
 
         private fun OutputConfiguration.setPhysicalCameraIdCompat(physicalCameraId: CameraId) {
             checkPOrHigher("physicalCameraId")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                this.setPhysicalCameraId(physicalCameraId.value)
+                Api28Compat.setPhysicalCameraId(this, physicalCameraId.value)
             }
         }
     }
@@ -216,7 +214,7 @@ internal class AndroidOutputConfiguration(
     override val surfaces: List<Surface>
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                return output.surfaces
+                return Api26Compat.getSurfaces(output)
             }
 
             // On older versions of the OS, only one surface is allowed, and if an output
@@ -228,14 +226,14 @@ internal class AndroidOutputConfiguration(
     override fun addSurface(surface: Surface) {
         checkOOrHigher("addSurface")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            output.addSurface(surface)
+            Api26Compat.addSurfaces(output, surface)
         }
     }
 
     override fun removeSurface(surface: Surface) {
         checkPOrHigher("removeSurface")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            output.removeSurface(surface)
+            Api28Compat.removeSurface(output, surface)
         }
     }
 

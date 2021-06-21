@@ -17,7 +17,7 @@
 package androidx.benchmark.macro
 
 import androidx.annotation.RequiresApi
-import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseResult
+import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -25,31 +25,31 @@ import androidx.test.uiautomator.UiDevice
 /**
  * Metric interface.
  */
-sealed class Metric {
-    abstract fun configure(packageName: String)
+public sealed class Metric {
+    internal abstract fun configure(packageName: String)
 
-    abstract fun start()
+    internal abstract fun start()
 
-    abstract fun stop()
+    internal abstract fun stop()
     /**
      * After stopping, collect metrics
      *
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    abstract fun getMetrics(packageName: String, tracePath: String): Map<String, Long>
+    internal abstract fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState
 }
 
-class FrameTimingMetric : Metric() {
+public class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
-    override fun configure(packageName: String) {
+    internal override fun configure(packageName: String) {
         this.packageName = packageName
         helper.addTrackedPackages(packageName)
     }
 
-    override fun start() {
+    internal override fun start() {
         try {
             helper.startCollecting()
         } catch (exception: RuntimeException) {
@@ -71,7 +71,7 @@ class FrameTimingMetric : Metric() {
         }
     }
 
-    override fun stop() {
+    internal override fun stop() {
         helper.stopCollecting()
     }
 
@@ -114,8 +114,8 @@ class FrameTimingMetric : Metric() {
         "totalFrameCount"
     )
 
-    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        return helper.metrics
+    internal override fun getMetrics(packageName: String, tracePath: String) = MetricsWithUiState(
+        metrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
                 val keyWithoutPrefix = it.key.removePrefix(prefix)
@@ -131,7 +131,7 @@ class FrameTimingMetric : Metric() {
             }
             .toMap()
             .filterKeys { keyAllowList.contains(it) }
-    }
+    )
 }
 
 /**
@@ -139,18 +139,46 @@ class FrameTimingMetric : Metric() {
  */
 @Suppress("CanSealedSubClassBeObject")
 @RequiresApi(29)
-class StartupTimingMetric : Metric() {
-    override fun configure(packageName: String) {
+public class StartupTimingMetric : Metric() {
+    internal override fun configure(packageName: String) {
     }
 
-    override fun start() {
+    internal override fun start() {
     }
 
-    override fun stop() {
+    internal override fun stop() {
     }
 
-    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
+    internal override fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState {
         val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
-        return parseResult(json, packageName)
+        return parseStartupResult(json, packageName)
     }
+}
+
+internal data class MetricsWithUiState(
+    val metrics: Map<String, Long>,
+    val timelineStart: Long? = null,
+    val timelineEnd: Long? = null
+) {
+    operator fun plus(element: MetricsWithUiState) = MetricsWithUiState(
+        metrics = metrics + element.metrics,
+        timelineStart = minOfNullable(timelineStart, element.timelineStart),
+        timelineEnd = maxOfNullable(timelineEnd, element.timelineEnd)
+    )
+
+    companion object {
+        val EMPTY = MetricsWithUiState(mapOf())
+    }
+}
+
+internal fun minOfNullable(a: Long?, b: Long?): Long? {
+    if (a == null) return b
+    if (b == null) return a
+    return minOf(a, b)
+}
+
+internal fun maxOfNullable(a: Long?, b: Long?): Long? {
+    if (a == null) return b
+    if (b == null) return a
+    return maxOf(a, b)
 }

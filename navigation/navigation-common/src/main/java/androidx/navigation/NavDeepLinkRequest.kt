@@ -27,32 +27,34 @@ import java.lang.StringBuilder
  * [NavDestination] and to navigate to a [NavDestination] with a matching
  * [NavDeepLink].
  */
-public open class NavDeepLinkRequest
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(
-    /**
-     * Get the uri from the NavDeepLinkRequest.
-     *
-     * @return the uri for the request.
-     * @see NavDeepLink.getUriPattern
-     */
-    public open val uri: Uri?,
-    /**
-     * Get the action from the NavDeepLinkRequest.
-     *
-     * @return the action for the request.
-     * @see NavDeepLink.getAction
-     */
-    public open val action: String?,
-    /**
-     * Get the mimeType from the NavDeepLinkRequest.
-     *
-     * @return the mimeType of the request.
-     * @see NavDeepLink.getMimeType
-     */
+public open class NavDeepLinkRequest {
+    public open val uri: Uri?
+    public open val action: String?
     public open val mimeType: String?
-) {
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor(
+        /**
+         * The uri from the NavDeepLinkRequest.
+         *
+         * @see NavDeepLink.uriPattern
+         */
+        uri: Uri?,
+        /**
+         * The action from the NavDeepLinkRequest.
+         *
+         * @see NavDeepLink.action
+         */
+        action: String?,
+        /**
+         * The mimeType from the NavDeepLinkRequest.
+         *
+         * @see NavDeepLink.mimeType
+         */
+        mimeType: String?
+    ) { this.uri = uri; this.action = action; this.mimeType = mimeType }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(intent: Intent) : this(intent.data, intent.action, intent.type)
 

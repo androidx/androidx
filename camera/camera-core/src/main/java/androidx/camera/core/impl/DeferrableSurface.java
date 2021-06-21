@@ -36,12 +36,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A class for creating and tracking use of a {@link Surface} in an asynchronous manner.
  *
  * <p>Once the deferrable surface has been closed via {@link #close()} and is no longer in
- * use ({@link #decrementUseCount() has been called equal to the number of times to
- * {@link #incrementUseCount()}, then the surface is considered terminated.
+ * use ({@link #decrementUseCount()} has been called equal to the number of times to
+ * {@link #incrementUseCount()}), then the surface is considered terminated.
  *
- * <p>Resources managed by this class can be safely cleaned up upon completion of the {
- *
- * @link ListenableFuture} returned by {@link #getTerminationFuture()}.
+ * <p>Resources managed by this class can be safely cleaned up upon completion of the
+ * {@link ListenableFuture} returned by {@link #getTerminationFuture()}.
  */
 public abstract class DeferrableSurface {
 

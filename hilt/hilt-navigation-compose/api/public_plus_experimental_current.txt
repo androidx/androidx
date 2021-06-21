@@ -1,10 +1,11 @@
 // Signature format: 4.0
 package androidx.hilt.navigation.compose {
 
-  public final class NavHostControllerKt {
+  public final class HiltViewModelKt {
     method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! hiltNavGraphViewModel();
     method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! hiltNavGraphViewModel(androidx.navigation.NavBackStackEntry backStackEntry);
     method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! hiltNavGraphViewModel(androidx.navigation.NavController, String route);
+    method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! hiltViewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner);
   }
 
 }

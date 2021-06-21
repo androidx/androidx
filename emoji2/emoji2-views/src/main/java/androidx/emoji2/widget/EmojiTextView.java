@@ -24,7 +24,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.TextViewCompat;
-import androidx.emoji2.helpers.EmojiTextViewHelper;
+import androidx.emoji2.viewsintegration.EmojiTextViewHelper;
 
 /**
  * TextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used
@@ -62,7 +62,7 @@ public class EmojiTextView extends TextView {
     }
 
     @Override
-    public void setFilters(@NonNull InputFilter[] filters) {
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
     }
 

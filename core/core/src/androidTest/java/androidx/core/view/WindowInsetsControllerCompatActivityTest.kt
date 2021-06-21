@@ -71,11 +71,13 @@ public class WindowInsetsControllerCompatActivityTest {
         }
         // Close the IME if it's open, so we start from a known scenario
         onView(withId(R.id.edittext)).perform(closeSoftKeyboard())
-        ViewCompat.getWindowInsetsController(container)!!.systemBarsBehavior =
-            WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-        // Needed on API 23 to report the nav bar insets
-        scenario.withActivity { this.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) }
+        scenario.withActivity {
+            ViewCompat.getWindowInsetsController(container)!!.systemBarsBehavior =
+                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            // Needed on API 23 to report the nav bar insets
+            this.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        }
     }
 
     /**
@@ -258,6 +260,57 @@ public class WindowInsetsControllerCompatActivityTest {
             assertThat(insets.isVisible(type), `is`(false))
             assertEquals(Insets.NONE, insets.getInsets(type))
         }
+    }
+
+    @Test
+    // minSdkVersion = 21 due to b/189492236
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 29) // Flag deprecated in 30+
+    public fun systemBarsBehavior_swipe() {
+        scenario.onActivity {
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE
+        }
+        val decorView = scenario.withActivity { window.decorView }
+        val sysUiVis = decorView.systemUiVisibility
+        assertEquals(
+            View.SYSTEM_UI_FLAG_IMMERSIVE,
+            sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE
+        )
+        assertEquals(0, sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+    }
+
+    @Test
+    // minSdkVersion = 21 due to b/189492236
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 29) // Flag deprecated in 30+
+    public fun systemBarsBehavior_transient() {
+        scenario.onActivity {
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+        val decorView = scenario.withActivity { window.decorView }
+        val sysUiVis = decorView.systemUiVisibility
+        assertEquals(
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY,
+            sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        )
+        assertEquals(0, sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE)
+    }
+
+    @Test
+    public fun systemBarsBehavior_touch() {
+        scenario.onActivity {
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH
+        }
+        val decorView = scenario.withActivity { window.decorView }
+        val sysUiVis = decorView.systemUiVisibility
+        assertEquals(
+            0,
+            sysUiVis and (
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                )
+        )
     }
 
     private fun assumeNotCuttlefish() {

@@ -1,8 +1,0 @@
-<resources>
-  <style name="TilesDefaultTextAppearance">
-    <!-- Note that many properties are non-overridable, as they are explicitly
-         set by inflateText (e.g. bold, italic, size etc).  -->
-    <item name="android:fontFamily">sans-serif</item>
-    <item name="android:textSize">18sp</item>
-  </style>
-</resources>

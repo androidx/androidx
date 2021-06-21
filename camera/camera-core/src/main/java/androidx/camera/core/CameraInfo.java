@@ -138,8 +138,27 @@ public interface CameraInfo {
      * <p>The {@link ExposureState} contains the current exposure related information.
      */
     @NonNull
-    @ExperimentalExposureCompensation
     ExposureState getExposureState();
+
+    /**
+     * Returns a {@link LiveData} of the camera's state.
+     *
+     * <p>The {@link LiveData} will be updated whenever the {@linkplain CameraState camera's
+     * state} changes, and can be any of the following: {@link CameraState.Type#PENDING_OPEN},
+     * {@link CameraState.Type#OPENING}, {@link CameraState.Type#OPEN},
+     * {@link CameraState.Type#CLOSING} and {@link CameraState.Type#CLOSED}.
+     *
+     * <p>Due to the inner workings of {@link LiveData}, some reported camera states may be
+     * ignored if a newer value is posted before the observers are updated. For instance, this can
+     * occur when the camera is opening or closing, the {@link CameraState.Type#OPENING} and
+     * {@link CameraState.Type#CLOSING} states may not be reported to observers if they are rapidly
+     * followed by the {@link CameraState.Type#OPEN} and {@link CameraState.Type#CLOSED} states
+     * respectively.
+     *
+     * @return A {@link LiveData} of the camera's state.
+     */
+    @NonNull
+    LiveData<CameraState> getCameraState();
 
     /**
      * Returns the implementation type of the camera, this depends on the {@link CameraXConfig}
@@ -154,6 +173,14 @@ public interface CameraInfo {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ImplementationType
     String getImplementationType();
+
+    /**
+     * Returns a {@link CameraSelector} unique to this camera.
+     *
+     * @return {@link CameraSelector} unique to this camera.
+     */
+    @NonNull
+    CameraSelector getCameraSelector();
 
     /** @hide */
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,

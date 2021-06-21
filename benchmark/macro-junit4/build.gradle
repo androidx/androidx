@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -34,8 +33,8 @@ android {
 }
 
 dependencies {
-    api(JUNIT)
-    api(KOTLIN_STDLIB)
+    api(libs.junit)
+    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     api(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-common"))
@@ -46,19 +45,19 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation("androidx.test:rules:1.3.0")
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     // DexMaker has it"s own MockMaker
 }
 
 androidx {
     name = "Android Benchmark - Macrobenchmark JUnit4"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark JUnit4"

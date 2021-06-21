@@ -20,8 +20,9 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +40,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 /**
  * The class responsible for accessing the data from a [Flow] of [PagingData].
@@ -48,36 +48,51 @@ import kotlinx.coroutines.launch
  * This instance can be used by the [items] and [itemsIndexed] methods inside [LazyListScope] to
  * display data received from the [Flow] of [PagingData].
  *
- * @param flow the [Flow] object which contains a stream of [PagingData] elements.
  * @param T the type of value used by [PagingData].
  */
 public class LazyPagingItems<T : Any> internal constructor(
+    /**
+     * the [Flow] object which contains a stream of [PagingData] elements.
+     */
     private val flow: Flow<PagingData<T>>
 ) {
+    private val mainDispatcher = Dispatchers.Main
+
     /**
      * The number of items which can be accessed.
      */
-    public val itemCount: Int
-        get() = pagingDataDiffer.size
+    var itemCount: Int by mutableStateOf(0)
+        private set
 
-    private val mainDispatcher = Dispatchers.Main
-
-    internal val recomposerPlaceholder: MutableState<Int> = mutableStateOf(0)
+    /**
+     * Set of value holders associated with the currently (composed) indexes. Once we got a new
+     * value from the repository we can just update the value in the state.
+     */
+    private val activeHolders = HashSet<ActiveItemValueHolder<T>>()
 
     @SuppressLint("RestrictedApi")
-    private val differCallback = object : DifferCallback {
+    private val differCallback: DifferCallback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
-            // TODO: b/168285687 explore how to recompose only when the currently visible item
-            //  has been changed
-            recomposerPlaceholder.value++
+            if (count > 0) {
+                updateValueHolders(position, count)
+            }
         }
 
         override fun onInserted(position: Int, count: Int) {
-            recomposerPlaceholder.value++
+            if (count > 0) {
+                // we have to update all the items starting from this position as the insertion
+                // changes the positions for all the next items
+                updateValueHolders(position, pagingDataDiffer.size - position)
+            }
         }
 
         override fun onRemoved(position: Int, count: Int) {
-            recomposerPlaceholder.value++
+            if (count > 0) {
+                // we have to update all the items starting from this position as the removal
+                // changes the positions for all the next items. plus we also want to set null
+                // for the items which are now out of the valid bounds.
+                updateValueHolders(position, pagingDataDiffer.size + count - position)
+            }
         }
     }
 
@@ -90,26 +105,57 @@ public class LazyPagingItems<T : Any> internal constructor(
             newList: NullPaddedList<T>,
             newCombinedLoadStates: CombinedLoadStates,
             lastAccessedIndex: Int,
-            onListPresentable: () -> Unit,
+            onListPresentable: () -> Unit
         ): Int? {
             onListPresentable()
-            // TODO: This logic may be changed after the implementation of an async model which
-            //  composes the offscreen elements
-            recomposerPlaceholder.value++
+            val oldSize = itemCount
+            updateValueHolders(0, maxOf(newList.size, oldSize))
             return null
         }
     }
 
     /**
-     * Returns the item specified at [index] and notifies Paging of the item accessed in
-     * order to trigger any loads necessary to fulfill [PagingConfig.prefetchDistance].
+     * Returns the state containing the item specified at [index] and notifies Paging of the item
+     * accessed in order to trigger any loads necessary to fulfill [PagingConfig.prefetchDistance].
      *
      * @param index the index of the item which should be returned.
-     * @return the item specified at [index] or null if the [index] is not between correct
-     * bounds or the item is a placeholder.
+     * @return the state containing the item specified at [index] or null if the item is a
+     * placeholder or [index] is not within the correct bounds.
      */
-    public operator fun get(index: Int): T? {
-        return pagingDataDiffer[index]
+    @Composable
+    fun getAsState(index: Int): State<T?> {
+        require(index >= 0) { "Index can't be negative. $index was passed." }
+        val holder = remember(index) {
+            val initial = if (index < pagingDataDiffer.size) {
+                pagingDataDiffer[index]
+            } else {
+                null
+            }
+            ActiveItemValueHolder(index, initial)
+        }
+        DisposableEffect(index) {
+            activeHolders.add(holder)
+            onDispose {
+                activeHolders.remove(holder)
+            }
+        }
+        return holder.state
+    }
+
+    private fun updateValueHolders(position: Int, count: Int) {
+        itemCount = pagingDataDiffer.size
+        if (count > 0) {
+            activeHolders.forEach {
+                if (it.index in position until position + count) {
+                    val newValue = if (it.index < pagingDataDiffer.size) {
+                        pagingDataDiffer[it.index]
+                    } else {
+                        null
+                    }
+                    it.state.value = newValue
+                }
+            }
+        }
     }
 
     /**
@@ -172,7 +218,7 @@ public class LazyPagingItems<T : Any> internal constructor(
             refresh = InitialLoadStates.refresh,
             prepend = InitialLoadStates.prepend,
             append = InitialLoadStates.append,
-            source = InitialLoadStates,
+            source = InitialLoadStates
         )
     )
         private set
@@ -187,6 +233,10 @@ public class LazyPagingItems<T : Any> internal constructor(
         flow.collectLatest {
             pagingDataDiffer.collectFrom(it)
         }
+    }
+
+    private class ActiveItemValueHolder<T : Any>(val index: Int, initialValue: T?) {
+        val state = mutableStateOf(initialValue)
     }
 }
 
@@ -209,8 +259,10 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(): LazyPagingI
     val lazyPagingItems = remember(this) { LazyPagingItems(this) }
 
     LaunchedEffect(lazyPagingItems) {
-        launch { lazyPagingItems.collectPagingData() }
-        launch { lazyPagingItems.collectLoadState() }
+        lazyPagingItems.collectPagingData()
+    }
+    LaunchedEffect(lazyPagingItems) {
+        lazyPagingItems.collectLoadState()
     }
 
     return lazyPagingItems
@@ -218,7 +270,7 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(): LazyPagingI
 
 /**
  * Adds the [LazyPagingItems] and their content to the scope. The range from 0 (inclusive) to
- * [LazyPagingItems.itemCount] (inclusive) always represents the full range of presentable items,
+ * [LazyPagingItems.itemCount] (exclusive) always represents the full range of presentable items,
  * because every event from [PagingDataDiffer] will trigger a recomposition.
  *
  * @sample androidx.paging.compose.samples.ItemsDemo
@@ -232,20 +284,14 @@ public fun <T : Any> LazyListScope.items(
     lazyPagingItems: LazyPagingItems<T>,
     itemContent: @Composable LazyItemScope.(value: T?) -> Unit
 ) {
-    // this state recomposes every time the LazyPagingItems receives an update and changes the
-    // value of recomposerPlaceholder
-    @Suppress("UNUSED_VARIABLE")
-    val recomposerPlaceholder = lazyPagingItems.recomposerPlaceholder.value
-
     items(lazyPagingItems.itemCount) { index ->
-        val item = lazyPagingItems[index]
-        itemContent(item)
+        itemContent(lazyPagingItems.getAsState(index).value)
     }
 }
 
 /**
  * Adds the [LazyPagingItems] and their content to the scope where the content of an item is
- * aware of its local index. The range from 0 (inclusive) to [LazyPagingItems.itemCount] (inclusive)
+ * aware of its local index. The range from 0 (inclusive) to [LazyPagingItems.itemCount] (exclusive)
  * always represents the full range of presentable items, because every event from
  * [PagingDataDiffer] will trigger a recomposition.
  *
@@ -260,13 +306,7 @@ public fun <T : Any> LazyListScope.itemsIndexed(
     lazyPagingItems: LazyPagingItems<T>,
     itemContent: @Composable LazyItemScope.(index: Int, value: T?) -> Unit
 ) {
-    // this state recomposes every time the LazyPagingItems receives an update and changes the
-    // value of recomposerPlaceholder
-    @Suppress("UNUSED_VARIABLE")
-    val recomposerPlaceholder = lazyPagingItems.recomposerPlaceholder.value
-
     items(lazyPagingItems.itemCount) { index ->
-        val item = lazyPagingItems[index]
-        itemContent(index, item)
+        itemContent(index, lazyPagingItems.getAsState(index).value)
     }
 }

@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,12 +44,12 @@ import java.util.Objects;
  * previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
- *       number of rows and the string contents (title, texts, not counting spans) of each row
- *       between the previous and new {@link ItemList}s have not changed.
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or
+ *   <li>The template title has not changed, and the number of rows and the title (not counting
+ *       spans) of each row between the previous and new {@link ItemList}s have not changed.
  * </ul>
  */
+@CarProtocol
 public final class PlaceListMapTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
@@ -258,9 +259,7 @@ public final class PlaceListMapTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Unless set with this method, the template will not have a title.
-         *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -268,6 +267,20 @@ public final class PlaceListMapTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            return this;
+        }
+
+        /**
+         * Sets the title of the template, with support for multiple length variants.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
+         * @see CarText
+         */
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
             return this;
         }
 
@@ -282,10 +295,12 @@ public final class PlaceListMapTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
-         * ignore any items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
-         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_PLACE_LIST}. The
+         * host will ignore any items over that limit. The list itself cannot be selectable as
+         * set via {@link ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to
+         * 2 lines of texts via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *
@@ -299,6 +314,7 @@ public final class PlaceListMapTemplate implements Template {
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code itemList} is {@code null}
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {

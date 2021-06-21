@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
@@ -28,8 +27,10 @@ import androidx.paging.LoadType.REFRESH
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -42,6 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 class LivePagedListBuilderTest {
     private val backgroundExecutor = TestExecutor()
@@ -78,7 +80,7 @@ class LivePagedListBuilderTest {
         ArchTaskExecutor.getInstance().setDelegate(null)
     }
 
-    class MockDataSourceFactory {
+    class MockPagingSourceFactory {
         fun create(): PagingSource<Int, String> {
             return MockPagingSource()
         }
@@ -131,13 +133,21 @@ class LivePagedListBuilderTest {
     }
 
     @Test
+    fun initialValueAllowsGetDataSource() {
+        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
+            .build()
+
+        // Calling .dataSource should never throw from the initial paged list.
+        livePagedList.value!!.dataSource
+    }
+
+    @Test
     fun initialValueOnMainThread() {
         // Reset ArchTaskExecutor delegate so that main thread != default test executor, to
         // represent the common case when writing tests.
         ArchTaskExecutor.getInstance().setDelegate(null)
 
-        @Suppress("DEPRECATION")
-        LivePagedListBuilder(MockDataSourceFactory()::create, 2)
+        LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
             .build()
     }
 
@@ -145,21 +155,15 @@ class LivePagedListBuilderTest {
     fun executorBehavior() {
         // specify a background dispatcher via builder, and verify it gets used for all loads,
         // overriding default IO dispatcher
-        @Suppress("DEPRECATION")
-        val livePagedList = LivePagedListBuilder(MockDataSourceFactory()::create, 2)
+        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
-        @Suppress("DEPRECATION")
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
-        @Suppress("DEPRECATION")
-        livePagedList.observe(
-            lifecycleOwner,
-            Observer<PagedList<String>> { newList ->
-                pagedListHolder[0] = newList
-            }
-        )
+        livePagedList.observe(lifecycleOwner) { newList ->
+            pagedListHolder[0] = newList
+        }
 
         // initially, immediately get passed empty initial list
         assertNotNull(pagedListHolder[0])
@@ -181,24 +185,18 @@ class LivePagedListBuilderTest {
 
     @Test
     fun failedLoad() {
-        val factory = MockDataSourceFactory()
+        val factory = MockPagingSourceFactory()
         factory.enqueueError()
 
-        @Suppress("DEPRECATION")
         val livePagedList = LivePagedListBuilder(factory::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
-        @Suppress("DEPRECATION")
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
-        @Suppress("DEPRECATION")
-        livePagedList.observe(
-            lifecycleOwner,
-            Observer<PagedList<String>> { newList ->
-                pagedListHolder[0] = newList
-            }
-        )
+        livePagedList.observe(lifecycleOwner) { newList ->
+            pagedListHolder[0] = newList
+        }
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
@@ -271,6 +269,60 @@ class LivePagedListBuilderTest {
             ),
             loadStates
         )
+    }
+
+    @Test
+    fun legacyPagingSourcePageSize() {
+        val dataSources = mutableListOf<DataSource<Int, Int>>()
+        val pagedLists = mutableListOf<PagedList<Int>>()
+        val requestedLoadSizes = mutableListOf<Int>()
+        val livePagedList = LivePagedListBuilder(
+            pagingSourceFactory = object : DataSource.Factory<Int, Int>() {
+                override fun create(): DataSource<Int, Int> {
+                    return object : PositionalDataSource<Int>() {
+                        override fun loadInitial(
+                            params: LoadInitialParams,
+                            callback: LoadInitialCallback<Int>
+                        ) {
+                            requestedLoadSizes.add(params.requestedLoadSize)
+                            callback.onResult(listOf(1, 2, 3), 0)
+                        }
+
+                        override fun loadRange(
+                            params: LoadRangeParams,
+                            callback: LoadRangeCallback<Int>
+                        ) {
+                            requestedLoadSizes.add(params.loadSize)
+                        }
+                    }.also {
+                        dataSources.add(it)
+                    }
+                }
+            }.asPagingSourceFactory(backgroundExecutor.asCoroutineDispatcher()),
+            config = PagedList.Config.Builder()
+                .setPageSize(3)
+                .setInitialLoadSizeHint(3)
+                .setEnablePlaceholders(false)
+                .build()
+        ).setFetchExecutor(backgroundExecutor)
+            .build()
+
+        livePagedList.observeForever { pagedLists.add(it) }
+
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3)
+
+        pagedLists.last().loadAround(2)
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3, 3)
+
+        dataSources[0].invalidate()
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3, 3, 3)
+
+        pagedLists.last().loadAround(2)
+        drain()
+        assertThat(requestedLoadSizes).containsExactly(3, 3, 3, 3)
     }
 
     private fun drain() {

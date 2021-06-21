@@ -20,14 +20,18 @@ import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ArtifactCollection
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.tasks.Classpath
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
@@ -38,15 +42,21 @@ import java.io.File
  * by inspector.
  */
 abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
-    @get:Classpath
-    abstract var compileConfiguration: Configuration
+    // ArtCollection can't be exposed as input as it is, so below there is "getCompileInputs"
+    // that adds it properly as input.
+    @get:Internal
+    abstract var compileClasspath: ArtifactCollection
+
+    @PathSensitive(PathSensitivity.NONE)
+    @InputFiles
+    fun getCompileInputs(): FileCollection = compileClasspath.artifactFiles
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     @Input
     fun getVersion(): String {
-        val artifacts = compileConfiguration.incoming.artifacts.artifacts
+        val artifacts = compileClasspath.artifacts
         val projectDep = artifacts.any {
             (it.id.componentIdentifier as? ProjectComponentIdentifier)?.projectPath ==
                 ":inspection:inspection"
@@ -79,9 +89,11 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
 ): TaskProvider<GenerateInspectionPlatformVersionTask> {
     val name = variant.taskName("generateInspectionPlatformVersion")
     return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) {
-        it.compileConfiguration = variant.compileConfiguration.attributes {
-            it.attribute(Attribute.of("artifactType", String::class.java), "android-classes")
-        }
+        it.compileClasspath = variant.compileConfiguration.incoming.artifactView {
+            it.attributes {
+                it.attribute(Attribute.of("artifactType", String::class.java), "android-classes")
+            }
+        }.artifacts
         it.outputDir.set(taskWorkingDir(variant, "inspectionVersion"))
     }
 }

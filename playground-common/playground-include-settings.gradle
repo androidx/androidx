@@ -63,6 +63,14 @@ def setupPlayground(settings, String relativePathToRoot) {
             jcenter()
         }
     }
+    settings.enableFeaturePreview("VERSION_CATALOGS")
+    settings.dependencyResolutionManagement {
+        versionCatalogs {
+            libs {
+                from(files("$supportRoot/gradle/libs.versions.toml"))
+            }
+        }
+    }
     settings.includeBuild(new File(supportRoot, "androidx-plugin"))
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
     settings.includeProject(":lint-checks:integration-tests",
@@ -98,9 +106,22 @@ def selectProjectsFromAndroidX(filter) {
     }
 }
 
+/**
+ * Checks if a project is necessary for playground projects that involve compose.
+ */
+def isNeededForComposePlayground(name) {
+    if (name == ":compose:lint:common") return true
+    if (name == ":compose:lint:internal-lint-checks") return true
+    if (name == ":compose:test-utils") return true
+    if (name == ":compose:lint:common-test") return true
+    if (name == ":test-screenshot") return true
+    return false
+}
+
 // define functions that can be called by the main settings.gradle file
 ext.includeProject = this.&includeProject
 ext.selectProjectsFromAndroidX = this.&selectProjectsFromAndroidX
+ext.isNeededForComposePlayground = this.&isNeededForComposePlayground
 ext.setupPlayground = this.&setupPlayground
 
 // validate JVM version to print an understandable error if it is not set to the

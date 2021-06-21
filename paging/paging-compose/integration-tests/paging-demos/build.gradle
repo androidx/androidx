@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-
 import androidx.build.Publish
-
-import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
 }
 
 dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
     implementation(projectOrArtifact(":compose:foundation:foundation"))

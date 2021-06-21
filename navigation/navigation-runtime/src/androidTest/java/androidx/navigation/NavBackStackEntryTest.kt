@@ -18,10 +18,13 @@ package androidx.navigation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.get
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
@@ -39,6 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavBackStackEntryTest {
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwner() {
@@ -58,6 +62,7 @@ class NavBackStackEntryTest {
         assertThat(store).isNotNull()
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerAndroidViewModel() {
@@ -78,6 +83,7 @@ class NavBackStackEntryTest {
         assertThat(viewModel).isNotNull()
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerSavedStateViewModel() {
@@ -113,6 +119,7 @@ class NavBackStackEntryTest {
         assertThat(restoredState).isEqualTo("test")
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testSaveRestoreGetViewModelStoreOwner() {
@@ -162,6 +169,7 @@ class NavBackStackEntryTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetViewModelStoreOwnerSameGraph() {
@@ -185,6 +193,7 @@ class NavBackStackEntryTest {
         assertThat(sameGraphOwner.viewModelStore).isSameInstanceAs(viewStore)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testGetSavedStateHandleRestored() {
@@ -218,21 +227,47 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
-        val entry = NavBackStackEntry(
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, null, NavControllerViewModel()
+            NavDestination(TestNavigator()), null, TestLifecycleOwner(), NavControllerViewModel()
         )
+        entry.maxLifecycle = Lifecycle.State.CREATED
 
         assertThat(entry.savedStateHandle).isNotNull()
     }
 
     @UiThreadTest
     @Test
-    fun testGetSavedStateHandleNoViewModelSet() {
-        val entry = NavBackStackEntry(
+    fun testGetSavedStateHandleInitializedLifecycle() {
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, null, null
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
         )
+
+        try {
+            entry.savedStateHandle
+            fail(
+                "Attempting to get SavedStateHandle for back stack entry without " +
+                    "moving the Lifecycle to CREATED set should throw IllegalStateException"
+            )
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "You cannot access the NavBackStackEntry's SavedStateHandle until it is " +
+                        "added to the NavController's back stack (i.e., the Lifecycle of the " +
+                        "NavBackStackEntry reaches the CREATED state)."
+                )
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleNoViewModelSet() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator())
+        )
+        entry.maxLifecycle = Lifecycle.State.CREATED
 
         try {
             entry.savedStateHandle
@@ -249,14 +284,125 @@ class NavBackStackEntryTest {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testOnClearedWhenHostCleared() {
+        val hostStore = ViewModelStore()
+        val navController = createNavController()
+        navController.setViewModelStore(hostStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val owner = navController.getViewModelStoreOwner(navGraph.id)
+        assertThat(owner).isNotNull()
+        val viewModel: TestAndroidViewModel = ViewModelProvider(owner).get()
+        assertThat(viewModel.isCleared).isFalse()
+
+        hostStore.clear()
+
+        assertWithMessage("ViewModel should be cleared when the host is cleared")
+            .that(viewModel.isCleared)
+            .isTrue()
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testOnClearedWhenPopped() {
+        val hostStore = ViewModelStore()
+        val navController = createNavController()
+        navController.setViewModelStore(hostStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val owner = navController.getBackStackEntry(R.id.start_test)
+        assertThat(owner).isNotNull()
+        val viewModel: TestAndroidViewModel = ViewModelProvider(owner).get()
+        assertThat(viewModel.isCleared).isFalse()
+
+        // Navigate to a new instance of start_test, popping the previous one
+        navController.navigate(
+            R.id.start_test,
+            null,
+            navOptions {
+                popUpTo(R.id.start_test) {
+                    inclusive = true
+                }
+            }
+        )
+        assertWithMessage("ViewModel should be cleared when the destination is popped")
+            .that(viewModel.isCleared)
+            .isTrue()
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testOnClearedWhenHostClearedAfterSaveState() {
+        val hostStore = ViewModelStore()
+        val navController = createNavController()
+        navController.setViewModelStore(hostStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val owner = navController.getBackStackEntry(R.id.start_test)
+        assertThat(owner).isNotNull()
+        val viewModel: TestAndroidViewModel = ViewModelProvider(owner).get()
+        assertThat(viewModel.isCleared).isFalse()
+
+        // Navigate to a new instance of start_test, popping the previous one and saving state
+        navController.navigate(
+            R.id.start_test,
+            null,
+            navOptions {
+                popUpTo(R.id.start_test) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        )
+        assertWithMessage("ViewModel should be saved when the destination is saved")
+            .that(viewModel.isCleared)
+            .isFalse()
+
+        hostStore.clear()
+
+        assertWithMessage("ViewModel should be cleared when the host is cleared")
+            .that(viewModel.isCleared)
+            .isTrue()
+    }
+
     private fun createNavController(): NavController {
-        val navController = NavController(ApplicationProvider.getApplicationContext())
+        val navController = NavHostController(ApplicationProvider.getApplicationContext())
+        navController.setLifecycleOwner(TestLifecycleOwner())
         val navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         return navController
     }
 }
 
-class TestAndroidViewModel(application: Application) : AndroidViewModel(application)
+internal class TestAndroidViewModel(application: Application) : AndroidViewModel(application) {
+    var isCleared = false
+
+    override fun onCleared() {
+        isCleared = true
+    }
+}
 
 class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()

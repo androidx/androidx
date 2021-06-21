@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -43,10 +44,9 @@ import java.util.Objects;
 /**
  * A template that supports showing a list of routes alongside a custom drawn map.
  *
- * <p>The list must have its {@link
- * ItemList.OnSelectedListener} set, and the template
- * must have its navigate action set (see {@link Builder#setNavigateAction}). These are used in
- * conjunction to inform the app that:
+ * <p>The list must have its {@link ItemList.OnSelectedListener} set, and the template must have
+ * its navigate action set (see {@link Builder#setNavigateAction}). These are used in conjunction
+ * to inform the app that:
  *
  * <ol>
  *   <li>A route has been selected. The app should also highlight the route on the map surface.
@@ -63,18 +63,19 @@ import java.util.Objects;
  * is considered a refresh of a previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
- *       number of rows and the string contents (title, texts, not counting spans) of each row
- *       between the previous and new {@link ItemList}s have not changed.
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or
+ *   <li>The template title has not changed, and the number of rows and the title (not
+ *       counting spans) of each row between the previous and new {@link ItemList}s have not
+ *       changed.
  * </ul>
  *
- * <p>Note that specifically, this means the app can't use this template to continuously refresh
- * the routes as the car moves without hitting the template limit.
+ * <p>Note that specifically, this means the app should not use this template to continuously
+ * refresh the routes as the car moves.
  *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
+@CarProtocol
 public final class RoutePreviewNavigationTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
@@ -222,9 +223,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Unless set with this method, the template will not have a title.
-         *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          * @see CarText
@@ -232,6 +231,20 @@ public final class RoutePreviewNavigationTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            return this;
+        }
+
+        /**
+         * Sets the title of the template, with support for multiple length variants.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
+         * @throws NullPointerException if {@code title} is null
+         * @see CarText
+         */
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
             return this;
         }
 
@@ -279,6 +292,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * <p>This should not be {@code null} if the template is not in a loading state (see
          * #setIsLoading}), and the {@link Action}'s title must be set.
          *
+         * <p>Spans are not supported in the navigate action and will be ignored.
+         *
          * @throws NullPointerException     if {@code navigateAction} is {@code null}
          * @throws IllegalArgumentException if {@code navigateAction}'s title is {@code null} or
          *                                  empty
@@ -299,10 +314,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 3 {@link Row}s in the {@link ItemList}. The host will
-         * ignore any items over that limit. The list must have an {@link OnClickListener} set. Each
-         * {@link Row} can add up to 2 lines of texts via {@link Row.Builder#addText} and cannot
-         * contain a {@link Toggle}.
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_ROUTE_LIST}. The
+         * host will ignore any items over that limit. The list must have an
+         * {@link OnClickListener} set. Each {@link Row} can add up to 2 lines of texts via
+         * {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *
@@ -314,6 +331,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code itemList} is {@code null}
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {

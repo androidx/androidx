@@ -36,7 +36,7 @@
             tools:node="merge">
             <!-- Remove initializer for WorkManager on-demand initialization -->
             <meta-data
-                android:name="androidx.work.impl.WorkManagerInitializer"
+                android:name="androidx.work.WorkManagerInitializer"
                 android:value="@string/androidx_startup"
                 tools:node="remove" />
         </provider>

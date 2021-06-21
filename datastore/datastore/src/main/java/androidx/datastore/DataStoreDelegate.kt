@@ -59,7 +59,7 @@ import kotlin.reflect.KProperty
  *
  * @return a property delegate that manages a datastore as a singleton.
  */
-@JvmOverloads
+@Suppress("MissingJvmstatic")
 public fun <T> dataStore(
     fileName: String,
     serializer: Serializer<T>,
@@ -98,11 +98,12 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
         return INSTANCE ?: synchronized(lock) {
             if (INSTANCE == null) {
+                val applicationContext = thisRef.applicationContext
                 INSTANCE = DataStoreFactory.create(
                     serializer = serializer,
-                    produceFile = { thisRef.dataStoreFile(fileName) },
+                    produceFile = { applicationContext.dataStoreFile(fileName) },
                     corruptionHandler = corruptionHandler,
-                    migrations = produceMigrations(thisRef.applicationContext),
+                    migrations = produceMigrations(applicationContext),
                     scope = scope
                 )
             }

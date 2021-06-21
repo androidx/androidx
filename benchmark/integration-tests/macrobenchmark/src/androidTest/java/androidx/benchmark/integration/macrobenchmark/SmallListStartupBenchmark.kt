@@ -16,9 +16,12 @@
 
 package androidx.benchmark.integration.macrobenchmark
 
+import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.testutils.createStartupCompilationParams
+import androidx.testutils.measureStartup
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,25 +29,26 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SmallListStartupBenchmark(private val startupMode: StartupMode) {
+class SmallListStartupBenchmark(
+    private val startupMode: StartupMode,
+    private val compilationMode: CompilationMode
+) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun startup() = benchmarkRule.measureStartup(
-        profileCompiled = true,
-        startupMode = startupMode
+        compilationMode = compilationMode,
+        startupMode = startupMode,
+        packageName = "androidx.benchmark.integration.macrobenchmark.target"
     ) {
         action = "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
         putExtra("ITEM_COUNT", 5)
     }
 
     companion object {
-        @Parameterized.Parameters(name = "mode={0}")
+        @Parameterized.Parameters(name = "startup={0},compilation={1}")
         @JvmStatic
-        fun parameters(): List<Array<Any>> {
-            return listOf(StartupMode.COLD, StartupMode.WARM)
-                .map { arrayOf(it) }
-        }
+        fun parameters() = createStartupCompilationParams()
     }
 }

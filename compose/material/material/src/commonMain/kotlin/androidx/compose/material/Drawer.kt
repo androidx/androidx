@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,12 +43,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -76,6 +81,7 @@ enum class DrawerValue {
 /**
  * Possible values of [BottomDrawerState].
  */
+@ExperimentalMaterialApi
 enum class BottomDrawerValue {
     /**
      * The state of the bottom drawer when it is closed.
@@ -99,17 +105,20 @@ enum class BottomDrawerValue {
  * @param initialValue The initial value of the state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
-@Suppress("NotCloseable", "HiddenSuperclass")
+@Suppress("NotCloseable")
 @OptIn(ExperimentalMaterialApi::class)
 @Stable
 class DrawerState(
     initialValue: DrawerValue,
     confirmStateChange: (DrawerValue) -> Boolean = { true }
-) : SwipeableState<DrawerValue>(
-    initialValue = initialValue,
-    animationSpec = AnimationSpec,
-    confirmStateChange = confirmStateChange
 ) {
+
+    internal val swipeableState = SwipeableState(
+        initialValue = initialValue,
+        animationSpec = AnimationSpec,
+        confirmStateChange = confirmStateChange
+    )
+
     /**
      * Whether the drawer is open.
      */
@@ -123,13 +132,33 @@ class DrawerState(
         get() = currentValue == DrawerValue.Closed
 
     /**
+     * The current value of the state.
+     *
+     * If no swipe or animation is in progress, this corresponds to the start the drawer
+     * currently in. If a swipe or an animation is in progress, this corresponds the state drawer
+     * was in before the swipe or animation started.
+     */
+    val currentValue: DrawerValue
+        get() {
+            return swipeableState.currentValue
+        }
+
+    /**
+     * Whether the state is currently animating.
+     */
+    val isAnimationRunning: Boolean
+        get() {
+            return swipeableState.isAnimationRunning
+        }
+
+    /**
      * Open the drawer with animation and suspend until it if fully opened or animation has been
      * cancelled. This method will throw [CancellationException] if the animation is
      * interrupted
      *
      * @return the reason the open animation ended
      */
-    suspend fun open() = animateTo(DrawerValue.Open)
+    suspend fun open() = animateTo(DrawerValue.Open, AnimationSpec)
 
     /**
      * Close the drawer with animation and suspend until it if fully closed or animation has been
@@ -138,7 +167,48 @@ class DrawerState(
      *
      * @return the reason the close animation ended
      */
-    suspend fun close() = animateTo(DrawerValue.Closed)
+    suspend fun close() = animateTo(DrawerValue.Closed, AnimationSpec)
+
+    /**
+     * Set the state of the drawer with specific animation
+     *
+     * @param targetValue The new value to animate to.
+     * @param anim The animation that will be used to animate to the new value.
+     */
+    @ExperimentalMaterialApi
+    suspend fun animateTo(targetValue: DrawerValue, anim: AnimationSpec<Float>) {
+        swipeableState.animateTo(targetValue, anim)
+    }
+
+    /**
+     * Set the state without any animation and suspend until it's set
+     *
+     * @param targetValue The new target value
+     */
+    @ExperimentalMaterialApi
+    suspend fun snapTo(targetValue: DrawerValue) {
+        swipeableState.snapTo(targetValue)
+    }
+
+    /**
+     * The target value of the drawer state.
+     *
+     * If a swipe is in progress, this is the value that the Drawer would animate to if the
+     * swipe finishes. If an animation is running, this is the target value of that animation.
+     * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
+     */
+    @ExperimentalMaterialApi
+    @get:ExperimentalMaterialApi
+    val targetValue: DrawerValue
+        get() = swipeableState.targetValue
+
+    /**
+     * The current position (in pixels) of the drawer sheet.
+     */
+    @ExperimentalMaterialApi
+    @get:ExperimentalMaterialApi
+    val offset: State<Float>
+        get() = swipeableState.offset
 
     companion object {
         /**
@@ -158,8 +228,8 @@ class DrawerState(
  * @param initialValue The initial value of the state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
-@Suppress("NotCloseable", "HiddenSuperclass")
-@OptIn(ExperimentalMaterialApi::class)
+@Suppress("NotCloseable")
+@ExperimentalMaterialApi
 class BottomDrawerState(
     initialValue: BottomDrawerValue,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
@@ -258,6 +328,7 @@ fun rememberDrawerState(
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Composable
+@ExperimentalMaterialApi
 fun rememberBottomDrawerState(
     initialValue: BottomDrawerValue,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
@@ -268,10 +339,12 @@ fun rememberBottomDrawerState(
 }
 
 /**
- * Navigation drawers provide access to destinations in your app.
+ * <a href="https://material.io/components/navigation-drawer#modal-drawer" class="external" target="_blank">Material Design modal navigation drawer</a>.
  *
  * Modal navigation drawers block interaction with the rest of an app’s content with a scrim.
  * They are elevated above most of the app’s UI and don’t affect the screen’s layout grid.
+ *
+ * ![Modal drawer image](https://developer.android.com/images/reference/androidx/compose/material/modal-drawer.png)
  *
  * See [BottomDrawer] for a layout that introduces a bottom drawer, suitable when
  * using bottom navigation.
@@ -321,14 +394,9 @@ fun ModalDrawer(
 
         val anchors = mapOf(minValue to DrawerValue.Closed, maxValue to DrawerValue.Open)
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-        val blockClicks = if (drawerState.isOpen) {
-            Modifier.pointerInput(Unit) { detectTapGestures {} }
-        } else {
-            Modifier
-        }
         Box(
             Modifier.swipeable(
-                state = drawerState,
+                state = drawerState.swipeableState,
                 anchors = anchors,
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
@@ -343,10 +411,20 @@ fun ModalDrawer(
             }
             Scrim(
                 open = drawerState.isOpen,
-                onClose = { scope.launch { drawerState.close() } },
-                fraction = { calculateFraction(minValue, maxValue, drawerState.offset.value) },
+                onClose = {
+                    if (
+                        gesturesEnabled &&
+                        drawerState.swipeableState.confirmStateChange(DrawerValue.Closed)
+                    ) {
+                        scope.launch { drawerState.close() }
+                    }
+                },
+                fraction = {
+                    calculateFraction(minValue, maxValue, drawerState.offset.value)
+                },
                 color = scrimColor
             )
+            val navigationMenu = getString(Strings.NavigationMenu)
             Surface(
                 modifier = with(LocalDensity.current) {
                     Modifier
@@ -360,9 +438,16 @@ fun ModalDrawer(
                     .offset { IntOffset(drawerState.offset.value.roundToInt(), 0) }
                     .padding(end = EndDrawerPadding)
                     .semantics {
-                        paneTitle = Strings.NavigationMenu
+                        paneTitle = navigationMenu
                         if (drawerState.isOpen) {
-                            dismiss(action = { scope.launch { drawerState.close() }; true })
+                            dismiss {
+                                if (
+                                    drawerState.swipeableState
+                                        .confirmStateChange(DrawerValue.Closed)
+                                ) {
+                                    scope.launch { drawerState.close() }
+                                }; true
+                            }
                         }
                     },
                 shape = drawerShape,
@@ -370,21 +455,19 @@ fun ModalDrawer(
                 contentColor = drawerContentColor,
                 elevation = drawerElevation
             ) {
-                Column(Modifier.fillMaxSize().then(blockClicks), content = drawerContent)
+                Column(Modifier.fillMaxSize(), content = drawerContent)
             }
         }
     }
 }
 
 /**
- * Navigation drawers provide access to destinations in your app.
+ * <a href="https://material.io/components/navigation-drawer#bottom-drawer" class="external" target="_blank">Material Design bottom navigation drawer</a>.
  *
- * Bottom navigation drawers are modal drawers that are anchored
- * to the bottom of the screen instead of the left or right edge.
- * They are only used with bottom app bars.
+ * Bottom navigation drawers are modal drawers that are anchored to the bottom of the screen instead
+ * of the left or right edge. They are only used with bottom app bars.
  *
- * These drawers open upon tapping the navigation menu icon in the bottom app bar.
- * They are only for use on mobile.
+ * ![Bottom drawer image](https://developer.android.com/images/reference/androidx/compose/material/bottom-drawer.png)
  *
  * See [ModalDrawer] for a layout that introduces a classic from-the-side drawer.
  *
@@ -401,7 +484,9 @@ fun ModalDrawer(
  * @param drawerContentColor color of the content to use inside the drawer sheet. Defaults to
  * either the matching content color for [drawerBackgroundColor], or, if it is not a color from
  * the theme, this will keep the same value set above this Surface.
- * @param scrimColor color of the scrim that obscures content when the drawer is open
+ * @param scrimColor color of the scrim that obscures content when the drawer is open. If the
+ * color passed is [Color.Unspecified], then a scrim will no longer be applied and the bottom
+ * drawer will not block interaction with the rest of the screen when visible.
  * @param content content of the rest of the UI
  *
  */
@@ -442,12 +527,6 @@ fun BottomDrawer(
                 expandedHeight to BottomDrawerValue.Expanded
             )
         }
-
-        val blockClicks = if (drawerState.isClosed) {
-            Modifier
-        } else {
-            Modifier.pointerInput(Unit) { detectTapGestures {} }
-        }
         val drawerConstraints = with(LocalDensity.current) {
             Modifier
                 .sizeIn(
@@ -455,8 +534,13 @@ fun BottomDrawer(
                     maxHeight = constraints.maxHeight.toDp()
                 )
         }
+        val nestedScroll = if (gesturesEnabled) {
+            Modifier.nestedScroll(drawerState.nestedScrollConnection)
+        } else {
+            Modifier
+        }
         val swipeable = Modifier
-            .nestedScroll(drawerState.nestedScrollConnection)
+            .then(nestedScroll)
             .swipeable(
                 state = drawerState,
                 anchors = anchors,
@@ -469,20 +553,31 @@ fun BottomDrawer(
             content()
             BottomDrawerScrim(
                 color = scrimColor,
-                onDismiss = { scope.launch { drawerState.close() } },
+                onDismiss = {
+                    if (
+                        gesturesEnabled && drawerState.confirmStateChange(BottomDrawerValue.Closed)
+                    ) {
+                        scope.launch { drawerState.close() }
+                    }
+                },
                 visible = drawerState.targetValue != BottomDrawerValue.Closed
             )
+            val navigationMenu = getString(Strings.NavigationMenu)
             Surface(
                 drawerConstraints
+                    .offset { IntOffset(x = 0, y = drawerState.offset.value.roundToInt()) }
                     .onGloballyPositioned { position ->
                         drawerHeight = position.size.height.toFloat()
                     }
-                    .offset { IntOffset(x = 0, y = drawerState.offset.value.roundToInt()) }
                     .semantics {
-                        paneTitle = Strings.NavigationMenu
+                        paneTitle = navigationMenu
                         if (drawerState.isOpen) {
                             // TODO(b/180101663) The action currently doesn't return the correct results
-                            dismiss(action = { scope.launch { drawerState.close() }; true })
+                            dismiss {
+                                if (drawerState.confirmStateChange(BottomDrawerValue.Closed)) {
+                                    scope.launch { drawerState.close() }
+                                }; true
+                            }
                         }
                     },
                 shape = drawerShape,
@@ -490,7 +585,7 @@ fun BottomDrawer(
                 contentColor = drawerContentColor,
                 elevation = drawerElevation
             ) {
-                Column(blockClicks, content = drawerContent)
+                Column(content = drawerContent)
             }
         }
     }
@@ -525,15 +620,21 @@ private fun BottomDrawerScrim(
     onDismiss: () -> Unit,
     visible: Boolean
 ) {
-    if (color != Color.Transparent) {
+    if (color.isSpecified) {
         val alpha by animateFloatAsState(
             targetValue = if (visible) 1f else 0f,
             animationSpec = TweenSpec()
         )
+        val closeDrawer = getString(Strings.CloseDrawer)
         val dismissModifier = if (visible) {
-            Modifier.pointerInput(onDismiss) {
-                detectTapGestures { onDismiss() }
-            }
+            Modifier
+                .pointerInput(onDismiss) {
+                    detectTapGestures { onDismiss() }
+                }
+                .semantics(mergeDescendants = true) {
+                    contentDescription = closeDrawer
+                    onClick { onDismiss(); true }
+                }
         } else {
             Modifier
         }
@@ -555,8 +656,14 @@ private fun Scrim(
     fraction: () -> Float,
     color: Color
 ) {
+    val closeDrawer = getString(Strings.CloseDrawer)
     val dismissDrawer = if (open) {
-        Modifier.pointerInput(onClose) { detectTapGestures { onClose() } }
+        Modifier
+            .pointerInput(onClose) { detectTapGestures { onClose() } }
+            .semantics(mergeDescendants = true) {
+                contentDescription = closeDrawer
+                onClick { onClose(); true }
+            }
     } else {
         Modifier
     }

@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_slice_more_content" msgid="6405516388971241142">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
     <string name="abc_slice_more" msgid="1983560225998630901">"Meer"</string>
-    <string name="abc_slice_show_more" msgid="1567717014004692768">"Meer weergeven"</string>
+    <string name="abc_slice_show_more" msgid="1567717014004692768">"Meer tonen"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Geüpdatet: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> min geleden</item>

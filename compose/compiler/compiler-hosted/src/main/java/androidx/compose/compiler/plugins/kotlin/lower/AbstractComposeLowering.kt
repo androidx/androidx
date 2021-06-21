@@ -24,7 +24,6 @@ import androidx.compose.compiler.plugins.kotlin.analysis.Stability
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
 import androidx.compose.compiler.plugins.kotlin.irTrace
-import androidx.compose.compiler.plugins.kotlin.isComposableCallable
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.lower.inlineclasses.InlineClassAbi
@@ -67,6 +66,7 @@ import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
@@ -76,7 +76,6 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrTypeParameterImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrValueParameterImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
-import org.jetbrains.kotlin.ir.descriptors.WrappedVariableDescriptor
 import org.jetbrains.kotlin.ir.expressions.IrBranch
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
@@ -122,32 +121,33 @@ import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.IrStarProjectionImpl
 import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.types.isPrimitiveType
+import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.toKotlinType
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.ConstantValueGenerator
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
+import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.TypeTranslator
+import org.jetbrains.kotlin.ir.util.constructedClass
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.getArguments
 import org.jetbrains.kotlin.ir.util.getPrimitiveArrayElementType
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
-import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.isCrossinline
+import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.isInlined
 import org.jetbrains.kotlin.ir.util.isNoinline
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorFactory
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.inline.InlineUtil
 import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.utils.DFS
@@ -157,7 +157,15 @@ abstract class AbstractComposeLowering(
     val context: IrPluginContext,
     val symbolRemapper: DeepCopySymbolRemapper,
     val bindingTrace: BindingTrace
-) : IrElementTransformerVoid() {
+) : IrElementTransformerVoid(), ModuleLoweringPass {
+
+    var inlinedFunctions: Set<InlineLambdaInfo> = setOf()
+
+    override fun lower(module: IrModuleFragment) {
+        // TODO: Might be worth caching this up in ComposeIrGenerationExtension, or maybe not
+        // because it might be better to keep the transforms independent.
+        inlinedFunctions = IrInlineReferenceLocator.scan(context, module)
+    }
 
     @ObsoleteDescriptorBasedAPI
     protected val typeTranslator =
@@ -339,18 +347,9 @@ abstract class AbstractComposeLowering(
         return context.irTrace[ComposeWritableSlices.IS_COMPOSABLE_SINGLETON_CLASS, this] == true
     }
 
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
     fun IrFunction.isInlinedLambda(): Boolean {
-        descriptor.findPsi()?.let { psi ->
-            (psi as? KtFunctionLiteral)?.let {
-                if (InlineUtil.isInlinedArgument(
-                        it,
-                        context.bindingContext,
-                        false
-                    )
-                )
-                    return true
-            }
+        for (element in inlinedFunctions) {
+            if (element.argument.function == this) return true
         }
         return false
     }
@@ -395,11 +394,6 @@ abstract class AbstractComposeLowering(
 
     fun KotlinType.isFinal(): Boolean = (constructor.declarationDescriptor as? ClassDescriptor)
         ?.modality == Modality.FINAL
-
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
-    fun FunctionDescriptor.isComposableCallable(): Boolean {
-        return isComposableCallable(context.bindingContext)
-    }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     fun FunctionDescriptor.allowsComposableCalls(): Boolean {
@@ -798,6 +792,14 @@ abstract class AbstractComposeLowering(
         value
     )
 
+    protected fun irConst(value: Long): IrConst<Long> = IrConstImpl(
+        UNDEFINED_OFFSET,
+        UNDEFINED_OFFSET,
+        context.irBuiltIns.longType,
+        IrConstKind.Long,
+        value
+    )
+
     protected fun irConst(value: String): IrConst<String> = IrConstImpl(
         UNDEFINED_OFFSET,
         UNDEFINED_OFFSET,
@@ -924,7 +926,7 @@ abstract class AbstractComposeLowering(
             value.startOffset,
             value.endOffset,
             origin,
-            IrVariableSymbolImpl(WrappedVariableDescriptor()),
+            IrVariableSymbolImpl(),
             Name.identifier(name),
             irType,
             isVar,
@@ -965,11 +967,20 @@ abstract class AbstractComposeLowering(
         type: IrType = context.irBuiltIns.unitType,
         condition: IrExpression,
         thenPart: IrExpression,
-        elsePart: IrExpression
+        elsePart: IrExpression,
+        startOffset: Int = UNDEFINED_OFFSET,
+        endOffset: Int = UNDEFINED_OFFSET
     ) =
-        IrIfThenElseImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, type, IrStatementOrigin.IF).apply {
-            branches.add(IrBranchImpl(startOffset, endOffset, condition, thenPart))
-            branches.add(irElseBranch(elsePart))
+        IrIfThenElseImpl(startOffset, endOffset, type, IrStatementOrigin.IF).apply {
+            branches.add(
+                IrBranchImpl(
+                    startOffset,
+                    endOffset,
+                    condition,
+                    thenPart
+                )
+            )
+            branches.add(irElseBranch(elsePart, startOffset, endOffset))
         }
 
     protected fun irWhen(
@@ -990,8 +1001,11 @@ abstract class AbstractComposeLowering(
         return IrBranchImpl(condition, result)
     }
 
-    protected fun irElseBranch(expression: IrExpression) =
-        IrElseBranchImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, irConst(true), expression)
+    protected fun irElseBranch(
+        expression: IrExpression,
+        startOffset: Int = UNDEFINED_OFFSET,
+        endOffset: Int = UNDEFINED_OFFSET
+    ) = IrElseBranchImpl(startOffset, endOffset, irConst(true), expression)
 
     protected fun irBlock(
         type: IrType = context.irBuiltIns.unitType,
@@ -1044,8 +1058,10 @@ abstract class AbstractComposeLowering(
 
     fun makeStabilityField(): IrField {
         return context.irFactory.buildField {
+            startOffset = SYNTHETIC_OFFSET
+            endOffset = SYNTHETIC_OFFSET
             name = KtxNameConventions.STABILITY_FLAG
-            isStatic = true
+            isStatic = context.platform.isJvm()
             isFinal = true
             type = context.irBuiltIns.intType
             visibility = DescriptorVisibilities.PUBLIC
@@ -1196,7 +1212,20 @@ abstract class AbstractComposeLowering(
             else -> false
         }
     }
+
+    protected fun dexSafeName(name: Name): Name {
+        return if (
+            name.isSpecial || name.asString().contains(unsafeSymbolsRegex)
+        ) {
+            val sanitized = name
+                .asString()
+                .replace(unsafeSymbolsRegex, "\\$")
+            Name.identifier(sanitized)
+        } else name
+    }
 }
+
+private val unsafeSymbolsRegex = "[ <>]".toRegex()
 
 fun IrFunction.composerParam(): IrValueParameter? {
     for (param in valueParameters.asReversed()) {
@@ -1234,3 +1263,21 @@ val DeclarationDescriptorWithSource.startOffset: Int? get() =
 @ObsoleteDescriptorBasedAPI
 val DeclarationDescriptorWithSource.endOffset: Int? get() =
     (this.source as? PsiSourceElement)?.psi?.endOffset
+
+@ObsoleteDescriptorBasedAPI
+fun IrAnnotationContainer.hasAnnotationSafe(fqName: FqName): Boolean =
+    annotations.any {
+        // compiler helper getAnnotation fails during remapping in [ComposableTypeRemapper], so we
+        // use this impl
+        fqName == it.annotationClass?.descriptor?.fqNameSafe
+    }
+
+// workaround for KT-45361
+val IrConstructorCall.annotationClass get() =
+    if (type.isUnit()) {
+        // in js annotation type is always unit, so we use the constructed class
+        symbol.owner.constructedClass.symbol
+    } else {
+        // on jvm we can rely on type, but the owner can be unbound
+        type.classOrNull
+    }

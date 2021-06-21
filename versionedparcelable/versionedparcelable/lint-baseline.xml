@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanUncheckedReflection"
@@ -8,7 +8,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1567"
+            line="1615"
             column="24"/>
     </issue>
 
@@ -19,84 +19,19 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1592"
+            line="1642"
             column="13"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.versionedparcelable.VersionedParcel is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            writeInt(val.getWidth());"
-        errorLine2="                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="518"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.versionedparcelable.VersionedParcel is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            writeInt(val.getHeight());"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="519"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.versionedparcelable.VersionedParcel is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            writeFloat(val.getWidth());"
-        errorLine2="                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="532"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.versionedparcelable.VersionedParcel is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            writeFloat(val.getHeight());"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="533"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.versionedparcelable.VersionedParcel is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return new Size(width, height);"
-        errorLine2="                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1263"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.versionedparcelable.VersionedParcel is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            return new SizeF(width, height);"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1279"
-            column="20"/>
     </issue>
 
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;val&quot;, in androidx.versionedparcelable.VersionedParcel.writeStrongInterface) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="    public void writeStrongInterface(IInterface val, int fieldId) {"
-        errorLine2="                                                     ~~~~~~~~~~~">
+        errorLine1="    public void writeStrongInterface(@Nullable IInterface val, int fieldId) {"
+        errorLine2="                                                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="276"
-            column="54"/>
+            line="290"
+            column="64"/>
     </issue>
+
 </issues>

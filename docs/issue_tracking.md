@@ -2,18 +2,18 @@
 
 [TOC]
 
-## Issue tracker
+## Issue tracker {#tracker}
 
 The public-facing issue tracker URL is
 [issuetracker.google.com](https://issuetracker.google.com). If you visit this
-URL from a corp account, it will immediately redirect you to the internal-facing
-issue tracker URL. Make sure that any links you paste publicly have the correct
-public-facing URL.
+URL from a Google-internal account, it will immediately redirect you to the
+internal-facing issue tracker URL. Make sure that any links you paste publicly
+have the correct public-facing URL.
 
 The top-level Jetpack component is
 [`Android Public Tracker > App Development > Jetpack (androidx)`](https://issuetracker.google.com/components/192731/manage#basic).
 
-## Reporting guidelines
+## Reporting guidelines {#reporting}
 
 Issue Tracker isn't a developer support forum. For support information, consider
 [StackOverflow](http://stackoverflow.com).
@@ -42,7 +42,7 @@ information provided on Google Play.
     sample project, log files, repro steps, and even a patch set, helps us
     address your issue.
 
-## Status definitions
+## Status definitions {#status}
 
 | Status   | Description                                                       |
 | -------- | ----------------------------------------------------------------- |
@@ -55,36 +55,44 @@ information provided on Google Play.
 | WontFix  | Covers all the reasons we chose to close the issue without taking |
 :          : action (can't repro, working as intended, obsolete).              :
 
-## Priority criteria and SLOs
+## Priority criteria and SLOs {#priority}
 
-| Priority | Criteria                       | Resolution time                |
-| -------- | ------------------------------ | ------------------------------ |
-| P0       | This priority is limited to    | Less than 1 day. Don't go home |
-:          : service outages, blocking      : until this is fixed.           :
-:          : issues, or other types of work :                                :
-:          : stoppage such as issues on the :                                :
-:          : Platform chase list requiring  :                                :
-:          : immediate attention.           :                                :
-| P1       | This priority is limited to    | Within the next 7 days         |
-:          : work that requires rapid       :                                :
-:          : resolution, but can be dealt   :                                :
-:          : with in a slightly longer time :                                :
-:          : window than P0.                :                                :
-| P2       | Won't ship without this.       | Within the current release     |
-| P3       | Would rather not ship without  | Less than 365 days             |
-:          : this, but would decide case by :                                :
-:          : case.                          :                                :
-| P4       | Issue has not yet been         | N/A (must triage in under 14   |
-:          : prioritized (default as of Feb : days)                          :
-:          : 2013).                         :                                :
+| Priority | Criteria                        | Resolution time                |
+| -------- | ------------------------------- | ------------------------------ |
+| P0       | This issue is preventing        | Less than 1 day. Don't go home |
+:          : someone from getting work done  : until this is fixed.           :
+:          : and doesn’t have a workaround.  :                                :
+:          : Examples include service        :                                :
+:          : outages, work-stopping issues,  :                                :
+:          : and build breakages             :                                :
+| P1       | This issue requires rapid       | Within the next 7 days         |
+:          : resolution, but can be dealt    :                                :
+:          : with on a slightly longer       :                                :
+:          : timeline than P0. Examples      :                                :
+:          : include issues that frequently  :                                :
+:          : hinder workflow, serious        :                                :
+:          : regressions, and ship-blocking  :                                :
+:          : issues                          :                                :
+| P2       | This issue is important to      | Within the next month          |
+:          : resolve and may block releases. :                                :
+:          : Examples include non-OKR        :                                :
+:          : feature requests and infrequent :                                :
+:          : workflow issues.                :                                :
+| P3       | This issue would be nice to     | Less than 365 days             |
+:          : resolve, but it's not going to  :                                :
+:          : block any releases. Examples    :                                :
+:          : include nice-to-have feature    :                                :
+:          : requests, bugs that only        :                                :
+:          : affects a small set of use      :                                :
+:          : cases, and occasional issues.   :                                :
+| P4       | Issue has not yet been          | N/A (must triage in under 14   |
+:          : prioritized.                    : days                           :
 
 ## Issue lifecycle
 
-1.  When an issue is reported, it is set to **Assigned** status for default
+1.  When an issue is reported, it is set to `Assigned` status for default
     assignee (typically the [library owner](owners.md)) with a priority of
     **P4**.
-    *   Some components have an empty default assignee and will be manually
-        assigned by the [triage cop](triage_cop.md)
 1.  Once an issue has been triaged by the assignee, its priority will be raised
     from **P4** according to severity.
 1.  The issue may still be reassigned at this point.

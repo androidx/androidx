@@ -64,8 +64,7 @@ interface SynchronizedCaptureSession {
      * Get a {@link ListenableFuture} which indicate the progress of specific task on this
      * SynchronizedCaptureSession.
      *
-     * @param feature the key to get the ListenableFuture. The key can be one of the
-     *                {@link SynchronizedSessionFeature#FEATURE_DEFERRABLE_SURFACE_CLOSE},
+     * @param feature the key to get the ListenableFuture. The key can be
      *                {@link SynchronizedSessionFeature#FEATURE_WAIT_FOR_REQUEST}.
      * @return the ListenableFuture which completes when the specific task is completed.
      */
@@ -256,7 +255,22 @@ interface SynchronizedCaptureSession {
 
     void abortCaptures() throws CameraAccessException;
 
+    /**
+     * To speed up the camera switching, the close method will close the configured session and post
+     * run the {@link StateCallback#onSessionFinished(SynchronizedCaptureSession)} to
+     * inform the SynchronizedCaptureSession is already in the closed state.
+     * The {@link StateCallback#onSessionFinished(SynchronizedCaptureSession)} means the session
+     * is changed to a closed state, any further operations on this object is not acceptable.
+     */
     void close();
+
+    /**
+     * Set the session has already been completely closed.
+     *
+     * <p>This is an internal state control method for SynchronizedSession and
+     * CaptureSessionRepository, so you may not need to call this method outside.
+     */
+    void finishClose();
 
     /**
      * A callback object interface to adapting the updates from
@@ -294,7 +308,44 @@ interface SynchronizedCaptureSession {
 
         }
 
+        /**
+         * This onClosed callback is a wrap of the CameraCaptureSession.StateCallback.onClosed, it
+         * will be invoked when:
+         * (1) CameraCaptureSession.StateCallback.onClosed is called.
+         * (2) The CameraDevice is disconnected. When the CameraDevice.StateCallback#onDisconnect
+         * is called, we will invoke this onClosed callback. Please see b/140955560.
+         * (3) When a new CameraCaptureSession is created, all the previous opened
+         * CameraCaptureSession can be treated as closed. Please see more detail in b/144817309.
+         *
+         * <p>Please note: The onClosed callback might not been called when the CameraDevice is
+         * closed before the CameraCaptureSession is closed.
+         *
+         * @param session the SynchronizedCaptureSession that is created by
+         * {@link SynchronizedCaptureSessionImpl#openCaptureSession}
+         */
         void onClosed(@NonNull SynchronizedCaptureSession session) {
+
+        }
+
+        /**
+         * This callback will be invoked in the following condition:
+         * (1) After the {@link SynchronizedCaptureSession#close()} is called. It means the
+         * SynchronizedCaptureSession is changed to a closed state. Any further operations are not
+         * expected for this SynchronizedCaptureSession.
+         * (2) When the {@link SynchronizedCaptureSession.StateCallback#onClosed} is called.
+         * This means the session is already detached from the camera device. For
+         * example, close the camera device or open a second session, which should cause the first
+         * one to be closed.
+         *
+         * <p>This callback only would be invoked at most one time for a configured
+         * SynchronizedCaptureSession. Once the callback is called, we can treat this
+         * SynchronizedCaptureSession is no longer active and further operations on this object
+         * will fail.
+         *
+         * @param session the SynchronizedCaptureSession that is created by
+         * {@link SynchronizedCaptureSessionImpl#openCaptureSession}
+         */
+        void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
 
         }
     }

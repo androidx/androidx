@@ -29,6 +29,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -42,12 +43,13 @@ import java.util.Objects;
  * supports any content changes as refreshes. This allows apps to interactively update the search
  * results as the user types without the templates being counted against the quota.
  */
+@CarProtocol
 public final class SearchTemplate implements Template {
 
     /** A listener for search updates. */
     public interface SearchCallback {
         /**
-         * Notifies the current {@code searchText}.
+         * Notifies the current {@code searchText} has changed.
          *
          * <p>The host may invoke this callback as the user types a search text. The frequency of
          * these updates is not guaranteed to be after every individual keystroke. The host may
@@ -55,7 +57,8 @@ public final class SearchTemplate implements Template {
          *
          * @param searchText the current search text that the user has typed
          */
-        void onSearchTextChanged(@NonNull String searchText);
+        default void onSearchTextChanged(@NonNull String searchText) {
+        }
 
         /**
          * Notifies that the user has submitted the search and the given {@code searchText} is
@@ -63,7 +66,8 @@ public final class SearchTemplate implements Template {
          *
          * @param searchText the search text that the user typed
          */
-        void onSearchSubmitted(@NonNull String searchText);
+        default void onSearchSubmitted(@NonNull String searchText) {
+        }
     }
 
     @Keep
@@ -339,14 +343,17 @@ public final class SearchTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
-         * ignore any items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
-         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_LIST}. The
+         * host will ignore any items over that limit. The list itself cannot be selectable as set
+         * via {@link ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2
+         * lines of texts via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code itemList} is {@code null}
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {

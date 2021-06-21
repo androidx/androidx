@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
 import androidx.build.Publish
 
 plugins {
@@ -27,10 +25,6 @@ plugins {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -39,15 +33,15 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
 
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {

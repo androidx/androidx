@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_ANIMATION = 1;"
+        errorLine2="                                                                           ~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="87"
+            column="76"/>
+    </issue>
 
     <issue
         id="LambdaLast"

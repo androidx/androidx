@@ -22,6 +22,8 @@ import androidx.navigation.NavDestinationDsl
 
 /**
  * Construct a new [NavArgument]
+ *
+ * @sample androidx.navigation.compose.samples.NavWithArgs
  */
 @NavDestinationDsl
 public fun navArgument(
@@ -33,9 +35,24 @@ public fun navArgument(
  * Construct a named [NavArgument] by using the [navArgument] method.
  */
 public class NamedNavArgument internal constructor(
-    private val name: String,
-    private val argument: NavArgument
+
+    /**
+     * The name the argument is associated with
+     */
+    public val name: String,
+
+    /**
+     * The [NavArgument] associated with the name
+     */
+    public val argument: NavArgument
 ) {
-    internal operator fun component1(): String = name
-    internal operator fun component2(): NavArgument = argument
+    /**
+     * Provides destructuring access to this [NamedNavArgument]'s [name]
+     */
+    public operator fun component1(): String = name
+
+    /**
+     * Provides destructuring access to this [NamedNavArgument]'s [argument]
+     */
+    public operator fun component2(): NavArgument = argument
 }

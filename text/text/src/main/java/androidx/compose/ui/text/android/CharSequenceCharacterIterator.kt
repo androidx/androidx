@@ -55,7 +55,7 @@ internal class CharSequenceCharacterIterator(
      *
      * @return the last character in the text, or [java.text.CharacterIterator.DONE] if the
      * text is empty
-     * @see .getEndIndex
+     * @see CharSequenceCharacterIterator.getEndIndex
      */
     override fun last(): Char {
         return if (start == end) {
@@ -73,7 +73,7 @@ internal class CharSequenceCharacterIterator(
      * @return the character at the current position or [java.text.CharacterIterator.DONE]
      * if the current
      * position is off the end of the text.
-     * @see .getIndex
+     * @see CharSequenceCharacterIterator.getIndex
      */
     override fun current(): Char {
         return if (index == end) CharacterIterator.DONE else charSequence[index]

@@ -18,7 +18,6 @@ package androidx.wear.watchface.style.data;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
@@ -29,14 +28,11 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 public class BooleanOptionWireFormat extends OptionWireFormat {
-    @ParcelField(2)
-    public boolean mValue;
 
     BooleanOptionWireFormat() {
     }
 
-    public BooleanOptionWireFormat(@NonNull String id, boolean value) {
+    public BooleanOptionWireFormat(@NonNull byte[] id) {
         super(id);
-        this.mValue = value;
     }
 }

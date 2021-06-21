@@ -60,6 +60,9 @@ public class DeviceQuirksLoader {
         if (StillCaptureFlashStopRepeatingQuirk.load()) {
             quirks.add(new StillCaptureFlashStopRepeatingQuirk());
         }
+        if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
+            quirks.add(new ExtraSupportedSurfaceCombinationsQuirk());
+        }
 
         return quirks;
     }

@@ -29,6 +29,9 @@ import static org.junit.Assert.assertNull;
 
 import android.graphics.Typeface;
 import android.os.Build;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -38,6 +41,7 @@ import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -166,5 +170,42 @@ public class SwitchCompatTest {
                     ViewCompat.getStateDescription(switchButton));
         }
         info.recycle();
+    }
+
+    @SdkSuppress(minSdkVersion = 21) // b/189493648
+    @Test
+    public void testSetCustomSelectionActionModeCallback() {
+        final SwitchCompat view = new SwitchCompat(mActivity);
+        final ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        };
+
+        // Default value is documented as null.
+        assertNull(view.getCustomSelectionActionModeCallback());
+
+        // Setter and getter should be symmetric.
+        view.setCustomSelectionActionModeCallback(callback);
+        assertEquals(callback, view.getCustomSelectionActionModeCallback());
+
+        // Argument is nullable.
+        view.setCustomSelectionActionModeCallback(null);
+        assertNull(view.getCustomSelectionActionModeCallback());
     }
 }

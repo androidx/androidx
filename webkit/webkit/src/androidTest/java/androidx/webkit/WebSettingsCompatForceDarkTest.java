@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
@@ -28,6 +29,7 @@ import android.webkit.WebView;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.After;
@@ -89,8 +91,8 @@ public class WebSettingsCompatForceDarkTest {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
 
         assertEquals("The default force dark state should be AUTO",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_AUTO);
+                WebSettingsCompat.FORCE_DARK_AUTO,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
     }
 
     /**
@@ -99,6 +101,7 @@ public class WebSettingsCompatForceDarkTest {
      * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
@@ -108,8 +111,8 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         assertEquals("Force dark should have been set to ON",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_ON);
+                WebSettingsCompat.FORCE_DARK_ON,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be dark",
@@ -119,8 +122,8 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
         assertEquals("Force dark should have been set to OFF",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_OFF);
+                WebSettingsCompat.FORCE_DARK_OFF,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -132,6 +135,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are always darkened by a user agent.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -162,6 +166,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are darkened only by web theme.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -192,6 +197,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are darkened by a user agent if there is no dark web theme.
      */
     @Test
+    @FlakyTest(bugId = 190195340)
     public void testForceDark_preferWebThemeOverUADarkening() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -233,14 +239,19 @@ public class WebSettingsCompatForceDarkTest {
     // Requires {@link WebViewFeature.OFF_SCREEN_PRERASTER} for {@link
     // WebViewOnUiThread#captureBitmap}.
     private int getWebPageColor() {
-        Map<Integer, Integer> histogram;
-        Integer[] colourValues;
-
-        histogram = getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
-        assertEquals("Bitmap should have a single colour", histogram.size(), 1);
-        colourValues = histogram.keySet().toArray(new Integer[0]);
-
-        return colourValues[0];
+        Map<Integer, Integer> histogram =
+                getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
+        Map.Entry<Integer, Integer> maxEntry = null;
+        for (Map.Entry<Integer, Integer> entry : histogram.entrySet()) {
+            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+                maxEntry = entry;
+            }
+        }
+        assertNotNull("There must be at least one color on the screen", maxEntry);
+        assertTrue(
+                "The majority color should be at least 90% of the pixels",
+                1.0 * maxEntry.getValue() / (64 * 64) > 0.9);
+        return maxEntry.getKey();
     }
 
     private Map<Integer, Integer> getBitmapHistogram(

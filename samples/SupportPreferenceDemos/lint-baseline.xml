@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="MissingTvBanner"
@@ -10,17 +10,6 @@
             file="src/main/AndroidManifest.xml"
             line="28"
             column="6"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.bool.atLeastP` appears to be unused"
-        errorLine1="    &lt;bool name=&quot;atLeastP&quot;>true&lt;/bool>"
-        errorLine2="          ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-v28/bools.xml"
-            line="20"
-            column="11"/>
     </issue>
 
     <issue

@@ -1,26 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta04" client="gradle" variant="debug" version="4.2.0-beta04">
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        T onExit(T result);"
-        errorLine2="        ~">
-        <location
-            file="src/main/java/androidx/inspection/ArtTooling.java"
-            line="86"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        T onExit(T result);"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/inspection/ArtTooling.java"
-            line="86"
-            column="18"/>
-    </issue>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
 </issues>

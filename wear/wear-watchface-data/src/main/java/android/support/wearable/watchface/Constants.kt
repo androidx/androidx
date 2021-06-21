@@ -57,8 +57,11 @@ public class Constants {
         public const val KEY_BITMAP_CONFIG_ORDINAL: String = "KEY_BITMAP_CONFIG_ORDINAL"
         public const val KEY_SCREENSHOT: String = "KEY_SCREENSHOT"
 
-        /** Used to identify our provider chooser requests. */
-        public const val PROVIDER_CHOOSER_REQUEST_CODE: Int = 1
+        public const val PERMISSION_BIND_WATCH_FACE_CONTROL: String =
+            "com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL"
+
+        public const val ACTION_WATCH_FACE_REFRESH_A11Y_LABELS: String =
+            "androidx.watchface.action.WATCH_FACE_A11Y_LABELS_REFRESH"
 
         @SuppressWarnings("ActionValue")
         public const val ACTION_REQUEST_STATE: String =
@@ -132,9 +135,6 @@ public class Constants {
         @SuppressWarnings("ActionValue")
         public const val EXTRA_WATCH_FACE_VISIBLE: String = "watch_face_visible"
 
-        @SuppressWarnings("ActionValue")
-        public const val EXTRA_WATCH_FACE_COMMAND_BINDER: String = "watch_face_command_binder"
-
         /**
          * Property in bundle passed to [Engine.onPropertiesChanged] to indicate whether burn-in
          * protection is required. When this property is set to true, views are shifted around
@@ -152,38 +152,6 @@ public class Constants {
          * in ambient mode.
          */
         public const val PROPERTY_LOW_BIT_AMBIENT: String = "low_bit_ambient"
-
-        /**
-         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
-         * indicates whether or not the device is charging. This will be true if the current battery
-         * status is either [BatteryManager.BATTERY_STATUS_CHARGING] or
-         * [BatteryManager.BATTERY_STATUS_FULL].
-         */
-        public const val STATUS_CHARGING: String = "charging"
-
-        /**
-         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
-         * indicates whether or not the device is in airplane mode.
-         */
-        public const val STATUS_AIRPLANE_MODE: String = "airplane_mode"
-
-        /**
-         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
-         * indicates whether or not the device is connected to the phone.
-         */
-        public const val STATUS_CONNECTED: String = "connected"
-
-        /**
-         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
-         * indicates whether or not the device is in theater mode.
-         */
-        public const val STATUS_THEATER_MODE: String = "theater_mode"
-
-        /**
-         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
-         * indicates whether or not GPS is enabled.
-         */
-        public const val STATUS_GPS_ACTIVE: String = "gps_active"
 
         /**
          * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that

@@ -48,11 +48,13 @@ import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skija.Paint
 import org.jetbrains.skija.Typeface
 import org.jetbrains.skija.paragraph.Alignment as SkAlignment
 import org.jetbrains.skija.paragraph.BaselineMode
+import org.jetbrains.skija.paragraph.Direction as SkDirection
 import org.jetbrains.skija.paragraph.LineMetrics
 import org.jetbrains.skija.paragraph.ParagraphBuilder
 import org.jetbrains.skija.paragraph.ParagraphStyle
@@ -60,7 +62,9 @@ import org.jetbrains.skija.paragraph.PlaceholderAlignment
 import org.jetbrains.skija.paragraph.PlaceholderStyle
 import org.jetbrains.skija.paragraph.RectHeightMode
 import org.jetbrains.skija.paragraph.RectWidthMode
+import org.jetbrains.skija.paragraph.StrutStyle
 import org.jetbrains.skija.paragraph.TextBox
+import java.lang.IllegalStateException
 import java.lang.UnsupportedOperationException
 import java.util.WeakHashMap
 import kotlin.math.floor
@@ -184,13 +188,17 @@ internal class DesktopParagraph(
         return path
     }
 
-    private val cursorWidth = 2.0f
-    override fun getCursorRect(offset: Int) =
-        getBoxForwardByOffset(offset)?.let { box ->
-            Rect(box.rect.left, box.rect.top, box.rect.left + cursorWidth, box.rect.bottom)
-        } ?: getBoxBackwardByOffset(offset)?.let { box ->
-            Rect(box.rect.right, box.rect.top, box.rect.right + cursorWidth, box.rect.bottom)
-        } ?: Rect(0f, 0f, cursorWidth, paragraphIntrinsics.builder.defaultHeight)
+    override fun getCursorRect(offset: Int): Rect {
+        val horizontal = getHorizontalPosition(offset, true)
+        val line = lineMetricsForOffset(offset)!!
+
+        return Rect(
+            horizontal,
+            (line.baseline - line.ascent).toFloat(),
+            horizontal,
+            (line.baseline + line.descent).toFloat()
+        )
+    }
 
     override fun getLineLeft(lineIndex: Int): Float =
         lineMetrics.getOrNull(lineIndex)?.left?.toFloat() ?: 0f
@@ -258,10 +266,22 @@ internal class DesktopParagraph(
     }
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
-        return if (usePrimaryDirection) {
-            getHorizontalPositionForward(offset) ?: getHorizontalPositionBackward(offset) ?: 0f
-        } else {
-            getHorizontalPositionBackward(offset) ?: getHorizontalPositionForward(offset) ?: 0f
+        val prevBox = getBoxBackwardByOffset(offset)
+        val nextBox = getBoxForwardByOffset(offset)
+        return when {
+            prevBox == null -> {
+                val line = lineMetricsForOffset(offset)!!
+                return when (getParagraphDirection(offset)) {
+                    ResolvedTextDirection.Ltr -> line.left.toFloat()
+                    ResolvedTextDirection.Rtl -> line.right.toFloat()
+                }
+            }
+
+            nextBox == null || usePrimaryDirection || nextBox.direction == prevBox.direction ->
+                prevBox.cursorHorizontalPosition()
+
+            else ->
+                nextBox.cursorHorizontalPosition(true)
         }
     }
 
@@ -314,17 +334,15 @@ internal class DesktopParagraph(
         return null
     }
 
-    private fun getHorizontalPositionForward(from: Int) =
-        getBoxForwardByOffset(from)?.rect?.left
-
-    private fun getHorizontalPositionBackward(to: Int) =
-        getBoxBackwardByOffset(to)?.rect?.right
-
     override fun getParagraphDirection(offset: Int): ResolvedTextDirection =
-        ResolvedTextDirection.Ltr
+        paragraphIntrinsics.textDirection
 
     override fun getBidiRunDirection(offset: Int): ResolvedTextDirection =
-        ResolvedTextDirection.Ltr
+        when (getBoxForwardByOffset(offset)?.direction) {
+            org.jetbrains.skija.paragraph.Direction.RTL -> ResolvedTextDirection.Rtl
+            org.jetbrains.skija.paragraph.Direction.LTR -> ResolvedTextDirection.Ltr
+            null -> ResolvedTextDirection.Ltr
+        }
 
     override fun getOffsetForPosition(position: Offset): Int {
         return para.getGlyphPositionAtCoordinate(position.x, position.y).position
@@ -336,11 +354,15 @@ internal class DesktopParagraph(
     }
 
     override fun getWordBoundary(offset: Int): TextRange {
-        if (text[offset].isWhitespace()) {
-            return TextRange(offset, offset)
-        }
-        para.getWordBoundary(offset).let {
-            return TextRange(it.start, it.end)
+        return when {
+            (text[offset].isLetterOrDigit()) -> para.getWordBoundary(offset).let {
+                TextRange(it.start, it.end)
+            }
+            (text.getOrNull(offset - 1)?.isLetterOrDigit() ?: false) ->
+                para.getWordBoundary(offset - 1).let {
+                    TextRange(it.start, it.end)
+                }
+            else -> TextRange(offset, offset)
         }
     }
 
@@ -534,7 +556,8 @@ internal class ParagraphBuilder(
     var maxLines: Int = Int.MAX_VALUE,
     val spanStyles: List<Range<SpanStyle>>,
     val placeholders: List<Range<Placeholder>>,
-    val density: Density
+    val density: Density,
+    val textDirection: ResolvedTextDirection
 ) {
     private lateinit var initialStyle: SpanStyle
     private lateinit var defaultStyle: ComputedStyle
@@ -710,7 +733,7 @@ internal class ParagraphBuilder(
                         height = fontSizeInHierarchy(
                             density,
                             currentStyle.fontSize,
-                            cut.placeholder.width
+                            cut.placeholder.height
                         ),
                     )
                     ops.add(op)
@@ -744,6 +767,26 @@ internal class ParagraphBuilder(
         style.textAlign?.let {
             pStyle.alignment = it.toSkAlignment()
         }
+
+        if (style.lineHeight.isSpecified) {
+            val strutStyle = StrutStyle()
+
+            strutStyle.isEnabled = true
+            strutStyle.isHeightOverridden = true
+            val fontSize = with(density) {
+                style.fontSize.orDefaultFontSize().toPx()
+            }
+            val lineHeight = when {
+                style.lineHeight.isSp -> with(density) {
+                    style.lineHeight.toPx()
+                }
+                style.lineHeight.isEm -> fontSize * style.lineHeight.value
+                else -> throw IllegalStateException()
+            }
+            strutStyle.height = lineHeight / fontSize
+            pStyle.strutStyle = strutStyle
+        }
+        pStyle.direction = textDirection.toSkDirection()
         return pStyle
     }
 
@@ -769,12 +812,14 @@ internal class ParagraphBuilder(
     }
 }
 
+private fun TextUnit.orDefaultFontSize() = when {
+    isUnspecified -> DefaultFontSize
+    isEm -> DefaultFontSize * value
+    else -> this
+}
+
 private fun SpanStyle.withDefaultFontSize(): SpanStyle {
-    val fontSize = when {
-        this.fontSize.isUnspecified -> DefaultFontSize
-        this.fontSize.isEm -> DefaultFontSize * this.fontSize.value
-        else -> this.fontSize
-    }
+    val fontSize = this.fontSize.orDefaultFontSize()
     val letterSpacing = when {
         this.letterSpacing.isEm -> fontSize * this.letterSpacing.value
         else -> this.letterSpacing
@@ -787,8 +832,8 @@ private fun SpanStyle.withDefaultFontSize(): SpanStyle {
 
 fun FontStyle.toSkFontStyle(): SkFontStyle {
     return when (this) {
-        FontStyle.Normal -> org.jetbrains.skija.FontStyle.NORMAL
         FontStyle.Italic -> org.jetbrains.skija.FontStyle.ITALIC
+        else -> org.jetbrains.skija.FontStyle.NORMAL
     }
 }
 
@@ -821,14 +866,15 @@ fun PlaceholderVerticalAlign.toSkPlaceholderAlignment(): PlaceholderAlignment {
         PlaceholderVerticalAlign.Top -> PlaceholderAlignment.TOP
         PlaceholderVerticalAlign.Bottom -> PlaceholderAlignment.BOTTOM
         PlaceholderVerticalAlign.Center -> PlaceholderAlignment.MIDDLE
+        else -> error("Invalid PlaceholderVerticalAlign.")
     }
 }
 
-fun Shadow.toSkShadow(): SkShadow {
+internal fun Shadow.toSkShadow(): SkShadow {
     return SkShadow(color.toArgb(), offset.x, offset.y, blurRadius.toDouble())
 }
 
-fun TextAlign.toSkAlignment(): SkAlignment {
+internal fun TextAlign.toSkAlignment(): SkAlignment {
     return when (this) {
         TextAlign.Left -> SkAlignment.LEFT
         TextAlign.Right -> SkAlignment.RIGHT
@@ -836,5 +882,20 @@ fun TextAlign.toSkAlignment(): SkAlignment {
         TextAlign.Justify -> SkAlignment.JUSTIFY
         TextAlign.Start -> SkAlignment.START
         TextAlign.End -> SkAlignment.END
+        else -> error("Invalid TextAlign")
+    }
+}
+
+internal fun ResolvedTextDirection.toSkDirection(): SkDirection {
+    return when (this) {
+        ResolvedTextDirection.Ltr -> SkDirection.LTR
+        ResolvedTextDirection.Rtl -> SkDirection.RTL
+    }
+}
+
+internal fun TextBox.cursorHorizontalPosition(opposite: Boolean = false): Float {
+    return when (direction) {
+        SkDirection.LTR, null -> if (opposite) rect.left else rect.right
+        SkDirection.RTL -> if (opposite) rect.right else rect.left
     }
 }

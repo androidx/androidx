@@ -22,29 +22,55 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
+import java.util.Locale
 
 /**
  * Base [org.gradle.api.Task] for tasks relating to icon generation.
  */
 abstract class IconGenerationTask : DefaultTask() {
+
     /**
      * Directory containing raw drawables. These icons will be processed to generate programmatic
      * representations.
      */
     @PathSensitive(PathSensitivity.RELATIVE)
     @InputDirectory
-    val iconDirectory =
+    val allIconsDirectory =
         project.rootProject.project(GeneratorProject).projectDir.resolve("raw-icons")
+
+    /**
+     * Specific theme to generate icons for, or null to generate all
+     */
+    @Optional
+    @Input
+    var themeName: String? = null
+
+    /**
+     * Specific icon directories to use in this task
+     */
+    @Internal
+    fun getIconDirectories(): List<File> {
+        val themeName = themeName
+        if (themeName != null) {
+            return listOf(allIconsDirectory.resolve(themeName))
+        } else {
+            return allIconsDirectory.listFiles()!!.filter { it.isDirectory }
+        }
+    }
 
     /**
      * Checked-in API file for the generator module, where we will track all the generated icons
@@ -69,22 +95,32 @@ abstract class IconGenerationTask : DefaultTask() {
         get() = buildDirectory.resolve("api/icons.txt")
 
     /**
-     * @return a list of all processed [Icon]s from [iconDirectory].
+     * @return a list of all processed [Icon]s from [getIconDirectories].
      */
-    fun loadIcons(): List<Icon> =
-        IconProcessor(iconDirectory, expectedApiFile, generatedApiFile).process()
+    fun loadIcons(): List<Icon> {
+        // material-icons-core loads and verifies all of the icons from all of the themes:
+        // both that all icons are present in all themes, and also that no icons have been removed.
+        // So, when we're loading just one theme, we don't need to verify it
+        val verifyApi = themeName == null
+        return IconProcessor(
+            getIconDirectories(),
+            expectedApiFile,
+            generatedApiFile,
+            verifyApi
+        ).process()
+    }
 
     @get:OutputDirectory
     val generatedSrcMainDirectory: File
-        get() = buildDirectory.resolve("src/commonMain/kotlin")
+        get() = buildDirectory.resolve(GeneratedSrcMain)
 
     @get:OutputDirectory
     val generatedSrcAndroidTestDirectory: File
-        get() = buildDirectory.resolve("src/androidAndroidTest/kotlin")
+        get() = buildDirectory.resolve(GeneratedSrcAndroidTest)
 
     @get:OutputDirectory
     val generatedResourceDirectory: File
-        get() = buildDirectory.resolve("generatedIcons/res")
+        get() = buildDirectory.resolve(GeneratedResource)
 
     /**
      * The action for this task
@@ -114,11 +150,11 @@ abstract class IconGenerationTask : DefaultTask() {
 
         /**
          * Registers the extended [project]. The core project contains all icons except for the
-         * icons defined in [androidx.compose.material.icons.generator.CoreIcons], as well as a bitmap comparison
-         * test for every icon in both the core and extended project.
+         * icons defined in [androidx.compose.material.icons.generator.CoreIcons], as well as a
+         * bitmap comparison test for every icon in both the core and extended project.
          */
         @JvmStatic
-        fun registerExtendedIconProject(
+        fun registerExtendedIconThemeProject(
             project: Project,
             libraryExtension: LibraryExtension,
             isMpp: Boolean
@@ -131,10 +167,33 @@ abstract class IconGenerationTask : DefaultTask() {
                 }
             }
 
+            // b/175401659 - disable lint as it takes a long time, and most errors should
+            // be caught by lint on material-icons-core anyway
+            project.afterEvaluate {
+                project.tasks.named("lintAnalyzeDebug") { t ->
+                    t.enabled = false
+                }
+                project.tasks.named("lintDebug") { t ->
+                    t.enabled = false
+                }
+            }
+        }
+
+        @JvmStatic
+        fun registerExtendedIconMainProject(
+            project: Project,
+            libraryExtension: LibraryExtension
+        ) {
             libraryExtension.testVariants.all { variant ->
                 IconTestingGenerationTask.register(project, variant)
             }
         }
+
+        const val GeneratedSrcMain = "src/commonMain/kotlin"
+
+        const val GeneratedSrcAndroidTest = "src/androidAndroidTest/kotlin"
+
+        const val GeneratedResource = "generatedIcons/res"
     }
 }
 
@@ -147,18 +206,28 @@ private const val GeneratorProject = ":compose:material:material:icons:generator
  *
  * @param variant the [BaseVariant] to associate this task with, or `null` if this task does not
  * change between variants.
- * @return the created [T] of [IconGenerationTask]
+ * @return a [Pair] of the created [TaskProvider] of [T] of [IconGenerationTask], and the [File]
+ * for the directory that files will be generated to
  */
-@Suppress("DefaultLocale")
-fun <T : IconGenerationTask> Project.createGenerationTask(
+fun <T : IconGenerationTask> Project.registerGenerationTask(
     taskName: String,
     taskClass: Class<T>,
     variant: BaseVariant? = null
-): T {
+): Pair<TaskProvider<T>, File> {
     val variantName = variant?.name ?: "allVariants"
-    return tasks.create("$taskName${variantName.capitalize()}", taskClass) {
-        it.buildDirectory = project.buildDir.resolve("generatedIcons/$variantName")
+
+    val themeName = if (project.name.contains("material-icons-extended-")) {
+        project.name.replace("material-icons-extended-", "")
+    } else {
+        null
     }
+
+    val buildDirectory = project.buildDir.resolve("generatedIcons/$variantName")
+
+    return tasks.register("$taskName${variantName.capitalize(Locale.getDefault())}", taskClass) {
+        it.themeName = themeName
+        it.buildDirectory = buildDirectory
+    } to buildDirectory
 }
 
 fun Project.getMultiplatformSourceSet(name: String): KotlinSourceSet {

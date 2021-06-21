@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
@@ -40,6 +41,7 @@ import java.util.Objects;
  * remaining time and distance to the destination.
  */
 @SuppressWarnings("MissingSummary")
+@CarProtocol
 public final class TravelEstimate {
     /** A value used to represent an unknown remaining amount of time. */
     public static final long REMAINING_TIME_UNKNOWN = -1L;
@@ -197,7 +199,6 @@ public final class TravelEstimate {
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
-        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(26)
         @SuppressWarnings("AndroidJdkLibsChecker")
         public Builder(
@@ -212,6 +213,10 @@ public final class TravelEstimate {
          * Sets the estimated time remaining until arriving at the destination, in seconds.
          *
          * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
+         *
+         * <p>Note that {@link #REMAINING_TIME_UNKNOWN} may not be supported depending on where the
+         * {@link TravelEstimate} is used. See the documentation of where {@link TravelEstimate}
+         * is used for any restrictions that might apply.
          *
          * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value
          *                                  but not {@link #REMAINING_TIME_UNKNOWN}
@@ -241,7 +246,8 @@ public final class TravelEstimate {
         /**
          * Sets the color of the remaining time text.
          *
-         * <p>The host may ignore this color depending on the capabilities of the target screen.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * <p>If not set, {@link CarColor#DEFAULT} will be used.
          *
@@ -260,7 +266,8 @@ public final class TravelEstimate {
         /**
          * Sets the color of the remaining distance text.
          *
-         * <p>The host may ignore this color depending on the capabilities of the target screen.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * <p>If not set, {@link CarColor#DEFAULT} will be used.
          *

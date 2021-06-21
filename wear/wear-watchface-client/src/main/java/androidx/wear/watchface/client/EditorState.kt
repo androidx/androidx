@@ -20,41 +20,74 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleData
+
+/**
+ * The system is responsible for the management and generation of these ids and they have no
+ * context outside of an instance of an EditorState and should not be stored or saved for later
+ * use by the WatchFace provider.
+ *
+ * @param id The system's id for a watch face being edited. This is passed in from
+ * [androidx.wear.watchface.EditorRequest.watchFaceId].
+ */
+public class WatchFaceId(public val id: String) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WatchFaceId
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}
 
 /**
  * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].
  *
- * @param watchFaceInstanceId Unique ID for the instance of the watch face being edited, only
- *     defined for Android R and beyond.
- * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
- * @param previewComplicationData Preview [ComplicationData] needed for taking screenshots without
- *     live complication data.
- * @param commitChanges Whether or not this state should be committed (i.e. the user aborted the
- *     session). If it's not committed then any changes (E.g. complication provider changes)
- *     should be abandoned. There's no need to resend the style to the watchface because the
- *     library will have restored the previous style.
+ * @param watchFaceId Unique ID for the instance of the watch face being edited (see
+ * [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for Android R and
+ * beyond.
+ * @param userStyle The current [UserStyle] encoded as a [UserStyleData].
+ * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
+ * live complication data.
+ * @param shouldCommitChanges Whether or not this state should be committed (i.e. the user aborted
+ * the session). If it's not committed then any changes (E.g. complication provider changes) should
+ * be abandoned. There's no need to resend the style to the watchface because the library will have
+ * restored the previous style.
  */
 public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)
-    public val watchFaceInstanceId: String,
-    public val userStyle: Map<String, String>,
-    public val previewComplicationData: Map<Int, ComplicationData>,
-    @get:JvmName("hasCommitChanges")
-    public val commitChanges: Boolean
-)
+    public val watchFaceId: WatchFaceId,
+    public val userStyle: UserStyleData,
+    public val previewComplicationsData: Map<Int, ComplicationData>,
+    @get:JvmName("shouldCommitChanges")
+    public val shouldCommitChanges: Boolean
+) {
+    override fun toString(): String =
+        "{watchFaceId: ${watchFaceId.id}, userStyle: $userStyle" +
+            ", previewComplicationsData: [" +
+            previewComplicationsData.map { "${it.key} -> ${it.value}" }.joinToString() +
+            "], shouldCommitChanges: $shouldCommitChanges}"
+}
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun EditorStateWireFormat.asApiEditorState(): EditorState {
     return EditorState(
-        watchFaceInstanceId ?: "",
-        userStyle.mUserStyle,
+        WatchFaceId(watchFaceInstanceId ?: ""),
+        UserStyleData(userStyle.mUserStyle),
         previewComplicationData.associateBy(
             { it.id },
-            { it.complicationData.asApiComplicationData() }
+            { it.complicationData.toApiComplicationData() }
         ),
         commitChanges
     )

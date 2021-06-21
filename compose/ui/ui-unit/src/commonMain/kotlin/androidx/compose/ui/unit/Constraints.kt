@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE", "EXPERIMENTAL_FEATURE_WARNING")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    "INLINE_CLASS_DEPRECATED",
+    "EXPERIMENTAL_FEATURE_WARNING"
+)
 
 package androidx.compose.ui.unit
 
@@ -186,7 +190,7 @@ inline class Constraints(
     companion object {
         /**
          * A value that [maxWidth] or [maxHeight] will be set to when the constraint should
-         * be considered infinite. [hasBoundedHeight] or [hasBoundedWidth] will be
+         * be considered infinite. [hasBoundedWidth] or [hasBoundedHeight] will be
          * `false` when [maxWidth] or [maxHeight] is [Infinity], respectively.
          */
         const val Infinity = Int.MAX_VALUE

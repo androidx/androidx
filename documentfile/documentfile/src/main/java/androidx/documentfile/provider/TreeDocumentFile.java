@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -41,13 +42,12 @@ class TreeDocumentFile extends DocumentFile {
 
     @Override
     @Nullable
-    public DocumentFile createFile(String mimeType, String displayName) {
+    public DocumentFile createFile(@NonNull String mimeType, @NonNull String displayName) {
         final Uri result = TreeDocumentFile.createFile(mContext, mUri, mimeType, displayName);
         return (result != null) ? new TreeDocumentFile(this, mContext, result) : null;
     }
 
     @Nullable
-    @SuppressWarnings("deprecation")
     private static Uri createFile(Context context, Uri self, String mimeType,
             String displayName) {
         try {
@@ -60,12 +60,13 @@ class TreeDocumentFile extends DocumentFile {
 
     @Override
     @Nullable
-    public DocumentFile createDirectory(String displayName) {
+    public DocumentFile createDirectory(@NonNull String displayName) {
         final Uri result = TreeDocumentFile.createFile(
                 mContext, mUri, DocumentsContract.Document.MIME_TYPE_DIR, displayName);
         return (result != null) ? new TreeDocumentFile(this, mContext, result) : null;
     }
 
+    @NonNull
     @Override
     public Uri getUri() {
         return mUri;
@@ -119,7 +120,6 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public boolean delete() {
         try {
             return DocumentsContract.deleteDocument(mContext.getContentResolver(), mUri);
@@ -133,6 +133,7 @@ class TreeDocumentFile extends DocumentFile {
         return DocumentsContractApi19.exists(mContext, mUri);
     }
 
+    @NonNull
     @Override
     public DocumentFile[] listFiles() {
         final ContentResolver resolver = mContext.getContentResolver();
@@ -156,7 +157,7 @@ class TreeDocumentFile extends DocumentFile {
             closeQuietly(c);
         }
 
-        final Uri[] result = results.toArray(new Uri[results.size()]);
+        final Uri[] result = results.toArray(new Uri[0]);
         final DocumentFile[] resultFiles = new DocumentFile[result.length];
         for (int i = 0; i < result.length; i++) {
             resultFiles[i] = new TreeDocumentFile(this, mContext, result[i]);
@@ -176,8 +177,7 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean renameTo(String displayName) {
+    public boolean renameTo(@NonNull String displayName) {
         try {
             final Uri result = DocumentsContract.renameDocument(
                     mContext.getContentResolver(), mUri, displayName);

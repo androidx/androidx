@@ -50,8 +50,8 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     };
 
     @Override
-    public void postToMainThread(Runnable r) {
-        mMainThreadHandler.post(r);
+    public void postToMainThread(Runnable runnable) {
+        mMainThreadHandler.post(runnable);
     }
 
     @Override
@@ -60,8 +60,8 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void executeOnBackgroundThread(Runnable r) {
-        mBackgroundExecutor.execute(r);
+    public void executeOnBackgroundThread(Runnable runnable) {
+        mBackgroundExecutor.execute(runnable);
     }
 
     @Override

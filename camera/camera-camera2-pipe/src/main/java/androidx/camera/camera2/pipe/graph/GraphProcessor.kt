@@ -73,7 +73,7 @@ internal class GraphProcessorImpl @Inject constructor(
     private val cameraGraphConfig: CameraGraph.Config,
     private val graphState3A: GraphState3A,
     @ForCameraGraph private val graphScope: CoroutineScope,
-    @ForCameraGraph private val graphListeners: java.util.ArrayList<Request.Listener>
+    @ForCameraGraph private val graphListeners: List<@JvmSuppressWildcards Request.Listener>
 ) : GraphProcessor {
     private val lock = Any()
 
@@ -200,7 +200,7 @@ internal class GraphProcessorImpl @Inject constructor(
     override fun submit(requests: List<Request>) {
         synchronized(lock) {
             if (closed) {
-                graphScope.launch {
+                graphScope.launch(threads.defaultDispatcher) {
                     abortBurst(requests)
                 }
                 return
@@ -208,7 +208,7 @@ internal class GraphProcessorImpl @Inject constructor(
             submitQueue.add(requests)
         }
 
-        graphScope.launch {
+        graphScope.launch(threads.defaultDispatcher) {
             submitLoop()
         }
     }
@@ -217,7 +217,7 @@ internal class GraphProcessorImpl @Inject constructor(
      * Submit a request to the camera using only the current repeating request.
      */
     override suspend fun <T : Any> submit(parameters: Map<T, Any?>): Boolean =
-        withContext(threads.ioDispatcher) {
+        withContext(threads.defaultDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
             val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
@@ -246,7 +246,7 @@ internal class GraphProcessorImpl @Inject constructor(
     override fun invalidate() {
         // Invalidate is only used for updates to internal state (listeners, parameters, etc) and
         // should not (currently) attempt to resubmit the normal request queue.
-        graphScope.launch {
+        graphScope.launch(threads.defaultDispatcher) {
             tryStartRepeating()
         }
     }
@@ -294,7 +294,7 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     private fun resubmit() {
-        graphScope.launch {
+        graphScope.launch(threads.defaultDispatcher) {
             tryStartRepeating()
             submitLoop()
         }

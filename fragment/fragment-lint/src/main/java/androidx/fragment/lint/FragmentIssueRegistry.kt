@@ -24,12 +24,15 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class FragmentIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 8
+    override val api = 10
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         FragmentTagDetector.ISSUE,
         UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE,
         UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE,
-        UseRequireInsteadOfGet.ISSUE
+        UseRequireInsteadOfGet.ISSUE,
+        UseGetLayoutInflater.ISSUE,
+        OnCreateDialogIncorrectCallbackDetector.ISSUE,
+        UnsafeRepeatOnLifecycleDetector.ISSUE
     )
 }

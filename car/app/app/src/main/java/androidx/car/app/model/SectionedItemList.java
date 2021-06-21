@@ -21,12 +21,14 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
 /**
  * Represents an {@link ItemList} that is contained inside a section, for internal use only.
  */
+@CarProtocol
 public final class SectionedItemList {
     @Keep
     @Nullable

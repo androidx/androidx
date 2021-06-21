@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="Instantiatable"
+        message="`MainActivity` must extend android.app.Activity"
+        errorLine1="        android:name=&quot;androidx.car.app.sample.navigation.common.app.MainActivity&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="37"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="Instantiatable"
+        message="`NavigationCarAppService` must extend android.app.Service"
+        errorLine1="        android:name=&quot;androidx.car.app.sample.navigation.common.car.NavigationCarAppService&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="54"
+            column="23"/>
+    </issue>
+
+</issues>

@@ -19,19 +19,23 @@ package androidx.wear.watchface.editor
 import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.client.ComplicationState
+import androidx.wear.watchface.client.ComplicationSlotState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
+import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -46,6 +50,9 @@ public class ListenableEditorSession(
          * Constructs a [ListenableFuture] for a [ListenableEditorSession] for an on watch face
          * editor. This registers an activity result handler and so it must be called during an
          * Activity or Fragment initialization path.
+         *
+         * If watch face editor takes more than 4s to create a watch face, returned future will be
+         * resolved with [TimeoutCancellationException] exception.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
@@ -67,10 +74,7 @@ public class ListenableEditorSession(
             coroutineScope.launch {
                 try {
                     result.set(
-                        EditorSession.createOnWatchEditingSessionAsync(
-                            activity,
-                            editIntent
-                        ).await()?.let { ListenableEditorSession(it) }
+                        ListenableEditorSession(createOnWatchEditingSession(activity, editIntent))
                     )
                 } catch (e: Exception) {
                     result.setException(e)
@@ -95,7 +99,7 @@ public class ListenableEditorSession(
             activity,
             editIntent,
             headlessWatchFaceClient
-        )?.let {
+        ).let {
             ListenableEditorSession(it)
         }
     }
@@ -105,7 +109,9 @@ public class ListenableEditorSession(
 
     override val watchFaceComponentName: ComponentName = wrappedEditorSession.watchFaceComponentName
 
-    override val instanceId: String? = wrappedEditorSession.instanceId
+    @get:RequiresApi(Build.VERSION_CODES.R)
+    @RequiresApi(Build.VERSION_CODES.R)
+    override val watchFaceId: WatchFaceId = wrappedEditorSession.watchFaceId
 
     override var userStyle: UserStyle
         get() = wrappedEditorSession.userStyle
@@ -118,16 +124,16 @@ public class ListenableEditorSession(
     override val userStyleSchema: UserStyleSchema
         get() = wrappedEditorSession.userStyleSchema
 
-    override val complicationState: Map<Int, ComplicationState>
-        get() = wrappedEditorSession.complicationState
+    override val complicationSlotsState: Map<Int, ComplicationSlotState>
+        get() = wrappedEditorSession.complicationSlotsState
 
-    /** [ListenableFuture] wrapper around [EditorSession.getComplicationPreviewData]. */
+    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsPreviewData]. */
     public fun getListenableComplicationPreviewData():
         ListenableFuture<Map<Int, ComplicationData>> {
             val future = ResolvableFuture.create<Map<Int, ComplicationData>>()
             getCoroutineScope().launch {
                 try {
-                    future.set(wrappedEditorSession.getComplicationPreviewData())
+                    future.set(wrappedEditorSession.getComplicationsPreviewData())
                 } catch (e: Exception) {
                     future.setException(e)
                 }
@@ -135,36 +141,53 @@ public class ListenableEditorSession(
             return future
         }
 
-    override suspend fun getComplicationPreviewData(): Map<Int, ComplicationData> =
-        wrappedEditorSession.getComplicationPreviewData()
+    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsProviderInfo]. */
+    public fun getListenableComplicationsProviderInfo():
+        ListenableFuture<Map<Int, ComplicationProviderInfo?>> {
+            val future = ResolvableFuture.create<Map<Int, ComplicationProviderInfo?>>()
+            getCoroutineScope().launch {
+                try {
+                    future.set(wrappedEditorSession.getComplicationsProviderInfo())
+                } catch (e: Exception) {
+                    future.setException(e)
+                }
+            }
+            return future
+        }
+
+    override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> =
+        wrappedEditorSession.getComplicationsPreviewData()
+
+    override suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?> =
+        wrappedEditorSession.getComplicationsProviderInfo()
 
     @get:SuppressWarnings("AutoBoxing")
-    override val backgroundComplicationId: Int?
-        get() = wrappedEditorSession.backgroundComplicationId
+    override val backgroundComplicationSlotId: Int?
+        get() = wrappedEditorSession.backgroundComplicationSlotId
 
     @SuppressWarnings("AutoBoxing")
-    override fun getComplicationIdAt(x: Int, y: Int): Int? =
-        wrappedEditorSession.getComplicationIdAt(x, y)
+    override fun getComplicationSlotIdAt(x: Int, y: Int): Int? =
+        wrappedEditorSession.getComplicationSlotIdAt(x, y)
 
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
-        idToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = wrappedEditorSession.takeWatchFaceScreenshot(
+        slotIdToComplicationData: Map<Int, ComplicationData>?
+    ): Bitmap = wrappedEditorSession.renderWatchFaceToBitmap(
         renderParameters,
         calendarTimeMillis,
-        idToComplicationData
+        slotIdToComplicationData
     )
 
-    /** [ListenableFuture] wrapper around [EditorSession.launchComplicationProviderChooser]. */
-    public fun listenableLaunchComplicationProviderChooser(
-        complicationId: Int
-    ): ListenableFuture<Boolean> {
-        val future = ResolvableFuture.create<Boolean>()
+    /** [ListenableFuture] wrapper around [EditorSession.openComplicationProviderChooser]. */
+    public fun listenableOpenComplicationProviderChooser(
+        complicationSlotId: Int
+    ): ListenableFuture<ChosenComplicationProvider?> {
+        val future = ResolvableFuture.create<ChosenComplicationProvider?>()
         getCoroutineScope().launch {
             try {
                 future.set(
-                    wrappedEditorSession.launchComplicationProviderChooser(complicationId)
+                    wrappedEditorSession.openComplicationProviderChooser(complicationSlotId)
                 )
             } catch (e: Exception) {
                 future.setException(e)
@@ -173,8 +196,9 @@ public class ListenableEditorSession(
         return future
     }
 
-    override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean =
-        wrappedEditorSession.launchComplicationProviderChooser(complicationId)
+    override suspend fun openComplicationProviderChooser(complicationSlotId: Int):
+        ChosenComplicationProvider? =
+            wrappedEditorSession.openComplicationProviderChooser(complicationSlotId)
 
     override fun close() {
         wrappedEditorSession.close()

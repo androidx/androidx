@@ -19,27 +19,14 @@ package androidx.compose.ui.platform
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.nativeCanvas
 
 /**
  * The container we will use for [ViewLayer]s.
  */
-internal class ViewLayerContainer(context: Context) : ViewGroup(context) {
-
-    init {
-        clipChildren = false
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        // we don't layout our children
-    }
-
-    // we change visibility for this method so ViewLayer can use it for drawing
-    internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
-        super.drawChild(canvas.nativeCanvas, view, drawingTime)
-    }
-
+internal class ViewLayerContainer(context: Context) : DrawChildContainer(context) {
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         // we draw our children as part of AndroidComposeView.dispatchDraw
     }
@@ -49,5 +36,50 @@ internal class ViewLayerContainer(context: Context) : ViewGroup(context) {
      * the display lists.
      * We override hidden protected method from ViewGroup
      */
-    protected fun dispatchGetDisplayList() {}
+    protected fun dispatchGetDisplayList() {
+    }
+}
+
+/**
+ * The container we will use for [ViewLayer]s when [ViewLayer.shouldUseDispatchDraw] is true.
+ */
+internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
+    init {
+        clipChildren = false
+
+        // Hide this view and its children in tools:
+        setTag(R.id.hide_in_inspector_tag, true)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        // we don't layout our children
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // we don't measure our children
+        setMeasuredDimension(0, 0)
+    }
+
+    override fun dispatchDraw(canvas: android.graphics.Canvas) {
+        // We must updateDisplayListIfDirty for all invalidated Views.
+
+        // We only want to call super.dispatchDraw() if there is an invalidated layer
+        var doDispatch = false
+        for (i in 0 until childCount) {
+            val child = getChildAt(i) as ViewLayer
+            if (child.isInvalidated) {
+                doDispatch = true
+                break
+            }
+        }
+
+        if (doDispatch) {
+            super.dispatchDraw(canvas)
+        }
+    }
+
+    // we change visibility for this method so ViewLayer can use it for drawing
+    internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
+        super.drawChild(canvas.nativeCanvas, view, drawingTime)
+    }
 }

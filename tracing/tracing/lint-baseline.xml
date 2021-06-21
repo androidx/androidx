@@ -1,15 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta04" client="gradle" variant="debug" version="4.2.0-beta04">
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.tracing.Trace is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                return android.os.Trace.isEnabled();"
-        errorLine2="                                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tracing/Trace.java"
-            line="62"
-            column="41"/>
-    </issue>
-
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 </issues>

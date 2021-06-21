@@ -17,7 +17,6 @@
 package androidx.benchmark.macro.junit4
 
 import android.Manifest
-import android.annotation.SuppressLint
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
@@ -35,7 +34,7 @@ import org.junit.runners.model.Statement
  * JUnit rule for benchmarking large app operations like startup.
  */
 @RequiresApi(29)
-class MacrobenchmarkRule : TestRule {
+public class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
 
     /**
@@ -51,9 +50,12 @@ class MacrobenchmarkRule : TestRule {
      * startups will go through full process creation. Generally, leave as null for non-startup
      * benchmarks.
      * @param iterations Number of times the [measureBlock] will be run during measurement.
+     * @param setupBlock The block performing app actions prior to the benchmark, for example,
+     * navigating to a UI where scrolling will be measured.
      * @param measureBlock The block performing app actions to benchmark.
      */
-    fun measureRepeated(
+    @JvmOverloads
+    public fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
         compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
@@ -86,7 +88,6 @@ class MacrobenchmarkRule : TestRule {
     }
 
     private fun applyInternal(base: Statement, description: Description) = object : Statement() {
-        @SuppressLint("UnsafeNewApiCall")
         override fun evaluate() {
             currentDescription = description
             base.evaluate()

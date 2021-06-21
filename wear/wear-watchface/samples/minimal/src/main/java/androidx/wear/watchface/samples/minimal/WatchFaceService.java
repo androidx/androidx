@@ -18,23 +18,19 @@ package androidx.wear.watchface.samples.minimal;
 
 import android.view.SurfaceHolder;
 
-import androidx.wear.watchface.Complication;
-import androidx.wear.watchface.ComplicationsManager;
+import androidx.annotation.NonNull;
+import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.ListenableWatchFaceService;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
-import androidx.wear.watchface.style.UserStyleRepository;
-import androidx.wear.watchface.style.UserStyleSchema;
-import androidx.wear.watchface.style.UserStyleSetting;
+import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
 
 /** The service that defines the watch face. */
 public class WatchFaceService extends ListenableWatchFaceService {
@@ -42,16 +38,12 @@ public class WatchFaceService extends ListenableWatchFaceService {
     @NotNull
     @Override
     protected ListenableFuture<WatchFace> createWatchFaceFuture(
-            @NotNull SurfaceHolder surfaceHolder, @NotNull WatchState watchState) {
-        UserStyleRepository userStyleRepository =
-                new UserStyleRepository(
-                        new UserStyleSchema(Collections.<UserStyleSetting>emptyList()));
-        ComplicationsManager complicationManager =
-                new ComplicationsManager(Collections.<Complication>emptyList(),
-                        userStyleRepository);
-        Renderer renderer = new WatchFaceRenderer(surfaceHolder, userStyleRepository, watchState);
+            @NotNull SurfaceHolder surfaceHolder, @NotNull WatchState watchState,
+            @NonNull ComplicationSlotsManager complicationSlotsManager,
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
+        Renderer renderer =
+                new WatchFaceRenderer(surfaceHolder, currentUserStyleRepository, watchState);
         return Futures.immediateFuture(
-                new WatchFace(WatchFaceType.DIGITAL, userStyleRepository, renderer,
-                        complicationManager));
+                new WatchFace(WatchFaceType.DIGITAL, renderer));
     }
 }

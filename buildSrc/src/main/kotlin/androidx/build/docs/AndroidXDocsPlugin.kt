@@ -18,6 +18,8 @@ package androidx.build.docs
 
 import androidx.build.SupportConfig
 import androidx.build.addToBuildOnServer
+import androidx.build.dackka.DackkaTask
+import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.doclava.DacOptions
 import androidx.build.doclava.DoclavaTask
 import androidx.build.doclava.GENERATE_DOCS_CONFIG
@@ -44,7 +46,6 @@ import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.FileCollection
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
@@ -103,6 +104,19 @@ class AndroidXDocsPlugin : Plugin<Project> {
             docsSourcesConfiguration
         )
 
+        val unzippedSourcesForDackka = File(project.buildDir, "unzippedSourcesForDackka")
+        val unzipSourcesForDackkaTask = configureDackkaUnzipTask(
+            unzippedSourcesForDackka,
+            docsSourcesConfiguration
+        )
+
+        configureDackka(
+            unzippedSourcesForDackka,
+            unzipSourcesForDackkaTask,
+            unzippedSamplesSources,
+            unzipSamplesTask,
+            dependencyClasspath
+        )
         configureDokka(
             unzippedDocsSources,
             unzipDocsTask,
@@ -154,6 +168,35 @@ class AndroidXDocsPlugin : Plugin<Project> {
             task.filter { line ->
                 regex.replace(line, "{@link $1attr#$3}")
             }
+        }
+    }
+
+    /**
+     * Creates and configures a task that will build a list of select sources, defined by
+     * [dackkaDirsToProcess], and places them in [destinationDirectory].
+     *
+     * This is a modified version of [configureUnzipTask], customized for Dackka usage.
+     */
+    private fun configureDackkaUnzipTask(
+        destinationDirectory: File,
+        docsConfiguration: Configuration
+    ): TaskProvider<Sync> {
+        return project.tasks.register("unzipSourcesForDackka", Sync::class.java) { task ->
+            val sources = docsConfiguration.incoming.artifactView { }.files
+
+            @Suppress("UnstableApiUsage")
+            task.from(
+                sources.elements.map { jars ->
+                    jars.map {
+                        project.zipTree(it).matching {
+                            dackkaDirsToProcess.forEach { dir ->
+                                it.include(dir)
+                            }
+                        }
+                    }
+                }
+            )
+            task.into(destinationDirectory)
         }
     }
 
@@ -222,11 +265,9 @@ class AndroidXDocsPlugin : Plugin<Project> {
         }
         listOf(docsCompileClasspath, docsRuntimeClasspath).forEach { config ->
             config.resolutionStrategy {
-                val versions = (project.rootProject.property("ext") as ExtraPropertiesExtension)
-                    .let { it.get("build_versions") as Map<*, *> }
                 it.eachDependency { details ->
                     if (details.requested.group == "org.jetbrains.kotlin") {
-                        details.useVersion(versions["kotlin"] as String)
+                        details.useVersion(KOTLIN_VERSION)
                     }
                 }
             }
@@ -242,6 +283,61 @@ class AndroidXDocsPlugin : Plugin<Project> {
                 "android-classes"
             )
         }.files
+    }
+
+    private fun configureDackka(
+        unzippedDocsSources: File,
+        unzipDocsTask: TaskProvider<Sync>,
+        unzippedSamplesSources: File,
+        unzipSamplesTask: TaskProvider<Sync>,
+        dependencyClasspath: FileCollection
+    ) {
+        val generatedDocsDir = project.file("${project.buildDir}/dackkaDocs")
+
+        val dackkaConfiguration = project.configurations.create("dackka").apply {
+            dependencies.add(project.dependencies.create(DACKKA_DEPENDENCY))
+        }
+
+        val dackkaTask = project.tasks.register("dackkaDocs", DackkaTask::class.java) { task ->
+            task.apply {
+                dependsOn(dackkaConfiguration)
+                dependsOn(unzipDocsTask)
+                dependsOn(unzipSamplesTask)
+
+                description = "Generates reference documentation using a Google devsite Dokka" +
+                    " plugin. Places docs in $generatedDocsDir"
+                group = JavaBasePlugin.DOCUMENTATION_GROUP
+
+                dackkaClasspath.from(project.files(dackkaConfiguration))
+                destinationDir = generatedDocsDir
+                samplesDir = unzippedSamplesSources
+                sourcesDir = unzippedDocsSources
+                docsProjectDir = File(project.rootDir, "docs-public")
+                dependenciesClasspath = androidJarFile(project) + dependencyClasspath
+            }
+        }
+
+        val zipTask = project.tasks.register("zipDackkaDocs", Zip::class.java) { task ->
+            task.apply {
+                dependsOn(dackkaTask)
+                from(generatedDocsDir)
+
+                val baseName = "dackka-$docsType-docs"
+                val buildId = getBuildId()
+                archiveBaseName.set(baseName)
+                archiveVersion.set(buildId)
+                destinationDirectory.set(project.getDistributionDirectory())
+                group = JavaBasePlugin.DOCUMENTATION_GROUP
+
+                val filePath = "${project.getDistributionDirectory().canonicalPath}/"
+                val fileName = "$baseName-$buildId.zip"
+                val destinationFile = filePath + fileName
+                description = "Zips Java and Kotlin documentation (generated via Dackka in the" +
+                    " style of d.android.com) into $destinationFile"
+            }
+        }
+
+        project.addToBuildOnServer(zipTask)
     }
 
     private fun configureDokka(
@@ -463,7 +559,25 @@ abstract class SourcesVariantRule : ComponentMetadataRule {
     }
 }
 
+private const val DACKKA_DEPENDENCY = "com.google.devsite:dackka:0.0.6"
 private const val DOCLAVA_DEPENDENCY = "com.android:doclava:1.0.6"
+
+// Allowlist for directories that should be processed by Dackka
+private val dackkaDirsToProcess = listOf(
+    "androidx/annotation/**",
+    "androidx/benchmark/**",
+    "androidx/biometric/**",
+    "androidx/collection/**",
+    "androidx/compose/**",
+    "androidx/datastore/**",
+    "androidx/lifecycle/**",
+    "androidx/navigation/**",
+    "androidx/paging/**",
+    "androidx/room/**",
+    "androidx/wear/**",
+    "androidx/window/**",
+    "androidx/work/**"
+)
 
 private val hiddenPackages = listOf(
     "androidx.camera.camera2.impl",

@@ -81,16 +81,16 @@ public abstract class ListenableCallback<I> {
         public void run() {
             try {
                 I result = mCallback.mFuture.get();
-                successCallback(mCallback.mCallback, mCallback.toByteArray(result));
+                reportSuccess(mCallback.mCallback, mCallback.toByteArray(result));
             } catch (Throwable throwable) {
-                failureCallback(mCallback.mCallback, throwable);
+                reportFailure(mCallback.mCallback, throwable);
             }
         }
 
         /**
          * Dispatches successful callbacks safely.
          */
-        public static void successCallback(
+        public static void reportSuccess(
                 @NonNull IWorkManagerImplCallback callback,
                 @NonNull byte[] response) {
             try {
@@ -103,7 +103,7 @@ public abstract class ListenableCallback<I> {
         /**
          * Dispatches failures callbacks safely.
          **/
-        public static void failureCallback(
+        public static void reportFailure(
                 @NonNull IWorkManagerImplCallback callback,
                 @NonNull Throwable throwable) {
             try {

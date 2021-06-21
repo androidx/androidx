@@ -18,11 +18,13 @@ package androidx.wear.complications
 
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.drawable.Icon
 import android.os.IBinder
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
@@ -30,8 +32,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.doAnswer
 
@@ -58,7 +60,7 @@ public class ProviderInfoRetrieverTest {
     private val providerInfoRetriever = ProviderInfoRetriever(mockService)
 
     @Test
-    public fun requestPreviewComplicationData() {
+    public fun retrievePreviewComplicationData() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
@@ -66,7 +68,8 @@ public class ProviderInfoRetrieverTest {
             Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
             val testData: ComplicationData = LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Test Text").build()
+                PlainComplicationText.Builder("Test Text").build(),
+                ComplicationText.EMPTY
             ).build()
 
             doAnswer {
@@ -75,12 +78,12 @@ public class ProviderInfoRetrieverTest {
                 true
             }.`when`(mockService).requestPreviewComplicationData(
                 eq(component),
-                eq(type.asWireComplicationType()),
+                eq(type.toWireComplicationType()),
                 any()
             )
 
             val previewData =
-                providerInfoRetriever.requestPreviewComplicationData(component, type)!!
+                providerInfoRetriever.retrievePreviewComplicationData(component, type)!!
             assertThat(previewData.type).isEqualTo(type)
             assertThat(
                 (previewData as LongTextComplicationData).text.getTextAt(
@@ -91,7 +94,7 @@ public class ProviderInfoRetrieverTest {
     }
 
     @Test
-    public fun requestPreviewComplicationDataProviderReturnsNull() {
+    public fun retrievePreviewComplicationDataProviderReturnsNull() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
@@ -104,30 +107,30 @@ public class ProviderInfoRetrieverTest {
                 true
             }.`when`(mockService).requestPreviewComplicationData(
                 eq(component),
-                eq(type.asWireComplicationType()),
+                eq(type.toWireComplicationType()),
                 any()
             )
 
-            assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
+            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
     }
 
     @Test
-    public fun requestPreviewComplicationDataApiNotSupported() {
+    public fun retrievePreviewComplicationDataApiNotSupported() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
             Mockito.`when`(mockService.apiVersion).thenReturn(0)
             Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
-            assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
+            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
     }
 
     @Test
-    public fun requestPreviewComplicationDataApiReturnsFalse() {
+    public fun retrievePreviewComplicationDataApiReturnsFalse() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
@@ -137,12 +140,24 @@ public class ProviderInfoRetrieverTest {
                 false
             }.`when`(mockService).requestPreviewComplicationData(
                 eq(component),
-                eq(type.asWireComplicationType()),
+                eq(type.toWireComplicationType()),
                 any()
             )
 
-            assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
+            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
+    }
+
+    @Test
+    public fun complicationProviderInfo_NullComponentName() {
+        val complicationProviderInfo = ComplicationProviderInfo(
+            "appName",
+            "name",
+            Icon.createWithContentUri("icon"),
+            ComplicationType.SHORT_TEXT,
+            componentName = null
+        )
+        assertThat(complicationProviderInfo.componentName).isNull()
     }
 }

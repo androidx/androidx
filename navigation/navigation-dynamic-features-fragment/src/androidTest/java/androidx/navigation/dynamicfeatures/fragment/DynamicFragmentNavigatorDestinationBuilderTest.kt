@@ -33,13 +33,14 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class DynamicFragmentNavigatorDestinationBuilderTest {
-    @Suppress("DEPRECATION")
+
     @get:Rule
     public val rule: ActivityScenarioRule<TestActivity> = ActivityScenarioRule(
         TestActivity::class.java
     )
     private val fragmentManager get() = rule.withActivity { supportFragmentManager }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     public fun reified() {
@@ -56,6 +57,7 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(TestFragment::class.java.name)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     public fun moduleName() {
@@ -77,6 +79,7 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     public fun no_moduleName() {

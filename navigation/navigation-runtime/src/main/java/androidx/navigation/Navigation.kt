@@ -32,7 +32,7 @@ import java.lang.ref.WeakReference
 public object Navigation {
     /**
      * Find a [NavController] given the id of a View and its containing
-     * [Activity]. This is a convenience wrapper around [.findNavController].
+     * [Activity]. This is a convenience wrapper around [findNavController].
      *
      * This method will locate the [NavController] associated with this view.
      * This is automatically populated for the id of a [NavHost] and its children.
@@ -104,13 +104,13 @@ public object Navigation {
 
     /**
      * Associates a NavController with the given View, allowing developers to use
-     * [.findNavController] and [.findNavController] with that
+     * [findNavController] and [findNavController] with that
      * View or any of its children to retrieve the NavController.
      *
      * This is generally called for you by the hosting [NavHost].
      * @param view View that should be associated with the given NavController
      * @param controller The controller you wish to later retrieve via
-     * [.findNavController]
+     * [findNavController]
      */
     @JvmStatic
     public fun setViewNavController(view: View, controller: NavController?) {

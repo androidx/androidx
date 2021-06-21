@@ -20,10 +20,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
-import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
@@ -35,15 +34,18 @@ public interface WatchFaceHostApi {
     /** Returns the watch face's [Context]. */
     public fun getContext(): Context
 
-    /** Returns the main thread [Handler]. */
-    public fun getHandler(): Handler
+    /** Returns the UI thread [Handler]. */
+    public fun getUiThreadHandler(): Handler
+
+    /** Returns the Worker thread [Handler]. */
+    public fun getBackgroundThreadHandler(): Handler
 
     /** Returns the initial user style stored by the system if there is one or null otherwise. */
     public fun getInitialUserStyle(): UserStyleWireFormat?
 
     /**
      * Sets ContentDescriptionLabels for text-to-speech screen readers to make your
-     * complications, buttons, and any other text on your watchface accessible.
+     * [ComplicationSlot]s, buttons, and any other text on your watchface accessible.
      *
      * Each label is a region of the screen in absolute coordinates, along with
      * time-dependent text. The regions must not overlap.
@@ -51,7 +53,7 @@ public interface WatchFaceHostApi {
      * You must set all labels at the same time; previous labels will be cleared. An empty
      * array clears all labels.
      *
-     * In addition to labeling your complications, please include a label that will read the
+     * In addition to labeling your [ComplicationSlot]s, please include a label that will read the
      * current time. You can use [android.support.wearable.watchface.accessibility
      * .AccessibilityUtils.makeTimeAsComplicationText] to generate the proper
      * [android.support.wearable.complications.ComplicationText].
@@ -59,14 +61,13 @@ public interface WatchFaceHostApi {
      * This is a fairly expensive operation so use it sparingly (e.g. do not call it in
      * `onDraw()`).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
+    public fun updateContentDescriptionLabels()
 
     /**
-     * Sets the complications which are active in the watchface. Complication data will be
-     * received for these ids.
+     * Sets the complicationSlots which are active in the watchface. ComplicationSlot data will be
+     * received for these ids. This is to support the pre-android R flow.
      *
-     * Any ids not in the provided [watchFaceComplicationIds] will be considered inactive.
+     * Any ids not in the provided [complicationSlotIds] will be considered inactive.
      *
      * If providers and complication data types have been configured, the data received will
      * match the type chosen by the user. If no provider has been configured, data of type
@@ -75,48 +76,45 @@ public interface WatchFaceHostApi {
      * Ids here are chosen by the watch face to represent each complication and can be any
      * integer.
      */
-    public fun setActiveComplications(watchFaceComplicationIds: IntArray)
+    public fun setActiveComplicationSlots(complicationSlotIds: IntArray)
 
     /**
      * Accepts a list of custom providers to attempt to set as the default provider for the
-     * specified watch face complication id. The custom providers are tried in turn, if the
+     * specified watch face [ComplicationSlot] id. The custom providers are tried in turn, if the
      * first doesn't exist then the next one is tried and so on. If none of them exist then the
      * specified system provider is set as the default instead.
      *
      * This will do nothing if the providers are not installed, or if the specified type is
      * not supported by the providers, or if the user has already selected a provider for the
-     * complication.
+     * [ComplicationSlot].
      *
      * Note that if the watch face has not yet been granted the `RECEIVE_COMPLICATION_DATA`
      * permission, it will not be able to receive data from the provider unless the provider is
      * from the same app package as the watch face, or the provider lists the watch face as a
      * safe watch face. For system providers that may be used before your watch face has the
-     * permission, use [.setDefaultSystemComplicationProvider] with a safe provider
+     * permission, use [setDefaultSystemComplicationProvider] with a safe provider
      * instead.
      *
      * A provider not satisfying the above conditions may still be set as a default using
      * this method, but the watch face will receive placeholder data of type
      * [ComplicationData.TYPE_NO_PERMISSION] until the permission has been granted.
      *
-     * @param watchFaceComplicationId The watch face's ID for the complication
+     * @param complicationSlotId The [ComplicationSlot] id.
      * @param providers The list of non-system providers to try in order before falling back to
-     *     fallbackSystemProvider. This list may be null.
-     * @param fallbackSystemProvider The system provider to use if none of the providers could
-     *     be used.
-     * @param type The type of complication data that should be provided. Must be one of the
-     *     types defined in [ComplicationData]
+     * fallbackSystemProvider. This list may be null.
+     * @param fallbackSystemProvider The system provider to use if none of the providers could be
+     * used.
+     * @param type The type of complication data that should be provided. Must be one of the types
+     * defined in [ComplicationData].
      */
     public fun setDefaultComplicationProviderWithFallbacks(
-        watchFaceComplicationId: Int,
+        complicationSlotId: Int,
         providers: List<ComponentName>?,
-        @SystemProviders.ProviderId fallbackSystemProvider: Int,
+        @ProviderId fallbackSystemProvider: Int,
         type: Int
     )
 
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
-
-    /** Signals a style change has occurred. */
-    public fun onUserStyleChanged()
 }

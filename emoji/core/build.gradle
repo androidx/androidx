@@ -3,8 +3,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -12,7 +10,7 @@ plugins {
 }
 
 ext {
-    fontDir = project(":noto-emoji-compat").projectDir
+    fontDir = project(":noto-emoji-compat-font").projectDir
 }
 
 BundleInsideHelper.forInsideAar(
@@ -22,18 +20,18 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    bundleInside(project(":noto-emoji-compat"))
+    bundleInside(project(":noto-emoji-compat-flatbuffers"))
 
     api("androidx.core:core:1.3.0-rc01")
     implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
@@ -68,11 +66,11 @@ androidx {
 
     license {
         name = "SIL Open Font License, Version 1.1"
-        url = "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
+        url = "https://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
     license {
         name = "Unicode, Inc. License"
-        url = "http://www.unicode.org/copyright.html#License"
+        url = "https://www.unicode.org/license.html"
     }
 }

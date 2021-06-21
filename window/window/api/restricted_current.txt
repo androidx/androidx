@@ -1,84 +1,90 @@
 // Signature format: 4.0
 package androidx.window {
 
-  @Deprecated public final class DeviceState {
-    method @Deprecated public int getPosture();
-    field @Deprecated public static final int POSTURE_CLOSED = 1; // 0x1
-    field @Deprecated public static final int POSTURE_FLIPPED = 4; // 0x4
-    field @Deprecated public static final int POSTURE_HALF_OPENED = 2; // 0x2
-    field @Deprecated public static final int POSTURE_OPENED = 3; // 0x3
-    field @Deprecated public static final int POSTURE_UNKNOWN = 0; // 0x0
-  }
-
-  @Deprecated public static final class DeviceState.Builder {
-    ctor @Deprecated public DeviceState.Builder();
-    method @Deprecated public androidx.window.DeviceState build();
-    method @Deprecated public androidx.window.DeviceState.Builder setPosture(int);
+  public final class ActivityExtKt {
   }
 
   public interface DisplayFeature {
     method public android.graphics.Rect getBounds();
-    method @Deprecated public int getType();
-    field @Deprecated public static final int TYPE_FOLD = 1; // 0x1
-    field @Deprecated public static final int TYPE_HINGE = 2; // 0x2
+    property public abstract android.graphics.Rect bounds;
   }
 
-  @Deprecated public static class DisplayFeature.Builder {
-    ctor @Deprecated public DisplayFeature.Builder();
-    method @Deprecated public androidx.window.DisplayFeature build();
-    method @Deprecated public androidx.window.DisplayFeature.Builder setBounds(android.graphics.Rect);
-    method @Deprecated public androidx.window.DisplayFeature.Builder setType(int);
-  }
-
-  public class FoldingFeature implements androidx.window.DisplayFeature {
-    ctor public FoldingFeature(android.graphics.Rect, int, int);
+  public final class FoldingFeature implements androidx.window.DisplayFeature {
+    ctor public FoldingFeature(android.graphics.Rect bounds, int type, int state);
     method public android.graphics.Rect getBounds();
     method public int getOcclusionMode();
     method public int getOrientation();
     method public int getState();
-    method @Deprecated public int getType();
     method public boolean isSeparating();
+    property public android.graphics.Rect bounds;
+    property public final boolean isSeparating;
+    property public final int occlusionMode;
+    property public final int orientation;
+    property public final int state;
+    field public static final androidx.window.FoldingFeature.Companion Companion;
     field public static final int OCCLUSION_FULL = 1; // 0x1
     field public static final int OCCLUSION_NONE = 0; // 0x0
     field public static final int ORIENTATION_HORIZONTAL = 1; // 0x1
     field public static final int ORIENTATION_VERTICAL = 0; // 0x0
     field public static final int STATE_FLAT = 1; // 0x1
-    field public static final int STATE_FLIPPED = 3; // 0x3
     field public static final int STATE_HALF_OPENED = 2; // 0x2
     field public static final int TYPE_FOLD = 1; // 0x1
     field public static final int TYPE_HINGE = 2; // 0x2
   }
 
+  public static final class FoldingFeature.Companion {
+  }
+
   public interface WindowBackend {
-    method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
-    method public void registerLayoutChangeCallback(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
-    method @Deprecated public void registerLayoutChangeCallback(android.content.Context, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
-    method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
-    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void registerLayoutChangeCallback(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
+  }
+
+  public interface WindowInfoRepo {
+    method public androidx.window.WindowMetrics getCurrentWindowMetrics();
+    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
+    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.WindowInfoRepoDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
+    property public abstract androidx.window.WindowMetrics currentWindowMetrics;
+    property public abstract androidx.window.WindowMetrics maximumWindowMetrics;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo;
+    field public static final androidx.window.WindowInfoRepo.Companion Companion;
+  }
+
+  public static final class WindowInfoRepo.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.WindowInfoRepoDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepoDecorator {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.WindowInfoRepo decorate(androidx.window.WindowInfoRepo repo);
   }
 
   public final class WindowLayoutInfo {
-    method public java.util.List<androidx.window.DisplayFeature!> getDisplayFeatures();
+    method public java.util.List<androidx.window.DisplayFeature> getDisplayFeatures();
+    property public final java.util.List<androidx.window.DisplayFeature> displayFeatures;
   }
 
   public static final class WindowLayoutInfo.Builder {
     ctor public WindowLayoutInfo.Builder();
     method public androidx.window.WindowLayoutInfo build();
-    method public androidx.window.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<androidx.window.DisplayFeature!>);
+    method public androidx.window.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<? extends androidx.window.DisplayFeature> displayFeatures);
   }
 
   public final class WindowManager {
-    ctor public WindowManager(android.content.Context);
-    ctor public WindowManager(android.content.Context, androidx.window.WindowBackend);
+    ctor public WindowManager(android.content.Context context, optional androidx.window.WindowBackend windowBackend);
+    ctor public WindowManager(android.content.Context context);
     method public androidx.window.WindowMetrics getCurrentWindowMetrics();
     method public androidx.window.WindowMetrics getMaximumWindowMetrics();
-    method public void registerLayoutChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
-    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void registerLayoutChangeCallback(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
   }
 
   public final class WindowMetrics {
-    ctor public WindowMetrics(android.graphics.Rect);
+    ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
+    property public final android.graphics.Rect bounds;
   }
 
 }

@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -39,10 +36,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            testCoverageEnabled true
-        }
-
         release {
             minifyEnabled true
             shrinkResources true
@@ -56,7 +49,7 @@ android {
 
 dependencies {
     // Internal library
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
@@ -66,16 +59,16 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(TRUTH)
-    debugImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(libs.truth)
+    debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))

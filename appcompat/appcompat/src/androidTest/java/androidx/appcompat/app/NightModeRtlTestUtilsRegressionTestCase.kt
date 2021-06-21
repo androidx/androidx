@@ -23,6 +23,7 @@ import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_LO
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -37,6 +38,7 @@ import java.util.Locale
  * <p>
  *
  */
+@SdkSuppress(minSdkVersion = 16)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class NightModeRtlTestUtilsRegressionTestCase {

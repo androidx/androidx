@@ -18,16 +18,13 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
     id("kotlin-kapt")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("dagger.hilt.android.plugin")
 }
 
@@ -40,38 +37,32 @@ android {
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
-    implementation(KOTLIN_STDLIB)
-    api(project(":hilt:hilt-navigation"))
-    api("androidx.compose.runtime:runtime:1.0.0-beta01")
-    api("androidx.compose.ui:ui:1.0.0-beta01")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha02")
-    api("androidx.navigation:navigation-compose:1.0.0-alpha08")
+    implementation(libs.kotlinStdlib)
+    api("androidx.hilt:hilt-navigation:1.0.0")
+    api(projectOrArtifact(":compose:runtime:runtime"))
+    api(projectOrArtifact(":compose:ui:ui"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+    api(projectOrArtifact(":navigation:navigation-compose"))
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(HILT_ANDROID)
-    androidTestImplementation(HILT_ANDROID_TESTING)
-    kaptAndroidTest(HILT_COMPILER)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.hiltAndroid)
+    androidTestImplementation(libs.hiltAndroidTesting)
+    kaptAndroidTest(libs.hiltCompiler)
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation projectOrArtifact(":compose:test-utils")
 }
 
 androidx {
-    name = "Navigation Compose Hilt Extension"
+    name = "Navigation Compose Hilt Integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2021"
-    description = "Navigation Compose Hilt Extension"
+    description = "Navigation Compose Hilt Integration"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        useIR = true
-    }
 }

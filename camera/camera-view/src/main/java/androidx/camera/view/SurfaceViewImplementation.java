@@ -16,8 +16,8 @@
 
 package androidx.camera.view;
 
-import android.annotation.TargetApi;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.util.Size;
 import android.view.PixelCopy;
 import android.view.Surface;
@@ -26,8 +26,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -114,7 +116,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
      * would introduced in API level 24. PreviewView doesn't currently use a SurfaceView on API
      * levels below 24.
      */
-    @TargetApi(24)
+    @RequiresApi(24)
     @Nullable
     @Override
     Bitmap getPreviewBitmap() {
@@ -127,7 +129,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         // Copy display contents of the surfaceView's surface into a Bitmap.
         final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
                 Bitmap.Config.ARGB_8888);
-        PixelCopy.request(mSurfaceView, bitmap, copyResult -> {
+        Api24Impl.pixelCopyRequest(mSurfaceView, bitmap, copyResult -> {
             if (copyResult == PixelCopy.SUCCESS) {
                 Logger.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
             } else {
@@ -272,5 +274,21 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @NonNull
     ListenableFuture<Void> waitForNextFrame() {
         return Futures.immediateFuture(null);
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 7.0 (API 24).
+     */
+    @RequiresApi(24)
+    private static class Api24Impl {
+
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static void pixelCopyRequest(@NonNull SurfaceView source, @NonNull Bitmap dest,
+                @NonNull PixelCopy.OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
+            PixelCopy.request(source, dest, listener, handler);
+        }
     }
 }

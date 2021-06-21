@@ -1,0 +1,20 @@
+// The components of a tile that can be rendered by a tile renderer.
+syntax = "proto3";
+
+package androidx.wear.tiles.proto;
+
+option java_package = "androidx.wear.tiles.proto";
+option java_outer_classname = "VersionProto";
+
+// Version information. This is used to encode the schema version of a payload
+// (e.g. inside of Tile).
+message VersionInfo {
+  // Major version. Incremented on breaking changes (i.e. compatibility is not
+  // guaranteed across major versions).
+  uint32 major = 1;
+
+  // Minor version. Incremented on non-breaking changes (e.g. schema additions).
+  // Anything consuming a payload can safely consume anything with a lower
+  // minor version.
+  uint32 minor = 2;
+}

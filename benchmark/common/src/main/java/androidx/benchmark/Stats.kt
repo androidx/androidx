@@ -25,6 +25,7 @@ import kotlin.math.sqrt
 /**
  * Provides statistics such as mean, median, min, max, and percentiles, given a list of input
  * values.
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Stats(data: LongArray, public val name: String) {

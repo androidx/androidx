@@ -263,7 +263,7 @@ class TextRenderer {
      * <p>If not called, the default is {@link Gravity#CENTER}.
      *
      * @param gravity Gravity to position text, should be one of the constants specified in {@link
-     *                android.view.Gravity} class.
+     * android.view.Gravity} class.
      */
     public void setGravity(int gravity) {
         if (mGravity == gravity) {

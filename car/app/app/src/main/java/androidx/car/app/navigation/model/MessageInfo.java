@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -30,6 +30,7 @@ import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
 import java.util.Objects;
 
 /** Represents a message that can be shown in the {@link NavigationTemplate}. */
+@CarProtocol
 public final class MessageInfo implements NavigationInfo {
     @Keep
     @Nullable
@@ -122,7 +123,7 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the title of the message.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code message} is {@code null}
          * @see CarText
@@ -136,7 +137,7 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets additional text on the message.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code text} is {@code null}
          * @see CarText
@@ -148,14 +149,13 @@ public final class MessageInfo implements NavigationInfo {
         }
 
         /**
-         * Sets additional text on the message.
+         * Sets additional text on the message, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code text} is {@code null}
          * @see CarText
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
@@ -165,7 +165,15 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the image to display along with the message.
          *
-         * <p>Unless set with this method, the message will not have an image.
+         * <h4>Image Sizing Guidance</h4>
+         *
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * images targeting a 128 x 128 dp bounding box. If the image exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving the aspect ratio.
+         *
+         * <p>See {@link CarIcon} for more details related to providing icon and image resources
+         * that work with different car screen pixel densities.
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */
@@ -185,6 +193,8 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Returns a new instance of a {@link Builder}.
          *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
          * @throws NullPointerException if {@code title} is {@code null}
          */
         public Builder(@NonNull CharSequence title) {
@@ -194,9 +204,10 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Returns a new instance of a {@link Builder}.
          *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
          * @throws NullPointerException if {@code title} is {@code null}
          */
-        @ExperimentalCarApi
         public Builder(@NonNull CarText title) {
             mTitle = requireNonNull(title);
         }

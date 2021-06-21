@@ -29,7 +29,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -44,6 +44,7 @@ import java.util.Objects;
  * Represents a row with a title, several lines of text, an optional image, and an optional action
  * or switch.
  */
+@CarProtocol
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
@@ -62,24 +63,27 @@ public final class Row implements Item {
     /**
      * Represents a small image to be displayed in the row.
      *
-     * <p>If necessary, small images will be scaled down to fit within a 36 x 36 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the image will be scaled down while
+     * preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_SMALL = (1 << 0);
 
     /**
      * Represents a large image to be displayed in the row.
      *
-     * <p>If necessary, large images will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 224 x 224 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
     /**
      * Represents a small image to be displayed in the row.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 44 x 44 dp bounding box,
-     * preserving their aspect ratios.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -296,6 +300,8 @@ public final class Row implements Item {
         /**
          * Sets the title of the row.
          *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty
          */
@@ -310,11 +316,12 @@ public final class Row implements Item {
         }
 
         /**
-         * Sets the title of the row.
+         * Sets the title of the row, with support for multiple length variants.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws IllegalArgumentException if {@code title} is {@code null} or empty
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             if (requireNonNull(title).isEmpty()) {
@@ -396,12 +403,11 @@ public final class Row implements Item {
         }
 
         /**
-         * Adds a text string to the row below the title.
+         * Adds a text string to the row below the title, with support for multiple length variants.
          *
          * @throws NullPointerException if {@code text} is {@code null}
          * @see Builder#addText(CharSequence)
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder addText(@NonNull CarText text) {
             mTexts.add(requireNonNull(text));
@@ -431,7 +437,7 @@ public final class Row implements Item {
          *
          * <p>If the input image's size exceeds the sizing requirements for the given image type in
          * either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving the aspect ratio.
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.

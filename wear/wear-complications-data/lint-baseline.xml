@@ -1,15 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Uses @TargetApi annotation"
-        errorLine1="@TargetApi(Build.VERSION_CODES.N)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
         <location
-            file="src/main/java/androidx/wear/complications/ComplicationHelperActivity.java"
-            line="58"
-            column="1"/>
+            file="src/main/res/values-fr-rCA/complication_strings.xml"
+            line="60"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr-rCA/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="26"
+            column="5"/>
     </issue>
 
 </issues>

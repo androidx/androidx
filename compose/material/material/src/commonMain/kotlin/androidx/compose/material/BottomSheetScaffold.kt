@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.material.BottomSheetValue.Collapsed
+import androidx.compose.material.BottomSheetValue.Expanded
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -90,7 +92,7 @@ class BottomSheetState(
      * Whether the bottom sheet is expanded.
      */
     val isExpanded: Boolean
-        get() = currentValue == BottomSheetValue.Expanded
+        get() = currentValue == Expanded
 
     /**
      * Whether the bottom sheet is collapsed.
@@ -105,7 +107,7 @@ class BottomSheetState(
      *
      * @return the reason the expand animation ended
      */
-    suspend fun expand() = animateTo(BottomSheetValue.Expanded)
+    suspend fun expand() = animateTo(Expanded)
 
     /**
      * Collapse the bottom sheet with animation and suspend until it if fully collapsed or animation
@@ -206,10 +208,14 @@ fun rememberBottomSheetScaffoldState(
 }
 
 /**
+ * <a href="https://material.io/components/sheets-bottom#standard-bottom-sheet" class="external" target="_blank">Material Design standard bottom sheet</a>.
+ *
  * Standard bottom sheets co-exist with the screen’s main UI region and allow for simultaneously
  * viewing and interacting with both regions. They are commonly used to keep a feature or
  * secondary content visible on screen when content in main UI region is frequently scrolled or
  * panned.
+ *
+ * ![Standard bottom sheet image](https://developer.android.com/images/reference/androidx/compose/material/standard-bottom-sheet.png)
  *
  * This component provides an API to put together several material components to construct your
  * screen. For a similar component which implements the basic material design layout strategy
@@ -287,7 +293,7 @@ fun BottomSheetScaffold(
                 state = scaffoldState.bottomSheetState,
                 anchors = mapOf(
                     fullHeight - peekHeightPx to BottomSheetValue.Collapsed,
-                    fullHeight - bottomSheetHeight to BottomSheetValue.Expanded
+                    fullHeight - bottomSheetHeight to Expanded
                 ),
                 orientation = Orientation.Vertical,
                 enabled = sheetGesturesEnabled,
@@ -297,12 +303,16 @@ fun BottomSheetScaffold(
                 if (peekHeightPx != bottomSheetHeight) {
                     if (scaffoldState.bottomSheetState.isCollapsed) {
                         expand {
-                            scope.launch { scaffoldState.bottomSheetState.expand() }
+                            if (scaffoldState.bottomSheetState.confirmStateChange(Expanded)) {
+                                scope.launch { scaffoldState.bottomSheetState.expand() }
+                            }
                             true
                         }
                     } else {
                         collapse {
-                            scope.launch { scaffoldState.bottomSheetState.collapse() }
+                            if (scaffoldState.bottomSheetState.confirmStateChange(Collapsed)) {
+                                scope.launch { scaffoldState.bottomSheetState.collapse() }
+                            }
                             true
                         }
                     }
@@ -402,7 +412,7 @@ private fun BottomSheetScaffoldStack(
 
             val fabOffsetX = when (floatingActionButtonPosition) {
                 FabPosition.Center -> (placeable.width - fabPlaceable.width) / 2
-                FabPosition.End -> placeable.width - fabPlaceable.width - FabEndSpacing.roundToPx()
+                else -> placeable.width - fabPlaceable.width - FabEndSpacing.roundToPx()
             }
             val fabOffsetY = sheetOffsetY - fabPlaceable.height / 2
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -420,24 +420,13 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static final class Speed {"
-        errorLine2="                               ~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Exif.java"
-            line="627"
-            column="32"/>
-    </issue>
-
-    <issue
         id="KotlinPropertyAccess"
         message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="        boolean isUseRepeatingSurface() {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="306"
+            line="302"
             column="17"/>
     </issue>
 
@@ -547,7 +536,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="35"
+            line="37"
             column="26"/>
     </issue>
 
@@ -558,7 +547,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="47"
+            line="50"
             column="18"/>
     </issue>
 
@@ -569,7 +558,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="54"
+            line="57"
             column="29"/>
     </issue>
 
@@ -642,56 +631,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T> Optional&lt;T> of(T reference) {"
-        errorLine2="                                     ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="90"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static &lt;T> Optional&lt;T> fromNullable(@Nullable T nullableReference) {"
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
             line="102"
             column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T get();"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="130"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T or(T defaultValue);"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="168"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T or(T defaultValue);"
-        errorLine2="                         ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="168"
-            column="26"/>
     </issue>
 
     <issue
@@ -714,17 +659,6 @@
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
             line="177"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T or(Supplier&lt;? extends T> supplier);"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="189"
-            column="21"/>
     </issue>
 
     <issue

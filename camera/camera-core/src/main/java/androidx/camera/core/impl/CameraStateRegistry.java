@@ -295,6 +295,18 @@ public final class CameraStateRegistry {
         mAvailableCameras = Math.max(mMaxAllowedOpenedCameras - openCount, 0);
     }
 
+    /** Returns whether at least 1 camera is closing. */
+    public boolean isCameraClosing() {
+        synchronized (mLock) {
+            for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
+                if (entry.getValue().getState() == CameraInternal.State.CLOSING) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     /**
      * A listener that is notified when a camera slot becomes available for opening.
      */

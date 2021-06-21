@@ -43,4 +43,19 @@ oneway interface ISurfaceCallback {
    * Notifies the app that the surface has destroyed.
    */
   void onSurfaceDestroyed(in Bundleable surfaceContainer, IOnDoneCallback callback) = 4;
+
+  /**
+   * Notifies the app about a surface scroll touch event.
+   */
+  void onScroll(float distanceX, float distanceY) = 5;
+
+  /**
+   * Notifies the app about a surface fling touch event.
+   */
+  void onFling(float velocityX, float velocityY) = 6;
+
+  /**
+   * Notifies the app about a surface scale touch event.
+   */
+  void onScale(float focusX, float focusY, float scaleFactor) = 7;
 }

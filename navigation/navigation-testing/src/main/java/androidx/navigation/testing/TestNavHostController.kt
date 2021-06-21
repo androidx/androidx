@@ -55,4 +55,24 @@ public class TestNavHostController(context: Context) : NavHostController(context
         val intent = taskStackBuilder.editIntentAt(0)
         require(handleDeepLink(intent)) { "Destination does not exist on the NavGraph." }
     }
+
+    /**
+     * Navigate directly to any destination on the current [androidx.navigation.NavGraph] via an
+     * explicit deep link. If an implicit deep link exists for this destination use
+     * [#navigate(Uri)] instead.
+     *
+     * @param destRoute The destination route to navigate to.
+     * @param args The arguments to pass to the destination.
+     * @throws IllegalArgumentException If the [destination][destRoute] does not exist on the
+     * NavGraph.
+     */
+    @JvmOverloads
+    public fun setCurrentDestination(destRoute: String, args: Bundle = Bundle()) {
+        val taskStackBuilder = createDeepLink()
+            .setDestination(destRoute)
+            .setArguments(args)
+            .createTaskStackBuilder()
+        val intent = taskStackBuilder.editIntentAt(0)
+        require(handleDeepLink(intent)) { "Destination does not exist on the NavGraph." }
+    }
 }

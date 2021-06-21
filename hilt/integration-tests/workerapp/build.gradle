@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -29,9 +27,6 @@ android {
         testInstrumentationRunner "androidx.hilt.integration.workerapp.TestRunner"
     }
     buildTypes {
-        debug {
-            testCoverageEnabled = false
-        }
         release {
             minifyEnabled true
             shrinkResources true
@@ -44,15 +39,15 @@ dependencies {
     implementation(project(":work:work-runtime-ktx"))
     implementation(project(":hilt:hilt-work"))
     kapt(project(":hilt:hilt-compiler"))
-    implementation(KOTLIN_STDLIB)
-    implementation(HILT_ANDROID)
-    kapt(HILT_COMPILER)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
 
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":work:work-testing"))
-    androidTestImplementation(HILT_ANDROID_TESTING)
-    kaptAndroidTest(HILT_COMPILER)
+    androidTestImplementation(libs.hiltAndroidTesting)
+    kaptAndroidTest(libs.hiltCompiler)
 }

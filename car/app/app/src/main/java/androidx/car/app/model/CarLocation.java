@@ -24,8 +24,10 @@ import android.location.Location;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 /** Represents a geographical location with a latitude and a longitude. */
+@CarProtocol
 public final class CarLocation {
     @Keep
     private final double mLat;

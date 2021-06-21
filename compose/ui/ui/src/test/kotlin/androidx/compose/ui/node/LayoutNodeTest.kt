@@ -23,9 +23,10 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -1681,6 +1682,49 @@ class LayoutNodeTest {
         assertEquals(2, owner.layoutChangeCount)
     }
 
+    @Test
+    fun layerParamChangeCallsOnLayoutChange() {
+        val node = LayoutNode(20, 20, 100, 100, Modifier.graphicsLayer())
+        val owner = MockOwner()
+        node.attach(owner)
+        assertEquals(0, owner.layoutChangeCount)
+        node.innerLayoutNodeWrapper.onLayerBlockUpdated { scaleX = 0.5f }
+        assertEquals(1, owner.layoutChangeCount)
+        repeat(2) {
+            node.innerLayoutNodeWrapper.onLayerBlockUpdated { scaleX = 1f }
+        }
+        assertEquals(2, owner.layoutChangeCount)
+        node.innerLayoutNodeWrapper.onLayerBlockUpdated(null)
+        assertEquals(3, owner.layoutChangeCount)
+    }
+
+    @Test
+    fun reuseModifiersThatImplementMultipleModifierInterfaces() {
+        val drawAndLayoutModifier: Modifier = object : DrawModifier, LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                val placeable = measurable.measure(constraints)
+                return layout(placeable.width, placeable.height) {
+                    placeable.placeRelative(IntOffset.Zero)
+                }
+            }
+            override fun ContentDrawScope.draw() {
+                drawContent()
+            }
+        }
+        val a = Modifier.then(EmptyLayoutModifier()).then(drawAndLayoutModifier)
+        val b = Modifier.then(EmptyLayoutModifier()).then(drawAndLayoutModifier)
+        val node = LayoutNode(20, 20, 100, 100)
+        val owner = MockOwner()
+        node.attach(owner)
+        node.modifier = a
+        assertEquals(3, node.getModifierInfo().size)
+        node.modifier = b
+        assertEquals(3, node.getModifierInfo().size)
+    }
+
     private fun createSimpleLayout(): Triple<LayoutNode, LayoutNode, LayoutNode> {
         val layoutNode = ZeroSizedLayoutNode()
         val child1 = ZeroSizedLayoutNode()
@@ -1694,6 +1738,18 @@ class LayoutNodeTest {
 
     private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
         PointerInputModifier
+}
+
+private class EmptyLayoutModifier : LayoutModifier {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.placeRelative(IntOffset.Zero)
+        }
+    }
 }
 
 @OptIn(InternalCoreApi::class)
@@ -1765,12 +1821,17 @@ private class MockOwner(
     override fun measureAndLayout() {
     }
 
+    @ExperimentalComposeUiApi
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
     ): OwnedLayer {
         return object : OwnedLayer {
             override val layerId: Long
+                get() = 0
+
+            @ExperimentalComposeUiApi
+            override val ownerViewId: Long
                 get() = 0
 
             override fun updateLayerProperties(
@@ -1787,9 +1848,12 @@ private class MockOwner(
                 transformOrigin: TransformOrigin,
                 shape: Shape,
                 clip: Boolean,
-                layoutDirection: LayoutDirection
+                layoutDirection: LayoutDirection,
+                density: Density
             ) {
             }
+
+            override fun isInLayer(position: Offset) = true
 
             override fun move(position: IntOffset) {
             }
@@ -1810,8 +1874,10 @@ private class MockOwner(
             override fun destroy() {
             }
 
-            override fun getMatrix(matrix: Matrix) {
+            override fun mapBounds(rect: MutableRect, inverse: Boolean) {
             }
+
+            override fun mapOffset(point: Offset, inverse: Boolean) = point
         }
     }
 
@@ -1823,6 +1889,10 @@ private class MockOwner(
     }
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
+        TODO("Not yet implemented")
+    }
+
+    override fun requestRectangleOnScreen(rect: Rect) {
         TODO("Not yet implemented")
     }
 

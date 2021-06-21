@@ -64,9 +64,6 @@ public class FakeCamera implements CameraInternal {
 
     @Nullable
     private SessionConfig mSessionConfig;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @Nullable
-    SessionConfig mCameraControlSessionConfig;
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
 
@@ -92,9 +89,7 @@ public class FakeCamera implements CameraInternal {
         mCameraControlInternal = cameraControl == null ? new FakeCameraControl(
                 new CameraControlInternal.ControlUpdateCallback() {
                     @Override
-                    public void onCameraControlUpdateSessionConfig(
-                            @NonNull SessionConfig sessionConfig) {
-                        mCameraControlSessionConfig = sessionConfig;
+                    public void onCameraControlUpdateSessionConfig() {
                         updateCaptureSessionConfig();
                     }
 
@@ -326,9 +321,7 @@ public class FakeCamera implements CameraInternal {
         if (validatingBuilder.isValid()) {
             // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
             // to control Repeating Request and process results.
-            if (mCameraControlSessionConfig != null) {
-                validatingBuilder.add(mCameraControlSessionConfig);
-            }
+            validatingBuilder.add(mCameraControlInternal.getSessionConfig());
 
             mSessionConfig = validatingBuilder.build();
         }

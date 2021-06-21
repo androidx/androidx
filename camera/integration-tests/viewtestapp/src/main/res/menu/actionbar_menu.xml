@@ -17,10 +17,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/camera_view"
-        android:title="@string/camera_view"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/preview_view"
         android:title="@string/preview_view"
         app:showAsAction="never" />

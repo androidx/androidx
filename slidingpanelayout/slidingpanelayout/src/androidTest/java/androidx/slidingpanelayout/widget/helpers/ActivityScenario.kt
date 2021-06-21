@@ -30,6 +30,10 @@ public inline fun <reified A : Activity> ActivityScenario<A>.findViewX(
     return withActivity { findViewById<View>(resId).x }
 }
 
+public inline fun <reified A : Activity> ActivityScenario<A>.findViewById(@IdRes resId: Int): View {
+    return withActivity { findViewById(resId) }
+}
+
 public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForOpenLatch(
     @IdRes resId: Int
 ): CountDownLatch {
@@ -42,6 +46,42 @@ public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForOpenLatch
                 latch.countDown()
                 slidingPaneLayout.removePanelSlideListener(this)
             }
+            override fun onPanelClosed(panel: View) {}
+        })
+    }
+    return latch
+}
+
+public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForCloseLatch(
+    @IdRes resId: Int
+): CountDownLatch {
+    val latch = CountDownLatch(1)
+    withActivity {
+        val slidingPaneLayout = findViewById<SlidingPaneLayout>(resId)
+        slidingPaneLayout.addPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
+            override fun onPanelSlide(panel: View, slideOffset: Float) {}
+            override fun onPanelOpened(panel: View) {}
+            override fun onPanelClosed(panel: View) {
+                latch.countDown()
+                slidingPaneLayout.removePanelSlideListener(this)
+            }
+        })
+    }
+    return latch
+}
+
+public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForSlideLatch(
+    @IdRes resId: Int
+): CountDownLatch {
+    val latch = CountDownLatch(1)
+    withActivity {
+        val slidingPaneLayout = findViewById<SlidingPaneLayout>(resId)
+        slidingPaneLayout.addPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
+            override fun onPanelSlide(panel: View, slideOffset: Float) {
+                latch.countDown()
+                slidingPaneLayout.removePanelSlideListener(this)
+            }
+            override fun onPanelOpened(panel: View) {}
             override fun onPanelClosed(panel: View) {}
         })
     }

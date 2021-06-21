@@ -16,10 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -38,4 +34,11 @@ androidx {
     mavenGroup = LibraryGroups.BIOMETRIC
     inceptionYear = "2021"
     description = "Contains the sample code for the AndroidX Biometric library"
+}
+
+android {
+    lintOptions {
+        // Crashes due tob/187418637
+        disable "EnforceSampledAnnotation"
+    }
 }

@@ -17,6 +17,8 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.content.Intent
+import androidx.camera.core.CameraX
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.concurrent.futures.await
@@ -32,6 +34,7 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -39,6 +42,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -70,6 +74,12 @@ class InitializationTest(private val config: TestConfig) {
                     TestConfig(orientation)
                 }
         }
+
+        @AfterClass
+        @JvmStatic
+        fun shutdownCameraX() {
+            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        }
     }
 
     private var providerResult: CameraXViewModel.CameraProviderResult? = null
@@ -100,10 +110,20 @@ class InitializationTest(private val config: TestConfig) {
     }
 
     // Use auto-initialization in various locales to ensure the CameraXConfig.Provider which is
-    // provided by resources is not translated.
+    // provided by meta-data is not translated.
     @Test
     fun canAutoInitialize() {
-        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext<Context>(),
+            CameraXActivity::class.java
+        ).apply {
+            putExtra(
+                CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION,
+                // Ensure default config provider is used for camera implementation
+                CameraXViewModel.IMPLICIT_IMPLEMENTATION_OPTION
+            )
+        }
+        with(ActivityScenario.launch<CameraXActivity>(intent)) {
             use {
                 val initIdlingResource = withActivity { initializationIdlingResource }
 

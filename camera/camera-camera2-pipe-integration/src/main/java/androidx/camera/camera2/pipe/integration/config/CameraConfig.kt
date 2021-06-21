@@ -27,18 +27,20 @@ import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
+import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import javax.inject.Scope
 
 @Scope
@@ -56,15 +58,27 @@ annotation class CameraScope
 )
 abstract class CameraModule {
     companion object {
+
         @CameraScope
         @Provides
-        fun provideCameraCoroutineScope(cameraConfig: CameraConfig): CoroutineScope {
-            // TODO: Dispatchers.Default is the standard kotlin coroutine executor for background
-            //   work, but we may want to pass something in.
-            return CoroutineScope(
+        fun provideUseCaseThreads(
+            cameraConfig: CameraConfig,
+            cameraThreadConfig: CameraThreadConfig
+        ): UseCaseThreads {
+
+            val executor = cameraThreadConfig.cameraExecutor
+            val dispatcher = cameraThreadConfig.cameraExecutor.asCoroutineDispatcher()
+
+            val cameraScope = CoroutineScope(
                 Job() +
-                    Dispatchers.Default +
-                    CoroutineName("CXCP-Camera-${cameraConfig.cameraId.value}")
+                    dispatcher +
+                    CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
+            )
+
+            return UseCaseThreads(
+                cameraScope,
+                executor,
+                dispatcher
             )
         }
 

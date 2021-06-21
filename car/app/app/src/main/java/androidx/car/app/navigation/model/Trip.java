@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarText;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -35,6 +36,7 @@ import java.util.Objects;
  * <p>This information data <b>may</b> be displayed in different places in the car such as the
  * instrument cluster screens and heads-up display.
  */
+@CarProtocol
 public final class Trip {
     @Keep
     private final List<Destination> mDestinations;
@@ -231,7 +233,7 @@ public final class Trip {
         /**
          * Sets a description of the current road.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code currentRoad} is {@code null}
          * @see CarText

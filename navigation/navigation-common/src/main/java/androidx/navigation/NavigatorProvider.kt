@@ -18,6 +18,7 @@ package androidx.navigation
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import kotlin.reflect.KClass
 
 /**
  * A NavigationProvider stores a set of [Navigator]s that are valid ways to navigate
@@ -41,7 +42,7 @@ public open class NavigatorProvider {
      * [Navigator.Name annotation][Navigator.Name]
      * @throws IllegalStateException if the Navigator has not been added
      *
-     * @see .addNavigator
+     * @see NavigatorProvider.addNavigator
      */
     public fun <T : Navigator<*>> getNavigator(navigatorClass: Class<T>): T {
         val name = getNameForNavigator(navigatorClass)
@@ -56,7 +57,7 @@ public open class NavigatorProvider {
      *
      * @throws IllegalStateException if the Navigator has not been added
      *
-     * @see .addNavigator
+     * @see NavigatorProvider.addNavigator
      */
     @Suppress("UNCHECKED_CAST")
     @CallSuper
@@ -101,6 +102,16 @@ public open class NavigatorProvider {
         navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>? {
         require(validateName(name)) { "navigator name cannot be an empty string" }
+        val previousNavigator = _navigators[name]
+        if (previousNavigator == navigator) {
+            return navigator
+        }
+        check(previousNavigator?.isAttached != true) {
+            "Navigator $navigator is replacing an already attached $previousNavigator"
+        }
+        check(!navigator.isAttached) {
+            "Navigator $navigator is already attached to another NavController"
+        }
         return _navigators.put(name, navigator)
     }
 
@@ -126,4 +137,46 @@ public open class NavigatorProvider {
             return name!!
         }
     }
+}
+
+/**
+ * Retrieves a registered [Navigator] by name.
+ *
+ * @throws IllegalStateException if the Navigator has not been added
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+    name: String
+): T = getNavigator(name)
+
+/**
+ * Retrieves a registered [Navigator] using the name provided by the
+ * [Navigator.Name annotation][Navigator.Name].
+ *
+ * @throws IllegalStateException if the Navigator has not been added
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+    clazz: KClass<T>
+): T = getNavigator(clazz.java)
+
+/**
+ * Register a [Navigator] by name. If a navigator by this name is already
+ * registered, this new navigator will replace it.
+ *
+ * @return the previously added [Navigator] for the given name, if any
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavigatorProvider.set(
+    name: String,
+    navigator: Navigator<out NavDestination>
+): Navigator<out NavDestination>? = addNavigator(name, navigator)
+
+/**
+ * Register a navigator using the name provided by the
+ * [Navigator.Name annotation][Navigator.Name].
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
+    addNavigator(navigator)
 }

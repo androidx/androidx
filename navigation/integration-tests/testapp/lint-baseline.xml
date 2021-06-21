@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.navigation.testapp.AndroidFragment is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.navigation.testapp.AndroidFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                notificationManager.createNotificationChannel("
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.navigation.testapp.AndroidFragment is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.navigation.testapp.AndroidFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    NotificationChannel("
         errorLine2="                    ^">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.navigation.testapp.HelpActivity is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            val fade = Fade()"
         errorLine2="                       ~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.navigation.testapp.HelpActivity is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fade.excludeTarget(android.R.id.statusBarBackground, true)"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.navigation.testapp.HelpActivity is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fade.excludeTarget(android.R.id.navigationBarBackground, true)"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.navigation.testapp.HelpActivity is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            window.exitTransition = fade"
         errorLine2="                   ~~~~~~~~~~~~~~">
         <location
@@ -68,58 +68,14 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.navigation.testapp.HelpActivity is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            window.enterTransition = fade"
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"
             line="52"
             column="20"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.drawer_navigation` appears to be unused"
-        errorLine1="    &lt;string name=&quot;drawer_navigation&quot;>Drawer Nav&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="16"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.drawer_open` appears to be unused"
-        errorLine1="    &lt;string name=&quot;drawer_open&quot;>Open Navigation Drawer&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="17"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.drawer_close` appears to be unused"
-        errorLine1="    &lt;string name=&quot;drawer_close&quot;>Close Navigation Drawer&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="18"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.bottom_navigation` appears to be unused"
-        errorLine1="    &lt;string name=&quot;bottom_navigation&quot;>Bottom Nav&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="19"
-            column="13"/>
     </issue>
 
 </issues>

@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="public class FocusHighlightHelper {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: View.VISIBLE, View.INVISIBLE, View.GONE"
+        errorLine1="        mChildVisibility = -1;"
+        errorLine2="                           ~~">
         <location
-            file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
-            line="39"
-            column="14"/>
+            file="src/main/java/androidx/leanback/widget/GridLayoutManager.java"
+            line="728"
+            column="28"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.widget.BackgroundHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="WrongConstant"
+        message="Must be one of: PlaybackBannerControlGlue.PLAYBACK_SPEED_INVALID, PlaybackBannerControlGlue.PLAYBACK_SPEED_PAUSED, PlaybackBannerControlGlue.PLAYBACK_SPEED_NORMAL, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L0, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L1, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L2, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L3, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L4"
+        errorLine1="                mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
+            line="431"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.widget.BackgroundHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                drawable.setAlpha(view.getBackground().getAlpha());"
         errorLine2="                                                       ~~~~~~~~">
         <location
@@ -24,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.picker.DatePicker is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.picker.DatePicker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            yearPattern = android.text.format.DateFormat.getBestDateTimePattern(mConstant.locale,"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -35,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Rect center = t.getEpicenter();"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
@@ -46,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Rect center = getEpicenter();"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
@@ -57,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.widget.ForegroundHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.widget.ForegroundHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return view.getForeground();"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
@@ -68,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.widget.ForegroundHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.widget.ForegroundHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            view.setForeground(drawable);"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -79,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.app.FragmentUtil is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.app.FragmentUtil is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return fragment.getContext();"
         errorLine2="                            ~~~~~~~~~~">
         <location
@@ -90,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    vh.mTitleView.setAutofillHints(action.getAutofillHints());"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
@@ -101,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    vh.mTitleView.setAutofillHints((String[]) null);"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
@@ -112,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -123,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    vh.mDescriptionView.setAutofillHints(action.getAutofillHints());"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    vh.mDescriptionView.setAutofillHints((String[]) null);"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
@@ -145,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.leanback.widget.GuidedActionsStylist is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.leanback.widget.GuidedActionsStylist is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -156,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                ft.addSharedElement(subView, transitionName);"
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
@@ -167,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setEnterTransition((android.transition.Transition) enterTransition);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
@@ -178,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setSharedElementEnterTransition((android.transition.Transition) sharedElementTransition);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -189,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -200,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -211,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setSharedElementEnterTransition(null);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -222,8 +233,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setEnterTransition(null);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
@@ -233,8 +244,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setSharedElementEnterTransition(null);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -244,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.app.GuidedStepFragment is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setExitTransition((android.transition.Transition) exitTransition);"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
@@ -255,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
         errorLine2="              ~~~~~~~~~~~~~~~">
         <location
@@ -266,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        slide.addTarget(R.id.browse_title_group);"
         errorLine2="              ~~~~~~~~~">
         <location
@@ -277,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
         errorLine2="              ~~~~~~~~~~~~~~~">
         <location
@@ -288,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.LeanbackTransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        slide.addTarget(R.id.browse_title_group);"
         errorLine2="              ~~~~~~~~~">
         <location
@@ -299,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.leanback.app.PermissionHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.leanback.app.PermissionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fragment.requestPermissions(permissions, requestCode);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
@@ -310,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                        ? !mProgressBar.isAccessibilityFocused() : true);"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -321,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), mRadius);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
@@ -332,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            outline.setAlpha(1f);"
         errorLine2="                    ~~~~~~~~">
         <location
@@ -343,8 +354,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.system.Settings is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.system.Settings is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mOutlineClippingDisabled = activityManager.isLowRamDevice();"
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
@@ -354,8 +365,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            outline.setRect(0, 0, view.getWidth(), view.getHeight());"
         errorLine2="                    ~~~~~~~">
         <location
@@ -365,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            outline.setAlpha(1.0f);"
         errorLine2="                    ~~~~~~~~">
         <location
@@ -376,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.StaticShadowHelper is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.StaticShadowHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            parent.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
@@ -387,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.StaticShadowHelper is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.StaticShadowHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            shadowContainer.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
@@ -398,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.leanback.widget.picker.TimePicker is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.picker.TimePicker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? &quot;Hma&quot;"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -409,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getSharedElementEnterTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -420,8 +431,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            window.setSharedElementEnterTransition((Transition) transition);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -431,8 +442,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getSharedElementReturnTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -442,8 +453,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            window.setSharedElementReturnTransition((Transition) transition);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -453,8 +464,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getSharedElementExitTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -464,8 +475,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getSharedElementReenterTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -475,8 +486,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getEnterTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~">
         <location
@@ -486,8 +497,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            window.setEnterTransition((Transition) transition);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~">
         <location
@@ -497,8 +508,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getReturnTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -508,8 +519,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            window.setReturnTransition((Transition) transition);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -519,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getExitTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
@@ -530,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return window.getReenterTransition();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -541,8 +552,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Scene scene = new Scene(sceneRoot);"
         errorLine2="                          ~~~~~~~~~">
         <location
@@ -552,8 +563,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            scene.setEnterAction(r);"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -563,8 +574,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            changeBounds.setReparent(reparent);"
         errorLine2="                         ~~~~~~~~~~~">
         <location
@@ -574,8 +585,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new ChangeTransform();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -585,8 +596,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            TransitionSet set = new TransitionSet();"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
@@ -596,8 +607,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            set.setOrdering(sequential ? TransitionSet.ORDERING_SEQUENTIAL"
         errorLine2="                ~~~~~~~~~~~">
         <location
@@ -607,8 +618,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new ChangeTransform();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -618,8 +629,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((TransitionSet) transitionSet).addTransition((Transition) transition);"
         errorLine2="                                            ~~~~~~~~~~~~~">
         <location
@@ -629,8 +640,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).excludeTarget(targetId, exclude);"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
@@ -640,8 +651,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).excludeTarget(targetView, exclude);"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
@@ -651,8 +662,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).excludeChildren(targetId, exclude);"
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
@@ -662,8 +673,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).excludeChildren(targetView, exclude);"
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
@@ -673,8 +684,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).addTarget(targetId);"
         errorLine2="                                      ~~~~~~~~~">
         <location
@@ -684,8 +695,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).addTarget(targetView);"
         errorLine2="                                      ~~~~~~~~~">
         <location
@@ -695,8 +706,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).setStartDelay(startDelay);"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
@@ -706,8 +717,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).setDuration(duration);"
         errorLine2="                                      ~~~~~~~~~~~">
         <location
@@ -717,8 +728,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new AutoTransition();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~">
         <location
@@ -728,8 +739,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return new Fade(fadeMode);"
         errorLine2="                   ~~~~~~~~">
         <location
@@ -739,8 +750,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            t.addListener((Transition.TransitionListener) listener.mImpl);"
         errorLine2="              ~~~~~~~~~~~">
         <location
@@ -750,8 +761,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            t.removeListener((Transition.TransitionListener) listener.mImpl);"
         errorLine2="              ~~~~~~~~~~~~~~">
         <location
@@ -761,8 +772,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            TransitionManager.go((Scene) scene, (Transition) transition);"
         errorLine2="                              ~~">
         <location
@@ -772,8 +783,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).setInterpolator((TimeInterpolator) timeInterpolator);"
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
@@ -783,8 +794,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((Transition) transition).addTarget(view);"
         errorLine2="                                      ~~~~~~~~~">
         <location
@@ -794,8 +805,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return TransitionInflater.from(context).inflateTransition(resId);"
         errorLine2="                                      ~~~~">
         <location
@@ -805,8 +816,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return TransitionInflater.from(context).inflateTransition(resId);"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
         <location
@@ -816,8 +827,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fragment.setEnterTransition((Transition) transition);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
@@ -827,8 +838,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fragment.setExitTransition((Transition) transition);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
@@ -838,8 +849,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fragment.setSharedElementEnterTransition((Transition) transition);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -849,8 +860,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ft.addSharedElement(view, transitionName);"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
@@ -860,8 +871,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            TransitionManager.beginDelayedTransition(sceneRoot, transition);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -871,8 +882,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            viewGroup.setTransitionGroup(transitionGroup);"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~">
         <location
@@ -882,8 +893,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                ((Transition) transition).setEpicenterCallback(null);"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -893,14 +904,25 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.leanback.transition.TransitionHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.transition.TransitionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                ((Transition) transition).setEpicenterCallback(new Transition.EpicenterCallback() {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
             line="463"
             column="43"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class FocusHighlightHelper {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
+            line="39"
+            column="14"/>
     </issue>
 
     <issue
@@ -948,7 +970,8 @@
         <location
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
             line="87"
-            column="23"/>
+            column="23"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -963,7 +986,8 @@
         <location
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
             line="103"
-            column="23"/>
+            column="23"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1831,7 +1855,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="546"
+            line="548"
             column="19"/>
     </issue>
 
@@ -1842,7 +1866,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="546"
+            line="548"
             column="49"/>
     </issue>
 
@@ -1853,7 +1877,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="649"
+            line="651"
             column="24"/>
     </issue>
 
@@ -1864,7 +1888,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="665"
+            line="667"
             column="30"/>
     </issue>
 
@@ -1875,7 +1899,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="736"
+            line="738"
             column="29"/>
     </issue>
 
@@ -1886,7 +1910,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="744"
+            line="746"
             column="12"/>
     </issue>
 
@@ -1897,7 +1921,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="753"
+            line="755"
             column="12"/>
     </issue>
 
@@ -1908,7 +1932,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="833"
+            line="835"
             column="29"/>
     </issue>
 
@@ -1919,7 +1943,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="887"
+            line="889"
             column="27"/>
     </issue>
 
@@ -1930,7 +1954,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BackgroundManager.java"
-            line="962"
+            line="964"
             column="12"/>
     </issue>
 
@@ -2282,7 +2306,7 @@
         errorLine2="                                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="900"
+            line="916"
             column="63"/>
     </issue>
 
@@ -2293,7 +2317,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="916"
+            line="932"
             column="40"/>
     </issue>
 
@@ -2304,7 +2328,7 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="916"
+            line="932"
             column="51"/>
     </issue>
 
@@ -2315,7 +2339,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="930"
+            line="946"
             column="12"/>
     </issue>
 
@@ -2326,7 +2350,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="944"
+            line="960"
             column="69"/>
     </issue>
 
@@ -2337,7 +2361,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1040"
+            line="1056"
             column="45"/>
     </issue>
 
@@ -2348,7 +2372,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1048"
+            line="1064"
             column="46"/>
     </issue>
 
@@ -2359,7 +2383,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1056"
+            line="1072"
             column="43"/>
     </issue>
 
@@ -2370,7 +2394,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1064"
+            line="1080"
             column="43"/>
     </issue>
 
@@ -2381,7 +2405,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1072"
+            line="1088"
             column="12"/>
     </issue>
 
@@ -2392,7 +2416,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1077"
+            line="1093"
             column="37"/>
     </issue>
 
@@ -2403,7 +2427,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1088"
+            line="1104"
             column="39"/>
     </issue>
 
@@ -2414,7 +2438,7 @@
         errorLine2="                                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1098"
+            line="1114"
             column="51"/>
     </issue>
 
@@ -2425,7 +2449,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1348"
+            line="1366"
             column="28"/>
     </issue>
 
@@ -2465,17 +2489,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                              RowPresenter.ViewHolder rowViewHolder, T row);"
-        errorLine2="                                                                     ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseOnItemViewClickedListener.java"
-            line="29"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2504,17 +2517,6 @@
             file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
             line="48"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                               RowPresenter.ViewHolder rowViewHolder, T row);"
-        errorLine2="                                                                      ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
-            line="48"
-            column="71"/>
     </issue>
 
     <issue
@@ -3092,28 +3094,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentAdapter(T fragment) {"
-        errorLine2="                                   ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="408"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="412"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public final FragmentHost getFragmentHost() {"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
@@ -3142,28 +3122,6 @@
             file="src/main/java/androidx/leanback/app/BrowseFragment.java"
             line="514"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentRowsAdapter(T fragment) {"
-        errorLine2="                                       ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="527"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="534"
-            column="22"/>
     </issue>
 
     <issue
@@ -3219,17 +3177,6 @@
             file="src/main/java/androidx/leanback/app/BrowseFragment.java"
             line="580"
             column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract T createFragment(Object row);"
-        errorLine2="                        ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseFragment.java"
-            line="666"
-            column="25"/>
     </issue>
 
     <issue
@@ -3917,28 +3864,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentAdapter(T fragment) {"
-        errorLine2="                                   ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="397"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="401"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public final FragmentHost getFragmentHost() {"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
@@ -3967,28 +3892,6 @@
             file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
             line="499"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MainFragmentRowsAdapter(T fragment) {"
-        errorLine2="                                       ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="510"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public final T getFragment() {"
-        errorLine2="                     ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="517"
-            column="22"/>
     </issue>
 
     <issue
@@ -4044,17 +3947,6 @@
             file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
             line="563"
             column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract T createFragment(Object row);"
-        errorLine2="                        ~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"
-            line="647"
-            column="25"/>
     </issue>
 
     <issue
@@ -8163,67 +8055,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B clickAction(long id) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="196"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B id(long id) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="224"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B title(CharSequence title) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="234"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B title(CharSequence title) {"
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="234"
             column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B title(@StringRes int titleResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="244"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editTitle(CharSequence editTitle) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="254"
-            column="16"/>
     </issue>
 
     <issue
@@ -8240,28 +8077,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editTitle(@StringRes int editTitleResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="265"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B description(CharSequence description) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="275"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B description(CharSequence description) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
@@ -8273,56 +8088,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B description(@StringRes int descriptionResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="285"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editDescription(CharSequence description) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="295"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B editDescription(CharSequence description) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="295"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editDescription(@StringRes int descriptionResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="306"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B intent(Intent intent) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="316"
-            column="16"/>
     </issue>
 
     <issue
@@ -8340,33 +8111,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B icon(Drawable icon) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="325"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B icon(Drawable icon) {"
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="325"
             column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B iconResourceId(@DrawableRes int iconResourceId, Context context) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="339"
-            column="16"/>
     </issue>
 
     <issue
@@ -8383,210 +8132,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B icon(@DrawableRes int iconResourceId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="349"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editable(boolean editable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="358"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B descriptionEditable(boolean editable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="376"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B hasEditableActivatorView(boolean editable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="394"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B inputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="413"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B descriptionInputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="423"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B editInputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="434"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B descriptionEditInputType(int inputType) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="444"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B checked(boolean checked) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="457"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B checkSetId(int checkSetId) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="472"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B multilineDescription(boolean multilineDescription) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="485"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B hasNext(boolean hasNext) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="495"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B infoOnly(boolean infoOnly) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="504"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B enabled(boolean enabled) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="513"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B focusable(boolean focusable) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="523"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B subActions(List&lt;GuidedAction> subActions) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="533"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B subActions(List&lt;GuidedAction> subActions) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
             line="533"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B autoSaveRestoreEnabled(boolean autoSaveRestoreEnabled) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="545"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B autofillHints(String... hints) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="555"
-            column="16"/>
     </issue>
 
     <issue
@@ -9946,55 +9497,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public B datePickerFormat(String format) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="59"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B datePickerFormat(String format) {"
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
             line="59"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B date(long date) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="69"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B minDate(long minDate) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="79"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public B maxDate(long maxDate) {"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedDatePickerAction.java"
-            line="89"
-            column="16"/>
     </issue>
 
     <issue
@@ -13161,7 +12668,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="70"
+            line="71"
             column="32"/>
     </issue>
 
@@ -13172,7 +12679,7 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="71"
+            line="72"
             column="32"/>
     </issue>
 
@@ -13183,7 +12690,7 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="72"
+            line="73"
             column="32"/>
     </issue>
 
@@ -13194,7 +12701,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="79"
+            line="80"
             column="41"/>
     </issue>
 
@@ -13205,7 +12712,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="106"
+            line="107"
             column="18"/>
     </issue>
 
@@ -13216,7 +12723,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="147"
+            line="148"
             column="12"/>
     </issue>
 
@@ -13227,7 +12734,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="152"
+            line="153"
             column="12"/>
     </issue>
 
@@ -13238,7 +12745,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/MediaControllerGlue.java"
-            line="168"
+            line="169"
             column="12"/>
     </issue>
 
@@ -14323,28 +13830,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PropertyMarkerValue(PropertyT property) {"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="87"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PropertyT getProperty() {"
-        errorLine2="               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="94"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public IntProperty(String name, int index) {"
         errorLine2="                           ~~~~~~">
         <location
@@ -14610,17 +14095,6 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final PropertyT addProperty(String name) {"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="452"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final PropertyT addProperty(String name) {"
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
@@ -14637,17 +14111,6 @@
             file="src/main/java/androidx/leanback/widget/Parallax.java"
             line="558"
             column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract PropertyT createProperty(String name, int index);"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="569"
-            column="21"/>
     </issue>
 
     <issue
@@ -14846,17 +14309,6 @@
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
             line="179"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final &lt;T, V extends Number> ParallaxEffect target(T targetObject,"
-        errorLine2="                                                             ~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
-            line="179"
-            column="62"/>
     </issue>
 
     <issue
@@ -15467,17 +14919,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            T impl) {"
-        errorLine2="            ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
-            line="235"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public PlaybackBannerControlGlue(Context context,"
         errorLine2="                                     ~~~~~~~">
         <location
@@ -15505,17 +14946,6 @@
         <location
             file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
             line="251"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                                    T impl) {"
-        errorLine2="                                    ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
-            line="252"
             column="37"/>
     </issue>
 
@@ -15594,28 +15024,6 @@
             file="src/main/java/androidx/leanback/media/PlaybackBaseControlGlue.java"
             line="212"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PlaybackBaseControlGlue(Context context, T impl) {"
-        errorLine2="                                                    ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBaseControlGlue.java"
-            line="212"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final T getPlayerAdapter() {"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackBaseControlGlue.java"
-            line="218"
-            column="18"/>
     </issue>
 
     <issue
@@ -17618,17 +17026,6 @@
             file="src/main/java/androidx/leanback/media/PlaybackTransportControlGlue.java"
             line="123"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PlaybackTransportControlGlue(Context context, T impl) {"
-        errorLine2="                                                         ~">
-        <location
-            file="src/main/java/androidx/leanback/media/PlaybackTransportControlGlue.java"
-            line="123"
-            column="58"/>
     </issue>
 
     <issue
@@ -20586,7 +19983,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="156"
+            line="148"
             column="26"/>
     </issue>
 
@@ -20597,7 +19994,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="160"
+            line="152"
             column="26"/>
     </issue>
 
@@ -20608,7 +20005,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="160"
+            line="152"
             column="43"/>
     </issue>
 
@@ -20619,7 +20016,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="165"
+            line="157"
             column="26"/>
     </issue>
 
@@ -20630,7 +20027,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="165"
+            line="157"
             column="43"/>
     </issue>
 
@@ -20641,7 +20038,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="230"
+            line="223"
             column="25"/>
     </issue>
 
@@ -20652,7 +20049,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="250"
+            line="243"
             column="69"/>
     </issue>
 
@@ -20663,7 +20060,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="266"
+            line="260"
             column="28"/>
     </issue>
 
@@ -20674,7 +20071,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="275"
+            line="270"
             column="12"/>
     </issue>
 
@@ -20685,7 +20082,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="283"
+            line="279"
             column="41"/>
     </issue>
 
@@ -20696,7 +20093,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="319"
+            line="317"
             column="30"/>
     </issue>
 
@@ -20707,7 +20104,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="333"
+            line="331"
             column="12"/>
     </issue>
 

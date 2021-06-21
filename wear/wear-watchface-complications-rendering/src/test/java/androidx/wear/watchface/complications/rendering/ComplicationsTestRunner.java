@@ -33,11 +33,13 @@ public class ComplicationsTestRunner extends RobolectricTestRunner {
     @Override
     protected InstrumentationConfiguration createClassLoaderConfig(FrameworkMethod method) {
         return new InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
-                .doNotInstrumentPackage("android.support.wearable.complications")
+                .doNotInstrumentPackage("android.support.wearable.complicationSlots")
                 .doNotInstrumentPackage("android.support.wearable.watchface")
-                .doNotInstrumentPackage("androidx.wear.complications")
-                .doNotInstrumentPackage("androidx.wear.complications.rendering")
+                .doNotInstrumentPackage("androidx.wear.complicationSlots")
+                .doNotInstrumentPackage("androidx.wear.complicationSlots.data")
+                .doNotInstrumentPackage("androidx.wear.complicationSlots.rendering")
                 .doNotInstrumentPackage("androidx.wear.watchface")
+                .doNotInstrumentPackage("androidx.wear.watchface.complication.rendering")
                 .build();
     }
 }

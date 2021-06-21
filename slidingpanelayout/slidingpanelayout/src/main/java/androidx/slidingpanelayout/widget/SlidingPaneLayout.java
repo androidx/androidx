@@ -18,6 +18,7 @@ package androidx.slidingpanelayout.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -41,16 +42,20 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.window.DisplayFeature;
 import androidx.window.FoldingFeature;
+import androidx.window.WindowBackend;
 import androidx.window.WindowLayoutInfo;
 import androidx.window.WindowManager;
 
@@ -109,6 +114,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
     private static final String ACCESSIBILITY_CLASS_NAME =
             "androidx.slidingpanelayout.widget.SlidingPaneLayout";
+
+    /**
+     * This field is only used to support the setter and getter. It is not used by
+     * SlidingPaneLayout.
+     */
+    private int mSliderFadeColor = 0;
+
+    /**
+     * This field is only used to support the setter and getter. It is not used by
+     * SlidingPaneLayout.
+     */
+    private int mCoveredFadeColor;
 
     /**
      * Drawable used to draw the shadow between panes by default.
@@ -212,8 +229,12 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     FoldingFeature mFoldingFeature;
 
+    private static boolean sEdgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29;
+
     /**
      * Set the lock mode that controls how the user can swipe between the panes.
+     *
+     * @param lockMode The new lock mode for the detail pane.
      */
     public final void setLockMode(@LockMode int lockMode) {
         mLockMode = lockMode;
@@ -310,12 +331,20 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
         try {
-            mFoldingFeatureObserver = new FoldingFeatureObserver(context);
-            mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
-                    mOnFoldingFeatureChangeListener);
+            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(context,
+                    null);
+            setFoldingFeatureObserver(foldingFeatureObserver);
         } catch (IllegalArgumentException exception) {
             // Disable fold detection.
         }
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void setFoldingFeatureObserver(
+            FoldingFeatureObserver foldingFeatureObserver) {
+        mFoldingFeatureObserver = foldingFeatureObserver;
+        mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
+                mOnFoldingFeatureChangeListener);
     }
 
     /**
@@ -347,6 +376,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      */
     @Deprecated
     public void setSliderFadeColor(@ColorInt int color) {
+        mSliderFadeColor = color;
     }
 
     /**
@@ -357,7 +387,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @Deprecated
     @ColorInt
     public int getSliderFadeColor() {
-        return 0;
+        return mSliderFadeColor;
     }
 
     /**
@@ -369,6 +399,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      */
     @Deprecated
     public void setCoveredFadeColor(@ColorInt int color) {
+        mCoveredFadeColor = color;
     }
 
     /**
@@ -379,7 +410,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @Deprecated
     @ColorInt
     public int getCoveredFadeColor() {
-        return 0;
+        return mCoveredFadeColor;
     }
 
     /**
@@ -843,7 +874,15 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             final int childBottom = childTop + child.getMeasuredHeight();
             child.layout(childLeft, paddingTop, childRight, childBottom);
 
-            nextXStart += child.getWidth();
+            // If a folding feature separates the content, we use its width as the extra
+            // offset for the next child, in order to avoid rendering the content under it.
+            int nextXOffset = 0;
+            if (mFoldingFeature != null
+                    && mFoldingFeature.getOrientation() == FoldingFeature.ORIENTATION_VERTICAL
+                    && mFoldingFeature.isSeparating()) {
+                nextXOffset = mFoldingFeature.getBounds().width();
+            }
+            nextXStart += child.getWidth() + Math.abs(nextXOffset);
         }
 
         if (mFirstLayout) {
@@ -976,6 +1015,9 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private boolean closePane(int initialVelocity) {
+        if (!mCanSlide) {
+            mPreservedOpenState = false;
+        }
         if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
             mPreservedOpenState = false;
             return true;
@@ -984,6 +1026,9 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private boolean openPane(int initialVelocity) {
+        if (!mCanSlide) {
+            mPreservedOpenState = true;
+        }
         if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
             mPreservedOpenState = true;
             return true;
@@ -1106,8 +1151,20 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         final boolean enableEdgeLeftTracking = isLayoutRtl ^ isOpen();
         if (enableEdgeLeftTracking) {
             mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+            Insets gestureInsets = getSystemGestureInsets();
+            if (gestureInsets != null) {
+                // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
+                mDragHelper.setEdgeSize(Math.max(mDragHelper.getDefaultEdgeSize(),
+                        gestureInsets.left));
+            }
         } else {
             mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
+            Insets gestureInsets = getSystemGestureInsets();
+            if (gestureInsets != null) {
+                // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
+                mDragHelper.setEdgeSize(Math.max(mDragHelper.getDefaultEdgeSize(),
+                        gestureInsets.right));
+            }
         }
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         boolean result;
@@ -1129,6 +1186,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         canvas.restoreToCount(save);
 
         return result;
+    }
+
+    // Get system gesture insets when SDK version is larger than 29. Otherwise, return null.
+    private Insets getSystemGestureInsets() {
+        Insets gestureInsets = null;
+        if (sEdgeSizeUsingSystemGestureInsets) {
+            WindowInsetsCompat rootInsetsCompat = ViewCompat.getRootWindowInsets(this);
+            if (rootInsetsCompat != null) {
+                gestureInsets = rootInsetsCompat.getSystemGestureInsets();
+            }
+        }
+        return gestureInsets;
     }
 
     private Method mGetDisplayList;
@@ -1414,6 +1483,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         SavedState ss = new SavedState(superState);
         ss.isOpen = isSlideable() ? isOpen() : mPreservedOpenState;
+        ss.mLockMode = mLockMode;
 
         return ss;
     }
@@ -1434,6 +1504,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             closePane();
         }
         mPreservedOpenState = ss.isOpen;
+
+        setLockMode(ss.mLockMode);
     }
 
     private class DragHelperCallback extends ViewDragHelper.Callback {
@@ -1443,7 +1515,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            if (mIsUnableToDrag) {
+            if (!isDraggable()) {
                 return false;
             }
 
@@ -1505,20 +1577,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            boolean slidingDetailToList = isLayoutRtlSupport() ? dx > 0 : dx < 0;
             int newLeft = left;
-            if (slidingDetailToList) {
-                if (getLockMode() == LOCK_MODE_LOCKED_CLOSED
-                        || getLockMode() == LOCK_MODE_LOCKED) {
-                    newLeft -= dx;
-                }
-            } else {
-                if (getLockMode() == LOCK_MODE_LOCKED_OPEN
-                        || getLockMode() == LOCK_MODE_LOCKED) {
-                    newLeft -= dx;
-                }
-            }
-
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
 
             if (isLayoutRtlSupport()) {
@@ -1543,14 +1602,38 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public void onEdgeTouched(int edgeFlags, int pointerId) {
+            if (!isDraggable()) {
+                return;
+            }
             mDragHelper.captureChildView(mSlideableView, pointerId);
         }
 
         @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
+            if (!isDraggable()) {
+                return;
+            }
             mDragHelper.captureChildView(mSlideableView, pointerId);
         }
+
+        private boolean isDraggable() {
+            if (mIsUnableToDrag) {
+                return false;
+            }
+            if (getLockMode() == LOCK_MODE_LOCKED) {
+                return false;
+            }
+            if (isOpen() && getLockMode() == LOCK_MODE_LOCKED_OPEN) {
+                return false;
+            }
+            if (!isOpen() && getLockMode() == LOCK_MODE_LOCKED_CLOSED) {
+                return false;
+            }
+            return true;
+        }
     }
+
+
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         private static final int[] ATTRS = new int[]{
@@ -1609,6 +1692,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     static class SavedState extends AbsSavedState {
         boolean isOpen;
+        @LockMode int mLockMode;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1617,12 +1701,14 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         SavedState(Parcel in, ClassLoader loader) {
             super(in, loader);
             isOpen = in.readInt() != 0;
+            mLockMode = in.readInt();
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(isOpen ? 1 : 0);
+            out.writeInt(mLockMode);
         }
 
         public static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
@@ -1799,7 +1885,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * A device folding feature observer is used to notify listener when there is a folding feature
      * change.
      */
-    private static class FoldingFeatureObserver {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    static class FoldingFeatureObserver {
         /**
          * Interface definition for a callback to be invoked when there is a folding feature change
          */
@@ -1841,8 +1928,15 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         private LayoutStateChangeCallback
                 mLayoutStateChangeCallback = new LayoutStateChangeCallback();
 
-        FoldingFeatureObserver(@NonNull Context context) {
-            mWindowManager = new WindowManager(context);
+        /**
+         * Create an instance of a folding feature observer
+         *
+         * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
+         * @param windowBackend A custom implementation of {@link WindowBackend} for testing
+         */
+        FoldingFeatureObserver(@NonNull Context context, @Nullable WindowBackend windowBackend) {
+            mWindowManager = windowBackend == null ? new WindowManager(context) :
+                    new WindowManager(context, windowBackend);
             mExecutor = ContextCompat.getMainExecutor(context);
         }
 

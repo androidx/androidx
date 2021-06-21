@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executor
@@ -43,6 +44,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
 
     @Suppress("DEPRECATION")
     private val config: PagedList.Config
+    @OptIn(DelicateCoroutinesApi::class)
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
 
@@ -274,8 +276,8 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     /**
      * Constructs the `LiveData<PagedList>`.
      *
-     * No work (such as loading) is done immediately, the creation of the first PagedList is is
-     * deferred until the LiveData is observed.
+     * No work (such as loading) is done immediately, the creation of the first [PagedList] is
+     * deferred until the [LiveData] is observed.
      *
      * @return The [LiveData] of [PagedList]s
      */

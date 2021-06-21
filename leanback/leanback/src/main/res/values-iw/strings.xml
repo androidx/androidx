@@ -20,7 +20,7 @@ limitations under the License.
     <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"תפריט ניווט"</string>
     <string name="orb_search_action" msgid="1301877238242752863">"פעולת חיפוש"</string>
     <string name="lb_search_bar_hint" msgid="5700349211583074131">"חיפוש"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"יש לדבר בקול כדי לחפש"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"צריך לדבר בקול כדי לבצע חיפוש"</string>
     <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"חיפוש של <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"יש לדבר כדי לחפש <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="4657191930956702614">"‎%1$dX‎‎"</string>
@@ -34,14 +34,14 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"דילוג אל הפריט הבא"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"דילוג אל הפריט הקודם"</string>
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"פעולות נוספות"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"ביטול בחירה בסימון \'אהבתי\'"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"בחירה בסימון \'אהבתי\'"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"ביטול בחירה בסימון \'לא אהבתי\'"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"ביטול הבחירה בסימון \'לייק\'"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"בחירה בסימון \'לייק\'"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"ביטול הבחירה בסימון \'לא אהבתי\'"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"בחירה בסימון \'לא אהבתי\'"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"אל תחזור על כלום"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"חזרה על הכל"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"לא לחזור על כלום"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"חזרה על הכול"</string>
     <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"חזרה על פריט אחד"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"הפעלת ערבוב"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"הפעלה באקראי"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"השבתת ערבוב"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"הפעלת איכות גבוהה"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"השבתת איכות גבוהה"</string>

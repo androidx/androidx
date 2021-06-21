@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.work.impl.background.systemalarm.Alarms is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.work.impl.background.systemalarm.Alarms is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);"
         errorLine2="                             ~~~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.Constraints.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.Constraints.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mTriggerContentUpdateDelay = duration.toMillis();"
         errorLine2="                                                  ~~~~~~~~">
         <location
@@ -101,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.Constraints.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.Constraints.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mTriggerContentMaxDelay = duration.toMillis();"
         errorLine2="                                               ~~~~~~~~">
         <location
@@ -112,19 +112,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.work.impl.utils.ForceStopRunnable is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);"
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="294"
+            line="303"
             column="30"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -145,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            Network network = mConnectivityManager.getActiveNetwork();"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~">
         <location
@@ -156,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -167,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    &amp;&amp; capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
@@ -178,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.PeriodicWorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.PeriodicWorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis());"
         errorLine2="                                                 ~~~~~~~~">
         <location
@@ -189,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.PeriodicWorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.PeriodicWorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());"
         errorLine2="                                                 ~~~~~~~~">
         <location
@@ -200,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.PeriodicWorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.PeriodicWorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());"
         errorLine2="                                                                          ~~~~~~~~">
         <location
@@ -211,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.work.impl.utils.ProcessUtils is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.utils.ProcessUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return Application.getProcessName();"
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
@@ -222,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class null is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    startForeground(notificationId, notification, notificationType);"
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
@@ -233,85 +233,96 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                builder.setImportantWhileForeground(true);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="102"
+            line="105"
             column="25"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                builder.addTriggerContentUri(convertContentUriTrigger(trigger));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="109"
+            line="112"
             column="25"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="111"
+            line="114"
             column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="112"
+            line="115"
             column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="119"
+            line="122"
             column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="120"
+            line="123"
             column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return new JobInfo.TriggerContentUri(trigger.getUri(), flag);"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="130"
+            line="133"
             column="16"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            builder.setRequiredNetwork(networkRequest);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="152"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobService is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (params.getTriggeredContentUris() != null) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -321,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobService is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        Arrays.asList(params.getTriggeredContentUris());"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -332,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobService is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (params.getTriggeredContentAuthorities() != null) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -343,8 +354,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobService is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        Arrays.asList(params.getTriggeredContentAuthorities());"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -354,8 +365,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobService is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                runtimeExtras.network = params.getNetwork();"
         errorLine2="                                               ~~~~~~~~~~">
         <location
@@ -365,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.work.impl.WorkDatabasePathHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.WorkDatabasePathHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return new File(context.getNoBackupFilesDir(), filePath);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -376,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.work.impl.WorkManagerImpl is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.WorkManagerImpl is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &amp;&amp; context.isDeviceProtectedStorage()) {"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -387,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.WorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.WorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mWorkSpec.setBackoffDelayDuration(duration.toMillis());"
         errorLine2="                                                       ~~~~~~~~">
         <location
@@ -398,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.WorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.WorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mWorkSpec.minimumRetentionDuration = duration.toMillis();"
         errorLine2="                                                          ~~~~~~~~">
         <location
@@ -409,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.WorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.WorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mWorkSpec.initialDelay = duration.toMillis();"
         errorLine2="                                              ~~~~~~~~">
         <location
@@ -486,7 +497,8 @@
         <location
             file="src/main/java/androidx/work/impl/OperationImpl.java"
             line="61"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -501,7 +513,8 @@
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
             line="191"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -519,33 +532,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final V get(long timeout, TimeUnit unit)"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="355"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get(long timeout, TimeUnit unit)"
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
             line="355"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get() throws InterruptedException, ExecutionException {"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="469"
-            column="18"/>
     </issue>
 
     <issue
@@ -826,28 +817,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setState(T newState) {"
-        errorLine2="                         ~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="97"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T getInitialState();"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="124"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public Builder setTriggerContentUpdateDelay(Duration duration) {"
         errorLine2="                                                    ~~~~~~~~">
         <location
@@ -942,39 +911,6 @@
             file="src/main/java/androidx/work/impl/model/DependencyDao.java"
             line="76"
             column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Operation getOperation() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/EnqueueRunnable.java"
-            line="106"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onReceive(Context context, Intent intent) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="313"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onReceive(Context context, Intent intent) {"
-        errorLine2="                                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="313"
-            column="48"/>
     </issue>
 
     <issue
@@ -2051,7 +1987,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="88"
+            line="90"
             column="34"/>
     </issue>
 
@@ -2062,7 +1998,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="121"
+            line="123"
             column="19"/>
     </issue>
 
@@ -2073,7 +2009,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="154"
+            line="156"
             column="42"/>
     </issue>
 
@@ -2084,7 +2020,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="175"
+            line="177"
             column="19"/>
     </issue>
 
@@ -2095,7 +2031,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="196"
+            line="199"
             column="40"/>
     </issue>
 
@@ -2106,7 +2042,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="226"
+            line="234"
             column="19"/>
     </issue>
 
@@ -2117,7 +2053,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="255"
+            line="267"
             column="19"/>
     </issue>
 
@@ -2128,7 +2064,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="255"
+            line="267"
             column="56"/>
     </issue>
 
@@ -2139,7 +2075,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="293"
+            line="306"
             column="19"/>
     </issue>
 
@@ -2150,7 +2086,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="293"
+            line="306"
             column="68"/>
     </issue>
 
@@ -2161,7 +2097,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkerParameters.java"
-            line="208"
+            line="216"
             column="16"/>
     </issue>
 
@@ -2172,7 +2108,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="685"
+            line="684"
             column="16"/>
     </issue>
 

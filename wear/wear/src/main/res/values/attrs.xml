@@ -220,7 +220,7 @@
 
     <attr name="clockwise" format="boolean"/>
 
-    <declare-styleable name="WearCurvedTextView">
+    <declare-styleable name="CurvedTextView">
         <!-- supported TextView attributes -->
         <attr name="android:text" />
         <attr name="android:textSize" />
@@ -268,7 +268,7 @@
         <attr name="android:textAppearance" />
     </declare-styleable>
 
-    <declare-styleable name="WearArcLayout_Layout">
+    <declare-styleable name="ArcLayout_Layout">
         <attr name="layout_rotate" format="boolean" />
         <attr name="layout_valign" format="enum">
             <enum name="outer" value="0" />
@@ -277,7 +277,7 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="WearArcLayout">
+    <declare-styleable name="ArcLayout">
         <attr name="anchorAngleDegrees"/>
         <attr name="anchorPosition"/>
         <attr name="clockwise" />

@@ -31,9 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -55,7 +54,7 @@ fun ReuseFocusRequesterDemo() {
         )
 
         // Shared focus requester.
-        val focusRequester = FocusRequester()
+        val focusRequester = remember { FocusRequester() }
 
         var shape by remember { mutableStateOf(CurrentShape.Square) }
         when (shape) {
@@ -88,7 +87,7 @@ private fun Circle(modifier: Modifier = Modifier, nextShape: () -> Unit) {
         modifier
             .onFocusChanged { isFocused = it.isFocused }
             .fillMaxSize()
-            .focusModifier()
+            .focusTarget()
     ) {
         drawCircle(
             color = if (isFocused) Color.Red else Color.Blue,
@@ -111,7 +110,7 @@ private fun Square(modifier: Modifier = Modifier, nextShape: () -> Unit) {
         modifier
             .onFocusChanged { isFocused = it.isFocused }
             .fillMaxSize()
-            .focusModifier()
+            .focusTarget()
     ) {
         drawRect(
             color = if (isFocused) Color.Red else Color.Blue,

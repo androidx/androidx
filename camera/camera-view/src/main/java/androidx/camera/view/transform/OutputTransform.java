@@ -17,8 +17,6 @@
 package androidx.camera.view.transform;
 
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -32,17 +30,9 @@ import androidx.camera.view.TransformExperimental;
  *
  * <p> Represents the rotation, cropping and/or mirroring applied to the raw buffer of a
  * {@link UseCase} output.
- *
- * TODO(b/179827713): unhide this class once all transform utils are done.
- *
- * @hide
  */
 @TransformExperimental
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class OutputTransform {
-
-    // Normalized space that maps to the viewport rect.
-    private static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
+public final class OutputTransform {
 
     @NonNull
     final Matrix mMatrix;
@@ -50,16 +40,16 @@ public class OutputTransform {
     final Size mViewPortSize;
 
     /**
-     * @param matrix       The mapping from a normalized viewport space (0, 0) - (1, 1) to
-     *                     the transformed output. e.g. the (0, 0) maps to the (top, left) of
+     * @param matrix       The mapping from a normalized viewport space (-1, -1) - (1, 1) to
+     *                     the transformed output. e.g. the (-1, -1) maps to the (top, left) of
      *                     the viewport and (1, 1) maps to the (bottom, right) of the
      *                     viewport.
-     * @param viewPortSize The aspect ratio of the viewport. This is not used in transform
-     *                     computation. This is only used for mitigating the user mistake of not
+     * @param viewPortSize The aspect ratio of the viewport. This is not used to calculate the
+     *                     transform. This is only used for mitigating the user mistake of not
      *                     using a {@link UseCaseGroup}. By comparing the viewport to that of the
      *                     other {@link OutputTransform}, we can at least make sure that they
-     *                     have the same aspect ratio. Viewports with different aspect ratios
-     *                     cannot be from the same {@link UseCaseGroup}.
+     *                     have the same aspect ratio, and warn developers if not. Viewports with
+     *                     different aspect ratios cannot be from the same {@link UseCaseGroup}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -78,22 +68,4 @@ public class OutputTransform {
         return mViewPortSize;
     }
 
-    /**
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
-        return getNormalizedToBuffer(new RectF(viewPortRect));
-    }
-
-    /**
-     * Gets the transform from a normalized space (0, 0) - (1, 1) to viewport rect.
-     */
-    @NonNull
-    static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
-        Matrix normalizedToBuffer = new Matrix();
-        normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
-        return normalizedToBuffer;
-    }
 }

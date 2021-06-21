@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
-    Missing nullability on method `navArgs` return

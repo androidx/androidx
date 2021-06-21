@@ -61,6 +61,7 @@ import androidx.slice.view.R;
  * @hide
  */
 // TODO this should be unified with SystemUI RemoteInputView (b/67527720)
+@SuppressWarnings("AppCompatCustomView")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(21)
 public class RemoteInputView extends LinearLayout implements View.OnClickListener, TextWatcher {

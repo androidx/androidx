@@ -19,7 +19,10 @@ package androidx.camera.core.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
+import androidx.core.util.Preconditions;
 
+import java.util.Collections;
 import java.util.concurrent.Executor;
 
 /**
@@ -70,4 +73,25 @@ public interface CameraInfoInternal extends CameraInfo {
     /** Returns the {@link CamcorderProfileProvider} associated with this camera. */
     @NonNull
     CamcorderProfileProvider getCamcorderProfileProvider();
+
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    default CameraSelector getCameraSelector() {
+        return new CameraSelector.Builder()
+                .addCameraFilter(cameraInfos -> {
+                    final String cameraId = getCameraId();
+                    for (CameraInfo cameraInfo : cameraInfos) {
+                        Preconditions.checkArgument(cameraInfo instanceof CameraInfoInternal);
+                        final CameraInfoInternal cameraInfoInternal =
+                                (CameraInfoInternal) cameraInfo;
+                        if (cameraInfoInternal.getCameraId().equals(cameraId)) {
+                            return Collections.singletonList(cameraInfo);
+                        }
+                    }
+                    throw new IllegalStateException("Unable to find camera with id " + cameraId
+                            + " from list of available cameras.");
+                })
+                .build();
+    }
 }

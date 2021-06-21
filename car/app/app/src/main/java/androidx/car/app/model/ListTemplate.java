@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -42,16 +43,17 @@ import java.util.Objects;
  * template is considered a refresh of a previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setLoading}}, or the
- *       {@link ItemList} structure between the templates have not changed. This means that if the
- *       previous template has multiple {@link ItemList} sections, the new template must have the
- *       same number of sections with the same headers. Further, the number of rows and the string
- *       contents (title, texts, not counting spans) of each row must not have changed.
- *   <li>For rows that contain a {@link Toggle}, updates to the title or texts are also allowed if
- *       the toggle state has changed between the previous and new templates.
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}}, or
+ *   <li>The template title has not changed, and the {@link ItemList} structure between the
+ *       templates have not changed. This means that if the previous template has multiple
+ *       {@link ItemList} sections, the new template must have the same number of sections with
+ *       the same headers. Further, the number of rows and the title (not counting spans) of
+ *       each row must not have changed.
+ *   <li>For rows that contain a {@link Toggle}, updates to the title are also allowed if the
+ *       toggle state has changed between the previous and new templates.
  * </ul>
  */
+@CarProtocol
 public final class ListTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
@@ -239,7 +241,7 @@ public final class ListTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the title of the action and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          */
@@ -338,9 +340,11 @@ public final class ListTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 6 {@link Row}s total in the {@link ItemList}(s). The host will
-         * ignore any items over that limit. Each {@link Row}s can add up to 2 lines of texts via
-         * {@link Row.Builder#addText}.
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_LIST}. The
+         * host will ignore any items over that limit. Each {@link Row}s can add up to 2 lines of
+         * texts via {@link Row.Builder#addText}.
          *
          * <p>Either a header {@link Action} or the title must be set on the template.
          *
@@ -349,6 +353,7 @@ public final class ListTemplate implements Template {
          *                                  not have either a title or header {@link Action} set
          * @throws IllegalArgumentException if the added {@link ItemList}(s) do not meet the
          *                                  template's requirements
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public ListTemplate build() {

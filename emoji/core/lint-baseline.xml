@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static final class CodepointIndexFinder {"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
-            line="654"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiButton is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.emoji.widget.EmojiButton is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -24,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiEditText is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.emoji.widget.EmojiEditText is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -35,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiExtractEditText is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.emoji.widget.EmojiExtractEditText is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -46,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiExtractTextLayout is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.emoji.widget.EmojiExtractTextLayout is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -57,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.emoji.widget.EmojiInputFilter.InitCallbackImpl is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.emoji.widget.EmojiInputFilter.InitCallbackImpl is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (textView != null &amp;&amp; textView.isAttachedToWindow()) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
@@ -68,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.emoji.text.EmojiProcessor.CodepointIndexFinder is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.emoji.text.EmojiProcessor.CodepointIndexFinder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                if (!Character.isSurrogate(c)) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
@@ -79,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.emoji.text.EmojiProcessor.CodepointIndexFinder is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.emoji.text.EmojiProcessor.CodepointIndexFinder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                if (!Character.isSurrogate(c)) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
@@ -90,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiTextView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.emoji.widget.EmojiTextView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -101,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.emoji.widget.EmojiTextWatcher.InitCallbackImpl is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.emoji.widget.EmojiTextWatcher.InitCallbackImpl is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (editText != null &amp;&amp; editText.isAttachedToWindow()) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
@@ -112,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.ExtractButtonCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.emoji.widget.ExtractButtonCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -134,7 +123,8 @@
         <location
             file="src/main/java/androidx/emoji/text/EmojiMetadata.java"
             line="193"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue

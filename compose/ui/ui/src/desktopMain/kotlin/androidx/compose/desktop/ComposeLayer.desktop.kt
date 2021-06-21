@@ -32,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.skija.Canvas
-import org.jetbrains.skiko.HardwareLayer
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaRenderer
 import java.awt.Point
@@ -46,6 +45,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.event.MouseWheelEvent
 import java.awt.im.InputMethodRequests
+import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 
 internal class ComposeLayer {
     private var isDisposed = false
@@ -55,7 +55,12 @@ internal class ComposeLayer {
     //  method?
     private val events = AWTDebounceEventQueue()
 
-    internal val wrapped = Wrapped()
+    internal val wrapped = Wrapped().apply {
+        onStateChanged(SkiaLayer.PropertyKind.ContentScale) { _ ->
+            resetDensity()
+        }
+    }
+
     internal val owners: DesktopOwners = DesktopOwners(
         coroutineScope,
         wrapped,
@@ -65,8 +70,7 @@ internal class ComposeLayer {
     private var owner: DesktopOwner? = null
     private var composition: Composition? = null
 
-    private var content: (@Composable () -> Unit)? = null
-    private var parentComposition: CompositionContext? = null
+    private var initOwner: (() -> Unit)? = null
 
     private lateinit var density: Density
 
@@ -80,15 +84,10 @@ internal class ComposeLayer {
             super.init()
             isInit = true
             resetDensity()
-            initOwner()
+            initOwner?.invoke()
         }
 
-        override fun contentScaleChanged() {
-            super.contentScaleChanged()
-            resetDensity()
-        }
-
-        private fun resetDensity() {
+        internal fun resetDensity() {
             this@ComposeLayer.density = detectCurrentDensity()
             owner?.density = density
         }
@@ -113,7 +112,7 @@ internal class ComposeLayer {
             get() = this@ComposeLayer.density
     }
 
-    val component: HardwareLayer
+    val component: SkiaLayer
         get() = wrapped
 
     init {
@@ -162,10 +161,21 @@ internal class ComposeLayer {
                     event
                 )
             }
+
+            override fun mouseEntered(event: MouseEvent) = events.post {
+                owners.onMouseEntered(
+                    (event.x * density.density).toInt(),
+                    (event.y * density.density).toInt()
+                )
+            }
+
+            override fun mouseExited(event: MouseEvent) = events.post {
+                owners.onMouseExited()
+            }
         })
         wrapped.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseDragged(event: MouseEvent) = events.post {
-                owners.onMouseDragged(
+                owners.onMouseMoved(
                     (event.x * density.density).toInt(),
                     (event.y * density.density).toInt(),
                     event
@@ -175,7 +185,8 @@ internal class ComposeLayer {
             override fun mouseMoved(event: MouseEvent) = events.post {
                 owners.onMouseMoved(
                     (event.x * density.density).toInt(),
-                    (event.y * density.density).toInt()
+                    (event.y * density.density).toInt(),
+                    event
                 )
             }
         })
@@ -234,27 +245,33 @@ internal class ComposeLayer {
         events.cancel()
         coroutineScope.cancel()
         wrapped.dispose()
+        initOwner = null
         isDisposed = true
     }
 
     internal fun setContent(
         parentComposition: CompositionContext? = null,
+        onPreviewKeyEvent: (ComposeKeyEvent) -> Boolean = { false },
+        onKeyEvent: (ComposeKeyEvent) -> Boolean = { false },
         content: @Composable () -> Unit
     ) {
         check(!isDisposed)
-        check(this.content == null) { "Cannot set content twice" }
-        this.content = content
-        this.parentComposition = parentComposition
+        check(composition == null && initOwner == null) { "Cannot set content twice" }
+        initOwner = {
+            check(!isDisposed)
+            if (wrapped.isInit && owner == null) {
+                owner = DesktopOwner(
+                    owners,
+                    density,
+                    onPreviewKeyEvent = onPreviewKeyEvent,
+                    onKeyEvent = onKeyEvent
+                )
+                composition = owner!!.setContent(parent = parentComposition, content = content)
+                initOwner = null
+            }
+        }
         // We can't create DesktopOwner now, because we don't know density yet.
         // We will know density only after SkiaLayer will be visible.
-        initOwner()
-    }
-
-    private fun initOwner() {
-        check(!isDisposed)
-        if (wrapped.isInit && owner == null && content != null) {
-            owner = DesktopOwner(owners, density)
-            composition = owner!!.setContent(parent = parentComposition, content = content!!)
-        }
+        initOwner!!()
     }
 }

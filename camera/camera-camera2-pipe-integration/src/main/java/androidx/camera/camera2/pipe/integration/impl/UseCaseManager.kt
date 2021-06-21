@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import javax.inject.Inject
 
@@ -32,10 +33,12 @@ class UseCaseManager @Inject constructor(
     private val cameraConfig: CameraConfig,
     private val builder: UseCaseCameraComponent.Builder,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
-    private val controls: java.util.Set<UseCaseCameraControl>
+    private val controls: java.util.Set<UseCaseCameraControl>,
+    cameraProperties: CameraProperties,
 ) {
     private val attachedUseCases = mutableListOf<UseCase>()
     private val enabledUseCases = mutableSetOf<UseCase>()
+    private val meteringRepeating by lazy { MeteringRepeating.Builder(cameraProperties).build() }
 
     @Volatile
     private var _activeComponent: UseCaseCameraComponent? = null
@@ -71,6 +74,7 @@ class UseCaseManager @Inject constructor(
 
         var modified = false
         for (useCase in useCases) {
+            enabledUseCases.remove(useCase)
             modified = attachedUseCases.remove(useCase) || modified
         }
 
@@ -99,11 +103,19 @@ class UseCaseManager @Inject constructor(
         }
     }
 
+    fun reset(useCase: UseCase) {
+        if (attachedUseCases.contains(useCase)) {
+            start(attachedUseCases)
+        }
+    }
+
     override fun toString(): String = "UseCaseManager<${cameraConfig.cameraId}>"
 
     private fun invalidate() {
-        camera?.let {
-            it.activeUseCases = enabledUseCases.toSet()
+        when {
+            shouldAddRepeatingUseCase() -> addRepeatingUseCase()
+            shouldRemoveRepeatingUseCase() -> removeRepeatingUseCase()
+            else -> camera?.activeUseCases = enabledUseCases.toSet()
         }
     }
 
@@ -131,5 +143,37 @@ class UseCaseManager @Inject constructor(
         }
 
         invalidate()
+    }
+
+    private fun shouldAddRepeatingUseCase(): Boolean {
+        return enabledUseCases.only { it is ImageCapture }
+    }
+
+    private fun addRepeatingUseCase() {
+        meteringRepeating.setupSession()
+        attach(listOf(meteringRepeating))
+        enable(meteringRepeating)
+    }
+
+    private fun shouldRemoveRepeatingUseCase(): Boolean {
+        val onlyMeteringRepeatingEnabled = enabledUseCases.only { it is MeteringRepeating }
+        val meteringRepeatingAndNonImageCaptureEnabled =
+            enabledUseCases.any { it is MeteringRepeating } &&
+                enabledUseCases.any { it !is MeteringRepeating && it !is ImageCapture }
+        return onlyMeteringRepeatingEnabled || meteringRepeatingAndNonImageCaptureEnabled
+    }
+
+    private fun removeRepeatingUseCase() {
+        disable(meteringRepeating)
+        detach(listOf(meteringRepeating))
+        meteringRepeating.onDetached()
+    }
+
+    /**
+     * Returns true when the collection only has elements (1 or more) that verify the predicate,
+     * false otherwise.
+     */
+    private fun <T> Collection<T>.only(predicate: (T) -> Boolean): Boolean {
+        return isNotEmpty() && all(predicate)
     }
 }

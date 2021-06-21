@@ -16,38 +16,83 @@
 
 package androidx.camera.view.transform;
 
-import static androidx.camera.view.TransformUtils.min;
+import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
+import static androidx.camera.view.TransformUtils.getRectToRect;
+import static androidx.camera.view.TransformUtils.is90or270;
 import static androidx.camera.view.TransformUtils.rectToSize;
-import static androidx.camera.view.TransformUtils.rectToVertices;
-import static androidx.camera.view.transform.OutputTransform.getNormalizedToBuffer;
 
 import android.graphics.Matrix;
 import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.UseCase;
 import androidx.camera.view.TransformExperimental;
 
 /**
  * Factory for extracting transform info from {@link ImageProxy}.
  *
- * TODO(b/179827713): unhide this class once all transform utils are done.
+ * <p> This class is for extracting a {@link OutputTransform} from an {@link ImageProxy} object. The
+ * {@link OutputTransform} represents the transform being applied to the original camera buffer,
+ * which can be used by {@link CoordinateTransform} to transform coordinates between
+ * {@link UseCase}s.
  *
- * @hide
+ * @see OutputTransform
+ * @see CoordinateTransform
  */
 @TransformExperimental
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ImageProxyTransformFactory {
+public final class ImageProxyTransformFactory {
 
-    private final boolean mUseCropRect;
-    private final boolean mUseRotationDegrees;
+    private boolean mUsingCropRect;
+    private boolean mUsingRotationDegrees;
 
-    ImageProxyTransformFactory(boolean useCropRect, boolean useRotationDegrees) {
-        mUseCropRect = useCropRect;
-        mUseRotationDegrees = useRotationDegrees;
+    public ImageProxyTransformFactory() {
+    }
+
+    /**
+     * Whether to use the crop rect of the {@link ImageProxy}.
+     *
+     * <p> By default, the value is false and the factory uses the {@link ImageProxy}'s
+     * entire buffer. Only set this value if the coordinates to be transformed respect the
+     * crop rect. For example, top-left corner of the crop rect is (0, 0).
+     */
+    public void setUsingCropRect(boolean usingCropRect) {
+        mUsingCropRect = usingCropRect;
+    }
+
+    /**
+     * Whether the factory respects the value of {@link ImageProxy#getCropRect()}.
+     *
+     * <p>By default, the value is false.
+     */
+    public boolean isUsingCropRect() {
+        return mUsingCropRect;
+    }
+
+    /**
+     * Whether to use the rotation degrees of the {@link ImageProxy}.
+     *
+     * <p> By default, the value is false and the factory uses a rotation degree of 0. Only
+     * set this value to true if the coordinates to be transformed is after the rotation degree is
+     * applied. For example, if the {@link ImageInfo#getRotationDegrees()} is 90 degrees, (0, 0) in
+     * the original buffer should be mapped to (height, 0) in the rotated image. Set this value
+     * to true if the input coordinates are based on the original image, and false if the
+     * coordinates are based on the rotated image.
+     */
+    public void setUsingRotationDegrees(boolean usingRotationDegrees) {
+        mUsingRotationDegrees = usingRotationDegrees;
+    }
+
+    /**
+     * Whether the factory respects the value of {@link ImageInfo#getRotationDegrees()}.
+     *
+     * <p>By default, the value is false.
+     */
+    public boolean isUsingRotationDegrees() {
+        return mUsingRotationDegrees;
     }
 
     /**
@@ -60,13 +105,11 @@ public class ImageProxyTransformFactory {
      */
     @NonNull
     public OutputTransform getOutputTransform(@NonNull ImageProxy imageProxy) {
-        Matrix matrix = new Matrix();
-
         // Map the viewport to output.
-        float[] cropRectVertices = rectToVertices(getCropRect(imageProxy));
-        float[] outputVertices = getRotatedVertices(cropRectVertices,
-                getRotationDegrees(imageProxy));
-        matrix.setPolyToPoly(cropRectVertices, 0, outputVertices, 0, 4);
+        int rotationDegrees = getRotationDegrees(imageProxy);
+        RectF source = getCropRect(imageProxy);
+        RectF target = getRotatedCropRect(source, rotationDegrees);
+        Matrix matrix = getRectToRect(source, target, rotationDegrees);
 
         // Map the normalized space to viewport.
         matrix.preConcat(getNormalizedToBuffer(imageProxy.getCropRect()));
@@ -78,7 +121,7 @@ public class ImageProxyTransformFactory {
      * Gets the crop rect based on factory settings.
      */
     private RectF getCropRect(@NonNull ImageProxy imageProxy) {
-        if (mUseCropRect) {
+        if (mUsingCropRect) {
             return new RectF(imageProxy.getCropRect());
         }
         // The default crop rect is the full buffer.
@@ -89,7 +132,7 @@ public class ImageProxyTransformFactory {
      * Gets the rotation degrees based on factory settings.
      */
     private int getRotationDegrees(@NonNull ImageProxy imageProxy) {
-        if (mUseRotationDegrees) {
+        if (mUsingRotationDegrees) {
             return imageProxy.getImageInfo().getRotationDegrees();
         }
         // The default is no rotation.
@@ -97,84 +140,12 @@ public class ImageProxyTransformFactory {
     }
 
     /**
-     * Rotates the crop rect with given degrees.
-     *
-     * <p> Rotate the vertices, then align the top left corner to (0, 0).
-     *
-     * <pre>
-     *         (0, 0)                          (0, 0)
-     * Before  +-----Surface-----+     After:  a--------------------b
-     *         |                 |             |          ^         |
-     *         |  d-crop rect-a  |             |          |         |
-     *         |  |           |  |             d--------------------c
-     *         |  |           |  |
-     *         |  |    -->    |  |    Rotation:        <-----+
-     *         |  |           |  |                       270°|
-     *         |  |           |  |                           |
-     *         |  c-----------b  |
-     *         +-----------------+
-     * </pre>
+     * Rotates the rect and align it to (0, 0).
      */
-    static float[] getRotatedVertices(float[] cropRectVertices, int rotationDegrees) {
-        // Rotate the vertices. The pivot point doesn't matter since we are gong to align it to
-        // the origin afterwards.
-        float[] vertices = cropRectVertices.clone();
-        Matrix matrix = new Matrix();
-        matrix.setRotate(rotationDegrees);
-        matrix.mapPoints(vertices);
-
-        // Align the rotated vertices to origin. The transformed output always starts at (0, 0).
-        float left = min(vertices[0], vertices[2], vertices[4], vertices[6]);
-        float top = min(vertices[1], vertices[3], vertices[5], vertices[7]);
-        for (int i = 0; i < vertices.length; i += 2) {
-            vertices[i] -= left;
-            vertices[i + 1] -= top;
+    static RectF getRotatedCropRect(RectF rect, int rotationDegrees) {
+        if (is90or270(rotationDegrees)) {
+            return new RectF(0, 0, rect.height(), rect.width());
         }
-        return vertices;
-    }
-
-    /**
-     * Builder of {@link ImageProxyTransformFactory}.
-     */
-    public static class Builder {
-
-        private boolean mUseCropRect = false;
-        private boolean mUseRotationDegrees = false;
-
-        /**
-         * Whether to use the crop rect of the {@link ImageProxy}.
-         *
-         * <p> By default, the value is false and the factory uses the {@link ImageProxy}'s
-         * entire buffer. Only set this value if the coordinates to be transformed respect the
-         * crop rect. For example, top-left corner of the crop rect is (0, 0).
-         */
-        @NonNull
-        public Builder setUseCropRect(boolean useCropRect) {
-            mUseCropRect = useCropRect;
-            return this;
-        }
-
-        /**
-         * Whether to use the rotation degrees of the {@link ImageProxy}.
-         *
-         * <p> By default, the value is false and the factory uses a rotation degree of 0. Only
-         * set this value if the coordinates to be transformed respect the rotation degrees. For
-         * example, if rotation is 90°, (0, 0) should map to (0, height) on the buffer.
-         */
-        @NonNull
-        public Builder setUseRotationDegrees(boolean useRotationDegrees) {
-            mUseRotationDegrees = useRotationDegrees;
-            return this;
-        }
-
-        // TODO(b/179827713): Add support for mirroring.
-
-        /**
-         * Builds the {@link ImageProxyTransformFactory} object.
-         */
-        @NonNull
-        public ImageProxyTransformFactory build() {
-            return new ImageProxyTransformFactory(mUseCropRect, mUseRotationDegrees);
-        }
+        return new RectF(0, 0, rect.width(), rect.height());
     }
 }

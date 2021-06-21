@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext.CarServiceType;
+import androidx.car.app.constraints.IConstraintHost;
 import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.utils.LogTags;
 import androidx.car.app.utils.RemoteUtils;
@@ -49,6 +50,8 @@ public final class HostDispatcher {
     @Nullable
     private IAppHost mAppHost;
     @Nullable
+    private IConstraintHost mConstraintHost;
+    @Nullable
     private INavigationHost mNavigationHost;
 
     /**
@@ -57,8 +60,6 @@ public final class HostDispatcher {
      * @param hostType the service to dispatch to
      * @param callName the name of the call for logging purposes
      * @param call     the request to dispatch
-     *
-     * @throws RemoteException   if the host is unresponsive
      * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
      *                           {@link SecurityException}
@@ -85,7 +86,6 @@ public final class HostDispatcher {
      * @param hostType the service to dispatch to
      * @param callName the name of the call for logging purposes
      * @param call     the request to dispatch
-     *
      * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
      *                           {@link SecurityException}
@@ -149,6 +149,16 @@ public final class HostDispatcher {
                                             CarContext.APP_SERVICE)));
                 }
                 host = mAppHost;
+                break;
+            case CarContext.CONSTRAINT_SERVICE:
+                if (mConstraintHost == null) {
+                    mConstraintHost =
+                            RemoteUtils.dispatchCallToHostForResult("getHost(Constraints)", () ->
+                                    IConstraintHost.Stub.asInterface(
+                                            requireNonNull(mCarHost).getHost(
+                                                    CarContext.CONSTRAINT_SERVICE)));
+                }
+                host = mConstraintHost;
                 break;
             case CarContext.NAVIGATION_SERVICE:
                 if (mNavigationHost == null) {

@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.testing.compat.LooperCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            return looper.getQueue();"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="31"
-            column="27"/>
-    </issue>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="UnknownNullness"
@@ -96,7 +85,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraControl.java"
-            line="88"
+            line="87"
             column="53"/>
     </issue>
 
@@ -272,7 +261,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="29"
+            line="33"
             column="19"/>
     </issue>
 
@@ -283,7 +272,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="29"
+            line="33"
             column="41"/>
     </issue>
 

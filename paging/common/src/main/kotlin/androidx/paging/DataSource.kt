@@ -93,7 +93,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * can differentiate unloaded placeholder items from content that has been paged in.
  *
  * @param Key Unique identifier for item loaded from DataSource. Often an integer to represent
- * position in data set. Note - this is distinct from e.g. Room's `<Value> Value type
+ * position in data set. Note - this is distinct from e.g. Room's `<Value>` Value type
  * loaded by the DataSource.
  */
 public abstract class DataSource<Key : Any, Value : Any>

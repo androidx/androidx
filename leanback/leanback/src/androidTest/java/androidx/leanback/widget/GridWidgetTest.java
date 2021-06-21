@@ -715,9 +715,123 @@ public class GridWidgetTest {
 
     }
 
+    @Test(expected = ClassCastException.class)
+    public void testSetInvalidLayoutManager() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        initActivity(intent);
+
+        // BaseGridView only accepts Leanback's GridLayoutManager for its layout manager.
+        RecyclerView.LayoutManager baseLayoutManager =
+                Mockito.mock(RecyclerView.LayoutManager.class);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mGridView.setLayoutManager(baseLayoutManager);
+            }
+        });
+    }
+
+    @Test
+    public void testSwitchLayoutManagerVertical() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        scrollToEnd(mVerifyLayout);
+
+        GridLayoutManager newGridLayoutManager = new GridLayoutManager();
+        newGridLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setLayoutManager(newGridLayoutManager);
+            }
+        });
+        mNumRows = 1;
+        waitOneUiCycle();
+
+        // Resetting the layout manager should bring focus back to the first element.
+        verifyBeginAligned();
+        scrollToEnd(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
+        verifyBeginAligned();
+    }
+
+    @Test
+    public void testSwitchLayoutManagerHorizontal() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        scrollToEnd(mVerifyLayout);
+
+        GridLayoutManager newGridLayoutManager = new GridLayoutManager();
+        newGridLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setLayoutManager(newGridLayoutManager);
+                ((HorizontalGridView) mGridView).setNumRows(4);
+            }
+        });
+        mNumRows = 4;
+        waitOneUiCycle();
+
+        verifyBeginAligned();
+        scrollToEnd(mVerifyLayout);
+        scrollToBegin(mVerifyLayout);
+        verifyBeginAligned();
+    }
+
+    @Test
+    public void testRestoreLayoutManager() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollToPosition(29);
+            }
+        });
+
+        GridLayoutManager layout = (GridLayoutManager) mGridView.getLayoutManager();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mGridView.setLayoutManager(null);
+            }
+        });
+
+        waitOneUiCycle();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mGridView.setLayoutManager(layout);
+            }
+        });
+
+        waitOneUiCycle();
+
+        assertEquals(29, mGridView.getSelectedPosition());
+    }
+
     @Test
     public void testThreeColumnVerticalBasic() throws Throwable {
-
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
@@ -4453,7 +4567,7 @@ public class GridWidgetTest {
         assertEquals(0, mGridView.getSelectedPosition());
     }
 
-    @FlakyTest
+    @FlakyTest(bugId = 187191618)
     @Test
     public void testExtraLayoutSpace() throws Throwable {
         Intent intent = new Intent();

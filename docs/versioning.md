@@ -199,7 +199,7 @@ quality stable release. Therefore, at minimum:
     a public `beta`
 -   A `beta` version must be publically available for 2 weeks before releasing
     an public `rc`
--   A `rc` version must be publically available fore 2 weeks before releasing a
+-   A `rc` version must be publically available for 2 weeks before releasing a
     public stable version
 
 Your library must meet the following criteria to move your public release to
@@ -239,13 +239,16 @@ be addressed with minimal changes to the API surface. Exceptions **will not** be
 granted for new features, non-trivial API changes, significant refactorings, or
 any changes likely to introduce additional functional instability. Requests for
 exceptions **must** be accompanied by a justification explaining why the change
-cannot be made in a future minor version.
+cannot be made in a future minor version. This policy does not apply to
+additions of `@Experimental` APIs or changes to `@Experimental` APIs.
 
-#### Checklist for moving to `beta01`
+#### Checklist for moving to `beta01` {#beta-checklist}
 
 *   API surface
     *   Entire API surface has been reviewed by API Council
     *   All APIs from alpha undergoing deprecate/remove cycle must be removed
+        *   The final removal of a `@Deprecated` API must occur in alpha, not in
+            Beta.
 *   Testing
     *   All public APIs are tested
     *   All pre-submit and post-submit tests are enabled (e.g. all suppressions
@@ -264,10 +267,13 @@ cannot be made in a future minor version.
 *   API surface
     *   May not add, remove, or change APIs unless granted an exception by API
         Council following the beta API change exception request process
-    *   Must go through the full `@Deprecate` and hard-removal cycle in separate
-        `beta` releases for any exception-approved API removals or changes
-    *   May not remove `@Experimental` from experimental APIs, see previous item
-        regarding new APIs
+        *   Must go through the full `@Deprecate` and hard-removal cycle in
+            separate `beta` releases for any exception-approved API removals or
+            changes
+    *   May not remove `@Experimental` from experimental APIs, as this would
+        amount to an API addition
+    *   **May** add new `@Experimental` APIs and change existing `@Experimental`
+        APIs
 
 ### RC {#rc}
 

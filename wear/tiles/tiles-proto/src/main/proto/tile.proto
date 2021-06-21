@@ -1,0 +1,40 @@
+// The components of a tile that can be rendered by a tile renderer.
+syntax = "proto3";
+
+package androidx.wear.tiles.proto;
+
+import "timeline.proto";
+import "version.proto";
+
+option java_package = "androidx.wear.tiles.proto";
+option java_outer_classname = "TileProto";
+
+// A holder for a tile. This specifies the resources to use for this delivery
+// of the tile, and the timeline for the tile.
+message Tile {
+  // The resource version required for these tiles. This can be any
+  // developer-defined string; it is only used to cache resources, and is passed
+  // in ResourcesRequest if the system does not have a copy of the specified
+  // resource version.
+  string resources_version = 1;
+
+  // The tiles to show in the carousel, along with their validity periods.
+  Timeline timeline = 2;
+
+  // The schema version that this tile was built with.
+  VersionInfo schema_version = 3;
+
+  // How many milliseconds of elapsed time (**not** wall clock time) this tile
+  // can be considered to be "fresh". The platform will attempt to refresh
+  // your tile at some point in the future after this interval has lapsed. A
+  // value of 0 here signifies that auto-refreshes should not be used (i.e. you
+  // will manually request updates via TileProviderService#getRequester).
+  //
+  // This mechanism should not be used to update your tile more frequently than
+  // once a minute, and the system may throttle your updates if you request
+  // updates faster than this interval. This interval is also inexact; the
+  // system will generally update your tile if it is on-screen, or about to be
+  // on-screen, although this is not guaranteed due to system-level
+  // optimizations.
+  uint64 freshness_interval_millis = 4;
+}

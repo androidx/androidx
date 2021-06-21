@@ -19,6 +19,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
@@ -135,6 +136,12 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
 
     @Override
     public CaptureStageImpl onPresetSession() {
+        // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
+        // (CaptureRequest) which only supported from API level 28.
+        if (Build.VERSION.SDK_INT < 28) {
+            return null;
+        }
+
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);

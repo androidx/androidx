@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphNavigator
@@ -58,20 +59,31 @@ public class DynamicGraphNavigator(
      * module has successfully been installed.
      */
     override fun navigate(
-        destination: NavGraph,
-        args: Bundle?,
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ): NavDestination? {
+    ) {
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        val destination = entry.destination
         val extras = if (navigatorExtras is DynamicExtras) navigatorExtras else null
         if (destination is DynamicNavGraph) {
             val moduleName = destination.moduleName
             if (moduleName != null && installManager.needsInstall(moduleName)) {
-                return installManager.performInstall(destination, args, extras, moduleName)
+                installManager.performInstall(entry, extras, moduleName)
+                return
             }
         }
-        return super.navigate(
-            destination, args, navOptions,
+        super.navigate(
+            listOf(entry), navOptions,
             if (extras != null) extras.destinationExtras else navigatorExtras
         )
     }
@@ -110,7 +122,7 @@ public class DynamicGraphNavigator(
     internal fun navigateToProgressDestination(
         dynamicNavGraph: DynamicNavGraph,
         progressArgs: Bundle?
-    ): NavDestination? {
+    ) {
         var progressDestinationId = dynamicNavGraph.progressDestination
         if (progressDestinationId == 0) {
             progressDestinationId = installDefaultProgressDestination(dynamicNavGraph)
@@ -124,13 +136,14 @@ public class DynamicGraphNavigator(
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
             progressDestination.navigatorName
         )
-        return navigator.navigate(progressDestination, progressArgs, null, null)
+        val entry = state.createBackStackEntry(progressDestination, progressArgs)
+        navigator.navigate(listOf(entry), null, null)
     }
 
     /**
      * Install the default progress destination
      *
-     * @return The [NavDestination.getId] of the newly added progress destination
+     * @return The [NavDestination#getId] of the newly added progress destination
      */
     private fun installDefaultProgressDestination(dynamicNavGraph: DynamicNavGraph): Int {
         val progressDestinationSupplier = defaultProgressDestinationSupplier

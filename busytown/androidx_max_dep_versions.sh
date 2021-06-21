@@ -5,7 +5,7 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh assembleDebug assembleAndroidTest \
+impl/build.sh assembleRelease assembleAndroidTest \
     -Pandroidx.useMaxDepVersions \
     "$@"
 

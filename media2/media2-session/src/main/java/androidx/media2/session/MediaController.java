@@ -884,6 +884,15 @@ public class MediaController implements Closeable {
      * @see #setPlaylist
      * @see ControllerCallback#onCurrentMediaItemChanged
      * @see ControllerCallback#onPlaylistChanged
+     * @see MediaConstants#MEDIA_URI_AUTHORITY
+     * @see MediaConstants#MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID
+     * @see MediaConstants#MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID
+     * @see MediaConstants#MEDIA_URI_PATH_PREPARE_FROM_SEARCH
+     * @see MediaConstants#MEDIA_URI_PATH_PLAY_FROM_SEARCH
+     * @see MediaConstants#MEDIA_URI_PATH_SET_MEDIA_URI
+     * @see MediaConstants#MEDIA_URI_QUERY_ID
+     * @see MediaConstants#MEDIA_URI_QUERY_QUERY
+     * @see MediaConstants#MEDIA_URI_QUERY_URI
      */
     @NonNull
     public ListenableFuture<SessionResult> setMediaUri(@NonNull Uri uri, @Nullable Bundle extras) {

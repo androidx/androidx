@@ -18,15 +18,19 @@ package androidx.car.app.testing;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
 
+import androidx.car.app.CarAppService;
+import androidx.car.app.notification.CarPendingIntent;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link FakeHost}. */
@@ -37,14 +41,18 @@ public class FakeHostTest {
             TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
 
     @Test
-    @SuppressWarnings("PendingIntentMutability")
     public void performNotificationActionClick() {
-        Intent broadcast = new Intent("foo");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mCarContext, 1, broadcast, 0);
+        ComponentName componentName = new ComponentName(mCarContext,  CarAppService.class);
+        Intent broadcast =
+                new Intent("foo").setComponent(componentName);
+        shadowOf(mCarContext.getPackageManager()).addServiceIfNotPresent(componentName);
+
+        PendingIntent pendingIntent = CarPendingIntent.getCarApp(mCarContext, 1, broadcast, 0);
 
         mCarContext.getFakeHost().performNotificationActionClick(pendingIntent);
 
-        assertThat(Shadows.shadowOf(mCarContext).getBroadcastIntents().get(0).getAction())
-                .isEqualTo(broadcast.getAction());
+        assertThat(mCarContext.getStartCarAppIntents().get(0).getComponent())
+                .isEqualTo(componentName);
+        assertThat(mCarContext.getStartCarAppIntents().get(0).getAction()).isEqualTo("foo");
     }
 }

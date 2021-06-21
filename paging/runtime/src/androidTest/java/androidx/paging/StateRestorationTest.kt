@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -108,6 +109,7 @@ class StateRestorationTest {
         createRecyclerView()
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun restoreState_withPlaceholders() {
         runTest {
@@ -152,6 +154,7 @@ class StateRestorationTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun restoreState_withoutPlaceholders_cachedIn() {
         runTest {
@@ -181,6 +184,7 @@ class StateRestorationTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun emptyNewPage_allowRestoration() {
         // check that we don't block restoration indefinitely if new pager is empty.
@@ -193,9 +197,8 @@ class StateRestorationTest {
             measureAndLayout()
             scrollToPosition(50)
             saveAndRestore()
-            assertThat(
-                layoutManager.restoredState
-            ).isFalse()
+            assertThat(layoutManager.restoredState).isFalse()
+
             val emptyPager = createPager(
                 pageSize = 10,
                 itemCount = 0,
@@ -203,12 +206,11 @@ class StateRestorationTest {
             )
             collectPagesAsync(emptyPager.flow)
             measureAndLayout()
-            assertThat(
-                layoutManager.restoredState
-            ).isTrue()
+            assertThat(layoutManager.restoredState).isTrue()
         }
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun userOverridesStateRestoration() {
         runTest {

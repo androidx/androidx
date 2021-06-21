@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
+
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -27,22 +26,23 @@ plugins {
 
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.1.0")
-    api(GUAVA_LISTENABLE_FUTURE)
+    api(libs.guavaListenableFuture)
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
-    implementation(AUTO_VALUE_ANNOTATIONS)
-    annotationProcessor(AUTO_VALUE)
+    implementation(libs.autoValueAnnotations)
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
+    annotationProcessor(libs.autoValue)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(project(":annotation:annotation-experimental"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
 }

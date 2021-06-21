@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        PrintAttributes attr = new PrintAttributes.Builder()"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setMediaSize(mediaSize)"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setColorMode(mColorMode)"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .build();"
         errorLine2="                 ~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        printManager.print(jobName,"
         errorLine2="                     ~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        PrintAttributes.Builder builder = new PrintAttributes.Builder();"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        builder.setColorMode(mColorMode);"
         errorLine2="                ~~~~~~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
@@ -101,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        PrintAttributes attr = builder.build();"
         errorLine2="                                       ~~~~~">
         <location
@@ -112,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        printManager.print(jobName, printDocumentAdapter, attr);"
         errorLine2="                     ~~~~~">
         <location
@@ -123,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    cancellationSignal.setOnCancelListener("
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            mediaSize = mAttributes.getMediaSize();"
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
@@ -145,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            if (mediaSize.isPortrait() != isPortrait(bitmap)) {"
         errorLine2="                                          ~~~~~~~~~~">
         <location
@@ -156,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        PrintDocumentInfo info = new PrintDocumentInfo.Builder(mJobName)"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -167,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
@@ -178,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                .setPageCount(1)"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
@@ -189,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                .build();"
         errorLine2="                                 ~~~~~">
         <location
@@ -200,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        layoutResultCallback.onLayoutFinished(info, changed);"
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
@@ -211,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        layoutResultCallback.onLayoutFailed(null);"
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
@@ -222,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    layoutResultCallback.onLayoutCancelled();"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
@@ -233,8 +233,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        PrintAttributes.Builder b = new PrintAttributes.Builder()"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -244,8 +244,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setMediaSize(other.getMediaSize())"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
@@ -255,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setMediaSize(other.getMediaSize())"
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
@@ -266,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setResolution(other.getResolution())"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -277,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setResolution(other.getResolution())"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
@@ -288,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setMinMargins(other.getMinMargins());"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -299,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setMinMargins(other.getMinMargins());"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
@@ -310,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (other.getColorMode() != 0) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
@@ -321,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            b.setColorMode(other.getColorMode());"
         errorLine2="              ~~~~~~~~~~~~">
         <location
@@ -332,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            b.setColorMode(other.getColorMode());"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
@@ -343,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (other.getDuplexMode() != 0) {"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
@@ -354,8 +354,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                b.setDuplexMode(other.getDuplexMode());"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
@@ -365,8 +365,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                b.setDuplexMode(other.getDuplexMode());"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
@@ -376,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
@@ -387,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -398,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();"
         errorLine2="                                                                            ~~~~~">
         <location
@@ -409,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (cancellationSignal.isCanceled()) {"
         errorLine2="                                           ~~~~~~~~~~">
         <location
@@ -420,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -431,8 +431,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            pdfAttributes.getColorMode());"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
@@ -442,8 +442,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (cancellationSignal.isCanceled()) {"
         errorLine2="                                           ~~~~~~~~~~">
         <location
@@ -453,8 +453,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        PdfDocument.Page page = pdfDocument.startPage(1);"
         errorLine2="                                                            ~~~~~~~~~">
         <location
@@ -464,8 +464,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            contentRect = new RectF(page.getInfo().getContentRect());"
         errorLine2="                                                         ~~~~~~~">
         <location
@@ -475,8 +475,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            contentRect = new RectF(page.getInfo().getContentRect());"
         errorLine2="                                                                   ~~~~~~~~~~~~~~">
         <location
@@ -486,8 +486,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            PrintedPdfDocument dummyDocument = new PrintedPdfDocument(mContext,"
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -497,8 +497,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            PdfDocument.Page dummyPage = dummyDocument.startPage(1);"
         errorLine2="                                                                       ~~~~~~~~~">
         <location
@@ -508,8 +508,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            contentRect = new RectF(dummyPage.getInfo().getContentRect());"
         errorLine2="                                                              ~~~~~~~">
         <location
@@ -519,8 +519,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            contentRect = new RectF(dummyPage.getInfo().getContentRect());"
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
@@ -530,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            dummyDocument.finishPage(dummyPage);"
         errorLine2="                                          ~~~~~~~~~~">
         <location
@@ -541,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            dummyDocument.close();"
         errorLine2="                                          ~~~~~">
         <location
@@ -552,8 +552,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            page.getCanvas().clipRect(contentRect);"
         errorLine2="                                 ~~~~~~~~~">
         <location
@@ -563,8 +563,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);"
         errorLine2="                             ~~~~~~~~~">
         <location
@@ -574,8 +574,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        pdfDocument.finishPage(page);"
         errorLine2="                                    ~~~~~~~~~~">
         <location
@@ -585,8 +585,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        if (cancellationSignal.isCanceled()) {"
         errorLine2="                                               ~~~~~~~~~~">
         <location
@@ -596,8 +596,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        pdfDocument.writeTo("
         errorLine2="                                    ~~~~~~~">
         <location
@@ -607,8 +607,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        pdfDocument.close();"
         errorLine2="                                    ~~~~~">
         <location
@@ -618,8 +618,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                if (cancellationSignal.isCanceled()) {"
         errorLine2="                                       ~~~~~~~~~~">
         <location
@@ -629,8 +629,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    writeResultCallback.onWriteCancelled();"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
@@ -640,8 +640,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    writeResultCallback.onWriteFinished("
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
@@ -651,8 +651,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class null is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    writeResultCallback.onWriteFailed(null);"
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
@@ -662,8 +662,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.print.PrintHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mDecodeOptions.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);"
         errorLine2="                                                                  ~~~">
         <location

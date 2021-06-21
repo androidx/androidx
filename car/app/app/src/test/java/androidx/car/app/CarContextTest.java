@@ -25,7 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
+import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -33,11 +36,13 @@ import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
+import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
@@ -51,8 +56,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowApplication;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /** Tests for {@link CarContext}. */
@@ -62,6 +70,7 @@ public class CarContextTest {
     private static final String APP_SERVICE = "app";
     private static final String NAVIGATION_SERVICE = "navigation";
     private static final String SCREEN_SERVICE = "screen";
+    private static final String HARDWARE_SERVICE = "hardware";
 
     @Mock
     private ICarHost mMockCarHost;
@@ -137,6 +146,12 @@ public class CarContextTest {
     }
 
     @Test
+    public void getCarService_hardwareManager() {
+        assertThrows(IllegalStateException.class, () ->
+                mCarContext.getCarService(CarContext.HARDWARE_SERVICE));
+    }
+
+    @Test
     public void getCarService_unknown_throws() {
         assertThrows(IllegalArgumentException.class, () -> mCarContext.getCarService("foo"));
     }
@@ -166,6 +181,12 @@ public class CarContextTest {
     }
 
     @Test
+    public void getCarServiceName_hardwareManager_throws() {
+        assertThat(mCarContext.getCarServiceName(CarHardwareManager.class)).isEqualTo(
+                HARDWARE_SERVICE);
+    }
+
+    @Test
     public void getCarServiceName_unexpectedClass_throws() {
         assertThrows(
                 IllegalArgumentException.class,
@@ -183,24 +204,6 @@ public class CarContextTest {
         mCarContext.startCarApp(foo);
 
         verify(mMockCarHost).startCarApp(foo);
-    }
-
-    @Test
-    public void startCarApp_nullIntent_throws() {
-        assertThrows(NullPointerException.class, () -> CarContext.startCarApp(null, null));
-        assertThrows(
-                NullPointerException.class,
-                () -> CarContext.startCarApp(mIntentFromNotification, null));
-        assertThrows(NullPointerException.class, () -> CarContext.startCarApp(null, new Intent()));
-    }
-
-    @Test
-    public void startCarApp_callsTheBinder() throws RemoteException {
-        Intent startCarAppIntent = new Intent("foo");
-
-        CarContext.startCarApp(mIntentFromNotification, startCarAppIntent);
-
-        verify(mMockStartCarApp).startCarApp(startCarAppIntent);
     }
 
     @Test
@@ -417,5 +420,45 @@ public class CarContextTest {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
 
         assertThat(hostDispatcher.getHost(CarContext.APP_SERVICE)).isNull();
+    }
+
+    @Test
+    public void requestPermissions_startsTheExpectedActivity() throws RemoteException {
+        List<String> permissions = new ArrayList<>();
+        permissions.add("foo");
+        permissions.add("bar");
+
+        OnRequestPermissionsListener listener = mock(OnRequestPermissionsListener.class);
+
+        mLifecycleOwner.mRegistry.setCurrentState(State.CREATED);
+        mCarContext.requestPermissions(permissions, Runnable::run, listener);
+
+        ShadowApplication sa = shadowOf((Application) ApplicationProvider.getApplicationContext());
+        Intent startActivityIntent = sa.getNextStartedActivity();
+
+        assertThat(startActivityIntent.getAction()).isEqualTo(
+                CarContext.REQUEST_PERMISSIONS_ACTION);
+        assertThat(startActivityIntent.getComponent()).isEqualTo(new ComponentName(mCarContext,
+                CarAppInternalActivity.class));
+
+        Bundle extras = startActivityIntent.getExtras();
+
+        assertThat(extras.getStringArray(CarContext.EXTRA_PERMISSIONS_KEY)).isEqualTo(
+                permissions.toArray(new String[0]));
+
+        IBinder binder =
+                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY);
+
+        IOnRequestPermissionsListener iListener = IOnRequestPermissionsListener.Stub.asInterface(
+                binder);
+        iListener.onRequestPermissionsResult(new String[]{"foo"}, new String[]{"bar"});
+
+        List<String> approved = new ArrayList<>();
+        approved.add("foo");
+
+        List<String> rejected = new ArrayList<>();
+        rejected.add("bar");
+
+        verify(listener).onRequestPermissionsResult(approved, rejected);
     }
 }

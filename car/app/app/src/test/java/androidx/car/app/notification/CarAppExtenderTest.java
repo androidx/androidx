@@ -82,6 +82,7 @@ public final class CarAppExtenderTest {
         assertThat(carAppExtender.getActions()).isEmpty();
         assertThat(carAppExtender.getImportance())
                 .isEqualTo(NotificationManagerCompat.IMPORTANCE_UNSPECIFIED);
+        assertThat(carAppExtender.getChannelId()).isNull();
     }
 
     @Test
@@ -150,7 +151,8 @@ public final class CarAppExtenderTest {
     @Test
     public void notification_extended_setContentIntent() {
         Intent intent = new Intent(INTENT_PRIMARY_ACTION);
-        PendingIntent contentIntent = PendingIntent.getBroadcast(mContext, 0, intent, 0);
+        PendingIntent contentIntent = PendingIntent.getBroadcast(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                         .extend(new CarAppExtender.Builder().setContentIntent(
@@ -162,7 +164,8 @@ public final class CarAppExtenderTest {
     @Test
     public void notification_extended_setDeleteIntent() {
         Intent intent = new Intent(INTENT_PRIMARY_ACTION);
-        PendingIntent deleteIntent = PendingIntent.getBroadcast(mContext, 0, intent, 0);
+        PendingIntent deleteIntent = PendingIntent.getBroadcast(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                         .extend(new CarAppExtender.Builder().setDeleteIntent(deleteIntent).build());
@@ -184,12 +187,14 @@ public final class CarAppExtenderTest {
         int icon1 = TestUtils.getTestDrawableResId(mContext, "ic_test_1");
         CharSequence title1 = "FirstAction";
         Intent intent1 = new Intent(INTENT_PRIMARY_ACTION);
-        PendingIntent actionIntent1 = PendingIntent.getBroadcast(mContext, 0, intent1, 0);
+        PendingIntent actionIntent1 = PendingIntent.getBroadcast(mContext, 0, intent1,
+                PendingIntent.FLAG_IMMUTABLE);
 
         int icon2 = TestUtils.getTestDrawableResId(mContext, "ic_test_2");
         CharSequence title2 = "SecondAction";
         Intent intent2 = new Intent(INTENT_SECONDARY_ACTION);
-        PendingIntent actionIntent2 = PendingIntent.getBroadcast(mContext, 0, intent2, 0);
+        PendingIntent actionIntent2 = PendingIntent.getBroadcast(mContext, 0, intent2,
+                PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -233,5 +238,19 @@ public final class CarAppExtenderTest {
 
         assertThat(new CarAppExtender(builder.build()).getColor())
                 .isEqualTo(CarColor.BLUE);
+    }
+
+    @Test
+    public void notification_extended_channelId() {
+        String channelId = "foo";
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
+                        .extend(
+                                new CarAppExtender.Builder()
+                                        .setChannelId(channelId)
+                                        .build());
+
+        assertThat(new CarAppExtender(builder.build()).getChannelId())
+                .isEqualTo(channelId);
     }
 }

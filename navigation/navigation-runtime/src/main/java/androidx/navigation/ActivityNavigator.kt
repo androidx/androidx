@@ -36,6 +36,7 @@ import java.util.regex.Pattern
  */
 @Navigator.Name("activity")
 public open class ActivityNavigator(
+    /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: Context
 ) : Navigator<ActivityNavigator.Destination>() {
@@ -192,7 +193,7 @@ public open class ActivityNavigator(
      * NavDestination for activity navigation
      *
      * Construct a new activity destination. This destination is not valid until you set the
-     * Intent via [.setIntent] or one or more of the other set method.
+     * Intent via [setIntent] or one or more of the other set method.
      *
      * @param activityNavigator The [ActivityNavigator] which this destination
      * will be associated with. Generally retrieved via a
@@ -204,14 +205,13 @@ public open class ActivityNavigator(
         activityNavigator: Navigator<out Destination>
     ) : NavDestination(activityNavigator) {
         /**
-         * Gets the Intent associated with this destination.
-         * @return
+         * The Intent associated with this destination.
          */
         public var intent: Intent? = null
             private set
 
         /**
-         * Gets the dynamic data URI pattern, if any
+         * The dynamic data URI pattern, if any
          */
         public var dataPattern: String? = null
             private set
@@ -235,7 +235,7 @@ public open class ActivityNavigator(
          * @param dataPattern A URI pattern with segments in the form of `{argName}` that
          * will be replaced with URI encoded versions of the Strings in the
          * arguments Bundle.
-         * @see .setData
+         * @see Destination.setData
          *
          * @return this [Destination]
          */
@@ -246,7 +246,7 @@ public open class ActivityNavigator(
 
         /**
          * Construct a new activity destination. This destination is not valid until you set the
-         * Intent via [.setIntent] or one or more of the other set method.
+         * Intent via [setIntent] or one or more of the other set method.
          *
          *
          * @param navigatorProvider The [NavController] which this destination
@@ -287,11 +287,11 @@ public open class ActivityNavigator(
             }
         }
 
+        /**
+         * The explicit application package name associated with this destination, if any
+         */
         public var targetPackage: String? = null
             private set
-            /**
-             * Get the explicit application package name associated with this destination, if any
-             */
             get() = intent?.`package`
 
         /**
@@ -313,12 +313,11 @@ public open class ActivityNavigator(
             return this
         }
 
+        /**
+         * The explicit [ComponentName] associated with this destination, if any
+         */
         public var component: ComponentName? = null
             private set
-            /**
-             * Get the explicit [ComponentName] associated with this destination, if any
-             * @return
-             */
             get() = intent?.component
 
         /**
@@ -335,11 +334,11 @@ public open class ActivityNavigator(
             return this
         }
 
+        /**
+         * The action used to start the Activity, if any
+         */
         public var action: String? = null
             private set
-            /**
-             * Get the action used to start the Activity, if any
-             */
             get() = intent?.action
 
         /**
@@ -355,11 +354,11 @@ public open class ActivityNavigator(
             return this
         }
 
+        /**
+         * The data URI used to start the Activity, if any
+         */
         public var data: Uri? = null
             private set
-            /**
-             * Get the data URI used to start the Activity, if any
-             */
             get() = intent?.data
 
         /**
@@ -367,11 +366,11 @@ public open class ActivityNavigator(
          *
          *
          * To use a dynamic URI that changes based on the arguments passed in when navigating,
-         * use [.setDataPattern], which will take precedence when arguments are
+         * use [setDataPattern], which will take precedence when arguments are
          * present.
          *
          * @param data A static URI that should always be used.
-         * @see .setDataPattern
+         * @see Destination.setDataPattern
          * @return this [Destination]
          */
         public fun setData(data: Uri?): Destination {
@@ -382,6 +381,7 @@ public open class ActivityNavigator(
             return this
         }
 
+        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public override fun supportsActions(): Boolean {
             return false
@@ -412,12 +412,11 @@ public open class ActivityNavigator(
      */
     public class Extras internal constructor(
         /**
-         * Gets the `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent.
+         * The `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent.
          */
         public val flags: Int,
         /**
-         * Gets the [ActivityOptionsCompat] that should be used with
-         * [ActivityCompat.startActivity].
+         * The [ActivityOptionsCompat] that should be used with [ActivityCompat.startActivity].
          */
         public val activityOptions: ActivityOptionsCompat?
     ) : Navigator.Extras {
@@ -478,8 +477,8 @@ public open class ActivityNavigator(
          * This should be used in place of [Activity.overridePendingTransition]
          * to get the appropriate pop animations.
          * @param activity An activity started from the [ActivityNavigator].
-         * @see NavOptions.getPopEnterAnim
-         * @see NavOptions.getPopExitAnim
+         * @see NavOptions.popEnterAnim
+         * @see NavOptions.popExitAnim
          */
         @JvmStatic
         public fun applyPopAnimationsToPendingTransition(activity: Activity) {

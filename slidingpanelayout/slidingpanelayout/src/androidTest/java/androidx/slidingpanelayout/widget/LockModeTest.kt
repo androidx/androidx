@@ -22,11 +22,12 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN
 import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_LOCKED
 import androidx.slidingpanelayout.widget.SlidingPaneLayout.LOCK_MODE_UNLOCKED
 import androidx.slidingpanelayout.widget.helpers.TestActivity
+import androidx.slidingpanelayout.widget.helpers.addWaitForCloseLatch
 import androidx.slidingpanelayout.widget.helpers.addWaitForOpenLatch
-import androidx.slidingpanelayout.widget.helpers.dragLeft
-import androidx.slidingpanelayout.widget.helpers.dragRight
-import androidx.slidingpanelayout.widget.helpers.findViewX
+import androidx.slidingpanelayout.widget.helpers.addWaitForSlideLatch
 import androidx.slidingpanelayout.widget.helpers.openPane
+import androidx.slidingpanelayout.widget.helpers.slideClose
+import androidx.slidingpanelayout.widget.helpers.slideOpen
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions
@@ -36,7 +37,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
@@ -48,6 +51,11 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 public class LockModeTest {
 
+    @After
+    public fun tearDown() {
+        TestActivity.onActivityCreated = {}
+    }
+
     @Test
     public fun testLayoutInflation() {
         with(ActivityScenario.launch(TestActivity::class.java)) {
@@ -58,11 +66,15 @@ public class LockModeTest {
                     ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
                 )
             )
+            val slidingPaneLayout =
+                withActivity { findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout) }
+            assertThat(slidingPaneLayout.isOpen).isFalse()
+            assertThat(slidingPaneLayout.isSlideable).isTrue()
         }
     }
 
     /**
-     * Test users can freely swipe right between list and detail panes when lock mode set to
+     * Test users can swipe right between list and detail panes when lock mode set to
      * LOCK_MODE_UNLOCKED.
      */
     @SdkSuppress(maxSdkVersion = 28) // TODO: Fix flaky test issues on API 30 Cuttlefish devices.
@@ -75,18 +87,19 @@ public class LockModeTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val latch = addWaitForOpenLatch(R.id.sliding_pane_layout)
+            val panelOpenCountDownLatch = addWaitForOpenLatch(R.id.sliding_pane_layout)
             onView(withId(R.id.sliding_pane_layout)).perform(openPane())
-            assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue()
-            latch.await(2, TimeUnit.SECONDS)
-            val detailPaneOpenX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragRight())
-            assertThat(findViewX(R.id.detail_pane)).isGreaterThan(detailPaneOpenX)
+            // wait for detail pane open
+            assertThat(panelOpenCountDownLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            val panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideClose())
+            // wait for detail pane sliding
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isTrue()
         }
     }
 
     /**
-     * Test users can freely swipe left between list and detail panes when lock mode set to
+     * Test users can swipe left between list and detail panes when lock mode set to
      * LOCK_MODE_UNLOCKED.
      */
     @SdkSuppress(maxSdkVersion = 28) // TODO: Fix flaky test issues on API 30 Cuttlefish devices.
@@ -99,19 +112,20 @@ public class LockModeTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val detailPaneOpenX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragLeft())
-            assertThat(findViewX(R.id.detail_pane)).isLessThan(detailPaneOpenX)
+            val panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideOpen())
+            // wait for detail pane sliding
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isTrue()
         }
     }
 
     /**
-     * Test users cannot swipe from list to detail, but can swipe from detail to list when lock
-     * mode set to LOCK_MODE_LOCKED_OPEN
+     * Test users can swipe to open detail pane in lock mode LOCK_MODE_LOCKED_OPEN when
+     * detail view is in closed state. Otherwise, users cannot swipe it.
      */
     @SdkSuppress(maxSdkVersion = 28) // TODO: Fix flaky test issues on API 30 Cuttlefish devices.
     @Test
-    public fun testCanSlideListToDetailWhenLockModeLockedOpen() {
+    public fun testSwipeWhenLockModeLockedOpen() {
         TestActivity.onActivityCreated = { activity ->
             val slidingPaneLayout =
                 activity.findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout)
@@ -119,21 +133,24 @@ public class LockModeTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val detailPaneClosedX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragRight())
-            assertThat(findViewX(R.id.detail_pane)).isEqualTo(detailPaneClosedX)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragLeft())
-            assertThat(findViewX(R.id.detail_pane)).isLessThan(detailPaneClosedX)
+            var panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideOpen())
+            // can slide to open
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            panelSlideCountDownLatch = addWaitForCloseLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideClose())
+            // cannot slide to close
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isFalse()
         }
     }
 
     /**
-     * Test users cannot swipe from detail to list, but can swipe from list to detail when lock
-     * mode set to LOCK_MODE_LOCKED_CLOSED
+     * Test users can swipe to close the detail pane in lock mode LOCK_MODE_LOCKED_CLOSED when
+     * detail view is in open state. Otherwise, users cannot swipe it.
      */
     @SdkSuppress(maxSdkVersion = 28) // TODO: Fix flaky test issues on API 30 Cuttlefish devices.
     @Test
-    public fun testSwipeWhenLockModeClosed() {
+    public fun testSwipeWhenLockModeLockedClosed() {
         TestActivity.onActivityCreated = { activity ->
             val slidingPaneLayout =
                 activity.findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout)
@@ -141,15 +158,17 @@ public class LockModeTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            var detailPaneClosedX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragLeft())
-            assertThat(findViewX(R.id.detail_pane)).isEqualTo(detailPaneClosedX)
+            var panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideOpen())
+            // cannot slide to open
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isFalse()
             val latch = addWaitForOpenLatch(R.id.sliding_pane_layout)
             onView(withId(R.id.sliding_pane_layout)).perform(openPane())
             assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue()
-            detailPaneClosedX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragRight())
-            assertThat(findViewX(R.id.detail_pane)).isGreaterThan(detailPaneClosedX)
+            panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideClose())
+            // can slide to close
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isTrue()
         }
     }
 
@@ -167,15 +186,17 @@ public class LockModeTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val detailPaneClosedX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragLeft())
-            assertThat(findViewX(R.id.detail_pane)).isEqualTo(detailPaneClosedX)
+            var panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideOpen())
+            // cannot slide to open
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isFalse()
             val latch = addWaitForOpenLatch(R.id.sliding_pane_layout)
             onView(withId(R.id.sliding_pane_layout)).perform(openPane())
             assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue()
-            val detailPaneOpenX = findViewX(R.id.detail_pane)
-            onView(withId(R.id.sliding_pane_layout)).perform(dragRight())
-            assertThat(findViewX(R.id.detail_pane)).isEqualTo(detailPaneOpenX)
+            panelSlideCountDownLatch = addWaitForSlideLatch(R.id.sliding_pane_layout)
+            onView(withId(R.id.sliding_pane_layout)).perform(slideClose())
+            // cannot slide to close
+            assertThat(panelSlideCountDownLatch.await(2, TimeUnit.SECONDS)).isFalse()
         }
     }
 }

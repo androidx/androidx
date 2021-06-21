@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.integration.antelope.CameraUtilsKt is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.camera.integration.antelope.CameraUtilsKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    physicalCameras = cameraChars.physicalCameraIds"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/antelope/CameraUtils.kt"
-            line="178"
+            line="190"
             column="51"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.integration.antelope.cameracontrollers.CameraXControllerKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.camera.integration.antelope.cameracontrollers.CameraXControllerKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        released = texture.isReleased"
         errorLine2="                           ~~~~~~~~~~">
         <location
@@ -43,171 +43,6 @@
             file="src/main/AndroidManifest.xml"
             line="20"
             column="6"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.ic_launcher_background` appears to be unused"
-        errorLine1="    &lt;color name=&quot;ic_launcher_background&quot;>#A617A1&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/ic_launcher_background.xml"
-            line="18"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_launcher_foreground` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable-v24/ic_launcher_foreground.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_camera1` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_camera1&quot;>Camera1&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="21"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_camera2` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_camera2&quot;>Camera2&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="22"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_camerax` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_camerax&quot;>CameraX&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="23"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_size_max` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_size_max&quot;>Max image size&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="24"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_size_min` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_size_min&quot;>Min image size&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="25"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_focus_auto` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_focus_auto&quot;>Auto-focus&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="26"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_focus_continuous` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_focus_continuous&quot;>Continuous focus&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="27"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_camera` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_camera&quot;>Camera:&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="28"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.label_log` appears to be unused"
-        errorLine1="    &lt;string name=&quot;label_log&quot;>Log: &lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="32"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.settings_numtests_summary` appears to be unused"
-        errorLine1="    &lt;string name=&quot;settings_numtests_summary&quot;>Number of repetitions to do for repeated tests&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="46"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.settings_previewbuffer_summary` appears to be unused"
-        errorLine1="    &lt;string name=&quot;settings_previewbuffer_summary&quot;>Length of time to allow the preview buffer to run before trying to capture an image. Longer values will ensure the hardware frame buffer is full to offer accurate capture-only latency.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.settings_autotest_header` appears to be unused"
-        errorLine1="    &lt;string name=&quot;settings_autotest_header&quot;>Auto-test settings&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="52"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.settings_autotest_header_key` appears to be unused"
-        errorLine1="    &lt;string name=&quot;settings_autotest_header_key&quot;>settings_autotest_header_key&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="53"
-            column="13"/>
     </issue>
 
 </issues>

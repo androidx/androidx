@@ -17,9 +17,11 @@
 
 package com.example.android.supportv4.widget;
 
-import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -98,15 +100,27 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.sliding_pane_layout_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        /*
-         * The action bar up action should close the detail view if it is
-         * currently open, as the left pane contains content one level up in the navigation
-         * hierarchy.
-         */
-        if (item.getItemId() == android.R.id.home && mSlidingLayout.isOpen()) {
-            mSlidingLayout.closePane();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.lock_mode_unlocked:
+                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_UNLOCKED);
+                return true;
+            case R.id.lock_mode_locked_open:
+                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN);
+                return true;
+            case R.id.lock_mode_locked_closed:
+                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_CLOSED);
+                return true;
+            case R.id.lock_mode_locked:
+                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -183,7 +197,6 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
      */
     class FirstLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
         @Override
-        @SuppressLint("UnsafeNewApiCall")
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -204,12 +217,40 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
     /**
      * Stub action bar helper; this does nothing.
      */
-    static class ActionBarHelper {
-        public void init() {}
-        public void onPanelClosed() {}
-        public void onPanelOpened() {}
-        public void onFirstLayout() {}
-        public void setTitle(CharSequence title) {}
+    private class ActionBarHelper {
+        private final ActionBar mActionBar;
+        private CharSequence mListTitle;
+        private CharSequence mDetailTitle;
+
+        ActionBarHelper() {
+            mActionBar = getActionBar();
+        }
+
+        public void init() {
+            mListTitle = mDetailTitle = getTitle();
+        }
+
+        public void onPanelClosed() {
+            mActionBar.setTitle(mListTitle);
+        }
+
+        public void onPanelOpened() {
+            mActionBar.setTitle(mDetailTitle);
+        }
+
+        public void onFirstLayout() {
+            if (mSlidingLayout.isSlideable() && !mSlidingLayout.isOpen()) {
+                onPanelClosed();
+            } else {
+                onPanelOpened();
+            }
+        }
+
+        public void setTitle(CharSequence title) {
+            mListTitle = title;
+        }
     }
+
+
 
 }

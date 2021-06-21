@@ -19,12 +19,15 @@ package androidx.appcompat.widget;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+
 /**
  * Observable Resources class.
  */
 @SuppressWarnings("deprecation")
 class TestResources extends Resources {
     private boolean mGetDrawableCalled;
+    private boolean mGetStringCalled;
 
     TestResources(Resources res) {
         super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
@@ -36,11 +39,22 @@ class TestResources extends Resources {
         return super.getDrawable(id);
     }
 
+    @NonNull
+    @Override
+    public String getString(int id) throws NotFoundException {
+        mGetStringCalled = true;
+        return super.getString(id);
+    }
+
     public void resetGetDrawableCalled() {
         mGetDrawableCalled = false;
     }
 
     public boolean wasGetDrawableCalled() {
         return mGetDrawableCalled;
+    }
+
+    public boolean wasGetStringCalled() {
+        return mGetStringCalled;
     }
 }

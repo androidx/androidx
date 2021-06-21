@@ -1,6 +1,5 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
-    <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="true" />
     <JavaCodeStyleSettings>
       <option name="FIELD_NAME_PREFIX" value="m" />
       <option name="STATIC_FIELD_NAME_PREFIX" value="s" />
@@ -72,15 +71,6 @@
       <option name="PACKAGES_TO_USE_STAR_IMPORTS">
         <value />
       </option>
-      <option name="PACKAGES_IMPORT_LAYOUT">
-        <value>
-          <package name="" alias="false" withSubpackages="true" />
-          <package name="java" alias="false" withSubpackages="true" />
-          <package name="javax" alias="false" withSubpackages="true" />
-          <package name="kotlin" alias="false" withSubpackages="true" />
-          <package name="" alias="true" withSubpackages="true" />
-        </value>
-      </option>
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="2147483647" />
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="2147483647" />
       <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
@@ -107,6 +97,7 @@
       <option name="WHILE_BRACE_FORCE" value="1" />
       <option name="FOR_BRACE_FORCE" value="1" />
       <option name="WRAP_LONG_LINES" value="true" />
+      <option name="WRAP_ON_TYPING" value="1" />
     </codeStyleSettings>
     <codeStyleSettings language="XML">
       <option name="FORCE_REARRANGE_MODE" value="2" />
@@ -267,6 +258,7 @@
     </codeStyleSettings>
     <codeStyleSettings language="kotlin">
       <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
+      <option name="WRAP_ON_TYPING" value="1" />
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>

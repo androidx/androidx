@@ -39,8 +39,12 @@ public class DeviceQuirksLoader {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all device specific quirks
-        if (PreviewStretchedQuirk.load()) {
-            quirks.add(new PreviewStretchedQuirk());
+        if (PreviewOneThirdWiderQuirk.load()) {
+            quirks.add(new PreviewOneThirdWiderQuirk());
+        }
+
+        if (SurfaceViewStretchedQuirk.load()) {
+            quirks.add(new SurfaceViewStretchedQuirk());
         }
 
         return quirks;

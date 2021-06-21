@@ -32,13 +32,16 @@ internal class OuterMeasurablePlaceable(
 
     private var measuredOnce = false
     private var placedOnce = false
-    val lastConstraints: Constraints get() {
-        check(measuredOnce)
-        return measurementConstraints
-    }
+    val lastConstraints: Constraints?
+        get() = if (measuredOnce) {
+            measurementConstraints
+        } else {
+            null
+        }
+    internal var duringAlignmentLinesQuery = false
+
     private var lastPosition: IntOffset = IntOffset.Zero
     private var lastLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
-    private val lastProvidedAlignmentLines = mutableMapOf<AlignmentLine, Int>()
     private var lastZIndex: Float = 0f
 
     /**
@@ -87,18 +90,20 @@ internal class OuterMeasurablePlaceable(
         if (layoutNode.layoutState == LayoutState.NeedsRemeasure ||
             measurementConstraints != constraints
         ) {
+            layoutNode.alignmentLines.usedByModifierMeasurement = false
+            layoutNode._children.forEach { it.alignmentLines.usedDuringParentMeasurement = false }
             measuredOnce = true
             layoutNode.layoutState = LayoutState.Measuring
             measurementConstraints = constraints
-            lastProvidedAlignmentLines.clear()
-            lastProvidedAlignmentLines.putAll(layoutNode.providedAlignmentLines)
             val outerWrapperPreviousMeasuredSize = outerWrapper.size
             owner.snapshotObserver.observeMeasureSnapshotReads(layoutNode) {
                 outerWrapper.measure(constraints)
             }
-            layoutNode.layoutState = LayoutState.NeedsRelayout
-            if (layoutNode.providedAlignmentLines != lastProvidedAlignmentLines) {
-                layoutNode.onAlignmentsChanged()
+            // The resulting layout state might be Ready. This can happen when the layout node's
+            // own modifier is querying an alignment line during measurement, therefore we
+            // need to also layout the layout node.
+            if (layoutNode.layoutState == LayoutState.Measuring) {
+                layoutNode.layoutState = LayoutState.NeedsRelayout
             }
             val sizeChanged = outerWrapper.size != outerWrapperPreviousMeasuredSize ||
                 outerWrapper.width != width ||
@@ -117,7 +122,17 @@ internal class OuterMeasurablePlaceable(
     override val measuredWidth: Int get() = outerWrapper.measuredWidth
     override val measuredHeight: Int get() = outerWrapper.measuredHeight
 
-    override fun get(alignmentLine: AlignmentLine): Int = outerWrapper[alignmentLine]
+    override fun get(alignmentLine: AlignmentLine): Int {
+        if (layoutNode.parent?.layoutState == LayoutState.Measuring) {
+            layoutNode.alignmentLines.usedDuringParentMeasurement = true
+        } else if (layoutNode.parent?.layoutState == LayoutState.LayingOut) {
+            layoutNode.alignmentLines.usedDuringParentLayout = true
+        }
+        duringAlignmentLinesQuery = true
+        val result = outerWrapper[alignmentLine]
+        duringAlignmentLinesQuery = false
+        return result
+    }
 
     override fun placeAt(
         position: IntOffset,
@@ -128,6 +143,7 @@ internal class OuterMeasurablePlaceable(
         lastPosition = position
         lastZIndex = zIndex
         lastLayerBlock = layerBlock
+        layoutNode.alignmentLines.usedByModifierLayout = false
         with(PlacementScope) {
             if (layerBlock == null) {
                 outerWrapper.place(position, lastZIndex)

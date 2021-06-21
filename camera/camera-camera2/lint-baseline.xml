@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="SoonBlockedPrivateApi"
+        message="Reflective access to MAX_SURFACES_COUNT will throw an exception when targeting API 30 and above"
+        errorLine1="        Field maxSurfacesCountField = OutputConfiguration.class.getDeclaredField("
+        errorLine2="                                      ^">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi26Impl.java"
+            line="62"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="SoonBlockedPrivateApi"
+        message="Reflective access to mSurfaces will throw an exception when targeting API 30 and above"
+        errorLine1="        Field surfacesField = OutputConfiguration.class.getDeclaredField(SURFACES_FIELD);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi26Impl.java"
+            line="71"
+            column="31"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
@@ -32,134 +54,6 @@
             file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
             line="272"
             column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.camera.camera2.internal.Camera2CaptureCallbacks.ComboSessionCaptureCallback is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                callback.onCaptureBufferLost(session, request, surface, frame);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CaptureCallbacks.java"
-            line="125"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.camera.camera2.internal.CameraBurstCaptureCallback is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="            callback.onCaptureBufferLost(session, request, surface, frame);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraBurstCaptureCallback.java"
-            line="58"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                    mWrappedCallback.onCaptureBufferLost(session, request, target, frameNumber);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompat.java"
-            line="400"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class null is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                    mWrappedCallback.onCaptureQueueEmpty(session);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompat.java"
-            line="468"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                    mWrappedCallback.onSurfacePrepared(session, surface);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompat.java"
-            line="493"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks.ComboSessionStateCallback is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                callback.onCaptureQueueEmpty(session);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraCaptureSessionStateCallbacks.java"
-            line="144"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks.ComboSessionStateCallback is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                callback.onSurfacePrepared(session, surface);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraCaptureSessionStateCallbacks.java"
-            line="153"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class null is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            mWrappedCallback.onCameraAccessPrioritiesChanged();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/CameraManagerCompat.java"
-            line="303"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="        OutputConfiguration deferredConfig = new OutputConfiguration(surfaceSize, klass);"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompat.java"
-            line="94"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.internal.SynchronizedCaptureSessionStateCallbacks.Adapter is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            mCameraCaptureSessionStateCallback.onSurfacePrepared("
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbacks.java"
-            line="117"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.internal.SynchronizedCaptureSessionStateCallbacks.Adapter is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            mCameraCaptureSessionStateCallback.onCaptureQueueEmpty("
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbacks.java"
-            line="136"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
-        <location
-            file="src/main/res/values-v21"/>
     </issue>
 
     <issue

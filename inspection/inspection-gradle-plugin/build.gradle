@@ -19,8 +19,6 @@ import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.SdkResourceGenerator
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
@@ -33,16 +31,16 @@ apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
-    implementation(AGP_STABLE)
-    implementation(KOTLIN_STDLIB)
-    implementation("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.13")
-    implementation("com.github.jengelman.gradle.plugins:shadow:5.2.0")
+    implementation(libs.androidGradlePlugin)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.protobufGradlePlugin)
+    implementation(libs.shadow)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(KOTLIN_TEST)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
 }
 
 gradlePlugin {

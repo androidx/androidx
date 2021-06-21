@@ -45,6 +45,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.inspection.ArtTooling;
 import androidx.inspection.ArtTooling.EntryHook;
 import androidx.inspection.ArtTooling.ExitHook;
 import androidx.inspection.Connection;
@@ -506,8 +507,8 @@ final class SqliteInspector extends Inspector {
     }
 
     /**
-     * Invalidation hooks triggered by {@link SQLiteCursor#getCount} and
-     * {@link SQLiteCursor#onMove} both of which lead to cursor's query being executed.
+     * Invalidation hooks triggered by {@link SQLiteCursor#close()}
+     * which means that the cursor's query was executed.
      * <p>
      * In order to access cursor's query, we also use {@link SQLiteDatabase#rawQueryWithFactory}
      * which takes a query String and constructs a cursor based on it.
@@ -542,18 +543,16 @@ final class SqliteInspector extends Inspector {
                     }
                 });
 
-        for (final String method : Arrays.asList("getCount()I", "onMove(II)Z")) {
-            hookRegistry.registerHook(SQLiteCursor.class, method,
-                    new EntryExitMatchingHookRegistry.OnExitCallback() {
-                        @Override
-                        public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
-                            SQLiteCursor cursor = (SQLiteCursor) exitFrame.mThisObject;
-                            if (trackedCursors.containsKey(cursor)) {
-                                throttler.submitRequest();
-                            }
+
+        mEnvironment.artTooling().registerEntryHook(SQLiteCursor.class, "close()V",
+                new ArtTooling.EntryHook() {
+                    @Override
+                    public void onEntry(@Nullable Object thisObject, @NonNull List<Object> args) {
+                        if (trackedCursors.containsKey(thisObject)) {
+                            throttler.submitRequest();
                         }
-                    });
-        }
+                    }
+                });
     }
 
     // Gets a SQLiteCursor from a passed-in Object (if possible)
@@ -625,10 +624,15 @@ final class SqliteInspector extends Inspector {
                 try {
                     cursor = rawQuery(connection.mDatabase, command.getQuery(), params,
                             cancellationSignal);
+
+                    long responseSizeLimitHint = command.getResponseSizeLimitHint();
+                    // treating unset field as unbounded
+                    if (responseSizeLimitHint <= 0) responseSizeLimitHint = Long.MAX_VALUE;
+
                     List<String> columnNames = Arrays.asList(cursor.getColumnNames());
                     callback.reply(Response.newBuilder()
                             .setQuery(QueryResponse.newBuilder()
-                                    .addAllRows(convert(cursor))
+                                    .addAllRows(convert(cursor, responseSizeLimitHint))
                                     .addAllColumnNames(columnNames)
                                     .build())
                             .build()
@@ -762,16 +766,25 @@ final class SqliteInspector extends Inspector {
         return new DatabaseConnection(database, mIOExecutor);
     }
 
-    private static List<Row> convert(Cursor cursor) {
+    /**
+     * @param responseSizeLimitHint expressed in bytes
+     */
+    private static List<Row> convert(Cursor cursor, long responseSizeLimitHint) {
+        long responseSize = 0;
         List<Row> result = new ArrayList<>();
         int columnCount = cursor.getColumnCount();
-        while (cursor.moveToNext()) {
+        while (cursor.moveToNext() && responseSize < responseSizeLimitHint) {
             Row.Builder rowBuilder = Row.newBuilder();
             for (int i = 0; i < columnCount; i++) {
                 CellValue value = readValue(cursor, i);
                 rowBuilder.addValues(value);
             }
-            result.add(rowBuilder.build());
+            Row row = rowBuilder.build();
+            // Optimistically adding a row before checking the limit. Eliminates the case when a
+            // misconfigured client (limit too low) is unable to fetch any results. Row size in
+            // SQLite Android is limited to (~2MB), so the worst case scenario is very manageable.
+            result.add(row);
+            responseSize += row.getSerializedSize();
         }
         return result;
     }

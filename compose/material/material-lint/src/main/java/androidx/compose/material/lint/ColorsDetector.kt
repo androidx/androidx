@@ -30,11 +30,15 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.UastLintUtils
 import com.intellij.psi.PsiParameter
-import org.jetbrains.kotlin.asJava.elements.KtLightElement
-import org.jetbrains.kotlin.psi.KtParameter
+import com.intellij.psi.PsiVariable
+import org.jetbrains.kotlin.asJava.elements.KtLightParameter
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.util.isConstructorCall
 import java.util.EnumSet
 
@@ -56,20 +60,15 @@ class ColorsDetector : Detector(), SourceCodeScanner {
             if (node.isConstructorCall()) {
                 if (method.containingClass?.name != Colors.shortName) return
             } else {
-                // Functions with inline class parameters have their names mangled, so we use
-                // startsWith instead of comparing the full name.
-                if (!method.name.startsWith(LightColors.shortName) &&
-                    !method.name.startsWith(DarkColors.shortName)
+                if (
+                    node.methodName != null &&
+                    node.methodName != LightColors.shortName &&
+                    node.methodName != DarkColors.shortName
                 ) return
             }
 
             val parameters = method.parameterList.parameters.mapIndexed { index, parameter ->
-                // UCallExpressionEx is deprecated, but getArgumentForParameter doesn't exist on
-                // UCallExpression on the version of lint we compile against.
-                // TODO: remove when we upgrade the min lint version we compile against b/182832722
-                @Suppress("DEPRECATION")
-                val argumentForParameter = (node as org.jetbrains.uast.UCallExpressionEx)
-                    .getArgumentForParameter(index)
+                val argumentForParameter = node.getArgumentForParameter(index)
                 ParameterWithArgument(
                     parameter,
                     argumentForParameter
@@ -179,20 +178,40 @@ class ParameterWithArgument(
      * file - so we can't resolve what it is.
      */
     val sourceText: String? by lazy {
-        val argumentText = argument?.sourcePsi?.text
-        when {
+        val sourceExpression: UElement? = when {
             // An argument was provided
-            argumentText != null -> argumentText
+            argument != null -> argument
             // A default value exists (so !! is safe), and we are browsing Kotlin source
             // Note: this should be is KtLightParameter, but this was changed from an interface
             // to a class, so we get an IncompatibleClassChangeError.
-            // TODO: change to KtParameter when we upgrade the min lint version we compile against
-            //  b/182832722
-            parameter is KtLightElement<*, *> -> {
-                (parameter.kotlinOrigin!! as KtParameter).defaultValue!!.text
+            parameter is KtLightParameter -> {
+                parameter.kotlinOrigin!!.defaultValue.toUElement()
             }
             // A default value exists, but it is in a class file so we can't access it anymore
             else -> null
+        }
+
+        sourceExpression?.resolveToDeclarationText()
+    }
+
+    /**
+     * Returns a string that matches the original declaration for this UElement. If this is a
+     * literal or a reference to something out of scope (such as parameter), this will just be
+     * that text. If this is a reference to a variable, this will try and find the text of the
+     * variable, the last time it was assigned.
+     */
+    private fun UElement.resolveToDeclarationText(): String? {
+        // Get the source psi and go back to a UElement since if the declaration is a property, it
+        // will actually be represented as a method (since in Kotlin properties are just getter
+        // methods by default). Going to the source then back again gives us the actual UField.
+        // This might be fixed in later versions of UAST, but not on the current version we run
+        // tests against
+        val resolved = tryResolve()?.toUElement()?.sourcePsi.toUElement()
+        return if (resolved is PsiVariable) {
+            val declaration = UastLintUtils.findLastAssignment(resolved, this)
+            declaration?.resolveToDeclarationText() ?: sourcePsi?.text
+        } else {
+            sourcePsi?.text
         }
     }
 }

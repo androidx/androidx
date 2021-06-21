@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.Logger;
 import androidx.camera.testing.activity.ForegroundTestActivity;
 import androidx.test.espresso.Espresso;
@@ -80,6 +81,7 @@ public final class CoreAppTestUtil {
      * Clean up the device UI and back to the home screen for test.
      * @param instrumentation the instrumentation used to run the test
      */
+    @SuppressWarnings("deprecation")
     public static void clearDeviceUI(@NonNull Instrumentation instrumentation) {
         UiDevice device = UiDevice.getInstance(instrumentation);
         // On some devices, its necessary to wake up the device before attempting unlock, otherwise
@@ -184,5 +186,43 @@ public final class CoreAppTestUtil {
         public ForegroundOccupiedError(@NonNull String message) {
             super(message);
         }
+    }
+
+    /**
+     * Launch activity and return the activity instance for testing.
+     *
+     * @param instrumentation The instrumentation used to run the test
+     * @param activityClass   The activity under test. This must be a class in the instrumentation
+     *                        targetPackage specified in the AndroidManifest.xml
+     * @param startIntent     The Intent that will be used to start the Activity under test. If
+     *                        {@code startIntent} is null, a default launch Intent for the
+     *                        {@code activityClass} is used.
+     * @param <T>             The Activity class under test
+     * @return Returns the reference to the activity for test.
+     */
+    @Nullable
+    public static <T extends Activity> T launchActivity(@NonNull Instrumentation instrumentation,
+            @NonNull Class<T> activityClass, @Nullable Intent startIntent) {
+        Context context = instrumentation.getTargetContext();
+
+        // inject custom intent, if provided
+        if (null == startIntent) {
+            startIntent = new Intent(Intent.ACTION_MAIN);
+        }
+
+        // Set target component if not set Intent
+        if (null == startIntent.getComponent()) {
+            startIntent.setClassName(context.getPackageName(), activityClass.getName());
+        }
+
+        // Set launch flags where if not set Intent
+        if (0 /* No flags set */ == startIntent.getFlags()) {
+            startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+
+        T activityRef = activityClass.cast(instrumentation.startActivitySync(startIntent));
+        instrumentation.waitForIdleSync();
+
+        return activityRef;
     }
 }

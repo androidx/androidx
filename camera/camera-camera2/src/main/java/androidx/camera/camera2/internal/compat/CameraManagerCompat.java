@@ -300,7 +300,7 @@ public final class CameraManagerCompat {
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            mWrappedCallback.onCameraAccessPrioritiesChanged();
+                            ApiCompat.Api29Impl.onCameraAccessPrioritiesChanged(mWrappedCallback);
                         }
                     });
                 }

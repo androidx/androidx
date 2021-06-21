@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -u
 
 scriptName="$(basename $0)"
 
@@ -19,7 +18,7 @@ function usage() {
   echo "  Replaces the requirement for "'`'"./gradlew <tasks>"'`'" to fail with the requirement that it produces the given message"
   echo
   echo "SAMPLE USAGE"
-  echo "  $0 assembleDebug # or any other arguments you would normally give to ./gradlew"
+  echo "  $0 assembleRelease # or any other arguments you would normally give to ./gradlew"
   echo
   echo "OUTPUT"
   echo "  diagnose-build-failure will conclude one of the following:"
@@ -65,13 +64,19 @@ if [ ! -e "$workingDir/gradlew" ]; then
   exit 1
 fi
 
+# resolve some paths
 scriptPath="$(cd $(dirname $0) && pwd)"
 vgrep="$scriptPath/impl/vgrep.sh"
 supportRoot="$(cd $scriptPath/../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
 tempDir="$checkoutRoot/diagnose-build-failure/"
-if [ "${GRADLE_USER_HOME:-}" == "" ]; then
-  GRADLE_USER_HOME="$(cd ~ && pwd)/.gradle"
+if [ "$OUT_DIR" != "" ]; then
+  mkdir -p "$OUT_DIR"
+  OUT_DIR="$(cd $OUT_DIR && pwd)"
+fi
+if [ "$DIST_DIR" != "" ]; then
+  mkdir -p "$DIST_DIR"
+  DIST_DIR="$(cd $DIST_DIR && pwd)"
 fi
 COLOR_WHITE="\e[97m"
 COLOR_GREEN="\e[32m"
@@ -106,7 +111,8 @@ function getBuildCommand() {
 function runBuild() {
   testCommand="$(getBuildCommand $*)"
   cd "$workingDir"
-  if eval $testCommand; then
+  echo Running $testCommand
+  if bash -c "$testCommand"; then
     echo -e "$COLOR_WHITE"
     echo
     echo '`'$testCommand'`' succeeded
@@ -122,7 +128,8 @@ function runBuild() {
 function backupState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/backup-state.sh "$backupDir" "$workingDir"
+  shift
+  ./impl/backup-state.sh "$backupDir" "$workingDir" "$@"
 }
 
 function restoreState() {
@@ -171,7 +178,9 @@ else
   echo "This may mean that there is state stored in a file somewhere, triggering the build to fail."
   echo "We will investigate the possibility of saved state next."
   echo
-  backupState "$tempDir/prev"
+  # We're going to immediately overwrite the user's current state,
+  # so we can simply move the current state into $tempDir/prev rather than copying it
+  backupState "$tempDir/prev" --move
 fi
 
 echo
@@ -231,8 +240,20 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
-if $supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
+setupCommand="work=\$(pwd)
+$scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
+"
+buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
+cleanupCommand="$scriptPath/impl/backup-state.sh \$work $workingDir --move >/dev/null"
+fullFiltererCommand="$setupCommand
+if $buildCommand; then
+  $cleanupCommand
+  exit 0
+else
+  $cleanupCommand
+  exit 1
+fi"
+if $supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"

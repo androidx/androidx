@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -173,7 +173,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="409"
+            line="441"
             column="17"/>
     </issue>
 
@@ -255,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mContainer.mSplitBackground.getOutline(outline);"
         errorLine2="                                            ~~~~~~~~~~">
         <location
@@ -266,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mContainer.mBackground.getOutline(outline);"
         errorLine2="                                       ~~~~~~~~~~">
         <location
@@ -277,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ActionBarContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarContainer is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            invalidateOutline();"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
@@ -288,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ActionBarContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarContainer is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            invalidateOutline();"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
@@ -299,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ActionBarContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarContainer is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            invalidateOutline();"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
@@ -310,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    actionBar.setHomeAsUpIndicator(themeImage);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -321,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    actionBar.setHomeActionContentDescription(contentDescRes);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -332,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    actionBar.setHomeActionContentDescription(contentDescRes);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -343,30 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.app.AppCompatDelegateImpl is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                            .getSystemService(UiModeManager.class);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="2426"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.app.AppCompatDelegateImpl.AutoBatteryNightModeManager is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                return mPowerManager.isPowerSaveMode() ? MODE_NIGHT_YES : MODE_NIGHT_NO;"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="3281"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatSpinner is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPopup.show(getTextDirection(), getTextAlignment());"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
@@ -376,8 +354,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatSpinner is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPopup.show(getTextDirection(), getTextAlignment());"
         errorLine2="                                            ~~~~~~~~~~~~~~~~">
         <location
@@ -387,8 +365,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                vto.removeOnGlobalLayoutListener(this);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -398,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (themedAdapter.getDropDownViewTheme() != dropDownTheme) {"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -409,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        themedAdapter.setDropDownViewTheme(dropDownTheme);"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -420,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                listView.setTextDirection(textDirection);"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
@@ -431,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                listView.setTextAlignment(textAlignment);"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
@@ -442,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                listView.setTextDirection(textDirection);"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
@@ -453,8 +431,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                listView.setTextAlignment(textAlignment);"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
@@ -464,8 +442,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mTextView.getContext().getSystemService(TextClassificationManager.class);"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
@@ -475,8 +453,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return tcm.getTextClassifier();"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
@@ -486,8 +464,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mView.setFontVariationSettings(fontVariation);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -497,8 +475,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mView.setTextLocales(LocaleList.forLanguageTags(localeListString));"
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
@@ -508,8 +486,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mView.setTextLocales(LocaleList.forLanguageTags(localeListString));"
         errorLine2="                                                ~~~~~~~~~~~~~~~">
         <location
@@ -519,8 +497,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mView.setTextLocale(Locale.forLanguageTag(firstLanTag));"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
@@ -530,8 +508,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mView.setTextLocale(Locale.forLanguageTag(firstLanTag));"
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location
@@ -541,8 +519,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    if (mView.getAutoSizeStepGranularity() != AppCompatTextViewAutoSizeHelper"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -552,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mView.setAutoSizeTextTypeUniformWithConfiguration("
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -563,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mView.setAutoSizeTextTypeUniformWithPresetSizes("
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -574,8 +552,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class null is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                typeface = Typeface.create(typeface, fontWeight,"
         errorLine2="                                                    ~~~~~~">
         <location
@@ -585,8 +563,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            mFontTypeface = Typeface.create("
         errorLine2="                                                     ~~~~~~">
         <location
@@ -596,8 +574,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mFontTypeface = Typeface.create("
         errorLine2="                                                 ~~~~~~">
         <location
@@ -607,74 +585,74 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mView.setFontVariationSettings(fontVariation);"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="495"
+            line="505"
             column="23"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                final Drawable[] compoundDrawables = mView.getCompoundDrawablesRelative();"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="523"
+            line="533"
             column="60"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            final Drawable[] existingRel = mView.getCompoundDrawablesRelative();"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="663"
+            line="673"
             column="50"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mView.setCompoundDrawablesRelativeWithIntrinsicBounds("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="664"
+            line="674"
             column="19"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                final Drawable[] existingRel = mView.getCompoundDrawablesRelative();"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="674"
+            line="684"
             column="54"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.AppCompatTextHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mView.setCompoundDrawablesRelativeWithIntrinsicBounds("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="676"
+            line="686"
             column="27"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                isInLayout = mTextView.isInLayout();"
         errorLine2="                                       ~~~~~~~~~~">
         <location
@@ -684,8 +662,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;"
         errorLine2="                                                                     ~~~~~~~~~~~">
         <location
@@ -695,8 +673,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        final StaticLayout.Builder layoutBuilder = StaticLayout.Builder.obtain("
         errorLine2="                                                                        ~~~~~~">
         <location
@@ -706,8 +684,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        layoutBuilder.setAlignment(alignment)"
         errorLine2="                      ~~~~~~~~~~~~">
         <location
@@ -717,8 +695,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setLineSpacing("
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -728,8 +706,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mTextView.getLineSpacingExtra(),"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -739,8 +717,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        mTextView.getLineSpacingMultiplier())"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -750,8 +728,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setIncludePad(mTextView.getIncludeFontPadding())"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -761,8 +739,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setIncludePad(mTextView.getIncludeFontPadding())"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -772,8 +750,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setBreakStrategy(mTextView.getBreakStrategy())"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
@@ -783,8 +761,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setBreakStrategy(mTextView.getBreakStrategy())"
         errorLine2="                                            ~~~~~~~~~~~~~~~~">
         <location
@@ -794,8 +772,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setHyphenationFrequency(mTextView.getHyphenationFrequency())"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -805,8 +783,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setHyphenationFrequency(mTextView.getHyphenationFrequency())"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -816,8 +794,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);"
         errorLine2="                 ~~~~~~~~~~~">
         <location
@@ -827,8 +805,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return layoutBuilder.build();"
         errorLine2="                             ~~~~~">
         <location
@@ -838,8 +816,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -849,8 +827,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        final float lineSpacingAdd = mTextView.getLineSpacingExtra();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -860,8 +838,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        final boolean includePad = mTextView.getIncludeFontPadding();"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -871,8 +849,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.view.ContextThemeWrapper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.view.ContextThemeWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                final Context resContext = createConfigurationContext(mOverrideConfiguration);"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -882,30 +860,30 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.DropDownListView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.DropDownListView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            drawableHotspotChanged(x, y);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/DropDownListView.java"
-            line="648"
+            line="650"
             column="13"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.DropDownListView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.DropDownListView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            child.drawableHotspotChanged(childX, childY);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/DropDownListView.java"
-            line="671"
+            line="673"
             column="19"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.ListPopupWindow is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.ListPopupWindow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mPopup.setEpicenterBounds(mEpicenterBounds);"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~">
         <location
@@ -915,8 +893,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.ListPopupWindow is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.ListPopupWindow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPopup.setIsClippedToScreen(clip);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -926,8 +904,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.appcompat.widget.ListPopupWindow is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.appcompat.widget.ListPopupWindow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mPopup.getMaxAvailableHeight(anchor, yOffset, ignoreBottomDecorations);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -937,19 +915,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.view.menu.MenuPopupHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.view.menu.MenuPopupHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            display.getRealSize(displaySize);"
         errorLine2="                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPopupHelper.java"
-            line="231"
+            line="236"
             column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.MenuPopupWindow is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.MenuPopupWindow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPopup.setEnterTransition((Transition) enterTransition);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~">
         <location
@@ -959,8 +937,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.widget.MenuPopupWindow is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.MenuPopupWindow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPopup.setExitTransition((Transition) exitTransition);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~">
         <location
@@ -970,8 +948,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.MenuPopupWindow is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.MenuPopupWindow is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPopup.setTouchModal(touchModal);"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
@@ -981,8 +959,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.appcompat.widget.MenuPopupWindow.MenuDropDownListView is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.MenuPopupWindow.MenuDropDownListView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    &amp;&amp; ViewCompat.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
@@ -992,8 +970,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.appcompat.app.ResourcesFlusher is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.app.ResourcesFlusher is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            unthemedEntries.clear();"
         errorLine2="                            ~~~~~">
         <location
@@ -1003,8 +981,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.SearchView is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.SearchView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mSearchSrcTextView.refreshAutoCompleteResults();"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1014,8 +992,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.SearchView.SearchAutoComplete is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.SearchView.SearchAutoComplete is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setInputMethodMode(INPUT_METHOD_NEEDED);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
@@ -1025,19 +1003,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.appcompat.widget.SwitchCompat is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.widget.SwitchCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mPositionAnimator.setAutoCancel(true);"
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1063"
+            line="1116"
             column="31"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.TintTypedArray is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.TintTypedArray is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mWrapped.getType(index);"
         errorLine2="                            ~~~~~~~">
         <location
@@ -1047,8 +1025,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.TintTypedArray is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.TintTypedArray is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return mWrapped.getChangingConfigurations();"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1058,8 +1036,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.widget.TooltipCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.TooltipCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            view.setTooltipText(tooltipText);"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -1069,8 +1047,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.view.WindowCallbackWrapper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.view.WindowCallbackWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return mWrapped.onSearchRequested(searchEvent);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
@@ -1080,8 +1058,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.appcompat.view.WindowCallbackWrapper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.view.WindowCallbackWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return mWrapped.onWindowStartingActionMode(callback, type);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1091,8 +1069,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.appcompat.view.WindowCallbackWrapper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.appcompat.view.WindowCallbackWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        mWrapped.onProvideKeyboardShortcuts(data, menu, deviceId);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1102,8 +1080,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.appcompat.view.WindowCallbackWrapper is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.view.WindowCallbackWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        mWrapped.onPointerCaptureChanged(hasCapture);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1124,7 +1102,8 @@
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
             line="228"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1150,7 +1129,8 @@
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
             line="182"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1165,7 +1145,8 @@
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
             line="296"
-            column="26"/>
+            column="26"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1180,7 +1161,8 @@
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
             line="130"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1239,7 +1221,8 @@
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
             line="427"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3229,7 +3212,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="122"
+            line="123"
             column="30"/>
     </issue>
 
@@ -3240,7 +3223,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="128"
+            line="129"
             column="40"/>
     </issue>
 
@@ -3251,7 +3234,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="141"
+            line="142"
             column="44"/>
     </issue>
 
@@ -3262,7 +3245,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="580"
+            line="581"
             column="15"/>
     </issue>
 
@@ -3273,7 +3256,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="588"
+            line="589"
             column="12"/>
     </issue>
 
@@ -3284,7 +3267,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="588"
+            line="589"
             column="46"/>
     </issue>
 
@@ -3295,7 +3278,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="593"
+            line="594"
             column="15"/>
     </issue>
 
@@ -3306,7 +3289,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="593"
+            line="594"
             column="49"/>
     </issue>
 
@@ -3317,7 +3300,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="607"
+            line="608"
             column="41"/>
     </issue>
 
@@ -3328,7 +3311,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="613"
+            line="614"
             column="12"/>
     </issue>
 
@@ -3339,7 +3322,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="622"
+            line="623"
             column="31"/>
     </issue>
 
@@ -3350,7 +3333,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="636"
+            line="637"
             column="28"/>
     </issue>
 
@@ -3361,7 +3344,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="648"
+            line="649"
             column="12"/>
     </issue>
 
@@ -3372,7 +3355,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="669"
+            line="670"
             column="34"/>
     </issue>
 
@@ -3383,7 +3366,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="669"
+            line="670"
             column="62"/>
     </issue>
 
@@ -3394,7 +3377,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="679"
+            line="680"
             column="12"/>
     </issue>
 
@@ -3405,7 +3388,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="747"
+            line="748"
             column="55"/>
     </issue>
 
@@ -3416,7 +3399,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="769"
+            line="770"
             column="40"/>
     </issue>
 
@@ -3427,7 +3410,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="830"
+            line="831"
             column="29"/>
     </issue>
 
@@ -3438,7 +3421,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="830"
+            line="831"
             column="40"/>
     </issue>
 
@@ -3449,7 +3432,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="834"
+            line="835"
             column="29"/>
     </issue>
 
@@ -3460,7 +3443,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="838"
+            line="839"
             column="29"/>
     </issue>
 
@@ -3768,7 +3751,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="301"
+            line="304"
             column="41"/>
     </issue>
 
@@ -3779,7 +3762,7 @@
         errorLine2="                                                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="320"
+            line="323"
             column="57"/>
     </issue>
 
@@ -3790,7 +3773,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="344"
+            line="347"
             column="29"/>
     </issue>
 
@@ -3801,7 +3784,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="481"
+            line="488"
             column="12"/>
     </issue>
 
@@ -3812,7 +3795,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="490"
+            line="497"
             column="38"/>
     </issue>
 
@@ -3823,7 +3806,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="870"
+            line="877"
             column="28"/>
     </issue>
 
@@ -3834,7 +3817,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="870"
+            line="877"
             column="45"/>
     </issue>
 
@@ -5447,17 +5430,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T extends View> T findViewById(@IdRes int id) {"
-        errorLine2="                            ~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="258"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void onTitleChanged(CharSequence title, int color) {"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
@@ -5546,22 +5518,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatAutoCompleteTextView.java"
-            line="202"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setTextAppearance(Context context, int resId) {"
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="171"
+            line="177"
             column="35"/>
     </issue>
 
@@ -5572,7 +5533,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="179"
+            line="185"
             column="48"/>
     </issue>
 
@@ -5583,7 +5544,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="185"
+            line="191"
             column="51"/>
     </issue>
 
@@ -5594,7 +5555,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="210"
+            line="216"
             column="34"/>
     </issue>
 
@@ -5605,19 +5566,8 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="344"
+            line="350"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatButton.java"
-            line="375"
-            column="54"/>
     </issue>
 
     <issue
@@ -5662,50 +5612,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatCheckBox.java"
             line="86"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setTextAppearance(Context context, int resId) {"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckedTextView.java"
-            line="78"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckedTextView.java"
-            line="94"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
-        errorLine2="                                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckedTextView.java"
-            line="94"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckedTextView.java"
-            line="104"
-            column="54"/>
     </issue>
 
     <issue
@@ -6089,30 +5995,8 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="218"
+            line="213"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
-        errorLine2="                                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="233"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="286"
-            column="54"/>
     </issue>
 
     <issue
@@ -6122,7 +6006,7 @@
         errorLine2="                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="322"
+            line="291"
             column="72"/>
     </issue>
 
@@ -6364,7 +6248,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="189"
+            line="208"
             column="35"/>
     </issue>
 
@@ -6375,7 +6259,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="227"
+            line="267"
             column="34"/>
     </issue>
 
@@ -6386,7 +6270,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="388"
+            line="428"
             column="12"/>
     </issue>
 
@@ -6397,7 +6281,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="400"
+            line="440"
             column="12"/>
     </issue>
 
@@ -6408,19 +6292,8 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="400"
+            line="440"
             column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="446"
-            column="54"/>
     </issue>
 
     <issue
@@ -6430,7 +6303,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="500"
+            line="548"
             column="12"/>
     </issue>
 
@@ -6441,7 +6314,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="193"
+            line="200"
             column="48"/>
     </issue>
 
@@ -6452,7 +6325,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="193"
+            line="200"
             column="65"/>
     </issue>
 
@@ -6463,7 +6336,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="198"
+            line="205"
             column="50"/>
     </issue>
 
@@ -6474,7 +6347,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="198"
+            line="205"
             column="67"/>
     </issue>
 
@@ -6485,7 +6358,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="203"
+            line="210"
             column="44"/>
     </issue>
 
@@ -6496,7 +6369,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="203"
+            line="210"
             column="61"/>
     </issue>
 
@@ -6507,7 +6380,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="208"
+            line="215"
             column="48"/>
     </issue>
 
@@ -6518,7 +6391,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="208"
+            line="215"
             column="65"/>
     </issue>
 
@@ -6529,7 +6402,7 @@
         errorLine2="                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="213"
+            line="220"
             column="46"/>
     </issue>
 
@@ -6540,7 +6413,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="213"
+            line="220"
             column="63"/>
     </issue>
 
@@ -6551,7 +6424,7 @@
         errorLine2="                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="218"
+            line="225"
             column="54"/>
     </issue>
 
@@ -6562,7 +6435,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="218"
+            line="225"
             column="71"/>
     </issue>
 
@@ -6573,7 +6446,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="223"
+            line="230"
             column="48"/>
     </issue>
 
@@ -6584,7 +6457,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="223"
+            line="230"
             column="65"/>
     </issue>
 
@@ -6595,7 +6468,7 @@
         errorLine2="                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="228"
+            line="235"
             column="54"/>
     </issue>
 
@@ -6606,7 +6479,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="228"
+            line="235"
             column="71"/>
     </issue>
 
@@ -6617,7 +6490,7 @@
         errorLine2="                                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="233"
+            line="240"
             column="62"/>
     </issue>
 
@@ -6628,7 +6501,7 @@
         errorLine2="                                                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="233"
+            line="240"
             column="79"/>
     </issue>
 
@@ -6639,7 +6512,7 @@
         errorLine2="                                                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="238"
+            line="245"
             column="72"/>
     </issue>
 
@@ -6650,7 +6523,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="239"
+            line="246"
             column="13"/>
     </issue>
 
@@ -6661,7 +6534,7 @@
         errorLine2="                                                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="244"
+            line="251"
             column="82"/>
     </issue>
 
@@ -6672,7 +6545,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="245"
+            line="252"
             column="13"/>
     </issue>
 
@@ -6683,7 +6556,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="250"
+            line="257"
             column="50"/>
     </issue>
 
@@ -6694,7 +6567,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="250"
+            line="257"
             column="67"/>
     </issue>
 
@@ -6705,7 +6578,7 @@
         errorLine2="                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="255"
+            line="262"
             column="46"/>
     </issue>
 
@@ -6716,7 +6589,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="255"
+            line="262"
             column="63"/>
     </issue>
 
@@ -6727,7 +6600,7 @@
         errorLine2="                                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="260"
+            line="267"
             column="56"/>
     </issue>
 
@@ -6738,7 +6611,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="260"
+            line="267"
             column="73"/>
     </issue>
 
@@ -6749,7 +6622,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="272"
+            line="279"
             column="31"/>
     </issue>
 
@@ -6760,7 +6633,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="272"
+            line="279"
             column="48"/>
     </issue>
 
@@ -6771,7 +6644,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
-            line="272"
+            line="279"
             column="61"/>
     </issue>
 
@@ -10357,7 +10230,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuPopupHelper.java"
-            line="345"
+            line="350"
             column="12"/>
     </issue>
 
@@ -10434,7 +10307,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/MenuPopupWindow.java"
-            line="191"
+            line="199"
             column="37"/>
     </issue>
 
@@ -12029,7 +11902,7 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="324"
+            line="339"
             column="41"/>
     </issue>
 
@@ -12040,7 +11913,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="388"
+            line="406"
             column="35"/>
     </issue>
 
@@ -12051,7 +11924,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="416"
+            line="434"
             column="35"/>
     </issue>
 
@@ -12062,7 +11935,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="504"
+            line="522"
             column="34"/>
     </issue>
 
@@ -12073,7 +11946,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="533"
+            line="551"
             column="12"/>
     </issue>
 
@@ -12084,7 +11957,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="623"
+            line="641"
             column="34"/>
     </issue>
 
@@ -12095,7 +11968,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="654"
+            line="672"
             column="12"/>
     </issue>
 
@@ -12106,7 +11979,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="766"
+            line="784"
             column="12"/>
     </issue>
 
@@ -12117,7 +11990,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="775"
+            line="807"
             column="27"/>
     </issue>
 
@@ -12128,7 +12001,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="790"
+            line="822"
             column="12"/>
     </issue>
 
@@ -12139,7 +12012,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="799"
+            line="844"
             column="28"/>
     </issue>
 
@@ -12150,7 +12023,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="899"
+            line="956"
             column="46"/>
     </issue>
 
@@ -12161,7 +12034,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="940"
+            line="993"
             column="33"/>
     </issue>
 
@@ -12172,7 +12045,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1173"
+            line="1226"
             column="22"/>
     </issue>
 
@@ -12183,7 +12056,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1238"
+            line="1291"
             column="27"/>
     </issue>
 
@@ -12194,7 +12067,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1362"
+            line="1415"
             column="15"/>
     </issue>
 
@@ -12205,7 +12078,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1408"
+            line="1461"
             column="38"/>
     </issue>
 
@@ -12216,7 +12089,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1431"
+            line="1484"
             column="48"/>
     </issue>
 
@@ -12227,19 +12100,8 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1437"
+            line="1490"
             column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1460"
-            column="54"/>
     </issue>
 
     <issue
@@ -12513,7 +12375,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="556"
+            line="557"
             column="25"/>
     </issue>
 
@@ -12524,7 +12386,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="556"
+            line="557"
             column="43"/>
     </issue>
 
@@ -12535,7 +12397,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="630"
+            line="631"
             column="25"/>
     </issue>
 
@@ -12546,7 +12408,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="652"
+            line="653"
             column="12"/>
     </issue>
 
@@ -12557,7 +12419,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="676"
+            line="677"
             column="36"/>
     </issue>
 
@@ -12568,7 +12430,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="690"
+            line="691"
             column="12"/>
     </issue>
 
@@ -12579,7 +12441,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="737"
+            line="738"
             column="12"/>
     </issue>
 
@@ -12590,7 +12452,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="761"
+            line="762"
             column="26"/>
     </issue>
 
@@ -12601,7 +12463,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="793"
+            line="794"
             column="12"/>
     </issue>
 
@@ -12612,7 +12474,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="815"
+            line="816"
             column="29"/>
     </issue>
 
@@ -12623,7 +12485,7 @@
         errorLine2="                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="846"
+            line="847"
             column="40"/>
     </issue>
 
@@ -12634,7 +12496,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="857"
+            line="858"
             column="43"/>
     </issue>
 
@@ -12645,7 +12507,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1021"
+            line="1022"
             column="46"/>
     </issue>
 
@@ -12656,7 +12518,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1127"
+            line="1128"
             column="12"/>
     </issue>
 
@@ -12667,7 +12529,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1204"
+            line="1205"
             column="44"/>
     </issue>
 
@@ -12678,7 +12540,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1532"
+            line="1533"
             column="15"/>
     </issue>
 
@@ -12689,7 +12551,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1544"
+            line="1545"
             column="43"/>
     </issue>
 
@@ -12700,7 +12562,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1578"
+            line="1579"
             column="33"/>
     </issue>
 
@@ -12711,7 +12573,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1604"
+            line="1605"
             column="33"/>
     </issue>
 
@@ -12722,7 +12584,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2199"
+            line="2200"
             column="12"/>
     </issue>
 
@@ -12733,7 +12595,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2199"
+            line="2200"
             column="46"/>
     </issue>
 
@@ -12744,7 +12606,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2204"
+            line="2205"
             column="15"/>
     </issue>
 
@@ -12755,7 +12617,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2204"
+            line="2205"
             column="49"/>
     </issue>
 
@@ -12766,7 +12628,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2217"
+            line="2218"
             column="15"/>
     </issue>
 
@@ -12777,7 +12639,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2222"
+            line="2223"
             column="41"/>
     </issue>
 
@@ -12788,7 +12650,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2228"
+            line="2229"
             column="12"/>
     </issue>
 
@@ -12799,7 +12661,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2277"
+            line="2278"
             column="34"/>
     </issue>
 
@@ -12810,7 +12672,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2277"
+            line="2278"
             column="62"/>
     </issue>
 
@@ -12821,7 +12683,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2332"
+            line="2333"
             column="40"/>
     </issue>
 
@@ -12832,7 +12694,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2351"
+            line="2352"
             column="49"/>
     </issue>
 
@@ -12843,7 +12705,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2369"
+            line="2370"
             column="29"/>
     </issue>
 
@@ -12854,7 +12716,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2375"
+            line="2376"
             column="29"/>
     </issue>
 
@@ -12865,7 +12727,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2379"
+            line="2380"
             column="29"/>
     </issue>
 
@@ -12876,7 +12738,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2386"
+            line="2387"
             column="29"/>
     </issue>
 
@@ -12887,7 +12749,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2402"
+            line="2403"
             column="27"/>
     </issue>
 
@@ -12898,7 +12760,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2406"
+            line="2407"
             column="27"/>
     </issue>
 
@@ -12909,7 +12771,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2406"
+            line="2407"
             column="42"/>
     </issue>
 
@@ -12920,7 +12782,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2412"
+            line="2413"
             column="27"/>
     </issue>
 
@@ -12931,7 +12793,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2417"
+            line="2418"
             column="35"/>
     </issue>
 

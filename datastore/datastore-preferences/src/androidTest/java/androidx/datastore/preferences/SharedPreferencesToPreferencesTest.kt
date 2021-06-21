@@ -228,7 +228,9 @@ class SharedPreferencesToPreferencesTest {
     fun migratedStringSetNotMutable() = runBlockingTest {
         val stringSetKey =
             androidx.datastore.preferences.core.stringSetPreferencesKey("stringSet_key")
-        val stringSetValue = setOf("a", "b", "c")
+
+        val originalStringSetValue = setOf("a", "b", "c")
+        val stringSetValue = originalStringSetValue.toSet()
 
         assertTrue { sharedPrefs.edit().putStringSet(stringSetKey.name, stringSetValue).commit() }
         val sharedPrefsSet = sharedPrefs.getStringSet(stringSetKey.name, mutableSetOf())!!
@@ -246,7 +248,7 @@ class SharedPreferencesToPreferencesTest {
         // Modify the sharedPrefs string set:
         sharedPrefsSet.add("d")
 
-        assertEquals(stringSetValue, prefs[stringSetKey])
+        assertEquals(originalStringSetValue, prefs[stringSetKey])
         assertEquals(1, prefs.asMap().size)
     }
 

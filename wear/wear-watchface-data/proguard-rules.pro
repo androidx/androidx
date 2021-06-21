@@ -15,3 +15,12 @@
 # Prevent Parcelizer objects from being removed or renamed.
 -keep public class androidx.wear.watchface.**Parcelizer { *; }
 -keep public class androidx.wear.watchface.style.data.ComplicationOverlayWireFormat { *; }
+-keep public class android.support.wearable.complications.ComplicationData { *; }
+-keep public class android.support.wearable.complications.ComplicationProviderInfo  { *; }
+-keep public class android.support.wearable.complications.ComplicationText { *; }
+-keep public class android.support.wearable.complications.ComplicationTextTemplate  { *; }
+-keep public class android.support.wearable.complications.TimeDependentText { *; }
+-keep public class android.support.wearable.complications.TimeDifferenceText { *; }
+-keep public class android.support.wearable.complications.TimeFormatText { *; }
+
+

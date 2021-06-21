@@ -107,7 +107,7 @@ class NavGraphTest {
             id = FIRST_DESTINATION_ID
         }
         try {
-            graph.startDestination = destination.id
+            graph.setStartDestination(destination.id)
         } catch (e: IllegalArgumentException) {
             assertWithMessage("Setting a start destination with same id as its parent should fail")
                 .that(e).hasMessageThat().contains(

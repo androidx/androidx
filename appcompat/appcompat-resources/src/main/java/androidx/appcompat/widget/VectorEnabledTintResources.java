@@ -62,20 +62,17 @@ public class VectorEnabledTintResources extends ResourcesWrapper {
      * things like {@link android.graphics.drawable.DrawableContainer}s which can retrieve
      * their children via this method.
      */
-    @SuppressWarnings("deprecation")
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
         final Context context = mContextRef.get();
         if (context != null) {
             return ResourceManagerInternal.get().onDrawableLoadedFromResources(context, this, id);
         } else {
-            return super.getDrawable(id);
+            // Delegate to the Resources implementation, NOT the superclass implementation. This
+            // method is re-entrant along the call path, e.g. for nested drawables, and we need to
+            // avoid passing control to a separate (e.g. wrapped) Resources object.
+            return getDrawableCanonical(id);
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    final Drawable superGetDrawable(int id) {
-        return super.getDrawable(id);
     }
 
     /**

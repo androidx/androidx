@@ -295,7 +295,7 @@ package android.support.v4.media.session {
     method public abstract void skipToPrevious();
     method public abstract void skipToQueueItem(long);
     method public abstract void stop();
-    field public static final String EXTRA_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
+    field @Deprecated public static final String EXTRA_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
   }
 
   public class MediaSessionCompat {
@@ -530,7 +530,7 @@ package android.support.v4.media.session {
 
 package androidx.media {
 
-  @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.media.AudioAttributesCompat") public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
+  public class AudioAttributesCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public int getContentType();
     method public int getFlags();
     method public int getLegacyStreamType();
@@ -594,8 +594,8 @@ package androidx.media {
 
   public final class AudioManagerCompat {
     method public static int abandonAudioFocusRequest(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
-    method @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, @androidx.core.app.NotificationCompat.StreamType int);
-    method @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, @androidx.core.app.NotificationCompat.StreamType int);
+    method @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, int);
+    method @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, int);
     method public static int requestAudioFocus(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
     field public static final int AUDIOFOCUS_GAIN = 1; // 0x1
     field public static final int AUDIOFOCUS_GAIN_TRANSIENT = 2; // 0x2
@@ -728,6 +728,8 @@ package androidx.media.utils {
     field public static final String METADATA_KEY_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
     field public static final String METADATA_KEY_IS_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
     field public static final String METADATA_KEY_IS_EXPLICIT = "android.media.IS_EXPLICIT";
+    field public static final String METADATA_KEY_NEXT_EPISODE_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_NEXT_EPISODE_CONTENT_ID";
+    field public static final String METADATA_KEY_SERIES_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_SERIES_CONTENT_ID";
     field public static final long METADATA_VALUE_ATTRIBUTE_PRESENT = 1L; // 0x1L
     field public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT = "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
     field public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL = "android.media.extras.ERROR_RESOLUTION_ACTION_LABEL";
@@ -736,6 +738,8 @@ package androidx.media.utils {
     field public static final String SESSION_EXTRAS_KEY_ACCOUNT_TYPE = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_TYPE";
     field public static final String SESSION_EXTRAS_KEY_SLOT_RESERVATION_SKIP_TO_NEXT = "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_NEXT";
     field public static final String SESSION_EXTRAS_KEY_SLOT_RESERVATION_SKIP_TO_PREV = "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_PREVIOUS";
+    field public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_LEGACY_STREAM_TYPE = "android.media.session.extra.LEGACY_STREAM_TYPE";
+    field public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_SHUFFLE = "androidx.media.MediaControllerCompat.TransportControls.extras.KEY_SHUFFLE";
   }
 
 }

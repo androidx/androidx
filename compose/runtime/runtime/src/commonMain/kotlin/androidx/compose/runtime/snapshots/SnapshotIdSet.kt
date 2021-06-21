@@ -50,7 +50,7 @@ internal class SnapshotIdSet private constructor(
 ) : Iterable<Int> {
 
     /**
-     * The the value of the bit at index [bit]
+     * The value of the bit at index [bit]
      */
     fun get(bit: Int): Boolean {
         val offset = bit - lowerBound
@@ -310,15 +310,15 @@ private fun lowestBitOf(bits: Long): Int {
         base += 32
         b = b shr 32
     }
-    if (bits and 0xFFFF == 0L) {
+    if (b and 0xFFFF == 0L) {
         base += 16
         b = b shr 16
     }
-    if (bits and 0xFF == 0L) {
+    if (b and 0xFF == 0L) {
         base += 8
         b = b shr 8
     }
-    if (bits and 0xF == 0L) {
+    if (b and 0xF == 0L) {
         base += 4
         b = b shr 4
     }

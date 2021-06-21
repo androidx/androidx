@@ -16,9 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
 
 plugins {
@@ -36,8 +33,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":hilt:hilt-common"))
     api("androidx.work:work-runtime:2.3.4")
-    api(HILT_ANDROID)
-    annotationProcessor(HILT_COMPILER)
+    api(libs.hiltAndroid)
+    annotationProcessor(libs.hiltCompiler)
 }
 
 android.libraryVariants.all { variant ->
@@ -48,7 +45,7 @@ android.libraryVariants.all { variant ->
     project.tasks.register("jar${suffix}", Jar).configure {
         dependsOn(variant.javaCompileProvider)
         from(variant.javaCompileProvider.map { task -> task.destinationDir})
-        destinationDir(new File(project.buildDir, "libJar"))
+        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
     }
 }
 

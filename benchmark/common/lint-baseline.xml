@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta04" client="gradle" variant="debug" version="4.2.0-beta04">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.benchmark.Errors is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class androidx.benchmark.Errors is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                Build.VERSION.SDK_INT >= 29 &amp;&amp; !context.applicationInfo.isProfileableByShell"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.benchmark.IsolationActivity.Companion is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.benchmark.IsolationActivity.Companion is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                powerManager.isSustainedPerformanceModeSupported"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    activity.window.setSustainedPerformanceMode(true)"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class null is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    keyguardManager.requestDismissKeyguard(activity, null)"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 27, the call containing class null is not annotated with @RequiresApi(x) where x is at least 27. Either annotate the containing class with at least @RequiresApi(27) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(27)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    activity.setShowWhenLocked(true)"
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
@@ -101,14 +101,47 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 27, the call containing class null is not annotated with @RequiresApi(x) where x is at least 27. Either annotate the containing class with at least @RequiresApi(27) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(27)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    activity.setTurnScreenOn(true)"
         errorLine2="                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/benchmark/IsolationActivity.kt"
             line="183"
             column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.benchmark.Outputs is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                InstrumentationRegistry.getInstrumentation().context.externalMediaDirs"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/Outputs.kt"
+            line="59"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.benchmark.Outputs is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/Outputs.kt"
+            line="61"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.benchmark.ProfilerKt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        Debug.startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/Profiler.kt"
+            line="100"
+            column="15"/>
     </issue>
 
 </issues>

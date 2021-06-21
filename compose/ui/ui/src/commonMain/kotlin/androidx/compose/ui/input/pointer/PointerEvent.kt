@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@file:Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 
 package androidx.compose.ui.input.pointer
 
@@ -101,31 +101,42 @@ expect class PointerEvent @OptIn(InternalCoreApi::class) internal constructor(
 /**
  * The device type that produces a [PointerInputChange], such as a mouse or stylus.
  */
-enum class PointerType {
-    /**
-     * An unknown device type or the device type isn't relevant.
-     */
-    Unknown,
+inline class PointerType internal constructor(private val value: Int) {
 
-    /**
-     * Touch (finger) input.
-     */
-    Touch,
+    override fun toString(): String = when (value) {
+        1 -> "Touch"
+        2 -> "Mouse"
+        3 -> "Stylus"
+        4 -> "Eraser"
+        else -> "Unknown"
+    }
 
-    /**
-     * A mouse pointer.
-     */
-    Mouse,
+    companion object {
+        /**
+         * An unknown device type or the device type isn't relevant.
+         */
+        val Unknown = PointerType(0)
 
-    /**
-     * A stylus.
-     */
-    Stylus,
+        /**
+         * Touch (finger) input.
+         */
+        val Touch = PointerType(1)
 
-    /**
-     * An eraser or an inverted stylus.
-     */
-    Eraser
+        /**
+         * A mouse pointer.
+         */
+        val Mouse = PointerType(2)
+
+        /**
+         * A stylus.
+         */
+        val Stylus = PointerType(3)
+
+        /**
+         * An eraser or an inverted stylus.
+         */
+        val Eraser = PointerType(4)
+    }
 }
 
 /**
@@ -197,6 +208,18 @@ class PointerInputChange(
         consumed,
         type
     )
+
+    override fun toString(): String {
+        return "PointerInputChange(id=$id, " +
+            "uptimeMillis=$uptimeMillis, " +
+            "position=$position, " +
+            "pressed=$pressed, " +
+            "previousUptimeMillis=$previousUptimeMillis, " +
+            "previousPosition=$previousPosition, " +
+            "previousPressed=$previousPressed, " +
+            "consumed=$consumed, " +
+            "type=$type)"
+    }
 }
 
 /**

@@ -56,7 +56,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
     val agpDependency: String = AGP_LATEST
 
     @get:Input
-    val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.2.0"
+    val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0-alpha01"
 
     @get:Input
     val kotlinStdlib: String = KOTLIN_STDLIB
@@ -121,6 +121,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
                     }
             }
             project.tasks.named("compileTestJava").configure { it.dependsOn(provider) }
+            project.tasks.named("processTestResources").configure { it.dependsOn(provider) }
 
             val convention = project.convention.getPlugin<JavaPluginConvention>()
             val resources = convention.sourceSets.getByName("test").resources

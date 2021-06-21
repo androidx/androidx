@@ -16,8 +16,9 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
 import androidx.benchmark.Outputs
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.verifyWithPolling
@@ -25,28 +26,32 @@ import androidx.tracing.Trace
 import androidx.tracing.trace
 import org.junit.After
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.io.File
 
-@SdkSuppress(minSdkVersion = 29)
-@RunWith(AndroidJUnit4::class)
-class PerfettoCaptureTest {
+@SdkSuppress(minSdkVersion = 29) // Lower to 21 after fixing trace config.
+@RunWith(Parameterized::class)
+public class PerfettoCaptureTest(private val unbundled: Boolean) {
     private val traceFile = File(Outputs.dirUsableByAppAndShell, "PerfettoCaptureTest.trace")
     private val traceFilePath = traceFile.absolutePath
 
     @Before
     @After
-    fun cleanup() {
-        PerfettoCapture().cancel()
+    public fun cleanup() {
+        PerfettoCapture(unbundled).cancel()
         traceFile.delete()
     }
 
     @LargeTest
     @Test
-    fun traceAndCheckFileSize() {
-        val perfettoCapture = PerfettoCapture()
+    public fun traceAndCheckFileSize() {
+        // Change the check to API >=21, once we have the correct Perfetto config.
+        assumeTrue(Build.VERSION.SDK_INT >= 29 && isAbiSupported())
+        val perfettoCapture = PerfettoCapture(unbundled)
 
         verifyTraceEnable(false)
 
@@ -64,9 +69,17 @@ class PerfettoCaptureTest {
         val length = traceFile.length()
         assertTrue("Expect > 10KiB file, was $length bytes", length > 10 * 1024)
     }
+
+    public companion object {
+        @Parameterized.Parameters(name = "unbundled={0}")
+        @JvmStatic
+        public fun parameters(): Array<Any> {
+            return arrayOf(true, false)
+        }
+    }
 }
 
-fun verifyTraceEnable(enabled: Boolean) {
+public fun verifyTraceEnable(enabled: Boolean) {
     // We poll here, since we may need to wait for enable flags to propagate to apps
     verifyWithPolling(
         "Timeout waiting for Trace.isEnabled == $enabled",

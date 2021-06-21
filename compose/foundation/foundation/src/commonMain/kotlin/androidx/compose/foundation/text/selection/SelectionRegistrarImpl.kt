@@ -59,17 +59,29 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
      * The callback to be invoked when the position change was triggered.
      */
-    internal var onPositionChangeCallback: (() -> Unit)? = null
+    internal var onPositionChangeCallback: ((Long) -> Unit)? = null
 
     /**
      * The callback to be invoked when the selection is initiated.
      */
-    internal var onSelectionUpdateStartCallback: ((LayoutCoordinates, Offset) -> Unit)? = null
+    internal var onSelectionUpdateStartCallback: (
+        (LayoutCoordinates, Offset, SelectionAdjustment) -> Unit
+    )? = null
+
+    /**
+     * The callback to be invoked when the selection is initiated with selectAll [Selection].
+     */
+    internal var onSelectionUpdateSelectAll: (
+        (Long) -> Unit
+    )? = null
 
     /**
      * The callback to be invoked when the selection is updated.
+     * If the first offset is null it means that the start of selection is unknown for the caller.
      */
-    internal var onSelectionUpdateCallback: ((LayoutCoordinates, Offset, Offset) -> Unit)? = null
+    internal var onSelectionUpdateCallback: (
+        (LayoutCoordinates, Offset?, Offset, SelectionAdjustment) -> Unit
+    )? = null
 
     /**
      * The callback to be invoked when selection update finished.
@@ -150,26 +162,50 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
         return selectables
     }
 
-    override fun notifyPositionChange() {
+    override fun notifyPositionChange(selectableId: Long) {
         // Set the variable sorted to be false, when the global position of a registered
         // selectable changes.
         sorted = false
-        onPositionChangeCallback?.invoke()
+        onPositionChangeCallback?.invoke(selectableId)
     }
 
     override fun notifySelectionUpdateStart(
         layoutCoordinates: LayoutCoordinates,
-        startPosition: Offset
+        startPosition: Offset,
+        adjustment: SelectionAdjustment
     ) {
-        onSelectionUpdateStartCallback?.invoke(layoutCoordinates, startPosition)
+        onSelectionUpdateStartCallback?.invoke(layoutCoordinates, startPosition, adjustment)
+    }
+
+    override fun notifySelectionUpdateSelectAll(selectableId: Long) {
+        onSelectionUpdateSelectAll?.invoke(selectableId)
+    }
+
+    override fun notifySelectionUpdate(
+        layoutCoordinates: LayoutCoordinates,
+        endPosition: Offset,
+        adjustment: SelectionAdjustment
+    ) {
+        onSelectionUpdateCallback?.invoke(
+            layoutCoordinates,
+            null,
+            endPosition,
+            adjustment
+        )
     }
 
     override fun notifySelectionUpdate(
         layoutCoordinates: LayoutCoordinates,
         startPosition: Offset,
-        endPosition: Offset
+        endPosition: Offset,
+        adjustment: SelectionAdjustment
     ) {
-        onSelectionUpdateCallback?.invoke(layoutCoordinates, startPosition, endPosition)
+        onSelectionUpdateCallback?.invoke(
+            layoutCoordinates,
+            startPosition,
+            endPosition,
+            adjustment
+        )
     }
 
     override fun notifySelectionUpdateEnd() {

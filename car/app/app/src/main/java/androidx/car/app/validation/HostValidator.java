@@ -213,7 +213,7 @@ public final class HostValidator {
         Log.e(TAG_HOST_VALIDATION, String.format("Unrecognized host.\n"
                         + "If this is a valid caller, please add the following to your "
                         + "CarAppService#createHostValidator() implementation:\n"
-                        + "return new HostValidator.Builder()\n"
+                        + "return new HostValidator.Builder(context)\n"
                         + "\t.addAllowedHost(\"%s\", \"%s\");\n"
                         + "\t.build()",
                 hostPackageName, getDigest(signatures[0])));

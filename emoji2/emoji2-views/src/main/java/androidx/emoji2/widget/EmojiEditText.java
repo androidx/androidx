@@ -27,8 +27,8 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.TextViewCompat;
-import androidx.emoji2.helpers.EmojiEditTextHelper;
 import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
 
 /**
  * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used

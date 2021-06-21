@@ -32,7 +32,7 @@ public class ErrorFragment extends androidx.leanback.app.ErrorFragment {
         setTitle("Leanback Sample App");
         final Context context = getActivity();
         setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
-                R.drawable.lb_ic_sad_cloud, context.getTheme()));
+                androidx.leanback.R.drawable.lb_ic_sad_cloud, context.getTheme()));
         setMessage("An error occurred.");
         setDefaultBackground(TRANSLUCENT);
 

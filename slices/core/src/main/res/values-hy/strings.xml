@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"Թույլատրե՞լ <xliff:g id="APP_0">%1$s</xliff:g> հավելվածին ցուցադրել հատվածներ <xliff:g id="APP_2">%2$s</xliff:g> հավելվածից"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"– Կարող է կարդալ տեղեկություններ <xliff:g id="APP">%1$s</xliff:g> հավելվածից"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"– Կարող է կատարել գործողություններ <xliff:g id="APP">%1$s</xliff:g> հավելվածում"</string>
-    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"Թույլատրել <xliff:g id="APP">%1$s</xliff:g> հավելվածին ցուցադրել հատվածներ ցանկացած հավելվածից"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Թույլատրել"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Մերժել"</string>
 </resources>

@@ -23,6 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.concurrent.TimeUnit
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -46,9 +47,11 @@ public class MacrobenchmarkScope(
      * Start an activity, by default the default launch of the package, and wait until
      * its launch completes.
      *
+     * @throws IllegalStateException if unable to acquire intent for package.
+     *
      * @param block Allows customization of the intent used to launch the activity.
      */
-    fun startActivityAndWait(
+    public fun startActivityAndWait(
         block: (Intent) -> Unit = {}
     ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
@@ -63,7 +66,7 @@ public class MacrobenchmarkScope(
      *
      * @param intent Specifies which app/Activity should be launched.
      */
-    fun startActivityAndWait(intent: Intent) {
+    public fun startActivityAndWait(intent: Intent) {
         // Must launch with new task, as we're not launching from an existing task
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (launchWithClearTask) {
@@ -81,10 +84,40 @@ public class MacrobenchmarkScope(
                 securityException
             )
         }
-        device.wait(
+
+        waitOnPackageLaunch()
+    }
+
+    /**
+     * Wait on the current package to complete an Activity launch.
+     *
+     * Note that [timeoutInSeconds] is for full Activity launch, and UiAutomator detection of
+     * Activity content. This is not just Activity launch time as would be reported by
+     * [StartupTimingMetric] - it must include additional fixed time.
+     *
+     * As an example, when this timeout was 5 seconds, a 2 second activity launch would
+     * frequently hit the timeout. This timeout should be conservatively large to encapsulate
+     * any slow app / hardware combo.
+     */
+    internal fun waitOnPackageLaunch(timeoutInSeconds: Long = 30) {
+        val timeoutInMilliseconds = TimeUnit.SECONDS.toMillis(timeoutInSeconds)
+
+        // Note: if this wait starts during an activity launch, it will wait until the launch
+        // completes. This is why it's safe to simply check package - even if launching from one
+        // activity to another within the package, the launch has to fully complete.
+
+        // Note though, that this wait does not wait for within-activity launch behavior to
+        // complete. that must be done separately.
+        val packageIsDisplayed = device.wait(
             Until.hasObject(By.pkg(packageName).depth(0)),
-            5000 /* ms */
+            timeoutInMilliseconds
         )
+        if (!packageIsDisplayed) {
+            throw IllegalStateException(
+                "Unable to detect Activity of package $packageName after " +
+                    "$timeoutInSeconds second timeout. Did it fail to launch?"
+            )
+        }
     }
 
     /**
@@ -93,7 +126,7 @@ public class MacrobenchmarkScope(
      * Useful for resetting the test to a base condition in cases where the app isn't killed in
      * each iteration.
      */
-    fun pressHome(delayDurationMs: Long = 300) {
+    public fun pressHome(delayDurationMs: Long = 300) {
         device.pressHome()
         Thread.sleep(delayDurationMs)
     }
@@ -101,7 +134,7 @@ public class MacrobenchmarkScope(
     /**
      * Force-stop the process being measured.
      */
-    fun killProcess() {
+    public fun killProcess() {
         Log.d(TAG, "Killing process $packageName")
         device.executeShellCommand("am force-stop $packageName")
     }
@@ -112,7 +145,7 @@ public class MacrobenchmarkScope(
      * Enables measuring disk-based startup cost, without simply accessing cache of disk data
      * held in memory, such as during [cold startup](androidx.benchmark.macro.StartupMode.COLD).
      */
-    fun dropKernelPageCache() {
+    public fun dropKernelPageCache() {
         val result = device.executeShellScript(
             "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
         ).trim()

@@ -24,12 +24,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
 }

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -27,17 +25,17 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment-ktx"))
-    api(ANDROIDX_TEST_CORE)
-    api(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    api(libs.testCore)
+    api(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
 
     lintPublish(project(":fragment:fragment-testing-lint"))
 }

@@ -446,7 +446,11 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
             }
         }
         val variantNames = listOf(
-            "runtimeElements", "releaseRuntimePublication", "metadata-api", "runtime"
+            "runtimeElements",
+            "releaseRuntimePublication",
+            "metadata-api",
+            "metadataApiElements-published",
+            "runtime"
         )
         variantNames.forEach { name ->
             ctx.details.maybeAddVariant("allFilesWithDependencies${name.capitalize()}", name) {
@@ -464,6 +468,7 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                     addFile("${id.name}-${id.version}.jar")
                     addFile("${id.name}-${id.version}.aar")
                     addFile("${id.name}-${id.version}-sources.jar")
+                    addFile("${id.name}-${id.version}.klib")
                 }
             }
         }

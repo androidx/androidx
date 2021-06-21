@@ -27,9 +27,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class MacrobenchmarkTest {
+public class MacrobenchmarkTest {
     @Test
-    fun macrobenchmarkWithStartupMode_emptyMetricList() {
+    public fun macrobenchmarkWithStartupMode_emptyMetricList() {
         val exception = assertFailsWith<IllegalArgumentException> {
             macrobenchmarkWithStartupMode(
                 uniqueName = "uniqueName", // ignored, uniqueness not important
@@ -48,7 +48,7 @@ class MacrobenchmarkTest {
     }
 
     @Test
-    fun macrobenchmarkWithStartupMode_iterations() {
+    public fun macrobenchmarkWithStartupMode_iterations() {
         val exception = assertFailsWith<IllegalArgumentException> {
             macrobenchmarkWithStartupMode(
                 uniqueName = "uniqueName", // ignored, uniqueness not important
@@ -68,7 +68,7 @@ class MacrobenchmarkTest {
 
     @SdkSuppress(maxSdkVersion = 28)
     @Test
-    fun macrobenchmarkWithStartupMode_sdkVersion() {
+    public fun macrobenchmarkWithStartupMode_sdkVersion() {
         val exception = assertFailsWith<IllegalArgumentException> {
             macrobenchmarkWithStartupMode(
                 uniqueName = "uniqueName", // ignored, uniqueness not important

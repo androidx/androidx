@@ -16,22 +16,27 @@
 
 package androidx.appcompat.app
 
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.res.Configuration
 import android.os.Build
+import androidx.appcompat.Orientation
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
-import androidx.appcompat.testutils.TestUtilsActions.rotateScreenOrientation
+import androidx.appcompat.withOrientation
 import androidx.lifecycle.Lifecycle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import androidx.testutils.LifecycleOwnerUtils
 import org.junit.After
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +45,12 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 18)
 public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setMode: NightSetMode) {
+
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
     @get:Rule
     public val activityRule: NightModeActivityTestRule<NightModeActivity> =
         NightModeActivityTestRule(
@@ -52,6 +62,9 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
 
     @After
     public fun teardown() {
+        device.setOrientationNatural()
+        device.waitForIdle(5000)
+
         // Clean up after the default mode test.
         if (setMode == NightSetMode.DEFAULT) {
             activityRule.runOnUiThread {
@@ -60,18 +73,8 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
         }
     }
 
-    @FlakyTest // b/182209264
     @Test
     public fun testRotateRecreatesActivityWithConfig() {
-        // Don't run this test on SDK 26 because it has issues with setRequestedOrientation. Also
-        // don't run it on SDK 24 (Nexus Player) or SDK 23 (Pixel C) because those devices only
-        // support a single orientation and there doesn't seem to be a way to query supported
-        // screen orientations.
-        val sdkInt = Build.VERSION.SDK_INT
-        if (sdkInt == 26 || sdkInt == 24 || sdkInt == 23) {
-            return
-        }
-
         // Set local night mode to MODE_NIGHT_YES and wait for state RESUMED.
         val initialActivity = activityRule.launchActivity(null)
         LifecycleOwnerUtils.waitUntilState(initialActivity, Lifecycle.State.RESUMED)
@@ -88,23 +91,42 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
         assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, config)
 
         // Now rotate the device. This should result in an onDestroy lifecycle event.
-        nightModeActivity.resetOnCreate()
         nightModeActivity.resetOnDestroy()
-        onView(ViewMatchers.isRoot()).perform(rotateScreenOrientation(nightModeActivity))
-        nightModeActivity.expectOnDestroy(5000)
+        rotateDeviceAndWaitForRecreate(nightModeActivity) {
+            nightModeActivity.expectOnDestroy(5000)
 
-        // Slow devices might need some time between onDestroy and onCreate.
-        nightModeActivity.expectOnCreate(5000)
+            // Assert that we got a different activity and thus it was recreated.
+            val rotatedNightModeActivity = activityRule.activity
+            val rotatedConfig = rotatedNightModeActivity.resources.configuration
+            assertNotSame(nightModeActivity, rotatedNightModeActivity)
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
 
-        // Assert that we got a different activity and thus it was recreated.
-        val rotatedNightModeActivity = activityRule.activity
-        val rotatedConfig = rotatedNightModeActivity.resources.configuration
-        assertNotSame(nightModeActivity, rotatedNightModeActivity)
-        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
+            // On API level 26 and below, the configuration object is going to be identical
+            // across configuration changes, so we need to compare against the cached value.
+            assertNotSame(orientation, rotatedConfig.orientation)
+        }
+    }
 
-        // On API level 26 and below, the configuration object is going to be identical
-        // across configuration changes, so we need to compare against the cached value.
-        assertNotSame(orientation, rotatedConfig.orientation)
+    private fun rotateDeviceAndWaitForRecreate(activity: Activity, doThis: () -> Unit) {
+        val monitor = Instrumentation.ActivityMonitor(activity::class.java.name, null, false)
+        instrumentation.addMonitor(monitor)
+
+        device.withOrientation(Orientation.LEFT) {
+            // Wait for the activity to be recreated after rotation
+            var count = 0
+            var lastActivity: Activity? = activity
+            while ((lastActivity == null || activity == lastActivity) && count < 5) {
+                // If this times out, it will return null.
+                lastActivity = monitor.waitForActivityWithTimeout(1000L)
+                count++
+            }
+            instrumentation.waitForIdleSync()
+
+            // Ensure that we didn't time out
+            assertNotNull("Activity was not recreated within 5000ms", lastActivity)
+            assertNotEquals("Activity was not recreated within 5000ms", activity, lastActivity)
+            doThis()
+        }
     }
 
     public companion object {

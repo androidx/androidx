@@ -18,35 +18,33 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     api "androidx.annotation:annotation:1.1.0"
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
 
-    androidTestImplementation("androidx.core:core:1.5.0-alpha01")
+    androidTestImplementation("androidx.core:core:1.5.0-rc02")
     androidTestImplementation(project(":compose:ui:ui-test-font"))
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(MOCKITO_KOTLIN, {
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoKotlin, {
         exclude group: "org.mockito" // to keep control on the mockito version
     })
 }

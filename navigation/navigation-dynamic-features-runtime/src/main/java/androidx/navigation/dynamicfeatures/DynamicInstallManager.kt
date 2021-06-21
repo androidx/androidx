@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph
@@ -63,8 +64,7 @@ public open class DynamicInstallManager(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun performInstall(
-        destination: NavDestination,
-        args: Bundle?,
+        backStackEntry: NavBackStackEntry,
         extras: DynamicExtras?,
         moduleName: String
     ): NavDestination? {
@@ -73,14 +73,15 @@ public open class DynamicInstallManager(
             return null
         } else {
             val progressArgs = Bundle().apply {
-                putInt(Constants.DESTINATION_ID, destination.id)
-                putBundle(Constants.DESTINATION_ARGS, args)
+                putInt(Constants.DESTINATION_ID, backStackEntry.destination.id)
+                putBundle(Constants.DESTINATION_ARGS, backStackEntry.arguments)
             }
-            val dynamicNavGraph = DynamicNavGraph.getOrThrow(destination)
+            val dynamicNavGraph = DynamicNavGraph.getOrThrow(backStackEntry.destination)
             val navigator: Navigator<*> =
                 dynamicNavGraph.navigatorProvider[dynamicNavGraph.navigatorName]
-            return if (navigator is DynamicGraphNavigator) {
+            if (navigator is DynamicGraphNavigator) {
                 navigator.navigateToProgressDestination(dynamicNavGraph, progressArgs)
+                return null
             } else {
                 throw IllegalStateException(
                     "You must use a DynamicNavGraph to perform a module installation."

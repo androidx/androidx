@@ -176,7 +176,6 @@ public interface CameraControl {
      * </ul>
      */
     @NonNull
-    @ExperimentalExposureCompensation
     ListenableFuture<Integer> setExposureCompensationIndex(int value);
 
     /**

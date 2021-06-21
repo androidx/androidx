@@ -35,12 +35,12 @@ import java.io.InputStream
  * @param script Script content to run
  * @param stdin String to pass in as stdin to first command in script
  */
-fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
+internal fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
     // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
     // so we copy to /data/local/tmp
     val externalDir = Outputs.dirUsableByAppAndShell
     val stdinFile = File.createTempFile("temporaryStdin", null, externalDir)
-    val writableScriptFile = File.createTempFile("temporaryScript", "sh", externalDir)
+    val writableScriptFile = File.createTempFile("temporaryScript", ".sh", externalDir)
     val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
 
     try {
@@ -67,7 +67,7 @@ fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
 /**
  * Writes the inputStream to an executable file with the given name in `/data/local/tmp`
  */
-fun UiDevice.createRunnableExecutable(name: String, inputStream: InputStream): String {
+internal fun UiDevice.createRunnableExecutable(name: String, inputStream: InputStream): String {
     // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
     // so we copy to /data/local/tmp
     val externalDir = Outputs.dirUsableByAppAndShell

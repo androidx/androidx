@@ -294,7 +294,7 @@ internal class Camera2CaptureSequence(
         request: RequestInfo,
         crossinline fn: (Request.Listener) -> Any
     ) {
-        // Always invoke the internal listener first so that internal sate can be updated before
+        // Always invoke the internal listener first so that internal state can be updated before
         // other listeners ask for it.
         for (i in internalListeners.indices) {
             fn(internalListeners[i])

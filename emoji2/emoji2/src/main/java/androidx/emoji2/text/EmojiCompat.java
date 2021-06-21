@@ -19,6 +19,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
@@ -111,6 +112,8 @@ public class EmojiCompat {
      *
      * @see #getLoadState()
      */
+    // note: this may be returned as the value of mLoadState before constructor finishes due to
+    // double-check lock
     public static final int LOAD_STATE_LOADING = 0;
 
     /**
@@ -196,9 +199,12 @@ public class EmojiCompat {
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
 
     private static final Object INSTANCE_LOCK = new Object();
+    private static final Object CONFIG_LOCK = new Object();
 
     @GuardedBy("INSTANCE_LOCK")
     private static volatile @Nullable EmojiCompat sInstance;
+    @GuardedBy("CONFIG_LOCK")
+    private static volatile boolean sHasDoneDefaultConfigLookup;
 
     private final @NonNull ReadWriteLock mInitLock;
 
@@ -207,7 +213,7 @@ public class EmojiCompat {
 
     @GuardedBy("mInitLock")
     @LoadState
-    private int mLoadState;
+    private volatile int mLoadState;
 
     /**
      * Handler with main looper to run the callbacks on.
@@ -291,6 +297,62 @@ public class EmojiCompat {
     }
 
     /**
+     * Initialize the singleton instance with the default system-provided configuration.
+     *
+     * <p>This is the recommended configuration for most applications. For more details see
+     * {@link DefaultEmojiCompatConfig}.</p>
+     *
+     * <p>This call will use {@link DefaultEmojiCompatConfig} to lookup the default emoji font
+     * provider installed on the system and use that, if present. If there is no default font
+     * provider onthe system, this call will have no effect.</p>
+     *
+     * <p>Note: EmojiCompat may only be initialized once, and will return the same instance
+     * afterwords.</p>
+     *
+     * @return Default EmojiCompat for this device, or null if there is no provider on the system.
+     */
+    @Nullable
+    public static EmojiCompat init(@NonNull Context context) {
+        return init(context, null);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @Nullable
+    @SuppressWarnings("GuardedBy") /* double-check lock; volatile; threadsafe obj */
+    public static EmojiCompat init(@NonNull Context context,
+            @Nullable DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory defaultFactory) {
+        EmojiCompat.Config config;
+        if (sHasDoneDefaultConfigLookup) {
+            // sInstance is safe to return outside the lock because
+            // 1) static fields are volatile
+            // 2) all fields on EmojiCompat are final, or guarded by a lock
+            // 3) we only write this after sInstance is settled by the call to `init`
+            return sInstance;
+        } else {
+            DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                    defaultFactory != null ? defaultFactory :
+                            new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(null);
+            config = factory.create(context);
+        }
+        synchronized (CONFIG_LOCK) {
+            if (!sHasDoneDefaultConfigLookup) {
+                // sDefaultConfigLookup allows us to early-exit above, as well as avoid repeated
+                // calls to create in the case where the font provider is not found
+                if (config != null) {
+                    init(config);
+                }
+                // write this after init to allow safe early-exit
+                sHasDoneDefaultConfigLookup = true;
+
+            }
+            return sInstance;
+        }
+    }
+
+    /**
      * Initialize the singleton instance with a configuration. When used on devices running API 18
      * or below, the singleton instance is immediately moved into {@link #LOAD_STATE_SUCCEEDED}
      * state without loading any metadata. When called for the first time, the library will create
@@ -299,13 +361,13 @@ public class EmojiCompat {
      *
      * @see EmojiCompat.Config
      */
-    @SuppressWarnings("GuardedBy")
+    @SuppressWarnings("GuardedBy") /* double-check lock; volatile sInstance; threadsafe obj */
     @NonNull
     public static EmojiCompat init(@NonNull final Config config) {
+        // copy to local for null-checker
         EmojiCompat localInstance = sInstance;
         if (localInstance == null) {
             synchronized (INSTANCE_LOCK) {
-                // copy ref to local for nullness checker
                 localInstance = sInstance;
                 if (localInstance == null) {
                     localInstance = new EmojiCompat(config);
@@ -317,13 +379,46 @@ public class EmojiCompat {
     }
 
     /**
+     * Return true if EmojiCompat has been configured by a successful call to
+     * {@link EmojiCompat#init}.
+     *
+     * You can use this to check if {@link EmojiCompat#get()} will return a valid EmojiCompat
+     * instance.
+     *
+     * This function does not check the {@link #getLoadState()} and will return true even if the
+     * font is still loading, or has failed to load.
+     *
+     * @return true if EmojiCompat has been successfully initialized.
+     */
+    @SuppressWarnings("GuardedBy") // same rationale as double-check lock
+    public static boolean isConfigured() {
+        // Note: this is true immediately after calling .init(Config).
+        //
+        // These are three situations this may return false
+        //   1) An app has disabled EmojiCompatInitializer and does not intend to call .init.
+        //   2) EmojiCompatInitializer did not find a configuration
+        //   3) EmojiCompatInitializer was disable or failed, and the app will call .init. In the
+        //   future it will return true.
+        //
+        // In case one and two, this method will always return false for the duration of the
+        // application lifecycle.
+        //
+        // In case three, this will return true at some future point. There is no callback
+        // mechanism to learn about the init call due to the high potential for leaked references
+        // in a static context if it's actually case 2 (when using manual callback registration).
+        //
+        // It is recommended that applications call init prior to creating any screens that
+        // may show emoji or user generated content.
+        return sInstance != null;
+    }
+
+
+    /**
      * Used by the tests to reset EmojiCompat with a new configuration. Every time it is called a
      * new instance is created with the new configuration.
      *
      * @hide
      */
-    @SuppressWarnings("GuardedBy")
-    @RestrictTo(TESTS)
     @NonNull
     public static EmojiCompat reset(@NonNull final Config config) {
         synchronized (INSTANCE_LOCK) {
@@ -338,14 +433,25 @@ public class EmojiCompat {
      *
      * @hide
      */
-    @SuppressWarnings("GuardedBy")
     @RestrictTo(TESTS)
     @Nullable
     public static EmojiCompat reset(@Nullable final EmojiCompat emojiCompat) {
         synchronized (INSTANCE_LOCK) {
             sInstance = emojiCompat;
+            return sInstance;
         }
-        return sInstance;
+    }
+
+    /**
+     * Reset default configuration lookup flag, for tests.
+     *
+     * @hide
+     */
+    @RestrictTo(TESTS)
+    public static void skipDefaultConfigurationLookup(boolean shouldSkip) {
+        synchronized (CONFIG_LOCK) {
+            sHasDoneDefaultConfigLookup = shouldSkip;
+        }
     }
 
     /**
@@ -455,6 +561,7 @@ public class EmojiCompat {
      *
      * @see #unregisterInitCallback(InitCallback)
      */
+    @SuppressWarnings("ExecutorRegistration")
     public void registerInitCallback(@NonNull InitCallback initCallback) {
         Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
 
@@ -509,20 +616,20 @@ public class EmojiCompat {
     }
 
     /**
-     * @return whether a background should be drawn for the emoji.
+     * @return whether a background should be drawn for the emoji for debugging
      * @hide
      */
-    @RestrictTo(LIBRARY)
-    boolean isEmojiSpanIndicatorEnabled() {
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isEmojiSpanIndicatorEnabled() {
         return mEmojiSpanIndicatorEnabled;
     }
 
     /**
-     * @return whether a background should be drawn for the emoji.
+     * @return color of background drawn if {@link EmojiCompat#isEmojiSpanIndicatorEnabled} is true
      * @hide
      */
-    @RestrictTo(LIBRARY)
-    @ColorInt int getEmojiSpanIndicatorColor() {
+    @RestrictTo(LIBRARY_GROUP)
+    public @ColorInt int getEmojiSpanIndicatorColor() {
         return mEmojiSpanIndicatorColor;
     }
 
@@ -637,7 +744,6 @@ public class EmojiCompat {
         // main function so that it can do all the checks including isInitialized. It will also
         // be the main point that decides what to return.
 
-        //noinspection ConstantConditions
         @IntRange(from = 0) final int length = charSequence == null ? 0 : charSequence.length();
         return process(charSequence, 0, length);
     }
@@ -760,9 +866,8 @@ public class EmojiCompat {
         Preconditions.checkArgument(start <= end, "start should be <= than end");
 
         // early return since there is nothing to do
-        //noinspection ConstantConditions
         if (charSequence == null) {
-            return charSequence;
+            return null;
         }
 
         Preconditions.checkArgument(start <= charSequence.length(),
@@ -860,7 +965,7 @@ public class EmojiCompat {
          * Called when an unrecoverable error occurs during EmojiCompat initialization. When used on
          * devices running API 18 or below, this function is never called.
          */
-        public void onFailed(@Nullable Throwable throwable) {
+        public void onFailed(@SuppressWarnings("unused") @Nullable Throwable throwable) {
         }
     }
 
@@ -876,6 +981,7 @@ public class EmojiCompat {
          *
          * @param loaderCallback callback to signal the loading state
          */
+        @SuppressWarnings("ExecutorRegistration")
         void load(@NonNull MetadataRepoLoaderCallback loaderCallback);
     }
 
@@ -997,6 +1103,7 @@ public class EmojiCompat {
          *
          * @return EmojiCompat.Config instance
          */
+        @SuppressWarnings("ExecutorRegistration")
         @NonNull
         public Config registerInitCallback(@NonNull InitCallback initCallback) {
             Preconditions.checkNotNull(initCallback, "initCallback cannot be null");

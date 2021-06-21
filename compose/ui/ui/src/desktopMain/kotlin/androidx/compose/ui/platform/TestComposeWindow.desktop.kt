@@ -25,6 +25,7 @@ import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.cancel
 import org.jetbrains.skija.Surface
@@ -59,7 +60,7 @@ class TestComposeWindow(
     private val canvas = surface.canvas
     private var owner: DesktopOwner? = null
 
-    private val coroutineScope = CoroutineScope(coroutineContext)
+    private val coroutineScope = CoroutineScope(coroutineContext + Job())
     private val frameDispatcher: FrameDispatcher = FrameDispatcher(
         onFrame = { onFrame() },
         context = coroutineScope.coroutineContext
@@ -104,7 +105,7 @@ class TestComposeWindow(
         val owner = DesktopOwner(owners, density)
         owner.setContent {
             CompositionLocalProvider(
-                DesktopPlatformAmbient provides desktopPlatform
+                LocalDesktopPlatform provides desktopPlatform
             ) {
                 content()
             }
@@ -120,5 +121,26 @@ class TestComposeWindow(
      */
     fun onMouseScroll(x: Int, y: Int, event: MouseScrollEvent) {
         owners.onMouseScroll(x, y, event)
+    }
+
+    /**
+     * Process mouse move event
+     */
+    fun onMouseMoved(x: Int, y: Int) {
+        owners.onMouseMoved(x, y)
+    }
+
+    /**
+     * Process mouse enter event
+     */
+    fun onMouseEntered(x: Int, y: Int) {
+        owners.onMouseEntered(x, y)
+    }
+
+    /**
+     * Process mouse exit event
+     */
+    fun onMouseExited() {
+        owners.onMouseExited()
     }
 }

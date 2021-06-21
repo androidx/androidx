@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage", "SyntheticAccessor")
+
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.Category
-import com.android.tools.lint.detector.api.ConstantEvaluator
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
@@ -40,10 +41,11 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.getParentOfType
+import java.util.Locale
 
-@Suppress("SyntheticAccessor", "UnstableApiUsage")
 class ExperimentalDetector : Detector(), SourceCodeScanner {
-    override fun applicableAnnotations(): List<String>? = listOf(
+
+    override fun applicableAnnotations(): List<String> = listOf(
         JAVA_EXPERIMENTAL_ANNOTATION,
         KOTLIN_EXPERIMENTAL_ANNOTATION,
         JAVA_REQUIRES_OPT_IN_ANNOTATION,
@@ -137,8 +139,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
     @Suppress("SameParameterValue")
     private fun extractAttribute(annotation: UAnnotation, name: String): String? {
-        val expression = annotation.findAttributeValue(name) as? UReferenceExpression
-        return (ConstantEvaluator().evaluate(expression) as? PsiField)?.name
+        // Using findAttributeValue instead of findDeclaredAttributeValue allows default values.
+        return annotation.findAttributeValue(name)?.let { expression ->
+            ((expression as? UReferenceExpression)?.resolve() as? PsiField)?.name
+        }
     }
 
     /**
@@ -215,25 +219,29 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             Scope.JAVA_FILE_SCOPE
         )
 
-        private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
-        private const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
+        const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
+        const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
 
-        private const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
-        private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
+        const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
+        const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
 
-        private const val JAVA_EXPERIMENTAL_ANNOTATION =
+        const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"
-        private const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
+        const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.UseExperimental"
 
-        private const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
+        const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
             "androidx.annotation.RequiresOptIn"
-        private const val JAVA_OPT_IN_ANNOTATION =
+        const val JAVA_OPT_IN_ANNOTATION =
             "androidx.annotation.OptIn"
 
         @Suppress("DefaultLocale")
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
-            id = "UnsafeOptInUsage${level.capitalize()}",
+            id = "UnsafeOptInUsage${level.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }}",
             briefDescription = "Unsafe opt-in usage intended to be $level-level severity",
             explanation = """
                 This API has been flagged as opt-in with $level-level severity.
@@ -272,7 +280,7 @@ private fun UAnnotation.hasMatchingAttributeValueClass(
     attributeName: String,
     className: String
 ): Boolean {
-    val attributeValue = findAttributeValue(attributeName)
+    val attributeValue = findDeclaredAttributeValue(attributeName)
     if (attributeValue.getFullyQualifiedName(context) == className) {
         return true
     }

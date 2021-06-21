@@ -16,6 +16,9 @@
 
 package androidx.media2.test.client;
 
+import static androidx.media2.test.common.CommonConstants.KEY_SERVICE_VERSION;
+import static androidx.media2.test.common.CommonConstants.VERSION_TOT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +35,7 @@ import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.versionedparcelable.ParcelImpl;
 
 import java.util.ArrayList;
@@ -213,5 +217,11 @@ public final class MediaTestUtils {
 
     public static void assertNotMediaItemSubclass(MediaItem item) {
         assertEquals(MediaItem.class, item.getClass());
+    }
+
+    public static boolean isServiceToT() {
+        String serviceVersion = InstrumentationRegistry.getArguments()
+                .getString(KEY_SERVICE_VERSION, "");
+        return VERSION_TOT.equals(serviceVersion);
     }
 }

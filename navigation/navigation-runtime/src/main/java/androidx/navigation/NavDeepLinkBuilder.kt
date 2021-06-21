@@ -24,6 +24,7 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.annotation.NavigationRes
 import androidx.core.app.TaskStackBuilder
+import androidx.navigation.NavDestination.Companion.createRoute
 
 /**
  * Class used to construct deep links to a particular destination in a [NavGraph].
@@ -40,21 +41,17 @@ import androidx.core.app.TaskStackBuilder
  * the start destination of its containing navigation graph, the start destination of its
  * grandparent is used.
  *
- * You can construct an instance directly with [.NavDeepLinkBuilder] or build one
+ * You can construct an instance directly with [NavDeepLinkBuilder] or build one
  * using an existing [NavController] via [NavController.createDeepLink].
- */
-public class NavDeepLinkBuilder
-/**
- * Construct a new NavDeepLinkBuilder.
  *
  * If the context passed in here is not an [Activity], this method will use
  * [android.content.pm.PackageManager.getLaunchIntentForPackage] as the
  * default activity to launch, if available.
  *
  * @param context Context used to create deep links
- * @see .setComponentName
+ * @see NavDeepLinkBuilder.setComponentName
  */
-constructor(private val context: Context) {
+public class NavDeepLinkBuilder(private val context: Context) {
     private class DeepLinkDestination constructor(
         val destinationId: Int,
         val arguments: Bundle?
@@ -105,7 +102,7 @@ constructor(private val context: Context) {
     }
 
     /**
-     * Sets the graph that contains the [deep link destination][.setDestination].
+     * Sets the graph that contains the [deep link destination][setDestination].
      *
      * @param navGraphId ID of the [NavGraph] containing the deep link destination
      * @return this object for chaining
@@ -115,11 +112,11 @@ constructor(private val context: Context) {
     }
 
     /**
-     * Sets the graph that contains the [deep link destination][.setDestination].
+     * Sets the graph that contains the [deep link destination][setDestination].
      *
      * If you do not have access to a [NavController], you can create a
      * [NavigatorProvider] and use that to programmatically construct a navigation
-     * graph or use [NavInflater][NavInflater.NavInflater].
+     * graph or use [NavInflater][NavInflater].
      *
      * @param navGraph The [NavGraph] containing the deep link destination
      * @return this object for chaining
@@ -132,7 +129,7 @@ constructor(private val context: Context) {
 
     /**
      * Sets the destination id to deep link to. Any destinations previous added via
-     * [.addDestination] are cleared, effectively resetting this object
+     * [addDestination] are cleared, effectively resetting this object
      * back to only this single destination.
      *
      * @param destId destination ID to deep link to.
@@ -151,8 +148,28 @@ constructor(private val context: Context) {
     }
 
     /**
+     * Sets the destination route to deep link to. Any destinations previous added via
+     * [.addDestination] are cleared, effectively resetting this object
+     * back to only this single destination.
+     *
+     * @param destRoute destination route to deep link to.
+     * @param args Arguments to pass to this destination and any synthetic back stack created
+     * due to this destination being added.
+     * @return this object for chaining
+     */
+    @JvmOverloads
+    public fun setDestination(destRoute: String, args: Bundle? = null): NavDeepLinkBuilder {
+        destinations.clear()
+        destinations.add(DeepLinkDestination(createRoute(destRoute).hashCode(), args))
+        if (graph != null) {
+            verifyAllDestinations()
+        }
+        return this
+    }
+
+    /**
      * Add a new destination id to deep link to. This builds off any previous calls to this method
-     * or calls to [.setDestination], building the minimal synthetic back stack of
+     * or calls to [setDestination], building the minimal synthetic back stack of
      * start destinations between the previous deep link destination and the newly added
      * deep link destination.
      *
@@ -164,6 +181,26 @@ constructor(private val context: Context) {
     @JvmOverloads
     public fun addDestination(@IdRes destId: Int, args: Bundle? = null): NavDeepLinkBuilder {
         destinations.add(DeepLinkDestination(destId, args))
+        if (graph != null) {
+            verifyAllDestinations()
+        }
+        return this
+    }
+
+    /**
+     * Add a new destination route to deep link to. This builds off any previous calls to this
+     * method or calls to [.setDestination], building the minimal synthetic back stack of
+     * start destinations between the previous deep link destination and the newly added
+     * deep link destination.
+     *
+     * @param route destination route to deep link to.
+     * @param args Arguments to pass to this destination and any synthetic back stack created
+     * due to this destination being added.
+     * @return this object for chaining
+     */
+    @JvmOverloads
+    public fun addDestination(route: String, args: Bundle? = null): NavDeepLinkBuilder {
+        destinations.add(DeepLinkDestination(createRoute(route).hashCode(), args))
         if (graph != null) {
             verifyAllDestinations()
         }
@@ -239,7 +276,7 @@ constructor(private val context: Context) {
      * Construct the full [task stack][TaskStackBuilder] needed to deep link to the given
      * destination.
      *
-     * You must have [set a NavGraph][.setGraph] and [set a destination][.setDestination]
+     * You must have [set a NavGraph][setGraph] and [set a destination][setDestination]
      * before calling this method.
      *
      * @return a [TaskStackBuilder] which can be used to
@@ -270,11 +307,11 @@ constructor(private val context: Context) {
     }
 
     /**
-     * Construct a [PendingIntent] to the [deep link destination][.setDestination].
+     * Construct a [PendingIntent] to the [deep link destination][setDestination].
      *
-     * This constructs the entire [task stack][.createTaskStackBuilder] needed.
+     * This constructs the entire [task stack][createTaskStackBuilder] needed.
      *
-     * You must have [set a NavGraph][.setGraph] and [set a destination][.setDestination]
+     * You must have [set a NavGraph][setGraph] and [set a destination][setDestination]
      * before calling this method.
      *
      * @return a PendingIntent constructed with [TaskStackBuilder.getPendingIntent] to deep link
@@ -299,8 +336,10 @@ constructor(private val context: Context) {
                 }
             }
         }
-        return createTaskStackBuilder()
-            .getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT)!!
+        return createTaskStackBuilder().getPendingIntent(
+            requestCode,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )!!
     }
 
     /**

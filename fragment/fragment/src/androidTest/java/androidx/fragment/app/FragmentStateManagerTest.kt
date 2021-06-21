@@ -54,7 +54,8 @@ class FragmentStateManagerTest {
     @Test
     fun constructorFragmentFactory() {
         val fragment = StrictFragment()
-        val fragmentState = FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        val fragmentState = fragmentStore.getSavedState(fragment.mWho)!!
 
         val fragmentStateManager = FragmentStateManager(
             dispatcher, fragmentStore,
@@ -71,7 +72,8 @@ class FragmentStateManagerTest {
     @Test
     fun constructorRetainedFragment() {
         val fragment = StrictFragment()
-        val fragmentState = FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        val fragmentState = fragmentStore.getSavedState(fragment.mWho)!!
         assertThat(fragment.mSavedFragmentState)
             .isNull()
 

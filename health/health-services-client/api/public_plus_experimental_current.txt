@@ -1,0 +1,852 @@
+// Signature format: 4.0
+package androidx.health.services.client {
+
+  public interface ExerciseClient {
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> addGoalToActiveExercise(androidx.health.services.client.data.ExerciseGoal exerciseGoal);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearUpdateListener(androidx.health.services.client.ExerciseUpdateListener listener);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> endExercise();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseCapabilities> getCapabilities();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseInfo> getCurrentExerciseInfo();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> markLap();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> overrideAutoPauseAndResumeForActiveExercise(boolean enabled);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> pauseExercise();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> resumeExercise();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> setUpdateListener(androidx.health.services.client.ExerciseUpdateListener listener);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> setUpdateListener(androidx.health.services.client.ExerciseUpdateListener listener, java.util.concurrent.Executor executor);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startExercise(androidx.health.services.client.data.ExerciseConfig configuration);
+    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseCapabilities> capabilities;
+    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseInfo> currentExerciseInfo;
+  }
+
+  public interface ExerciseUpdateListener {
+    method public void onExerciseUpdate(androidx.health.services.client.data.ExerciseUpdate update);
+    method public void onLapSummary(androidx.health.services.client.data.ExerciseLapSummary lapSummary);
+  }
+
+  public final class HealthServices {
+    method public static androidx.health.services.client.HealthServicesClient getClient(android.content.Context context);
+    field public static final androidx.health.services.client.HealthServices INSTANCE;
+  }
+
+  public interface HealthServicesClient {
+    method public androidx.health.services.client.ExerciseClient getExerciseClient();
+    method public androidx.health.services.client.MeasureClient getMeasureClient();
+    method public androidx.health.services.client.PassiveMonitoringClient getPassiveMonitoringClient();
+    property public abstract androidx.health.services.client.ExerciseClient exerciseClient;
+    property public abstract androidx.health.services.client.MeasureClient measureClient;
+    property public abstract androidx.health.services.client.PassiveMonitoringClient passiveMonitoringClient;
+  }
+
+  public interface MeasureCallback {
+    method public void onAvailabilityChanged(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Availability availability);
+    method public void onData(java.util.List<androidx.health.services.client.data.DataPoint> data);
+  }
+
+  public interface MeasureClient {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.MeasureCapabilities> getCapabilities();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerCallback(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerCallback(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback, java.util.concurrent.Executor executor);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterCallback(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback);
+    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.MeasureCapabilities> capabilities;
+  }
+
+  public interface PassiveMonitoringCallback {
+    method public void onPassiveMonitoringUpdate(androidx.health.services.client.data.PassiveMonitoringUpdate update);
+  }
+
+  public interface PassiveMonitoringClient {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.PassiveMonitoringCapabilities> getCapabilities();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerDataCallback(java.util.Set<androidx.health.services.client.data.DataType> dataTypes, android.app.PendingIntent callbackIntent);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerDataCallback(java.util.Set<androidx.health.services.client.data.DataType> dataTypes, android.app.PendingIntent callbackIntent, androidx.health.services.client.PassiveMonitoringCallback callback);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerEventCallback(androidx.health.services.client.data.event.Event event, android.app.PendingIntent callbackIntent);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterDataCallback();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterEventCallback(androidx.health.services.client.data.event.Event event);
+    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.PassiveMonitoringCapabilities> capabilities;
+  }
+
+}
+
+package androidx.health.services.client.data {
+
+  public final class AchievedExerciseGoal implements android.os.Parcelable {
+    ctor public AchievedExerciseGoal(androidx.health.services.client.data.ExerciseGoal goal);
+    method public androidx.health.services.client.data.ExerciseGoal component1();
+    method public androidx.health.services.client.data.AchievedExerciseGoal copy(androidx.health.services.client.data.ExerciseGoal goal);
+    method public int describeContents();
+    method public androidx.health.services.client.data.ExerciseGoal getGoal();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.ExerciseGoal goal;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.AchievedExerciseGoal> CREATOR;
+    field public static final androidx.health.services.client.data.AchievedExerciseGoal.Companion Companion;
+  }
+
+  public static final class AchievedExerciseGoal.Companion {
+  }
+
+  public enum Availability {
+    method public static final androidx.health.services.client.data.Availability? fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.Availability ACQUIRING;
+    enum_constant public static final androidx.health.services.client.data.Availability AVAILABLE;
+    enum_constant public static final androidx.health.services.client.data.Availability UNAVAILABLE;
+    enum_constant public static final androidx.health.services.client.data.Availability UNKNOWN;
+    field public static final androidx.health.services.client.data.Availability.Companion Companion;
+  }
+
+  public static final class Availability.Companion {
+    method public androidx.health.services.client.data.Availability? fromId(int id);
+  }
+
+  public enum ComparisonType {
+    method public static final androidx.health.services.client.data.ComparisonType? fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.ComparisonType GREATER_THAN;
+    enum_constant public static final androidx.health.services.client.data.ComparisonType GREATER_THAN_OR_EQUAL;
+    enum_constant public static final androidx.health.services.client.data.ComparisonType LESS_THAN;
+    enum_constant public static final androidx.health.services.client.data.ComparisonType LESS_THAN_OR_EQUAL;
+    field public static final androidx.health.services.client.data.ComparisonType.Companion Companion;
+  }
+
+  public static final class ComparisonType.Companion {
+    method public androidx.health.services.client.data.ComparisonType? fromId(int id);
+  }
+
+  public final class DataPoint implements android.os.Parcelable {
+    method public androidx.health.services.client.data.DataType component1();
+    method public androidx.health.services.client.data.Value component2();
+    method public java.time.Duration component3();
+    method public java.time.Duration component4();
+    method public android.os.Bundle component5();
+    method public androidx.health.services.client.data.DataPoint copy(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, android.os.Bundle metadata);
+    method public static androidx.health.services.client.data.DataPoint createInterval(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle metadata);
+    method public static androidx.health.services.client.data.DataPoint createInterval(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint createSample(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration durationFromBoot, optional android.os.Bundle metadata);
+    method public static androidx.health.services.client.data.DataPoint createSample(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration durationFromBoot);
+    method public int describeContents();
+    method public androidx.health.services.client.data.DataType getDataType();
+    method public java.time.Duration getEndDurationFromBoot();
+    method public java.time.Instant getEndInstant(java.time.Instant bootInstant);
+    method public android.os.Bundle getMetadata();
+    method public java.time.Duration getStartDurationFromBoot();
+    method public java.time.Instant getStartInstant(java.time.Instant bootInstant);
+    method public androidx.health.services.client.data.Value getValue();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.DataType dataType;
+    property public final java.time.Duration endDurationFromBoot;
+    property public final android.os.Bundle metadata;
+    property public final java.time.Duration startDurationFromBoot;
+    property public final androidx.health.services.client.data.Value value;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.DataPoint> CREATOR;
+    field public static final androidx.health.services.client.data.DataPoint.Companion Companion;
+  }
+
+  public static final class DataPoint.Companion {
+    method public androidx.health.services.client.data.DataPoint createInterval(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle metadata);
+    method public androidx.health.services.client.data.DataPoint createInterval(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public androidx.health.services.client.data.DataPoint createSample(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration durationFromBoot, optional android.os.Bundle metadata);
+    method public androidx.health.services.client.data.DataPoint createSample(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value value, java.time.Duration durationFromBoot);
+  }
+
+  @Keep public final class DataPoints {
+    method public static androidx.health.services.client.data.DataPoint aggregateCalories(double kcalories, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint aggregateDistance(double distance, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint aggregateSteps(long steps, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint aggregateSwimmingStrokes(long swimmingStrokes, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint altitude(double meters, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint averagePace(double millisPerKm, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint averageSpeed(double metersPerSecond, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint calories(double kcalories, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint distance(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint elevation(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint floors(double floors, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method @Keep public static java.util.List<androidx.health.services.client.data.DataPoint> getDataPoints(android.content.Intent intent);
+    method public static boolean getPermissionsGranted(android.content.Intent intent);
+    method public static androidx.health.services.client.data.DataPoint heartRate(double bpm, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint location(double latitude, double longitude, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint location(double latitude, double longitude, double altitude, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint maxSpeed(double metersPerSecond, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint pace(double millisPerKm, java.time.Duration durationFromBoot);
+    method public static void putDataPoints(android.content.Intent intent, java.util.Collection<androidx.health.services.client.data.DataPoint> dataPoints);
+    method public static void putPermissionsGranted(android.content.Intent intent, boolean granted);
+    method public static androidx.health.services.client.data.DataPoint speed(double metersPerSecond, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint spo2(double percent, java.time.Duration durationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint steps(long steps, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint stepsPerMinute(long stepsPerMinute, java.time.Duration startDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint swimmingStrokes(long strokes, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    field public static final androidx.health.services.client.data.DataPoints INSTANCE;
+    field public static final int LOCATION_DATA_POINT_ALTITUDE_INDEX = 2; // 0x2
+    field public static final int LOCATION_DATA_POINT_LATITUDE_INDEX = 0; // 0x0
+    field public static final int LOCATION_DATA_POINT_LONGITUDE_INDEX = 1; // 0x1
+  }
+
+  public final class DataType implements android.os.Parcelable {
+    ctor public DataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, int format);
+    method public String component1();
+    method public androidx.health.services.client.data.DataType.TimeType component2();
+    method public int component3();
+    method public androidx.health.services.client.data.DataType copy(String name, androidx.health.services.client.data.DataType.TimeType timeType, int format);
+    method public int describeContents();
+    method public int getFormat();
+    method public String getName();
+    method public androidx.health.services.client.data.DataType.TimeType getTimeType();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final int format;
+    property public final String name;
+    property public final androidx.health.services.client.data.DataType.TimeType timeType;
+    field public static final androidx.health.services.client.data.DataType ABSOLUTE_ELEVATION;
+    field public static final androidx.health.services.client.data.DataType ACTIVE_EXERCISE_DURATION;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_CALORIES_EXPENDED;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_DECLINE_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_DECLINE_TIME;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_ELEVATION;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_FLAT_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_FLAT_TIME;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_FLOORS;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_INCLINE_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_INCLINE_TIME;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_RUNNING_STEP_COUNT;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_STEP_COUNT;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_SWIMMING_STROKE_COUNT;
+    field public static final androidx.health.services.client.data.DataType AGGREGATE_WALKING_STEP_COUNT;
+    field public static final androidx.health.services.client.data.DataType ALTITUDE;
+    field public static final androidx.health.services.client.data.DataType AVERAGE_HEART_RATE_BPM;
+    field public static final androidx.health.services.client.data.DataType AVERAGE_PACE;
+    field public static final androidx.health.services.client.data.DataType AVERAGE_SPEED;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.DataType> CREATOR;
+    field public static final androidx.health.services.client.data.DataType.Companion Companion;
+    field public static final androidx.health.services.client.data.DataType DECLINE_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType DECLINE_TIME;
+    field public static final androidx.health.services.client.data.DataType DISTANCE;
+    field public static final androidx.health.services.client.data.DataType ELEVATION;
+    field public static final androidx.health.services.client.data.DataType FLAT_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType FLAT_TIME;
+    field public static final androidx.health.services.client.data.DataType FLOORS;
+    field public static final androidx.health.services.client.data.DataType HEART_RATE_BPM;
+    field public static final androidx.health.services.client.data.DataType INCLINE_DISTANCE;
+    field public static final androidx.health.services.client.data.DataType INCLINE_TIME;
+    field public static final androidx.health.services.client.data.DataType LOCATION;
+    field public static final androidx.health.services.client.data.DataType MAX_ALTITUDE;
+    field public static final androidx.health.services.client.data.DataType MAX_HEART_RATE_BPM;
+    field public static final androidx.health.services.client.data.DataType MAX_PACE;
+    field public static final androidx.health.services.client.data.DataType MAX_SPEED;
+    field public static final androidx.health.services.client.data.DataType MIN_ALTITUDE;
+    field public static final androidx.health.services.client.data.DataType PACE;
+    field public static final androidx.health.services.client.data.DataType REP_COUNT;
+    field public static final androidx.health.services.client.data.DataType RESTING_EXERCISE_DURATION;
+    field public static final androidx.health.services.client.data.DataType RUNNING_STEPS;
+    field public static final androidx.health.services.client.data.DataType SPEED;
+    field public static final androidx.health.services.client.data.DataType SPO2;
+    field public static final androidx.health.services.client.data.DataType STEPS;
+    field public static final androidx.health.services.client.data.DataType STEPS_PER_MINUTE;
+    field public static final androidx.health.services.client.data.DataType SWIMMING_LAP_COUNT;
+    field public static final androidx.health.services.client.data.DataType SWIMMING_STROKES;
+    field public static final androidx.health.services.client.data.DataType TOTAL_CALORIES;
+    field public static final androidx.health.services.client.data.DataType VO2;
+    field public static final androidx.health.services.client.data.DataType VO2_MAX;
+    field public static final androidx.health.services.client.data.DataType WALKING_STEPS;
+  }
+
+  public static final class DataType.Companion {
+  }
+
+  public enum DataType.TimeType {
+    enum_constant public static final androidx.health.services.client.data.DataType.TimeType INTERVAL;
+    enum_constant public static final androidx.health.services.client.data.DataType.TimeType SAMPLE;
+  }
+
+  public final class DataTypeCondition implements android.os.Parcelable {
+    ctor public DataTypeCondition(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value threshold, androidx.health.services.client.data.ComparisonType comparisonType);
+    method public androidx.health.services.client.data.DataType component1();
+    method public androidx.health.services.client.data.Value component2();
+    method public androidx.health.services.client.data.ComparisonType component3();
+    method public androidx.health.services.client.data.DataTypeCondition copy(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.data.Value threshold, androidx.health.services.client.data.ComparisonType comparisonType);
+    method public int describeContents();
+    method public androidx.health.services.client.data.ComparisonType getComparisonType();
+    method public androidx.health.services.client.data.DataType getDataType();
+    method public androidx.health.services.client.data.Value getThreshold();
+    method public boolean isSatisfied(androidx.health.services.client.data.DataPoint dataPoint);
+    method public boolean isThresholdSatisfied(androidx.health.services.client.data.Value value);
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.ComparisonType comparisonType;
+    property public final androidx.health.services.client.data.DataType dataType;
+    property public final androidx.health.services.client.data.Value threshold;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.DataTypeCondition> CREATOR;
+    field public static final androidx.health.services.client.data.DataTypeCondition.Companion Companion;
+  }
+
+  public static final class DataTypeCondition.Companion {
+  }
+
+  public final class DataTypes {
+    method public static androidx.health.services.client.data.DataType? getAggregateTypeFromRawType(androidx.health.services.client.data.DataType rawType);
+    method public static java.util.Set<androidx.health.services.client.data.DataType> getAggregatedDataTypesFromRawType(androidx.health.services.client.data.DataType rawType);
+    method public static androidx.health.services.client.data.DataType? getAverageTypeFromRawType(androidx.health.services.client.data.DataType rawType);
+    method public static androidx.health.services.client.data.DataType? getMaxTypeFromRawType(androidx.health.services.client.data.DataType rawType);
+    method public static androidx.health.services.client.data.DataType? getRawTypeFromAggregateType(androidx.health.services.client.data.DataType aggregateType);
+    method public static androidx.health.services.client.data.DataType? getRawTypeFromAverageType(androidx.health.services.client.data.DataType averageType);
+    method public static androidx.health.services.client.data.DataType? getRawTypeFromMaxType(androidx.health.services.client.data.DataType maxType);
+    method public static boolean isAggregateDataType(androidx.health.services.client.data.DataType dataType);
+    method public static boolean isRawType(androidx.health.services.client.data.DataType dataType);
+    method public static boolean isStatisticalAverageDataType(androidx.health.services.client.data.DataType dataType);
+    method public static boolean isStatisticalMaxDataType(androidx.health.services.client.data.DataType dataType);
+    field public static final androidx.health.services.client.data.DataTypes INSTANCE;
+  }
+
+  public final class ExerciseCapabilities implements android.os.Parcelable {
+    ctor public ExerciseCapabilities(java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities);
+    method public java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> component1();
+    method public androidx.health.services.client.data.ExerciseCapabilities copy(java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities);
+    method public int describeContents();
+    method public java.util.Set<androidx.health.services.client.data.ExerciseType> getAutoPauseAndResumeEnabledExercises();
+    method public androidx.health.services.client.data.ExerciseTypeCapabilities getExerciseTypeCapabilities(androidx.health.services.client.data.ExerciseType exercise);
+    method public java.util.Set<androidx.health.services.client.data.ExerciseType> getSupportedExerciseTypes();
+    method public java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> getTypeToCapabilities();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.util.Set<androidx.health.services.client.data.ExerciseType> autoPauseAndResumeEnabledExercises;
+    property public final java.util.Set<androidx.health.services.client.data.ExerciseType> supportedExerciseTypes;
+    property public final java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseCapabilities> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseCapabilities.Companion Companion;
+  }
+
+  public static final class ExerciseCapabilities.Companion {
+  }
+
+  public final class ExerciseConfig implements android.os.Parcelable {
+    ctor protected ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<androidx.health.services.client.data.DataType> dataTypes, boolean autoPauseAndResume, java.util.List<androidx.health.services.client.data.ExerciseGoal> exerciseGoals, android.os.Bundle exerciseParams);
+    method public static androidx.health.services.client.data.ExerciseConfig.Builder builder();
+    method public androidx.health.services.client.data.ExerciseType component1();
+    method public java.util.Set<androidx.health.services.client.data.DataType> component2();
+    method public boolean component3();
+    method public java.util.List<androidx.health.services.client.data.ExerciseGoal> component4();
+    method public android.os.Bundle component5();
+    method public androidx.health.services.client.data.ExerciseConfig copy(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<androidx.health.services.client.data.DataType> dataTypes, boolean autoPauseAndResume, java.util.List<androidx.health.services.client.data.ExerciseGoal> exerciseGoals, android.os.Bundle exerciseParams);
+    method public int describeContents();
+    method public boolean getAutoPauseAndResume();
+    method public java.util.Set<androidx.health.services.client.data.DataType> getDataTypes();
+    method public java.util.List<androidx.health.services.client.data.ExerciseGoal> getExerciseGoals();
+    method public android.os.Bundle getExerciseParams();
+    method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final boolean autoPauseAndResume;
+    property public final java.util.Set<androidx.health.services.client.data.DataType> dataTypes;
+    property public final java.util.List<androidx.health.services.client.data.ExerciseGoal> exerciseGoals;
+    property public final android.os.Bundle exerciseParams;
+    property public final androidx.health.services.client.data.ExerciseType exerciseType;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseConfig> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseConfig.Companion Companion;
+  }
+
+  public static final class ExerciseConfig.Builder {
+    ctor public ExerciseConfig.Builder();
+    method public androidx.health.services.client.data.ExerciseConfig build();
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setAutoPauseAndResume(boolean autoPauseAndResume);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setDataTypes(java.util.Set<androidx.health.services.client.data.DataType> dataTypes);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseGoals(java.util.List<androidx.health.services.client.data.ExerciseGoal> exerciseGoals);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseType(androidx.health.services.client.data.ExerciseType exerciseType);
+  }
+
+  public static final class ExerciseConfig.Companion {
+    method public androidx.health.services.client.data.ExerciseConfig.Builder builder();
+  }
+
+  public final class ExerciseGoal implements android.os.Parcelable {
+    ctor protected ExerciseGoal(androidx.health.services.client.data.ExerciseGoalType exerciseGoalType, androidx.health.services.client.data.DataTypeCondition dataTypeCondition, optional androidx.health.services.client.data.Value? period);
+    method public androidx.health.services.client.data.ExerciseGoalType component1();
+    method public androidx.health.services.client.data.DataTypeCondition component2();
+    method public androidx.health.services.client.data.Value? component3();
+    method public androidx.health.services.client.data.ExerciseGoal copy(androidx.health.services.client.data.ExerciseGoalType exerciseGoalType, androidx.health.services.client.data.DataTypeCondition dataTypeCondition, androidx.health.services.client.data.Value? period);
+    method public static androidx.health.services.client.data.ExerciseGoal createMilestone(androidx.health.services.client.data.DataTypeCondition condition, androidx.health.services.client.data.Value period);
+    method public static androidx.health.services.client.data.ExerciseGoal createMilestoneGoalWithUpdatedThreshold(androidx.health.services.client.data.ExerciseGoal goal, androidx.health.services.client.data.Value newThreshold);
+    method public static androidx.health.services.client.data.ExerciseGoal createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition condition);
+    method public int describeContents();
+    method public androidx.health.services.client.data.DataTypeCondition getDataTypeCondition();
+    method public androidx.health.services.client.data.ExerciseGoalType getExerciseGoalType();
+    method public androidx.health.services.client.data.Value? getPeriod();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.DataTypeCondition dataTypeCondition;
+    property public final androidx.health.services.client.data.ExerciseGoalType exerciseGoalType;
+    property public final androidx.health.services.client.data.Value? period;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseGoal> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseGoal.Companion Companion;
+  }
+
+  public static final class ExerciseGoal.Companion {
+    method public androidx.health.services.client.data.ExerciseGoal createMilestone(androidx.health.services.client.data.DataTypeCondition condition, androidx.health.services.client.data.Value period);
+    method public androidx.health.services.client.data.ExerciseGoal createMilestoneGoalWithUpdatedThreshold(androidx.health.services.client.data.ExerciseGoal goal, androidx.health.services.client.data.Value newThreshold);
+    method public androidx.health.services.client.data.ExerciseGoal createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition condition);
+  }
+
+  public enum ExerciseGoalType {
+    method public static final androidx.health.services.client.data.ExerciseGoalType? fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.ExerciseGoalType MILESTONE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseGoalType ONE_TIME_GOAL;
+    field public static final androidx.health.services.client.data.ExerciseGoalType.Companion Companion;
+  }
+
+  public static final class ExerciseGoalType.Companion {
+    method public androidx.health.services.client.data.ExerciseGoalType? fromId(int id);
+  }
+
+  public final class ExerciseInfo implements android.os.Parcelable {
+    ctor public ExerciseInfo(androidx.health.services.client.data.ExerciseTrackedStatus exerciseTrackedStatus, androidx.health.services.client.data.ExerciseType exerciseType);
+    method public androidx.health.services.client.data.ExerciseTrackedStatus component1();
+    method public androidx.health.services.client.data.ExerciseType component2();
+    method public androidx.health.services.client.data.ExerciseInfo copy(androidx.health.services.client.data.ExerciseTrackedStatus exerciseTrackedStatus, androidx.health.services.client.data.ExerciseType exerciseType);
+    method public int describeContents();
+    method public androidx.health.services.client.data.ExerciseTrackedStatus getExerciseTrackedStatus();
+    method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.ExerciseTrackedStatus exerciseTrackedStatus;
+    property public final androidx.health.services.client.data.ExerciseType exerciseType;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseInfo> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseInfo.Companion Companion;
+  }
+
+  public static final class ExerciseInfo.Companion {
+  }
+
+  public final class ExerciseLapSummary implements android.os.Parcelable {
+    ctor public ExerciseLapSummary(int lapCount, java.time.Instant startTime, java.time.Instant endTime, java.time.Duration activeDuration, java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> lapMetrics);
+    method public int component1();
+    method public java.time.Instant component2();
+    method public java.time.Instant component3();
+    method public java.time.Duration component4();
+    method public java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> component5();
+    method public androidx.health.services.client.data.ExerciseLapSummary copy(int lapCount, java.time.Instant startTime, java.time.Instant endTime, java.time.Duration activeDuration, java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> lapMetrics);
+    method public int describeContents();
+    method public java.time.Duration getActiveDuration();
+    method public java.time.Instant getEndTime();
+    method public int getLapCount();
+    method public java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> getLapMetrics();
+    method public java.time.Instant getStartTime();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.time.Duration activeDuration;
+    property public final java.time.Instant endTime;
+    property public final int lapCount;
+    property public final java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> lapMetrics;
+    property public final java.time.Instant startTime;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseLapSummary> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseLapSummary.Companion Companion;
+  }
+
+  public static final class ExerciseLapSummary.Companion {
+  }
+
+  public enum ExerciseState {
+    method public static final androidx.health.services.client.data.ExerciseState? fromId(int id);
+    method public final int getId();
+    method public final boolean isEnded();
+    method public final boolean isPaused();
+    method public final boolean isResuming();
+    property public final int id;
+    property public final boolean isEnded;
+    property public final boolean isPaused;
+    property public final boolean isResuming;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState ACTIVE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState AUTO_ENDED;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState AUTO_ENDING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState AUTO_PAUSED;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState AUTO_PAUSING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState AUTO_RESUMING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState TERMINATED;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState TERMINATING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState USER_ENDED;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState USER_ENDING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState USER_PAUSED;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState USER_PAUSING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState USER_RESUMING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseState USER_STARTING;
+    field public static final androidx.health.services.client.data.ExerciseState.Companion Companion;
+  }
+
+  public static final class ExerciseState.Companion {
+    method public androidx.health.services.client.data.ExerciseState? fromId(int id);
+  }
+
+  public enum ExerciseTrackedStatus {
+    method public static final androidx.health.services.client.data.ExerciseTrackedStatus? fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.ExerciseTrackedStatus NO_EXERCISE_IN_PROGRESS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseTrackedStatus OTHER_APP_IN_PROGRESS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseTrackedStatus OWNED_EXERCISE_IN_PROGRESS;
+    field public static final androidx.health.services.client.data.ExerciseTrackedStatus.Companion Companion;
+  }
+
+  public static final class ExerciseTrackedStatus.Companion {
+    method public androidx.health.services.client.data.ExerciseTrackedStatus? fromId(int id);
+  }
+
+  public enum ExerciseType {
+    method public static final androidx.health.services.client.data.ExerciseType fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BACK_EXTENSION;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BADMINTON;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BARBELL_SHOULDER_PRESS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BASEBALL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BASKETBALL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BENCH_PRESS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BENCH_SIT_UP;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BIKING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BIKING_STATIONARY;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BOOT_CAMP;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BOXING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType BURPEE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType CALISTHENICS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType CRICKET;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType CRUNCH;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DANCING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DEADLIFT;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_CURL_LEFT_ARM;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_CURL_RIGHT_ARM;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_FRONT_RAISE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_LATERAL_RAISE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType DUMBBELL_TRICEPS_EXTENSION_TWO_ARM;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ELLIPTICAL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType EXERCISE_CLASS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType FENCING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType FOOTBALL_AMERICAN;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType FOOTBALL_AUSTRALIAN;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType FRISBEE_DISC;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType GOLF;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType GUIDED_BREATHING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType GYNMASTICS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType HANDBALL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType HIGH_INTENSITY_INTERVAL_TRAINING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType HIKING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ICE_HOCKEY;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ICE_SKATING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType JUMPING_JACK;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType JUMP_ROPE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType LAT_PULL_DOWN;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType LUNGE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType MARTIAL_ARTS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType MEDITATION;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType PADDLING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType PARA_GLIDING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType PILATES;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType PLANK;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType RACQUETBALL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ROCK_CLIMBING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ROLLER_HOCKEY;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ROWING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType ROWING_MACHINE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType RUGBY;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType RUNNING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType RUNNING_TREADMILL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SAILING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SCUBA_DIVING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SKATING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SKIING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SNOWBOARDING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SNOWSHOEING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SOCCER;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SOFTBALL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SQUASH;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SQUAT;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType STAIR_CLIMBING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType STAIR_CLIMBING_MACHINE;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType STRENGTH_TRAINING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType STRETCHING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SURFING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SWIMMING_OPEN_WATER;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType SWIMMING_POOL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType TABLE_TENNIS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType TENNIS;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType UNKNOWN;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType VOLLEYBALL;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType WALKING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType WATER_POLO;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType WEIGHTLIFTING;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType WORKOUT_INDOOR;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType WORKOUT_OUTDOOR;
+    enum_constant public static final androidx.health.services.client.data.ExerciseType YOGA;
+    field public static final androidx.health.services.client.data.ExerciseType.Companion Companion;
+  }
+
+  public static final class ExerciseType.Companion {
+    method public androidx.health.services.client.data.ExerciseType fromId(int id);
+  }
+
+  public final class ExerciseTypeCapabilities implements android.os.Parcelable {
+    ctor public ExerciseTypeCapabilities(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypes, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.Set<? extends androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.Set<? extends androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume, boolean supportsLaps);
+    method public java.util.Set<androidx.health.services.client.data.DataType> component1();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.Set<androidx.health.services.client.data.ComparisonType>> component2();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.Set<androidx.health.services.client.data.ComparisonType>> component3();
+    method public boolean component4();
+    method public boolean component5();
+    method public androidx.health.services.client.data.ExerciseTypeCapabilities copy(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypes, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.Set<? extends androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.Set<? extends androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume, boolean supportsLaps);
+    method public int describeContents();
+    method public java.util.Set<androidx.health.services.client.data.DataType> getSupportedDataTypes();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedGoals();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedMilestones();
+    method public boolean getSupportsAutoPauseAndResume();
+    method public boolean getSupportsLaps();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypes;
+    property public final java.util.Map<androidx.health.services.client.data.DataType,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals;
+    property public final java.util.Map<androidx.health.services.client.data.DataType,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones;
+    property public final boolean supportsAutoPauseAndResume;
+    property public final boolean supportsLaps;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseTypeCapabilities> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseTypeCapabilities.Companion Companion;
+  }
+
+  public static final class ExerciseTypeCapabilities.Companion {
+  }
+
+  public final class ExerciseUpdate implements android.os.Parcelable {
+    ctor public ExerciseUpdate(androidx.health.services.client.data.ExerciseState state, java.time.Instant startTime, java.time.Duration activeDuration, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.List<androidx.health.services.client.data.DataPoint>> latestMetrics, java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> latestAchievedGoals, java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries, androidx.health.services.client.data.ExerciseConfig exerciseConfig);
+    method public androidx.health.services.client.data.ExerciseState component1();
+    method public java.time.Instant component2();
+    method public java.time.Duration component3();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> component4();
+    method public java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> component5();
+    method public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> component6();
+    method public androidx.health.services.client.data.ExerciseConfig component7();
+    method public androidx.health.services.client.data.ExerciseUpdate copy(androidx.health.services.client.data.ExerciseState state, java.time.Instant startTime, java.time.Duration activeDuration, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.List<androidx.health.services.client.data.DataPoint>> latestMetrics, java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> latestAchievedGoals, java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries, androidx.health.services.client.data.ExerciseConfig exerciseConfig);
+    method public int describeContents();
+    method public java.time.Duration getActiveDuration();
+    method public androidx.health.services.client.data.ExerciseConfig getExerciseConfig();
+    method public java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> getLatestAchievedGoals();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> getLatestMetrics();
+    method public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> getLatestMilestoneMarkerSummaries();
+    method public java.time.Instant getStartTime();
+    method public androidx.health.services.client.data.ExerciseState getState();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.time.Duration activeDuration;
+    property public final androidx.health.services.client.data.ExerciseConfig exerciseConfig;
+    property public final java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> latestAchievedGoals;
+    property public final java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> latestMetrics;
+    property public final java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries;
+    property public final java.time.Instant startTime;
+    property public final androidx.health.services.client.data.ExerciseState state;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseUpdate> CREATOR;
+    field public static final androidx.health.services.client.data.ExerciseUpdate.Companion Companion;
+  }
+
+  public static final class ExerciseUpdate.Companion {
+  }
+
+  public final class MeasureCapabilities implements android.os.Parcelable {
+    ctor public MeasureCapabilities(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesMeasure);
+    method public java.util.Set<androidx.health.services.client.data.DataType> component1();
+    method public androidx.health.services.client.data.MeasureCapabilities copy(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesMeasure);
+    method public int describeContents();
+    method public java.util.Set<androidx.health.services.client.data.DataType> getSupportedDataTypesMeasure();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesMeasure;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.MeasureCapabilities> CREATOR;
+    field public static final androidx.health.services.client.data.MeasureCapabilities.Companion Companion;
+  }
+
+  public static final class MeasureCapabilities.Companion {
+  }
+
+  public final class MilestoneMarkerSummary implements android.os.Parcelable {
+    ctor public MilestoneMarkerSummary(java.time.Instant startTime, java.time.Instant endTime, java.time.Duration activeDuration, androidx.health.services.client.data.AchievedExerciseGoal achievedGoal, java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> summaryMetrics);
+    method public java.time.Instant component1();
+    method public java.time.Instant component2();
+    method public java.time.Duration component3();
+    method public androidx.health.services.client.data.AchievedExerciseGoal component4();
+    method public java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> component5();
+    method public androidx.health.services.client.data.MilestoneMarkerSummary copy(java.time.Instant startTime, java.time.Instant endTime, java.time.Duration activeDuration, androidx.health.services.client.data.AchievedExerciseGoal achievedGoal, java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> summaryMetrics);
+    method public int describeContents();
+    method public androidx.health.services.client.data.AchievedExerciseGoal getAchievedGoal();
+    method public java.time.Duration getActiveDuration();
+    method public java.time.Instant getEndTime();
+    method public java.time.Instant getStartTime();
+    method public java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> getSummaryMetrics();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.AchievedExerciseGoal achievedGoal;
+    property public final java.time.Duration activeDuration;
+    property public final java.time.Instant endTime;
+    property public final java.time.Instant startTime;
+    property public final java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.DataPoint> summaryMetrics;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.MilestoneMarkerSummary> CREATOR;
+    field public static final androidx.health.services.client.data.MilestoneMarkerSummary.Companion Companion;
+  }
+
+  public static final class MilestoneMarkerSummary.Companion {
+  }
+
+  public final class PassiveMonitoringCapabilities implements android.os.Parcelable {
+    ctor public PassiveMonitoringCapabilities(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveMonitoring, java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesEvents);
+    method public java.util.Set<androidx.health.services.client.data.DataType> component1();
+    method public java.util.Set<androidx.health.services.client.data.DataType> component2();
+    method public androidx.health.services.client.data.PassiveMonitoringCapabilities copy(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveMonitoring, java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesEvents);
+    method public int describeContents();
+    method public java.util.Set<androidx.health.services.client.data.DataType> getSupportedDataTypesEvents();
+    method public java.util.Set<androidx.health.services.client.data.DataType> getSupportedDataTypesPassiveMonitoring();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesEvents;
+    property public final java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveMonitoring;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.PassiveMonitoringCapabilities> CREATOR;
+    field public static final androidx.health.services.client.data.PassiveMonitoringCapabilities.Companion Companion;
+  }
+
+  public static final class PassiveMonitoringCapabilities.Companion {
+  }
+
+  public final class PassiveMonitoringUpdate implements android.os.Parcelable {
+    ctor public PassiveMonitoringUpdate(java.util.List<androidx.health.services.client.data.DataPoint> dataPoints, java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates);
+    method public java.util.List<androidx.health.services.client.data.DataPoint> component1();
+    method public java.util.List<androidx.health.services.client.data.UserActivityInfo> component2();
+    method public androidx.health.services.client.data.PassiveMonitoringUpdate copy(java.util.List<androidx.health.services.client.data.DataPoint> dataPoints, java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates);
+    method public int describeContents();
+    method public static androidx.health.services.client.data.PassiveMonitoringUpdate? fromIntent(android.content.Intent intent);
+    method public java.util.List<androidx.health.services.client.data.DataPoint> getDataPoints();
+    method public java.util.List<androidx.health.services.client.data.UserActivityInfo> getUserActivityInfoUpdates();
+    method public void putToIntent(android.content.Intent intent);
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.util.List<androidx.health.services.client.data.DataPoint> dataPoints;
+    property public final java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.PassiveMonitoringUpdate> CREATOR;
+    field public static final androidx.health.services.client.data.PassiveMonitoringUpdate.Companion Companion;
+  }
+
+  public static final class PassiveMonitoringUpdate.Companion {
+    method public androidx.health.services.client.data.PassiveMonitoringUpdate? fromIntent(android.content.Intent intent);
+  }
+
+  public final class UserActivityInfo implements android.os.Parcelable {
+    ctor public UserActivityInfo(androidx.health.services.client.data.UserActivityState userActivityState, androidx.health.services.client.data.ExerciseType? exerciseType, java.time.Instant stateChangeTime);
+    method public androidx.health.services.client.data.UserActivityState component1();
+    method public androidx.health.services.client.data.ExerciseType? component2();
+    method public java.time.Instant component3();
+    method public androidx.health.services.client.data.UserActivityInfo copy(androidx.health.services.client.data.UserActivityState userActivityState, androidx.health.services.client.data.ExerciseType? exerciseType, java.time.Instant stateChangeTime);
+    method public static androidx.health.services.client.data.UserActivityInfo createActiveExerciseState(androidx.health.services.client.data.ExerciseType exerciseType, java.time.Instant stateChangeTime);
+    method public static androidx.health.services.client.data.UserActivityInfo createAsleepState(java.time.Instant stateChangeTime);
+    method public static androidx.health.services.client.data.UserActivityInfo createInactiveState(java.time.Instant stateChangeTime);
+    method public static androidx.health.services.client.data.UserActivityInfo createPassiveActivityState(java.time.Instant stateChangeTime);
+    method public static androidx.health.services.client.data.UserActivityInfo createUnknownTypeState(java.time.Instant stateChangeTime);
+    method public int describeContents();
+    method public androidx.health.services.client.data.ExerciseType? getExerciseType();
+    method public java.time.Instant getStateChangeTime();
+    method public androidx.health.services.client.data.UserActivityState getUserActivityState();
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.ExerciseType? exerciseType;
+    property public final java.time.Instant stateChangeTime;
+    property public final androidx.health.services.client.data.UserActivityState userActivityState;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.UserActivityInfo> CREATOR;
+    field public static final androidx.health.services.client.data.UserActivityInfo.Companion Companion;
+  }
+
+  public static final class UserActivityInfo.Companion {
+    method public androidx.health.services.client.data.UserActivityInfo createActiveExerciseState(androidx.health.services.client.data.ExerciseType exerciseType, java.time.Instant stateChangeTime);
+    method public androidx.health.services.client.data.UserActivityInfo createAsleepState(java.time.Instant stateChangeTime);
+    method public androidx.health.services.client.data.UserActivityInfo createInactiveState(java.time.Instant stateChangeTime);
+    method public androidx.health.services.client.data.UserActivityInfo createPassiveActivityState(java.time.Instant stateChangeTime);
+    method public androidx.health.services.client.data.UserActivityInfo createUnknownTypeState(java.time.Instant stateChangeTime);
+  }
+
+  public enum UserActivityState {
+    method public static final androidx.health.services.client.data.UserActivityState? fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_ASLEEP;
+    enum_constant public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_EXERCISE;
+    enum_constant public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_INACTIVE;
+    enum_constant public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_PASSIVE;
+    enum_constant public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_UNKNOWN;
+    field public static final androidx.health.services.client.data.UserActivityState.Companion Companion;
+  }
+
+  public static final class UserActivityState.Companion {
+    method public androidx.health.services.client.data.UserActivityState? fromId(int id);
+  }
+
+  public final class Value implements android.os.Parcelable {
+    method public boolean asBoolean();
+    method public double asDouble();
+    method public double[] asDoubleArray();
+    method public long asLong();
+    method public int component1();
+    method public java.util.List<java.lang.Double> component2();
+    method public long component3();
+    method public androidx.health.services.client.data.Value copy(int format, java.util.List<java.lang.Double> doubleList, long longValue);
+    method public int describeContents();
+    method public java.util.List<java.lang.Double> getDoubleList();
+    method public int getFormat();
+    method public long getLongValue();
+    method public boolean isBoolean();
+    method public boolean isDouble();
+    method public boolean isDoubleArray();
+    method public boolean isLong();
+    method public static androidx.health.services.client.data.Value ofBoolean(boolean value);
+    method public static androidx.health.services.client.data.Value ofDouble(double value);
+    method public static androidx.health.services.client.data.Value ofDoubleArray(double... doubleArray);
+    method public static androidx.health.services.client.data.Value ofLong(long value);
+    method public static androidx.health.services.client.data.Value sum(androidx.health.services.client.data.Value first, androidx.health.services.client.data.Value second);
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final java.util.List<java.lang.Double> doubleList;
+    property public final int format;
+    property public final boolean isBoolean;
+    property public final boolean isDouble;
+    property public final boolean isDoubleArray;
+    property public final boolean isLong;
+    property public final long longValue;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.Value> CREATOR;
+    field public static final androidx.health.services.client.data.Value.Companion Companion;
+    field public static final int FORMAT_BOOLEAN = 4; // 0x4
+    field public static final int FORMAT_DOUBLE = 1; // 0x1
+    field public static final int FORMAT_DOUBLE_ARRAY = 3; // 0x3
+    field public static final int FORMAT_LONG = 2; // 0x2
+  }
+
+  public static final class Value.Companion {
+    method public androidx.health.services.client.data.Value ofBoolean(boolean value);
+    method public androidx.health.services.client.data.Value ofDouble(double value);
+    method public androidx.health.services.client.data.Value ofDoubleArray(double... doubleArray);
+    method public androidx.health.services.client.data.Value ofLong(long value);
+    method public androidx.health.services.client.data.Value sum(androidx.health.services.client.data.Value first, androidx.health.services.client.data.Value second);
+  }
+
+}
+
+package androidx.health.services.client.data.event {
+
+  public final class Event implements android.os.Parcelable {
+    ctor public Event(androidx.health.services.client.data.DataTypeCondition dataTypeCondition, androidx.health.services.client.data.event.Event.TriggerType triggerType);
+    method public androidx.health.services.client.data.DataTypeCondition component1();
+    method public androidx.health.services.client.data.event.Event.TriggerType component2();
+    method public androidx.health.services.client.data.event.Event copy(androidx.health.services.client.data.DataTypeCondition dataTypeCondition, androidx.health.services.client.data.event.Event.TriggerType triggerType);
+    method public int describeContents();
+    method public androidx.health.services.client.data.DataTypeCondition getDataTypeCondition();
+    method public androidx.health.services.client.data.event.Event.TriggerType getTriggerType();
+    method public boolean isTriggered(androidx.health.services.client.data.DataPoint dataPoint);
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final androidx.health.services.client.data.DataTypeCondition dataTypeCondition;
+    property public final androidx.health.services.client.data.event.Event.TriggerType triggerType;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.event.Event> CREATOR;
+    field public static final androidx.health.services.client.data.event.Event.Companion Companion;
+  }
+
+  public static final class Event.Companion {
+  }
+
+  public enum Event.TriggerType {
+    method public static final androidx.health.services.client.data.event.Event.TriggerType? fromId(int id);
+    method public final int getId();
+    property public final int id;
+    enum_constant public static final androidx.health.services.client.data.event.Event.TriggerType ONCE;
+    enum_constant public static final androidx.health.services.client.data.event.Event.TriggerType REPEATED;
+    field public static final androidx.health.services.client.data.event.Event.TriggerType.Companion Companion;
+  }
+
+  public static final class Event.TriggerType.Companion {
+    method public androidx.health.services.client.data.event.Event.TriggerType? fromId(int id);
+  }
+
+}
+

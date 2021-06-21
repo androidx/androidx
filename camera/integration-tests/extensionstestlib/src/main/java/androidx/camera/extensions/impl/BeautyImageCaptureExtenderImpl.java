@@ -26,6 +26,7 @@ import android.media.ImageWriter;
 import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -156,6 +157,12 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
 
     @Override
     public CaptureStageImpl onPresetSession() {
+        // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
+        // (CaptureRequest) which only supported from API level 28.
+        if (Build.VERSION.SDK_INT < 28) {
+            return null;
+        }
+
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
@@ -213,5 +220,11 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         }
 
         return formatResolutionsPairList;
+    }
+
+    @Nullable
+    @Override
+    public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
+        return new Range<>(300L, 1000L);
     }
 }

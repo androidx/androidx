@@ -37,11 +37,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link RoundedDrawable} */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
 public class RoundedDrawableTest {
 

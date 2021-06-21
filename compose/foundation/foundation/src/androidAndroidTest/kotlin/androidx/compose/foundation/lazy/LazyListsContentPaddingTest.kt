@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -56,11 +57,13 @@ class LazyListsContentPaddingTest {
     val rule = createComposeRule()
 
     private var itemSize: Dp = Dp.Infinity
+    private var smallPaddingSize: Dp = Dp.Infinity
 
     @Before
     fun before() {
         with(rule.density) {
             itemSize = 50.toDp()
+            smallPaddingSize = 12.toDp()
         }
     }
 
@@ -68,7 +71,6 @@ class LazyListsContentPaddingTest {
     fun column_contentPaddingIsApplied() {
         lateinit var state: LazyListState
         val containerSize = itemSize * 2
-        val smallPaddingSize = itemSize / 4
         val largePaddingSize = itemSize
         rule.setContent {
             LazyColumn(
@@ -323,9 +325,30 @@ class LazyListsContentPaddingTest {
                         end = 6.dp,
                         bottom = 8.dp
                     )
+                ) { }
+            }
+        }
+
+        rule.onNodeWithTag(ContainerTag)
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+            .assertTopPositionInRootIsEqualTo(0.dp)
+            .assertWidthIsEqualTo(8.dp)
+            .assertHeightIsEqualTo(12.dp)
+    }
+
+    @Test
+    fun column_contentPaddingAndZeroSizedItem() {
+        rule.setContent {
+            Box(modifier = Modifier.testTag(ContainerTag)) {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        start = 2.dp,
+                        top = 4.dp,
+                        end = 6.dp,
+                        bottom = 8.dp
+                    )
                 ) {
-                    items(listOf(0)) {
-                    }
+                    items(0) { }
                 }
             }
         }
@@ -338,10 +361,45 @@ class LazyListsContentPaddingTest {
     }
 
     @Test
+    fun column_contentPaddingAndReverseLayout() {
+        val topPadding = itemSize * 2
+        val bottomPadding = itemSize / 2
+        val listSize = itemSize * 3
+        lateinit var state: LazyListState
+        rule.setContentWithTestViewConfiguration {
+            LazyColumn(
+                reverseLayout = true,
+                state = rememberLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(listSize),
+                contentPadding = PaddingValues(top = topPadding, bottom = bottomPadding),
+            ) {
+                items(3) { index ->
+                    Box(Modifier.requiredSize(itemSize).testTag("$index"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(listSize - bottomPadding - itemSize)
+        rule.onNodeWithTag("1")
+            .assertTopPositionInRootIsEqualTo(listSize - bottomPadding - itemSize * 2)
+        // Partially visible.
+        rule.onNodeWithTag("2")
+            .assertTopPositionInRootIsEqualTo(-itemSize / 2)
+
+        // Scroll to the top.
+        state.scrollBy(itemSize * 2.5f)
+
+        rule.onNodeWithTag("2").assertTopPositionInRootIsEqualTo(topPadding)
+        // Shouldn't be visible
+        rule.onNodeWithTag("1").assertIsNotDisplayed()
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
+    }
+
+    @Test
     fun row_contentPaddingIsApplied() {
         lateinit var state: LazyListState
         val containerSize = itemSize * 2
-        val smallPaddingSize = itemSize / 4
         val largePaddingSize = itemSize
         rule.setContent {
             LazyRow(
@@ -599,8 +657,30 @@ class LazyListsContentPaddingTest {
                         end = 6.dp,
                         bottom = 8.dp
                     )
+                ) { }
+            }
+        }
+
+        rule.onNodeWithTag(ContainerTag)
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+            .assertTopPositionInRootIsEqualTo(0.dp)
+            .assertWidthIsEqualTo(8.dp)
+            .assertHeightIsEqualTo(12.dp)
+    }
+
+    @Test
+    fun row_contentPaddingAndZeroSizedItem() {
+        rule.setContent {
+            Box(modifier = Modifier.testTag(ContainerTag)) {
+                LazyRow(
+                    contentPadding = PaddingValues(
+                        start = 2.dp,
+                        top = 4.dp,
+                        end = 6.dp,
+                        bottom = 8.dp
+                    )
                 ) {
-                    items(listOf(0)) {}
+                    items(0) {}
                 }
             }
         }
@@ -610,6 +690,42 @@ class LazyListsContentPaddingTest {
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertWidthIsEqualTo(8.dp)
             .assertHeightIsEqualTo(12.dp)
+    }
+
+    @Test
+    fun row_contentPaddingAndReverseLayout() {
+        val startPadding = itemSize * 2
+        val endPadding = itemSize / 2
+        val listSize = itemSize * 3
+        lateinit var state: LazyListState
+        rule.setContentWithTestViewConfiguration {
+            LazyRow(
+                reverseLayout = true,
+                state = rememberLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(listSize),
+                contentPadding = PaddingValues(start = startPadding, end = endPadding),
+            ) {
+                items(3) { index ->
+                    Box(Modifier.requiredSize(itemSize).testTag("$index"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertLeftPositionInRootIsEqualTo(listSize - endPadding - itemSize)
+        rule.onNodeWithTag("1")
+            .assertLeftPositionInRootIsEqualTo(listSize - endPadding - itemSize * 2)
+        // Partially visible.
+        rule.onNodeWithTag("2")
+            .assertLeftPositionInRootIsEqualTo(-itemSize / 2)
+
+        // Scroll to the top.
+        state.scrollBy(itemSize * 2.5f)
+
+        rule.onNodeWithTag("2").assertLeftPositionInRootIsEqualTo(startPadding)
+        // Shouldn't be visible
+        rule.onNodeWithTag("1").assertIsNotDisplayed()
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
     }
 
     private fun LazyListState.scrollBy(offset: Dp) {

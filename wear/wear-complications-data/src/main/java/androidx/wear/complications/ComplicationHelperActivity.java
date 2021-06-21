@@ -16,7 +16,6 @@
 
 package androidx.wear.complications;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -30,6 +29,7 @@ import android.support.wearable.complications.ComplicationProviderInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.wear.complications.data.ComplicationType;
@@ -54,13 +54,28 @@ import java.util.Objects;
  * <p>Or, to request the permission, for instance if {@link ComplicationData} of {@link
  * ComplicationData#TYPE_NO_PERMISSION TYPE_NO_PERMISSION} has been received and tapped on, use
  * {@link #createPermissionRequestHelperIntent}.
+ *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.N)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("ForbiddenSuperClass")
 public final class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+    /**
+     * Whether to invoke a specified activity instead of the system's provider chooser.
+     *
+     * To be used in tests.
+     */
+    public static boolean useTestComplicationProviderChooserActivity = false;
+
+    /**
+     * Whether to skip th permission check and directly attempt to invoke the provider chooser.
+     *
+     * To be used in tests.
+     */
+    public static boolean skipPermissionCheck = false;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -95,9 +110,14 @@ public final class ComplicationHelperActivity extends Activity
     private static final String COMPLICATIONS_PERMISSION_PRIVILEGED =
             "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED";
 
-    @Nullable private ComponentName mWatchFace;
+    @Nullable
+    private ComponentName mWatchFace;
     private int mWfComplicationId;
-    @Nullable @ComplicationData.ComplicationType private int[] mTypes;
+    @Nullable
+    private Bundle mAdditionalExtras;
+    @Nullable
+    @ComplicationData.ComplicationType
+    private int[] mTypes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,12 +135,13 @@ public final class ComplicationHelperActivity extends Activity
                 mWfComplicationId =
                         intent.getIntExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, 0);
                 mTypes = intent.getIntArrayExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES);
+                mAdditionalExtras = getAdditionalExtras(intent);
                 if (checkPermission()) {
                     startProviderChooser();
                 } else {
                     ActivityCompat.requestPermissions(
                             this,
-                            new String[] {COMPLICATIONS_PERMISSION},
+                            new String[]{COMPLICATIONS_PERMISSION},
                             PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER);
                 }
                 break;
@@ -133,7 +154,7 @@ public final class ComplicationHelperActivity extends Activity
                 } else {
                     ActivityCompat.requestPermissions(
                             this,
-                            new String[] {COMPLICATIONS_PERMISSION},
+                            new String[]{COMPLICATIONS_PERMISSION},
                             PERMISSION_REQUEST_CODE_REQUEST_ONLY);
                 }
                 break;
@@ -147,6 +168,7 @@ public final class ComplicationHelperActivity extends Activity
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length == 0) {
             // Request was cancelled.
+            finish();
             return;
         }
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -171,9 +193,10 @@ public final class ComplicationHelperActivity extends Activity
 
     private boolean checkPermission() {
         return ActivityCompat.checkSelfPermission(this, COMPLICATIONS_PERMISSION_PRIVILEGED)
-                        == PackageManager.PERMISSION_GRANTED
+                == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, COMPLICATIONS_PERMISSION)
-                        == PackageManager.PERMISSION_GRANTED;
+                == PackageManager.PERMISSION_GRANTED
+                || skipPermissionCheck;
     }
 
     /**
@@ -204,15 +227,18 @@ public final class ComplicationHelperActivity extends Activity
      *
      * <p>From android R onwards this API can only be called during an editing session.
      *
-     * @param context context for the current app, that must contain a ComplicationHelperActivity
-     * @param watchFace the ComponentName of the WatchFaceService being configured.
+     * @param context                 context for the current app, that must contain a
+     *                                ComplicationHelperActivity
+     * @param watchFace               the ComponentName of the WatchFaceService being configured.
      * @param watchFaceComplicationId the watch face's id for the complication being configured.
-     *     This must match the id passed in when the watch face calls
-     *     WatchFaceService.Engine#setActiveComplications.
-     * @param supportedTypes the types supported by the complication, in decreasing order of
-     *     preference. If a provider can supply data for more than one of these types, the type
-     *     chosen will be whichever was specified first.
-     * @param watchFaceInstanceId The ID of the watchface being edited.
+     *                                This must match the id passed in when the watch face calls
+     *                                WatchFaceService.Engine#setActiveComplications.
+     * @param supportedTypes          the types supported by the complication, in decreasing
+     *                                order of
+     *                                preference. If a provider can supply data for more than one
+     *                                of these types, the type
+     *                                chosen will be whichever was specified first.
+     * @param watchFaceInstanceId     The ID of the watchface being edited.
      */
     @NonNull
     public static Intent createProviderChooserHelperIntent(
@@ -231,7 +257,7 @@ public final class ComplicationHelperActivity extends Activity
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
         for (ComplicationType supportedType : supportedTypes) {
-            wireSupportedTypes[i++] = supportedType.asWireComplicationType();
+            wireSupportedTypes[i++] = supportedType.toWireComplicationType();
         }
         intent.putExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES, wireSupportedTypes);
         return intent;
@@ -253,7 +279,7 @@ public final class ComplicationHelperActivity extends Activity
      * watch face will be triggered. The provided {@code watchFace} must match the current watch
      * face for this to occur.
      *
-     * @param context context for the current app, that must contain a ComplicationHelperActivity
+     * @param context   context for the current app, that must contain a ComplicationHelperActivity
      * @param watchFace the ComponentName of the WatchFaceService for the current watch face
      */
     @NonNull
@@ -266,10 +292,22 @@ public final class ComplicationHelperActivity extends Activity
     }
 
     private void startProviderChooser() {
-        startActivityForResult(
+        Intent intent =
                 ProviderChooserIntent.createProviderChooserIntent(
-                        mWatchFace, mWfComplicationId, mTypes),
-                START_REQUEST_CODE_PROVIDER_CHOOSER);
+                        mWatchFace, mWfComplicationId, mTypes);
+        // Add the extras that were provided to the ComplicationHelperActivity. This is done by
+        // first taking the additional extras and adding to that anything that was set in the
+        // chooser intent, and setting them back on the intent itself to avoid the additional
+        // extras being able to override anything that was set by the chooser intent.
+        Bundle extras = new Bundle(mAdditionalExtras);
+        extras.putAll(intent.getExtras());
+        intent.replaceExtras(extras);
+        if (useTestComplicationProviderChooserActivity) {
+            intent.setComponent(new ComponentName(
+                    "androidx.wear.watchface.editor.test",
+                    "androidx.wear.watchface.editor.TestComplicationProviderChooserActivity"));
+        }
+        startActivityForResult(intent, START_REQUEST_CODE_PROVIDER_CHOOSER);
     }
 
     /** Requests that the system update all active complications on the watch face. */
@@ -282,5 +320,18 @@ public final class ComplicationHelperActivity extends Activity
                 ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
                 PendingIntent.getActivity(this, 0, new Intent(""), 0));
         sendBroadcast(intent);
+    }
+
+    /**
+     * Returns any extras that were not handled by the activity itself.
+     *
+     * <p>These will be forwarded to the chooser activity.
+     */
+    private Bundle getAdditionalExtras(Intent intent) {
+        Bundle extras = intent.getExtras();
+        extras.remove(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+        extras.remove(ProviderChooserIntent.EXTRA_COMPLICATION_ID);
+        extras.remove(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES);
+        return extras;
     }
 }

@@ -72,6 +72,7 @@ import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -189,6 +190,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
     }
 
+    @Ignore
     @Test
     @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsChanged() throws InterruptedException {

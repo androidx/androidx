@@ -30,8 +30,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import org.jetbrains.skija.Data
-import org.jetbrains.skija.Point
-import org.jetbrains.skija.svg.DOM
+import org.jetbrains.skija.Rect
+import org.jetbrains.skija.svg.SVGDOM
+import org.jetbrains.skija.svg.SVGLength
+import org.jetbrains.skija.svg.SVGLengthUnit
+import org.jetbrains.skija.svg.SVGPreserveAspectRatio
+import org.jetbrains.skija.svg.SVGPreserveAspectRatioAlign
 import java.io.InputStream
 import kotlin.math.ceil
 
@@ -62,19 +66,28 @@ fun svgResource(resourcePath: String): Painter {
  */
 fun loadSvgResource(inputStream: InputStream, density: Density): Painter {
     val data = Data.makeFromBytes(inputStream.readAllBytes())
-    return SVGPainter(DOM(data), density)
+    return SVGPainter(SVGDOM(data), density)
 }
 
 private class SVGPainter(
-    private val dom: DOM,
+    private val dom: SVGDOM,
     private val density: Density
 ) : Painter() {
+    private val root = dom.root
+
     private val defaultSizePx: Size = run {
-        val containerSize = dom.containerSize
-        if (containerSize.x == 0f && containerSize.y == 0f) {
+        val width = root?.width?.withUnit(SVGLengthUnit.PX)?.value ?: 0f
+        val height = root?.height?.withUnit(SVGLengthUnit.PX)?.value ?: 0f
+        if (width == 0f && height == 0f) {
             Size.Unspecified
         } else {
-            Size(containerSize.x, containerSize.y)
+            Size(width, height)
+        }
+    }
+
+    init {
+        if (root?.viewBox == null && defaultSizePx.isSpecified) {
+            root?.setViewBox(Rect.makeXYWH(0f, 0f, defaultSizePx.width, defaultSizePx.height))
         }
     }
 
@@ -118,9 +131,11 @@ private class SVGPainter(
     }
 
     private fun DrawScope.drawSvg(size: Size) {
-        drawIntoCanvas {
-            dom.containerSize = Point(size.width, size.height)
-            dom.render(it.nativeCanvas)
+        drawIntoCanvas { canvas ->
+            root?.width = SVGLength(size.width, SVGLengthUnit.PX)
+            root?.height = SVGLength(size.height, SVGLengthUnit.PX)
+            root?.preserveAspectRatio = SVGPreserveAspectRatio(SVGPreserveAspectRatioAlign.NONE)
+            dom.render(canvas.nativeCanvas)
         }
     }
 }

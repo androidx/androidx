@@ -1049,4 +1049,66 @@ class NavDeepLinkTest {
             .that(matchArgs?.getInt("id"))
             .isEqualTo(id)
     }
+
+    @Test
+    fun deepLinkCaseInsensitiveDomainWithPath() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val id = 2
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("${DEEP_LINK_EXACT_HTTPS.uppercase()}/users/$id/posts"),
+            mapOf("id" to intArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(id)
+    }
+
+    @Test
+    fun deepLinkCaseInsensitivePath() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val id = 2
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(
+                deepLinkArgument
+                    .replace("{id}", id.toString())
+                    .replace("users", "Users")
+            ),
+            mapOf("id" to intArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(id)
+    }
+
+    @Test
+    fun deepLinkCaseSensitiveQueryParams() {
+        val deepLinkString = "$DEEP_LINK_EXACT_HTTP/?myParam={param}"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        val param = 2
+        val deepLinkUpper = deepLinkString
+            .replace("myParam", "MYPARAM")
+            .replace("{param}", param.toString())
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkUpper),
+            mapOf("param" to intArgument())
+        )
+
+        assertWithMessage("Args should be not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args bundle should be empty")
+            .that(matchArgs?.isEmpty)
+            .isTrue()
+    }
 }

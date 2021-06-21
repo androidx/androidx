@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -26,18 +24,18 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.0.0")
-    implementation("androidx.core:core:1.5.0-alpha01")
+    implementation("androidx.core:core:1.5.0-rc02")
     implementation("androidx.test.screenshot:screenshot-proto:1.0.0-alpha01")
 
-    implementation(KOTLIN_STDLIB)
-    implementation(JUNIT)
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(ANDROIDX_TEST_RUNNER)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.junit)
+    implementation(libs.testRules)
+    implementation(libs.testRunner)
 
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {

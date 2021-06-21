@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string name="drawer_layout_activity">Drawer layout</string>
+    <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The drawer may be pulled out from the starting edge, which is left on left-to-right locales, with an edge swipe. You can tap the hamburger (three horizontal lines) icon at the starting side of the action bar to open the drawer as well.</string>
+    <string name="drawer_title">Navigation</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="popup_activity">Popup activity</string>
+    <string name="popup_show">Show popup</string>
+    <string name="popup_menu_highlight">Highlight</string>
+    <string name="popup_menu_highlight_description">Highlight description</string>
+    <string name="popup_menu_highlight_tooltip">Highlight tooltip</string>
+    <string name="popup_menu_edit">Edit</string>
+    <string name="popup_menu_edit_description">Edit description</string>
+    <string name="popup_menu_edit_tooltip">Edit tooltip</string>
+    <string name="popup_menu_delete">Delete</string>
+    <string name="popup_menu_ignore">Ignore</string>
+    <string name="popup_menu_share">Share</string>
+    <string name="popup_menu_share_email">Via email</string>
+    <string name="popup_menu_share_circles">To my circles</string>
+    <string name="popup_menu_print">Print</string>
+
+    <string name="alert_dialog_activity">Alert dialog</string>
+    <string name="alert_dialog_show">Show alert dialog</string>
+    <string name="alert_dialog_title">Dialog title</string>
+    <string name="alert_dialog_content">Dialog content</string>
+    <string-array name="alert_dialog_items">
+        <item>Albania</item>
+        <item>Belize</item>
+        <item>Chad</item>
+        <item>Djibouti</item>
+    </string-array>
+    <string name="alert_dialog_positive_button">Forward</string>
+    <string name="alert_dialog_negative_button">Backward</string>
+    <string name="alert_dialog_neutral_button">Stall</string>
+    <string name="alert_dialog_custom_title">Dialog custom title</string>
+    <string name="alert_dialog_custom_text1">Dialog custom text</string>
+    <string name="alert_dialog_custom_text2">Dialog more custom text</string>
+
+    <string name="app_compat_spinner_activity">AppCompat spinner</string>
+    <string name="app_compat_auto_complete_text_view_activity">
+        AppCompat auto-complete text view
+    </string>
+    <string name="app_compat_text_view_activity">AppCompat text view</string>
+    <string name="app_compat_text_view_auto_size_activity">AppCompat text view auto-size</string>
+    <string name="app_compat_text_view_emoji_activity">AppCompat text view emoji</string>
+    <string name="app_compat_edit_text_activity">AppCompat edit text</string>
+    <string name="app_compat_edit_text_receive_content_activity">
+        AppCompat edit text receive content activity
+    </string>
+    <string name="app_compat_button_auto_size_activity">AppCompat button auto-size</string>
+    <string name="sample_text1">Sample text 1</string>
+    <string name="sample_text2">Sample text 2</string>
+    <string name="app_compat_image_button_activity">AppCompat image button</string>
+    <string name="app_compat_image_view_activity">AppCompat image view</string>
+    <string name="app_compat_button_activity">AppCompat button</string>
+    <string name="app_compat_checkbox_activity">AppCompat checkbox</string>
+    <string name="app_compat_checkedtextview_activity">AppCompat checked text view</string>
+    <string name="app_compat_radio_button_activity">AppCompat radio button</string>
+    <string name="app_compat_toggle_button_activity">AppCompat toggle button</string>
+    <string name="app_compat_icons_activity">AppCompat icons</string>
+    <string name="switch_compat_activity">Switch compat</string>
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+        <item>Pluto</item>
+    </string-array>
+    <string-array name="numbers_array">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+        <item>32</item>
+        <item>33</item>
+        <item>34</item>
+        <item>35</item>
+        <item>36</item>
+        <item>37</item>
+        <item>38</item>
+        <item>39</item>
+    </string-array>
+    <string-array name="numbers_array_small">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string name="night_mode">DAY</string>
+
+    <string name="search_menu_description">Search description</string>
+    <string name="search_menu_tooltip">Search tooltip</string>
+    <string name="search_query_hint">query hint</string>
+    <string name="search_view_activity">SearchView activity</string>
+
+    <string name="alpha_menu_title">Alpha</string>
+    <string name="alpha_menu_description">Alpha description</string>
+    <string name="alpha_menu_tooltip">Alpha tooltip</string>
+
+    <string name="text_link_enabled">With <a href="http://www.google.com">link</a> enabled</string>
+    <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
+    <string name="text_hint_enabled">Enabled hint</string>
+    <string name="text_hint_disabled">Disabled hint</string>
+
+    <string name="menu1">menu one</string>
+    <string name="menu2">menu two</string>
+    <string name="menu3">menu three</string>
+    <string name="menu4">menu four</string>
+    <string name="menu5">menu five</string>
+    <string name="menu6">menu six</string>
+
+    <string name="font_sans_serif">sans-serif</string>
+    <string name="font_serif">serif</string>
+
+    <string name="toolbar_collapse">Toolbar collapse</string>
+</resources>

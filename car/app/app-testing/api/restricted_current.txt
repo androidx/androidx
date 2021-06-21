@@ -40,9 +40,15 @@ package androidx.car.app.testing {
   public class TestCarContext extends androidx.car.app.CarContext {
     method public static androidx.car.app.testing.TestCarContext createCarContext(android.content.Context);
     method public androidx.car.app.testing.FakeHost getFakeHost();
+    method public androidx.car.app.testing.TestCarContext.PermissionRequestInfo? getLastPermissionRequestInfo();
     method public java.util.List<android.content.Intent!> getStartCarAppIntents();
     method public boolean hasCalledFinishCarApp();
     method public void reset();
+  }
+
+  public static class TestCarContext.PermissionRequestInfo {
+    method public androidx.car.app.OnRequestPermissionsListener getListener();
+    method public java.util.List<java.lang.String!> getPermissionsRequested();
   }
 
   public class TestScreenManager extends androidx.car.app.ScreenManager {

@@ -18,5 +18,5 @@ package androidx.wear.complications.provider.samples
 
 import androidx.wear.complications.data.PlainComplicationText
 
-internal fun plainText(text: String) =
+internal fun plainText(text: CharSequence) =
     PlainComplicationText.Builder(text).build()

@@ -19,8 +19,10 @@ package androidx.room.integration.testapp.migration;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.room.Room;
+import androidx.annotation.NonNull;
+import androidx.room.migration.Migration;
 import androidx.room.testing.MigrationTestHelper;
+import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -42,35 +44,50 @@ public class AutoMigrationTest {
     @Rule
     public MigrationTestHelper helper;
 
-    // TODO: (b/181985265) Implement running AutoMigrations and validate.
     public AutoMigrationTest() {
-        helper = new MigrationTestHelper(InstrumentationRegistry.getInstrumentation(),
-                AutoMigrationDb.class.getCanonicalName());
+        helper = new MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                AutoMigrationDb.class
+        );
     }
-
 
     // Run this to create the very 1st version of the db.
     public void createFirstVersion() throws IOException {
         SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1);
+        db.execSQL("INSERT INTO Entity1 (id, name) VALUES (1, 'row1')");
         db.close();
     }
 
     @Test
-    public void addColumnToDatabaseWithOneTable() throws IOException {
-        try (SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1)) {
-            db.execSQL("INSERT INTO Entity1 (id, name) VALUES (1, 'row1')");
+    public void goFromV1ToV2() throws IOException {
+        createFirstVersion();
+        SupportSQLiteDatabase db = helper.runMigrationsAndValidate(
+                TEST_DB,
+                2,
+                true
+        );
+        final TableInfo info = TableInfo.read(db, AutoMigrationDb.Entity1.TABLE_NAME);
+        assertThat(info.columns.size(), is(3));
+    }
+
+    /**
+     * Verifies that the user defined migration is selected over using an autoMigration.
+     */
+    @Test
+    public void testAutoMigrationsNotProcessedBeforeCustomMigrations() throws IOException {
+        helper.runMigrationsAndValidate(
+                TEST_DB,
+                2,
+                true,
+                MIGRATION_1_2
+        );
+    }
+
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE `Entity0` ADD COLUMN `addedInV2` INTEGER NOT NULL "
+                    + "DEFAULT 2");
         }
-        AutoMigrationDb autoMigrationDbV2 = getLatestDb();
-
-        assertThat(autoMigrationDbV2.dao().getAllEntity1s().size(), is(1));
-    }
-
-    private AutoMigrationDb getLatestDb() {
-        AutoMigrationDb db = Room.databaseBuilder(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                AutoMigrationDb.class, TEST_DB).build();
-        db.getOpenHelper().getWritableDatabase(); // trigger open
-        helper.closeWhenFinished(db);
-        return db;
-    }
+    };
 }

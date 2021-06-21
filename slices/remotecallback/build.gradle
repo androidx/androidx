@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -31,11 +29,11 @@ dependencies {
     implementation(project(":slice-core"))
     implementation(project(":remotecallback:remotecallback"))
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestAnnotationProcessor project(":remotecallback:remotecallback-processor")
 }
 

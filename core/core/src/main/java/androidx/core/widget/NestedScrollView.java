@@ -48,6 +48,7 @@ import android.widget.ScrollView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.NestedScrollingChild3;
@@ -191,7 +192,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     public NestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.nestedScrollViewStyle);
     }
 
     public NestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs,

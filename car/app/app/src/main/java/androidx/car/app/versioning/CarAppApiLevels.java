@@ -28,6 +28,22 @@ import androidx.car.app.CarContext;
  * @see CarContext#getCarAppApiLevel()
  */
 public final class CarAppApiLevels {
+    /**
+     * API level 3.
+     *
+     * <p>Includes a car hardware manager for access to sensors and other vehicle properties.
+     */
+    @CarAppApiLevel
+    public static final int LEVEL_3 = 3;
+
+    /**
+     * API level 2.
+     *
+     * <p>Includes features such as sign-in template, long-message template, and multi-variant
+     * text support.
+     */
+    @CarAppApiLevel
+    public static final int LEVEL_2 = 2;
 
     /**
      * Initial API level.
@@ -64,7 +80,7 @@ public final class CarAppApiLevels {
      */
     @CarAppApiLevel
     public static int getLatest() {
-        return LEVEL_1;
+        return LEVEL_3;
     }
 
     /**

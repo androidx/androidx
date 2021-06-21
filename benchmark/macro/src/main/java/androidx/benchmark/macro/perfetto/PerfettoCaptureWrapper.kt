@@ -25,28 +25,28 @@ import androidx.benchmark.macro.device
 import androidx.test.platform.app.InstrumentationRegistry
 
 /**
- * Wrapper for PerfettoCapture, which does nothing on API < Q
+ * Wrapper for [PerfettoCapture] which does nothing below L.
  */
-class PerfettoCaptureWrapper {
+internal class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
     private val TRACE_ENABLE_PROP = "persist.traced.enable"
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             capture = PerfettoCapture()
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun start(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
             capture?.start()
         }
         return true
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun stop(benchmarkName: String, iteration: Int): String {
         val iterString = iteration.toString().padStart(3, '0')
         // NOTE: Macrobenchmarks still use legacy .trace name until

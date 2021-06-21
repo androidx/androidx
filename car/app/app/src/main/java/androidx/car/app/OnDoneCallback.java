@@ -18,11 +18,13 @@ package androidx.car.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.serialization.Bundleable;
 
 /**
  * A host-side interface for handling success and failure scenarios on calls to the client.
  */
+@CarProtocol
 public interface OnDoneCallback {
     /**
      * Notifies that the request has been successfully processed the request and provides a
@@ -30,12 +32,14 @@ public interface OnDoneCallback {
      *
      * @param response the {@link Bundleable} containing the success response
      */
-    void onSuccess(@Nullable Bundleable response);
+    default void onSuccess(@Nullable Bundleable response) {
+    }
 
     /**
      * Notifies that the request was not fulfilled successfully.
      *
      * @param response the {@link Bundleable} containing the failure response
      */
-    void onFailure(@NonNull Bundleable response);
+    default void onFailure(@NonNull Bundleable response) {
+    }
 }

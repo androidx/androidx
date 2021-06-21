@@ -18,23 +18,24 @@ package androidx.camera.extensions;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -42,12 +43,13 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.Config;
-import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureProcessor;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Consumer;
 
 import java.util.ArrayList;
@@ -57,7 +59,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class for using an OEM provided extension on image capture.
+ *
+ * @deprecated Use
+ * {@link ExtensionsManager#isExtensionAvailable(CameraProvider, CameraSelector, int)}
+ * to check whether extension function can support with the given {@link CameraSelector}. Use
+ * {@link ExtensionsManager#getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}
+ * to get a {@link CameraSelector} for the specific extension mode, then use it to bind the use
+ * cases to a lifecycle owner.
  */
+@Deprecated
 public abstract class ImageCaptureExtender {
     private static final String TAG = "ImageCaptureExtender";
     static final Config.Option<Integer> OPTION_IMAGE_CAPTURE_EXTENDER_MODE =
@@ -65,13 +75,12 @@ public abstract class ImageCaptureExtender {
 
     private ImageCapture.Builder mBuilder;
     private ImageCaptureExtenderImpl mImpl;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
-            @Extensions.ExtensionMode int effectMode) {
+            @ExtensionMode.Mode int effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
@@ -93,7 +102,6 @@ public abstract class ImageCaptureExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
@@ -118,7 +126,6 @@ public abstract class ImageCaptureExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {
@@ -149,12 +156,9 @@ public abstract class ImageCaptureExtender {
 
     /**
      * Update extension related configs to the builder.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
-            @Extensions.ExtensionMode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
+    private static void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
+            @ExtensionMode.Mode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
             @NonNull Context context) {
         CaptureProcessorImpl captureProcessor = impl.getCaptureProcessor();
         if (captureProcessor != null) {
@@ -211,7 +215,7 @@ public abstract class ImageCaptureExtender {
         }
     }
 
-    static void checkPreviewEnabled(@Extensions.ExtensionMode int effectMode,
+    static void checkPreviewEnabled(@ExtensionMode.Mode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isPreviewExtenderEnabled = false;
         boolean isMismatched = false;
@@ -223,21 +227,21 @@ public abstract class ImageCaptureExtender {
 
         for (UseCase useCase : activeUseCases) {
             int previewExtenderMode = useCase.getCurrentConfig().retrieveOption(
-                    PreviewExtender.OPTION_PREVIEW_EXTENDER_MODE, Extensions.EXTENSION_MODE_NONE);
+                    PreviewExtender.OPTION_PREVIEW_EXTENDER_MODE, ExtensionMode.NONE);
 
             if (effectMode == previewExtenderMode) {
                 isPreviewExtenderEnabled = true;
-            } else if (previewExtenderMode != Extensions.EXTENSION_MODE_NONE) {
+            } else if (previewExtenderMode != ExtensionMode.NONE) {
                 isMismatched = true;
             }
         }
 
         if (isMismatched) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
         } else if (!isPreviewExtenderEnabled) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
         }
     }
 
@@ -267,7 +271,7 @@ public abstract class ImageCaptureExtender {
             mContext = context;
         }
 
-        @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
         @Override
         public void onAttach(@NonNull CameraInfo cameraInfo) {
             if (mActive.get()) {
@@ -301,7 +305,15 @@ public abstract class ImageCaptureExtender {
             if (mActive.get()) {
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
                 if (captureStageImpl != null) {
-                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                    } else {
+                        Logger.w(TAG, "The CaptureRequest parameters returned from "
+                                + "onPresetSession() will be passed to the camera device as part "
+                                + "of the capture session via "
+                                + "SessionConfiguration#setSessionParameters(CaptureRequest) "
+                                + "which only supported from API level 28!");
+                    }
                 }
             }
             return null;

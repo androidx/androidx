@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.appcompat.AppCompatLintDemo is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            noop.setCompoundDrawableTintList(csl);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.appcompat.AppCompatLintDemo is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.appcompat.AppCompatLintDemo is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="            ~~~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.appcompat.AppCompatLintDemo is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="                         ~~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.appcompat.AppCompatLintDemoExt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="            ~~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.appcompat.AppCompatLintDemoExt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="                         ~~~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.appcompat.CoreActivityExt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="            ~~~~~~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.appcompat.CoreActivityExt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="                         ~~~~~~~~~~~">
         <location
@@ -120,39 +120,6 @@
             file="src/main/res/layout/image_view_using_android_tint.xml"
             line="51"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.core_switch` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/core_switch.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.image_view_using_android_tint` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/image_view_using_android_tint.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.text_view_using_android_compound_drawables` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout-v23/text_view_using_android_compound_drawables.xml"
-            line="18"
-            column="1"/>
     </issue>
 
     <issue

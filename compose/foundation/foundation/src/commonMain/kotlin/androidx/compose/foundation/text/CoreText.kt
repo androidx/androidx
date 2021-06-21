@@ -18,21 +18,29 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.fastMapIndexedNotNull
-import androidx.compose.foundation.legacygestures.DragObserver
+import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.MultiWidgetSelectionDelegate
+import androidx.compose.foundation.text.selection.Selectable
+import androidx.compose.foundation.text.selection.SelectionAdjustment
+import androidx.compose.foundation.text.selection.SelectionRegistrar
+import androidx.compose.foundation.text.selection.hasSelection
+import androidx.compose.foundation.text.selection.mouseSelectionDetector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.DisposableEffectResult
 import androidx.compose.runtime.DisposableEffectScope
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.legacygestures.LongPressDragObserver
-import androidx.compose.foundation.legacygestures.longPressDragGestureFilter
-import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -47,13 +55,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontLoader
-import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.Selectable
-import androidx.compose.foundation.text.selection.SelectionRegistrar
-import androidx.compose.foundation.text.selection.hasSelection
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -92,11 +93,13 @@ private typealias InlineContentRange = AnnotatedString.Range<@Composable (String
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
- * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
  */
 @Composable
 @OptIn(InternalFoundationTextApi::class)
-@Suppress("DEPRECATION") // longPressDragGestureFilter
 internal fun CoreText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
@@ -154,7 +157,7 @@ internal fun CoreText(
         placeholders = placeholders
     )
     state.onTextLayout = onTextLayout
-    state.selectionPaint.color = selectionBackgroundColor
+    state.selectionBackgroundColor = selectionBackgroundColor
 
     val controller = remember { TextController(state) }
     controller.update(selectionRegistrar)
@@ -170,20 +173,18 @@ internal fun CoreText(
             .then(
                 if (selectionRegistrar != null) {
                     if (isInTouchMode) {
-                        Modifier.longPressDragGestureFilter(
-                            longPressDragObserver(
-                                state = state,
-                                selectionRegistrar = selectionRegistrar
+                        Modifier.pointerInput(controller.longPressDragObserver) {
+                            detectDragGesturesAfterLongPressWithObserver(
+                                controller.longPressDragObserver
                             )
-                        )
+                        }
                     } else {
-                        Modifier.mouseDragGestureFilter(
-                            mouseSelectionObserver(
-                                state = state,
-                                selectionRegistrar = selectionRegistrar
-                            ),
-                            enabled = true
-                        )
+                        Modifier.pointerInput(controller.mouseSelectionObserver) {
+                            mouseSelectionDetector(
+                                controller.mouseSelectionObserver,
+                                finalPass = true
+                            )
+                        }
                     }
                 } else {
                     Modifier
@@ -213,7 +214,8 @@ internal fun InlineChildren(
 }
 
 @OptIn(InternalFoundationTextApi::class)
-private class TextController(val state: TextState) {
+/*@VisibleForTesting*/
+internal class TextController(val state: TextState) {
     var selectionRegistrar: SelectionRegistrar? = null
 
     fun update(selectionRegistrar: SelectionRegistrar?) {
@@ -227,7 +229,7 @@ private class TextController(val state: TextState) {
         if (selectionRegistrar.hasSelection(state.selectableId)) {
             val newGlobalPosition = it.positionInWindow()
             if (newGlobalPosition != state.previousGlobalPosition) {
-                selectionRegistrar?.notifyPositionChange()
+                selectionRegistrar?.notifyPositionChange(state.selectableId)
             }
             state.previousGlobalPosition = newGlobalPosition
         }
@@ -356,6 +358,155 @@ private class TextController(val state: TextState) {
         }
     }
 
+    val longPressDragObserver: TextDragObserver = object : TextDragObserver {
+        /**
+         * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
+         * recalculated.
+         */
+        var dragBeginPosition = Offset.Zero
+
+        /**
+         * The total distance being dragged of the drag gesture. Every time a new drag gesture starts,
+         * it will be zeroed out.
+         */
+        var dragTotalDistance = Offset.Zero
+
+        override fun onStart(startPoint: Offset) {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return
+
+                if (outOfBoundary(startPoint, startPoint)) {
+                    selectionRegistrar?.notifySelectionUpdateSelectAll(
+                        selectableId = state.selectableId
+                    )
+                } else {
+                    selectionRegistrar?.notifySelectionUpdateStart(
+                        layoutCoordinates = it,
+                        startPosition = startPoint,
+                        adjustment = SelectionAdjustment.WORD
+                    )
+                }
+
+                dragBeginPosition = startPoint
+            }
+            // selection never started
+            if (!selectionRegistrar.hasSelection(state.selectableId)) return
+            // Zero out the total distance that being dragged.
+            dragTotalDistance = Offset.Zero
+        }
+
+        override fun onDrag(delta: Offset) {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return
+                // selection never started, did not consume any drag
+                if (!selectionRegistrar.hasSelection(state.selectableId)) return
+
+                dragTotalDistance += delta
+
+                if (!outOfBoundary(dragBeginPosition, dragBeginPosition + dragTotalDistance)) {
+                    selectionRegistrar?.notifySelectionUpdate(
+                        layoutCoordinates = it,
+                        startPosition = dragBeginPosition,
+                        endPosition = dragBeginPosition + dragTotalDistance,
+                        adjustment = SelectionAdjustment.CHARACTER
+                    )
+                }
+            }
+        }
+
+        override fun onStop() {
+            if (selectionRegistrar.hasSelection(state.selectableId)) {
+                selectionRegistrar?.notifySelectionUpdateEnd()
+            }
+        }
+
+        override fun onCancel() {
+            if (selectionRegistrar.hasSelection(state.selectableId)) {
+                selectionRegistrar?.notifySelectionUpdateEnd()
+            }
+        }
+    }
+
+    val mouseSelectionObserver = object : MouseSelectionObserver {
+        var dragBeginPosition = Offset.Zero
+
+        override fun onExtend(downPosition: Offset): Boolean {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return false
+
+                selectionRegistrar?.notifySelectionUpdate(
+                    layoutCoordinates = it,
+                    endPosition = downPosition,
+                    adjustment = SelectionAdjustment.NONE
+                )
+                return selectionRegistrar.hasSelection(state.selectableId)
+            }
+            return false
+        }
+
+        override fun onExtendDrag(dragPosition: Offset): Boolean {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return false
+                if (!selectionRegistrar.hasSelection(state.selectableId)) return false
+
+                selectionRegistrar?.notifySelectionUpdate(
+                    layoutCoordinates = it,
+                    endPosition = dragPosition,
+                    adjustment = SelectionAdjustment.NONE
+                )
+            }
+            return true
+        }
+
+        override fun onStart(
+            downPosition: Offset,
+            adjustment: SelectionAdjustment
+        ): Boolean {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return false
+
+                selectionRegistrar?.notifySelectionUpdate(
+                    layoutCoordinates = it,
+                    startPosition = downPosition,
+                    endPosition = downPosition,
+                    adjustment = adjustment
+                )
+
+                dragBeginPosition = downPosition
+                return selectionRegistrar.hasSelection(state.selectableId)
+            }
+
+            return false
+        }
+
+        override fun onDrag(dragPosition: Offset, adjustment: SelectionAdjustment): Boolean {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return false
+                if (!selectionRegistrar.hasSelection(state.selectableId)) return false
+
+                selectionRegistrar?.notifySelectionUpdate(
+                    layoutCoordinates = it,
+                    startPosition = dragBeginPosition,
+                    endPosition = dragPosition,
+                    adjustment = adjustment
+                )
+            }
+            return true
+        }
+    }
+
+    private fun outOfBoundary(start: Offset, end: Offset): Boolean {
+        state.layoutResult?.let {
+            val lastOffset = it.layoutInput.text.text.length
+            val rawStartOffset = it.getOffsetForPosition(start)
+            val rawEndOffset = it.getOffsetForPosition(end)
+
+            return rawStartOffset >= lastOffset - 1 && rawEndOffset >= lastOffset - 1 ||
+                rawStartOffset < 0 && rawEndOffset < 0
+        }
+        return false
+    }
+
     /**
      * Draw the given selection on the canvas.
      */
@@ -363,12 +514,9 @@ private class TextController(val state: TextState) {
     @OptIn(InternalFoundationTextApi::class)
     private fun Modifier.drawTextAndSelectionBehind(): Modifier =
         this.graphicsLayer().drawBehind {
-            drawIntoCanvas { canvas ->
-                val textLayoutResult = state.layoutResult
-                val selectionPaint = state.selectionPaint
+            state.layoutResult?.let {
                 val selection = selectionRegistrar?.subselections?.get(state.selectableId)
 
-                if (textLayoutResult == null) return@drawIntoCanvas
                 if (selection != null) {
                     val start = if (!selection.handlesCrossed) {
                         selection.start.offset
@@ -380,15 +528,15 @@ private class TextController(val state: TextState) {
                     } else {
                         selection.start.offset
                     }
-                    TextDelegate.paintBackground(
-                        start,
-                        end,
-                        selectionPaint,
-                        canvas,
-                        textLayoutResult
-                    )
+
+                    if (start != end) {
+                        val selectionPath = it.multiParagraph.getPathForRange(start, end)
+                        drawPath(selectionPath, state.selectionBackgroundColor)
+                    }
                 }
-                TextDelegate.paint(canvas, textLayoutResult)
+                drawIntoCanvas { canvas ->
+                    TextDelegate.paint(canvas, it)
+                }
             }
         }
 }
@@ -407,12 +555,15 @@ internal class TextState(
 
     /** The last layout coordinates for the Text's layout, used by selection */
     var layoutCoordinates: LayoutCoordinates? = null
+
     /** The latest TextLayoutResult calculated in the measure block */
     var layoutResult: TextLayoutResult? = null
+
     /** The global position calculated during the last notifyPosition callback */
     var previousGlobalPosition: Offset = Offset.Zero
-    /** The paint used to draw highlight background for selected text. */
-    val selectionPaint: Paint = Paint()
+
+    /** The background color of selection */
+    var selectionBackgroundColor: Color = Color.Unspecified
 }
 
 /**
@@ -487,116 +638,4 @@ private fun resolveInlineContent(
         }
     }
     return Pair(placeholders, inlineComposables)
-}
-
-/*@VisibleForTesting*/
-@Suppress("DEPRECATION") // LongPressDragObserver
-internal fun longPressDragObserver(
-    state: TextState,
-    selectionRegistrar: SelectionRegistrar?
-): LongPressDragObserver {
-    /**
-     * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
-     * recalculated.
-     */
-    var dragBeginPosition = Offset.Zero
-
-    /**
-     * The total distance being dragged of the drag gesture. Every time a new drag gesture starts,
-     * it will be zeroed out.
-     */
-    var dragTotalDistance = Offset.Zero
-    return object : LongPressDragObserver {
-        override fun onLongPress(pxPosition: Offset) {
-            state.layoutCoordinates?.let {
-                if (!it.isAttached) return
-
-                selectionRegistrar?.notifySelectionUpdateStart(
-                    layoutCoordinates = it,
-                    startPosition = pxPosition
-                )
-
-                dragBeginPosition = pxPosition
-            }
-        }
-
-        override fun onDragStart() {
-            // selection never started
-            if (!selectionRegistrar.hasSelection(state.selectableId)) return
-            // Zero out the total distance that being dragged.
-            dragTotalDistance = Offset.Zero
-        }
-
-        override fun onDrag(dragDistance: Offset): Offset {
-            state.layoutCoordinates?.let {
-                if (!it.isAttached) return Offset.Zero
-                // selection never started, did not consume any drag
-                if (!selectionRegistrar.hasSelection(state.selectableId)) return Offset.Zero
-
-                dragTotalDistance += dragDistance
-
-                selectionRegistrar?.notifySelectionUpdate(
-                    layoutCoordinates = it,
-                    startPosition = dragBeginPosition,
-                    endPosition = dragBeginPosition + dragTotalDistance
-                )
-            }
-            return dragDistance
-        }
-
-        override fun onStop(velocity: Offset) {
-            if (selectionRegistrar.hasSelection(state.selectableId)) {
-                selectionRegistrar?.notifySelectionUpdateEnd()
-            }
-        }
-
-        override fun onCancel() {
-            if (selectionRegistrar.hasSelection(state.selectableId)) {
-                selectionRegistrar?.notifySelectionUpdateEnd()
-            }
-        }
-    }
-}
-
-@Suppress("DEPRECATION") // DragObserver
-internal fun mouseSelectionObserver(
-    state: TextState,
-    selectionRegistrar: SelectionRegistrar?
-): DragObserver {
-    var dragBeginPosition = Offset.Zero
-
-    var dragTotalDistance = Offset.Zero
-    return object : DragObserver {
-        override fun onStart(downPosition: Offset) {
-            state.layoutCoordinates?.let {
-                if (!it.isAttached) return
-
-                selectionRegistrar?.notifySelectionUpdateStart(
-                    layoutCoordinates = it,
-                    startPosition = downPosition
-                )
-
-                dragBeginPosition = downPosition
-            }
-
-            if (!selectionRegistrar.hasSelection(state.selectableId)) return
-            dragTotalDistance = Offset.Zero
-        }
-
-        override fun onDrag(dragDistance: Offset): Offset {
-            state.layoutCoordinates?.let {
-                if (!it.isAttached) return Offset.Zero
-                if (!selectionRegistrar.hasSelection(state.selectableId)) return Offset.Zero
-
-                dragTotalDistance += dragDistance
-
-                selectionRegistrar?.notifySelectionUpdate(
-                    layoutCoordinates = it,
-                    startPosition = dragBeginPosition,
-                    endPosition = dragBeginPosition + dragTotalDistance
-                )
-            }
-            return dragDistance
-        }
-    }
 }

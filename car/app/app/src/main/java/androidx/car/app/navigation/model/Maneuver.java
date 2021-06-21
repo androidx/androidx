@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
@@ -35,6 +36,7 @@ import java.util.Objects;
 
 /** Information about a maneuver that the driver will be required to perform. */
 // TODO(b/154671667): Update when host(s) updates or a scheme for auto sync is established.
+@CarProtocol
 public final class Maneuver {
     /**
      * Possible maneuver types.
@@ -599,11 +601,12 @@ public final class Maneuver {
         /**
          * Sets an image representing the maneuver.
          *
-         * <h4>Image Sizing Guidance</h4>
+         * <h4>Icon Sizing Guidance</h4>
          *
-         * The provided image should have a maximum size of 64 x 64 dp. If the image exceeds this
-         * maximum size in either one of the dimensions, it will be scaled down and centered
-         * inside the bounding box while preserving the aspect ratio.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * icons targeting a 128 x 128 dp bounding box. If the icon exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.

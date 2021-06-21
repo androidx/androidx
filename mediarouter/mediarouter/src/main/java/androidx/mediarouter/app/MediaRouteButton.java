@@ -66,20 +66,17 @@ import java.util.List;
  * to select by specifying a {@link MediaRouteSelector selector} with the
  * {@link #setRouteSelector} method.
  * </p><p>
- * When the default route is selected or when the currently selected route does not
- * match the {@link #getRouteSelector() selector}, the button will appear in
- * an inactive state indicating that the application is not connected to a
- * route of the kind that it wants to use.  Clicking on the button opens
+ * When the default route is selected, the button will appear in an inactive state indicating
+ * that the application is not connected to a route. Clicking on the button opens
  * a {@link MediaRouteChooserDialog} to allow the user to select a route.
  * If no non-default routes match the selector and it is not possible for an active
  * scan to discover any matching routes, then the button is disabled and cannot
  * be clicked unless {@link #setAlwaysVisible} is called.
  * </p><p>
- * When a non-default route is selected that matches the selector, the button will
- * appear in an active state indicating that the application is connected
- * to a route of the kind that it wants to use.  The button may also appear
- * in an intermediary connecting state if the route is in the process of connecting
- * to the destination but has not yet completed doing so.  In either case, clicking
+ * When a non-default route is selected, the button will appear in an active state indicating
+ * that the application is connected to a route of the kind that it wants to use.
+ * The button may also appear in an intermediary connecting state if the route is in the process
+ * of connecting to the destination but has not yet completed doing so.  In either case, clicking
  * on the button opens a {@link MediaRouteControllerDialog} to allow the user
  * to control or disconnect from the current route.
  * </p>
@@ -131,6 +128,7 @@ public class MediaRouteButton extends View {
     private static final int CONNECTION_STATE_CONNECTED =
             MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 
+    private int mLastConnectionState;
     private int mConnectionState;
 
     private ColorStateList mButtonTint;
@@ -176,6 +174,11 @@ public class MediaRouteButton extends View {
         }
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
+
+        MediaRouter.RouteInfo selectedRoute = mRouter.getSelectedRoute();
+        boolean isRemote = !selectedRoute.isDefaultOrBluetooth();
+        mLastConnectionState = mConnectionState =
+                (isRemote ? selectedRoute.getConnectionState() : CONNECTION_STATE_DISCONNECTED);
 
         if (sConnectivityReceiver == null) {
             sConnectivityReceiver = new ConnectivityReceiver(context.getApplicationContext());
@@ -306,8 +309,7 @@ public class MediaRouteButton extends View {
     /**
      * Show the route chooser or controller dialog.
      * <p>
-     * If the default route is selected or if the currently selected route does
-     * not match the {@link #getRouteSelector selector}, then shows the route chooser dialog.
+     * If the default route is selected, then shows the route chooser dialog.
      * Otherwise, shows the route controller dialog to offer the user
      * a choice to disconnect from the route or perform other control actions
      * such as setting the route's volume.
@@ -355,7 +357,7 @@ public class MediaRouteButton extends View {
         }
         MediaRouter.RouteInfo selectedRoute = mRouter.getSelectedRoute();
 
-        if (selectedRoute.isDefaultOrBluetooth() || !selectedRoute.matchesSelector(mSelector)) {
+        if (selectedRoute.isDefaultOrBluetooth()) {
             if (fm.findFragmentByTag(CHOOSER_FRAGMENT_TAG) != null) {
                 Log.w(TAG, "showDialog(): Route chooser dialog already showing!");
                 return false;
@@ -539,8 +541,28 @@ public class MediaRouteButton extends View {
         if (mRemoteIndicator != null) {
             int[] myDrawableState = getDrawableState();
             mRemoteIndicator.setState(myDrawableState);
+
+            // When DrawableContainer#selectDrawable is called, the selected drawable is reset.
+            // We may need to start the animation or adjust the frame.
+            if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+                AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
+                if (mConnectionState == CONNECTION_STATE_CONNECTING
+                        || mLastConnectionState != mConnectionState) {
+                    if (!curDrawable.isRunning()) {
+                        curDrawable.start();
+                    }
+                } else {
+                    // Assuming the last animation of the "connected" animation drawable
+                    // shows "connected" static drawable.
+                    if (mConnectionState == CONNECTION_STATE_CONNECTED
+                            && !curDrawable.isRunning()) {
+                        curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
+                    }
+                }
+            }
             invalidate();
         }
+        mLastConnectionState = mConnectionState;
     }
 
     /**
@@ -719,20 +741,6 @@ public class MediaRouteButton extends View {
         mRemoteIndicator = d;
 
         refreshDrawableState();
-        if (mAttachedToWindow && mRemoteIndicator != null
-                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
-            AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
-            if (mConnectionState == CONNECTION_STATE_CONNECTING) {
-                if (!curDrawable.isRunning()) {
-                    curDrawable.start();
-                }
-            } else if (mConnectionState == CONNECTION_STATE_CONNECTED) {
-                if (curDrawable.isRunning()) {
-                    curDrawable.stop();
-                }
-                curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
-            }
-        }
     }
 
     void refreshVisibility() {
@@ -746,45 +754,23 @@ public class MediaRouteButton extends View {
 
     void refreshRoute() {
         final MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
-        final boolean isRemote = !route.isDefaultOrBluetooth() && route.matchesSelector(mSelector);
+        final boolean isRemote = !route.isDefaultOrBluetooth();
         final int connectionState = (isRemote ? route.getConnectionState()
                 : CONNECTION_STATE_DISCONNECTED);
 
-        boolean needsRefresh = false;
-
         if (mConnectionState != connectionState) {
             mConnectionState = connectionState;
-            needsRefresh = true;
-        }
-
-        if (needsRefresh) {
             updateContentDescription();
             refreshDrawableState();
         }
+
         if (connectionState == CONNECTION_STATE_CONNECTING) {
             loadRemoteIndicatorIfNeeded();
         }
 
         if (mAttachedToWindow) {
-            setEnabled(mAlwaysVisible || mRouter.isRouteAvailable(mSelector,
+            setEnabled(mAlwaysVisible || isRemote || mRouter.isRouteAvailable(mSelector,
                     MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
-        }
-        if (mRemoteIndicator != null
-                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
-            AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
-            if (mAttachedToWindow) {
-                if ((needsRefresh || connectionState == CONNECTION_STATE_CONNECTING)
-                        && !curDrawable.isRunning()) {
-                    curDrawable.start();
-                }
-            } else if (connectionState == CONNECTION_STATE_CONNECTED) {
-                // When the route is already connected before the view is attached, show the last
-                // frame of the connected animation immediately.
-                if (curDrawable.isRunning()) {
-                    curDrawable.stop();
-                }
-                curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
-            }
         }
     }
 

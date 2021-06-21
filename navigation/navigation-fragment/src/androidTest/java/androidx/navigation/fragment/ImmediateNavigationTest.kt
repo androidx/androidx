@@ -23,8 +23,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.test.R
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.testutils.withActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,13 +39,13 @@ class ImmediateNavigationTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(
+    var activityRule = ActivityScenarioRule(
         ImmediateNavigationActivity::class.java
     )
 
     @Test
     fun testNavigateInOnResume() {
-        val activity = activityRule.activity
+        val activity = activityRule.withActivity { this }
         val navController = activity.navController
         val countDownLatch = CountDownLatch(3)
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -61,7 +63,9 @@ class ImmediateNavigationTest {
                 }
             }
         }
-        navController.navigate(R.id.immediate_test)
+        activityRule.withActivity {
+            navController.navigate(R.id.immediate_test)
+        }
         countDownLatch.await(1, TimeUnit.SECONDS)
     }
 }

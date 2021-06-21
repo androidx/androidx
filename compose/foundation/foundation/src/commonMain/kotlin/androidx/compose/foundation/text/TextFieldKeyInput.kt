@@ -18,7 +18,10 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.text.selection.TextFieldPreparedSelection
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
+import androidx.compose.foundation.text.selection.TextPreparedSelectionState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
@@ -26,6 +29,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -47,11 +51,13 @@ internal class TextFieldKeyInput(
     val value: TextFieldValue = TextFieldValue(),
     val editable: Boolean = true,
     val singleLine: Boolean = false,
+    val preparedSelectionState: TextPreparedSelectionState,
     val offsetMapping: OffsetMapping = OffsetMapping.Identity,
+    val undoManager: UndoManager? = null,
     private val keyMapping: KeyMapping = platformDefaultKeyMapping,
 ) {
     private fun EditCommand.apply() {
-        state.onValueChange(state.processor.apply(listOf(this)))
+        state.onValueChange(state.processor.apply(listOf(FinishComposingTextCommand(), this)))
     }
 
     private fun typedCommand(event: KeyEvent): CommitTextCommand? =
@@ -67,6 +73,7 @@ internal class TextFieldKeyInput(
         typedCommand(event)?.let {
             return if (editable) {
                 it.apply()
+                preparedSelectionState.resetCachedX()
                 true
             } else {
                 false
@@ -156,8 +163,16 @@ internal class TextFieldKeyInput(
                 KeyCommand.SELECT_HOME -> moveCursorToHome().selectMovement()
                 KeyCommand.SELECT_END -> moveCursorToEnd().selectMovement()
                 KeyCommand.DESELECT -> deselect()
+                KeyCommand.UNDO -> {
+                    undoManager?.makeSnapshot(value)
+                    undoManager?.undo()?.let { this@TextFieldKeyInput.state.onValueChange(it) }
+                }
+                KeyCommand.REDO -> {
+                    undoManager?.redo()?.let { this@TextFieldKeyInput.state.onValueChange(it) }
+                }
             }
         }
+        undoManager?.forceNextSnapshot()
         return consumed
     }
 
@@ -165,7 +180,8 @@ internal class TextFieldKeyInput(
         val preparedSelection = TextFieldPreparedSelection(
             currentValue = value,
             offsetMapping = offsetMapping,
-            layoutResultProxy = state.layoutResult
+            layoutResultProxy = state.layoutResult,
+            state = preparedSelectionState
         )
         block(preparedSelection)
         if (preparedSelection.selection != value.selection ||
@@ -176,21 +192,26 @@ internal class TextFieldKeyInput(
     }
 }
 
+@Suppress("ModifierInspectorInfo")
 internal fun Modifier.textFieldKeyInput(
     state: TextFieldState,
     manager: TextFieldSelectionManager,
     value: TextFieldValue,
     editable: Boolean,
     singleLine: Boolean,
-    offsetMapping: OffsetMapping
-): Modifier {
+    offsetMapping: OffsetMapping,
+    undoManager: UndoManager
+) = composed {
+    val preparedSelectionState = remember { TextPreparedSelectionState() }
     val processor = TextFieldKeyInput(
         state = state,
         selectionManager = manager,
         value = value,
         editable = editable,
         singleLine = singleLine,
-        offsetMapping = offsetMapping
+        offsetMapping = offsetMapping,
+        preparedSelectionState = preparedSelectionState,
+        undoManager = undoManager
     )
-    return Modifier.onKeyEvent(processor::process)
+    Modifier.onKeyEvent(processor::process)
 }

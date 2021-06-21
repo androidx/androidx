@@ -28,6 +28,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarLocation;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
@@ -277,6 +278,20 @@ public class PlaceListNavigationTemplateTest {
                         new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(new ItemList.Builder().addItem(row).build()));
+    }
+
+    @Test
+    public void createInstance_title_variants() {
+        CarText title = new CarText.Builder("Very Long Title").addVariant("Short Title").build();
+
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder()
+                        .setTitle(title)
+                        .setItemList(new ItemList.Builder().build())
+                        .build();
+        assertThat(template.getTitle()).isNotNull();
+        assertThat(template.getTitle().toString()).isEqualTo("Very Long Title");
+        assertThat(template.getTitle().getVariants().get(0).toString()).isEqualTo("Short Title");
     }
 
     @Test

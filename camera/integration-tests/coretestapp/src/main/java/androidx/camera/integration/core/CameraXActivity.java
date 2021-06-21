@@ -39,6 +39,7 @@ import android.util.Log;
 import android.util.Range;
 import android.util.Rational;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -57,18 +58,20 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
+import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -76,10 +79,10 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.espresso.IdlingResource;
@@ -121,7 +124,7 @@ public class CameraXActivity extends AppCompatActivity {
             };
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     static final CameraSelector FRONT_SELECTOR =
@@ -140,10 +143,10 @@ public class CameraXActivity extends AppCompatActivity {
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
-    private View mViewFinder;
+    View mViewFinder;
     private List<UseCase> mUseCases;
     private ExecutorService mImageCaptureExecutorService;
-    private Camera mCamera;
+    Camera mCamera;
 
     private ToggleButton mVideoToggle;
     private ToggleButton mPhotoToggle;
@@ -190,7 +193,6 @@ public class CameraXActivity extends AppCompatActivity {
     private FutureCallback<Integer> mEVFutureCallback = new FutureCallback<Integer>() {
 
         @Override
-        @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
         public void onSuccess(@Nullable Integer result) {
             CameraInfo cameraInfo = getCameraInfo();
             if (cameraInfo != null) {
@@ -212,6 +214,20 @@ public class CameraXActivity extends AppCompatActivity {
     // Listener that handles all ToggleButton events.
     private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener =
             (compoundButton, isChecked) -> tryBindUseCases();
+
+    private Consumer<Long> mFrameUpdateListener = timestamp -> {
+        if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
+            try {
+                if (!this.mViewIdlingResource.isIdleNow()) {
+                    Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
+                            + " Make IdlingResource idle.");
+                    this.mViewIdlingResource.decrement();
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Unexpected decrement. Continuing");
+            }
+        }
+    };
 
     // Espresso testing variables
     private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
@@ -305,7 +321,6 @@ public class CameraXActivity extends AppCompatActivity {
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
     }
 
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
     private boolean isExposureCompensationSupported() {
         CameraInfo cameraInfo = getCameraInfo();
         return cameraInfo != null
@@ -332,9 +347,14 @@ public class CameraXActivity extends AppCompatActivity {
             if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
                 createDefaultVideoFolderIfNotExist();
 
-                getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions(
-                        getApplicationContext().getContentResolver()),
-                        ContextCompat.getMainExecutor(CameraXActivity.this), mVideoFileSaver);
+                try {
+                    getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions(
+                            getApplicationContext().getContentResolver()),
+                            ContextCompat.getMainExecutor(CameraXActivity.this), mVideoFileSaver);
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Missing audio permission while setting up recording.");
+                    return;
+                }
 
                 mVideoFileSaver.setSaving();
                 mRecord.setText("Stop");
@@ -445,7 +465,6 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
     private void setUpEVButton() {
         mPlusEV.setOnClickListener(v -> {
             Objects.requireNonNull(getCameraInfo());
@@ -562,7 +581,7 @@ public class CameraXActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.textView);
 
         setUpButtonEvents();
-        setupPinchToZoom();
+        setupViewFinderGestureControls();
 
         mImageAnalysisResult.observe(
                 this,
@@ -598,21 +617,6 @@ public class CameraXActivity extends AppCompatActivity {
         DisplayManager dpyMgr =
                 Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
         dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
-
-        previewRenderer.setFrameUpdateListener(ContextCompat.getMainExecutor(this), timestamp -> {
-            // Wait until surface texture receives enough updates. This is for testing.
-            if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
-                try {
-                    if (!mViewIdlingResource.isIdleNow()) {
-                        Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
-                                + " Make IdlingResource idle.");
-                        mViewIdlingResource.decrement();
-                    }
-                } catch (IllegalStateException e) {
-                    Log.e(TAG, "Unexpected decrement. Continuing");
-                }
-            }
-        });
 
         StrictMode.VmPolicy vmPolicy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
@@ -685,6 +689,9 @@ public class CameraXActivity extends AppCompatActivity {
             // next thing being ready.
             return;
         }
+        // Clear listening frame update before unbind all.
+        mPreviewRenderer.clearFrameUpdateListener();
+
         mCameraProvider.unbindAll();
         try {
             List<UseCase> useCases = buildUseCases();
@@ -719,7 +726,14 @@ public class CameraXActivity extends AppCompatActivity {
                     .setTargetName("Preview")
                     .build();
             resetViewIdlingResource();
-            mPreviewRenderer.attachInputPreview(preview);
+            // Use the listener of the future to make sure the Preview setup the new surface.
+            mPreviewRenderer.attachInputPreview(preview).addListener(() -> {
+                Log.d(TAG, "OpenGLRenderer get the new surface for the Preview");
+                mPreviewRenderer.setFrameUpdateListener(
+                        ContextCompat.getMainExecutor(this), mFrameUpdateListener
+                );
+            }, ContextCompat.getMainExecutor(this));
+
             useCases.add(preview);
         }
 
@@ -821,21 +835,9 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     /**
-     * Workaround method for an AndroidX issue where {@link UseExperimental} doesn't support 2 or
-     * more annotations.
-     */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
-    private Camera bindToLifecycleSafely(List<UseCase> useCases) {
-        Log.e(TAG, "Binding use cases " + useCases);
-        return bindToLifecycleSafelyWithExperimental(useCases);
-    }
-
-    /**
      * Binds use cases to the current lifecycle.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    @ExperimentalUseCaseGroupLifecycle
-    private Camera bindToLifecycleSafelyWithExperimental(List<UseCase> useCases) {
+    private Camera bindToLifecycleSafely(List<UseCase> useCases) {
         ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),
                 mViewFinder.getHeight()),
                 mViewFinder.getDisplay().getRotation())
@@ -898,19 +900,39 @@ public class CameraXActivity extends AppCompatActivity {
                 }
             };
 
-    private void setupPinchToZoom() {
-        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
-        mViewFinder.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                scaleDetector.onTouchEvent(motionEvent);
+    GestureDetector.OnGestureListener onTapGestureListener =
+            new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    // Since we are showing full camera preview we will be using
+                    // DisplayOrientedMeteringPointFactory to map the view's (x, y) to a
+                    // metering point.
+                    MeteringPointFactory factory =
+                            new DisplayOrientedMeteringPointFactory(
+                                    mViewFinder.getDisplay(),
+                                    mCamera.getCameraInfo(),
+                                    mViewFinder.getWidth(),
+                                    mViewFinder.getHeight());
+                    FocusMeteringAction action = new FocusMeteringAction.Builder(
+                            factory.createPoint(e.getX(), e.getY())
+                    ).build();
+                    Futures.addCallback(
+                            mCamera.getCameraControl().startFocusAndMetering(action),
+                            new FutureCallback<FocusMeteringResult>() {
+                                @Override
+                                public void onSuccess(FocusMeteringResult result) {
+                                    Log.d(TAG, "Focus and metering succeeded.");
+                                }
 
-                return true;
-            }
-        });
-
-
-    }
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    Log.e(TAG, "Focus and metering failed.", t);
+                                }
+                            },
+                            CameraXExecutors.mainThreadExecutor());
+                    return true;
+                }
+            };
 
     private void setupZoomSeeker() {
         CameraControl cameraControl = mCamera.getCameraControl();
@@ -963,6 +985,16 @@ public class CameraXActivity extends AppCompatActivity {
                 mZoomRatioLabel.setText(str);
                 mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
             });
+    }
+
+    private void setupViewFinderGestureControls() {
+        GestureDetector tapGestureDetector = new GestureDetector(this, onTapGestureListener);
+        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+        mViewFinder.setOnTouchListener((view, e) -> {
+            boolean tapEventProcessed = tapGestureDetector.onTouchEvent(e);
+            boolean scaleEventProcessed = scaleDetector.onTouchEvent(e);
+            return tapEventProcessed || scaleEventProcessed;
+        });
     }
 
     /** Gets the absolute path from a Uri. */

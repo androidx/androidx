@@ -36,6 +36,7 @@ class FragmentStore {
 
     private final ArrayList<Fragment> mAdded = new ArrayList<>();
     private final HashMap<String, FragmentStateManager> mActive = new HashMap<>();
+    private final HashMap<String, FragmentState> mSavedState = new HashMap<>();
 
     private FragmentManagerViewModel mNonConfig;
 
@@ -122,6 +123,13 @@ class FragmentStore {
                 Fragment f = fragmentStateManager.getFragment();
                 boolean beingRemoved = f.mRemoving && !f.isInBackStack();
                 if (beingRemoved) {
+                    if (f.mBeingSaved && !mSavedState.containsKey(f.mWho)) {
+                        // In cases where the Fragment never got attached
+                        // (i.e., add transaction + saveBackStack())
+                        // we still want to save the bare minimum of state
+                        // relating to this Fragment
+                        fragmentStateManager.saveState();
+                    }
                     makeInactive(fragmentStateManager);
                 }
             }
@@ -167,18 +175,47 @@ class FragmentStore {
         values.removeAll(Collections.singleton(null));
     }
 
+    @Nullable
+    FragmentState getSavedState(@NonNull String who) {
+        return mSavedState.get(who);
+    }
+
+    /**
+     * Sets the saved state, returning the previously set FragmentState, if any.
+     */
+    @Nullable
+    FragmentState setSavedState(@NonNull String who, @Nullable FragmentState fragmentState) {
+        if (fragmentState != null) {
+            return mSavedState.put(who, fragmentState);
+        } else {
+            return mSavedState.remove(who);
+        }
+    }
+
+    void restoreSaveState(@NonNull ArrayList<FragmentState> savedState) {
+        mSavedState.clear();
+        for (FragmentState fs : savedState) {
+            mSavedState.put(fs.mWho, fs);
+        }
+    }
+
     @NonNull
-    ArrayList<FragmentState> saveActiveFragments() {
-        ArrayList<FragmentState> active = new ArrayList<>(mActive.size());
+    ArrayList<FragmentState> getAllSavedState() {
+        return new ArrayList<>(mSavedState.values());
+    }
+
+    @NonNull
+    ArrayList<String> saveActiveFragments() {
+        ArrayList<String> active = new ArrayList<>(mActive.size());
         for (FragmentStateManager fragmentStateManager : mActive.values()) {
             if (fragmentStateManager != null) {
                 Fragment f = fragmentStateManager.getFragment();
 
-                FragmentState fs = fragmentStateManager.saveState();
-                active.add(fs);
+                fragmentStateManager.saveState();
+                active.add(f.mWho);
 
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(TAG, "Saved state of " + f + ": " + fs.mSavedFragmentState);
+                    Log.v(TAG, "Saved state of " + f + ": " + f.mSavedFragmentState);
                 }
             }
         }
@@ -373,7 +410,7 @@ class FragmentStore {
 
         if (!mActive.isEmpty()) {
             writer.print(prefix);
-            writer.print("Active Fragments:");
+            writer.println("Active Fragments:");
             for (FragmentStateManager fragmentStateManager : mActive.values()) {
                 writer.print(prefix);
                 if (fragmentStateManager != null) {

@@ -35,7 +35,8 @@
     </FrameLayout>
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
         <ToggleButton
             android:id="@+id/mirror_preview"
             android:layout_width="wrap_content"
@@ -43,5 +44,22 @@
             android:textOff="@string/mirror_off"
             android:textOn="@string/mirror_on"
             android:checked="false"/>
+        <ToggleButton
+            android:id="@+id/toggle_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/toggle_camera_front"
+            android:textOn="@string/toggle_camera_back"
+            android:checked="true"/>
+        <Button
+            android:id="@+id/capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_capture"/>
+        <Button
+            android:id="@+id/capture_and_transform"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_capture_and_transform"/>
     </LinearLayout>
 </LinearLayout>

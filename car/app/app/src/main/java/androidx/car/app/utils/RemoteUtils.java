@@ -34,6 +34,7 @@ import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.lifecycle.Lifecycle;
@@ -71,7 +72,6 @@ public final class RemoteUtils {
      * Performs the remote call to the host and handles exceptions thrown by the host.
      *
      * @return the value that the host returns for the IPC
-     *
      * @throws RemoteException   if the host is unresponsive
      * @throws SecurityException as a pass through from the host
      * @throws HostException     if the remote call fails with any other exception
@@ -187,6 +187,30 @@ public final class RemoteUtils {
     }
 
     /**
+     * Dispatches the given {@link HostCall} to the client in the main thread.
+     */
+    public static void dispatchCallFromHost(@Nullable Lifecycle lifecycle,
+            @NonNull String callName, @NonNull HostCall hostCall) {
+        ThreadUtils.runOnMain(
+                () -> {
+                    try {
+                        if (lifecycle == null || !lifecycle.getCurrentState().isAtLeast(CREATED)) {
+                            Log.w(LogTags.TAG_DISPATCH,
+                                    "Lifecycle is not at least created when dispatching "
+                                            + hostCall);
+                            return;
+                        }
+
+                        hostCall.dispatch();
+                    } catch (BundlerException e) {
+                        // Not possible, but catching since BundlerException is not runtime.
+                        Log.e(LogTags.TAG_DISPATCH,
+                                "Serialization failure in " + callName, e);
+                    }
+                });
+    }
+
+    /**
      * Invoke onSuccess on the given {@code callback} instance with the given {@code response}.
      */
     // TODO(b/178748627): the nullable annotation from the AIDL file is not being considered.
@@ -296,6 +320,30 @@ public final class RemoteUtils {
                                 (SurfaceContainer) surfaceContainer.get());
                         return null;
                     });
+        }
+        @RequiresCarApi(2)
+        @Override
+        public void onScroll(float distanceX, float distanceY) {
+            dispatchCallFromHost(mLifecycle, "onScroll", () -> {
+                mSurfaceCallback.onScroll(distanceX, distanceY);
+                return null;
+            });
+        }
+        @RequiresCarApi(2)
+        @Override
+        public void onFling(float velocityX, float velocityY) {
+            dispatchCallFromHost(mLifecycle, "onFling", () -> {
+                mSurfaceCallback.onFling(velocityX, velocityY);
+                return null;
+            });
+        }
+        @RequiresCarApi(2)
+        @Override
+        public void onScale(float focusX, float focusY, float scaleFactor) {
+            dispatchCallFromHost(mLifecycle, "onScale", () -> {
+                mSurfaceCallback.onScale(focusX, focusY, scaleFactor);
+                return null;
+            });
         }
     }
 

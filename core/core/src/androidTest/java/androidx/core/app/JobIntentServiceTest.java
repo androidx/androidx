@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 public class JobIntentServiceTest {
     static final String TAG = "JobIntentServiceTest";

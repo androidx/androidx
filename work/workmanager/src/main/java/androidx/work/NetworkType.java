@@ -16,6 +16,8 @@
 
 package androidx.work;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * An enumeration of various network types that can be used as {@link Constraints} for work.
  */
@@ -45,5 +47,16 @@ public enum NetworkType {
     /**
      * A metered network connection is required for this work.
      */
-    METERED
+    METERED,
+
+    /**
+     * A temporarily unmetered Network. This capability will be set for networks that are
+     * generally metered, but are currently unmetered.
+     *
+     * Note: This capability can be changed at any time. When it is removed,
+     * {@link ListenableWorker}s are responsible for stopping any data transfer that should not
+     * occur on a metered network.
+     */
+    @RequiresApi(30)
+    TEMPORARILY_UNMETERED
 }

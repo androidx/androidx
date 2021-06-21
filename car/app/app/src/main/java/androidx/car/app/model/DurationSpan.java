@@ -25,6 +25,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.time.Duration;
 
@@ -53,6 +54,7 @@ import java.time.Duration;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
+@CarProtocol
 public final class DurationSpan extends CarSpan {
     @Keep
     private final long mDurationSeconds;

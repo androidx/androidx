@@ -29,6 +29,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -53,6 +54,7 @@ import java.util.TimeZone;
  * library such as Joda time, {@link #create(long, int, String)} can be used.
  */
 @SuppressWarnings("MissingSummary")
+@CarProtocol
 public final class DateTimeWithZone {
     /** The maximum allowed offset for a time zone, in seconds. */
     private static final long MAX_ZONE_OFFSET_SECONDS = 18 * HOURS.toSeconds(1);

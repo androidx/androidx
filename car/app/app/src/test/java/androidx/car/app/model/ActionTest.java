@@ -74,18 +74,6 @@ public class ActionTest {
     }
 
     @Test
-    public void create_throws_customBackgroundColor() {
-        OnClickListener onClickListener = mock(OnClickListener.class);
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Action.Builder()
-                        .setTitle("foo")
-                        .setOnClickListener(onClickListener)
-                        .setBackgroundColor(CarColor.createCustom(0xdead, 0xbeef))
-                        .build());
-    }
-
-    @Test
     public void create_noTitleDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Action action = new Action.Builder()
@@ -143,6 +131,27 @@ public class ActionTest {
         action.getOnClickDelegate().sendClick(onDoneCallback);
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
+    public void create_panMode() {
+        Action action = new Action.Builder(Action.PAN)
+                .setIcon(TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                        "ic_test_1"))
+                .build();
+        assertThat(action.getTitle()).isNull();
+    }
+
+    @Test
+    public void create_panMode_hasOnClickListener_throws() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        assertThrows(IllegalStateException.class,
+                () -> new Action.Builder(Action.PAN)
+                        .setIcon(TestUtils.getTestCarIcon(
+                                ApplicationProvider.getApplicationContext(),
+                                "ic_test_1"))
+                        .setOnClickListener(onClickListener)
+                        .build());
     }
 
     @Test

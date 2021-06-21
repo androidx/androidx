@@ -152,9 +152,9 @@ fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean):
         return downstreamLineNo
     }
 
-    if (lineStart == offset) {
-        return if (upstream) downstreamLineNo - 1 else downstreamLineNo
+    return if (lineStart == offset) {
+        if (upstream) downstreamLineNo - 1 else downstreamLineNo
     } else { // lineEnd == offset
-        return if (upstream) downstreamLineNo else downstreamLineNo + 1
+        if (upstream) downstreamLineNo else downstreamLineNo + 1
     }
 }

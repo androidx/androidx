@@ -16,11 +16,12 @@
 
 package androidx.wear.watchface.control;
 
-import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI;
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS;
+import androidx.wear.watchface.control.IInteractiveWatchFace;
 import androidx.wear.watchface.control.IHeadlessWatchFace;
-import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS;
+import androidx.wear.watchface.control.IPendingInteractiveWatchFace;
+import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams;
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
+import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat;
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams;
 import androidx.wear.watchface.editor.IEditorService;
 
@@ -32,12 +33,12 @@ import androidx.wear.watchface.editor.IEditorService;
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 6
+    // Next Id: 7
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 1;
+    const int API_VERSION = 2;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -48,11 +49,11 @@ interface IWatchFaceControlService {
     int getApiVersion() = 1;
 
     /**
-     * Gets the {@link IInteractiveWatchFaceSysUI} corresponding to the id of an existing watch
+     * Gets the {@link IInteractiveWatchFace} corresponding to the id of an existing watch
      * face instance, or null if there is no such instance. The id is set when the instance is
      * created, see {@link WallpaperInteractiveWatchFaceInstanceParams}.
      */
-    IInteractiveWatchFaceSysUI getInteractiveWatchFaceInstanceSysUI(in String id) = 2;
+    IInteractiveWatchFace getInteractiveWatchFaceInstance(in String id) = 2;
 
     /**
      * Creates a headless WatchFace instance for the specified watchFaceName and returns an {@link
@@ -70,7 +71,7 @@ interface IWatchFaceControlService {
             in HeadlessWatchFaceInstanceParams params) = 3;
 
     /**
-     * Either returns an existing IInteractiveWatchFaceWCS instance or othrwise schedules
+     * Either returns an existing IInteractiveWatchFace instance or othrwise schedules
      * creation of an IInteractiveWatchFace for the next time the wallpaper service connects and
      * calls WatchFaceService.onCreateEngine.
      *
@@ -78,13 +79,13 @@ interface IWatchFaceControlService {
      *      instance to be made when WatchFaceService.onCreateEngine is called. If an existing
      *      instance is returned this callback won't fire.
      * @param callback Callback fired when the wathface is created.
-     * @return The existing {@link IInteractiveWatchFaceWCS} or null in which the callback will fire
+     * @return The existing {@link IInteractiveWatchFace} or null in which the callback will fire
      *      the next time the wallpaper service connects and calls WatchFaceService.onCreateEngine.
      * @since API version 1.
      */
-    IInteractiveWatchFaceWCS getOrCreateInteractiveWatchFaceWCS(
+    IInteractiveWatchFace getOrCreateInteractiveWatchFace(
             in WallpaperInteractiveWatchFaceInstanceParams params,
-            in IPendingInteractiveWatchFaceWCS callback) = 4;
+            in IPendingInteractiveWatchFace callback) = 4;
 
     /**
      * Returns the {@link IEditorService}
@@ -92,4 +93,14 @@ interface IWatchFaceControlService {
      * @since API version 1.
      */
     IEditorService getEditorService() = 5;
+
+    /**
+     * Returns an array of {@link IdAndDefaultProviderPolicyWireFormat} describing the default
+     * provider policy for the watch face's complications. Note this call does not create the
+     * renderer so it's cheaper than creating a headless instance and querying ComplicationState.
+     *
+     * @since API version 2.
+     */
+    IdTypeAndDefaultProviderPolicyWireFormat[] getDefaultProviderPolicies(
+            in DefaultProviderPoliciesParams params) = 6;
 }

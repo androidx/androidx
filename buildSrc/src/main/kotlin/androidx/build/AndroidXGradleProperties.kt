@@ -54,11 +54,6 @@ const val VERSION_EXTRA_CHECK_ENABLED = "androidx.versionExtraCheckEnabled"
 const val COMPOSE_MPP_ENABLED = "androidx.compose.multiplatformEnabled"
 
 /**
- * Setting this property enables calculating the fraction of code covered by tests
- */
-const val COVERAGE_ENABLED = "androidx.coverageEnabled"
-
-/**
  * Returns whether the project should generate documentation.
  */
 const val ENABLE_DOCUMENTATION = "androidx.enableDocumentation"
@@ -111,14 +106,17 @@ const val PLAYGROUND_DOKKA_BUILD_ID = "androidx.playground.dokkaBuildId"
  */
 const val VALIDATE_NO_UNRECOGNIZED_MESSAGES = "androidx.validateNoUnrecognizedMessages"
 
-const val EXPERIMENTAL_KOTLIN_BACKEND_ENABLED = "androidx.experimentalKotlinBackendEnabled"
+/**
+ * Specifies to run the build twice and validate that the second build doesn't run more
+ * tasks than expected.
+ */
+const val VERIFY_UP_TO_DATE = "androidx.verifyUpToDate"
 
 val ALL_ANDROIDX_PROPERTIES = setOf(
     ALL_WARNINGS_AS_ERRORS,
     ALTERNATIVE_PROJECT_URL,
     VERSION_EXTRA_CHECK_ENABLED,
     COMPOSE_MPP_ENABLED,
-    COVERAGE_ENABLED,
     DISPLAY_TEST_OUTPUT,
     ENABLE_DOCUMENTATION,
     PROJECT_SUBSET,
@@ -127,16 +125,13 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     USE_MAX_DEP_VERSIONS,
     TEST_FAILURES_DO_NOT_FAIL_TEST_TASK,
     VALIDATE_NO_UNRECOGNIZED_MESSAGES,
+    VERIFY_UP_TO_DATE,
     WRITE_VERSIONED_API_FILES,
-    AffectedModuleDetector.CHANGED_PROJECTS_ARG,
     AffectedModuleDetector.ENABLE_ARG,
-    AffectedModuleDetector.DEPENDENT_PROJECTS_ARG,
-    AffectedModuleDetector.CHANGED_PROJECTS_ARG,
     AffectedModuleDetector.BASE_COMMIT_ARG,
     PLAYGROUND_SNAPSHOT_BUILD_ID,
     PLAYGROUND_METALAVA_BUILD_ID,
-    PLAYGROUND_DOKKA_BUILD_ID,
-    EXPERIMENTAL_KOTLIN_BACKEND_ENABLED
+    PLAYGROUND_DOKKA_BUILD_ID
 )
 
 /**
@@ -210,16 +205,6 @@ fun Project.isDocumentationEnabled(): Boolean {
  */
 fun Project.usingMaxDepVersions(): Boolean {
     return project.hasProperty(USE_MAX_DEP_VERSIONS)
-}
-
-/**
- * Returns whether the project has coverage enabled.
- */
-fun Project.isCoverageEnabled(): Boolean {
-    if (project.usingMaxDepVersions()) {
-        return false
-    }
-    return (project.findProperty(COVERAGE_ENABLED) as? String)?.toBoolean() ?: false
 }
 
 /**

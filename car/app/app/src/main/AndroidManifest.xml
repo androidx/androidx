@@ -15,6 +15,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.car.app">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.car.app">
+    <application>
+        <activity
+            android:name=".CarAppInternalActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false"/>
+        <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
+    </application>
+    <queries>
+        <provider android:authorities="androidx.car.app.connection" />
+    </queries>
 </manifest>

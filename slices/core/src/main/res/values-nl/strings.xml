@@ -17,11 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slices_permission_request" msgid="3604847235923472451">"<xliff:g id="APP_0">%1$s</xliff:g> wil segmenten van <xliff:g id="APP_2">%2$s</xliff:g> weergeven"</string>
-    <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> toestaan om segmenten van <xliff:g id="APP_2">%2$s</xliff:g> weer te geven?"</string>
+    <string name="abc_slices_permission_request" msgid="3604847235923472451">"<xliff:g id="APP_0">%1$s</xliff:g> wil segmenten van <xliff:g id="APP_2">%2$s</xliff:g> tonen"</string>
+    <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> toestaan om segmenten van <xliff:g id="APP_2">%2$s</xliff:g> te tonen?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- Deze kan informatie lezen van <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- Deze kan acties uitvoeren in <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"<xliff:g id="APP">%1$s</xliff:g> toestaan om segmenten van apps weer te geven"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Toestaan"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Weigeren"</string>
 </resources>

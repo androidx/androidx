@@ -19,6 +19,7 @@
 
     <!-- Required for complications to receive complication data and open the provider chooser. -->
     <uses-feature android:name="android.hardware.type.watch" />
+    <meta-data android:name="com.google.android.wearable.standalone" android:value="true" />
 
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -44,21 +45,12 @@
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/analog_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/analog_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
                 android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
@@ -78,21 +70,12 @@
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/digital_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/digital_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
                 android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
@@ -112,21 +95,12 @@
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/gl_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/gl_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
                 android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
@@ -146,21 +120,12 @@
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/gl_background_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/gl_background_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
                 android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>

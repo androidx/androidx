@@ -17,6 +17,7 @@
 package androidx.build.testConfiguration
 
 import androidx.build.dependencyTracker.ProjectSubset
+import androidx.build.isPresubmitBuild
 import androidx.build.renameApkForTesting
 import com.android.build.api.variant.BuiltArtifactsLoader
 import org.gradle.api.DefaultTask
@@ -66,6 +67,10 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
     abstract val hasBenchmarkPlugin: Property<Boolean>
 
     @get:Input
+    @get:Optional
+    abstract val benchmarkRunAlsoInterpreted: Property<Boolean>
+
+    @get:Input
     abstract val testRunner: Property<String>
 
     @get:Input
@@ -85,7 +90,7 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
 
     private fun writeConfigFileContent(
         outputFile: RegularFileProperty,
-        isConstrained: Boolean = true
+        isConstrained: Boolean = false
     ) {
         /*
         Testing an Android Application project involves 2 APKS: an application to be instrumented,
@@ -107,17 +112,10 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
                 configBuilder.appApkName(appName)
             }
         }
+        val isPresubmit = isPresubmitBuild()
+        configBuilder.isPostsubmit(!isPresubmit)
         when (affectedModuleDetectorSubset.get()) {
-            ProjectSubset.CHANGED_PROJECTS -> {
-                configBuilder.isPostsubmit(false)
-                configBuilder.runAllTests(true)
-            }
-            ProjectSubset.ALL_AFFECTED_PROJECTS -> {
-                configBuilder.isPostsubmit(true)
-                configBuilder.runAllTests(true)
-            }
             ProjectSubset.DEPENDENT_PROJECTS -> {
-                configBuilder.isPostsubmit(false)
                 // Don't ever run full tests of RV if it is dependent, since they take > 45 minutes
                 if (isConstrained || testProjectPath.get().contains("recyclerview")) {
                     configBuilder.runAllTests(false)
@@ -125,26 +123,35 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
                     configBuilder.runAllTests(true)
                 }
             }
+            ProjectSubset.NONE -> {
+                if (isPresubmit) {
+                    configBuilder.runAllTests(false)
+                } else {
+                    configBuilder.runAllTests(true)
+                }
+            }
+            // in all other cases, if we are building this config we want to run all the tests
             else -> {
-                throw IllegalStateException(
-                    "$name should not be running if the AffectedModuleDetector is returning " +
-                        "${affectedModuleDetectorSubset.get()} for this project."
-                )
+                configBuilder.runAllTests(true)
             }
         }
+        // This section adds metadata tags that will help filter runners to specific modules.
         if (hasBenchmarkPlugin.get()) {
             configBuilder.isBenchmark(true)
             if (configBuilder.isPostsubmit) {
+                if (benchmarkRunAlsoInterpreted.get()) {
+                    configBuilder.tag("microbenchmarks_interpreted")
+                }
                 configBuilder.tag("microbenchmarks")
-            } else {
-                configBuilder.tag("microbenchmarks_presubmit")
             }
         } else if (testProjectPath.get().endsWith("macrobenchmark")) {
             configBuilder.tag("macrobenchmarks")
         } else {
             configBuilder.tag("androidx_unit_tests")
-            if (project.path.contains(":compose:")) {
+            if (project.path.startsWith(":compose:")) {
                 configBuilder.tag("compose")
+            } else if (project.path.startsWith(":wear:")) {
+                configBuilder.tag("wear")
             }
         }
         val testApk = testLoader.get().load(testFolder.get())

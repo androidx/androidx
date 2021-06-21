@@ -671,7 +671,7 @@ public class AnimatedRecyclerView extends Activity {
         public MyAdapter(List<String> data) {
             TypedValue val = new TypedValue();
             AnimatedRecyclerView.this.getTheme().resolveAttribute(
-                    R.attr.selectableItemBackground, val, true);
+                    androidx.appcompat.R.attr.selectableItemBackground, val, true);
             mBackground = val.resourceId;
             mData = data;
             for (String itemText : mData) {

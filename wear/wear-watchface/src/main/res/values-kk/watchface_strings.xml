@@ -4,7 +4,7 @@
     <string name="complication_config" msgid="292306201243482945">"Циферблат қосымша деректерін конфигурациялау"</string>
     <string name="watchface_settings" msgid="4785773105440577595">"Циферблат параметрлерін конфигурациялау"</string>
     <string name="style_config" msgid="2987895585951859981">"Циферблат стильдерін конфигурациялау"</string>
-    <string name="none_background_image_provider" msgid="2326408635673026310">"Ешқайсысы"</string>
+    <string name="none_background_image_provider" msgid="2326408635673026310">"Жоқ"</string>
     <string name="settings_complications" msgid="7688669266180209514">"Деректер"</string>
     <string name="settings_background_image" msgid="4866968289579187727">"Фондық кескін"</string>
     <string name="settings_styles" msgid="5609438460443634575">"Стильдер"</string>

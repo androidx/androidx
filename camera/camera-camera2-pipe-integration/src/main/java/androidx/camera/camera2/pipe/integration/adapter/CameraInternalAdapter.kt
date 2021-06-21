@@ -94,7 +94,7 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun onUseCaseReset(useCase: UseCase) {
-        useCaseManager.update(useCase)
+        useCaseManager.reset(useCase)
     }
 
     override fun onUseCaseInactive(useCase: UseCase) {

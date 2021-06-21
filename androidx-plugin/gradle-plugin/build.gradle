@@ -7,7 +7,6 @@ plugins {
 
 ext.supportRootFolder = project.projectDir.getParentFile().getParentFile()
 
-apply from: "../../buildSrc/build_dependencies.gradle"
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
@@ -16,26 +15,31 @@ dependencies {
     compileOnly(findGradleKotlinDsl())
     implementation(gradleApi())
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${build_versions.kotlin}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${libs.versions.kotlin.get()}")
 
-    implementation(build_libs.agp)
-    implementation(build_libs.dex_member_list)
-    implementation(build_libs.kotlin.gradle_plugin)
-    implementation(build_libs.kotlinpoet)
+    implementation(libs.androidGradlePlugin)
+    implementation(libs.dexMemberList)
+    implementation(libs.kotlinGradlePlugin)
+    implementation(libs.kotlinPoet)
 
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${build_versions.dokka}")
-    implementation("org.jetbrains.dokka:dokka-android-gradle-plugin:${build_versions.dokka}")
+    implementation(libs.dokkaGradlePlugin)
+    implementation(libs.gson)
+
+    implementation(libs.androidLint)
 
     // Not really sure about these:
+    implementation("com.googlecode.json-simple:json-simple:1.1")
     implementation("androidx.benchmark:benchmark-gradle-plugin:1.0.0")
-    implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
-    implementation("org.anarres.jarjar:jarjar-gradle:1.0.1")
-    implementation("com.github.jengelman.gradle.plugins:shadow:5.2.0")
+    implementation(libs.protobufGradlePlugin)
+    implementation(libs.shadow)
+    implementation(libs.wireGradlePlugin)
+    testImplementation(libs.junit)
 }
 
 sourceSets {
     main.java.srcDirs += "${supportRootFolder}/buildSrc/src/main/kotlin"
     main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
+    test.java.srcDirs += "${supportRootFolder}/buildSrc-tests/src/test/kotlin"
     main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/resources"
 }
 
@@ -60,9 +64,9 @@ gradlePlugin {
             id = "AndroidXPlugin"
             implementationClass = "androidx.build.AndroidXPlugin"
         }
-        AndroidXUiPlugin {
-            id = "AndroidXUiPlugin"
-            implementationClass = "androidx.build.AndroidXUiPlugin"
+        AndroidXComposePlugin {
+            id = "AndroidXComposePlugin"
+            implementationClass = "androidx.build.AndroidXComposePlugin"
         }
     }
 }

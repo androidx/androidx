@@ -16,8 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
 
 plugins {
@@ -28,11 +26,11 @@ plugins {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.navigation:navigation-runtime:2.3.2")
-    api(HILT_ANDROID)
-    kapt(HILT_COMPILER)
+    api(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
 }
 
 androidx {

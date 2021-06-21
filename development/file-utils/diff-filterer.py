@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 #  Copyright (C) 2018 The Android Open Source Project
 #
@@ -16,7 +16,7 @@
 #
 
 
-import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess, stat, sys
+import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess, stat, sys, time
 from collections import OrderedDict
 
 def usage():
@@ -65,6 +65,11 @@ class FileIo(object):
     else:
       shutil.copy2(fromPath, toPath)
 
+  def hardLink(self, oldPath, newPath):
+    self.ensureDirExists(os.path.dirname(newPath))
+    self.removePath(newPath)
+    os.link(oldPath, newPath)
+
   def writeFile(self, path, text):
     f = open(path, "w+")
     f.write(text)
@@ -72,7 +77,7 @@ class FileIo(object):
 
   def writeScript(self, path, text):
     self.writeFile(path, text)
-    os.chmod(path, 0755)
+    os.chmod(path, stat.S_IRWXU)
 
   def removePath(self, filePath):
     if len(os.path.split(filePath)) < 2:
@@ -108,15 +113,58 @@ class FileIo(object):
   def commonPrefix(self, paths):
     if len(paths) < 1:
       return None
-    result = paths[0]
+    result = None
     for path in paths:
-      prev = result
-      result = self.commonPrefixOf2(result, path)
       if result is None:
-        return result
+        # first iteration
+        result = path
+      else:
+        prev = result
+        result = self.commonPrefixOf2(result, path)
+        if result is None:
+          # the common prefix of two paths was nothing
+          return result
     return result
 
 fileIo = FileIo()
+
+# Fast file copying
+class FileCopyCache(object):
+  def __init__(self):
+    self.modificationTimes = {}
+
+  # Puts a copy of <sourcePath> at <destPath>
+  # If we already have an unmodified copy, we just hardlink our existing unmodified copy
+  # If we don't have an unmodified copy, we first make a copy
+  def copyFile(self, sourcePath, destPath, cachePath):
+    if cachePath is None:
+      fileIo.copyFile(sourcePath, destPath)
+    else:
+      shareable = self.getShareableFile(sourcePath, cachePath)
+      fileIo.hardLink(shareable, destPath)
+
+  # gets a shareable copy of <sourcePath> in <cachePath> and returns its path
+  def getShareableFile(self, sourcePath, cachePath):
+    # note that absolute sourcePath is supported
+    path = os.path.abspath(cachePath + "/" + sourcePath)
+    if path in self.modificationTimes:
+      # we've already shared this file before; let's check whether it has been modified since then
+      if self.modificationTimes[path] == self.getModificationTime(path):
+        # this file hasn't been modified since we last shared it; we can just reuse it
+        return path
+    # we don't have an existing file that we can reuse, so we have to make one
+    fileIo.copyFile(sourcePath, path)
+    self.modificationTimes[path] = self.getModificationTime(path)
+    return path
+
+  # returns the time at which <path> was last modified
+  def getModificationTime(self, path):
+    if os.path.exists(path):
+      return os.path.getmtime(path)
+    return None
+
+
+fileCopyCache = FileCopyCache()
 
 # Runs a shell command
 class ShellScript(object):
@@ -135,7 +183,7 @@ class ShellScript(object):
 
 # Base class that can hold the state of a file
 class FileContent(object):
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     pass
 
   def equals(self, other, checkWithFileSystem=False):
@@ -148,8 +196,8 @@ class FileBacked_FileContent(FileContent):
     self.referencePath = referencePath
     self.isLink = os.path.islink(self.referencePath)
 
-  def apply(self, filePath):
-    fileIo.copyFile(self.referencePath, filePath)
+  def apply(self, filePath, cachePath=None):
+    fileCopyCache.copyFile(self.referencePath, filePath, cachePath)
 
   def equals(self, other, checkWithFileSystem=False):
     if not isinstance(other, FileBacked_FileContent):
@@ -172,7 +220,7 @@ class MissingFile_FileContent(FileContent):
   def __init__(self):
     super(MissingFile_FileContent, self).__init__()
 
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     fileIo.removePath(filePath)
 
   def equals(self, other, checkWithFileSystem=False):
@@ -186,7 +234,7 @@ class Directory_FileContent(FileContent):
   def __init__(self):
     super(Directory_FileContent, self).__init__()
 
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     fileIo.ensureDirExists(filePath)
 
   def equals(self, other, checkWithFileSystem=False):
@@ -200,9 +248,9 @@ class FilesState(object):
   def __init__(self):
     self.fileStates = OrderedDict()
 
-  def apply(self, filePath):
-    for relPath, state in self.fileStates.iteritems():
-      state.apply(fileIo.join(filePath, relPath))
+  def apply(self, filePath, cachePath=None):
+    for relPath, state in self.fileStates.items():
+      state.apply(fileIo.join(filePath, relPath), cachePath)
 
   def add(self, filePath, fileContent):
     self.fileStates[filePath] = fileContent
@@ -216,10 +264,13 @@ class FilesState(object):
       return self.fileStates[filePath]
     return None
 
+  def getKeys(self):
+    return self.fileStates.keys()
+
   # returns a FilesState resembling <self> but without the keys for which other[key] == self[key]
   def withoutDuplicatesFrom(self, other, checkWithFileSystem=False):
     result = FilesState()
-    for filePath, fileState in self.fileStates.iteritems():
+    for filePath, fileState in self.fileStates.items():
       otherContent = other.getContent(filePath)
       if not fileState.equals(otherContent, checkWithFileSystem):
         result.add(filePath, fileState)
@@ -228,13 +279,13 @@ class FilesState(object):
   # returns self[fromIndex:toIndex]
   def slice(self, fromIndex, toIndex):
     result = FilesState()
-    for filePath in self.fileStates.keys()[fromIndex:toIndex]:
+    for filePath in list(self.fileStates.keys())[fromIndex:toIndex]:
       result.fileStates[filePath] = self.fileStates[filePath]
     return result
 
   def restrictedToKeysIn(self, other):
     result = FilesState()
-    for filePath, fileState in self.fileStates.iteritems():
+    for filePath, fileState in self.fileStates.items():
       if filePath in other.fileStates:
         result.add(filePath, fileState)
     return result
@@ -242,7 +293,7 @@ class FilesState(object):
   # returns a FilesState having the same keys as this FilesState, but with values taken from <other> when it has them, and <self> otherwise
   def withConflictsFrom(self, other, listEmptyDirs = False):
     result = FilesState()
-    for filePath, fileContent in self.fileStates.iteritems():
+    for filePath, fileContent in self.fileStates.items():
       if filePath in other.fileStates:
         result.add(filePath, other.fileStates[filePath])
       else:
@@ -278,7 +329,7 @@ class FilesState(object):
   def listImpliedDirs(self):
     dirs = set()
     empty = MissingFile_FileContent()
-    keys = [key for (key, value) in self.fileStates.iteritems() if not empty.equals(value)]
+    keys = [key for (key, value) in self.fileStates.items() if not empty.equals(value)]
     i = 0
     while i < len(keys):
       path = keys[i]
@@ -303,14 +354,14 @@ class FilesState(object):
 
   def clone(self):
     result = FilesState()
-    for path, content in self.fileStates.iteritems():
+    for path, content in self.fileStates.items():
       result.add(path, content)
     return result
 
   def withoutEmptyEntries(self):
     result = FilesState()
     empty = MissingFile_FileContent()
-    for path, state in self.fileStates.iteritems():
+    for path, state in self.fileStates.items():
       if not empty.equals(state):
         result.add(path, state)
     return result
@@ -334,7 +385,7 @@ class FilesState(object):
       prefixLength = len(commonDir) + 1 # skip the following '/'
     groupsByDir = {}
 
-    for filePath, fileContent in self.fileStates.iteritems():
+    for filePath, fileContent in self.fileStates.items():
       subPath = filePath[prefixLength:]
       slashIndex = subPath.find("/")
       if slashIndex < 0:
@@ -362,7 +413,7 @@ class FilesState(object):
       minIndex = 0
       mergedChildren = []
       for i in range(maxNumChildren):
-        maxIndex = len(children) * (i + 1) / maxNumChildren
+        maxIndex = len(children) * (i + 1) // maxNumChildren
         merge = FilesState()
         for child in children[minIndex:maxIndex]:
           merge.addAllFrom(child)
@@ -387,7 +438,7 @@ class FilesState(object):
     if len(self.fileStates) == 0:
       return "[empty fileState]"
     entries = []
-    for filePath, state in self.fileStates.iteritems():
+    for filePath, state in self.fileStates.items():
       entries.append(filePath + " -> " + str(state))
     if len(self.fileStates) > 1:
       prefix = str(len(entries)) + " entries:\n"
@@ -425,199 +476,16 @@ def filesStateFromTree(rootPath):
     state.add(path, states[path])
   return state
 
-class FilesState_HyperBoxNode(object):
-  def __init__(self, dimensions):
-    self.dimensions = dimensions
-    self.children = []
-    if len(dimensions) > 1:
-      nextDimensions = dimensions[1:]
-      for i in range(dimensions[0]):
-        self.children.append(FilesState_HyperBoxNode(nextDimensions))
-    else:
-      for i in range(dimensions[0]):
-         self.children.append(FilesState_LeafBox())
-
-  def getFiles(self, coordinates):
-    child = self.children[coordinates[0]]
-    return child.getFiles(coordinates[1:])
-
-  def setFiles(self, coordinates, files):
-    self.children[coordinates[0]].setFiles(coordinates[1:], files)
-
-  def clearFiles(self, coordinates):
-    self.children[coordinates[0]].clearFiles(coordinates[1:])
-
-  def removeSlice(self, dimension, index):
-    if dimension == 0:
-      del self.children[index]
-    else:
-      for child in self.children:
-        child.removeSlice(dimension - 1, index)
-
-  def getSlice(self, dimension, index):
-    result = FilesState()
-    for i in range(len(self.children)):
-      if dimension != 0 or i == index:
-        child = self.children[i]
-        childResult = child.getSlice(dimension - 1, index)
-        result = result.expandedWithEmptyEntriesFor(childResult).withConflictsFrom(childResult)
-    return result
-
-
-class FilesState_LeafBox(object):
-  def __init__(self):
-    self.files = FilesState()
-
-  def getFiles(self, coordinates):
-    return self.files
-
-  def setFiles(self, coordinates, files):
-    self.files = files
-
-  def clearFiles(self, coordinates):
-    self.files = FilesState()
-
-  def removeSlice(self, dimensions, index):
-    return
-
-  def getSlice(self, dimension, index):
-    return self.getFiles([])
-
-class FilesState_HyperBox(object):
-  def __init__(self, dimensions):
-    self.dimensions = dimensions
-    self.durations = []
-    self.numFiles = 0
-    if len(dimensions) < 1:
-      raise Exception("dimensions must be nonempty: " + str(dimensions))
-    for length in dimensions:
-      if length < 1:
-        raise Exception("Illegal dimension " + str(length) + " in " + str(dimensions))
-      self.durations.append([None] * length)
-    self.root = FilesState_HyperBoxNode(dimensions)
-
-  def getNumDimensions(self):
-    return len(self.dimensions)
-
-  def getSize(self, dimension):
-    return self.dimensions[dimension]
-
-  def getDimensions(self):
-    return self.dimensions
-
-  def getSliceDuration(self, dimension, index):
-    return self.durations[dimension][index]
-
-  def setSliceDuration(self, dimension, index, value):
-    durations = self.durations[dimension]
-    if index >= len(durations):
-      raise Exception("Index " + str(index) + " too large for durations " + str(durations) + " of length " + str(len(durations)) + ". All durations: " + str(self.durations))
-    durations[index] = value
-
-  def removeSlice(self, dimension, index):
-    durations = self.durations[dimension]
-    del durations[index]
-    self.root.removeSlice(dimension, index)
-    self.dimensions[dimension] -= 1
-
-  def getFastestIndex(self, dimension):
-    durations = self.durations[dimension]
-    fastestValue = None
-    fastestIndex = None
-    for i in range(len(durations)):
-      value = durations[i]
-      if value is not None:
-        if fastestValue is None or value < fastestValue:
-          fastestValue = value
-          fastestIndex = i
-    return fastestIndex
-
-  def getFastestIndices(self):
-    return [self.getFastestIndex(dimension) for dimension in range(self.getNumDimensions())]
-
-  def getFiles(self, coordinates):
-    return self.root.getFiles(coordinates)
-
-  def setFiles(self, dimensions, files):
-    self.root.setFiles(dimensions, files)
-    self.numFiles = None
-
-  def clearFiles(self, dimensions):
-    self.setFiles(dimensions, FilesState())
-
-  def getNumFiles(self):
-    if self.numFiles is None:
-      numFiles = 0
-      for child in self.getChildren():
-        numFiles += child.size()
-      self.numFiles = numFiles
-    return self.numFiles
-
-  def getSlice(self, dimension, index):
-    return self.root.getSlice(dimension, index)
-
-  def incrementCoordinates(self, coordinates):
-    coordinates = coordinates[:]
-    for i in range(len(coordinates)):
-      coordinates[i] += 1
-      if coordinates[i] >= self.dimensions[i]:
-        coordinates[i] = 0
-      else:
-        return coordinates
-    return None
-
-  def getChildren(self):
-    if len(self.dimensions) < 1 or self.dimensions[0] < 1:
-      return []
-    coordinates = [0] * len(self.dimensions)
-    children = []
-    while coordinates is not None:
-      child = self.getFiles(coordinates)
-      if child is not None and child.size() > 0:
-        children.append(child)
-      coordinates = self.incrementCoordinates(coordinates)
-    return children
-
-  def getNumChildren(self):
-    return len(self.getChildren())
-
-  def getAllFiles(self):
-    files = FilesState()
-    for child in self.getChildren():
-      files = files.expandedWithEmptyEntriesFor(child).withConflictsFrom(child)
-    return files
-
-def boxFromList(fileStates):
-  numStates = len(fileStates)
-  if numStates == 1:
-    dimensions = [1]
-  else:
-    dimensions = []
-    while numStates > 1:
-      if numStates == 4:
-        # if there are 4 states we want to make it a 2x2
-        nextDimension = 2
-      else:
-        nextDimension = min(3, numStates)
-      dimensions.append(nextDimension)
-      numStates = int(math.ceil(float(numStates) / float(nextDimension)))
-  tree = FilesState_HyperBox(dimensions)
-  coordinates = [0] * len(dimensions)
-  for state in fileStates:
-    tree.setFiles(coordinates, state)
-    coordinates = tree.incrementCoordinates(coordinates)
-  return tree
-
 # runs a Job in this process
-def runJobInSameProcess(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
-  job = Job(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe)
+def runJobInSameProcess(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+  job = Job(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe)
   job.runAndReport()
 
 # starts a Job in a new process
-def runJobInOtherProcess(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, queue, identifier):
+def runJobInOtherProcess(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, queue, identifier):
   parentWriter, childReader = multiprocessing.Pipe()
   childInfo = TwoWayPipe(childReader, queue, identifier)
-  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, childInfo,))
+  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, childInfo,))
   process.start()
   return parentWriter
 
@@ -629,53 +497,73 @@ class TwoWayPipe(object):
 
 # Stores a subprocess for running tests and some information about which tests to run
 class Job(object):
-  def __init__(self, shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
+  def __init__(self, shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+    # the test to run
     self.shellCommand = shellCommand
+    # directory to run the test in
     self.workPath = workPath
-    self.full_resetTo_state = full_resetTo_state
+    # the state of our working directory
+    self.originalState = originalState
+    # whether to assume that the test won't change anything important
     self.assumeNoSideEffects = assumeNoSideEffects
-    # all of the files that we've found so far that we can add
-    self.acceptedState = FilesState()
-    # HyperBox of all of the possible changes we're considering
-    self.candidateBox = candidateBox
-    # FilesState telling the current set of files that we're testing modifying
-    self.currentTestState = None
-    self.busy = False
-    self.complete = False
+    # the best accepted state
+    self.full_resetTo_state = full_resetTo_state
+    # the changes we're considering
+    self.testState = testState
     self.pipe = twoWayPipe
+    self.cachePath = cachePath
 
   def runAndReport(self):
     succeeded = False
+    postState = None
     try:
-      succeeded = self.run()
+      (succeeded, postState) = self.run()
     finally:
       print("^" * 100)
-      self.pipe.writerQueue.put((self.pipe.identifier, succeeded))
+      self.pipe.writerQueue.put((self.pipe.identifier, succeeded, postState))
 
   def run(self):
     print("#" * 100)
-    print("Checking " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
-    # set file state
-    if not self.assumeNoSideEffects:
-      fileIo.removePath(self.workPath)
-    # If the user told us that we don't have to worry about the possibility of the shell command generating files whose state matters,
-    # then we don't reset any unrecognized files (they might even be caches that improve speed)
-    testState = self.candidateBox
-    self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(self.workPath)
+    print("Checking " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
+
+    # compute the state that we want the files to be in before we start the test
+    fullStateToTest = self.full_resetTo_state.expandedWithEmptyEntriesFor(self.testState).withConflictsFrom(self.testState, True)
+    #print("Starting with original worker state of " + str(self.originalState))
+
+    # update our files on disk to match the state we want to test
+    fullStateToTest.expandedWithEmptyEntriesFor(self.originalState).withoutDuplicatesFrom(self.originalState).apply(self.workPath)
 
     # run test
-    start = datetime.datetime.now()
+    testStartSeconds = time.time()
+    testStart = datetime.datetime.now()
     returnCode = ShellScript(self.shellCommand, self.workPath).process()
-    now = datetime.datetime.now()
-    duration = (now - start).total_seconds()
+    testEnd = datetime.datetime.now()
+    duration = (testEnd - testStart).total_seconds()
+
+    if self.assumeNoSideEffects:
+      # assume that no relevant files changed
+      postState = fullStateToTest
+    else:
+      # determine which files weren't changed by the test command
+      postState = filesStateFromTree(self.workPath)
+      for key in postState.getKeys():
+        modified = postState.getContent(key)
+        if isinstance(modified, FileBacked_FileContent):
+          # If any filepath wasn't modified since the start of the test, then its content matches the original
+          # (If the content is known to match the original, we won't have to reset it next time)
+          if os.path.getmtime(modified.referencePath) < testStartSeconds:
+            original = fullStateToTest.getContent(key)
+            if original is not None:
+              if isinstance(original, FileBacked_FileContent):
+                modified.referencePath = original.referencePath
 
     # report results
     if returnCode == 0:
-      print("Passed: " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
-      return True
+      print("Passed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
+      return (True, postState)
     else:
-      print("Failed: " + self.candidateBox.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
-      return False
+      print("Failed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
+      return (False, postState)
 
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
@@ -726,6 +614,7 @@ class DiffRunner(object):
             except IOError as e:
               if attempt >= numAttempts - 1:
                 raise Exception("Failed to remove " + path, e)
+    fileIo.removePath(os.path.join(self.workPath, "caches"))
 
   def runnerTest(self, testState, timeout = None):
     workPath = self.getWorkPath(0)
@@ -764,6 +653,9 @@ class DiffRunner(object):
   def getWorkPath(self, jobId):
     return os.path.join(self.workPath, "job-" + str(jobId))
 
+  def getFilesCachePath(self, jobId):
+    return os.path.join(self.workPath, "caches", "job-" + str(jobId))
+
   def run(self):
     start = datetime.datetime.now()
     numIterationsCompleted = 0
@@ -797,6 +689,7 @@ class DiffRunner(object):
     workingDir = self.getWorkPath(jobId)
     queue = multiprocessing.Queue()
     activeTestStatesById = {}
+    workerStatesById = {}
     initialSplitSize = 2
     if self.maxNumJobsAtOnce != "auto" and self.maxNumJobsAtOnce > 2:
       initialSplitSize = self.maxNumJobsAtOnce
@@ -813,7 +706,7 @@ class DiffRunner(object):
       # display status message
       now = datetime.datetime.now()
       elapsedDuration = now - start
-      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in availableTestStates + activeTestStatesById.values()]) - numFailuresSinceLastSplitOrSuccess
+      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in availableTestStates + list(activeTestStatesById.values())]) - numFailuresSinceLastSplitOrSuccess
       estimatedNumTestsRemaining = max(minNumTestsRemaining, 1)
       if numConsecutiveFailures >= 4 and numFailuresSinceLastSplitOrSuccess < 1:
         # If we are splitting often and failing often, then we probably haven't yet
@@ -827,10 +720,10 @@ class DiffRunner(object):
 
       if len(activeTestStatesById) > 0:
         # wait for a response from a worker
-        response = queue.get()
-        identifier = response[0]
+        identifier, didAcceptState, workerNewState = queue.get()
         box = activeTestStatesById[identifier]
-        didAcceptState = response[1]
+        #print("main process received worker new state of " + str(workerNewState))
+        workerStatesById[identifier] = workerNewState
         numCompletedTests += 1
         numCompletionsSinceLastPoolSizeChange += 1
         if didAcceptState:
@@ -969,7 +862,12 @@ class DiffRunner(object):
             jobId += 1
           # start job
           workingDir = self.getWorkPath(jobId)
-          runJobInOtherProcess(self.testScript_path, workingDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
+          cacheDir = self.getFilesCachePath(jobId)
+          if jobId in workerStatesById:
+            workerPreviousState = workerStatesById[jobId]
+          else:
+            workerPreviousState = FilesState()
+          runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
           activeTestStatesById[jobId] = box
           availableTestStates = availableTestStates[1:]
 

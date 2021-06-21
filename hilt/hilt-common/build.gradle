@@ -16,8 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
 
 plugins {
@@ -26,8 +24,8 @@ plugins {
 }
 
 dependencies {
-    implementation(HILT_CORE)
-    annotationProcessor(HILT_COMPILER)
+    implementation(libs.hiltCore)
+    annotationProcessor(libs.hiltCompiler)
 }
 
 androidx {

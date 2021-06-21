@@ -26,7 +26,7 @@
     <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"טראק <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
     <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"טראק <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
     <string name="MediaControlView_audio_track_number_text" msgid="4263103361854223806">"טראק <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
-    <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"כותרת הסרטון לא ידועה"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"שם הסרטון לא ידוע"</string>
     <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"שם השיר לא ידוע"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"אומן לא ידוע"</string>
     <string name="mcv2_playback_error_text" msgid="6061787693725630293">"לא ניתן להפעיל את הפריט שביקשת"</string>
@@ -36,8 +36,8 @@
     <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"הצגת לחצנים נוספים"</string>
     <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"התקדמות ההפעלה"</string>
     <string name="mcv2_settings_button_desc" msgid="811917224044739656">"הגדרות"</string>
-    <string name="mcv2_cc_is_on" msgid="5427119422911561783">"הכתוביות מופעלות. כדי להסתירן, יש ללחוץ."</string>
-    <string name="mcv2_cc_is_off" msgid="2380791179816122456">"הכתוביות כבויות. כדי להציגן, יש ללחוץ."</string>
+    <string name="mcv2_cc_is_on" msgid="5427119422911561783">"הכתוביות מופעלות. צריך ללחוץ כדי להסתיר אותן."</string>
+    <string name="mcv2_cc_is_off" msgid="2380791179816122456">"הכתוביות מושבתות. צריך ללחוץ כדי להציג אותן."</string>
     <string name="mcv2_replay_button_desc" msgid="3128622733570179596">"הפעלה מחדש"</string>
     <string name="mcv2_play_button_desc" msgid="4881308324856085359">"הפעלה"</string>
     <string name="mcv2_pause_button_desc" msgid="7391720675120766278">"השהיה"</string>

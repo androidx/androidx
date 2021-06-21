@@ -69,6 +69,7 @@ public class RemoteCallback extends IWorkManagerImplCallback.Stub {
     public void onSuccess(@NonNull byte[] result) throws RemoteException {
         mFuture.set(result);
         unlinkToDeath();
+        onRequestCompleted();
     }
 
     @Override
@@ -76,9 +77,18 @@ public class RemoteCallback extends IWorkManagerImplCallback.Stub {
         onFailure(new RuntimeException(error));
     }
 
+    /**
+     * This method can be used by {@link RemoteCallback} implementations to keep track of
+     * the lengths of the session after completion of a request.
+     */
+    protected void onRequestCompleted() {
+        // Does nothing.
+    }
+
     private void onFailure(@NonNull Throwable throwable) {
         mFuture.setException(throwable);
         unlinkToDeath();
+        onRequestCompleted();
     }
 
     private void unlinkToDeath() {

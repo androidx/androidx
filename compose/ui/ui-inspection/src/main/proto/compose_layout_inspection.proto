@@ -65,6 +65,8 @@ message ComposableRoot {
     int64 view_id = 1;
     // All composables owned by this view (usually just one but could be more)
     repeated ComposableNode nodes = 2;
+    // All views owned by this view that should be hidden
+    repeated int64 views_to_skip = 3;
 }
 
 message ComposableNode {
@@ -80,6 +82,16 @@ message ComposableNode {
     int32 name = 7;
 
     Bounds bounds = 8;
+
+    enum Flags {
+      NONE = 0;
+      SYSTEM_CREATED = 0x1;
+      HAS_MERGED_SEMANTICS = 0x2;
+      HAS_UNMERGED_SEMANTICS = 0x4;
+    }
+    int32 flags = 9;
+
+    int64 view_id = 10;
 }
 
 // In Android, a resource id is a simple integer. This class holds the namespace, type, and name
@@ -151,6 +163,13 @@ message Parameter {
 
 // A reference to a "part" of a parameter value
 message ParameterReference {
+  enum Kind {
+    UNSPECIFIED = 0;
+    NORMAL = 1;
+    MERGED_SEMANTICS = 2;
+    UNMERGED_SEMANTICS = 3;
+  }
+
   sint64 composable_id = 1;
 
   // Identifies an index into a ParameterGroup
@@ -163,12 +182,17 @@ message ParameterReference {
   //    composite_index[1] is the index into the fields in MyClass
   //    composite_index[2] is the index into the field found by [1] etc...
   repeated int32 composite_index = 3;
+
+  // The kind of parameter this is a reference to
+  Kind kind = 4;
 }
 
 // A collection of all parameters associated with a single composable
 message ParameterGroup {
   sint64 composable_id = 1;
   repeated Parameter parameter = 3;
+  repeated Parameter merged_semantics = 4;
+  repeated Parameter unmerged_semantics = 5;
 }
 
 // ======= COMMANDS, RESPONSES, AND EVENTS =======
@@ -186,6 +210,8 @@ message GetComposablesCommand {
    int64 root_view_id = 1;
   // If true, only show composable nodes created by the user's own app
   bool skip_system_composables = 2;
+  // If the cached data generation matches the specified generation then the cache is still valid.
+  int32 generation = 3;
 }
 message GetComposablesResponse {
     // A collection of all text referenced by other fields in this message
@@ -207,6 +233,8 @@ message GetParametersCommand {
   // It is possible to request more elements by using: GetParameterDetailsCommand.
   // If not specified the default is 5.
   int32 max_initial_iterable_size = 5;
+  // If the cached data generation matches the specified generation then the cache is still valid.
+  int32 generation = 6;
 }
 
 message GetParametersResponse {
@@ -221,6 +249,8 @@ message GetAllParametersCommand {
   bool skip_system_composables = 2;
   int32 max_recursions = 3;
   int32 max_initial_iterable_size = 4;
+  // If the cached data generation matches the specified generation then the cache is still valid.
+  int32 generation = 5;
 }
 
 message GetAllParametersResponse {
@@ -238,6 +268,8 @@ message GetParameterDetailsCommand {
   bool skip_system_composables = 5;
   int32 max_recursions = 6;
   int32 max_initial_iterable_size = 7;
+  // If the cached data generation matches the specified generation then the cache is still valid.
+  int32 generation = 8;
 }
 
 message GetParameterDetailsResponse {

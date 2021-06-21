@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.utils.CollectionUtils;
@@ -37,6 +37,7 @@ import java.util.Objects;
  * <p>Example of steps are turning onto a street, taking a highway exit and merging onto a different
  * highway, or continuing straight through a roundabout.
  */
+@CarProtocol
 public final class Step {
     @Keep
     @Nullable
@@ -172,18 +173,26 @@ public final class Step {
         private Maneuver mManeuver;
         @Nullable
         private CarIcon mLanesImage;
+        @Nullable
         private CarText mCue;
         @Nullable
         private CarText mRoad;
 
         /**
+        * Constructs a new builder of {@link Step}.
+        */
+        public Builder() {
+        }
+
+        /**
          * Constructs a new builder of {@link Step} with a cue.
          *
-         * <p>A cue must always be set when the step is created and is used as a fallback when
-         * {@link Maneuver} is not set or is unavailable.
+         * <p>A cue can be used as a fallback when {@link Maneuver} is not set or is unavailable.
          *
          * <p>Some cluster displays do not support UTF-8 encoded characters, in which case
          * unsupported characters will not be displayed properly.
+         *
+         * <p>See {@link Builder#setCue} for details on span support in the input string.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
          * @see Builder#setCue(CharSequence)
@@ -193,12 +202,14 @@ public final class Step {
         }
 
         /**
-         * Constructs a new builder of {@link Step} with a cue.
+         * Constructs a new builder of {@link Step} with a cue, with support for multiple length
+         * variants.
+         *
+         * <p>See {@link Builder#setCue} for details on span support in the input string.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
          * @see Builder#Builder(CharSequence)
          */
-        @ExperimentalCarApi
         public Builder(@NonNull CarText cue) {
             mCue = requireNonNull(cue);
         }
@@ -244,9 +255,10 @@ public final class Step {
          *
          * <h4>Image Sizing Guidance</h4>
          *
-         * The provided image should have a maximum size of 294 x 44 dp. If the image exceeds this
-         * maximum size in either one of the dimensions, it will be scaled down and centered
-         * inside the bounding box while preserving the aspect ratio.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * images targeting a 500 x 74 dp bounding box. If the image exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -262,14 +274,14 @@ public final class Step {
         /**
          * Sets a text description of this maneuver.
          *
-         * <p>Must always be set when the step is created and is used as a fallback when {@link
-         * Maneuver} is not set or is unavailable.
+         * <p>A cue can be used as a fallback when {@link Maneuver} is not set or is unavailable.
          *
          * <p>For example "Turn left", "Make a U-Turn", "Sharp Right", or "Take the exit using
          * the left lane"
          *
          * <p>The {@code cue} string can contain images that replace spans of text by using {@link
-         * androidx.car.app.model.CarIconSpan}.
+         * androidx.car.app.model.CarIconSpan}. All other spans types are not supported and will be
+         * ignored.
          *
          * <p>In the following example, the "520" text is replaced with an icon:
          *
@@ -311,7 +323,7 @@ public final class Step {
          *
          * <p>For example, a {@link Step} for a left turn might provide "State Street" for the road.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code destinations} is {@code null}
          * @see CarText

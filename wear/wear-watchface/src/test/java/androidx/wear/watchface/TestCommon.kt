@@ -31,79 +31,101 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
-    private val complicationsManager: ComplicationsManager,
-    private val renderer: TestRenderer,
-    private val userStyleRepository: UserStyleRepository,
+    private val complicationSlots: List<ComplicationSlot>,
+    private val rendererFactory: (
+        surfaceHolder: SurfaceHolder,
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        watchState: WatchState,
+    ) -> TestRenderer,
+    private val userStyleSchema: UserStyleSchema,
     private val watchState: MutableWatchState,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
-    var singleTapCount = 0
-    var complicationSingleTapped: Int? = null
+    /** The ids of the [ComplicationSlot]s that have been tapped. */
+    val tappedComplicationSlotIds: List<Int>
+        get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var lastUserStyle: UserStyle? = null
+    var renderer: TestRenderer? = null
 
-    init {
-        userStyleRepository.addUserStyleListener(
-            object : UserStyleRepository.UserStyleListener {
-                override fun onUserStyleChanged(userStyle: UserStyle) {
-                    lastUserStyle = userStyle
-                }
-            }
-        )
-
-        complicationsManager.addTapListener(
-            object : ComplicationsManager.TapCallback {
-                override fun onComplicationTapped(complicationId: Int) {
-                    complicationSingleTapped = complicationId
-                    singleTapCount++
-                }
-            })
-    }
+    /** A mutable list of the ids of the complicationSlots that have been tapped. */
+    private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
 
     fun reset() {
         clearTappedState()
         complicationSelected = null
-        renderer.lastOnDrawCalendar = null
+        renderer?.lastOnDrawCalendar = null
         mockSystemTimeMillis = 0L
     }
 
     fun clearTappedState() {
-        complicationSingleTapped = null
+        mutableTappedComplicationIds.clear()
     }
 
     init {
         attachBaseContext(ApplicationProvider.getApplicationContext())
     }
 
+    override fun createUserStyleSchema() = userStyleSchema
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
+                override fun onUserStyleChanged(userStyle: UserStyle) {
+                    lastUserStyle = userStyle
+                }
+            }
+        )
+
+        val complicationSlotsManager =
+            ComplicationSlotsManager(complicationSlots, currentUserStyleRepository)
+        complicationSlotsManager.addTapListener(
+            object : ComplicationSlotsManager.TapCallback {
+                override fun onComplicationSlotTapped(complicationSlotId: Int) {
+                    mutableTappedComplicationIds.add(complicationSlotId)
+                }
+            }
+        )
+        return complicationSlotsManager
+    }
+
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ) = WatchFace(
-        watchFaceType,
-        userStyleRepository,
-        renderer,
-        complicationsManager
-    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-        override fun getSystemTimeMillis(): Long {
-            return mockSystemTimeMillis
-        }
-    }).setTapListener(tapListener)
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
+        renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
+        return WatchFace(watchFaceType, renderer!!)
+            .setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+                override fun getSystemTimeMillis(): Long {
+                    return mockSystemTimeMillis
+                }
+            }).setTapListener(tapListener)
+    }
 
-    override fun getHandler() = handler
+    override fun getUiThreadHandlerImpl() = handler
+
+    // To make unit tests simpler and non-flaky we run background tasks and ui tasks on the same
+    // handler.
+    override fun getBackgroundThreadHandlerImpl() = handler
 
     override fun getMutableWatchState() = watchState
 
@@ -120,7 +142,8 @@ internal class TestWatchFaceService(
         context: Context,
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
-    ) {}
+    ) {
+    }
 
     override fun expectPreRInitFlow() = preAndroidR
 }
@@ -129,7 +152,7 @@ internal class TestWatchFaceService(
  * IWatchFaceService.Stub implementation that redirects all method calls to a mock so they can be
  * verified. (Using a Spy on the actual stub doesn't work).
  */
-class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
+public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
     IWatchFaceService.Stub() {
     override fun setStyle(style: WatchFaceStyle) {
         iWatchFaceService.setStyle(style)
@@ -179,22 +202,26 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
             watchFaceComplicationId, providers, fallbackSystemProvider, type
         )
     }
+
+    override fun reserved8() {
+        iWatchFaceService.reserved8()
+    }
 }
 
-open class TestRenderer(
+public open class TestRenderer(
     surfaceHolder: SurfaceHolder,
-    userStyleRepository: UserStyleRepository,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     interactiveFrameRateMs: Long
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
-    userStyleRepository,
+    currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
     interactiveFrameRateMs
 ) {
-    var lastOnDrawCalendar: Calendar? = null
-    var lastRenderParamaters = RenderParameters.DEFAULT_INTERACTIVE
+    public var lastOnDrawCalendar: Calendar? = null
+    public var lastRenderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
 
     override fun render(
         canvas: Canvas,
@@ -202,11 +229,29 @@ open class TestRenderer(
         calendar: Calendar
     ) {
         lastOnDrawCalendar = calendar
-        lastRenderParamaters = renderParameters
+        lastRenderParameters = renderParameters
+    }
+
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
     }
 }
 
-fun createComplicationData() =
+public open class TestRendererWithShouldAnimate(
+    surfaceHolder: SurfaceHolder,
+    currentUserStyleRepository: CurrentUserStyleRepository,
+    watchState: WatchState,
+    interactiveFrameRateMs: Long,
+    public var animate: Boolean = true
+) : TestRenderer(
+    surfaceHolder,
+    currentUserStyleRepository,
+    watchState,
+    interactiveFrameRateMs
+) {
+    override fun shouldAnimate(): Boolean = animate
+}
+
+public fun createComplicationData(): androidx.wear.complications.data.ComplicationData =
     ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
         .setShortText(ComplicationText.plainText("Test Text"))
         .setTapAction(
@@ -214,16 +259,16 @@ fun createComplicationData() =
                 ApplicationProvider.getApplicationContext(), 0,
                 Intent("Fake intent"), 0
             )
-        ).build().asApiComplicationData()
+        ).build().toApiComplicationData()
 
 /**
  * We need to prevent roboloetric from instrumenting our classes or things break...
  */
-class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+public class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("android.support.wearable.watchface")
-            .doNotInstrumentPackage("androidx.wear.complications")
+            .doNotInstrumentPackage("androidx.wear.complicationSlots")
             .doNotInstrumentPackage("androidx.wear.utility")
             .doNotInstrumentPackage("androidx.wear.watchface")
             .doNotInstrumentPackage("androidx.wear.watchface.ui")

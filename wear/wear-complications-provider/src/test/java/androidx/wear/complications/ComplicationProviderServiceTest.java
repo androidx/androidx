@@ -31,10 +31,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.complications.data.ComplicationData;
+import androidx.wear.complications.data.ComplicationText;
 import androidx.wear.complications.data.ComplicationType;
 import androidx.wear.complications.data.LongTextComplicationData;
 import androidx.wear.complications.data.PlainComplicationText;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,10 +57,10 @@ public class ComplicationProviderServiceTest {
     private IComplicationManager mRemoteManager;
     private IComplicationManager.Stub mLocalManager = new IComplicationManager.Stub() {
         @Override
-        public void updateComplicationData(int complicationId,
+        public void updateComplicationData(int complicationSlotId,
                 android.support.wearable.complications.ComplicationData data)
                 throws RemoteException {
-            mRemoteManager.updateComplicationData(complicationId, data);
+            mRemoteManager.updateComplicationData(complicationSlotId, data);
         }
     };
 
@@ -68,18 +70,20 @@ public class ComplicationProviderServiceTest {
     private ComplicationProviderService mTestService = new ComplicationProviderService() {
 
         @Override
-        public void onComplicationUpdate(
-                int complicationId,
-                @NonNull ComplicationType type,
-                @NonNull ComplicationUpdateCallback callback) {
+        public void onComplicationRequest(
+                @NotNull ComplicationRequest request,
+                @NonNull ComplicationRequestListener listener) {
             try {
-                callback.onUpdateComplication(
+                listener.onComplicationData(
                         new LongTextComplicationData.Builder(
-                                new PlainComplicationText.Builder("hello " + complicationId).build()
+                                new PlainComplicationText.Builder(
+                                        "hello " + request.getComplicationInstanceId()
+                                ).build(),
+                                ComplicationText.EMPTY
                         ).build()
                 );
             } catch (RemoteException e) {
-                Log.e(TAG, "onComplicationUpdate failed with error: ", e);
+                Log.e(TAG, "onComplicationRequest failed with error: ", e);
             }
         }
 
@@ -90,7 +94,8 @@ public class ComplicationProviderServiceTest {
                 return null;
             }
             return new LongTextComplicationData.Builder(
-                    new PlainComplicationText.Builder("hello preview").build()
+                    new PlainComplicationText.Builder("hello preview").build(),
+                    ComplicationText.EMPTY
             ).build();
         }
     };
@@ -98,15 +103,14 @@ public class ComplicationProviderServiceTest {
     private ComplicationProviderService mNoUpdateTestService = new ComplicationProviderService() {
 
         @Override
-        public void onComplicationUpdate(
-                int complicationId,
-                @NonNull ComplicationType type,
-                @NonNull ComplicationUpdateCallback callback) {
+        public void onComplicationRequest(
+                @NotNull ComplicationRequest request,
+                @NonNull ComplicationRequestListener listener) {
             try {
                 // Null means no update required.
-                callback.onUpdateComplication(null);
+                listener.onComplicationData(null);
             } catch (RemoteException e) {
-                Log.e(TAG, "onComplicationUpdate failed with error: ", e);
+                Log.e(TAG, "onComplicationRequest failed with error: ", e);
             }
         }
 
@@ -114,7 +118,8 @@ public class ComplicationProviderServiceTest {
         @Override
         public ComplicationData getPreviewData(@NonNull ComplicationType type) {
             return new LongTextComplicationData.Builder(
-                    new PlainComplicationText.Builder("hello preview").build()
+                    new PlainComplicationText.Builder("hello preview").build(),
+                    ComplicationText.EMPTY
             ).build();
         }
     };
@@ -132,10 +137,10 @@ public class ComplicationProviderServiceTest {
     }
 
     @Test
-    public void testOnComplicationUpdate() throws Exception {
+    public void testOnComplicationRequest() throws Exception {
         int id = 123;
         mComplicationProvider.onUpdate(
-                id, ComplicationType.LONG_TEXT.asWireComplicationType(), mLocalManager);
+                id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         ShadowLooper.runUiThreadTasks();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
@@ -148,10 +153,10 @@ public class ComplicationProviderServiceTest {
     }
 
     @Test
-    public void testOnComplicationUpdateNoUpdateRequired() throws Exception {
+    public void testOnComplicationRequestNoUpdateRequired() throws Exception {
         int id = 123;
         mNoUpdateComplicationProvider.onUpdate(
-                id, ComplicationType.LONG_TEXT.asWireComplicationType(), mLocalManager);
+                id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         ShadowLooper.runUiThreadTasks();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
@@ -164,7 +169,7 @@ public class ComplicationProviderServiceTest {
     @Test
     public void testGetComplicationPreviewData() throws Exception {
         assertThat(mComplicationProvider.getComplicationPreviewData(
-                ComplicationType.LONG_TEXT.asWireComplicationType()
+                ComplicationType.LONG_TEXT.toWireComplicationType()
         ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
     }
 
@@ -172,7 +177,7 @@ public class ComplicationProviderServiceTest {
     public void testGetComplicationPreviewDataReturnsNull() throws Exception {
         // The ComplicationProvider doesn't support PHOTO_IMAGE so null should be returned.
         assertNull(mComplicationProvider.getComplicationPreviewData(
-                ComplicationType.PHOTO_IMAGE.asWireComplicationType())
+                ComplicationType.PHOTO_IMAGE.toWireComplicationType())
         );
     }
 }

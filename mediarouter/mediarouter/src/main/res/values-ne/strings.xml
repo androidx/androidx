@@ -38,7 +38,7 @@
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"कुनै पनि जानकारी उपलब्ध छैन"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"स्क्रिन Cast गरिँदै छ"</string>
     <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"समूह"</string>
-    <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"यन्त्र थप्नुहोस्"</string>
+    <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"डिभाइस थप्नुहोस्"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"कुनै समूहमा प्ले गर्नुहोस्"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"कुनै पनि जानकारी उपलब्ध छैन"</string>
 </resources>

@@ -189,7 +189,7 @@ public abstract class WorkManager {
      * {@link Configuration}.  By default, this method should not be called because WorkManager is
      * automatically initialized.  To initialize WorkManager yourself, please follow these steps:
      * <p><ul>
-     * <li>Disable {@code androidx.work.impl.WorkManagerInitializer} in your manifest.
+     * <li>Disable {@code androidx.work.WorkManagerInitializer} in your manifest.
      * <li>Invoke this method in {@code Application#onCreate} or a {@code ContentProvider}. Note
      * that this method <b>must</b> be invoked in one of these two places or you risk getting a
      * {@code NullPointerException} in {@link #getInstance(Context)}.

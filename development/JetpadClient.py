@@ -20,7 +20,7 @@ import datetime
 
 def getJetpadReleaseInfo(date):
 	try:
-		rawJetpadReleaseOutput = subprocess.check_output('span sql /span/global/androidx-jetpad:prod_instance \"SELECT GroupId, ArtifactId, ReleaseVersion, PreviousReleaseSHA, ReleaseSHA, Path, RequireSameVersionGroupBuild FROM LibraryReleases WHERE ReleaseDate = %s\"' % date, shell=True)
+		rawJetpadReleaseOutput = subprocess.check_output('span sql /span/global/androidx-jetpad:prod_instance \"SELECT GroupId, ArtifactId, ReleaseVersion, PreviousReleaseSHA, ReleaseSHA, Path, RequireSameVersionGroupBuild, ReleaseBuildId, ReleaseBranch FROM LibraryReleases WHERE ReleaseDate = %s\"' % date, shell=True)
 	except subprocess.CalledProcessError:
 		print_e('FAIL: Failed to get jetpad release info for  %s' %  date)
 		return None
@@ -47,10 +47,12 @@ def getReleaseInfoObject(date, includeAllCommits, jetpadReleaseInfo):
 		fromSHA = artifactIdReleaseLine[4]
 		untilSHA = artifactIdReleaseLine[5]
 		path = artifactIdReleaseLine[6]
-		if path[0] == '/': path = path[1:]
+		if path and path[0] == '/': path = path[1:]
 		requiresSameVersion = False
 		if artifactIdReleaseLine[7] == "true":
 			requiresSameVersion = True
+		buildId = artifactIdReleaseLine[8]
+		branch = artifactIdReleaseLine[9]
 		if groupId in releaseJsonObject["modules"]:
 			releaseJsonObject["modules"][groupId].append({
 				"groupId": groupId,
@@ -59,7 +61,9 @@ def getReleaseInfoObject(date, includeAllCommits, jetpadReleaseInfo):
 				"fromSHA": fromSHA,
 				"untilSHA": untilSHA,
 				"requiresSameVersion": requiresSameVersion,
-				"path": path
+				"path": path,
+				"buildId": buildId,
+				"branch": branch,
 			})
 		else:
 			releaseJsonObject["modules"][groupId] = [{
@@ -69,7 +73,9 @@ def getReleaseInfoObject(date, includeAllCommits, jetpadReleaseInfo):
 				"fromSHA": fromSHA,
 				"untilSHA": untilSHA,
 				"requiresSameVersion": requiresSameVersion,
-				"path": path
+				"path": path,
+				"buildId": buildId,
+				"branch": branch,
 			}]
 	return releaseJsonObject
 

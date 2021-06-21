@@ -35,4 +35,6 @@ oneway interface IWorkManagerImpl {
     void cancelAllWork(IWorkManagerImplCallback callback);
     // Query APIs
     void queryWorkInfo(in byte[] request, IWorkManagerImplCallback callback);
+    // Progress APIs
+    void setProgress(in byte[] request, IWorkManagerImplCallback callback);
 }

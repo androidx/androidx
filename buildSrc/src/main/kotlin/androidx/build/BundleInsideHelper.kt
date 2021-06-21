@@ -20,7 +20,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
 import java.io.File
 
@@ -28,6 +27,30 @@ import java.io.File
  * Allow java and Android libraries to bundle other projects inside the project jar/aar.
  */
 object BundleInsideHelper {
+    /**
+     * Creates a configuration for the users to use that will be used to bundle these dependency
+     * jars inside of libs/ directory inside of the aar.
+     *
+     * ```
+     * dependencies {
+     *   bundleInside(project(":foo"))
+     * }
+     * ```
+     *
+     * Used project are expected
+     *
+     * @see forInsideAar(String, String)
+     *
+     * @receiver the project that should bundle jars specified by this configuration
+     * @param relocations a list of package relocations to apply
+     */
+    @JvmStatic
+    fun Project.forInsideAar(relocations: List<Relocation>) {
+        val bundle = configurations.create("bundleInside")
+        val repackage = configureRepackageTaskForType(relocations, bundle)
+        // Add to AGP's configuration so this jar get packaged inside of the aar.
+        dependencies.add("implementation", files(repackage.flatMap { it.archiveFile }))
+    }
     /**
      * Creates 3 configurations for the users to use that will be used bundle these dependency
      * jars inside of libs/ directory inside of the aar.
@@ -46,28 +69,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideAar(from: String, to: String) {
-        val bundle = configurations.create("bundleInside")
-        val bundleDebug = configurations.create("debugBundleInside") {
-            it.extendsFrom(bundle)
-        }
-        val bundleRelease = configurations.create("releaseBundleInside") {
-            it.extendsFrom(bundle)
-        }
-        val repackageRelease = configureRepackageTaskForType("Release", from, to, bundleRelease)
-        val repackageDebug = configureRepackageTaskForType("Debug", from, to, bundleDebug)
-
-        // Add to AGP's configurations so these jars get packaged inside of the aar.
-        dependencies.add(
-            "releaseImplementation",
-            files(repackageRelease.flatMap { it.archiveFile })
-        )
-        dependencies.add("debugImplementation", files(repackageDebug.flatMap { it.archiveFile }))
-
-        // Android lint is silly (b/173445333), force build both debug and release
-        tasks.withType(JavaCompile::class.java).configureEach { task ->
-            task.dependsOn(repackageDebug)
-            task.dependsOn(repackageRelease)
-        }
+        forInsideAar(listOf(Relocation(from, to)))
     }
 
     /**
@@ -88,7 +90,10 @@ object BundleInsideHelper {
     @JvmStatic
     fun Project.forInsideJar(from: String, to: String) {
         val bundle = configurations.create("bundleInside")
-        val repackage = configureRepackageTaskForType("jar", from, to, bundle)
+        val repackage = configureRepackageTaskForType(
+            listOf(Relocation(from, to)),
+            bundle
+        )
         dependencies.add("compileOnly", files(repackage.flatMap { it.archiveFile }))
         dependencies.add("testImplementation", files(repackage.flatMap { it.archiveFile }))
 
@@ -165,20 +170,22 @@ object BundleInsideHelper {
         }
     }
 
+    data class Relocation(val from: String, val to: String)
+
     private fun Project.configureRepackageTaskForType(
-        type: String,
-        from: String,
-        to: String,
+        relocations: List<Relocation>,
         configuration: Configuration
     ): TaskProvider<ShadowJar> {
         return tasks.register(
-            "repackageBundledJars$type",
+            "repackageBundledJars",
             ShadowJar::class.java
         ) { task ->
             task.apply {
                 configurations = listOf(configuration)
-                relocate(from, to)
-                archiveBaseName.set("repackaged-$type")
+                for (relocation in relocations) {
+                    relocate(relocation.from, relocation.to)
+                }
+                archiveBaseName.set("repackaged")
                 archiveVersion.set("")
                 destinationDirectory.set(File(buildDir, "repackaged"))
             }

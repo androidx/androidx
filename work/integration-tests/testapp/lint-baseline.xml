@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        val channel = NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        channel.description = description"
         errorLine2="                ~~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        notificationManager.createNotificationChannel(channel)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                &amp;&amp; Build.VERSION.SDK_INT >= 16 &amp;&amp; data.getClipData() != null) {"
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            int count = data.getClipData().getItemCount();"
         errorLine2="                             ~~~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                String uriString = data.getClipData().getItemAt(i).getUri().toString();"
         errorLine2="                                        ~~~~~~~~~~~">
         <location
@@ -79,91 +79,58 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    jobScheduler.cancelAll();"
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="523"
+            line="558"
             column="34"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        jobScheduler.schedule("
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="525"
+            line="560"
             column="38"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                new JobInfo.Builder("
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="526"
+            line="561"
             column="33"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                        .setMinimumLatency(10 * 60 * 1000)"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="529"
+            line="564"
             column="42"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                        .build());"
         errorLine2="                                         ~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="530"
+            line="565"
             column="42"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.put can only be called from within the same library group (groupId=androidx.work)"
-        errorLine1="                        .put(&quot;sleep_time&quot;, delay)"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="174"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.integer.channel_importance` appears to be unused"
-        errorLine1="    &lt;integer name=&quot;channel_importance&quot;>3&lt;/integer>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="42"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.integer.notification_id` appears to be unused"
-        errorLine1="    &lt;integer name=&quot;notification_id&quot;>1&lt;/integer>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="45"
-            column="14"/>
     </issue>
 
     <issue
@@ -437,7 +404,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="76"
+            line="81"
             column="29"/>
     </issue>
 

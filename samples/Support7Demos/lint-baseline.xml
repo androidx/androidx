@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.1.0-alpha01" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha01">
 
     <issue
         id="OnClick"
@@ -57,7 +57,8 @@
         <location
             file="src/main/res/layout/appcompat_night_mode.xml"
             line="23"
-            column="9"/>
+            column="9"
+            message="`wrap_content` here may not work well with WebView below"/>
     </issue>
 
     <issue
@@ -188,7 +189,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="41"
+            line="42"
             column="30"/>
     </issue>
 
@@ -199,7 +200,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="49"
+            line="51"
             column="30"/>
     </issue>
 
@@ -210,7 +211,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="57"
+            line="60"
             column="30"/>
     </issue>
 
@@ -221,7 +222,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="65"
+            line="69"
             column="30"/>
     </issue>
 
@@ -232,7 +233,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="73"
+            line="78"
             column="30"/>
     </issue>
 
@@ -243,7 +244,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="450"
+            line="444"
             column="26"/>
     </issue>
 
@@ -260,211 +261,200 @@
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;ifRoom&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
-            line="20"
+            file="src/main/res/menu/content_actions.xml"
+            line="22"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:actionViewClass` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
-            line="21"
+            file="src/main/res/menu/content_actions.xml"
+            line="23"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;never&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;always&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
+            file="src/main/res/menu/content_actions.xml"
             line="25"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;com.example.android.supportv7.app.ActionBarSettingsActionProviderActivity$SettingsActionProvider&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/action_bar_settings_action_provider.xml"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;ifRoom&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/action_bar_share_action_provider.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/action_bar_share_action_provider.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom|collapseActionView&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="23"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:actionViewClass` when not using the appcompat library"
-        errorLine1="          app:actionViewClass=&quot;androidx.appcompat.widget.SearchView&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="24"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;always&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="35"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="41"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom&quot;>"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/actions.xml"
-            line="45"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="          app:showAsAction=&quot;ifRoom&quot; />"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/display_options_actions.xml"
-            line="20"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_with_tinted_icons.xml"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_with_tinted_icons.xml"
-            line="34"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/menu_with_tinted_icons.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/sample_media_router_menu.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="AppCompatResource"
-        message="Should use `android:actionProviderClass` when not using the appcompat library"
-        errorLine1="        app:actionProviderClass=&quot;androidx.mediarouter.app.MediaRouteActionProvider&quot;/>"
+        message="Should use `app:actionProviderClass` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:actionProviderClass=&quot;androidx.appcompat.widget.ShareActionProvider&quot; />"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/sample_media_router_menu.xml"
-            line="22"
+            file="src/main/res/menu/content_actions.xml"
+            line="27"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/sample_palette_actions.xml"
-            line="23"
+            file="src/main/res/menu/content_actions.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="            android:showAsAction=&quot;never&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AppCompatResource"
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;ifRoom&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/content_actions.xml"
+            line="48"
             column="9"/>
     </issue>
 
     <issue
         id="AppCompatResource"
-        message="Should use `android:showAsAction` when not using the appcompat library"
-        errorLine1="        app:showAsAction=&quot;always&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Should use `app:showAsAction` with the appcompat library with `xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;`"
+        errorLine1="        android:showAsAction=&quot;ifRoom&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/menu/single_action.xml"
-            line="23"
+            file="src/main/res/menu/content_actions.xml"
+            line="52"
             column="9"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 29; however, the containing class com.example.android.supportv7.app.AppCompatDefaultNightModeBootAwareActivity is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .detectImplicitDirectBoot()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/app/AppCompatDefaultNightModeBootAwareActivity.java"
+            line="58"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class com.example.android.supportv7.widget.selection.fancy.FancySelectionDemoActivity.OnContextClickListener is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (view.showContextMenu(x, y)) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/FancySelectionDemoActivity.java"
+            line="413"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class com.example.android.supportv7.media.LocalPlayer.SurfaceViewPlayer is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPresentation != null &amp;&amp; mPresentation.getDisplay() != presentationDisplay) {"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
+            line="430"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv7.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            NotificationChannel channel = new NotificationChannel("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/Player.java"
+            line="184"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv7.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            channel.setDescription(description);"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/Player.java"
+            line="186"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.supportv7.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mContext.getSystemService(NotificationManager.class);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/Player.java"
+            line="190"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv7.media.Player is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            notificationManager.createNotificationChannel(channel);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/Player.java"
+            line="191"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.supportv7.media.SampleMediaRouteProvider is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; !Settings.canDrawOverlays(getContext())) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
+            line="251"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.supportv7.media.SampleMediaRouterActivity is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; !Settings.canDrawOverlays(this)) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="214"
+            column="54"/>
     </issue>
 
     <issue
@@ -633,505 +623,10 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static final class ICSMediaPlayer {"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="378"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class com.example.android.supportv7.app.AppCompatDefaultNightModeBootAwareActivity is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                        .detectImplicitDirectBoot()"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/app/AppCompatDefaultNightModeBootAwareActivity.java"
-            line="58"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class com.example.android.supportv7.widget.selection.fancy.FancySelectionDemoActivity.OnContextClickListener is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="            if (view.showContextMenu(x, y)) {"
-        errorLine2="                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/FancySelectionDemoActivity.java"
-            line="413"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class com.example.android.supportv7.media.LocalPlayer.SurfaceViewPlayer is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="            if (mPresentation != null &amp;&amp; mPresentation.getDisplay() != presentationDisplay) {"
-        errorLine2="                                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="436"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv7.media.Player is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            NotificationChannel channel = new NotificationChannel("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/Player.java"
-            line="184"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv7.media.Player is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            channel.setDescription(description);"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/Player.java"
-            line="186"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.supportv7.media.Player is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                    mContext.getSystemService(NotificationManager.class);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/Player.java"
-            line="190"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv7.media.Player is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            notificationManager.createNotificationChannel(channel);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/Player.java"
-            line="191"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.supportv7.media.SampleMediaRouteProvider is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; !Settings.canDrawOverlays(getContext())) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouteProvider.java"
-            line="251"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.supportv7.media.SampleMediaRouterActivity is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; !Settings.canDrawOverlays(this)) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="214"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        checkArgument(selectionTracker != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/simple/DemoAdapter.java"
-            line="54"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        checkArgument(selectionTracker != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/single/DemoAdapter.java"
-            line="54"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        checkArgument(tracker != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/DemoAdapter.java"
-            line="78"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="        if (initialRoute.getGroupMemberIds().isEmpty()) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="121"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            memberIds.addAll(initialRoute.getGroupMemberIds());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="124"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                .addGroupMemberId(routeDescriptor1.getId())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="228"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                .addGroupMemberId(routeDescriptor3.getId())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="229"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                            .addGroupMemberIds(memberIds);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="276"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            for (String memberRouteId : routeDescriptor.getGroupMemberIds()) {"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="341"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.clearGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                            .clearGroupMemberIds();"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="351"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                groupDescriptorBuilder.addGroupMemberId(memberRouteId);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="353"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                if (!routeDescriptor.getGroupMemberIds().isEmpty()"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="553"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="                        &amp;&amp; mMemberRouteIds.containsAll(routeDescriptor.getGroupMemberIds())) {"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="554"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            if (routeDescriptor.getGroupMemberIds().isEmpty()) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="582"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
-        errorLine1="            for (String routeId : routeDescriptor.getGroupMemberIds()) {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleDynamicGroupMrp.java"
-            line="587"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        Preconditions.checkArgument(group != null);"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/Uris.java"
-            line="61"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        Preconditions.checkArgument(isCheese(uri));"
-        errorLine2="        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/selection/fancy/Uris.java"
-            line="66"
-            column="9"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `layout`.">
         <location
             file="src/main/res/layout-v11"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.action_bar_tab_content` appears to be unused"
-        errorLine1="&lt;TextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/action_bar_tab_content.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.action_bar_tabs` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/action_bar_tabs.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.xml.preferences` appears to be unused"
-        errorLine1="&lt;PreferenceScreen xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/xml/preferences.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.sample_media_controller` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/sample_media_controller.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.selection_demo_item` appears to be unused"
-        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/color/selection_demo_item.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_media_router_text` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_media_router_text&quot;>This activity demonstrates how to"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="29"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.variable_volume_route_group_name` appears to be unused"
-        errorLine1="    &lt;string name=&quot;variable_volume_route_group_name&quot;>Variable Volume Route Group&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="46"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.mixed_volume_route_group_name` appears to be unused"
-        errorLine1="    &lt;string name=&quot;mixed_volume_route_group_name&quot;>Mixed Volume Route Group&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_dynamic_group_mrp_service` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_dynamic_group_mrp_service&quot;>Media Route Provider Service Support Library Sample (supporting dynamic group)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.action_bar_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_bar_tabs&quot;>AppCompat/Action Bar/Action Bar Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="73"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.action_bar_with_navigation_drawer` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_bar_with_navigation_drawer&quot;>AppCompat/Action Bar/Navigation Drawer Toggle&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="77"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.toggle_navigation` appears to be unused"
-        errorLine1="    &lt;string name=&quot;toggle_navigation&quot;>Navigation&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_add_tab` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_add_tab&quot;>Add new tab&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="116"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_remove_tab` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_remove_tab&quot;>Remove last tab&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_toggle_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_toggle_tabs&quot;>Toggle tab mode&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.btn_remove_all_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;btn_remove_all_tabs&quot;>Remove all tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="119"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sliding_pane_layout_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sliding_pane_layout_support&quot;>Widget/Sliding pane layout&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="130"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sliding_pane_layout_summary` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sliding_pane_layout_summary&quot;>This activity illustrates the use of sliding panes."
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="132"
-            column="13"/>
     </issue>
 
     <issue
@@ -1229,7 +724,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/AsyncListUtilActivity.java"
-            line="143"
+            line="144"
             column="43"/>
     </issue>
 
@@ -1240,7 +735,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/AsyncListUtilActivity.java"
-            line="144"
+            line="145"
             column="43"/>
     </issue>
 
@@ -1251,7 +746,7 @@
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/AsyncListUtilActivity.java"
-            line="149"
+            line="150"
             column="29"/>
     </issue>
 
@@ -1262,7 +757,7 @@
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/AsyncListUtilActivity.java"
-            line="154"
+            line="155"
             column="29"/>
     </issue>
 
@@ -1273,7 +768,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/AsyncListUtilActivity.java"
-            line="158"
+            line="159"
             column="13"/>
     </issue>
 
@@ -1867,18 +1362,18 @@
         errorLine2="                                       ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="103"
+            line="104"
             column="40"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `shortcut` of class `ViewHolder` requires synthetic accessor"
-        errorLine1="                            viewHolder.shortcut ="
+        errorLine1="                            viewHolder.shortcut = (TextView) convertView.findViewById("
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="104"
+            line="105"
             column="40"/>
     </issue>
 
@@ -1889,7 +1384,7 @@
         errorLine2="                                   ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="110"
+            line="111"
             column="36"/>
     </issue>
 
@@ -1900,7 +1395,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="111"
+            line="112"
             column="36"/>
     </issue>
 
@@ -1911,7 +1406,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="116"
+            line="117"
             column="45"/>
     </issue>
 
@@ -1922,7 +1417,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="116"
+            line="117"
             column="17"/>
     </issue>
 
@@ -1933,7 +1428,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="117"
+            line="118"
             column="48"/>
     </issue>
 
@@ -1944,7 +1439,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="117"
+            line="118"
             column="17"/>
     </issue>
 
@@ -1955,7 +1450,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="120"
+            line="121"
             column="40"/>
     </issue>
 
@@ -1966,7 +1461,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="122"
+            line="123"
             column="17"/>
     </issue>
 
@@ -1977,7 +1472,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="126"
+            line="127"
             column="17"/>
     </issue>
 
@@ -1988,7 +1483,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="130"
+            line="131"
             column="25"/>
     </issue>
 
@@ -1999,7 +1494,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="131"
+            line="132"
             column="25"/>
     </issue>
 
@@ -2010,7 +1505,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="132"
+            line="133"
             column="25"/>
     </issue>
 
@@ -2021,7 +1516,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="137"
+            line="138"
             column="17"/>
     </issue>
 
@@ -2032,7 +1527,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="140"
+            line="141"
             column="25"/>
     </issue>
 
@@ -2043,7 +1538,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="145"
+            line="146"
             column="43"/>
     </issue>
 
@@ -2054,7 +1549,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="145"
+            line="146"
             column="17"/>
     </issue>
 
@@ -2065,7 +1560,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="148"
+            line="149"
             column="17"/>
     </issue>
 
@@ -2076,7 +1571,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/widget/ListPopupWindowActivity.java"
-            line="158"
+            line="159"
             column="17"/>
     </issue>
 
@@ -2281,23 +1776,23 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mMediaPlayer` of class `LocalPlayer` requires synthetic accessor"
-        errorLine1="                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
-        errorLine2="                                                  ~~~~~~~~~~~~">
+        errorLine1="                    ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
+        errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="330"
-            column="51"/>
+            line="328"
+            column="47"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mSurface` of class `LocalPlayer` requires synthetic accessor"
-        errorLine1="                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
-        errorLine2="                                                                ~~~~~~~~">
+        errorLine1="                    ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);"
+        errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="330"
-            column="65"/>
+            line="328"
+            column="61"/>
     </issue>
 
     <issue
@@ -2307,7 +1802,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="335"
+            line="329"
             column="28"/>
     </issue>
 
@@ -2318,7 +1813,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="336"
+            line="330"
             column="21"/>
     </issue>
 
@@ -2329,7 +1824,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="336"
+            line="330"
             column="45"/>
     </issue>
 
@@ -2340,7 +1835,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="338"
+            line="332"
             column="21"/>
     </issue>
 
@@ -2351,7 +1846,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="464"
+            line="458"
             column="17"/>
     </issue>
 
@@ -2362,7 +1857,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="472"
+            line="466"
             column="17"/>
     </issue>
 
@@ -2373,7 +1868,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="481"
+            line="475"
             column="17"/>
     </issue>
 
@@ -2384,7 +1879,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="535"
+            line="529"
             column="31"/>
     </issue>
 
@@ -2395,7 +1890,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="537"
+            line="531"
             column="21"/>
     </issue>
 
@@ -2406,7 +1901,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="538"
+            line="532"
             column="21"/>
     </issue>
 
@@ -2582,7 +2077,7 @@
         errorLine2="                                                                      ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/graphics/PaletteActivity.java"
-            line="213"
+            line="212"
             column="71"/>
     </issue>
 
@@ -4386,7 +3881,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="47"
+            line="48"
             column="32"/>
     </issue>
 
@@ -4397,7 +3892,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="55"
+            line="57"
             column="33"/>
     </issue>
 
@@ -4408,7 +3903,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="63"
+            line="66"
             column="38"/>
     </issue>
 
@@ -4419,7 +3914,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/app/AppCompatNightModeDialog.java"
-            line="71"
+            line="75"
             column="41"/>
     </issue>
 
@@ -4536,17 +4031,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected T mLayoutManager;"
-        errorLine2="              ~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
-            line="49"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected RecyclerView mRecyclerView;"
         errorLine2="              ~~~~~~~~~~~~">
         <location
@@ -4564,17 +4048,6 @@
             file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
             line="56"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    abstract protected T createLayoutManager();"
-        errorLine2="                       ~">
-        <location
-            file="src/main/java/com/example/android/supportv7/widget/BaseLayoutManagerActivity.java"
-            line="64"
-            column="24"/>
     </issue>
 
     <issue
@@ -5574,7 +5047,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="395"
+            line="389"
             column="34"/>
     </issue>
 
@@ -5585,7 +5058,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="407"
+            line="401"
             column="29"/>
     </issue>
 
@@ -5596,7 +5069,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="462"
+            line="456"
             column="36"/>
     </issue>
 
@@ -5607,7 +5080,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="471"
+            line="465"
             column="36"/>
     </issue>
 
@@ -5618,7 +5091,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="480"
+            line="474"
             column="38"/>
     </issue>
 
@@ -5629,7 +5102,7 @@
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="603"
+            line="597"
             column="30"/>
     </issue>
 
@@ -5640,7 +5113,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="615"
+            line="609"
             column="29"/>
     </issue>
 
@@ -5651,7 +5124,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="637"
+            line="631"
             column="37"/>
     </issue>
 
@@ -5662,7 +5135,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="642"
+            line="636"
             column="37"/>
     </issue>
 
@@ -5673,7 +5146,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
-            line="652"
+            line="646"
             column="16"/>
     </issue>
 

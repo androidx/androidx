@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.SupportConfigKt
@@ -23,6 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.squareup.wire")
 }
 
 android {
@@ -36,29 +36,54 @@ android {
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/trace_processor_shell"
         )
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/perfetto"
+        )
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/traced"
+        )
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/traced_probes"
+        )
+        androidTest.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/testdata"
+        )
+    }
+}
+
+wire {
+    kotlin {}
+    sourcePath {
+        srcDir 'src/main/proto'
     }
 }
 
 dependencies {
-    api(JUNIT)
-    api(KOTLIN_STDLIB)
+    api(libs.junit)
+    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":benchmark:benchmark-common"))
-    implementation(ANDROIDX_TEST_CORE)
-    implementation(ANDROIDX_TEST_UIAUTOMATOR)
-    implementation(ANDROIDX_TEST_RULES)
+    implementation(project(":profileinstaller:profileinstaller"))
+    implementation(libs.testCore)
+    implementation(libs.testUiautomator)
+    implementation(libs.wireRuntime)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(KOTLIN_TEST)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinTest)
 }
 
 androidx {
     name = "Android Benchmark - Macrobenchmark"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"

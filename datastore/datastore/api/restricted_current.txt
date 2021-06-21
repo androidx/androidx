@@ -3,9 +3,6 @@ package androidx.datastore {
 
   public final class DataStoreDelegateKt {
     method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional kotlinx.coroutines.CoroutineScope scope);
-    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations);
-    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
-    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer);
   }
 
   public final class DataStoreFile {

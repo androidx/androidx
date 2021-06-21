@@ -62,7 +62,7 @@ import kotlin.reflect.KProperty
  *
  * @return a property delegate that manages a datastore as a singleton.
  */
-@JvmOverloads
+@Suppress("MissingJvmstatic")
 public fun preferencesDataStore(
     name: String,
     corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
@@ -97,12 +97,14 @@ internal class PreferenceDataStoreSingletonDelegate internal constructor(
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<Preferences> {
         return INSTANCE ?: synchronized(lock) {
             if (INSTANCE == null) {
+                val applicationContext = thisRef.applicationContext
+
                 INSTANCE = PreferenceDataStoreFactory.create(
                     corruptionHandler = corruptionHandler,
-                    migrations = produceMigrations(thisRef.applicationContext),
+                    migrations = produceMigrations(applicationContext),
                     scope = scope
                 ) {
-                    thisRef.preferencesDataStoreFile(name)
+                    applicationContext.preferencesDataStoreFile(name)
                 }
             }
             INSTANCE!!

@@ -29,8 +29,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Preview;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
@@ -101,47 +99,62 @@ final class OpenGLRenderer {
         mExecutor.execute(() -> mNativeContext = initContext());
     }
 
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    /**
+     * Attach the Preview to the renderer.
+     *
+     * @param preview Preview use-case used in the renderer.
+     * @return A {@link ListenableFuture} that signals the new surface is ready to be used in the
+     * renderer for the input Preview use-case.
+     */
     @MainThread
-    void attachInputPreview(@NonNull Preview preview) {
-        preview.setSurfaceProvider(
-                mExecutor,
-                surfaceRequest -> {
-                    if (mIsShutdown) {
-                        surfaceRequest.willNotProvideSurface();
-                        return;
-                    }
-                    SurfaceTexture surfaceTexture = resetPreviewTexture(
-                            surfaceRequest.getResolution());
-                    Surface inputSurface = new Surface(surfaceTexture);
-                    mNumOutstandingSurfaces++;
-                    surfaceRequest.setTransformationInfoListener(
-                            mExecutor,
-                            transformationInfo -> {
-                                mMvpDirty = true;
-                                // TODO(b/159127941): add the rotation to MVP transformation.
-                                if (!isCropRectFullTexture(transformationInfo.getCropRect())) {
-                                    // Crop rect is pre-calculated. Use it directly.
-                                    mPreviewCropRect = new RectF(
-                                            transformationInfo.getCropRect());
-                                } else {
-                                    // Crop rect needs to be calculated before drawing.
-                                    mPreviewCropRect = null;
-                                }
-                            });
-                    surfaceRequest.provideSurface(
-                            inputSurface,
-                            mExecutor,
-                            result -> {
-                                inputSurface.release();
-                                surfaceTexture.release();
-                                if (surfaceTexture == mPreviewTexture) {
-                                    mPreviewTexture = null;
-                                }
-                                mNumOutstandingSurfaces--;
-                                doShutdownExecutorIfNeeded();
-                            });
-                });
+    @SuppressWarnings("ObjectToString")
+    @NonNull
+    ListenableFuture<Void> attachInputPreview(@NonNull Preview preview) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            preview.setSurfaceProvider(
+                    mExecutor,
+                    surfaceRequest -> {
+                        if (mIsShutdown) {
+                            surfaceRequest.willNotProvideSurface();
+                            return;
+                        }
+                        SurfaceTexture surfaceTexture = resetPreviewTexture(
+                                surfaceRequest.getResolution());
+                        Surface inputSurface = new Surface(surfaceTexture);
+                        mNumOutstandingSurfaces++;
+
+                        surfaceRequest.setTransformationInfoListener(
+                                mExecutor,
+                                transformationInfo -> {
+                                    mMvpDirty = true;
+                                    if (!isCropRectFullTexture(transformationInfo.getCropRect())) {
+                                        // Crop rect is pre-calculated. Use it directly.
+                                        mPreviewCropRect = new RectF(
+                                                transformationInfo.getCropRect());
+                                    } else {
+                                        // Crop rect needs to be calculated before drawing.
+                                        mPreviewCropRect = null;
+                                    }
+                                });
+
+                        surfaceRequest.provideSurface(
+                                inputSurface,
+                                mExecutor,
+                                result -> {
+                                    inputSurface.release();
+                                    surfaceTexture.release();
+                                    if (surfaceTexture == mPreviewTexture) {
+                                        mPreviewTexture = null;
+                                    }
+                                    mNumOutstandingSurfaces--;
+                                    doShutdownExecutorIfNeeded();
+                                });
+                        // Make sure the renderer use the new surface for the input Preview.
+                        completer.set(null);
+
+                    });
+            return "attachInputPreview [" + this + "]";
+        });
     }
 
     void attachOutputSurface(
@@ -182,6 +195,14 @@ final class OpenGLRenderer {
     void setFrameUpdateListener(@NonNull Executor executor, @NonNull Consumer<Long> listener) {
         try {
             mExecutor.execute(() -> mFrameUpdateListener = new Pair<>(executor, listener));
+        } catch (RejectedExecutionException e) {
+            // Renderer is shutting down. Ignore.
+        }
+    }
+
+    void clearFrameUpdateListener() {
+        try {
+            mExecutor.execute(() -> mFrameUpdateListener = null);
         } catch (RejectedExecutionException e) {
             // Renderer is shutting down. Ignore.
         }

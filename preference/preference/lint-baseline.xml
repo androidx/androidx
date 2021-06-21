@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.preference.PreferenceCategory is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.preference.PreferenceCategory is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            holder.itemView.setAccessibilityHeading(true);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -679,7 +679,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="36"
+            line="48"
             column="19"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="36"
+            line="48"
             column="70"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="46"
+            line="58"
             column="26"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="62"
+            line="74"
             column="37"/>
     </issue>
 
@@ -2017,17 +2017,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        CharSequence provideSummary(T preference);"
-        errorLine2="                                    ~">
-        <location
-            file="src/main/java/androidx/preference/Preference.java"
-            line="2189"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public BaseSavedState(Parcel source) {"
         errorLine2="                              ~~~~~~">
         <location
@@ -2318,7 +2307,7 @@
         errorLine2="              ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="256"
+            line="255"
             column="15"/>
     </issue>
 
@@ -2329,7 +2318,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="256"
+            line="255"
             column="39"/>
     </issue>
 
@@ -2340,7 +2329,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="276"
+            line="275"
             column="37"/>
     </issue>
 
@@ -2351,7 +2340,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="302"
+            line="301"
             column="25"/>
     </issue>
 
@@ -2362,7 +2351,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="307"
+            line="306"
             column="27"/>
     </issue>
 
@@ -2373,7 +2362,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="79"
+            line="78"
             column="26"/>
     </issue>
 
@@ -2384,7 +2373,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="140"
+            line="139"
             column="27"/>
     </issue>
 
@@ -2395,7 +2384,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="174"
+            line="173"
             column="12"/>
     </issue>
 
@@ -2406,7 +2395,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="190"
+            line="189"
             column="43"/>
     </issue>
 
@@ -2417,7 +2406,7 @@
         errorLine2="              ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="233"
+            line="242"
             column="15"/>
     </issue>
 
@@ -2428,7 +2417,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="233"
+            line="242"
             column="39"/>
     </issue>
 
@@ -2439,7 +2428,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="249"
+            line="258"
             column="37"/>
     </issue>
 
@@ -2450,7 +2439,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="271"
+            line="280"
             column="25"/>
     </issue>
 
@@ -2628,17 +2617,6 @@
             file="src/main/java/androidx/preference/PreferenceFragment.java"
             line="456"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T extends Preference> T findPreference(CharSequence key) {"
-        errorLine2="                                  ~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="480"
-            column="35"/>
     </issue>
 
     <issue

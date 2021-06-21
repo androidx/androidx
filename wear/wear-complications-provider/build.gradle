@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -32,12 +31,12 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(TRUTH)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.truth)
     testImplementation("junit:junit:4.13")
 }
 
@@ -57,7 +56,7 @@ androidx {
     name = "Android Wear Complications"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS
+    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS_PROVIDER
     inceptionYear = "2020"
     description = "Android Wear Complications"
 }

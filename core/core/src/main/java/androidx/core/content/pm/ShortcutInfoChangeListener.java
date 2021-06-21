@@ -16,7 +16,6 @@
 
 package androidx.core.content.pm;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.AnyThread;
@@ -47,12 +46,4 @@ public abstract class ShortcutInfoChangeListener {
 
     @AnyThread
     public void onShortcutUsageReported(@NonNull List<String> shortcutIds) {}
-
-    /**
-     * Implementation that does nothing and returns directly from asynchronous methods.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static class NoopImpl extends ShortcutInfoChangeListener {}
 }

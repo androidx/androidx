@@ -17,11 +17,11 @@
 package androidx.camera.camera2.pipe.core
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.compat.Api23Compat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,7 +45,6 @@ internal class Permissions @Inject constructor(private val context: Context) {
         }
 
     @RequiresApi(23)
-    @SuppressLint("UnsafeNewApiCall")
     private fun checkCameraPermission(): Boolean {
         // Granted camera permission is cached here to reduce the number of binder transactions
         // executed.  This is considered okay because when a user revokes a permission at runtime,
@@ -53,7 +52,9 @@ internal class Permissions @Inject constructor(private val context: Context) {
         // allowing the code to avoid re-querying after checkSelfPermission returns true.
         if (!_hasCameraPermission) {
             Debug.traceStart { "CXCP#checkCameraPermission" }
-            if (context.checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED) {
+            if (Api23Compat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                == PERMISSION_GRANTED
+            ) {
                 _hasCameraPermission = true
             }
             Debug.traceStop()

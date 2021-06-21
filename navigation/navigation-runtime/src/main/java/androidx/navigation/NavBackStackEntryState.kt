@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 package androidx.navigation
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.Parcel
-import java.util.UUID
+import androidx.lifecycle.LifecycleOwner
 
 @SuppressLint("BanParcelableUsage")
 internal class NavBackStackEntryState : Parcelable {
-    val uuid: UUID
+    val id: String
     val destinationId: Int
     val args: Bundle?
     val savedState: Bundle
 
     constructor(entry: NavBackStackEntry) {
-        uuid = entry.id
+        id = entry.id
         destinationId = entry.destination.id
         args = entry.arguments
         savedState = Bundle()
@@ -37,10 +38,26 @@ internal class NavBackStackEntryState : Parcelable {
     }
 
     constructor(inParcel: Parcel) {
-        uuid = UUID.fromString(inParcel.readString())
+        id = inParcel.readString()!!
         destinationId = inParcel.readInt()
         args = inParcel.readBundle(javaClass.classLoader)
         savedState = inParcel.readBundle(javaClass.classLoader)!!
+    }
+
+    fun instantiate(
+        context: Context,
+        destination: NavDestination,
+        lifecycleOwner: LifecycleOwner?,
+        viewModel: NavControllerViewModel?
+    ): NavBackStackEntry {
+        val args = args?.apply {
+            classLoader = context.classLoader
+        }
+        return NavBackStackEntry.create(
+            context, destination, args,
+            lifecycleOwner, viewModel,
+            id, savedState
+        )
     }
 
     override fun describeContents(): Int {
@@ -48,7 +65,7 @@ internal class NavBackStackEntryState : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
-        parcel.writeString(uuid.toString())
+        parcel.writeString(id)
         parcel.writeInt(destinationId)
         parcel.writeBundle(args)
         parcel.writeBundle(savedState)

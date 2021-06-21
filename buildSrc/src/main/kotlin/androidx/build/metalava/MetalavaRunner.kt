@@ -69,7 +69,7 @@ abstract class MetalavaWorkAction @Inject constructor (
                 "java.base/java.util=ALL-UNNAMED"
             )
             it.classpath(parameters.metalavaClasspath.get())
-            it.main = "com.android.tools.metalava.Driver"
+            it.mainClass.set("com.android.tools.metalava.Driver")
             it.args = parameters.args.get()
         }
     }
@@ -214,7 +214,7 @@ fun generateApi(
 // Gets arguments for generating the specified api file
 private fun generateApi(
     metalavaClasspath: FileCollection,
-    bootClasspath: Collection<File>,
+    bootClasspath: FileCollection,
     dependencyClasspath: FileCollection,
     sourcePaths: Collection<File>,
     outputLocation: ApiLocation,
@@ -232,7 +232,7 @@ private fun generateApi(
 
 // Generates the specified api file
 fun getGenerateApiArgs(
-    bootClasspath: Collection<File>,
+    bootClasspath: FileCollection,
     dependencyClasspath: FileCollection,
     sourcePaths: Collection<File>,
     outputLocation: ApiLocation?,
@@ -243,7 +243,7 @@ fun getGenerateApiArgs(
     // generate public API txt
     val args = mutableListOf(
         "--classpath",
-        (bootClasspath + dependencyClasspath.files).joinToString(File.pathSeparator),
+        (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator),
 
         "--source-path",
         sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
@@ -307,7 +307,10 @@ fun getGenerateApiArgs(
             args += HIDE_EXPERIMENTAL_ARGS
         }
         is GenerateApiMode.ExperimentalApi -> {
-            // No additional args needed.
+            args += listOf(
+                "--hide-annotation", "androidx.annotation.RestrictTo"
+            )
+            args += listOf("--show-unannotated")
         }
     }
 

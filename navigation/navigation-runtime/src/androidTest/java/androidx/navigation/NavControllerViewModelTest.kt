@@ -30,7 +30,7 @@ class NavControllerViewModelTest {
 
     @Test
     fun testGetViewModelStore() {
-        val navGraphId = UUID.randomUUID()
+        val navGraphId = UUID.randomUUID().toString()
         val viewModel = NavControllerViewModel()
         val viewModelStore = viewModel.getViewModelStore(navGraphId)
         assertThat(viewModel.getViewModelStore(navGraphId)).isSameInstanceAs(viewModelStore)
@@ -46,7 +46,7 @@ class NavControllerViewModelTest {
     @Test
     fun testClear() {
         val viewModel = NavControllerViewModel.getInstance(ViewModelStore())
-        val navGraphId = UUID.randomUUID()
+        val navGraphId = UUID.randomUUID().toString()
         val viewModelStore = viewModel.getViewModelStore(navGraphId)
         assertThat(viewModelStore).isNotNull()
 
@@ -58,10 +58,10 @@ class NavControllerViewModelTest {
     fun testOnCleared() {
         val baseViewModelStore = ViewModelStore()
         val viewModel = NavControllerViewModel.getInstance(baseViewModelStore)
-        val navGraphId = UUID.randomUUID()
+        val navGraphId = UUID.randomUUID().toString()
         val navGraphViewModelStore = viewModel.getViewModelStore(navGraphId)
         // test clearing two viewmodel stores.
-        viewModel.getViewModelStore(UUID.randomUUID())
+        viewModel.getViewModelStore(UUID.randomUUID().toString())
 
         assertThat(navGraphViewModelStore).isNotNull()
 

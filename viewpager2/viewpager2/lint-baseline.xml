@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.viewpager2.widget.ViewPager2 is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.viewpager2.widget.ViewPager2 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.viewpager2.widget.ViewPager2.SavedState is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.viewpager2.widget.ViewPager2.SavedState is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            super(source, loader);"
         errorLine2="            ~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.viewpager2.widget.ViewPager2 is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.viewpager2.widget.ViewPager2 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (applied.isConsumed()) {"
         errorLine2="                    ~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 20, the call containing class androidx.viewpager2.widget.ViewPager2 is not annotated with @RequiresApi(x) where x is at least 20. Either annotate the containing class with at least @RequiresApi(20) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(20)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.viewpager2.widget.ViewPager2 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mRecyclerView.getChildAt(i).dispatchApplyWindowInsets(new WindowInsets(applied));"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 20, the call containing class androidx.viewpager2.widget.ViewPager2 is not annotated with @RequiresApi(x) where x is at least 20. Either annotate the containing class with at least @RequiresApi(20) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(20)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.viewpager2.widget.ViewPager2 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mRecyclerView.getChildAt(i).dispatchApplyWindowInsets(new WindowInsets(applied));"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 20, the call containing class androidx.viewpager2.widget.ViewPager2 is not annotated with @RequiresApi(x) where x is at least 20. Either annotate the containing class with at least @RequiresApi(20) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(20)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.viewpager2.widget.ViewPager2 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return insets.consumeSystemWindowInsets().consumeStableInsets();"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.viewpager2.widget.ViewPager2 is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.viewpager2.widget.ViewPager2 is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return insets.consumeSystemWindowInsets().consumeStableInsets();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
         <location

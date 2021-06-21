@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return mKeyGenParameterSpec != null &amp;&amp; mKeyGenParameterSpec.isUserAuthenticationRequired();"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mKeyGenParameterSpec.getUserAuthenticationValidityDurationSeconds();"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.security.crypto.MasterKey is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.security.crypto.MasterKey is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return mKeyGenParameterSpec.isStrongBoxBacked();"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (!mKeyAlias.equals(keyGenParameterSpec.getKeystoreAlias())) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        + keyGenParameterSpec.getKeystoreAlias());"
         errorLine2="                                              ~~~~~~~~~~~~~~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder("
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)"
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
@@ -101,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -112,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        .setKeySize(DEFAULT_AES_GCM_MASTER_KEY_SIZE);"
         errorLine2="                         ~~~~~~~~~~">
         <location
@@ -123,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    builder.setUserAuthenticationRequired(true)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            .setUserAuthenticationValidityDurationSeconds("
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -145,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        builder.setIsStrongBoxBacked(true);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -156,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKey.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKey.Builder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mKeyGenParameterSpec = builder.build();"
         errorLine2="                                               ~~~~~">
         <location
@@ -167,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder("
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -178,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
@@ -189,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -200,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                .setKeySize(KEY_SIZE);"
         errorLine2="                 ~~~~~~~~~~">
         <location
@@ -211,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return builder.build();"
         errorLine2="                       ~~~~~">
         <location
@@ -222,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (!MasterKeys.keyExists(keyGenParameterSpec.getKeystoreAlias())) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
@@ -233,8 +233,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return keyGenParameterSpec.getKeystoreAlias();"
         errorLine2="                                   ~~~~~~~~~~~~~~~~">
         <location
@@ -244,8 +244,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (spec.getKeySize() != KEY_SIZE) {"
         errorLine2="                 ~~~~~~~~~~">
         <location
@@ -255,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    &quot;invalid key size, want &quot; + KEY_SIZE + &quot; bits got &quot; + spec.getKeySize()"
         errorLine2="                                                                               ~~~~~~~~~~">
         <location
@@ -266,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (!Arrays.equals(spec.getBlockModes(), new String[]{KeyProperties.BLOCK_MODE_GCM})) {"
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
@@ -277,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            + Arrays.toString(spec.getBlockModes()));"
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
@@ -288,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (spec.getPurposes() != (KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)) {"
         errorLine2="                 ~~~~~~~~~~~">
         <location
@@ -299,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            + spec.getPurposes());"
         errorLine2="                                   ~~~~~~~~~~~">
         <location
@@ -310,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (!Arrays.equals(spec.getEncryptionPaddings(), new String[]"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -321,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            + Arrays.toString(spec.getEncryptionPaddings()));"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -332,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (spec.isUserAuthenticationRequired()"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -343,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.security.crypto.MasterKeys is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.security.crypto.MasterKeys is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                &amp;&amp; spec.getUserAuthenticationValidityDurationSeconds() &lt; 1) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

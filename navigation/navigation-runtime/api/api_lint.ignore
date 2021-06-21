@@ -13,6 +13,14 @@ MissingBuildMethod: androidx.navigation.NavDeepLinkBuilder:
     androidx.navigation.NavDeepLinkBuilder does not declare a `build()` method, but builder classes are expected to
 
 
+MissingJvmstatic: androidx.navigation.ActivityNavigatorExtrasKt#ActivityNavigatorExtras(androidx.core.app.ActivityOptionsCompat, int):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+
+
+MissingNullability: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Missing nullability on method `navArgs` return
+
+
 NullableCollection: androidx.navigation.NavBackStackEntry#getArguments():
     Return type of method androidx.navigation.NavBackStackEntry.getArguments() is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.navigation.NavController#saveState():

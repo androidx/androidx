@@ -27,6 +27,7 @@ import io.reactivex.ObservableOnSubscribe
 import io.reactivex.Scheduler
 import io.reactivex.functions.Cancellable
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -334,6 +335,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
         return buildObservable().toFlowable(backpressureStrategy)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Suppress("DEPRECATION")
     internal class PagingObservableOnSubscribe<Key : Any, Value : Any>(
         initialLoadKey: Key?,
@@ -356,7 +358,6 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
         init {
             currentData = InitialPagedList(
-                pagingSource = InitialPagingSource(),
                 coroutineScope = GlobalScope,
                 notifyDispatcher = notifyDispatcher,
                 backgroundDispatcher = fetchDispatcher,
@@ -391,6 +392,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 currentData.pagingSource.unregisterInvalidatedCallback(callback)
                 val pagingSource = pagingSourceFactory()
                 pagingSource.registerInvalidatedCallback(callback)
+                if (pagingSource is LegacyPagingSource) {
+                    pagingSource.setPageSize(config.pageSize)
+                }
 
                 withContext(notifyDispatcher) {
                     currentData.setInitialLoadState(LoadType.REFRESH, Loading)

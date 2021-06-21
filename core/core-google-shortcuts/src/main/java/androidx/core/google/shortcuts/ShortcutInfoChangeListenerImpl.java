@@ -19,28 +19,29 @@ package androidx.core.google.shortcuts;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.google.shortcuts.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_DESCRIPTION_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LABEL_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
 
 import android.content.Context;
+import android.os.Build;
+import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.ShortcutInfoChangeListener;
 import androidx.core.content.pm.ShortcutInfoCompat;
-import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.google.shortcuts.builders.CapabilityBuilder;
+import androidx.core.google.shortcuts.builders.ParameterBuilder;
+import androidx.core.google.shortcuts.builders.ShortcutBuilder;
 
+import com.google.crypto.tink.KeysetHandle;
 import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.Indexable;
-import com.google.firebase.appindexing.builders.IndexableBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,6 +54,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     private final Context mContext;
     private final FirebaseAppIndex mFirebaseAppIndex;
     private final FirebaseUserActions mFirebaseUserActions;
+    @Nullable private final KeysetHandle mKeysetHandle;
 
     /**
      * Create an instance of {@link ShortcutInfoChangeListenerImpl}.
@@ -63,15 +65,17 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     @NonNull
     public static ShortcutInfoChangeListenerImpl getInstance(@NonNull Context context) {
         return new ShortcutInfoChangeListenerImpl(context, FirebaseAppIndex.getInstance(context),
-                FirebaseUserActions.getInstance(context));
+                FirebaseUserActions.getInstance(context),
+                ShortcutUtils.getOrCreateShortcutKeysetHandle(context));
     }
 
     @VisibleForTesting
     ShortcutInfoChangeListenerImpl(Context context, FirebaseAppIndex firebaseAppIndex,
-            FirebaseUserActions firebaseUserActions) {
+            FirebaseUserActions firebaseUserActions, @Nullable KeysetHandle keysetHandle) {
         mContext = context;
         mFirebaseAppIndex = firebaseAppIndex;
         mFirebaseUserActions = firebaseUserActions;
+        mKeysetHandle = keysetHandle;
     }
 
     /**
@@ -155,70 +159,81 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     @NonNull
     private Indexable buildIndexable(@NonNull ShortcutInfoCompat shortcut) {
         String url = ShortcutUtils.getIndexableUrl(mContext, shortcut.getId());
-        String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(mContext, shortcut.getIntent());
+        String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(mContext, shortcut.getIntent(),
+                mKeysetHandle);
+        String name = shortcut.getShortLabel().toString();
 
-        Indexable.Builder builder = new Indexable.Builder()
+        ShortcutBuilder shortcutBuilder = new ShortcutBuilder()
                 .setId(shortcut.getId())
                 .setUrl(url)
-                .setName(shortcut.getShortLabel().toString())
-                .put(SHORTCUT_URL_KEY, shortcutUrl)
-                .put(SHORTCUT_LABEL_KEY, shortcut.getShortLabel().toString());
-
+                .setShortcutLabel(name)
+                .setShortcutUrl(shortcutUrl);
         if (shortcut.getLongLabel() != null) {
-            builder.put(SHORTCUT_DESCRIPTION_KEY, shortcut.getLongLabel().toString());
-        }
-
-        if (shortcut.getIcon() != null && shortcut.getIcon().getType() == IconCompat.TYPE_URI) {
-            builder.setImage(shortcut.getIcon().getUri().toString());
+            shortcutBuilder.setShortcutDescription(shortcut.getLongLabel().toString());
         }
 
         // Add capability binding
-        if (shortcut.getCategories() != null) {
-            List<Indexable.Builder> partOfList = new ArrayList<>();
-            for (String capability : shortcut.getCategories()) {
-                if (!ShortcutUtils.isAppActionCapability(capability)) {
-                    continue;
-                }
-
-                if (shortcut.getExtras() == null
-                        || shortcut.getExtras().getStringArray(capability) == null
-                        || shortcut.getExtras().getStringArray(capability).length == 0) {
-                    // Shortcut has a capability binding without any parameter binding.
-                    partOfList.add(buildPartOfIndexable(capability, null));
-                } else {
-                    String[] params = shortcut.getExtras().getStringArray(capability);
-                    for (String param : params) {
-                        String capabilityParam = capability + CAPABILITY_PARAM_SEPARATOR + param;
-                        partOfList.add(buildPartOfIndexable(capabilityParam,
-                                shortcut.getExtras().getStringArray(capabilityParam)));
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (shortcut.getCategories() != null) {
+                List<CapabilityBuilder> capabilityList = new ArrayList<>();
+                for (String capability : shortcut.getCategories()) {
+                    if (!ShortcutUtils.isAppActionCapability(capability)) {
+                        continue;
                     }
-                }
-            }
 
-            if (!partOfList.isEmpty()) {
-                builder.setIsPartOf(partOfList.toArray(new IndexableBuilder[0]));
+                    capabilityList.add(Api21Impl.buildCapability(capability, shortcut.getExtras()));
+                }
+
+                if (!capabilityList.isEmpty()) {
+                    shortcutBuilder
+                            .setCapability(capabilityList.toArray(new CapabilityBuilder[0]));
+                }
             }
         }
 
         // By default, the indexable will be saved only on-device.
-        return builder.build();
+        return shortcutBuilder.build();
     }
 
-    @NonNull
-    private Indexable.Builder buildPartOfIndexable(@NonNull String capabilityParam,
-            @Nullable String[] values) {
-        Indexable.Builder partOfBuilder = new Indexable.Builder()
-                .setId(capabilityParam);
-        if (values == null) {
-            return partOfBuilder;
+    @RequiresApi(21)
+    private static class Api21Impl {
+        @NonNull
+        static CapabilityBuilder buildCapability(@NonNull String capability,
+                @Nullable PersistableBundle shortcutInfoExtras) {
+            CapabilityBuilder capabilityBuilder = new CapabilityBuilder()
+                    .setName(capability);
+            if (shortcutInfoExtras == null) {
+                return capabilityBuilder;
+            }
+
+            String[] params = shortcutInfoExtras.getStringArray(capability);
+            if (params == null) {
+                return capabilityBuilder;
+            }
+
+            List<ParameterBuilder> parameterBuilders = new ArrayList<>();
+            for (String param : params) {
+                ParameterBuilder parameterBuilder =
+                        new ParameterBuilder()
+                                .setName(param);
+                String capabilityParamKey = capability + CAPABILITY_PARAM_SEPARATOR + param;
+                String[] values = shortcutInfoExtras.getStringArray(capabilityParamKey);
+                if (values == null || values.length == 0) {
+                    // ignore this parameter since no values were given
+                    continue;
+                }
+
+                parameterBuilder.setValue(values);
+                parameterBuilders.add(parameterBuilder);
+            }
+
+            if (parameterBuilders.size() > 0) {
+                capabilityBuilder
+                        .setParameter(parameterBuilders.toArray(new ParameterBuilder[0]));
+            }
+            return capabilityBuilder;
         }
 
-        if (values.length > 0) {
-            partOfBuilder.setName(values[0]);
-        }
-        if (values.length > 1) {
-            partOfBuilder.setAlternateName(Arrays.copyOfRange(values, 1, values.length));
-        }
-        return partOfBuilder;
+        private Api21Impl() {}
     }
 }

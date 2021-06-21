@@ -17,6 +17,8 @@
 package androidx.wear.complications.provider.samples
 
 import androidx.wear.complications.ComplicationProviderService
+import androidx.wear.complications.ComplicationRequest
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -24,18 +26,23 @@ import androidx.wear.complications.data.ShortTextComplicationData
 /** A minimal complication provider which reports the ID of the complication immediately. */
 class SynchronousProviderService : ComplicationProviderService() {
 
-    override fun onComplicationUpdate(
-        complicationId: Int,
-        type: ComplicationType,
-        callback: ComplicationUpdateCallback
+    override fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     ) {
-        callback.onUpdateComplication(
-            when (type) {
+        listener.onComplicationData(
+            when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
-                    ShortTextComplicationData.Builder(plainText("# $complicationId")).build()
+                    ShortTextComplicationData.Builder(
+                        plainText("# ${request.complicationInstanceId}"),
+                        ComplicationText.EMPTY
+                    ).build()
 
                 ComplicationType.LONG_TEXT ->
-                    LongTextComplicationData.Builder(plainText("hello $complicationId")).build()
+                    LongTextComplicationData.Builder(
+                        plainText("hello ${request.complicationInstanceId}"),
+                        ComplicationText.EMPTY
+                    ).build()
 
                 else -> null
             }
@@ -44,10 +51,16 @@ class SynchronousProviderService : ComplicationProviderService() {
 
     override fun getPreviewData(type: ComplicationType) = when (type) {
         ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(plainText("# 123")).build()
+            ShortTextComplicationData.Builder(
+                plainText("# 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(plainText("hello 123")).build()
+            LongTextComplicationData.Builder(
+                plainText("hello 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         else -> null
     }

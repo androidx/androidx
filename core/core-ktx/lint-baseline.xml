@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.core.animation.AnimatorKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.animation.AnimatorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    addPauseListener(listener)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -13,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val stream = startWrite()"
         errorLine2="                 ~~~~~~~~~~">
         <location
@@ -24,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            finishWrite(stream)"
         errorLine2="            ~~~~~~~~~~~">
         <location
@@ -35,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            failWrite(stream)"
         errorLine2="            ~~~~~~~~~">
         <location
@@ -46,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun AtomicFile.readBytes(): ByteArray = readFully()"
         errorLine2="                                                      ~~~~~~~~~">
         <location
@@ -57,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    return readFully().toString(charset)"
         errorLine2="           ~~~~~~~~~">
         <location
@@ -68,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.BitmapKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.BitmapKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    colorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)"
         errorLine2="                                        ~~~">
         <location
@@ -79,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.BitmapKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.BitmapKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    return Bitmap.createBitmap(width, height, config, hasAlpha, colorSpace)"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
@@ -90,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.os.BundleKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    putBinder(key, value)"
         errorLine2="                    ~~~~~~~~~">
         <location
@@ -101,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.BundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    putSize(key, value)"
         errorLine2="                    ~~~~~~~">
         <location
@@ -112,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.BundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    putSizeF(key, value)"
         errorLine2="                    ~~~~~~~~">
         <location
@@ -123,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun Color.component1(): Float = getComponent(0)"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
@@ -134,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun Color.component2(): Float = getComponent(1)"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
@@ -145,8 +145,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun Color.component3(): Float = getComponent(2)"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
@@ -156,8 +156,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun Color.component4(): Float = getComponent(3)"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
@@ -167,8 +167,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.luminance(this)"
         errorLine2="                  ~~~~~~~~~">
         <location
@@ -178,8 +178,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun @receiver:ColorInt Int.toColor(): Color = Color.valueOf(this)"
         errorLine2="                                                                  ~~~~~~~">
         <location
@@ -189,8 +189,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun @receiver:ColorInt Int.toColorLong(): Long = Color.pack(this)"
         errorLine2="                                                                     ~~~~">
         <location
@@ -200,8 +200,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun @receiver:ColorLong Long.component1(): Float = Color.red(this)"
         errorLine2="                                                                                ~~~">
         <location
@@ -211,8 +211,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun @receiver:ColorLong Long.component2(): Float = Color.green(this)"
         errorLine2="                                                                                ~~~~~">
         <location
@@ -222,8 +222,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun @receiver:ColorLong Long.component3(): Float = Color.blue(this)"
         errorLine2="                                                                                ~~~~">
         <location
@@ -233,8 +233,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun @receiver:ColorLong Long.component4(): Float = Color.alpha(this)"
         errorLine2="                                                                                ~~~~~">
         <location
@@ -244,8 +244,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.alpha(this)"
         errorLine2="                  ~~~~~">
         <location
@@ -255,8 +255,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.red(this)"
         errorLine2="                  ~~~">
         <location
@@ -266,8 +266,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.green(this)"
         errorLine2="                  ~~~~~">
         <location
@@ -277,8 +277,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.blue(this)"
         errorLine2="                  ~~~~">
         <location
@@ -288,8 +288,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.luminance(this)"
         errorLine2="                  ~~~~~~~~~">
         <location
@@ -299,8 +299,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun @receiver:ColorLong Long.toColor(): Color = Color.valueOf(this)"
         errorLine2="                                                                    ~~~~~~~">
         <location
@@ -310,8 +310,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun @receiver:ColorLong Long.toColorInt(): Int = Color.toArgb(this)"
         errorLine2="                                                                     ~~~~~~">
         <location
@@ -321,8 +321,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.isSrgb(this)"
         errorLine2="                  ~~~~~~">
         <location
@@ -332,8 +332,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = Color.isWideGamut(this)"
         errorLine2="                  ~~~~~~~~~~~">
         <location
@@ -343,8 +343,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline val @receiver:ColorLong Long.colorSpace: ColorSpace get() = Color.colorSpace(this)"
         errorLine2="                                                                                ~~~~~~~~~~">
         <location
@@ -354,8 +354,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
         errorLine2="          ~~~~~~~">
         <location
@@ -365,8 +365,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
         errorLine2="                                   ~~~">
         <location
@@ -376,8 +376,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    Color.convert(this, colorSpace)"
         errorLine2="          ~~~~~~~">
         <location
@@ -387,8 +387,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
         errorLine2="          ~~~~~~~">
         <location
@@ -398,8 +398,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
         errorLine2="                                   ~~~">
         <location
@@ -409,8 +409,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    Color.convert(this, colorSpace)"
         errorLine2="          ~~~~~~~">
         <location
@@ -420,8 +420,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    convert(ColorSpace.get(colorSpace))"
         errorLine2="    ~~~~~~~">
         <location
@@ -431,8 +431,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    convert(ColorSpace.get(colorSpace))"
         errorLine2="                       ~~~">
         <location
@@ -442,8 +442,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline infix fun Color.convertTo(colorSpace: ColorSpace): Color = convert(colorSpace)"
         errorLine2="                                                                         ~~~~~~~">
         <location
@@ -453,8 +453,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.drawable.ColorDrawableKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.drawable.ColorDrawableKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun Color.toDrawable(): ColorDrawable = ColorDrawable(toArgb())"
         errorLine2="                                                                    ~~~~~~">
         <location
@@ -464,8 +464,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.util.HalfKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.util.HalfKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun @receiver:HalfFloat Short.toHalf(): Half = Half.valueOf(this)"
         errorLine2="                                                                  ~~~~~~~">
         <location
@@ -475,8 +475,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.util.HalfKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.util.HalfKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun Float.toHalf(): Half = Half.valueOf(this)"
         errorLine2="                                              ~~~~~~~">
         <location
@@ -486,8 +486,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.util.HalfKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.util.HalfKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun String.toHalf(): Half = Half.valueOf(this)"
         errorLine2="                                               ~~~~~~~">
         <location
@@ -497,8 +497,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun Bitmap.toAdaptiveIcon(): Icon = Icon.createWithAdaptiveBitmap(this)"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -508,8 +508,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun Bitmap.toIcon(): Icon = Icon.createWithBitmap(this)"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
@@ -519,8 +519,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun Uri.toIcon(): Icon = Icon.createWithContentUri(this)"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -530,8 +530,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun ByteArray.toIcon(): Icon = Icon.createWithData(this, 0, size)"
         errorLine2="                                                  ~~~~~~~~~~~~~~">
         <location
@@ -541,8 +541,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.core.graphics.ImageDecoderKt is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.core.graphics.ImageDecoderKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    return ImageDecoder.decodeBitmap(this) { decoder, info, source ->"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
@@ -552,8 +552,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.core.graphics.ImageDecoderKt is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.core.graphics.ImageDecoderKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    return ImageDecoder.decodeDrawable(this) { decoder, info, source ->"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
@@ -563,8 +563,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.text.LocaleKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.text.LocaleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get() = TextUtils.getLayoutDirectionFromLocale(this)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -574,8 +574,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline val &lt;T> LongSparseArray&lt;T>.size: Int get() = size()"
         errorLine2="                                                           ~~~~">
         <location
@@ -585,8 +585,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    indexOfKey(key) >= 0"
         errorLine2="    ~~~~~~~~~~">
         <location
@@ -596,8 +596,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun &lt;T> LongSparseArray&lt;T>.set(key: Long, value: T): Unit = put(key, value)"
         errorLine2="                                                                                   ~~~">
         <location
@@ -607,8 +607,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -618,8 +618,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
         errorLine2="                                 ~~~~">
         <location
@@ -629,8 +629,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
         errorLine2="                                                ~~~~">
         <location
@@ -640,8 +640,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun &lt;T> LongSparseArray&lt;T>.containsKey(key: Long): Boolean = indexOfKey(key) >= 0"
         errorLine2="                                                                           ~~~~~~~~~~">
         <location
@@ -651,8 +651,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    indexOfValue(value) >= 0"
         errorLine2="    ~~~~~~~~~~~~">
         <location
@@ -662,8 +662,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get(key) ?: defaultValue"
         errorLine2="    ~~~">
         <location
@@ -673,8 +673,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get(key) ?: defaultValue()"
         errorLine2="    ~~~">
         <location
@@ -684,8 +684,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun &lt;T> LongSparseArray&lt;T>.isEmpty(): Boolean = size() == 0"
         errorLine2="                                                              ~~~~">
         <location
@@ -695,8 +695,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun &lt;T> LongSparseArray&lt;T>.isNotEmpty(): Boolean = size() != 0"
         errorLine2="                                                                 ~~~~">
         <location
@@ -706,8 +706,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val index = indexOfKey(key)"
         errorLine2="                ~~~~~~~~~~">
         <location
@@ -717,8 +717,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    if (index >= 0 &amp;&amp; value == valueAt(index)) {"
         errorLine2="                               ~~~~~~~">
         <location
@@ -728,8 +728,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        removeAt(index)"
         errorLine2="        ~~~~~~~~">
         <location
@@ -739,8 +739,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    for (index in 0 until size()) {"
         errorLine2="                          ~~~~">
         <location
@@ -750,8 +750,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        action(keyAt(index), valueAt(index))"
         errorLine2="               ~~~~~">
         <location
@@ -761,8 +761,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        action(keyAt(index), valueAt(index))"
         errorLine2="                             ~~~~~~~">
         <location
@@ -772,8 +772,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun hasNext() = index &lt; size()"
         errorLine2="                                     ~~~~">
         <location
@@ -783,8 +783,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun nextLong() = keyAt(index++)"
         errorLine2="                              ~~~~~">
         <location
@@ -794,8 +794,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun hasNext() = index &lt; size()"
         errorLine2="                                     ~~~~">
         <location
@@ -805,8 +805,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun next() = valueAt(index++)"
         errorLine2="                          ~~~~~~~">
         <location
@@ -816,8 +816,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        op(p, Path.Op.UNION)"
         errorLine2="        ~~">
         <location
@@ -827,8 +827,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        op(p, Path.Op.DIFFERENCE)"
         errorLine2="        ~~">
         <location
@@ -838,8 +838,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        op(this@and, p, Path.Op.INTERSECT)"
         errorLine2="        ~~">
         <location
@@ -849,8 +849,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        op(p, Path.Op.XOR)"
         errorLine2="        ~~">
         <location
@@ -860,8 +860,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="): PersistableBundle = PersistableBundle(pairs.size).apply {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -871,8 +871,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            null -> putString(key, null) // Any nullable type will suffice."
         errorLine2="                    ~~~~~~~~~">
         <location
@@ -882,8 +882,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 22, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 22; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    putBoolean(key, value)"
         errorLine2="                    ~~~~~~~~~~">
         <location
@@ -893,8 +893,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is Double -> putDouble(key, value)"
         errorLine2="                         ~~~~~~~~~">
         <location
@@ -904,8 +904,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is Int -> putInt(key, value)"
         errorLine2="                      ~~~~~~">
         <location
@@ -915,8 +915,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is Long -> putLong(key, value)"
         errorLine2="                       ~~~~~~~">
         <location
@@ -926,8 +926,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is String -> putString(key, value)"
         errorLine2="                         ~~~~~~~~~">
         <location
@@ -937,8 +937,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 22, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 22; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    putBooleanArray(key, value)"
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
@@ -948,8 +948,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is DoubleArray -> putDoubleArray(key, value)"
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
@@ -959,8 +959,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is IntArray -> putIntArray(key, value)"
         errorLine2="                           ~~~~~~~~~~~">
         <location
@@ -970,8 +970,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            is LongArray -> putLongArray(key, value)"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
@@ -981,8 +981,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        putStringArray(key, value as Array&lt;String>)"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
@@ -992,8 +992,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline infix fun &lt;T : Comparable&lt;T>> T.rangeTo(that: T): Range&lt;T> = Range(this, that)"
         errorLine2="                                                                           ~~~~~~~~~~~~~~~~~">
         <location
@@ -1003,8 +1003,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun &lt;T : Comparable&lt;T>> Range&lt;T>.plus(value: T): Range&lt;T> = extend(value)"
         errorLine2="                                                                                   ~~~~~~">
         <location
@@ -1014,8 +1014,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    extend(other)"
         errorLine2="    ~~~~~~">
         <location
@@ -1025,8 +1025,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    intersect(other)"
         errorLine2="    ~~~~~~~~~">
         <location
@@ -1036,8 +1036,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override val endInclusive get() = upper"
         errorLine2="                                      ~~~~~">
         <location
@@ -1047,8 +1047,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override val start get() = lower"
         errorLine2="                               ~~~~~">
         <location
@@ -1058,8 +1058,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public fun &lt;T : Comparable&lt;T>> ClosedRange&lt;T>.toRange(): Range&lt;T> = Range(start, endInclusive)"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1069,8 +1069,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun Size.component1(): Int = width"
         errorLine2="                                                    ~~~~~">
         <location
@@ -1080,8 +1080,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun Size.component2(): Int = height"
         errorLine2="                                                    ~~~~~~">
         <location
@@ -1091,8 +1091,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun SizeF.component1(): Float = width"
         errorLine2="                                                       ~~~~~">
         <location
@@ -1102,8 +1102,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun SizeF.component2(): Float = height"
         errorLine2="                                                       ~~~~~~">
         <location
@@ -1113,8 +1113,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline val SparseLongArray.size: Int get() = size()"
         errorLine2="                                                    ~~~~">
         <location
@@ -1124,8 +1124,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun SparseLongArray.contains(key: Int): Boolean = indexOfKey(key) >= 0"
         errorLine2="                                                                         ~~~~~~~~~~">
         <location
@@ -1135,8 +1135,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline operator fun SparseLongArray.set(key: Int, value: Long): Unit = put(key, value)"
         errorLine2="                                                                              ~~~">
         <location
@@ -1146,8 +1146,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val new = SparseLongArray(size() + other.size())"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1157,8 +1157,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val new = SparseLongArray(size() + other.size())"
         errorLine2="                              ~~~~">
         <location
@@ -1168,8 +1168,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val new = SparseLongArray(size() + other.size())"
         errorLine2="                                             ~~~~">
         <location
@@ -1179,8 +1179,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun SparseLongArray.containsKey(key: Int): Boolean = indexOfKey(key) >= 0"
         errorLine2="                                                                   ~~~~~~~~~~">
         <location
@@ -1190,8 +1190,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun SparseLongArray.containsValue(value: Long): Boolean = indexOfValue(value) >= 0"
         errorLine2="                                                                        ~~~~~~~~~~~~">
         <location
@@ -1201,8 +1201,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    get(key, defaultValue)"
         errorLine2="    ~~~">
         <location
@@ -1212,8 +1212,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }"
         errorLine2="    ~~~~~~~~~~">
         <location
@@ -1223,8 +1223,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }"
         errorLine2="                                       ~~~~~~~">
         <location
@@ -1234,8 +1234,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun SparseLongArray.isEmpty(): Boolean = size() == 0"
         errorLine2="                                                       ~~~~">
         <location
@@ -1245,8 +1245,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="public inline fun SparseLongArray.isNotEmpty(): Boolean = size() != 0"
         errorLine2="                                                          ~~~~">
         <location
@@ -1256,8 +1256,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    val index = indexOfKey(key)"
         errorLine2="                ~~~~~~~~~~">
         <location
@@ -1267,8 +1267,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    if (index >= 0 &amp;&amp; value == valueAt(index)) {"
         errorLine2="                               ~~~~~~~">
         <location
@@ -1278,8 +1278,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        removeAt(index)"
         errorLine2="        ~~~~~~~~">
         <location
@@ -1289,8 +1289,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    for (index in 0 until size()) {"
         errorLine2="                          ~~~~">
         <location
@@ -1300,8 +1300,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        action(keyAt(index), valueAt(index))"
         errorLine2="               ~~~~~">
         <location
@@ -1311,8 +1311,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        action(keyAt(index), valueAt(index))"
         errorLine2="                             ~~~~~~~">
         <location
@@ -1322,8 +1322,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun hasNext() = index &lt; size()"
         errorLine2="                                     ~~~~">
         <location
@@ -1333,8 +1333,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun nextInt() = keyAt(index++)"
         errorLine2="                             ~~~~~">
         <location
@@ -1344,8 +1344,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun hasNext() = index &lt; size()"
         errorLine2="                                     ~~~~">
         <location
@@ -1355,8 +1355,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    override fun nextLong() = valueAt(index++)"
         errorLine2="                              ~~~~~~~">
         <location
@@ -1366,8 +1366,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.core.transition.TransitionKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.transition.TransitionKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    addListener(listener)"
         errorLine2="    ~~~~~~~~~~~">
         <location
@@ -1377,8 +1377,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.content.res.TypedArrayKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.content.res.TypedArrayKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    return getFont(index)!!"
         errorLine2="           ~~~~~~~">
         <location
@@ -1388,8 +1388,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    @Px start: Int = paddingStart,"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
@@ -1399,8 +1399,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    @Px end: Int = paddingEnd,"
         errorLine2="                   ~~~~~~~~~~">
         <location
@@ -1410,8 +1410,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    setPaddingRelative(start, top, end, bottom)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -1421,8 +1421,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    postOnAnimationDelayed(runnable, delayInMillis)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1432,8 +1432,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewGroupKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    @Px start: Int = marginStart,"
         errorLine2="                     ~~~~~~~~~~~">
         <location
@@ -1443,8 +1443,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewGroupKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    @Px end: Int = marginEnd,"
         errorLine2="                   ~~~~~~~~~">
         <location
@@ -1454,8 +1454,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewGroupKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    marginStart = start"
         errorLine2="    ~~~~~~~~~~~">
         <location
@@ -1465,8 +1465,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewGroupKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="    marginEnd = end"
         errorLine2="    ~~~~~~~~~">
         <location

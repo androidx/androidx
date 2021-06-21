@@ -58,7 +58,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -192,7 +191,6 @@ public final class Preview extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
         Threads.checkMainThread();
@@ -300,14 +298,12 @@ public final class Preview extends UseCase {
      *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      * @see Preview.Builder#setTargetRotation(int)
      */
-    @ExperimentalUseCaseGroup
     public void setTargetRotation(@ImageOutputConfig.RotationValue int targetRotation) {
         if (setTargetRotationInternal(targetRotation)) {
             sendTransformationInfoIfReady();
         }
     }
 
-    @ExperimentalUseCaseGroup
     private void sendTransformationInfoIfReady() {
         // TODO(b/159659392): only send transformation after CameraCaptureCallback
         //  .onCaptureCompleted is called.
@@ -351,7 +347,6 @@ public final class Preview extends UseCase {
      *                        {@link #setSurfaceProvider(SurfaceProvider)}.
      */
     @UiThread
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public void setSurfaceProvider(@NonNull Executor executor,
             @Nullable SurfaceProvider surfaceProvider) {
         Threads.checkMainThread();
@@ -468,7 +463,7 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         if (builder.getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null)
                 != null) {
@@ -528,7 +523,6 @@ public final class Preview extends UseCase {
      * @hide
      */
     @Override
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     @RestrictTo(Scope.LIBRARY)
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);

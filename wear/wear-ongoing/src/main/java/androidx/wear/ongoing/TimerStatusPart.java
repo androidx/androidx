@@ -20,6 +20,7 @@ import android.content.Context;
 import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -27,12 +28,15 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.Objects;
 
 /**
- * An Ongoing activity status (or part of it) representing a timer or stopwatch.
- *
- *  Available since wear-ongoing:1.0.0
+ * Implementation and internal representation of {@link Status.TimerPart} and
+ * {@link Status.StopwatchPart}
+ * <p>
+ * Available since wear-ongoing:1.0.0
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize
-public class TimerStatusPart extends StatusPart {
+class TimerStatusPart extends StatusPart {
     @ParcelField(value = 1, defaultValue = "0")
     long mTimeZeroMillis;
 
@@ -68,49 +72,12 @@ public class TimerStatusPart extends StatusPart {
      * @param totalDurationMillis total duration of this timer/stopwatch, useful to display as a
      *                            progress bar or similar.
      */
-    public TimerStatusPart(long timeZeroMillis, boolean countDown, long pausedAtMillis,
+    TimerStatusPart(long timeZeroMillis, boolean countDown, long pausedAtMillis,
             long totalDurationMillis) {
         this.mTimeZeroMillis = timeZeroMillis;
         this.mCountDown = countDown;
         this.mPausedAtMillis = pausedAtMillis;
         this.mTotalDurationMillis = totalDurationMillis;
-    }
-
-    /**
-     * Create a Status representing a timer or stopwatch.
-     *
-     * @param timeZeroMillis      timestamp of the time at which this Timer should display 0,
-     *                            will be in the
-     *                            past for a stopwatch and usually in the future for timers.
-     * @param countDown           indicates if this is a stopwatch (when {@code false}) or timer
-     *                            (when {@code true}).
-     * @param pausedAtMillis      timestamp of the time when this timer was paused. Or
-     *                            {@code -1L} if this timer is running.
-     */
-    public TimerStatusPart(long timeZeroMillis, boolean countDown, long pausedAtMillis) {
-        this(timeZeroMillis, countDown, pausedAtMillis, LONG_DEFAULT);
-    }
-
-    /**
-     * Create a Status representing a timer or stopwatch.
-     *
-     * @param timeZeroMillis      timestamp of the time at which this Timer should display 0,
-     *                            will be in the
-     *                            past for a stopwatch and usually in the future for timers.
-     * @param countDown           indicates if this is a stopwatch (when {@code false}) or timer
-     *                            (when {@code true}).
-     */
-    public TimerStatusPart(long timeZeroMillis, boolean countDown) {
-        this(timeZeroMillis, countDown, LONG_DEFAULT);
-    }
-
-    /**
-     * Create a Status representing stopwatch.
-     *
-     * @param timeZeroMillis      timestamp of the time at which this Stopwatch started.
-     */
-    public TimerStatusPart(long timeZeroMillis) {
-        this(timeZeroMillis, false);
     }
 
     /**
@@ -152,55 +119,8 @@ public class TimerStatusPart extends StatusPart {
                 fromTimeMillis + ((mTimeZeroMillis - fromTimeMillis) % 1000 + 1999) % 1000 + 1;
     }
 
-    /**
-     * @return the time at which this Timer will display 0, will be in the past for a stopwatch
-     * and usually in the future for timers.
-     */
-    public long getTimeZeroMillis() {
-        return mTimeZeroMillis;
-    }
-
-    /**
-     * @return {@code false} if this is a stopwatch or {@code true} if this is a timer.
-     */
-    public boolean isCountDown() {
-        return mCountDown;
-    }
-
-    /**
-     * Determines if this timer is paused. i.e. the display representation will not change over
-     * time.
-     *
-     * @return {@code true} if this timer is paused, {@code false} if it's running.
-     */
     public boolean isPaused() {
         return mPausedAtMillis >= 0L;
-    }
-
-    /**
-     * @return the timestamp of the time when this timer was paused. Use
-     * {@link TimerStatusPart#isPaused()} to determine if this timer is paused or not.
-     */
-    public long getPausedAtMillis() {
-        return mPausedAtMillis;
-    }
-
-    /**
-     * Determines if this timer has a total duration set.
-     *
-     * @return {@code true} if this the total duration was set, {@code false} if not.
-     */
-    public boolean hasTotalDuration() {
-        return mTotalDurationMillis >= 0L;
-    }
-
-    /**
-     * @return the total duration of this timer/stopwatch, if set. Use
-     * {@link TimerStatusPart#hasTotalDuration()} to determine if this timer has a
-     * duration set.
-     */
-    public long getTotalDurationMillis() {
-        return mTotalDurationMillis;
     }
 
     @Override

@@ -16,15 +16,18 @@
 
 package androidx.navigation.safeargs.gradle
 
+import com.android.build.api.extension.AndroidComponentsExtension
+import com.android.build.api.variant.DynamicFeatureVariant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
-import groovy.util.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
@@ -63,40 +66,56 @@ abstract class SafeArgsPlugin protected constructor(
                 "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
             )
         }
+        val applicationIds = mutableMapOf<String, Provider<String>>()
+        val variantExtension =
+            project.extensions.findByType(AndroidComponentsExtension::class.java)
+                ?: throw GradleException("safeargs plugin must be used with android plugin")
+        variantExtension.onVariants { variant ->
+            when (variant) {
+                is ApplicationVariant, is DynamicFeatureVariant ->
+                    // Using reflection for AGP 7.0+ cause it can't resolve that
+                    // DynamicFeatureVariant implements GeneratesApk so the `applicationId`
+                    // property is actually available. Once we upgrade to 7.0 we will use
+                    // getNamespace().
+                    variant::class.java.getDeclaredMethod("getApplicationId").let { method ->
+                        method.trySetAccessible()
+                        applicationIds.getOrPut(variant.name) {
+                            @kotlin.Suppress("UNCHECKED_CAST")
+                            method.invoke(variant) as Provider<String>
+                        }
+                    }
+            }
+        }
+
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(
                 "generateSafeArgs${variant.name.capitalize()}",
                 ArgumentsGenerationTask::class.java
             ) { task ->
-                setApplicationId(task, variant)
-                task.rFilePackage = variant.rFilePackage()
-                task.navigationFiles = navigationFiles(variant, project)
-                task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
-                task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
-                task.useAndroidX = (project.findProperty("android.useAndroidX") == "true").also {
-                    if (!it) {
-                        throw GradleException(
-                            "androidx.navigation.safeargs can only be used with an androidx project"
-                        )
+                task.applicationId.set(
+                    // this will only put in the case where the extension is a Library module
+                    // and should be superseded by `getNamespace()` in agp 7.0+
+                    applicationIds.getOrPut(variant.name) {
+                        providerFactory.provider { variant.applicationId }
                     }
-                }
-                task.generateKotlin = generateKotlin
+                )
+                task.rFilePackage.set(variant.rFilePackage())
+                task.navigationFiles.setFrom(navigationFiles(variant, project))
+                task.outputDir.set(File(project.buildDir, "$GENERATED_PATH/${variant.dirName}"))
+                task.incrementalFolder.set(File(project.buildDir, "$INCREMENTAL_PATH/${task.name}"))
+                task.useAndroidX.set(
+                    (project.findProperty("android.useAndroidX") == "true").also {
+                        if (!it) {
+                            throw GradleException(
+                                "androidx.navigation.safeargs can only be used with an androidx " +
+                                    "project"
+                            )
+                        }
+                    }
+                )
+                task.generateKotlin.set(generateKotlin)
             }
-            task.applicationIdResource?.let { task.dependsOn(it) }
-            variant.registerJavaGeneratingTask(task, task.outputDir)
-        }
-    }
-
-    /**
-     * Sets the android project application id into the task.
-     */
-    private fun setApplicationId(task: ArgumentsGenerationTask, variant: BaseVariant) {
-        val appIdTextResource = variant.applicationIdTextResource
-        if (appIdTextResource != null) {
-            task.applicationIdResource = appIdTextResource
-        } else {
-            // getApplicationIdTextResource() returned null, fallback to getApplicationId()
-            task.applicationId = variant.applicationId
+            variant.registerJavaGeneratingTask(task, task.outputDir.asFile.get())
         }
     }
 
@@ -104,11 +123,15 @@ abstract class SafeArgsPlugin protected constructor(
         val mainSourceSet = sourceSets.find { it.name == "main" }
         val sourceSet = mainSourceSet ?: sourceSets[0]
         val manifest = sourceSet.manifestFile
-        val parsed = XmlSlurper(false, false).parse(manifest)
+        @Suppress("DEPRECATION") // b/181913965
+        val parsed = groovy.util.XmlSlurper(false, false).parse(manifest)
         parsed.getProperty("@package").toString()
     }
 
-    private fun navigationFiles(variant: BaseVariant, project: Project): FileCollection {
+    private fun navigationFiles(
+        variant: BaseVariant,
+        project: Project
+    ): ConfigurableFileCollection {
         val fileProvider = providerFactory.provider {
             variant.sourceSets
                 .flatMap { it.resDirectories }

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.car.NavigationCarAppService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/car/NavigationCarAppService.java"
+            line="106"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.car.NavigationCarAppService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            notificationManager.createNotificationChannel(serviceChannel);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/car/NavigationCarAppService.java"
+            line="107"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="451"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .setAudioAttributes(audioAttributes)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="452"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        .build();"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="453"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        audioManager.abandonAudioFocusRequest(request);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="466"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        if (audioManager.requestAudioFocus(request) != AUDIOFOCUS_REQUEST_GRANTED) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="471"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            audioManager.abandonAudioFocusRequest(request);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="488"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="505"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.car.app.sample.navigation.common.nav.NavigationService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mNotificationManager.createNotificationChannel(serviceChannel);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
+            line="506"
+            column="34"/>
+    </issue>
+
+</issues>

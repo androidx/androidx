@@ -31,32 +31,33 @@ public class NavArgument internal constructor(
     defaultValuePresent: Boolean
 ) {
     /**
-     * Get the type of this NavArgument.
+     * The type of this NavArgument.
      * @return the NavType object denoting the type that can be help in this argument.
      */
     public val type: NavType<Any?>
 
     /**
-     * Check if this argument allows passing a `null` value.
+     * Whether this argument allows passing a `null` value.
      * @return true if `null` is allowed, false otherwise
      */
     public val isNullable: Boolean
 
     /**
-     * This method can be used to distinguish between a default value of `null` and an argument
-     * without an explicit default value.
+     * Used to distinguish between a default value of `null` and an argument without an explicit
+     * default value.
      * @return true if this argument has a default value (even if that value is set to null),
      * false otherwise
      */
     public val isDefaultValuePresent: Boolean
 
     /**
-     * Returns the default value of this argument or `null` if it doesn't have a default value.
-     * Use [.isDefaultValuePresent] to distinguish between `null` and absence of a value.
+     * The default value of this argument or `null` if it doesn't have a default value.
+     * Use [isDefaultValuePresent] to distinguish between `null` and absence of a value.
      * @return The default value assigned to this argument.
      */
     public val defaultValue: Any?
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun putDefaultValue(name: String, bundle: Bundle) {
         if (isDefaultValuePresent) {
@@ -64,6 +65,7 @@ public class NavArgument internal constructor(
         }
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun verify(name: String, bundle: Bundle): Boolean {
         if (!isNullable && bundle.containsKey(name) && bundle[name] == null) {

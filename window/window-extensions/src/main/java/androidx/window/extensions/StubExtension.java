@@ -30,7 +30,6 @@ import java.util.Set;
 abstract class StubExtension implements ExtensionInterface {
     private ExtensionCallback mExtensionCallback;
     private final Set<Activity> mWindowLayoutChangeListenerContexts = new HashSet<>();
-    private boolean mDeviceStateChangeListenerRegistered;
 
     @Override
     public void setExtensionCallback(@NonNull ExtensionCallback callback) {
@@ -49,18 +48,6 @@ abstract class StubExtension implements ExtensionInterface {
         onListenersChanged();
     }
 
-    @Override
-    public void onDeviceStateListenersChanged(boolean isEmpty) {
-        mDeviceStateChangeListenerRegistered = !isEmpty;
-        onListenersChanged();
-    }
-
-    protected void updateDeviceState(@NonNull ExtensionDeviceState newState) {
-        if (mExtensionCallback != null) {
-            mExtensionCallback.onDeviceStateChanged(newState);
-        }
-    }
-
     protected void updateWindowLayout(@NonNull Activity activity,
             @NonNull ExtensionWindowLayoutInfo newLayout) {
         if (mExtensionCallback != null) {
@@ -74,8 +61,7 @@ abstract class StubExtension implements ExtensionInterface {
     }
 
     protected boolean hasListeners() {
-        return !mWindowLayoutChangeListenerContexts.isEmpty()
-                || mDeviceStateChangeListenerRegistered;
+        return !mWindowLayoutChangeListenerContexts.isEmpty();
     }
 
     /** Notification to the OEM level that the registered listeners changed. */

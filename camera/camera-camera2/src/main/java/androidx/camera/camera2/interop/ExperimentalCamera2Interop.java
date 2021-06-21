@@ -18,6 +18,8 @@ package androidx.camera.camera2.interop;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import androidx.annotation.RequiresOptIn;
+
 import java.lang.annotation.Retention;
 
 /**
@@ -36,10 +38,7 @@ import java.lang.annotation.Retention;
  *
  * <p>These will be changed in future release possibly, hence add @Experimental annotation.
  */
-// TODO(b/170599666): Experimental/UseExperimental is deprecated and has to be replaced with
-//  RequiresOptIn/OptIn.
-@SuppressWarnings("deprecation")
 @Retention(CLASS)
-@androidx.annotation.experimental.Experimental
+@RequiresOptIn
 public @interface ExperimentalCamera2Interop {
 }

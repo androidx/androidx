@@ -42,8 +42,10 @@ class MultiNavHostFragmentTest {
                 findNavController(R.id.nav_host_fragment)
             }
 
-            navController.setGraph(R.navigation.nav_nav_host)
-            navController.navigate(R.id.nav_host_1)
+            withActivity {
+                navController.setGraph(R.navigation.nav_nav_host)
+                navController.navigate(R.id.nav_host_1)
+            }
 
             val rootNavController = withActivity {
                 val navHostFragment = supportFragmentManager
@@ -63,17 +65,19 @@ class MultiNavHostFragmentTest {
                 findNavController(R.id.nav_host_fragment)
             }
 
-            navController.setGraph(R.navigation.nav_nav_host)
-            navController.navigate(R.id.nav_host_1)
-
+            withActivity {
+                navController.setGraph(R.navigation.nav_nav_host)
+                navController.navigate(R.id.nav_host_1)
+            }
             val childFragment = withActivity {
                 supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
                     ?.childFragmentManager?.findFragmentById(R.id.nav_host_fragment) as
                     BasicNavHostFragment
             }
 
-            navController.popBackStack()
-
+            withActivity {
+                navController.popBackStack()
+            }
             val returnNavController = withActivity {
                 val navHostFragment =
                     supportFragmentManager.findFragmentById(R.id.nav_host_fragment)!!
@@ -96,8 +100,10 @@ class MultiNavHostFragmentTest {
                 findNavController(R.id.nav_host_fragment)
             }
 
-            navController.setGraph(R.navigation.nav_nav_host)
-            navController.navigate(R.id.nav_host_1)
+            withActivity {
+                navController.setGraph(R.navigation.nav_nav_host)
+                navController.navigate(R.id.nav_host_1)
+            }
 
             val firstChildNavController = withActivity {
                 val navHostFragment =
@@ -108,8 +114,9 @@ class MultiNavHostFragmentTest {
                 .that(firstChildNavController)
                 .isNotEqualTo(navController)
 
-            navController.navigate(R.id.nav_host_2)
-
+            withActivity {
+                navController.navigate(R.id.nav_host_2)
+            }
             val secondChildNavController = withActivity {
                 val navHostFragment =
                     supportFragmentManager.findFragmentById(R.id.nav_host_fragment)!!

@@ -61,8 +61,8 @@ import java.util.List;
  *   <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to a notification.
  *
  *   <li>Post the notification to the notification system with the {@code
- *       NotificationManagerCompat.notify(...)} methods and not the {@code
- *       NotificationManager.notify(...)} methods.
+ *       CarNotificationManager.notify(...)} methods. Do not use the {@code
+ *       NotificationManager.notify(...)}, nor the NotificationManagerCompat.notify(...)}  methods.
  * </ol>
  *
  * <pre class="prettyprint">
@@ -117,6 +117,7 @@ import java.util.List;
  *
  *     <li>The heads-up-notification (HUN) can be customized with a background color through
  *     {@link Builder#setColor}.
+ *
  *     <li>The notification will not be displayed in the notification center.
  * </ul>
  *
@@ -141,6 +142,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     private static final String EXTRA_ACTIONS = "actions";
     private static final String EXTRA_IMPORTANCE = "importance";
     private static final String EXTRA_COLOR = "color";
+    private static final String EXTRA_CHANNEL_ID = "channel_id";
 
     @Nullable
     private CharSequence mContentTitle;
@@ -158,6 +160,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     private int mImportance;
     @Nullable
     private CarColor mColor;
+    @Nullable
+    private String mChannelId;
 
     /**
      * Creates a {@link CarAppExtender} from the {@link CarAppExtender} of an existing notification.
@@ -193,6 +197,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
                 Log.e(TAG, "Failed to deserialize the notification color", e);
             }
         }
+
+        mChannelId = carBundle.getString(EXTRA_CHANNEL_ID);
     }
 
     CarAppExtender(Builder builder) {
@@ -205,6 +211,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         mActions = builder.mActions;
         mImportance = builder.mImportance;
         mColor = builder.mColor;
+        mChannelId = builder.mChannelId;
     }
 
     /**
@@ -258,6 +265,10 @@ public final class CarAppExtender implements NotificationCompat.Extender {
             } catch (BundlerException e) {
                 Log.e(TAG, "Failed to serialize the notification color", e);
             }
+        }
+
+        if (mChannelId != null) {
+            carExtensions.putString(EXTRA_CHANNEL_ID, mChannelId);
         }
 
         builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
@@ -370,6 +381,16 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         return mColor;
     }
 
+    /**
+     * Returns the channel id of the notification channel to use in the car.
+     *
+     * @see Builder#setChannelId(String)
+     */
+    @Nullable
+    public String getChannelId() {
+        return mChannelId;
+    }
+
     /** A builder of {@link CarAppExtender}. */
     public static final class Builder {
         @Nullable
@@ -387,6 +408,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
         @Nullable
         CarColor mColor;
+        @Nullable
+        String mChannelId;
 
         /**
          * Sets the title of the notification in the car screen.
@@ -397,7 +420,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentTitle(CharSequence)} for the car
          * screen.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code contentTitle} is {@code null}
          */
@@ -413,7 +436,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#setContentText(CharSequence)} for the car screen.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @param contentText override for the notification's content text. If set to an empty
          *                    string, it will be treated as if there is no context text
@@ -534,14 +557,17 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         }
 
         /**
-         * Sets the importance of the notification in the car screen.
+         * For Android Auto only, sets the importance of the notification in the car screen.
          *
-         * <p>The default value is {@link NotificationManagerCompat#IMPORTANCE_UNSPECIFIED}.
+         * <p>The default value is {@link NotificationManagerCompat#IMPORTANCE_UNSPECIFIED},
+         * and will not be used to override.
          *
          * <p>The importance is used to determine whether the notification will show as a HUN on
          * the car screen. See the class description for more details.
          *
          * <p>See {@link NotificationManagerCompat} for all supported importance values.
+         *
+         * @see #setChannelId(String)
          */
         @NonNull
         public Builder setImportance(int importance) {
@@ -563,6 +589,24 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         @NonNull
         public Builder setColor(@NonNull CarColor color) {
             mColor = requireNonNull(color);
+            return this;
+        }
+
+        /**
+         * For Android Automotive OS only, sets the channel id of the notification channel to be
+         * used in the car.
+         *
+         * <p>This is used in the case where your notification is to have a different importance
+         * in the car then it does on the phone.
+         *
+         * <p>It is used for the same purposes you'd use {@link #setImportance(int)} for
+         * Auto.
+         *
+         * @see #setImportance(int)
+         */
+        @NonNull
+        public Builder setChannelId(@NonNull String channelId) {
+            mChannelId = channelId;
             return this;
         }
 

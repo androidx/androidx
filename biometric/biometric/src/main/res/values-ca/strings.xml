@@ -21,7 +21,7 @@
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"No s\'ha reconegut"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"El maquinari d\'empremtes digitals no està disponible."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"No s\'ha registrat cap empremta digital."</string>
-    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Aquest dispositiu no té sensor d\'empremtes dactilars"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Aquest dispositiu no té sensor d\'empremtes digitals"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"L\'usuari ha cancel·lat l\'operació d\'empremta digital."</string>
     <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Massa intents. Torna-ho a provar més tard."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"Error desconegut"</string>

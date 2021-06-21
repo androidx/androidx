@@ -164,7 +164,7 @@ package androidx.work {
     method public final boolean isStopped();
     method public void onStopped();
     method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(androidx.work.ForegroundInfo);
-    method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setProgressAsync(androidx.work.Data);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setProgressAsync(androidx.work.Data);
     method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 
@@ -182,6 +182,7 @@ package androidx.work {
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
     enum_constant public static final androidx.work.NetworkType NOT_ROAMING;
+    enum_constant @RequiresApi(30) public static final androidx.work.NetworkType TEMPORARILY_UNMETERED;
     enum_constant public static final androidx.work.NetworkType UNMETERED;
   }
 
@@ -298,6 +299,12 @@ package androidx.work {
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
     method public abstract androidx.work.Operation pruneWork();
+  }
+
+  public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
+    ctor public WorkManagerInitializer();
+    method public androidx.work.WorkManager create(android.content.Context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
   }
 
   public final class WorkQuery {

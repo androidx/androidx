@@ -16,120 +16,49 @@
 
 package androidx.navigation.compose
 
-import androidx.navigation.navOptions
+import androidx.navigation.testing.TestNavigatorState
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@LargeTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class ComposeNavigatorTest {
 
     @Test
-    fun testNavigateConfigChangeThenPop() {
+    fun testBackStackPriorToAttach() {
         val navigator = ComposeNavigator()
-        val destination = navigator.createDestination()
-        destination.id = FIRST_DESTINATION_ID
+        val beforeAttachBackStack = navigator.backStack
+        assertThat(beforeAttachBackStack.value)
+            .isEmpty()
 
-        assertThat(navigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-
-        destination.id = SECOND_DESTINATION_ID
-        assertThat(navigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-
-        val savedState = navigator.onSaveState()!!
-        val restoredNavigator = ComposeNavigator()
-
-        restoredNavigator.onRestoreState(savedState)
-
-        assertWithMessage("ComposeNavigator should return true when popping the second destination")
-            .that(navigator.popBackStack())
-            .isTrue()
+        val navigatorState = TestNavigatorState()
+        navigator.onAttach(navigatorState)
+        val afterAttachBackStack = navigator.backStack
+        assertThat(afterAttachBackStack)
+            .isNotSameInstanceAs(beforeAttachBackStack)
     }
 
     @Test
-    fun testNavigateWithPopUpToThenPop() {
+    fun testNavigateAndPopUpdatesBackStack() {
         val navigator = ComposeNavigator()
-        val destination = navigator.createDestination()
-        destination.id = FIRST_DESTINATION_ID
+        val navigatorState = TestNavigatorState()
+        navigator.onAttach(navigatorState)
 
-        assertThat(navigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val entry = navigatorState.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(entry), null, null)
+        assertThat(navigator.backStack.value)
+            .containsExactly(entry).inOrder()
 
-        destination.id = SECOND_DESTINATION_ID
-        assertThat(navigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val secondEntry = navigatorState.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(navigator.backStack.value)
+            .containsExactly(entry, secondEntry).inOrder()
 
-        assertWithMessage("ComposeNavigator should return true when popping the third destination")
-            .that(navigator.popBackStack())
-            .isTrue()
-        destination.id = THIRD_DESTINATION_ID
-        assertThat(
-            navigator.navigate(
-                destination, null,
-                navOptions { popUpTo(FIRST_DESTINATION_ID) { inclusive = false } }, null
-            )
-        ).isEqualTo(destination)
-
-        assertWithMessage("ComposeNavigator should return true when popping the third destination")
-            .that(navigator.popBackStack())
-            .isTrue()
-    }
-
-    @Test
-    fun testSingleTopInitial() {
-        val navigator = ComposeNavigator()
-        val destination = navigator.createDestination()
-        destination.id = FIRST_DESTINATION_ID
-
-        navigator.navigate(destination, null, null, null)
-
-        assertThat(
-            navigator.navigate(
-                destination, null,
-                navOptions { launchSingleTop = true }, null
-            )
-        ).isNull()
-    }
-
-    @Test
-    fun testSingleTop() {
-        val navigator = ComposeNavigator()
-        val destination = navigator.createDestination()
-        destination.id = FIRST_DESTINATION_ID
-
-        assertThat(navigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-
-        destination.id = SECOND_DESTINATION_ID
-        assertThat(navigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-
-        assertThat(
-            navigator.navigate(
-                destination, null,
-                navOptions { launchSingleTop = true }, null
-            )
-        ).isNull()
-
-        destination.id = FIRST_DESTINATION_ID
-        assertThat(
-            navigator.navigate(
-                destination, null,
-                navOptions { launchSingleTop = true }, null
-            )
-        ).isEqualTo(destination)
-
-        assertWithMessage("ComposeNavigator should return true when popping the first destination")
-            .that(navigator.popBackStack())
-            .isTrue()
+        navigator.popBackStack(secondEntry, false)
+        assertThat(navigator.backStack.value)
+            .containsExactly(entry).inOrder()
     }
 }
-
-private const val FIRST_DESTINATION_ID = 1
-private const val SECOND_DESTINATION_ID = 2
-private const val THIRD_DESTINATION_ID = 3

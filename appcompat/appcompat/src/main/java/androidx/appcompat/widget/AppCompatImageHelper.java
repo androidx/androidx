@@ -43,6 +43,7 @@ public class AppCompatImageHelper {
     private TintInfo mInternalImageTint;
     private TintInfo mImageTint;
     private TintInfo mTmpInfo;
+    private int mLevel = 0;
 
     public AppCompatImageHelper(@NonNull ImageView view) {
         mView = view;
@@ -220,5 +221,22 @@ public class AppCompatImageHelper {
         }
 
         return false;
+    }
+
+    /**
+     * Extracts the level from the drawable parameter and save it for the future use in
+     * {@link #applyImageLevel()}
+     */
+    void obtainLevelFromDrawable(@NonNull Drawable drawable) {
+        mLevel = drawable.getLevel();
+    }
+
+    /**
+     * Applies the level previously set through {@link #obtainLevelFromDrawable}
+     */
+    void applyImageLevel() {
+        if (mView.getDrawable() != null) {
+            mView.getDrawable().setLevel(mLevel);
+        }
     }
 }

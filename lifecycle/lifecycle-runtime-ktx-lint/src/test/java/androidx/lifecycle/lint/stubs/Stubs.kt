@@ -16,6 +16,7 @@
 
 package androidx.lifecycle.lint.stubs
 
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFiles
 
 internal val LIFECYCLE_STUB = TestFiles.kt(
@@ -89,3 +90,61 @@ internal val VIEW_STUB = TestFiles.kt(
         }
     """
 ).indented().within("src")
+
+private val FRAGMENT_STUB = LintDetectorTest.java(
+    """
+    package androidx.fragment.app;
+
+    import androidx.lifecycle.LifecycleOwner;
+
+    public class Fragment implements LifecycleOwner {
+        public LifecycleOwner getViewLifecycleOwner() {}
+    }
+"""
+)
+
+private val ACTIVITY_STUB = LintDetectorTest.java(
+    """
+    package androidx.core.app;
+
+    import androidx.lifecycle.LifecycleOwner;
+
+    public class ComponentActivity implements LifecycleOwner {}
+"""
+)
+
+private val REPEAT_ON_LIFECYCLE_STUB = TestFiles.kt(
+    "androidx/lifecycle/RepeatOnLifecycle.kt",
+    """
+        package androidx.lifecycle;
+
+        import androidx.lifecycle.LifecycleOwner
+        import kotlinx.coroutines.CoroutineScope
+
+        abstract class Lifecycle {
+            enum class State { CREATED, STARTED }
+            fun isAtLeast(state: State): Boolean {
+                return true
+            }
+        }
+
+        public suspend fun Lifecycle.repeatOnLifecycle(
+            state: Lifecycle.State,
+            block: suspend CoroutineScope.() -> Unit
+        ) {
+            throw Error()
+        }
+
+        public suspend fun LifecycleOwner.repeatOnLifecycle(
+            state: Lifecycle.State,
+            block: suspend CoroutineScope.() -> Unit
+        ) {
+            throw Error()
+        }
+    """
+).indented().within("src")
+
+// stubs for testing calls to LiveData.observe calls
+internal val REPEAT_ON_LIFECYCLE_STUBS = arrayOf(
+    REPEAT_ON_LIFECYCLE_STUB, LIFECYCLE_STUB, FRAGMENT_STUB, ACTIVITY_STUB, COROUTINES_STUB
+)

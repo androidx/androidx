@@ -18,30 +18,35 @@ package androidx.wear.watchface.editor
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.Icon
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.CanvasComplicationDrawable
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -54,17 +59,23 @@ private const val TIMEOUT_MS = 500L
 public class EditorSessionGuavaTest {
     private val testComponentName = ComponentName("test.package", "test.class")
     private val testEditorPackageName = "test.package"
-    private val testInstanceId = "TEST_INSTANCE_ID"
+    private val testInstanceId = WatchFaceId("TEST_INSTANCE_ID")
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
 
+    private val mockInvalidateCallback =
+        Mockito.mock(CanvasComplication.InvalidateCallback::class.java)
     private val placeholderWatchState = MutableWatchState().asWatchState()
     private val mockLeftCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+        CanvasComplicationDrawable(
+            ComplicationDrawable(),
+            placeholderWatchState,
+            mockInvalidateCallback
+        )
     private val leftComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
-            mockLeftCanvasComplication,
+            { _, _, -> mockLeftCanvasComplication },
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.LONG_TEXT,
@@ -72,17 +83,21 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
-            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val mockRightCanvasComplication =
-        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
+        CanvasComplicationDrawable(
+            ComplicationDrawable(),
+            placeholderWatchState,
+            mockInvalidateCallback
+        )
     private val rightComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
-            mockRightCanvasComplication,
+            { _, _, -> mockRightCanvasComplication },
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.LONG_TEXT,
@@ -90,32 +105,37 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
-        complications: List<Complication>,
-        instanceId: String? = testInstanceId,
+        complicationSlots: List<ComplicationSlot>,
+        watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
-        val complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
+        val complicationSlotsManager =
+            ComplicationSlotsManager(complicationSlots, userStyleRepository)
+        complicationSlotsManager.watchState = placeholderWatchState
 
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
-        Mockito.`when`(editorDelegate.complicationsManager).thenReturn(complicationsManager)
+        Mockito.`when`(editorDelegate.complicationSlotsManager).thenReturn(complicationSlotsManager)
         Mockito.`when`(editorDelegate.userStyleSchema).thenReturn(userStyleRepository.schema)
         Mockito.`when`(editorDelegate.userStyle).thenReturn(userStyleRepository.userStyle)
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
         Mockito.`when`(editorDelegate.previewReferenceTimeMillis)
             .thenReturn(previewReferenceTimeMillis)
 
+        OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider =
+            TestProviderInfoRetrieverProvider()
+
         return ActivityScenario.launch(
-            WatchFaceEditorContractForTest().createIntent(
+            WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, instanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -143,20 +163,37 @@ public class EditorSessionGuavaTest {
 
         val leftComplicationData = previewData[LEFT_COMPLICATION_ID] as
             ShortTextComplicationData
-        Truth.assertThat(
+        assertThat(
             leftComplicationData.text.getTextAt(resources, 0)
         ).isEqualTo("Left")
 
         val rightComplicationData = previewData[RIGHT_COMPLICATION_ID] as
             LongTextComplicationData
-        Truth.assertThat(
+        assertThat(
             rightComplicationData.text.getTextAt(resources, 0)
         ).isEqualTo("Right")
     }
 
     @Test
-    public fun listenableLaunchComplicationProviderChooser() {
+    public fun listenableOpenComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        val chosenComplicationProviderInfo = ComplicationProviderInfo(
+            "TestProvider3App",
+            "TestProvider3",
+            Icon.createWithBitmap(
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            ),
+            ComplicationType.LONG_TEXT,
+            provider3
+        )
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                )
+            }
+        )
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
             listOf(leftComplication, rightComplication)
@@ -171,10 +208,16 @@ public class EditorSessionGuavaTest {
          * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
          * the preview data) for [LEFT_COMPLICATION_ID].
          */
-        assertTrue(
-            listenableEditorSession.listenableLaunchComplicationProviderChooser(
+        val chosenComplicationProvider =
+            listenableEditorSession.listenableOpenComplicationProviderChooser(
                 LEFT_COMPLICATION_ID
             ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        assertThat(chosenComplicationProvider).isNotNull()
+        checkNotNull(chosenComplicationProvider)
+        assertThat(chosenComplicationProvider.complicationSlotId).isEqualTo(LEFT_COMPLICATION_ID)
+        assertEquals(
+            chosenComplicationProviderInfo,
+            chosenComplicationProvider.complicationProviderInfo
         )
 
         // This should update the preview data to point to the updated provider3 data.

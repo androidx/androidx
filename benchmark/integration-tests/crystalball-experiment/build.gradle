@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -52,7 +51,7 @@ android {
         testInstrumentationRunnerArgument "cpuusage-collector:disable_per_pkg", "true"
 
         // TotalPssMetricListener
-        testInstrumentationRunnerArgument "totalpss-collector:process-names", "androidx.ui.demos"
+        testInstrumentationRunnerArgument "totalpss-collector:process-names", "androidx.compose.integration.demos"
 
         // JankListener (disable)
         testInstrumentationRunnerArgument "jank-listener:log", "true"
@@ -63,11 +62,11 @@ android {
 }
 
 dependencies {
-    api(JUNIT)
-    api(KOTLIN_STDLIB)
+    api(libs.junit)
+    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     // TODO: remove, once we remove the minor usages in CrystalBall
-    implementation(GUAVA_ANDROID)
+    implementation(libs.guavaAndroid)
     androidTestImplementation("com.android:collector-device-lib:0.1.0")
     androidTestImplementation("com.android:collector-device-lib-platform:0.1.0")
     androidTestImplementation("com.android:collector-helper-utilities:0.1.0")
@@ -84,8 +83,8 @@ dependencies {
     androidTestImplementation("com.android:microbenchmark-device-lib:0.1.0")
     androidTestImplementation("androidx.test:rules:1.3.0")
     androidTestImplementation("androidx.test:runner:1.3.0")
-    implementation(ANDROIDX_TEST_EXT_JUNIT)
-    implementation(ANDROIDX_TEST_UIAUTOMATOR)
+    implementation(libs.testExtJunit)
+    implementation(libs.testUiautomator)
 }
 
 androidx {

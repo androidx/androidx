@@ -25,9 +25,11 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.StateSet;
+import android.util.TypedValue;
 import android.util.Xml;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,6 +47,8 @@ import java.io.IOException;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ColorStateListInflaterCompat {
+
+    private static final ThreadLocal<TypedValue> sTempTypedValue = new ThreadLocal<>();
 
     private ColorStateListInflaterCompat() {
     }
@@ -141,8 +145,18 @@ public final class ColorStateListInflaterCompat {
             }
 
             final TypedArray a = obtainAttributes(r, theme, attrs, R.styleable.ColorStateListItem);
-            final int baseColor = a.getColor(R.styleable.ColorStateListItem_android_color,
-                    Color.MAGENTA);
+            int resourceId = a.getResourceId(R.styleable.ColorStateListItem_android_color, -1);
+            int baseColor;
+            if (resourceId != -1 && !isColorInt(r, resourceId)) {
+                try {
+                    baseColor = createFromXml(r, r.getXml(resourceId), theme).getDefaultColor();
+                } catch (Exception e) {
+                    baseColor = a.getColor(R.styleable.ColorStateListItem_android_color,
+                            Color.MAGENTA);
+                }
+            } else {
+                baseColor = a.getColor(R.styleable.ColorStateListItem_android_color, Color.MAGENTA);
+            }
 
             float alphaMod = 1.0f;
             if (a.hasValue(R.styleable.ColorStateListItem_android_alpha)) {
@@ -184,6 +198,23 @@ public final class ColorStateListInflaterCompat {
         System.arraycopy(stateSpecList, 0, stateSpecs, 0, listSize);
 
         return new ColorStateList(stateSpecs, colors);
+    }
+
+    private static boolean isColorInt(@NonNull Resources r, @ColorRes int resId) {
+        final TypedValue value = getTypedValue();
+        r.getValue(resId, value, true);
+        return value.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                && value.type <= TypedValue.TYPE_LAST_COLOR_INT;
+    }
+
+    @NonNull
+    private static TypedValue getTypedValue() {
+        TypedValue tv = sTempTypedValue.get();
+        if (tv == null) {
+            tv = new TypedValue();
+            sTempTypedValue.set(tv);
+        }
+        return tv;
     }
 
     private static TypedArray obtainAttributes(Resources res, Resources.Theme theme,

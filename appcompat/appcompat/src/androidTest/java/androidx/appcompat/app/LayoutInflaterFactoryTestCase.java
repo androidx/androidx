@@ -43,7 +43,6 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,9 +51,11 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class LayoutInflaterFactoryTestCase {
+
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<LayoutInflaterFactoryTestActivity> mActivityTestRule =
-            new ActivityTestRule<>(LayoutInflaterFactoryTestActivity.class);
+    public final androidx.test.rule.ActivityTestRule<LayoutInflaterFactoryTestActivity> mTestRule =
+            new androidx.test.rule.ActivityTestRule<>(LayoutInflaterFactoryTestActivity.class);
 
     @Before
     public void setup() {
@@ -66,7 +67,7 @@ public class LayoutInflaterFactoryTestCase {
     @Test
     @SmallTest
     public void testAndroidThemeInflation() {
-        final LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        final LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
         assertThemedContext(inflater.inflate(R.layout.layout_android_theme, null));
     }
 
@@ -74,7 +75,7 @@ public class LayoutInflaterFactoryTestCase {
     @Test
     @SmallTest
     public void testAppThemeInflation() {
-        final LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        final LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
         assertThemedContext(inflater.inflate(R.layout.layout_app_theme, null));
     }
 
@@ -83,7 +84,7 @@ public class LayoutInflaterFactoryTestCase {
     @Test
     @SmallTest
     public void testAndroidThemeWithChildrenInflation() {
-        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
         final ViewGroup root = (ViewGroup) inflater.inflate(
                 R.layout.layout_android_theme_children, null);
         assertThemedContext(root);
@@ -93,7 +94,7 @@ public class LayoutInflaterFactoryTestCase {
     @Test
     @SmallTest
     public void testAndroidThemeWithIncludeInflation() {
-        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
         final ViewGroup root = (ViewGroup) inflater.inflate(
                 R.layout.layout_android_theme_with_include, null);
         assertThemedContext(root.findViewById(R.id.included_view));
@@ -102,8 +103,19 @@ public class LayoutInflaterFactoryTestCase {
     @UiThreadTest
     @Test
     @SmallTest
+    public void testAndroidThemeWithMergeInflation() {
+        LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
+        final ViewGroup root = (ViewGroup) inflater.inflate(
+                R.layout.layout_android_theme_with_merge, null);
+        assertThemedContext(root.findViewById(R.id.merged_view));
+        assertThemedContext(root.findViewById(R.id.merged_view_2));
+    }
+
+    @UiThreadTest
+    @Test
+    @SmallTest
     public void testThemedInflationWithUnattachedParent() {
-        final Context activity = mActivityTestRule.getActivity();
+        final Context activity = mTestRule.getActivity();
 
         // Create a parent but not attached
         final LinearLayout parent = new LinearLayout(activity);
@@ -205,15 +217,15 @@ public class LayoutInflaterFactoryTestCase {
     @Test
     @SmallTest
     public void testDeclarativeOnClickWithContextWrapper() {
-        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
         View view = inflater.inflate(R.layout.layout_button_themed_onclick, null);
 
         assertTrue(view.performClick());
-        assertTrue(mActivityTestRule.getActivity().wasDeclarativeOnClickCalled());
+        assertTrue(mTestRule.getActivity().wasDeclarativeOnClickCalled());
     }
 
     private void verifyAppCompatWidgetInflation(final int layout, final Class<?> expectedClass) {
-        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mTestRule.getActivity());
         View view = inflater.inflate(layout, null);
         assertSame("View is " + expectedClass.getSimpleName(), expectedClass,
                 view.getClass());

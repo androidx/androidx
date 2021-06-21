@@ -31,6 +31,7 @@ import androidx.navigation.safe.args.generator.ReferenceArrayType
 import androidx.navigation.safe.args.generator.ReferenceType
 import androidx.navigation.safe.args.generator.StringArrayType
 import androidx.navigation.safe.args.generator.StringType
+import androidx.navigation.safe.args.generator.ext.capitalize
 import androidx.navigation.safe.args.generator.ext.toCamelCase
 import androidx.navigation.safe.args.generator.ext.toCamelCaseAsVar
 import androidx.navigation.safe.args.generator.models.Action
@@ -45,6 +46,7 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import java.util.Locale
 import javax.lang.model.element.Modifier
 
 const val L = "\$L"
@@ -362,7 +364,8 @@ private class ClassWithArgsSpecs(
     ).initializer("new $T()", HASHMAP_CLASSNAME).build()
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
-        MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
+        val capitalizedName = arg.sanitizedName.capitalize(Locale.US)
+        MethodSpec.methodBuilder("set$capitalizedName").apply {
             addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
             addAnnotation(suppressAnnotationSpec)
             addModifiers(Modifier.PUBLIC)
@@ -515,8 +518,10 @@ private class ClassWithArgsSpecs(
         returns(TypeName.BOOLEAN)
     }.build()
 
-    private fun getterFromArgName(sanitizedName: String, suffix: String = "") =
-        "get${sanitizedName.capitalize()}$suffix"
+    private fun getterFromArgName(sanitizedName: String, suffix: String = ""): String {
+        val capitalizedName = sanitizedName.capitalize(Locale.US)
+        return "get${capitalizedName}$suffix"
+    }
 
     fun hashCodeMethod(
         additionalCode: CodeBlock? = null

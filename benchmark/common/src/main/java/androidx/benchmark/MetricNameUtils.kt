@@ -20,7 +20,7 @@ import android.annotation.SuppressLint
 
 @SuppressLint("DefaultLocale")
 internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z0-9])")) {
-    it.groups[1]!!.value + "_" + it.groups[2]!!.value.toLowerCase()
+    it.groups[1]!!.value + "_" + it.groups[2]!!.value.lowercase()
 }
 
 /**

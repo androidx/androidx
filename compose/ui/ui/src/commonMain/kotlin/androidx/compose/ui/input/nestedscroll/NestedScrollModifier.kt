@@ -18,6 +18,7 @@ package androidx.compose.ui.input.nestedscroll
 
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -135,7 +136,11 @@ interface NestedScrollConnection {
  */
 class NestedScrollDispatcher {
 
-    internal var calculateNestedScrollScope: () -> CoroutineScope? = { null }
+    // lambda to calculate the most outer nested scroll scope for this dispatcher on demand
+    internal var calculateNestedScrollScope: () -> CoroutineScope? = { originNestedScrollScope }
+
+    // the original nested scroll scope for this dispatcher (immediate scope it was created in)
+    internal var originNestedScrollScope: CoroutineScope? = null
 
     /**
      * Get the outer coroutine scope to dispatch nested fling on.
@@ -237,16 +242,39 @@ class NestedScrollDispatcher {
 /**
  * Possible sources of scroll events in the [NestedScrollConnection]
  */
-enum class NestedScrollSource {
-    /**
-     * Dragging via mouse/touch/etc events
-     */
-    Drag,
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
+inline class NestedScrollSource internal constructor(
+    @Suppress("unused") private val value: Int
+) {
+    override fun toString(): String {
+        @Suppress("DEPRECATION")
+        return when (this) {
+            Drag -> "Drag"
+            Fling -> "Fling"
+            @OptIn(ExperimentalComposeUiApi::class)
+            Relocate -> "Relocate"
+            else -> "Invalid"
+        }
+    }
 
-    /**
-     * Flinging after the drag has ended with velocity
-     */
-    Fling
+    companion object {
+        /**
+         * Dragging via mouse/touch/etc events.
+         */
+        val Drag: NestedScrollSource = NestedScrollSource(1)
+
+        /**
+         * Flinging after the drag has ended with velocity.
+         */
+        val Fling: NestedScrollSource = NestedScrollSource(2)
+
+        /**
+         * Relocating when a component asks parents to scroll to bring it into view.
+         */
+        @ExperimentalComposeUiApi
+        @Deprecated("Do not use. Will be removed in the future.")
+        val Relocate: NestedScrollSource = NestedScrollSource(3)
+    }
 }
 
 /**
@@ -330,7 +358,7 @@ fun Modifier.nestedScroll(
     remember(connection, resolvedDispatcher, scope) {
         object : NestedScrollModifier {
             override val dispatcher: NestedScrollDispatcher = resolvedDispatcher.also {
-                it.calculateNestedScrollScope = { scope }
+                it.originNestedScrollScope = scope
             }
             override val connection: NestedScrollConnection = connection
         }

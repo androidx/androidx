@@ -22,8 +22,6 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +49,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collect
 
 /**
- * A floating action button (FAB) is a button that represents the primary action of a screen.
+ * <a href="https://material.io/components/buttons-floating-action-button" class="external" target="_blank">Material Design floating action button</a>.
+ *
+ * A floating action button (FAB) represents the primary action of a screen.
+ *
+ * ![Floating action button image](https://developer.android.com/images/reference/androidx/compose/material/floating-action-button.png)
  *
  * This FAB is typically used with an [Icon]:
  *
@@ -73,6 +75,7 @@ import kotlinx.coroutines.flow.collect
  * in different states. This controls the size of the shadow below the FAB.
  * @param content the content of this FAB - this is typically an [Icon].
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FloatingActionButton(
     onClick: () -> Unit,
@@ -84,27 +87,22 @@ fun FloatingActionButton(
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
     content: @Composable () -> Unit
 ) {
-    // TODO(aelias): Avoid manually managing the ripple once http://b/157687898
-    // is fixed and we have more flexibility to move the clickable modifier
-    // (see candidate approach aosp/1361921)
     Surface(
-        modifier = modifier.clickable(
-            onClick = onClick,
-            role = Role.Button,
-            interactionSource = interactionSource,
-            indication = null
-        ),
+        modifier = modifier,
         shape = shape,
         color = backgroundColor,
         contentColor = contentColor,
-        elevation = elevation.elevation(interactionSource).value
+        elevation = elevation.elevation(interactionSource).value,
+        onClick = onClick,
+        role = Role.Button,
+        interactionSource = interactionSource,
+        indication = rememberRipple()
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(MaterialTheme.typography.button) {
                 Box(
                     modifier = Modifier
-                        .defaultMinSize(minWidth = FabSize, minHeight = FabSize)
-                        .indication(interactionSource, rememberRipple()),
+                        .defaultMinSize(minWidth = FabSize, minHeight = FabSize),
                     contentAlignment = Alignment.Center
                 ) { content() }
             }
@@ -113,7 +111,11 @@ fun FloatingActionButton(
 }
 
 /**
- * A floating action button (FAB) is a button that represents the primary action of a screen.
+ * <a href="https://material.io/components/buttons-floating-action-button#extended-fab" class="external" target="_blank">Material Design extended floating action button</a>.
+ *
+ * The extended FAB is wider than a regular FAB, and it includes a text label.
+ *
+ * ![Extended floating action button image](https://developer.android.com/images/reference/androidx/compose/material/extended-floating-action-button.png)
  *
  * This extended FAB contains text and an optional icon that will be placed at the start. See
  * [FloatingActionButton] for a FAB that just contains some content, typically an icon.

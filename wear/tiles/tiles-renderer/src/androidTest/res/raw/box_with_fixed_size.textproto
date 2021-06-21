@@ -1,0 +1,35 @@
+box {
+  horizontal_alignment {
+    value: HORIZONTAL_ALIGN_CENTER
+  }
+  vertical_alignment {
+    value: VERTICAL_ALIGN_CENTER
+  }
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+  contents {
+    box {
+      width {
+        linear_dimension {
+          value: 50
+        }
+      }
+      height {
+        linear_dimension {
+          value: 50
+        }
+      }
+      modifiers {
+        background {
+          color {
+            argb: 0xFFFF0000
+          }
+        }
+      }
+    }
+  }
+}

@@ -16,10 +16,12 @@
 
 package androidx.navigation.safe.args.generator.ext
 
+import java.util.Locale
+
 fun String.toCamelCase(): String {
     val split = this.split("_")
     if (split.size == 0) return ""
-    if (split.size == 1) return split[0].capitalize()
+    if (split.size == 1) return split[0].capitalize(Locale.US)
     return split.joinToCamelCase()
 }
 
@@ -46,4 +48,10 @@ fun String.toClassNameParts(): Triple<String, String, Array<String>> {
         simpleName to innerNames
     }
     return Triple(packageName, simpleName, innerNames.toTypedArray())
+}
+
+fun String.capitalize(locale: Locale): String = if (isNotEmpty() && this[0].isLowerCase()) {
+    substring(0, 1).uppercase(locale) + substring(1)
+} else {
+    this
 }

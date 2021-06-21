@@ -1,0 +1,47 @@
+# This is a bit of a contrived example.
+# Add a row with minimal contents into a box, and align the box contents to the
+# right. If the row didn't have a width, it would just wrap its contents and
+# draw them at the right of the box. If the row has a width then it will start
+# placing elements from the left of the row, hence the contents will be inset
+# from the right hand side of the parent box.
+box {
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+  horizontal_alignment {
+    value: HORIZONTAL_ALIGN_END
+  }
+  modifiers {
+    background {
+      color {
+        argb: 0xFFFF0000
+      }
+    }
+  }
+  contents {
+    row {
+      width {
+        linear_dimension {
+          value: 100
+        }
+      }
+      contents {
+        text {
+          text {
+            value: "Hi"
+          }
+        }
+      }
+      contents {
+        text {
+          text {
+            value: "World"
+          }
+        }
+      }
+    }
+  }
+}

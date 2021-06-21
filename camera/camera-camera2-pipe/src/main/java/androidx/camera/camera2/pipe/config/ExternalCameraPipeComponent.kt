@@ -16,28 +16,15 @@
 
 package androidx.camera.camera2.pipe.config
 
-import android.os.HandlerThread
 import dagger.Component
-import dagger.Module
-import dagger.Provides
 import javax.inject.Singleton
 
 @Singleton
 @Component(
     modules = [
-        CameraPipeModules::class,
-        ExternalCameraPipeModule::class
+        ThreadConfigModule::class
     ]
 )
 internal interface ExternalCameraPipeComponent {
     fun cameraGraphBuilder(): ExternalCameraGraphComponent.Builder
-}
-
-@Module
-internal abstract class ExternalCameraPipeModule {
-    companion object {
-        @Provides
-        @ForCameraThread
-        fun provideExternalCameraThread(): HandlerThread? = null
-    }
 }

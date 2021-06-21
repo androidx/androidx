@@ -18,21 +18,27 @@ package androidx.work.multiprocess;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
+import static androidx.work.multiprocess.RemoteClientUtils.map;
+import static androidx.work.multiprocess.RemoteClientUtils.sVoidMapper;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
+import androidx.core.os.HandlerCompat;
+import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
@@ -46,6 +52,7 @@ import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
 import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
@@ -65,25 +72,45 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
+@SuppressLint("BanKeepAnnotation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerClient extends RemoteWorkManager {
 
+    /* The session timeout. */
+    private static final long SESSION_TIMEOUT_MILLIS = 60 * 1000;
+
+    // Synthetic access
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");
+
+    // Synthetic access
+    Session mSession;
 
     final Context mContext;
     final WorkManagerImpl mWorkManager;
     final Executor mExecutor;
     final Object mLock;
 
-    private Session mSession;
+    private volatile long mSessionIndex;
+    private final long mSessionTimeout;
+    private final Handler mHandler;
+    private final SessionTracker mSessionTracker;
 
-    @Keep
     public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
+        this(context, workManager, SESSION_TIMEOUT_MILLIS);
+    }
+
+    public RemoteWorkManagerClient(
+            @NonNull Context context,
+            @NonNull WorkManagerImpl workManager,
+            long sessionTimeout) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
         mExecutor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
         mLock = new Object();
         mSession = null;
+        mSessionTracker = new SessionTracker(this);
+        mSessionTimeout = sessionTimeout;
+        mHandler = HandlerCompat.createAsync(Looper.getMainLooper());
     }
 
     @NonNull
@@ -95,7 +122,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> enqueue(@NonNull final List<WorkRequest> requests) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(
                     @NonNull IWorkManagerImpl iWorkManagerImpl,
@@ -150,7 +177,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> enqueue(@NonNull final WorkContinuation continuation) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -166,7 +193,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelWorkById(@NonNull final UUID id) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -179,7 +206,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -192,7 +219,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelUniqueWork(@NonNull final String uniqueWorkName) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -205,7 +232,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelAllWork() {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -218,7 +245,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull final WorkQuery workQuery) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(
                     @NonNull IWorkManagerImpl iWorkManagerImpl,
@@ -237,6 +264,21 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         }, mExecutor);
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setProgress(@NonNull final UUID id, @NonNull final Data data) {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
+            @Override
+            public void execute(
+                    @NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                byte[] request = ParcelConverters.marshall(new ParcelableUpdateRequest(id, data));
+                iWorkManagerImpl.setProgress(request, callback);
+            }
+        });
+        return map(result, sVoidMapper, mExecutor);
+    }
+
     /**
      * Executes a {@link RemoteDispatcher} after having negotiated a service connection.
      *
@@ -244,8 +286,9 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      * @return The {@link ListenableFuture} instance.
      */
     @NonNull
-    public ListenableFuture<byte[]> execute(@NonNull final RemoteDispatcher dispatcher) {
-        return execute(getSession(), dispatcher, new RemoteCallback());
+    public ListenableFuture<byte[]> execute(
+            @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
+        return execute(getSession(), dispatcher, new SessionRemoteCallback(this));
     }
 
     /**
@@ -257,11 +300,73 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         return getSession(newIntent(mContext));
     }
 
+    /**
+     * @return The application {@link Context}.
+     */
+    @NonNull
+    public Context getContext() {
+        return mContext;
+    }
+
+    /**
+     * @return The session timeout in milliseconds.
+     */
+    public long getSessionTimeout() {
+        return mSessionTimeout;
+    }
+
+    /**
+     * @return The current {@link Session} in use by {@link RemoteWorkManagerClient}.
+     */
+    @Nullable
+    public Session getCurrentSession() {
+        return mSession;
+    }
+
+    /**
+     * @return The {@link Handler} managing session timeouts.
+     */
+    @NonNull
+    public Handler getSessionHandler() {
+        return mHandler;
+    }
+
+    /**
+     * @return the {@link SessionTracker} instance.
+     */
+    @NonNull
+    public SessionTracker getSessionTracker() {
+        return mSessionTracker;
+    }
+
+    /**
+     * @return The {@link Object} session lock.
+     */
+    @NonNull
+    public Object getSessionLock() {
+        return mLock;
+    }
+
+    /**
+     * @return The background {@link Executor} used by {@link RemoteWorkManagerClient}.
+     */
+    @NonNull
+    public Executor getExecutor() {
+        return mExecutor;
+    }
+
+    /**
+     * @return The session index.
+     */
+    public long getSessionIndex() {
+        return mSessionIndex;
+    }
+
     @NonNull
     @VisibleForTesting
     ListenableFuture<byte[]> execute(
             @NonNull final ListenableFuture<IWorkManagerImpl> session,
-            @NonNull final RemoteDispatcher dispatcher,
+            @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher,
             @NonNull final RemoteCallback callback) {
         session.addListener(new Runnable() {
             @Override
@@ -277,13 +382,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                                 dispatcher.execute(iWorkManager, callback);
                             } catch (Throwable innerThrowable) {
                                 Logger.get().error(TAG, "Unable to execute", innerThrowable);
-                                failureCallback(callback, innerThrowable);
+                                reportFailure(callback, innerThrowable);
                             }
                         }
                     });
                 } catch (ExecutionException | InterruptedException exception) {
                     Logger.get().error(TAG, "Unable to bind to service");
-                    failureCallback(callback, new RuntimeException("Unable to bind to service"));
+                    reportFailure(callback, new RuntimeException("Unable to bind to service"));
                     cleanUp();
                 }
             }
@@ -295,6 +400,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @VisibleForTesting
     ListenableFuture<IWorkManagerImpl> getSession(@NonNull Intent intent) {
         synchronized (mLock) {
+            mSessionIndex += 1;
             if (mSession == null) {
                 Logger.get().debug(TAG, "Creating a new session");
                 mSession = new Session(this);
@@ -307,6 +413,8 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                     unableToBind(mSession, throwable);
                 }
             }
+            // Reset session tracker.
+            mHandler.removeCallbacks(mSessionTracker);
             return mSession.mFuture;
         }
     }
@@ -332,53 +440,6 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      */
     private static Intent newIntent(@NonNull Context context) {
         return new Intent(context, RemoteWorkManagerService.class);
-    }
-
-    /**
-     * A mapper that essentially drops the byte[].
-     */
-    private static final Function<byte[], Void> sVoidMapper = new Function<byte[], Void>() {
-        @Override
-        public Void apply(byte[] input) {
-            return null;
-        }
-    };
-
-    private static <I, O> ListenableFuture<O> map(
-            @NonNull final ListenableFuture<I> input,
-            @NonNull final Function<I, O> transformation,
-            @NonNull Executor executor) {
-
-        final SettableFuture<O> output = SettableFuture.create();
-        input.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    I in = input.get();
-                    O out = transformation.apply(in);
-                    output.set(out);
-                } catch (Throwable throwable) {
-                    Throwable cause = throwable.getCause();
-                    cause = cause == null ? throwable : cause;
-                    output.setException(cause);
-                }
-            }
-        }, executor);
-        return output;
-    }
-
-    /**
-     * @hide
-     */
-    @SuppressLint("LambdaLast")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface RemoteDispatcher {
-        /**
-         * Perform the actual work given an instance of {@link IWorkManagerImpl} and the
-         * {@link IWorkManagerImplCallback} callback.
-         */
-        void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
-                @NonNull IWorkManagerImplCallback callback) throws Throwable;
     }
 
     /**
@@ -416,6 +477,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
         @Override
         public void onBindingDied(@NonNull ComponentName name) {
+            onBindingDied();
+        }
+
+        /**
+         * Clean-up client when a binding dies.
+         */
+        public void onBindingDied() {
             Logger.get().debug(TAG, "Binding died");
             mFuture.setException(new RuntimeException("Binding died"));
             mClient.cleanUp();
@@ -426,6 +494,62 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             Logger.get().error(TAG, "Unable to bind to service");
             mFuture.setException(
                     new RuntimeException(String.format("Cannot bind to service %s", name)));
+        }
+    }
+
+    /**
+     * An extension of {@link RemoteCallback} that kills a {@link Session} after a timeout has
+     * elapsed.
+     */
+    public static class SessionRemoteCallback extends RemoteCallback {
+        private final RemoteWorkManagerClient mClient;
+
+        public SessionRemoteCallback(@NonNull RemoteWorkManagerClient client) {
+            mClient = client;
+        }
+
+        @Override
+        protected void onRequestCompleted() {
+            super.onRequestCompleted();
+            Handler handler = mClient.getSessionHandler();
+            SessionTracker tracker = mClient.getSessionTracker();
+            // Start tracking for session timeout.
+            // These callbacks are removed when the session timeout has expired or when getSession()
+            // is called.
+            handler.postDelayed(tracker, mClient.getSessionTimeout());
+        }
+    }
+
+    /**
+     * A {@link Runnable} that enforces a TTL for a {@link RemoteWorkManagerClient} session.
+     */
+    public static class SessionTracker implements Runnable {
+        private static final String TAG = Logger.tagWithPrefix("SessionHandler");
+        private final RemoteWorkManagerClient mClient;
+
+        public SessionTracker(@NonNull RemoteWorkManagerClient client) {
+            mClient = client;
+        }
+
+        @Override
+        public void run() {
+            final long preLockIndex = mClient.getSessionIndex();
+            synchronized (mClient.getSessionLock()) {
+                final long sessionIndex = mClient.getSessionIndex();
+                final Session currentSession = mClient.getCurrentSession();
+                // We check for a session index here. This is because if the index changes
+                // while we acquire a lock, that would mean that a new session request came through.
+                if (currentSession != null) {
+                    if (preLockIndex == sessionIndex) {
+                        Logger.get().debug(TAG, "Unbinding service");
+                        mClient.getContext().unbindService(currentSession);
+                        // Cleanup as well.
+                        currentSession.onBindingDied();
+                    } else {
+                        Logger.get().debug(TAG, "Ignoring request to unbind.");
+                    }
+                }
+            }
         }
     }
 }

@@ -450,36 +450,85 @@ class CompositionLocalTests {
         validate()
     }
 
+    @Composable
+    fun ReadSomeDataCompositionLocal(
+        compositionLocal: CompositionLocal<SomeData>,
+        composed: StableRef<Boolean>,
+    ) {
+        composed.value = true
+        Text(value = compositionLocal.current.value)
+    }
+
     @Test
     fun providingANewDataClassValueShouldNotRecompose() = compositionTest {
         val invalidates = mutableListOf<RecomposeScope>()
         fun doInvalidate() = invalidates.forEach { it.invalidate() }.also { invalidates.clear() }
         val someDataCompositionLocal = compositionLocalOf(structuralEqualityPolicy()) { SomeData() }
-        var composed = false
-
-        @Composable
-        fun ReadSomeDataCompositionLocal(
-            compositionLocal: CompositionLocal<SomeData>
-        ) {
-            composed = true
-            Text(value = compositionLocal.current.value)
-        }
+        val composed = StableRef(false)
 
         compose {
             invalidates.add(currentRecomposeScope)
             CompositionLocalProvider(
                 someDataCompositionLocal provides SomeData("provided")
             ) {
-                ReadSomeDataCompositionLocal(someDataCompositionLocal)
+                ReadSomeDataCompositionLocal(someDataCompositionLocal, composed)
             }
         }
 
-        assertTrue(composed)
-        composed = false
+        assertTrue(composed.value)
+        composed.value = false
         doInvalidate()
         expectNoChanges()
-        assertFalse(composed)
+        assertFalse(composed.value)
+    }
+
+    @Test // Regression test for b/186094122
+    fun currentRetrievesCorrectValues() = compositionTest {
+        val state = mutableStateOf(0)
+        val providedValue = mutableStateOf(100)
+        val local = compositionLocalOf { 0 }
+        val static = staticCompositionLocalOf { -1 }
+        val providedStatic = mutableStateOf(2000)
+        var includeProviders by mutableStateOf(true)
+
+        @Composable
+        fun Validate(providedValue: Int) {
+            val currentValue = local.current
+            assertEquals(providedValue, currentValue)
+            state.value // Observe state for invalidates.
+        }
+
+        compose {
+            if (includeProviders) {
+                CompositionLocalProvider(
+                    local provides providedValue.value,
+                    static provides providedStatic.value
+                ) {
+                    Validate(providedValue.value)
+                }
+            }
+        }
+
+        // Force an providerUpdates entry to be created.
+        providedStatic.value++
+        advance()
+
+        // Force a new provider scope to be created
+        includeProviders = false
+        advance()
+
+        includeProviders = true
+        advance()
+
+        // Change the provided value
+        providedValue.value++
+        advance()
+
+        // Ensure the old providerUpdates is not longer contains old values.
+        state.value++
+        advance()
     }
 }
 
-private data class SomeData(val value: String = "default")
+data class SomeData(val value: String = "default")
+@Stable class StableRef<T>(var value: T)

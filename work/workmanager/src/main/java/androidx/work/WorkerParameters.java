@@ -195,6 +195,14 @@ public final class WorkerParameters {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull RuntimeExtras getRuntimeExtras() {
+        return mRuntimeExtras;
+    }
+
+    /**
      * Extra runtime information for Workers.
      *
      * @hide

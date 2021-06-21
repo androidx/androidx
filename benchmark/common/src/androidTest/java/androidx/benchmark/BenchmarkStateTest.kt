@@ -20,6 +20,7 @@ import android.Manifest
 import android.util.Log
 import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
@@ -58,6 +59,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
+    @FlakyTest(bugId = 187711141)
     public fun validateMetrics() {
         val state = BenchmarkState()
         while (state.keepRunning()) {
@@ -229,7 +231,6 @@ public class BenchmarkStateTest {
         } catch (e: IllegalStateException) {
             assertEquals(initialPriority, ThreadPriority.get())
             assertTrue(e.message!!.contains("wasn't started"))
-            assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
         }
     }
 

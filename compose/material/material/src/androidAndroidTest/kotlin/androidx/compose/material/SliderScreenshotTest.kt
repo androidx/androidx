@@ -37,7 +37,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +68,6 @@ class SliderScreenshotTest {
     }
 
     @Test
-    @Ignore("b/179922733 cannot upload new goldens")
     fun sliderTest_origin_disabled() {
         rule.setMaterialContent {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -114,7 +112,6 @@ class SliderScreenshotTest {
     }
 
     @Test
-    @Ignore("b/179922733 cannot upload new goldens")
     fun sliderTest_middle_steps_disabled() {
         rule.setMaterialContent {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -148,7 +145,6 @@ class SliderScreenshotTest {
     }
 
     @Test
-    @Ignore("b/179922733 cannot upload new goldens")
     fun sliderTest_customColors_disabled() {
         rule.setMaterialContent {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -178,5 +174,53 @@ class SliderScreenshotTest {
         rule.onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
+    }
+
+    @Test
+    @ExperimentalMaterialApi
+    fun rangeSliderTest_middle_steps_disabled() {
+        rule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                var position by remember { mutableStateOf(0.5f..1f) }
+                RangeSlider(position, { position = it }, steps = 5, enabled = false)
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_steps_disabled")
+    }
+
+    @Test
+    @ExperimentalMaterialApi
+    fun rangeSliderTest_middle_steps_enabled() {
+        rule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                var position by remember { mutableStateOf(0.5f..1f) }
+                RangeSlider(position, { position = it }, steps = 5)
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_steps_enabled")
+    }
+
+    @Test
+    @ExperimentalMaterialApi
+    fun rangeSliderTest_overlapingThumbs() {
+        rule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                var position by remember { mutableStateOf(0.5f..0.51f) }
+                RangeSlider(position, { position = it })
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_overlapingThumbs")
+    }
+
+    @Test
+    @ExperimentalMaterialApi
+    fun rangeSliderTest_fullRange() {
+        rule.setMaterialContent {
+            Box(wrap.testTag(wrapperTestTag)) {
+                var position by remember { mutableStateOf(0f..1f) }
+                RangeSlider(position, { position = it })
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_fullRange")
     }
 }

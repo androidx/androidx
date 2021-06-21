@@ -21,13 +21,13 @@
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"पहिचान भएन"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"फिंगरप्रिन्ट हार्डवेयर उपलब्ध छैन।"</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"कुनै पनि फिंगरप्रिन्ट दर्ता गरिएको छैन।"</string>
-    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"यो यन्त्रमा कुनै फिंगरप्रिन्ट सेन्सर छैन"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"यो डिभाइसमा कुनै फिंगरप्रिन्ट सेन्सर छैन"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"प्रयोगकर्ताले फिंगरप्रिन्टसम्बन्धी कारबाही रद्द गर्नुभयो।"</string>
     <string name="fingerprint_error_lockout" msgid="7291787166416782245">"अत्यधिक पटक प्रयासहरू गरिए। कृपया पछि फेरि प्रयास गर्नुहोस्।"</string>
     <string name="default_error_msg" msgid="4776854077120974966">"अज्ञात त्रुटि"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"प्रयोगकर्ताले प्रमाणीकरण सेवा रद्द गर्नुभयो।"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"पासवर्ड प्रयोग गर्नुहोस्"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"कुनै पनि PIN, ढाँचा वा पासवर्ड सेट गरिएको छैन।"</string>
-    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"यस यन्त्रमा PIN, ढाँचा वा पासवर्ड प्रयोग गर्न मिल्दैन।"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"यस डिभाइसमा PIN, ढाँचा वा पासवर्ड प्रयोग गर्न मिल्दैन।"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फिंगरप्रिन्ट जनाउने आइकन"</string>
 </resources>

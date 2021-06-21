@@ -1,16 +1,6 @@
 // Signature format: 4.0
 package androidx.window.extensions {
 
-  public class ExtensionDeviceState {
-    ctor public ExtensionDeviceState(int);
-    method public int getPosture();
-    field public static final int POSTURE_CLOSED = 1; // 0x1
-    field public static final int POSTURE_FLIPPED = 4; // 0x4
-    field public static final int POSTURE_HALF_OPENED = 2; // 0x2
-    field public static final int POSTURE_OPENED = 3; // 0x3
-    field public static final int POSTURE_UNKNOWN = 0; // 0x0
-  }
-
   public interface ExtensionDisplayFeature {
     method public android.graphics.Rect getBounds();
   }
@@ -21,21 +11,18 @@ package androidx.window.extensions {
     method public int getState();
     method public int getType();
     field public static final int STATE_FLAT = 1; // 0x1
-    field public static final int STATE_FLIPPED = 3; // 0x3
     field public static final int STATE_HALF_OPENED = 2; // 0x2
     field public static final int TYPE_FOLD = 1; // 0x1
     field public static final int TYPE_HINGE = 2; // 0x2
   }
 
   public interface ExtensionInterface {
-    method public void onDeviceStateListenersChanged(boolean);
     method public void onWindowLayoutChangeListenerAdded(android.app.Activity);
     method public void onWindowLayoutChangeListenerRemoved(android.app.Activity);
     method public void setExtensionCallback(androidx.window.extensions.ExtensionInterface.ExtensionCallback);
   }
 
   public static interface ExtensionInterface.ExtensionCallback {
-    method public void onDeviceStateChanged(androidx.window.extensions.ExtensionDeviceState);
     method public void onWindowLayoutChanged(android.app.Activity, androidx.window.extensions.ExtensionWindowLayoutInfo);
   }
 

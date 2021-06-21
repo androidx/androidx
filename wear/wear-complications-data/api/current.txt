@@ -1,148 +1,23 @@
 // Signature format: 4.0
-package android.support.wearable.complications {
-
-  public final class ComplicationData implements android.os.Parcelable {
-    method public int describeContents();
-    method public android.graphics.drawable.Icon? getBurnInProtectionIcon();
-    method public android.graphics.drawable.Icon? getBurnInProtectionSmallImage();
-    method public android.support.wearable.complications.ComplicationText? getContentDescription();
-    method public long getEndDateTimeMillis();
-    method public android.graphics.drawable.Icon? getIcon();
-    method public android.graphics.drawable.Icon? getLargeImage();
-    method public android.support.wearable.complications.ComplicationText? getLongText();
-    method public android.support.wearable.complications.ComplicationText? getLongTitle();
-    method public float getRangedMaxValue();
-    method public float getRangedMinValue();
-    method public float getRangedValue();
-    method public android.support.wearable.complications.ComplicationText? getShortText();
-    method public android.support.wearable.complications.ComplicationText? getShortTitle();
-    method public android.graphics.drawable.Icon? getSmallImage();
-    method public int getSmallImageStyle();
-    method public long getStartDateTimeMillis();
-    method public android.app.PendingIntent? getTapAction();
-    method public int getType();
-    method public boolean hasBurnInProtectionIcon();
-    method public boolean hasBurnInProtectionSmallImage();
-    method public boolean hasContentDescription();
-    method public boolean hasIcon();
-    method public boolean hasLargeImage();
-    method public boolean hasLongText();
-    method public boolean hasLongTitle();
-    method public boolean hasRangedMaxValue();
-    method public boolean hasRangedMinValue();
-    method public boolean hasRangedValue();
-    method public boolean hasShortText();
-    method public boolean hasShortTitle();
-    method public boolean hasSmallImage();
-    method public boolean hasTapAction();
-    method public boolean isActiveAt(long);
-    method public boolean isTimeDependent();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationData!> CREATOR;
-    field public static final int IMAGE_STYLE_ICON = 2; // 0x2
-    field public static final int IMAGE_STYLE_PHOTO = 1; // 0x1
-    field public static final int TYPE_EMPTY = 2; // 0x2
-    field public static final int TYPE_ICON = 6; // 0x6
-    field public static final int TYPE_LARGE_IMAGE = 8; // 0x8
-    field public static final int TYPE_LONG_TEXT = 4; // 0x4
-    field public static final int TYPE_NOT_CONFIGURED = 1; // 0x1
-    field public static final int TYPE_NO_DATA = 10; // 0xa
-    field public static final int TYPE_NO_PERMISSION = 9; // 0x9
-    field public static final int TYPE_RANGED_VALUE = 5; // 0x5
-    field public static final int TYPE_SHORT_TEXT = 3; // 0x3
-    field public static final int TYPE_SMALL_IMAGE = 7; // 0x7
-  }
-
-  public static final class ComplicationData.Builder {
-    ctor public ComplicationData.Builder(android.support.wearable.complications.ComplicationData);
-    ctor public ComplicationData.Builder(int);
-    method public android.support.wearable.complications.ComplicationData build();
-    method public android.support.wearable.complications.ComplicationData.Builder clearEndDateTime();
-    method public android.support.wearable.complications.ComplicationData.Builder clearStartDateTime();
-    method public android.support.wearable.complications.ComplicationData.Builder setBurnInProtectionIcon(android.graphics.drawable.Icon?);
-    method public android.support.wearable.complications.ComplicationData.Builder setBurnInProtectionSmallImage(android.graphics.drawable.Icon?);
-    method public android.support.wearable.complications.ComplicationData.Builder setContentDescription(android.support.wearable.complications.ComplicationText?);
-    method public android.support.wearable.complications.ComplicationData.Builder setEndDateTimeMillis(long);
-    method public android.support.wearable.complications.ComplicationData.Builder setIcon(android.graphics.drawable.Icon?);
-    method public android.support.wearable.complications.ComplicationData.Builder setLargeImage(android.graphics.drawable.Icon?);
-    method public android.support.wearable.complications.ComplicationData.Builder setLongText(android.support.wearable.complications.ComplicationText?);
-    method public android.support.wearable.complications.ComplicationData.Builder setLongTitle(android.support.wearable.complications.ComplicationText?);
-    method public android.support.wearable.complications.ComplicationData.Builder setRangedMaxValue(float);
-    method public android.support.wearable.complications.ComplicationData.Builder setRangedMinValue(float);
-    method public android.support.wearable.complications.ComplicationData.Builder setRangedValue(float);
-    method public android.support.wearable.complications.ComplicationData.Builder setShortText(android.support.wearable.complications.ComplicationText?);
-    method public android.support.wearable.complications.ComplicationData.Builder setShortTitle(android.support.wearable.complications.ComplicationText?);
-    method public android.support.wearable.complications.ComplicationData.Builder setSmallImage(android.graphics.drawable.Icon?);
-    method public android.support.wearable.complications.ComplicationData.Builder setSmallImageStyle(int);
-    method public android.support.wearable.complications.ComplicationData.Builder setStartDateTimeMillis(long);
-    method public android.support.wearable.complications.ComplicationData.Builder setTapAction(android.app.PendingIntent?);
-  }
-
-  public final class ComplicationProviderInfo implements android.os.Parcelable {
-    ctor public ComplicationProviderInfo(String, String, android.graphics.drawable.Icon, int, android.content.ComponentName);
-    ctor public ComplicationProviderInfo(android.os.Parcel);
-    method public int describeContents();
-    method public String? getAppName();
-    method public int getComplicationType();
-    method public android.content.ComponentName? getProviderComponentName();
-    method public android.graphics.drawable.Icon? getProviderIcon();
-    method public String? getProviderName();
-    method public void setAppName(String);
-    method public void setComplicationType(int);
-    method public void setProviderComponentName(android.content.ComponentName);
-    method public void setProviderIcon(android.graphics.drawable.Icon);
-    method public void setProviderName(String);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationProviderInfo!> CREATOR;
-  }
-
-  public final class ComplicationText implements android.os.Parcelable {
-    method public int describeContents();
-    method public long getNextChangeTime(long);
-    method public CharSequence getTextAt(android.content.res.Resources, long);
-    method public boolean isAlwaysEmpty();
-    method public static android.support.wearable.complications.ComplicationText plainText(CharSequence);
-    method public boolean returnsSameText(long, long);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationText!> CREATOR;
-    field public static final int DIFFERENCE_STYLE_SHORT_DUAL_UNIT = 3; // 0x3
-    field public static final int DIFFERENCE_STYLE_SHORT_SINGLE_UNIT = 2; // 0x2
-    field public static final int DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT = 5; // 0x5
-    field public static final int DIFFERENCE_STYLE_STOPWATCH = 1; // 0x1
-    field public static final int DIFFERENCE_STYLE_WORDS_SINGLE_UNIT = 4; // 0x4
-    field public static final int FORMAT_STYLE_DEFAULT = 1; // 0x1
-    field public static final int FORMAT_STYLE_LOWER_CASE = 3; // 0x3
-    field public static final int FORMAT_STYLE_UPPER_CASE = 2; // 0x2
-  }
-
-  public static final class ComplicationText.TimeDifferenceBuilder {
-    ctor public ComplicationText.TimeDifferenceBuilder();
-    ctor public ComplicationText.TimeDifferenceBuilder(long, long);
-    method public android.support.wearable.complications.ComplicationText build();
-    method public android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder setMinimumUnit(java.util.concurrent.TimeUnit?);
-    method public android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder setReferencePeriodEndMillis(long);
-    method public android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder setReferencePeriodStartMillis(long);
-    method public android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder setShowNowText(boolean);
-    method public android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder setStyle(int);
-    method public android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder setSurroundingText(CharSequence?);
-  }
-
-  public static final class ComplicationText.TimeFormatBuilder {
-    ctor public ComplicationText.TimeFormatBuilder();
-    method public android.support.wearable.complications.ComplicationText build();
-    method public android.support.wearable.complications.ComplicationText.TimeFormatBuilder setFormat(String?);
-    method public android.support.wearable.complications.ComplicationText.TimeFormatBuilder setStyle(int);
-    method public android.support.wearable.complications.ComplicationText.TimeFormatBuilder setSurroundingText(CharSequence?);
-    method public android.support.wearable.complications.ComplicationText.TimeFormatBuilder setTimeZone(java.util.TimeZone?);
-  }
-
-}
-
 package androidx.wear.complications {
 
-  public final class ComplicationBounds {
-    ctor public ComplicationBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
-    ctor public ComplicationBounds(android.graphics.RectF bounds);
+  public final class ComplicationProviderInfo {
+    ctor public ComplicationProviderInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.complications.data.ComplicationType type, android.content.ComponentName? componentName);
+    method public String getAppName();
+    method public android.content.ComponentName? getComponentName();
+    method public android.graphics.drawable.Icon getIcon();
+    method public String getName();
+    method public androidx.wear.complications.data.ComplicationType getType();
+    property public final String appName;
+    property public final android.content.ComponentName? componentName;
+    property public final android.graphics.drawable.Icon icon;
+    property public final String name;
+    property public final androidx.wear.complications.data.ComplicationType type;
+  }
+
+  public final class ComplicationSlotBounds {
+    ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
+    ctor public ComplicationSlotBounds(android.graphics.RectF bounds);
     method public java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
     property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
@@ -164,38 +39,44 @@ package androidx.wear.complications {
   public final class ProviderInfoRetriever implements java.lang.AutoCloseable {
     ctor public ProviderInfoRetriever(android.content.Context context);
     method public void close();
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? requestPreviewComplicationData(android.content.ComponentName providerComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrievePreviewComplicationData(android.content.ComponentName providerComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
     method @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrieveProviderInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.complications.ProviderInfoRetriever.ProviderInfo[]> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
   }
 
   public static final class ProviderInfoRetriever.ProviderInfo {
-    method public android.support.wearable.complications.ComplicationProviderInfo? getInfo();
-    method public int getWatchFaceComplicationId();
-    property public final android.support.wearable.complications.ComplicationProviderInfo? info;
-    property public final int watchFaceComplicationId;
+    method public int getComplicationSlotId();
+    method public androidx.wear.complications.ComplicationProviderInfo? getInfo();
+    property public final int complicationSlotId;
+    property public final androidx.wear.complications.ComplicationProviderInfo? info;
   }
 
   public static final class ProviderInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {
     ctor public ProviderInfoRetriever.ServiceDisconnectedException();
   }
 
-  public class SystemProviders {
-    field public static final int APP_SHORTCUT = 6; // 0x6
-    field public static final int DATE = 2; // 0x2
-    field public static final int DAY_AND_DATE = 16; // 0x10
-    field public static final int DAY_OF_WEEK = 13; // 0xd
-    field public static final int FAVORITE_CONTACT = 14; // 0xe
-    field public static final int MOST_RECENT_APP = 15; // 0xf
-    field public static final int NEXT_EVENT = 9; // 0x9
+  public final class ProviderInfoRetrieverKt {
+  }
+
+  public final class SystemProviders {
+    field public static final androidx.wear.complications.SystemProviders.Companion Companion;
     field public static final int NO_PROVIDER = -1; // 0xffffffff
-    field public static final int RETAIL_CHAT = 11; // 0xb
-    field public static final int RETAIL_STEP_COUNT = 10; // 0xa
-    field public static final int STEP_COUNT = 4; // 0x4
-    field public static final int SUNRISE_SUNSET = 12; // 0xc
-    field public static final int TIME_AND_DATE = 3; // 0x3
-    field public static final int UNREAD_NOTIFICATION_COUNT = 7; // 0x7
-    field public static final int WATCH_BATTERY = 1; // 0x1
-    field public static final int WORLD_CLOCK = 5; // 0x5
+    field public static final int PROVIDER_APP_SHORTCUT = 6; // 0x6
+    field public static final int PROVIDER_DATE = 2; // 0x2
+    field public static final int PROVIDER_DAY_AND_DATE = 16; // 0x10
+    field public static final int PROVIDER_DAY_OF_WEEK = 13; // 0xd
+    field public static final int PROVIDER_FAVORITE_CONTACT = 14; // 0xe
+    field public static final int PROVIDER_NEXT_EVENT = 9; // 0x9
+    field public static final int PROVIDER_RETAIL_CHAT = 11; // 0xb
+    field public static final int PROVIDER_RETAIL_STEP_COUNT = 10; // 0xa
+    field public static final int PROVIDER_STEP_COUNT = 4; // 0x4
+    field public static final int PROVIDER_SUNRISE_SUNSET = 12; // 0xc
+    field public static final int PROVIDER_TIME_AND_DATE = 3; // 0x3
+    field public static final int PROVIDER_UNREAD_NOTIFICATION_COUNT = 7; // 0x7
+    field public static final int PROVIDER_WATCH_BATTERY = 1; // 0x1
+    field public static final int PROVIDER_WORLD_CLOCK = 5; // 0x5
+  }
+
+  public static final class SystemProviders.Companion {
   }
 
 }
@@ -205,9 +86,10 @@ package androidx.wear.complications.data {
   public abstract sealed class ComplicationData {
     method public final android.app.PendingIntent? getTapAction();
     method public final androidx.wear.complications.data.ComplicationType getType();
-    method public abstract boolean isActiveAt(long dateTimeMillis);
+    method public final androidx.wear.complications.data.TimeRange getValidTimeRange();
     property public final android.app.PendingIntent? tapAction;
     property public final androidx.wear.complications.data.ComplicationType type;
+    property public final androidx.wear.complications.data.TimeRange validTimeRange;
   }
 
   public interface ComplicationText {
@@ -215,6 +97,11 @@ package androidx.wear.complications.data {
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
+    field public static final androidx.wear.complications.data.ComplicationText.Companion Companion;
+    field public static final androidx.wear.complications.data.ComplicationText EMPTY;
+  }
+
+  public static final class ComplicationText.Companion {
   }
 
   public enum ComplicationType {
@@ -247,7 +134,6 @@ package androidx.wear.complications.data {
 
   public final class EmptyComplicationData extends androidx.wear.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
-    method public boolean isActiveAt(long dateTimeMillis);
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
@@ -257,21 +143,17 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.complications.data.ComplicationText getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
-    method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.SmallImage? smallImage;
     property public final androidx.wear.complications.data.ComplicationText text;
     property public final androidx.wear.complications.data.ComplicationText? title;
-    property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class LongTextComplicationData.Builder {
-    ctor public LongTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
+    ctor public LongTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.LongTextComplicationData build();
-    method public androidx.wear.complications.data.LongTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? icon);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setSmallImage(androidx.wear.complications.data.SmallImage? smallImage);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
@@ -295,25 +177,20 @@ package androidx.wear.complications.data {
   public final class MonochromaticImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.complications.data.MonochromaticImage getMonochromaticImage();
-    method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage monochromaticImage;
-    property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class MonochromaticImageComplicationData.Builder {
-    ctor public MonochromaticImageComplicationData.Builder(androidx.wear.complications.data.MonochromaticImage monochromaticImage);
+    ctor public MonochromaticImageComplicationData.Builder(androidx.wear.complications.data.MonochromaticImage monochromaticImage, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData build();
-    method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
 
   public final class NoDataComplicationData extends androidx.wear.complications.data.ComplicationData {
     ctor public NoDataComplicationData();
-    method public boolean isActiveAt(long dateTimeMillis);
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
@@ -321,7 +198,6 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.ComplicationText? getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText? text;
     property public final androidx.wear.complications.data.ComplicationText? title;
@@ -338,25 +214,20 @@ package androidx.wear.complications.data {
 
   public final class NotConfiguredComplicationData extends androidx.wear.complications.data.ComplicationData {
     ctor public NotConfiguredComplicationData();
-    method public boolean isActiveAt(long dateTimeMillis);
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public final class PhotoImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
     method public android.graphics.drawable.Icon getPhotoImage();
-    method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final android.graphics.drawable.Icon photoImage;
-    property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class PhotoImageComplicationData.Builder {
-    ctor public PhotoImageComplicationData.Builder(android.graphics.drawable.Icon photoImage);
+    ctor public PhotoImageComplicationData.Builder(android.graphics.drawable.Icon photoImage, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData build();
-    method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
@@ -376,24 +247,20 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.ComplicationText? getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
-    method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
     method public float getValue();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final float max;
     property public final float min;
     property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText? text;
     property public final androidx.wear.complications.data.ComplicationText? title;
-    property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     property public final float value;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class RangedValueComplicationData.Builder {
-    ctor public RangedValueComplicationData.Builder(float value, float min, float max);
+    ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.RangedValueComplicationData build();
-    method public androidx.wear.complications.data.RangedValueComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
@@ -406,20 +273,16 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.ComplicationText getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
-    method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText text;
     property public final androidx.wear.complications.data.ComplicationText? title;
-    property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class ShortTextComplicationData.Builder {
-    ctor public ShortTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
+    ctor public ShortTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.ShortTextComplicationData build();
-    method public androidx.wear.complications.data.ShortTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
@@ -444,18 +307,14 @@ package androidx.wear.complications.data {
   public final class SmallImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.complications.data.SmallImage getSmallImage();
-    method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
-    method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.SmallImage smallImage;
-    property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class SmallImageComplicationData.Builder {
-    ctor public SmallImageComplicationData.Builder(androidx.wear.complications.data.SmallImage smallImage);
+    ctor public SmallImageComplicationData.Builder(androidx.wear.complications.data.SmallImage smallImage, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.SmallImageComplicationData build();
-    method public androidx.wear.complications.data.SmallImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
@@ -469,6 +328,7 @@ package androidx.wear.complications.data {
   }
 
   public final class TimeDifferenceComplicationText implements androidx.wear.complications.data.ComplicationText {
+    method public java.util.concurrent.TimeUnit? getMinimumTimeUnit();
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
@@ -476,7 +336,7 @@ package androidx.wear.complications.data {
     ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.CountDownTimeReference countDownTimeReference);
     method public androidx.wear.complications.data.TimeDifferenceComplicationText build();
     method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setDisplayAsNow(boolean displayAsNow);
-    method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setMinimumUnit(java.util.concurrent.TimeUnit? minimumUnit);
+    method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setMinimumTimeUnit(java.util.concurrent.TimeUnit? minimumUnit);
     method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setText(CharSequence? text);
   }
 

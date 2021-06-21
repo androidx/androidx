@@ -22,13 +22,10 @@ import android.hardware.camera2.CameraDevice;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
-import androidx.camera.core.impl.DeferrableSurface;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -53,9 +50,6 @@ class CaptureSessionRepository {
     final Set<SynchronizedCaptureSession> mClosingCaptureSession = new LinkedHashSet<>();
     @GuardedBy("mLock")
     final Set<SynchronizedCaptureSession> mCreatingCaptureSessions = new LinkedHashSet<>();
-    @GuardedBy("mLock")
-    final Map<SynchronizedCaptureSession, List<DeferrableSurface>> mDeferrableSurfaceMap =
-            new HashMap<>();
 
     CaptureSessionRepository(@NonNull @CameraExecutor Executor executor) {
         mExecutor = executor;
@@ -74,6 +68,12 @@ class CaptureSessionRepository {
                     // error state. The CameraCaptureSession.close() may not invoke the onClosed()
                     // callback so it has to finish the close process forcibly.
                     forceOnClosedCaptureSessions();
+                    cameraClosed();
+                }
+
+                @Override
+                public void onClosed(@NonNull CameraDevice camera) {
+                    cameraClosed();
                 }
 
                 @Override
@@ -90,18 +90,29 @@ class CaptureSessionRepository {
                     // The CameraCaptureSession will call its close() automatically once the
                     // onDisconnected callback is invoked.
                     forceOnClosedCaptureSessions();
+                    cameraClosed();
                 }
 
                 private void forceOnClosedCaptureSessions() {
-                    mExecutor.execute(() -> {
-                        LinkedHashSet<SynchronizedCaptureSession> sessions = new LinkedHashSet<>();
-                        synchronized (mLock) {
-                            sessions.addAll(new LinkedHashSet<>(mCreatingCaptureSessions));
-                            sessions.addAll(new LinkedHashSet<>(mCaptureSessions));
-                        }
-                        forceOnClosed(sessions);
-                    });
+                    LinkedHashSet<SynchronizedCaptureSession> sessions = new LinkedHashSet<>();
+                    synchronized (mLock) {
+                        sessions.addAll(mCreatingCaptureSessions);
+                        sessions.addAll(mCaptureSessions);
+                    }
+                    mExecutor.execute(() -> forceOnClosed(sessions));
+                }
 
+                private void cameraClosed() {
+                    List<SynchronizedCaptureSession> sessions;
+                    synchronized (mLock) {
+                        sessions = getSessionsInOrder();
+                        mCreatingCaptureSessions.clear();
+                        mCaptureSessions.clear();
+                        mClosingCaptureSession.clear();
+                    }
+                    for (SynchronizedCaptureSession s : sessions) {
+                        s.finishClose();
+                    }
                 }
             };
 
@@ -113,6 +124,24 @@ class CaptureSessionRepository {
     static void forceOnClosed(@NonNull Set<SynchronizedCaptureSession> sessions) {
         for (SynchronizedCaptureSession session : sessions) {
             session.getStateCallback().onClosed(session);
+        }
+    }
+
+    /**
+     * Finish close the sessions that are created before the current session.
+     *
+     * @param session the current session that is configured at this moment.
+     */
+    private void forceFinishCloseStaleSessions(@NonNull SynchronizedCaptureSession session) {
+        List<SynchronizedCaptureSession> sessions = getSessionsInOrder();
+        for (SynchronizedCaptureSession s : sessions) {
+            // Collect the sessions that started configuring before the current session. The
+            // current session and the session that starts configure after the current session
+            // are not included.
+            if (s == session) {
+                break;
+            }
+            s.finishClose();
         }
     }
 
@@ -138,39 +167,20 @@ class CaptureSessionRepository {
     }
 
     /**
-     * To register a DeferrableSurface list that is using by the SynchronizedCaptureSession.
+     * Return the session list in the insertion-ordered, It represents the creation order of the
+     * sessions. All the opened sessions (including under closing sessions) are in
+     * getCaptureSessions() and all the opening sessions are in getCreatingCaptureSessions(). The
+     * returned result contains all the opening and opened sessions in the creation-ordered.
      *
-     *  <p>To register the deferrableSurface list means to identifying the list of
-     *  deferrableSurfaces is already occupied by the SynchronizedCaptureSession.The
-     *  registration information is shared between SynchronizedCaptureSession. Every
-     *  SynchronizedCaptureSessions can get the registered information to know if a
-     *  DeferrableSurface is already occupied by the another SynchronizedCaptureSession.
-     *
-     * @param synchronizedCaptureSession The SynchronizedCaptureSession that is going to configure
-     *                                   a DeferrableSurfaceList.
-     * @param deferrableSurfaces         The deferrable surface list that is configured to the
-     *                                   SynchronizedCaptureSession.
-     * @return a map of all the registered SynchronizedCaptureSession to the DeferrableSurfaceList.
+     * @return the SynchronizedCaptureSession list in the insertion-ordered
      */
-    Map<SynchronizedCaptureSession, List<DeferrableSurface>> registerDeferrableSurface(
-            @NonNull SynchronizedCaptureSession synchronizedCaptureSession,
-            @NonNull List<DeferrableSurface> deferrableSurfaces) {
+    @NonNull
+    List<SynchronizedCaptureSession> getSessionsInOrder() {
         synchronized (mLock) {
-            mDeferrableSurfaceMap.put(synchronizedCaptureSession, deferrableSurfaces);
-            return new HashMap<>(mDeferrableSurfaceMap);
-        }
-    }
-
-    /**
-     * Unregister the {@link SynchronizedCaptureSession} you previously registered using
-     * {@link #registerDeferrableSurface}.
-     *
-     * @param synchronizedCaptureSession the SynchronizedCaptureSession to be removed from the list.
-     */
-    void unregisterDeferrableSurface(
-            @NonNull SynchronizedCaptureSession synchronizedCaptureSession) {
-        synchronized (mLock) {
-            mDeferrableSurfaceMap.remove(synchronizedCaptureSession);
+            List<SynchronizedCaptureSession> sessions = new ArrayList<>();
+            sessions.addAll(getCaptureSessions());
+            sessions.addAll(getCreatingCaptureSessions());
+            return sessions;
         }
     }
 
@@ -182,6 +192,7 @@ class CaptureSessionRepository {
 
     void onCaptureSessionConfigureFail(
             @NonNull SynchronizedCaptureSession synchronizedCaptureSession) {
+        forceFinishCloseStaleSessions(synchronizedCaptureSession);
         synchronized (mLock) {
             mCreatingCaptureSessions.remove(synchronizedCaptureSession);
         }
@@ -193,6 +204,7 @@ class CaptureSessionRepository {
             mCaptureSessions.add(synchronizedCaptureSession);
             mCreatingCaptureSessions.remove(synchronizedCaptureSession);
         }
+        forceFinishCloseStaleSessions(synchronizedCaptureSession);
     }
 
     void onCaptureSessionClosed(@NonNull SynchronizedCaptureSession synchronizedCaptureSession) {

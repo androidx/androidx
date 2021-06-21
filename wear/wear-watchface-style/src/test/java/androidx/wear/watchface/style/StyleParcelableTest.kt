@@ -20,11 +20,13 @@ import android.graphics.drawable.Icon
 import android.os.Parcel
 
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -36,27 +38,27 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(StyleTestRunner::class)
-class StyleParcelableTest {
+public class StyleParcelableTest {
 
     private val icon1 = Icon.createWithContentUri("icon1")
     private val icon2 = Icon.createWithContentUri("icon2")
     private val icon3 = Icon.createWithContentUri("icon3")
     private val icon4 = Icon.createWithContentUri("icon4")
-    private val option1 = ListUserStyleSetting.ListOption("1", "one", icon1)
-    private val option2 = ListUserStyleSetting.ListOption("2", "two", icon2)
-    private val option3 = ListUserStyleSetting.ListOption("3", "three", icon3)
-    private val option4 = ListUserStyleSetting.ListOption("4", "four", icon4)
+    private val option1 = ListOption(Option.Id("1"), "one", icon1)
+    private val option2 = ListOption(Option.Id("2"), "two", icon2)
+    private val option3 = ListOption(Option.Id("3"), "three", icon3)
+    private val option4 = ListOption(Option.Id("4"), "four", icon4)
 
     @Test
-    fun parcelAndUnparcelStyleSettingAndOption() {
+    public fun parcelAndUnparcelStyleSettingAndOption() {
         val settingIcon = Icon.createWithContentUri("settingIcon")
         val styleSetting = ListUserStyleSetting(
-            "id",
+            UserStyleSetting.Id("id"),
             "displayName",
             "description",
             settingIcon,
             listOf(option1, option2, option3),
-            listOf(Layer.BASE_LAYER)
+            listOf(WatchFaceLayer.BASE)
         )
 
         val parcel = Parcel.obtain()
@@ -72,82 +74,77 @@ class StyleParcelableTest {
 
         assert(unparceled is ListUserStyleSetting)
 
-        assertThat(unparceled.id).isEqualTo("id")
+        assertThat(unparceled.id.value).isEqualTo("id")
         assertThat(unparceled.displayName).isEqualTo("displayName")
         assertThat(unparceled.description).isEqualTo("description")
         assertThat(unparceled.icon!!.uri.toString()).isEqualTo("settingIcon")
-        assertThat(unparceled.affectsLayers.size).isEqualTo(1)
-        assertThat(unparceled.affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
-        val optionArray =
-            unparceled.options.filterIsInstance<ListUserStyleSetting.ListOption>()
-                .toTypedArray()
+        assertThat(unparceled.affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(unparceled.affectedWatchFaceLayers.first()).isEqualTo(WatchFaceLayer.BASE)
+        val optionArray = unparceled.options.filterIsInstance<ListOption>().toTypedArray()
         assertThat(optionArray.size).isEqualTo(3)
-        assertThat(optionArray[0].id).isEqualTo("1")
+        assertThat(optionArray[0].id.value.decodeToString()).isEqualTo("1")
         assertThat(optionArray[0].displayName).isEqualTo("one")
         assertThat(optionArray[0].icon!!.uri.toString()).isEqualTo("icon1")
-        assertThat(optionArray[1].id).isEqualTo("2")
+        assertThat(optionArray[1].id.value.decodeToString()).isEqualTo("2")
         assertThat(optionArray[1].displayName).isEqualTo("two")
         assertThat(optionArray[1].icon!!.uri.toString()).isEqualTo("icon2")
-        assertThat(optionArray[2].id).isEqualTo("3")
+        assertThat(optionArray[2].id.value.decodeToString()).isEqualTo("3")
         assertThat(optionArray[2].displayName).isEqualTo("three")
         assertThat(optionArray[2].icon!!.uri.toString()).isEqualTo("icon3")
     }
 
     @Test
-    fun marshallAndUnmarshallOptions() {
+    public fun marshallAndUnmarshallOptions() {
         val wireFormat1 = option1.toWireFormat()
         val wireFormat2 = option2.toWireFormat()
         val wireFormat3 = option3.toWireFormat()
 
-        val unmarshalled1 =
-            UserStyleSetting.Option.createFromWireFormat(wireFormat1).toListOption()!!
-        val unmarshalled2 =
-            UserStyleSetting.Option.createFromWireFormat(wireFormat2).toListOption()!!
-        val unmarshalled3 =
-            UserStyleSetting.Option.createFromWireFormat(wireFormat3).toListOption()!!
+        val unmarshalled1 = Option.createFromWireFormat(wireFormat1) as ListOption
+        val unmarshalled2 = Option.createFromWireFormat(wireFormat2) as ListOption
+        val unmarshalled3 = Option.createFromWireFormat(wireFormat3) as ListOption
 
-        assertThat(unmarshalled1.id).isEqualTo("1")
+        assertThat(unmarshalled1.id.value.decodeToString()).isEqualTo("1")
         assertThat(unmarshalled1.displayName).isEqualTo("one")
         assertThat(unmarshalled1.icon!!.uri.toString()).isEqualTo("icon1")
-        assertThat(unmarshalled2.id).isEqualTo("2")
+        assertThat(unmarshalled2.id.value.decodeToString()).isEqualTo("2")
         assertThat(unmarshalled2.displayName).isEqualTo("two")
         assertThat(unmarshalled2.icon!!.uri.toString()).isEqualTo("icon2")
-        assertThat(unmarshalled3.id).isEqualTo("3")
+        assertThat(unmarshalled3.id.value.decodeToString()).isEqualTo("3")
         assertThat(unmarshalled3.displayName).isEqualTo("three")
         assertThat(unmarshalled3.icon!!.uri.toString()).isEqualTo("icon3")
     }
 
     @Test
-    fun parcelAndUnparcelUserStyleSchema() {
+    public fun parcelAndUnparcelUserStyleSchema() {
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
         val settingIcon2 = Icon.createWithContentUri("settingIcon2")
         val styleSetting1 = ListUserStyleSetting(
-            "id1",
+            UserStyleSetting.Id("id1"),
             "displayName1",
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE_LAYER)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.TOP_LAYER)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val styleSetting3 = BooleanUserStyleSetting(
-            "id3",
+            UserStyleSetting.Id("id3"),
             "displayName3",
             "description3",
             null,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             true
         )
         val styleSetting4 = CustomValueUserStyleSetting(
-            listOf(Layer.BASE_LAYER),
-            "default"
+            listOf(WatchFaceLayer.BASE),
+            "default".encodeToByteArray()
         )
 
         val srcSchema = UserStyleSchema(
@@ -169,74 +166,81 @@ class StyleParcelableTest {
         parcel.recycle()
 
         assert(schema.userStyleSettings[0] is ListUserStyleSetting)
-        assertThat(schema.userStyleSettings[0].id).isEqualTo("id1")
+        assertThat(schema.userStyleSettings[0].id.value).isEqualTo("id1")
         assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
         assertThat(schema.userStyleSettings[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
-        assertThat(schema.userStyleSettings[0].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[0].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.BASE
+        )
         val optionArray1 =
-            schema.userStyleSettings[0].options.filterIsInstance<ListUserStyleSetting.ListOption>()
-                .toTypedArray()
+            schema.userStyleSettings[0].options.filterIsInstance<ListOption>().toTypedArray()
         assertThat(optionArray1.size).isEqualTo(2)
-        assertThat(optionArray1[0].id).isEqualTo("1")
+        assertThat(optionArray1[0].id.value.decodeToString()).isEqualTo("1")
         assertThat(optionArray1[0].displayName).isEqualTo("one")
         assertThat(optionArray1[0].icon!!.uri.toString()).isEqualTo("icon1")
-        assertThat(optionArray1[1].id).isEqualTo("2")
+        assertThat(optionArray1[1].id.value.decodeToString()).isEqualTo("2")
         assertThat(optionArray1[1].displayName).isEqualTo("two")
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
 
         assert(schema.userStyleSettings[1] is ListUserStyleSetting)
-        assertThat(schema.userStyleSettings[1].id).isEqualTo("id2")
+        assertThat(schema.userStyleSettings[1].id.value).isEqualTo("id2")
         assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
         assertThat(schema.userStyleSettings[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
-        assertThat(schema.userStyleSettings[1].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[1].affectsLayers.first()).isEqualTo(Layer.TOP_LAYER)
+        assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.COMPLICATIONS_OVERLAY
+        )
         val optionArray2 =
-            schema.userStyleSettings[1].options.filterIsInstance<ListUserStyleSetting.ListOption>()
-                .toTypedArray()
+            schema.userStyleSettings[1].options.filterIsInstance<ListOption>().toTypedArray()
         assertThat(optionArray2.size).isEqualTo(2)
-        assertThat(optionArray2[0].id).isEqualTo("3")
+        assertThat(optionArray2[0].id.value.decodeToString()).isEqualTo("3")
         assertThat(optionArray2[0].displayName).isEqualTo("three")
         assertThat(optionArray2[0].icon!!.uri.toString()).isEqualTo("icon3")
-        assertThat(optionArray2[1].id).isEqualTo("4")
+        assertThat(optionArray2[1].id.value.decodeToString()).isEqualTo("4")
         assertThat(optionArray2[1].displayName).isEqualTo("four")
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
 
         assert(schema.userStyleSettings[2] is BooleanUserStyleSetting)
-        assertThat(schema.userStyleSettings[2].id).isEqualTo("id3")
+        assertThat(schema.userStyleSettings[2].id.value).isEqualTo("id3")
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
         assertThat(schema.userStyleSettings[2].icon).isEqualTo(null)
-        assertThat(schema.userStyleSettings[2].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[2].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.BASE
+        )
 
         assert(schema.userStyleSettings[3] is CustomValueUserStyleSetting)
-        assertThat(schema.userStyleSettings[3].getDefaultOption().id).isEqualTo("default")
-        assertThat(schema.userStyleSettings[3].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[3].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(schema.userStyleSettings[3].defaultOption.id.value.decodeToString())
+            .isEqualTo("default")
+        assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.BASE
+        )
     }
 
     @Test
-    fun parcelAndUnparcelUserStyle() {
+    public fun parcelAndUnparcelUserStyle() {
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
         val settingIcon2 = Icon.createWithContentUri("settingIcon2")
         val styleSetting1 = ListUserStyleSetting(
-            "id1",
+            UserStyleSetting.Id("id1"),
             "displayName1",
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE_LAYER)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.TOP_LAYER)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val schema = UserStyleSchema(listOf(styleSetting1, styleSetting2))
         val userStyle = UserStyle(
@@ -252,170 +256,172 @@ class StyleParcelableTest {
         parcel.setDataPosition(0)
 
         val unparcelled =
-            UserStyle(UserStyleWireFormat.CREATOR.createFromParcel(parcel), schema)
+            UserStyle(UserStyleData(UserStyleWireFormat.CREATOR.createFromParcel(parcel)), schema)
         parcel.recycle()
 
         assertThat(unparcelled.selectedOptions.size).isEqualTo(2)
-        assertThat(unparcelled.selectedOptions[styleSetting1]!!.id).isEqualTo(option2.id)
-        assertThat(unparcelled.selectedOptions[styleSetting2]!!.id).isEqualTo(option3.id)
+        assertThat(unparcelled.selectedOptions[styleSetting1]!!.id.value.decodeToString())
+            .isEqualTo(option2.id.value.decodeToString())
+        assertThat(unparcelled.selectedOptions[styleSetting2]!!.id.value.decodeToString())
+            .isEqualTo(option3.id.value.decodeToString())
     }
 
     @Test
-    fun booleanUserStyleSetting_defaultValue() {
+    public fun booleanUserStyleSetting_defaultValue() {
         val booleanUserStyleSettingDefaultTrue = BooleanUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             true
         )
         assertTrue(booleanUserStyleSettingDefaultTrue.getDefaultValue())
 
         val booleanUserStyleSettingDefaultFalse = BooleanUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             false
         )
         assertFalse(booleanUserStyleSettingDefaultFalse.getDefaultValue())
     }
 
     @Test
-    fun doubleRangeUserStyleSetting_defaultValue() {
+    public fun doubleRangeUserStyleSetting_defaultValue() {
         val doubleRangeUserStyleSettingDefaultMin = DoubleRangeUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
             -1.0,
             1.0,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             -1.0
         )
-        assertThat(doubleRangeUserStyleSettingDefaultMin.getDefaultValue()).isEqualTo(-1.0)
+        assertThat(doubleRangeUserStyleSettingDefaultMin.defaultValue).isEqualTo(-1.0)
 
         val doubleRangeUserStyleSettingDefaultMid = DoubleRangeUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
             -1.0,
             1.0,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             0.5
         )
-        assertThat(doubleRangeUserStyleSettingDefaultMid.getDefaultValue()).isEqualTo(0.5)
+        assertThat(doubleRangeUserStyleSettingDefaultMid.defaultValue).isEqualTo(0.5)
 
         val doubleRangeUserStyleSettingDefaultMax = DoubleRangeUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
             -1.0,
             1.0,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             1.0
         )
-        assertThat(doubleRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(1.0)
+        assertThat(doubleRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(1.0)
     }
 
     @Test
-    fun longRangeUserStyleSetting_defaultValue() {
+    public fun longRangeUserStyleSetting_defaultValue() {
         val longRangeUserStyleSettingDefaultMin = LongRangeUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
             -1,
             10,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             -1,
         )
-        assertThat(longRangeUserStyleSettingDefaultMin.getDefaultValue()).isEqualTo(-1)
+        assertThat(longRangeUserStyleSettingDefaultMin.defaultValue).isEqualTo(-1)
 
         val longRangeUserStyleSettingDefaultMid = LongRangeUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
             -1,
             10,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             5
         )
-        assertThat(longRangeUserStyleSettingDefaultMid.getDefaultValue()).isEqualTo(5)
+        assertThat(longRangeUserStyleSettingDefaultMid.defaultValue).isEqualTo(5)
 
         val longRangeUserStyleSettingDefaultMax = LongRangeUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             null,
             -1,
             10,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             10
         )
-        assertThat(longRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(10)
+        assertThat(longRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(10)
     }
 
     @Test
-    fun parcelAndUnparcelComplicationsUserStyleSetting() {
+    public fun parcelAndUnparcelComplicationsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102
-        val src = ComplicationsUserStyleSetting(
-            "complications_style_setting",
+        val src = ComplicationSlotsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting"),
             "Complications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
-                ComplicationsUserStyleSetting.ComplicationsOption(
-                    "LEFT_AND_RIGHT_COMPLICATIONS",
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     "Both",
                     null,
                     listOf()
                 ),
-                ComplicationsUserStyleSetting.ComplicationsOption(
-                    "NO_COMPLICATIONS",
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    Option.Id("NO_COMPLICATIONS"),
                     "None",
                     null,
                     listOf(
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             leftComplicationID,
                             enabled = false
                         ),
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             rightComplicationID,
                             enabled = false
                         )
                     )
                 ),
-                ComplicationsUserStyleSetting.ComplicationsOption(
-                    "LEFT_COMPLICATION",
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    Option.Id("LEFT_COMPLICATION"),
                     "Left",
                     null,
                     listOf(
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             rightComplicationID,
                             enabled = false
                         )
                     )
                 ),
-                ComplicationsUserStyleSetting.ComplicationsOption(
-                    "RIGHT_COMPLICATION",
+                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                    Option.Id("RIGHT_COMPLICATION"),
                     "Right",
                     null,
                     listOf(
-                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
                             leftComplicationID,
                             enabled = false
                         )
                     )
                 )
             ),
-            listOf(Layer.COMPLICATIONS)
+            listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
         val parcel = Parcel.obtain()
@@ -429,67 +435,67 @@ class StyleParcelableTest {
             )
         parcel.recycle()
 
-        assert(unparceled is ComplicationsUserStyleSetting)
-        assertThat(unparceled.id).isEqualTo("complications_style_setting")
+        assert(unparceled is ComplicationSlotsUserStyleSetting)
+        assertThat(unparceled.id.value).isEqualTo("complications_style_setting")
 
         val options = unparceled.options.filterIsInstance<
-            ComplicationsUserStyleSetting.ComplicationsOption>()
+            ComplicationSlotsUserStyleSetting.ComplicationSlotsOption>()
         assertThat(options.size).isEqualTo(4)
-        assertThat(options[0].id).isEqualTo("LEFT_AND_RIGHT_COMPLICATIONS")
-        assertThat(options[0].complicationOverlays.size).isEqualTo(0)
+        assertThat(options[0].id.value.decodeToString()).isEqualTo("LEFT_AND_RIGHT_COMPLICATIONS")
+        assertThat(options[0].complicationSlotOverlays.size).isEqualTo(0)
 
-        assertThat(options[1].id).isEqualTo("NO_COMPLICATIONS")
-        assertThat(options[1].complicationOverlays.size).isEqualTo(2)
-        val options1Overlays = ArrayList(options[1].complicationOverlays)
-        assertThat(options1Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertThat(options[1].id.value.decodeToString()).isEqualTo("NO_COMPLICATIONS")
+        assertThat(options[1].complicationSlotOverlays.size).isEqualTo(2)
+        val options1Overlays = ArrayList(options[1].complicationSlotOverlays)
+        assertThat(options1Overlays[0].complicationSlotId).isEqualTo(leftComplicationID)
         assertFalse(options1Overlays[0].enabled!!)
-        assertThat(options1Overlays[1].complicationId).isEqualTo(rightComplicationID)
+        assertThat(options1Overlays[1].complicationSlotId).isEqualTo(rightComplicationID)
         assertFalse(options1Overlays[1].enabled!!)
 
-        assertThat(options[2].id).isEqualTo("LEFT_COMPLICATION")
-        assertThat(options[2].complicationOverlays.size).isEqualTo(1)
-        val options2Overlays = ArrayList(options[2].complicationOverlays)
-        assertThat(options2Overlays[0].complicationId).isEqualTo(rightComplicationID)
+        assertThat(options[2].id.value.decodeToString()).isEqualTo("LEFT_COMPLICATION")
+        assertThat(options[2].complicationSlotOverlays.size).isEqualTo(1)
+        val options2Overlays = ArrayList(options[2].complicationSlotOverlays)
+        assertThat(options2Overlays[0].complicationSlotId).isEqualTo(rightComplicationID)
         assertFalse(options2Overlays[0].enabled!!)
 
-        assertThat(options[3].id).isEqualTo("RIGHT_COMPLICATION")
-        assertThat(options[3].complicationOverlays.size).isEqualTo(1)
-        val options3Overlays = ArrayList(options[3].complicationOverlays)
-        assertThat(options3Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertThat(options[3].id.value.decodeToString()).isEqualTo("RIGHT_COMPLICATION")
+        assertThat(options[3].complicationSlotOverlays.size).isEqualTo(1)
+        val options3Overlays = ArrayList(options[3].complicationSlotOverlays)
+        assertThat(options3Overlays[0].complicationSlotId).isEqualTo(leftComplicationID)
         assertFalse(options3Overlays[0].enabled!!)
     }
 
     @Test
-    fun styleSchemaToString() {
+    public fun styleSchemaToString() {
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
         val settingIcon2 = Icon.createWithContentUri("settingIcon2")
         val styleSetting1 = ListUserStyleSetting(
-            "id1",
+            UserStyleSetting.Id("id1"),
             "displayName1",
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE_LAYER)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.TOP_LAYER)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val styleSetting3 = BooleanUserStyleSetting(
-            "id3",
+            UserStyleSetting.Id("id3"),
             "displayName3",
             "description3",
             null,
-            listOf(Layer.BASE_LAYER),
+            listOf(WatchFaceLayer.BASE),
             true
         )
         val styleSetting4 = CustomValueUserStyleSetting(
-            listOf(Layer.BASE_LAYER),
-            "default"
+            listOf(WatchFaceLayer.BASE),
+            "default".encodeToByteArray()
         )
 
         val schema = UserStyleSchema(
@@ -508,24 +514,24 @@ class StyleParcelableTest {
 
     @Ignore
     @Test
-    fun userStyleToString() {
+    public fun userStyleToString() {
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
         val settingIcon2 = Icon.createWithContentUri("settingIcon2")
         val styleSetting1 = ListUserStyleSetting(
-            "id1",
+            UserStyleSetting.Id("id1"),
             "displayName1",
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE_LAYER)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
-            "id2",
+            UserStyleSetting.Id("id2"),
             "displayName2",
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.TOP_LAYER)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val style = UserStyle(
             mapOf(

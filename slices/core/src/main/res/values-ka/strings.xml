@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"ანიჭებთ ნებართვას <xliff:g id="APP_0">%1$s</xliff:g>-ს, აჩვენოს <xliff:g id="APP_2">%2$s</xliff:g>-ის ფრაგმენტები?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- მას შეუძლია ინფორმაციის <xliff:g id="APP">%1$s</xliff:g>-დან წაკითხვა"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- მას შეუძლია ქმედებების <xliff:g id="APP">%1$s</xliff:g>-ში განხორციელება"</string>
-    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"<xliff:g id="APP">%1$s</xliff:g>-ისთვის ფრაგმენტების ნებისმიერი აპიდან ჩვენების ნების დართვა"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"დაშვება"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"უარყოფა"</string>
 </resources>

@@ -19,10 +19,8 @@ package androidx.navigation.compose
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
-import androidx.navigation.navigation
 
 /**
  * Add the [Composable] to the [NavGraphBuilder]
@@ -40,11 +38,7 @@ public fun NavGraphBuilder.composable(
 ) {
     addDestination(
         ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
-            val internalRoute = createRoute(route)
-            addDeepLink(internalRoute)
-            val argument = navArgument(KEY_ROUTE) { defaultValue = route }
-            addArgument(argument.component1(), argument.component2())
-            id = internalRoute.hashCode()
+            this.route = route
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
@@ -53,22 +47,4 @@ public fun NavGraphBuilder.composable(
             }
         }
     )
-}
-
-/**
- * Construct a nested [NavGraph]
- *
- * @sample androidx.navigation.compose.samples.NestedNavStartDestination
- * @sample androidx.navigation.compose.samples.NestedNavInGraph
- */
-public fun NavGraphBuilder.navigation(
-    startDestination: String,
-    route: String,
-    builder: NavGraphBuilder.() -> Unit
-): Unit = navigation(
-    createRoute(route).hashCode(),
-    createRoute(startDestination).hashCode()
-) {
-    deepLink(createRoute(route))
-    apply(builder)
 }

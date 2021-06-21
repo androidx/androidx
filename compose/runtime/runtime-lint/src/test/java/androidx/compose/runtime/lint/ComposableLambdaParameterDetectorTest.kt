@@ -18,7 +18,7 @@
 
 package androidx.compose.runtime.lint
 
-import androidx.compose.lint.Stubs
+import androidx.compose.lint.test.Stubs
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -55,7 +55,7 @@ class ComposableLambdaParameterDetectorTest : LintDetectorTest() {
                 }
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expect(
@@ -91,7 +91,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 7: Rename text to content:
                 }
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expect(
@@ -119,7 +119,7 @@ src/androidx/compose/ui/foo/test.kt:7: Warning: Composable lambda parameter shou
                 }
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expect(
@@ -160,7 +160,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 7: Rename text to content:
                 }
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expect(
@@ -196,7 +196,7 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 }
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expectClean()
@@ -214,15 +214,48 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 @Composable
                 fun Button(
                     text: @Composable (() -> Unit)?,
-                    icon: @Composable () -> Unit,
+                    foo: Int
+                ) {}
+
+                @Composable
+                fun Button2(
+                    text: (@Composable () -> Unit)?,
                     foo: Int
                 ) {}
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
-            .expectClean()
+            .expect(
+                """
+src/androidx/compose/ui/foo/test.kt:8: Warning: Composable lambda parameter should be named content [ComposableLambdaParameterNaming]
+                    text: @Composable (() -> Unit)?,
+                    ~~~~
+src/androidx/compose/ui/foo/test.kt:14: Warning: Composable lambda parameter should be named content [ComposableLambdaParameterNaming]
+                    text: (@Composable () -> Unit)?,
+                    ~~~~
+src/androidx/compose/ui/foo/test.kt:8: Warning: Composable lambda parameter should be the last parameter so it can be used as a trailing lambda [ComposableLambdaParameterPosition]
+                    text: @Composable (() -> Unit)?,
+                    ~~~~
+src/androidx/compose/ui/foo/test.kt:14: Warning: Composable lambda parameter should be the last parameter so it can be used as a trailing lambda [ComposableLambdaParameterPosition]
+                    text: (@Composable () -> Unit)?,
+                    ~~~~
+0 errors, 4 warnings
+            """
+            )
+            .expectFixDiffs(
+                """
+Fix for src/androidx/compose/ui/foo/test.kt line 8: Rename text to content:
+@@ -8 +8
+-                     text: @Composable (() -> Unit)?,
++                     content: @Composable (() -> Unit)?,
+Fix for src/androidx/compose/ui/foo/test.kt line 14: Rename text to content:
+@@ -14 +14
+-                     text: (@Composable () -> Unit)?,
++                     content: (@Composable () -> Unit)?,
+            """
+            )
     }
 
     @Test
@@ -240,7 +273,7 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 fun FooScope.Button(foo: Int) {}
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expectClean()
@@ -261,7 +294,7 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 fun Button(foo: @Composable (Int, Boolean) -> Unit) {}
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expectClean()
@@ -282,7 +315,7 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 }
             """
             ),
-            kotlin(Stubs.Composable)
+            Stubs.Composable
         )
             .run()
             .expectClean()

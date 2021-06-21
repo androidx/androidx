@@ -21,7 +21,10 @@ import androidx.compose.material.icons.generator.IconWriter
 import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Project
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import java.io.File
 
 /**
  * Task responsible for converting core icons from xml to a programmatic representation.
@@ -36,13 +39,17 @@ open class CoreIconGenerationTask : IconGenerationTask() {
          * Registers [CoreIconGenerationTask] in [project].
          */
         fun register(project: Project, variant: BaseVariant? = null) {
-            val task = project.createGenerationTask(
+            val (task, buildDirectory) = project.registerGenerationTask(
                 "generateCoreIcons",
                 CoreIconGenerationTask::class.java,
                 variant
             )
-            if (variant == null) registerIconGenerationTask(project, task) // multiplatform
-            else variant.registerIconGenerationTask(task) // agp
+            // Multiplatform
+            if (variant == null) {
+                registerIconGenerationTask(project, task, buildDirectory)
+            }
+            // AGP
+            else variant.registerIconGenerationTask(project, task, buildDirectory)
         }
     }
 }
@@ -60,33 +67,88 @@ open class ExtendedIconGenerationTask : IconGenerationTask() {
          * Registers [ExtendedIconGenerationTask] in [project]. (for use with mpp)
          */
         fun register(project: Project, variant: BaseVariant? = null) {
-            val task = project.createGenerationTask(
+            val (task, buildDirectory) = project.registerGenerationTask(
                 "generateExtendedIcons",
                 ExtendedIconGenerationTask::class.java,
                 variant
             )
-            if (variant == null) registerIconGenerationTask(project, task) // multiplatform
-            else variant.registerIconGenerationTask(task) // agp
+            // Multiplatform
+            if (variant == null) {
+                registerIconGenerationTask(project, task, buildDirectory)
+            }
+            // AGP
+            else variant.registerIconGenerationTask(project, task, buildDirectory)
+        }
+
+        /**
+         * Registers the icon generation task just for source jar generation, and not for
+         * compilation. This is temporarily needed since we manually parallelize compilation in
+         * material-icons-extended for the AGP build. When we remove that parallelization code,
+         * we can remove this too.
+         */
+        @JvmStatic
+        fun registerSourceJarOnly(project: Project, variant: BaseVariant) {
+            // Setup the source jar task if this is the release variant
+            if (variant.name == "release") {
+                val (task, buildDirectory) = project.registerGenerationTask(
+                    "generateExtendedIcons",
+                    ExtendedIconGenerationTask::class.java,
+                    variant
+                )
+                val generatedSrcMainDirectory = buildDirectory.resolve(GeneratedSrcMain)
+                project.addToSourceJar(generatedSrcMainDirectory, task)
+            }
         }
     }
 }
 
 /**
- * Helper to register [task] as the Kotlin source generating task for [project].
+ * Helper to register [task] that outputs to [buildDirectory] as the Kotlin source generating
+ * task for [project].
  */
 private fun registerIconGenerationTask(
     project: Project,
-    task: IconGenerationTask
+    task: TaskProvider<*>,
+    buildDirectory: File
 ) {
     val sourceSet = project.getMultiplatformSourceSet(KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME)
-    sourceSet.kotlin.srcDir(project.files(task.generatedSrcMainDirectory).builtBy(task))
+    val generatedSrcMainDirectory = buildDirectory.resolve(IconGenerationTask.GeneratedSrcMain)
+    sourceSet.kotlin.srcDir(project.files(generatedSrcMainDirectory).builtBy(task))
+    project.addToSourceJar(generatedSrcMainDirectory, task)
 }
 
 /**
- * Helper to register [task] as the java source generating task.
+ * Helper to register [task] as the java source generating task that outputs to [buildDirectory].
  */
 private fun BaseVariant.registerIconGenerationTask(
-    task: IconGenerationTask
+    project: Project,
+    task: TaskProvider<*>,
+    buildDirectory: File
 ) {
-    registerJavaGeneratingTask(task, task.generatedSrcMainDirectory)
+    val generatedSrcMainDirectory = buildDirectory.resolve(IconGenerationTask.GeneratedSrcMain)
+    registerJavaGeneratingTask(task, generatedSrcMainDirectory)
+    // Setup the source jar task if this is the release variant
+    if (name == "release") {
+        project.addToSourceJar(generatedSrcMainDirectory, task)
+    }
+}
+
+/**
+ * Adds the contents of [buildDirectory] to the source jar generated for this [Project] by [task]
+ */
+// TODO: b/191485164 remove when AGP lets us get generated sources from a TestedExtension or
+// similar, then we can just add generated sources in SourceJarTaskHelper for all projects,
+// instead of needing one-off support here.
+private fun Project.addToSourceJar(buildDirectory: File, task: TaskProvider<*>) {
+    afterEvaluate {
+        val sourceJar = tasks.named("sourceJarRelease", Jar::class.java)
+        sourceJar.configure {
+            // Generating source jars requires the generation task to run first. This shouldn't
+            // be needed for the MPP build because we use builtBy to set up the dependency
+            // (https://github.com/gradle/gradle/issues/17250) but the path is different for AGP,
+            // so we will still need this for the AGP build.
+            it.dependsOn(task)
+            it.from(buildDirectory)
+        }
+    }
 }

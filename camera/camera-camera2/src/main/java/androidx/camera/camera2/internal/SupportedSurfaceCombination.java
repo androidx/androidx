@@ -38,6 +38,7 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
+import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
@@ -88,6 +89,8 @@ final class SupportedSurfaceCombination {
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
     private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
+    private final ExtraSupportedSurfaceCombinationsContainer
+            mExtraSupportedSurfaceCombinationsContainer;
     private final int mHardwareLevel;
     private final boolean mIsSensorLandscapeResolution;
     private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
@@ -105,6 +108,8 @@ final class SupportedSurfaceCombination {
         WindowManager windowManager =
                 (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
+        mExtraSupportedSurfaceCombinationsContainer =
+                new ExtraSupportedSurfaceCombinationsContainer(cameraId);
 
         try {
             mCharacteristics = cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId);
@@ -1153,6 +1158,8 @@ final class SupportedSurfaceCombination {
         if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
             mSurfaceCombinations.addAll(getLevel3SupportedCombinationList());
         }
+
+        mSurfaceCombinations.addAll(mExtraSupportedSurfaceCombinationsContainer.get());
     }
 
     private void checkCustomization() {

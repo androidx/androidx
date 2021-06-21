@@ -20,6 +20,7 @@ import android.os.Looper
 import androidx.fragment.app.StrictFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -35,6 +36,8 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class FragmentStrictModeTest {
+    private val fragmentClass = StrictFragment::class.java
+
     private lateinit var originalPolicy: FragmentStrictMode.Policy
 
     @Before
@@ -56,7 +59,8 @@ public class FragmentStrictModeTest {
 
         var violation: Violation? = null
         try {
-            FragmentStrictMode.onPolicyViolation(StrictFragment(), object : Violation() {})
+            val fragment = StrictFragment()
+            FragmentStrictMode.onPolicyViolation(object : Violation(fragment) {})
         } catch (thrown: Violation) {
             violation = thrown
         }
@@ -66,7 +70,6 @@ public class FragmentStrictModeTest {
     @Test
     public fun policyHierarchy() {
         var lastTriggeredPolicy = ""
-        val violation = object : Violation() {}
 
         fun policy(name: String) = FragmentStrictMode.Policy.Builder()
             .penaltyListener { lastTriggeredPolicy = name }
@@ -87,18 +90,20 @@ public class FragmentStrictModeTest {
                 .commit()
             executePendingTransactions()
 
+            val violation = object : Violation(childFragment) {}
+
             FragmentStrictMode.setDefaultPolicy(policy("Default policy"))
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Default policy")
 
             fragmentManager.strictModePolicy = policy("Parent policy")
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Parent policy")
 
             parentFragment.childFragmentManager.strictModePolicy = policy("Child policy")
-            FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            FragmentStrictMode.onPolicyViolation(violation)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Child policy")
         }
@@ -122,12 +127,133 @@ public class FragmentStrictModeTest {
                 .commit()
             executePendingTransactions()
 
-            FragmentStrictMode.onPolicyViolation(fragment, object : Violation() {})
+            FragmentStrictMode.onPolicyViolation(object : Violation(fragment) {})
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(thread).isEqualTo(Looper.getMainLooper().thread)
         }
     }
 
+    @Test
+    public fun detectFragmentReuse() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectFragmentReuse()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = StrictFragment()
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            fragmentManager.beginTransaction()
+                .remove(fragment)
+                .commit()
+            executePendingTransactions()
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to reuse fragment $fragment with previous ID ${fragment.mPreviousWho}"
+            )
+        }
+    }
+
+    @Test
+    public fun detectFragmentReuseInFlightTransaction() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectFragmentReuse()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = StrictFragment()
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            fragmentManager.beginTransaction()
+                .remove(fragment)
+                .commit()
+            // Don't execute transaction here, keep it in-flight
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to reuse fragment $fragment with previous ID ${fragment.mPreviousWho}"
+            )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    public fun detectFragmentTagUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectFragmentTagUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity { setContentView(R.layout.activity_inflated_fragment) }
+            val fragment = withActivity {
+                supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
+            }
+            val container = withActivity { findViewById(R.id.inflated_layout) }
+            assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to use <fragment> tag to add fragment $fragment to container $container"
+            )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    public fun detectRetainInstanceUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        val fragment = StrictFragment()
+        fragment.retainInstance = true
+        assertThat(violation).isInstanceOf(SetRetainInstanceUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set retain instance for fragment $fragment"
+        )
+
+        violation = null
+        fragment.retainInstance
+        assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get retain instance for fragment $fragment"
+        )
+    }
+
+    @Suppress("DEPRECATION")
     @Test
     public fun detectSetUserVisibleHint() {
         var violation: Violation? = null
@@ -137,8 +263,121 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        @Suppress("DEPRECATION")
-        StrictFragment().userVisibleHint = true
+        val fragment = StrictFragment()
+        fragment.userVisibleHint = true
         assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set user visible hint to true for fragment $fragment"
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    public fun detectTargetFragmentUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectTargetFragmentUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        val fragment = StrictFragment()
+        val targetFragment = StrictFragment()
+        val requestCode = 1
+        fragment.setTargetFragment(targetFragment, requestCode)
+        assertThat(violation).isInstanceOf(SetTargetFragmentUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set target fragment $targetFragment " +
+                "with request code $requestCode for fragment $fragment"
+        )
+
+        violation = null
+        fragment.targetFragment
+        assertThat(violation).isInstanceOf(GetTargetFragmentUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get target fragment from fragment $fragment"
+        )
+
+        violation = null
+        fragment.targetRequestCode
+        assertThat(violation).isInstanceOf(GetTargetFragmentRequestCodeUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get target request code from fragment $fragment"
+        )
+    }
+
+    @Test
+    public fun detectWrongFragmentContainer() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectWrongFragmentContainer()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictFragment()
+            fragmentManager.beginTransaction()
+                .add(R.id.content, fragment1)
+                .commit()
+            executePendingTransactions()
+            val container1 = withActivity { findViewById(R.id.content) }
+            assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to add fragment $fragment1 to container " +
+                    "$container1 which is not a FragmentContainerView"
+            )
+
+            violation = null
+            val fragment2 = StrictFragment()
+            fragmentManager.beginTransaction()
+                .replace(R.id.content, fragment2)
+                .commit()
+            executePendingTransactions()
+            val container2 = withActivity { findViewById(R.id.content) }
+            assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to add fragment $fragment2 to container " +
+                    "$container2 which is not a FragmentContainerView"
+            )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    public fun detectAllowedViolations() {
+        val violationClass1 = RetainInstanceUsageViolation::class.java
+        val violationClass2 = SetUserVisibleHintViolation::class.java
+        val violationClass3 = GetTargetFragmentUsageViolation::class.java
+        val violationClassList = listOf(violationClass1, violationClass2, violationClass3)
+
+        var violation: Violation? = null
+        var policyBuilder = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .detectSetUserVisibleHint()
+            .penaltyListener { violation = it }
+        for (violationClass in violationClassList) {
+            policyBuilder = policyBuilder.allowViolation(fragmentClass, violationClass)
+        }
+        FragmentStrictMode.setDefaultPolicy(policyBuilder.build())
+
+        StrictFragment().retainInstance = true
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(SetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        StrictFragment().retainInstance
+        assertThat(violation).isNotInstanceOf(violationClass1)
+        assertThat(violation).isNotInstanceOf(GetRetainInstanceUsageViolation::class.java)
+
+        violation = null
+        StrictFragment().userVisibleHint = true
+        assertThat(violation).isNotInstanceOf(violationClass2)
+
+        violation = null
+        StrictFragment().targetFragment
+        assertThat(violation).isNotInstanceOf(violationClass3)
     }
 }

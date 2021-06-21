@@ -21,7 +21,6 @@
     <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> အား <xliff:g id="APP_2">%2$s</xliff:g> ၏အချပ်များ ပြသခွင့်ပြုပါသလား။"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- ၎င်းသည် <xliff:g id="APP">%1$s</xliff:g> မှ အချက်အလက်ကို ဖတ်နိုင်သည်"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- ၎င်းသည် <xliff:g id="APP">%1$s</xliff:g> အတွင်း လုပ်ဆောင်ချက်များ ပြုလုပ်နိုင်သည်"</string>
-    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"မည်သည့်အက်ပ်မဆိုမှ အချပ်များ ပြသရန်အတွက် <xliff:g id="APP">%1$s</xliff:g> ကို ခွင့်ပြုရန်"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"ခွင့်ပြုရန်"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"ငြင်းပယ်ရန်"</string>
 </resources>

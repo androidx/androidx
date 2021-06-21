@@ -30,86 +30,86 @@ open class OngoingActivityPartTest {
     @Test
     fun testTextOngoingActivityStatusBasic() {
         val text = "Text"
-        val textStatus = TextStatusPart(text)
+        val textStatus = Status.TextPart(text)
 
         assertEquals(Long.MAX_VALUE, textStatus.getNextChangeTimeMillis(0))
 
         assertEquals(text, textStatus.getText(context, 0))
 
-        assertEquals(TextStatusPart(text), textStatus)
-        assertNotEquals(TextStatusPart("Other"), textStatus)
+        assertEquals(Status.TextPart(text), textStatus)
+        assertNotEquals(Status.TextPart("Other"), textStatus)
 
-        assertEquals(TextStatusPart(text).hashCode(), textStatus.hashCode())
+        assertEquals(Status.TextPart(text).hashCode(), textStatus.hashCode())
         assertEquals(
-            TextStatusPart("Other").hashCode(),
-            TextStatusPart("Other").hashCode()
+            Status.TextPart("Other").hashCode(),
+            Status.TextPart("Other").hashCode()
         )
     }
 
     @Test
     fun testTimerOngoingActivityStatusBasic() {
         assertEquals(
-            TimerStatusPart(1234L),
-            TimerStatusPart(1234L)
+            Status.StopwatchPart(1234L),
+            Status.StopwatchPart(1234L)
         )
         assertEquals(
-            TimerStatusPart(1234L).hashCode(),
-            TimerStatusPart(1234L).hashCode()
+            Status.StopwatchPart(1234L).hashCode(),
+            Status.StopwatchPart(1234L).hashCode()
         )
         assertNotEquals(
-            TimerStatusPart(1234L),
-            TimerStatusPart(1235L)
+            Status.StopwatchPart(1234L),
+            Status.StopwatchPart(1235L)
         )
 
         assertEquals(
-            TimerStatusPart(1234L, true),
-            TimerStatusPart(1234L, true)
+            Status.TimerPart(1234L),
+            Status.TimerPart(1234L)
         )
         assertEquals(
-            TimerStatusPart(1234L, true).hashCode(),
-            TimerStatusPart(1234L, true).hashCode()
+            Status.TimerPart(1234L).hashCode(),
+            Status.TimerPart(1234L).hashCode()
         )
         assertNotEquals(
-            TimerStatusPart(1234L, false),
-            TimerStatusPart(1234L, true)
+            Status.StopwatchPart(1234L),
+            Status.TimerPart(1234L)
         )
 
         assertEquals(
-            TimerStatusPart(1234L, true, 5678L),
-            TimerStatusPart(1234L, true, 5678L)
+            Status.TimerPart(1234L, 5678L),
+            Status.TimerPart(1234L, 5678L)
         )
         assertEquals(
-            TimerStatusPart(1234L, true, 5678L).hashCode(),
-            TimerStatusPart(1234L, true, 5678L).hashCode()
+            Status.TimerPart(1234L, 5678L).hashCode(),
+            Status.TimerPart(1234L, 5678L).hashCode()
         )
         assertNotEquals(
-            TimerStatusPart(1234L, true, 5678L),
-            TimerStatusPart(1234L, true, 5679L)
+            Status.TimerPart(1234L, 5678L),
+            Status.TimerPart(1234L, 5679L)
         )
         assertNotEquals(
-            TimerStatusPart(1234L, true, 5678L),
-            TimerStatusPart(1234L, true)
+            Status.TimerPart(1234L, 5678L),
+            Status.TimerPart(1234L)
         )
 
         assertEquals(
-            TimerStatusPart(1234L, true, 5678L, 100L),
-            TimerStatusPart(1234L, true, 5678L, 100L)
+            Status.TimerPart(1234L, 5678L, 100L),
+            Status.TimerPart(1234L, 5678L, 100L)
         )
         assertEquals(
-            TimerStatusPart(1234L, true, 5678L, 100L).hashCode(),
-            TimerStatusPart(1234L, true, 5678L, 100L).hashCode()
+            Status.TimerPart(1234L, 5678L, 100L).hashCode(),
+            Status.TimerPart(1234L, 5678L, 100L).hashCode()
         )
         assertNotEquals(
-            TimerStatusPart(1234L, true, 5678L, 100L),
-            TimerStatusPart(1234L, true, 5678L, 101L)
+            Status.TimerPart(1234L, 5678L, 100L),
+            Status.TimerPart(1234L, 5678L, 101L)
         )
         assertNotEquals(
-            TimerStatusPart(1234L, true, 5678L, 100L),
-            TimerStatusPart(1234L, true, 5678L)
+            Status.TimerPart(1234L, 5678L, 100L),
+            Status.TimerPart(1234L, 5678L)
         )
         assertNotEquals(
-            TimerStatusPart(1234L, true, 5678L, 100L),
-            TimerStatusPart(1234L, true)
+            Status.TimerPart(1234L, 5678L, 100L),
+            Status.TimerPart(1234L)
         )
     }
 
@@ -117,16 +117,15 @@ open class OngoingActivityPartTest {
     fun testOngoingActivityStatusSerialization() {
         val key = "KEY"
         listOf(
-            TimerStatusPart(1234L),
-            TextStatusPart("Text1"),
-            TimerStatusPart(1234L, false),
-            TimerStatusPart(1234L, true),
-            TimerStatusPart(1234L, true, 5678L),
-            TextStatusPart("Text2"),
-            TimerStatusPart(1234L, false, 5678L, 100L)
+            Status.StopwatchPart(1234L),
+            Status.TextPart("Text1"),
+            Status.TimerPart(1234L),
+            Status.TimerPart(1234L, 5678L),
+            Status.TextPart("Text2"),
+            Status.StopwatchPart(1234L, 5678L, 100L)
         ).forEach { original ->
             val bundle = Bundle()
-            ParcelUtils.putVersionedParcelable(bundle, key, original)
+            ParcelUtils.putVersionedParcelable(bundle, key, original.toVersionedParcelable())
 
             val p = Parcel.obtain()
             p.writeParcelable(bundle, 0)
@@ -134,8 +133,9 @@ open class OngoingActivityPartTest {
 
             val receivedBundle = p.readParcelable<Bundle>(Bundle::class.java.classLoader)!!
 
-            val received = ParcelUtils.getVersionedParcelable<StatusPart>(receivedBundle, key)!!
-            assertEquals(original::class, received::class)
+            val received = Status.Part.fromVersionedParcelable(
+                ParcelUtils.getVersionedParcelable<StatusPart>(receivedBundle, key)
+            )!!
             assertEquals(original, received)
             assertEquals(original.hashCode(), received.hashCode())
         }
@@ -143,27 +143,21 @@ open class OngoingActivityPartTest {
 
     @Test
     fun testTimerOngoingActivityStatusGetters() {
-        TimerStatusPart(123L).also {
+        Status.StopwatchPart(123L).also {
             assertEquals(123L, it.timeZeroMillis)
-            assertFalse(it.isPaused)
-            assertFalse(it.hasTotalDuration())
-        }
-
-        TimerStatusPart(1234L, false).also {
-            assertEquals(1234L, it.timeZeroMillis)
             assertFalse(it.isCountDown)
             assertFalse(it.isPaused)
             assertFalse(it.hasTotalDuration())
         }
 
-        TimerStatusPart(12345L, true).also {
+        Status.TimerPart(12345L).also {
             assertEquals(12345L, it.timeZeroMillis)
             assertTrue(it.isCountDown)
             assertFalse(it.isPaused)
             assertFalse(it.hasTotalDuration())
         }
 
-        TimerStatusPart(2345L, false, 3456L).also {
+        Status.StopwatchPart(2345L, 3456L).also {
             assertEquals(2345L, it.timeZeroMillis)
             assertFalse(it.isCountDown)
             assertTrue(it.isPaused)
@@ -171,7 +165,7 @@ open class OngoingActivityPartTest {
             assertFalse(it.hasTotalDuration())
         }
 
-        TimerStatusPart(4567L, true, 7890L, 12000L).also {
+        Status.TimerPart(4567L, 7890L, 12000L).also {
             assertEquals(4567L, it.timeZeroMillis)
             assertTrue(it.isCountDown)
             assertTrue(it.isPaused)
@@ -187,10 +181,10 @@ open class OngoingActivityPartTest {
         // timestamp 0).
         val t0 = 123456L
         val timerStatus =
-            TimerStatusPart(/* timeZeroMillis = */ t0)
+            Status.StopwatchPart(/* timeZeroMillis = */ t0)
 
         // The chronometer is not paused.
-        assertFalse(timerStatus.isPaused())
+        assertFalse(timerStatus.isPaused)
 
         // The chronometer will always change at timestamps ending in 456.
         assertEquals(456L, timerStatus.getNextChangeTimeMillis(0L))
@@ -219,13 +213,10 @@ open class OngoingActivityPartTest {
         // Create a timer, set to expire at the given timestamp (around 2 minutes after
         // timestamp 0).
         val t0 = 123456L
-        val timerStatus = TimerStatusPart(
-            /* timeZeroMillis = */ t0,
-            /* countDown = */ true
-        )
+        val timerStatus = Status.TimerPart(t0)
 
         // The Timer is not paused.
-        assertFalse(timerStatus.isPaused())
+        assertFalse(timerStatus.isPaused)
 
         // The timer will always change at timestamps ending in 456.
         assertEquals(456L, timerStatus.getNextChangeTimeMillis(0L))
@@ -251,9 +242,8 @@ open class OngoingActivityPartTest {
     @Test
     fun testTimerOngoingActivityStatusChronometerPaused() {
         val t0 = 123456L
-        var timerStatus = TimerStatusPart(
+        var timerStatus = Status.StopwatchPart(
             /* timeZeroMillis = */ t0,
-            /* countDown = */ false,
             /* pausedAt = */ t0 + 1999
         )
 
@@ -276,9 +266,8 @@ open class OngoingActivityPartTest {
     @Test
     fun testTimerOngoingActivityStatusTimerPaused() {
         val t0 = 123456L
-        var timerStatus = TimerStatusPart(
+        var timerStatus = Status.TimerPart(
             /* timeZeroMillis = */ t0,
-            /* countDown = */ true,
             /* pausedAt = */ t0 + 1999
         )
 

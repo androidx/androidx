@@ -18,6 +18,7 @@ package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
@@ -52,7 +53,7 @@ fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runBlockin
                 composition.setContent(block)
             }
 
-            override fun advance(ignorePendingWork: Boolean): Boolean {
+            override fun advanceCount(ignorePendingWork: Boolean): Long {
                 val changeCount = recomposer.changeCount
                 Snapshot.sendApplyNotifications()
                 if (recomposer.hasPendingWork) {
@@ -61,8 +62,16 @@ fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runBlockin
                         "Potentially infinite recomposition, still recomposing after advancing"
                     }
                 }
-                return recomposer.changeCount != changeCount
+                return recomposer.changeCount - changeCount
             }
+
+            override fun advance(ignorePendingWork: Boolean) = advanceCount(ignorePendingWork) != 0L
+
+            override fun verifyConsistent() {
+                (composition as? ControlledComposition)?.verifyConsistent()
+            }
+
+            override var validator: (MockViewValidator.() -> Unit)? = null
         }
         scope.block()
         scope.composition?.dispose()
@@ -88,16 +97,37 @@ interface CompositionTestScope : TestCoroutineScope {
     fun advance(ignorePendingWork: Boolean = false): Boolean
 
     /**
+     * Advance counting the number of time the recomposer ran.
+     */
+    fun advanceCount(ignorePendingWork: Boolean = false): Long
+
+    /**
+     * Verify the composition is well-formed.
+     */
+    fun verifyConsistent()
+
+    /**
      * The root mock view of the mock views being composed.
      */
     val root: View
+
+    /**
+     * The last validator used.
+     */
+    var validator: (MockViewValidator.() -> Unit)?
 }
 
 /**
  * Create a mock view validator and validate the view.
  */
 fun CompositionTestScope.validate(block: MockViewValidator.() -> Unit) =
-    MockViewListValidator(root.children).validate(block)
+    MockViewListValidator(root.children).validate(block).also { validator = block }
+
+/**
+ * Revalidate using the last validator
+ */
+fun CompositionTestScope.revalidate() =
+    validate(validator ?: error("validate was not called"))
 
 /**
  * Advance and expect changes

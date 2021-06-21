@@ -90,7 +90,7 @@ public class RemoteInputIntentHelper private constructor() {
          * .createActionRemoteInputIntent].
          *
          * @param intent The intent with given data.
-         * @return The array of [RemoteInput] previously added with [.putRemoteInputsExtra] or null
+         * @return The array of [RemoteInput] previously added with [putRemoteInputsExtra] or null
          * which means no user input required.
          */
         @JvmStatic
@@ -107,7 +107,7 @@ public class RemoteInputIntentHelper private constructor() {
 
         /**
          * Adds the array of [RemoteInput] to the given [Intent] that specifies inputs collected
-         * from a user. Should be used with [Intent] created with [.createActionRemoteInputIntent].
+         * from a user. Should be used with [Intent] created with [createActionRemoteInputIntent].
          *
          * @param intent The intent with given data.
          * @param remoteInputs The array of [RemoteInput] to be added.
@@ -120,107 +120,109 @@ public class RemoteInputIntentHelper private constructor() {
         ): Intent = intent.putExtra(EXTRA_REMOTE_INPUTS, ArrayList(remoteInputs))
 
         /**
-         * Returns the [String] from the given [Intent] that specifies what is displayed on top of
-         * the confirmation screen to describe the action.
+         * Returns the [CharSequence] from the given [Intent] that specifies what is displayed on
+         * top of the confirmation screen to describe the action.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putTitleExtra] or null if no value is found.
+         * @return The CharSequence previously added with [putTitleExtra] or null if no value is
+         * found.
          */
         @JvmStatic
         @Nullable
-        public fun getTitleExtra(intent: Intent): String? = intent.getStringExtra(EXTRA_TITLE)
+        public fun getTitleExtra(intent: Intent): CharSequence? =
+            intent.getCharSequenceExtra(EXTRA_TITLE)
 
         /**
-         * Adds the [String] to the given [Intent] that specifies what is displayed on top of
+         * Adds the [CharSequence] to the given [Intent] that specifies what is displayed on top of
          * the confirmation screen to describe the action like "SMS" or "Email".
          *
          * @param intent The intent with given data.
-         * @param title The string to be added.
+         * @param title The CharSequence to be added.
          * @return The given intent.
          */
         @JvmStatic
         @NonNull
-        public fun putTitleExtra(intent: Intent, title: String): Intent =
+        public fun putTitleExtra(intent: Intent, title: CharSequence): Intent =
             intent.putExtra(EXTRA_TITLE, title)
 
         /**
-         * Returns the [String] from the given [Intent] that specifies what is displayed to
+         * Returns the [CharSequence] from the given [Intent] that specifies what is displayed to
          * cancel the action.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putCancelLabelExtra] or null if no value is
-         * found.
+         * @return The CharSequence previously added with [putCancelLabelExtra] or null if no value
+         * is found.
          */
         @JvmStatic
         @Nullable
-        public fun getCancelLabelExtra(intent: Intent): String? =
-            intent.getStringExtra(EXTRA_CANCEL_LABEL)
+        public fun getCancelLabelExtra(intent: Intent): CharSequence? =
+            intent.getCharSequenceExtra(EXTRA_CANCEL_LABEL)
 
         /**
-         * Adds the [String] to the given [Intent] that specifies what is displayed to cancel the
-         * action. This is usually an imperative verb, like "Cancel". Defaults to Cancel.
+         * Adds the [CharSequence] to the given [Intent] that specifies what is displayed to cancel
+         * the action. This is usually an imperative verb, like "Cancel". Defaults to Cancel.
          *
          * @param intent The intent with given data.
-         * @param label The string to be added.
+         * @param label The CharSequence to be added.
          * @return The given intent.
          */
         @JvmStatic
         @NonNull
-        public fun putCancelLabelExtra(intent: Intent, label: String): Intent =
+        public fun putCancelLabelExtra(intent: Intent, label: CharSequence): Intent =
             intent.putExtra(EXTRA_CANCEL_LABEL, label)
 
         /**
-         * Returns the [String] from the given [Intent] that specifies what is displayed to
+         * Returns the [CharSequence] from the given [Intent] that specifies what is displayed to
          * confirm that the action should be executed.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putConfirmLabelExtra] or null if no value is
-         * found.
+         * @return The CharSequence previously added with [putConfirmLabelExtra] or null if no value
+         * is found.
          */
         @JvmStatic
         @Nullable
-        public fun getConfirmLabelExtra(intent: Intent): String? =
-            intent.getStringExtra(EXTRA_CONFIRM_LABEL)
+        public fun getConfirmLabelExtra(intent: Intent): CharSequence? =
+            intent.getCharSequenceExtra(EXTRA_CONFIRM_LABEL)
 
         /**
-         * Adds the [String] to the given [Intent] that specifies what is displayed to confirm that
-         * the action should be executed. This is usually an imperative verb like "Send".
+         * Adds the [CharSequence] to the given [Intent] that specifies what is displayed to confirm
+         * that the action should be executed. This is usually an imperative verb like "Send".
          * Defaults to "Send".
          *
          * @param intent The intent with given data.
-         * @param label The string to be added.
+         * @param label The CharSequence to be added.
          * @return The given intent.
          */
         @JvmStatic
         @NonNull
-        public fun putConfirmLabelExtra(intent: Intent, label: String): Intent =
+        public fun putConfirmLabelExtra(intent: Intent, label: CharSequence): Intent =
             intent.putExtra(EXTRA_CONFIRM_LABEL, label)
 
         /**
-         * Returns the [String] from the given [Intent] that specifies what is displayed while the
-         * wearable is preparing to automatically execute the action.
+         * Returns the [CharSequence] from the given [Intent] that specifies what is displayed while
+         * the wearable is preparing to automatically execute the action.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putInProgressLabelExtra] or null if no
+         * @return The CharSequence previously added with [putInProgressLabelExtra] or null if no
          * value is found.
          */
         @JvmStatic
         @Nullable
-        public fun getInProgressLabelExtra(intent: Intent): String? =
-            intent.getStringExtra(EXTRA_IN_PROGRESS_LABEL)
+        public fun getInProgressLabelExtra(intent: Intent): CharSequence? =
+            intent.getCharSequenceExtra(EXTRA_IN_PROGRESS_LABEL)
 
         /**
-         * Adds the [String] to the given [Intent] that specifies what is displayed while the
+         * Adds the [CharSequence] to the given [Intent] that specifies what is displayed while the
          * wearable is preparing to automatically execute the action. This is usually a 'ing'
          * verb ending in ellipsis like "Sending...". Defaults to "Sending...".
          *
          * @param intent The intent with given data.
-         * @param label The string to be added.
+         * @param label The CharSequence to be added.
          * @return The given intent.
          */
         @JvmStatic
         @NonNull
-        public fun putInProgressLabelExtra(intent: Intent, label: String): Intent =
+        public fun putInProgressLabelExtra(intent: Intent, label: CharSequence): Intent =
             intent.putExtra(EXTRA_IN_PROGRESS_LABEL, label)
 
         /**
@@ -228,7 +230,7 @@ public class RemoteInputIntentHelper private constructor() {
          * creating Smart Reply choices within a RemoteInput session.
          *
          * @param intent The intent with given data.
-         * @return The array of [CharSequence] previously added with [.putSmartReplyContext] or [
+         * @return The array of [CharSequence] previously added with [putSmartReplyContext] or [
          * .putSmartReplyContextExtra] or null if no value is found.
          */
         @JvmStatic

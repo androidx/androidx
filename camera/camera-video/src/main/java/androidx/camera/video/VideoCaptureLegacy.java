@@ -42,7 +42,7 @@ import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_BIT_RAT
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_INTRA_FRAME_INTERVAL;
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_VIDEO_FRAME_RATE;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -72,6 +72,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -98,6 +99,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.utils.VideoUtil;
 import androidx.camera.video.impl.VideoCaptureLegacyConfig;
+import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Consumer;
@@ -317,6 +319,7 @@ public final class VideoCaptureLegacy extends UseCase {
      * @hide
      */
     @Override
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
@@ -351,6 +354,7 @@ public final class VideoCaptureLegacy extends UseCase {
      * @param callback          Callback for when the recorded video saving completion or failure.
      */
     @SuppressWarnings("ObjectToString")
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
@@ -593,6 +597,7 @@ public final class VideoCaptureLegacy extends UseCase {
      */
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureLegacyConfig config = (VideoCaptureLegacyConfig) getCurrentConfig();
 
@@ -623,6 +628,7 @@ public final class VideoCaptureLegacy extends UseCase {
 
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
+            @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 // Ensure the attached camera has not changed before calling setupEncoder.
@@ -932,6 +938,7 @@ public final class VideoCaptureLegacy extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureLegacyConfig config) {
         for (short audioFormat : sAudioEncoding) {
 
@@ -1016,7 +1023,6 @@ public final class VideoCaptureLegacy extends UseCase {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
@@ -1034,7 +1040,7 @@ public final class VideoCaptureLegacy extends UseCase {
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -1061,7 +1067,8 @@ public final class VideoCaptureLegacy extends UseCase {
                     mParcelFileDescriptor =
                             outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
-                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                    mediaMuxer = Api26Impl.createMediaMuxer(
+                            mParcelFileDescriptor.getFileDescriptor(),
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {

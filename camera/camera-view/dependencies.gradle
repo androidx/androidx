@@ -16,5 +16,5 @@
 
 ext {
     // camera-view temporarily pins same-group depenencies to RC/stable until beta
-    VIEW_ATOMIC_GROUP_PINNED_VER = "1.0.0-rc03"
+    VIEW_ATOMIC_GROUP_PINNED_VER = "1.0.0-rc05"
 }

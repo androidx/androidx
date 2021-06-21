@@ -18,31 +18,41 @@ package sample.optin
 
 import androidx.annotation.OptIn
 
-import sample.optin.foo.Bar
-import sample.optin.foo.ExperimentalPackage
+import sample.optin.foo.AnnotatedJavaPackage
 
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class UseJavaPackageFromKt {
+
     /**
-     * Unsafe call into a class within an experimental package.
+     * Unsafe call into a method on a class within an experimental package.
      */
     fun callPackageUnsafe() {
-        val bar = Bar()
-        bar.baz()
+        val experimentalObject = AnnotatedJavaPackage()
+        experimentalObject.method()
     }
 
-    @ExperimentalPackage
+    /**
+     * Safe call due to propagation of experimental marker.
+     */
+    @ExperimentalJavaAnnotation
     fun callPackageExperimental() {
-        val bar = Bar()
-        bar.baz()
+        val experimentalObject = AnnotatedJavaPackage()
+        experimentalObject.method()
     }
 
-    @OptIn(ExperimentalPackage::class)
+    /**
+     * Safe call due to opt-in to experimental marker.
+     */
+    @OptIn(ExperimentalJavaAnnotation::class)
     fun callPackageUseExperimental() {
-        val bar = Bar()
-        bar.baz()
+        val experimentalObject = AnnotatedJavaPackage()
+        experimentalObject.method()
     }
 
+    /**
+     * Unsafe call into a method with an unsafe call. This should not be flagged, as the
+     * called method itself is not experimental.
+     */
     fun callSelfUnsafe() {
         callPackageUnsafe()
     }
@@ -54,6 +64,9 @@ class UseJavaPackageFromKt {
         callPackageExperimental()
     }
 
+    /**
+     * Safe call into an opted-in method within this class.
+     */
     fun callSelfUseExperimental() {
         callPackageUseExperimental()
     }

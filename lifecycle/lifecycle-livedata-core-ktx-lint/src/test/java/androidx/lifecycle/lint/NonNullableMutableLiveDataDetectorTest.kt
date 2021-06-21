@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.lifecycle.lint
 
 import androidx.lifecycle.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -199,23 +203,28 @@ src/com/example/test.kt:8: Error: Cannot set non-nullable LiveData value to null
                 import androidx.lifecycle.MutableLiveData
 
                 val liveDataField = MutableLiveData<Boolean>()
-                val secondLiveDataField = MutableLiveData<String>()
+                val secondLiveDataField: MutableLiveData<String> = MutableLiveData()
+                val thirdLiveDataField: MutableLiveData<String> = MutableLiveData<String>("Value")
 
                 fun foo() {
                     liveDataField.value = null
                     secondLiveDataField.value = null
+                    thirdLiveDataField.value = null
                 }
             """
             ).indented()
         ).expect(
             """
-src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
     liveDataField.value = null
                           ~~~~
-src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+src/com/example/test.kt:11: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
     secondLiveDataField.value = null
                                 ~~~~
-2 errors, 0 warnings
+src/com/example/test.kt:12: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    thirdLiveDataField.value = null
+                               ~~~~
+3 errors, 0 warnings
         """
         )
     }
@@ -582,6 +591,167 @@ Fix for src/com/example/MyClass1.kt line 16: Change `LiveData` type to nullable:
     }
 
     @Test
+    fun modifiersFieldTest() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.LiveData
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass1 {
+                    internal val firstLiveDataField = MutableLiveData<Boolean>()
+                    protected val secondLiveDataField = MutableLiveData<Boolean?>()
+
+                    fun foo() {
+                        firstLiveDataField.value = false
+                        firstLiveDataField.value = null
+                        secondLiveDataField.value = null
+                        secondLiveDataField.value = false
+                    }
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/MyClass1.kt:12: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+        firstLiveDataField.value = null
+                                   ~~~~
+1 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/MyClass1.kt line 12: Change `LiveData` type to nullable:
+@@ -7 +7
+-     internal val firstLiveDataField = MutableLiveData<Boolean>()
++     internal val firstLiveDataField = MutableLiveData<Boolean?>()
+        """
+        )
+    }
+
+    @Test
+    fun implementationClassTest() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.LiveData
+                import androidx.lifecycle.MutableLiveData
+
+                interface MyClass2 {
+                    val firstLiveDataField : LiveData<Boolean>
+                    val secondLiveDataField : LiveData<Boolean?>
+                    val thirdLiveDataField : LiveData<Boolean?>
+                    val fourLiveDataField : LiveData<List<Boolean>?>
+                    val fiveLiveDataField : LiveData<List<Boolean>?>
+                }
+
+                class MyClass1 : MyClass2 {
+                    override val firstLiveDataField = MutableLiveData<Boolean>()
+                    override val secondLiveDataField = MutableLiveData<Boolean?>()
+                    override val thirdLiveDataField = MutableLiveData<Boolean?>(null)
+                    override val fourLiveDataField = MutableLiveData<List<Boolean>?>(null)
+                    override val fiveLiveDataField : MutableLiveData<List<Boolean>?> = MutableLiveData(null)
+
+                    fun foo() {
+                        firstLiveDataField.value = false
+                        firstLiveDataField.value = null
+                        secondLiveDataField.value = null
+                        secondLiveDataField.value = false
+                        thirdLiveDataField.value = null
+                        thirdLiveDataField.value = false
+                        fourLiveDataField.value = null
+                        fourLiveDataField.value = emptyList()
+                        fiveLiveDataField.value = null
+                        fiveLiveDataField.value = emptyList()
+                    }
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/MyClass2.kt:23: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+        firstLiveDataField.value = null
+                                   ~~~~
+1 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/MyClass2.kt line 23: Change `LiveData` type to nullable:
+@@ -15 +15
+-     override val firstLiveDataField = MutableLiveData<Boolean>()
++     override val firstLiveDataField = MutableLiveData<Boolean?>()
+        """
+        )
+    }
+
+    @Test
+    fun extendClassTest() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.LiveData
+                import androidx.lifecycle.MutableLiveData
+
+                abstract class MyClass2 {
+                    val firstLiveDataField : LiveData<Boolean>
+                    val secondLiveDataField : LiveData<Boolean?>
+                    val thirdLiveDataField : LiveData<Boolean?>
+                    val fourLiveDataField : LiveData<List<Boolean>?>
+                    val fiveLiveDataField : LiveData<List<Boolean>>
+                }
+
+                class MyClass1 : MyClass2() {
+                    override val firstLiveDataField = MutableLiveData<Boolean>()
+                    override val secondLiveDataField = MutableLiveData<Boolean?>()
+                    override val thirdLiveDataField = MutableLiveData<Boolean?>(null)
+                    override val fourLiveDataField = MutableLiveData<List<Boolean>?>(null)
+                    override val fiveLiveDataField = MutableLiveData<List<Boolean>>()
+
+                    fun foo() {
+                        firstLiveDataField.value = false
+                        firstLiveDataField.value = null
+                        secondLiveDataField.value = null
+                        secondLiveDataField.value = false
+                        thirdLiveDataField.value = null
+                        thirdLiveDataField.value = false
+                        fourLiveDataField.value = null
+                        fourLiveDataField.value = emptyList()
+                        fiveLiveDataField.value = null
+                        fiveLiveDataField.value = emptyList()
+                    }
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/MyClass2.kt:23: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+        firstLiveDataField.value = null
+                                   ~~~~
+src/com/example/MyClass2.kt:30: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+        fiveLiveDataField.value = null
+                                  ~~~~
+2 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/MyClass2.kt line 23: Change `LiveData` type to nullable:
+@@ -15 +15
+-     override val firstLiveDataField = MutableLiveData<Boolean>()
++     override val firstLiveDataField = MutableLiveData<Boolean?>()
+Fix for src/com/example/MyClass2.kt line 30: Change `LiveData` type to nullable:
+@@ -19 +19
+-     override val fiveLiveDataField = MutableLiveData<List<Boolean>>()
++     override val fiveLiveDataField = MutableLiveData<List<Boolean>?>()
+        """
+        )
+    }
+
+    @Test
     fun objectLiveData() {
         check(
             kotlin(
@@ -593,6 +763,42 @@ Fix for src/com/example/MyClass1.kt line 16: Change `LiveData` type to nullable:
                 val foo = object : LiveData<Int>() {
                     private fun bar() {
                         value = 0
+                    }
+                }
+            """
+            ).indented()
+        ).expectClean()
+    }
+
+    @Test
+    fun justKotlinObject() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                object Foo
+            """
+            ).indented()
+        ).expectClean()
+    }
+
+    @Ignore("b/187536061")
+    @Test
+    fun genericParameterDefinition() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class Foo<T>(
+                    var target: MutableLiveData<T>
+                ) {
+
+                    fun foo(value: T) {
+                        target.value = null
                     }
                 }
             """

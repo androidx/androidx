@@ -21,4 +21,11 @@
     <string name="emoji_button">Emoji Button %s</string>
     <string name="regular_text_view">Regular TextView %s</string>
     <string name="custom_text_view">Custom TextView %s</string>
+    <string name="appcompat_text_view">AppCompatTextView %s</string>
+    <string name="appcompat_edit_text">AppCompatEditText %s</string>
+    <string name="appcompat_button">AppCompatButton %s</string>
+    <string name="toggle_on">On %s</string>
+    <string name="toggle_off">Off %s</string>
+    <string name="switch_compat">SwitchCompat %s</string>
+    <string name="checked_text_view">AppCompatCheckedTextView %s</string>
 </resources>

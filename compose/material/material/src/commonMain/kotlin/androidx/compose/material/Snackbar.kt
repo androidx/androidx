@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.max
 
 /**
+ * <a href="https://material.io/components/snackbars" class="external" target="_blank">Material Design snackbar</a>.
+ *
  * Snackbars provide brief messages about app processes at the bottom of the screen.
  *
  * Snackbars inform users of a process that an app has performed or will perform. They appear
@@ -46,6 +48,8 @@ import kotlin.math.max
  *
  * A Snackbar can contain a single action. Because Snackbar disappears automatically, the action
  * shouldn't be "Dismiss" or "Cancel".
+ *
+ * ![Snackbars image](https://developer.android.com/images/reference/androidx/compose/material/snackbars.png)
  *
  * This components provides only the visuals of the [Snackbar]. If you need to show a [Snackbar]
  * with defaults on the screen, use [ScaffoldState.snackbarHostState] and
@@ -57,7 +61,7 @@ import kotlin.math.max
  * of the [SnackbarHost] to the [Scaffold]:
  * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
  *
- * @param modifier modifiers for the the Snackbar layout
+ * @param modifier modifiers for the Snackbar layout
  * @param action action / button component to add as an action to the snackbar. Consider using
  * [SnackbarDefaults.primaryActionColor] as the color for the action, if you do not
  * have a predefined color you wish to use instead.
@@ -105,6 +109,8 @@ fun Snackbar(
 }
 
 /**
+ * <a href="https://material.io/components/snackbars" class="external" target="_blank">Material Design snackbar</a>.
+ *
  * Snackbars provide brief messages about app processes at the bottom of the screen.
  *
  * Snackbars inform users of a process that an app has performed or will perform. They appear
@@ -113,6 +119,8 @@ fun Snackbar(
  *
  * A Snackbar can contain a single action. Because they disappear automatically, the action
  * shouldn't be "Dismiss" or "Cancel".
+ *
+ * ![Snackbars image](https://developer.android.com/images/reference/androidx/compose/material/snackbars.png)
  *
  * This version of snackbar is designed to work with [SnackbarData] provided by the
  * [SnackbarHost], which is usually used inside of the [Scaffold].
@@ -197,7 +205,7 @@ object SnackbarDefaults {
 
     /**
      * Provides a best-effort 'primary' color to be used as the primary color inside a [Snackbar].
-     * Given that [Snackbar]s have an 'inverted' theme, i.e in a light theme they appear dark, and
+     * Given that [Snackbar]s have an 'inverted' theme, i.e. in a light theme they appear dark, and
      * in a dark theme they appear light, just using [Colors.primary] will not work, and has
      * incorrect contrast.
      *

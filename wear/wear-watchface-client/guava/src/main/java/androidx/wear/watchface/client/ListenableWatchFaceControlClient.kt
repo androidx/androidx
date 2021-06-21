@@ -16,18 +16,18 @@
 
 package androidx.wear.watchface.client
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
+import androidx.wear.watchface.style.UserStyleData
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.guava.asListenableFuture
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -38,46 +38,44 @@ import kotlin.coroutines.CoroutineContext
 public open class ListenableWatchFaceControlClient(
     private val watchFaceControlClient: WatchFaceControlClient
 ) : WatchFaceControlClient {
-    override fun getInteractiveWatchFaceSysUiClientInstance(
+    override fun getInteractiveWatchFaceClientInstance(
         instanceId: String
-    ): InteractiveWatchFaceSysUiClient? =
-        watchFaceControlClient.getInteractiveWatchFaceSysUiClientInstance(instanceId)
+    ): InteractiveWatchFaceClient? =
+        watchFaceControlClient.getInteractiveWatchFaceClientInstance(instanceId)
 
     public companion object {
+        internal fun createImmediateCoroutineScope() = CoroutineScope(
+            object : CoroutineDispatcher() {
+                override fun dispatch(context: CoroutineContext, block: Runnable) {
+                    block.run()
+                }
+            }
+        )
+
         /**
-         * Returns a [ListenableFuture] for a [ListenableWatchFaceControlClient] which attempts to
-         * connect to a watch face in the android package [watchFacePackageName].
-         * Resolves as [ServiceNotBoundException] if the watch face control service can not
-         * be bound.
+         * Launches a coroutine with a new scope and returns a future that correctly handles
+         * cancellation.
          */
-        @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
-        @JvmStatic
-        public fun createWatchFaceControlClient(
-            /** Calling application's [Context]. */
-            context: Context,
-            /** The name of the package containing the watch face control service to bind to. */
-            watchFacePackageName: String
-        ): ListenableFuture<ListenableWatchFaceControlClient> {
-            val traceEvent = AsyncTraceEvent(
-                "ListenableWatchFaceControlClient.createWatchFaceControlClient"
-            )
-            val future = ResolvableFuture.create<ListenableWatchFaceControlClient>()
-            val coroutineScope =
-                CoroutineScope(object : CoroutineDispatcher() {
-                    override fun dispatch(context: CoroutineContext, block: Runnable) {
-                        block.run()
-                    }
-                })
+        // TODO(flerda): Move this to a location where it can be shared.
+        internal fun <T> launchFutureCoroutine(
+            traceTag: String,
+            block: suspend CoroutineScope.() -> T
+        ): ListenableFuture<T> {
+            val traceEvent = AsyncTraceEvent(traceTag)
+            val future = ResolvableFuture.create<T>()
+            val coroutineScope = createImmediateCoroutineScope()
             coroutineScope.launch {
+                // Propagate future cancellation.
+                future.addListener(
+                    {
+                        if (future.isCancelled) {
+                            coroutineScope.cancel()
+                        }
+                    },
+                    { runner -> runner.run() }
+                )
                 try {
-                    future.set(
-                        ListenableWatchFaceControlClient(
-                            WatchFaceControlClient.createWatchFaceControlClient(
-                                context,
-                                watchFacePackageName
-                            )
-                        )
-                    )
+                    future.set(block())
                 } catch (e: Exception) {
                     future.setException(e)
                 } finally {
@@ -86,6 +84,38 @@ public open class ListenableWatchFaceControlClient(
             }
             return future
         }
+
+        /**
+         * Returns a [ListenableFuture] for a [ListenableWatchFaceControlClient] which attempts to
+         * connect to a watch face in the android package [watchFacePackageName].
+         * Resolves as [ServiceNotBoundException] if the watch face control service can not
+         * be bound.
+         *
+         * Note the returned future may resolve immediately on the calling thread or it may resolve
+         * asynchronously when the service is connected on a background thread.
+         *
+         * @param context Calling application's [Context].
+         * @param watchFacePackageName Name of the package containing the watch face control
+         * service to bind to.
+         * @return [ListenableFuture]<[ListenableWatchFaceControlClient]> which on success resolves
+         * to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
+         * watch face control service can not be bound.
+         */
+        @JvmStatic
+        public fun createWatchFaceControlClient(
+            context: Context,
+            watchFacePackageName: String
+        ): ListenableFuture<ListenableWatchFaceControlClient> =
+            launchFutureCoroutine(
+                "ListenableWatchFaceControlClient.createWatchFaceControlClient",
+            ) {
+                ListenableWatchFaceControlClient(
+                    WatchFaceControlClient.createWatchFaceControlClient(
+                        context,
+                        watchFacePackageName
+                    )
+                )
+            }
     }
 
     override fun createHeadlessWatchFaceClient(
@@ -103,41 +133,50 @@ public open class ListenableWatchFaceControlClient(
 
     /**
      * [ListenableFuture] wrapper around
-     * [WatchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync].
+     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient].
      * This is open to allow mocking.
      */
-    public open fun listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+    public open fun listenableGetOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
-        userStyle: Map<String, String>?,
-        idToComplicationData: Map<Int, ComplicationData>?
-    ): ListenableFuture<InteractiveWatchFaceWcsClient> =
-        watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
-            id,
-            deviceConfig,
-            systemState,
-            userStyle,
-            idToComplicationData
-        ).asListenableFuture()
+        watchUiState: WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?
+    ): ListenableFuture<InteractiveWatchFaceClient> =
+        launchFutureCoroutine(
+            "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
+        ) {
+            watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
+                id,
+                deviceConfig,
+                watchUiState,
+                userStyle,
+                slotIdToComplicationData
+            )
+        }
 
-    override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
+    override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
-        userStyle: Map<String, String>?,
-        idToComplicationData: Map<Int, ComplicationData>?
-    ): Deferred<InteractiveWatchFaceWcsClient> =
-        watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
+        watchUiState: WatchUiState,
+        userStyle: UserStyleData?,
+        slotIdToComplicationData: Map<Int, ComplicationData>?
+    ): InteractiveWatchFaceClient =
+        watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
             id,
             deviceConfig,
-            systemState,
+            watchUiState,
             userStyle,
-            idToComplicationData
+            slotIdToComplicationData
         )
 
     override fun getEditorServiceClient(): EditorServiceClient =
         watchFaceControlClient.getEditorServiceClient()
+
+    override fun getDefaultComplicationProviderPoliciesAndType(
+        watchFaceName: ComponentName
+    ): Map<Int, DefaultComplicationProviderPolicyAndType> =
+        watchFaceControlClient.getDefaultComplicationProviderPoliciesAndType(watchFaceName)
 
     override fun close() {
         watchFaceControlClient.close()

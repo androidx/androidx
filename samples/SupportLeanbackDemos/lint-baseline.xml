@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
         id="MissingSuperCall"
@@ -54,6 +54,237 @@
             file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"
             line="35"
             column="5"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="419"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="419"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="419"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="705"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="705"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="763"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="763"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="763"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="797"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="797"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="797"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="840"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="840"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="840"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="932"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="932"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="932"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"
+            line="90"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"
+            line="93"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"
+            line="76"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"
+            line="79"
+            column="39"/>
     </issue>
 
     <issue
@@ -475,391 +706,6 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                                      ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="705"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="705"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"
-            line="90"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"
-            line="93"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"
-            line="76"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"
-            line="79"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
-            line="76"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepSupportFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
-            line="79"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepSupportFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
-            line="79"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="82"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="84"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="85"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="86"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="87"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="85"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="87"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="88"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="89"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="90"
-            column="25"/>
-    </issue>
-
-    <issue
         id="UnsupportedChromeOsHardware"
         message="Expecting `android:required=&quot;false&quot;` for this hardware feature that may not be supported by all Chrome OS devices"
         errorLine1="        android:required=&quot;true&quot;/>"
@@ -868,281 +714,6 @@
             file="src/main/AndroidManifest.xml"
             line="9"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.pref_parent_control_entries_summaries` appears to be unused"
-        errorLine1="    &lt;array name=&quot;pref_parent_control_entries_summaries&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/arrays.xml"
-            line="46"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.raw.browse` appears to be unused">
-        <location
-            file="src/main/res/raw/browse.mp4"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.details_img` appears to be unused">
-        <location
-            file="src/main/res/drawable/details_img.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.google_android` appears to be unused">
-        <location
-            file="src/main/res/drawable/google_android.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.google_logo` appears to be unused">
-        <location
-            file="src/main/res/drawable/google_logo.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.google_photo` appears to be unused">
-        <location
-            file="src/main/res/drawable/google_photo.jpeg"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_guidedstep_option_a` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_guidedstep_option_b` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_guidedstep_option_c` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_settings_wifi_3_bar` appears to be unused">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_settings_wifi_3_bar.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.raw.media0` appears to be unused">
-        <location
-            file="src/main/res/raw/media0.mp3"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.raw.media1` appears to be unused">
-        <location
-            file="src/main/res/raw/media1.mp3"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.playback_controls` appears to be unused"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_controls.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.playback_controls_support` appears to be unused"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_controls_support.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay&quot;>PlaybackOverlay&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay_description&quot;>PlaybackOverlayFragment test&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="56"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay_support&quot;>PlaybackOverlay(support version)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="57"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay_support_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay_support_description&quot;>PlaybackOverlaySupportFragment test&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="58"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.legacydetails_off` appears to be unused"
-        errorLine1="    &lt;string name=&quot;legacydetails_off&quot;>Use New DetailsPresenter&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.legacydetails_on` appears to be unused"
-        errorLine1="    &lt;string name=&quot;legacydetails_on&quot;>Use Legacy DetailsPresenter&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="79"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.guidedstep_fourth_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;guidedstep_fourth_description&quot;>Fourth step of guided sequence&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="103"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_SearchDetails` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.SearchDetails&quot; parent=&quot;Theme.AppCompat.Leanback.Details.NoSharedElementTransition&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="23"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Details` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Details&quot; parent=&quot;Theme.AppCompat.Leanback.Details&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="25"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Details_CustomTitle` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Details.CustomTitle&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="27"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Rows` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Rows&quot; parent=&quot;Theme.AppCompat.Leanback&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="32"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep&quot; parent=&quot;Theme.AppCompat.Leanback.GuidedStep&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="36"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep_First` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep.First&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="39"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep_Half` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep.Half&quot; parent=&quot;Theme.AppCompat.Leanback.GuidedStep.Half&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="42"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Preferences` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Preferences&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="44"
-            column="12"/>
     </issue>
 
     <issue
@@ -4188,7 +3759,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="61"
+            line="62"
             column="16"/>
     </issue>
 
@@ -4199,7 +3770,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="61"
+            line="62"
             column="32"/>
     </issue>
 
@@ -4210,7 +3781,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="72"
+            line="74"
             column="30"/>
     </issue>
 
@@ -4221,7 +3792,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="72"
+            line="74"
             column="44"/>
     </issue>
 
@@ -4232,7 +3803,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="81"
+            line="83"
             column="23"/>
     </issue>
 
@@ -4243,7 +3814,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="93"
+            line="95"
             column="45"/>
     </issue>
 
@@ -4254,7 +3825,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="105"
+            line="107"
             column="29"/>
     </issue>
 
@@ -4265,7 +3836,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="215"
+            line="217"
             column="30"/>
     </issue>
 
@@ -4276,7 +3847,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="228"
+            line="230"
             column="31"/>
     </issue>
 
@@ -4287,7 +3858,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="265"
+            line="267"
             column="29"/>
     </issue>
 
@@ -4298,7 +3869,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="277"
+            line="279"
             column="28"/>
     </issue>
 
@@ -4309,7 +3880,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="277"
+            line="279"
             column="47"/>
     </issue>
 

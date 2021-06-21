@@ -54,6 +54,7 @@ import java.util.Objects;
  * future. To adjust insets, use one of the supplied clone methods to obtain a new
  * WindowInsetsCompat instance with the adjusted properties.</p>
  */
+@SuppressWarnings("JavadocReference")
 public class WindowInsetsCompat {
     private static final String TAG = "WindowInsetsCompat";
 
@@ -166,7 +167,7 @@ public class WindowInsetsCompat {
     public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets,
             @Nullable View view) {
         WindowInsetsCompat wic = new WindowInsetsCompat(Preconditions.checkNotNull(insets));
-        if (view != null && view.isAttachedToWindow()) {
+        if (view != null && ViewCompat.isAttachedToWindow(view)) {
             // Pass the root window insets, which is useful if the Activity is adjustResize
             wic.setRootWindowInsets(ViewCompat.getRootWindowInsets(view));
             // Pass in the root view which allows the WIC to make of a copy of it's visible bounds
@@ -312,7 +313,6 @@ public class WindowInsetsCompat {
      * instance is deprecated, since {@link WindowInsetsCompat} contains many different insets. Use
      * {@link #CONSUMED} instead to stop dispatching insets.
      */
-    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     @NonNull
     public WindowInsetsCompat consumeSystemWindowInsets() {
@@ -354,6 +354,7 @@ public class WindowInsetsCompat {
      * @deprecated use {@link WindowInsetsCompat.Builder} with
      * {@link WindowInsetsCompat.Builder#setSystemWindowInsets(Insets)} instead.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     @NonNull
     public WindowInsetsCompat replaceSystemWindowInsets(@NonNull Rect systemWindowInsets) {
@@ -742,6 +743,7 @@ public class WindowInsetsCompat {
     }
 
     private static class Impl {
+        @SuppressWarnings("deprecation")
         @NonNull
         static final WindowInsetsCompat CONSUMED = new WindowInsetsCompat.Builder()
                 .build()
@@ -877,7 +879,6 @@ public class WindowInsetsCompat {
 
         private static boolean sVisibleRectReflectionFetched = false;
         private static Method sGetViewRootImplMethod;
-        private static Class<?> sViewRootImplClass;
         private static Class<?> sAttachInfoClass;
         private static Field sVisibleInsetsField;
         private static Field sAttachInfoField;
@@ -947,6 +948,7 @@ public class WindowInsetsCompat {
             return result;
         }
 
+        @SuppressWarnings("deprecation")
         @NonNull
         protected Insets getInsetsForType(@InsetsType int type, boolean ignoreVisibility) {
             switch (type) {
@@ -1125,34 +1127,35 @@ public class WindowInsetsCompat {
             if (SDK_INT >= 30) {
                 throw new UnsupportedOperationException("getVisibleInsets() should not be called "
                         + "on API >= 30. Use WindowInsets.isVisible() instead.");
-            }
-
-            if (!sVisibleRectReflectionFetched) {
-                loadReflectionField();
-            }
-
-            if (sGetViewRootImplMethod == null
-                    || sAttachInfoClass == null
-                    || sVisibleInsetsField == null) {
-                return null;
-            }
-
-            try {
-                Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);
-                if (viewRootImpl == null) {
-                    Log.w(TAG, "Failed to get visible insets. getViewRootImpl() returned null from "
-                                    + "the provided view. This means that the view is either not "
-                                    + "attached or the method has been overridden",
-                            new NullPointerException());
-                    return null;
-                } else {
-                    Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
-                    Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
-                    return visibleRect != null ? Insets.of(visibleRect) : null;
+            } else {
+                if (!sVisibleRectReflectionFetched) {
+                    loadReflectionField();
                 }
-            } catch (ReflectiveOperationException e) {
-                Log.e(TAG, "Failed to get visible insets. (Reflection error). " + e.getMessage(),
-                        e);
+
+                if (sGetViewRootImplMethod == null
+                        || sAttachInfoClass == null
+                        || sVisibleInsetsField == null) {
+                    return null;
+                }
+
+                try {
+                    Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);
+                    if (viewRootImpl == null) {
+                        Log.w(TAG, "Failed to get visible insets. getViewRootImpl() returned null"
+                                        + " from the provided view. This means that the view is "
+                                        + "either not attached or the method has been overridden",
+                                new NullPointerException());
+                        return null;
+                    } else {
+                        Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
+                        Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
+                        return visibleRect != null ? Insets.of(visibleRect) : null;
+                    }
+                } catch (ReflectiveOperationException e) {
+                    Log.e(TAG,
+                            "Failed to get visible insets. (Reflection error). " + e.getMessage(),
+                            e);
+                }
             }
             return null;
         }
@@ -1162,14 +1165,15 @@ public class WindowInsetsCompat {
             mOverriddenInsets = insetsTypeMask;
         }
 
+        @SuppressWarnings("JavaReflectionMemberAccess") // Reflection on private method
         @SuppressLint("PrivateApi")
         private static void loadReflectionField() {
             try {
                 sGetViewRootImplMethod = View.class.getDeclaredMethod("getViewRootImpl");
-                sViewRootImplClass = Class.forName("android.view.ViewRootImpl");
                 sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
                 sVisibleInsetsField = sAttachInfoClass.getDeclaredField("mVisibleInsets");
-                sAttachInfoField = sViewRootImplClass.getDeclaredField("mAttachInfo");
+                Class<?> viewRootImplClass = Class.forName("android.view.ViewRootImpl");
+                sAttachInfoField = viewRootImplClass.getDeclaredField("mAttachInfo");
                 sVisibleInsetsField.setAccessible(true);
                 sAttachInfoField.setAccessible(true);
             } catch (ReflectiveOperationException e) {
@@ -1669,13 +1673,17 @@ public class WindowInsetsCompat {
             if (mInsetsTypeMask != null) {
                 Insets statusBars = mInsetsTypeMask[Type.indexOf(Type.STATUS_BARS)];
                 Insets navigationBars = mInsetsTypeMask[Type.indexOf(Type.NAVIGATION_BARS)];
-                if (statusBars != null && navigationBars != null) {
-                    setSystemWindowInsets(Insets.max(statusBars, navigationBars));
-                } else if (statusBars != null) {
-                    setSystemWindowInsets(statusBars);
-                } else if (navigationBars != null) {
-                    setSystemWindowInsets(navigationBars);
+
+                // If the insets are not set in the builder, default to the insets passed in
+                // the builder parameter to avoid accidentally setting them to 0
+                if (navigationBars == null) {
+                    navigationBars = mInsets.getInsets(Type.NAVIGATION_BARS);
                 }
+                if (statusBars == null) {
+                    statusBars = mInsets.getInsets(Type.STATUS_BARS);
+                }
+
+                setSystemWindowInsets(Insets.max(statusBars, navigationBars));
 
                 Insets i = mInsetsTypeMask[Type.indexOf(Type.SYSTEM_GESTURES)];
                 if (i != null) setSystemGestureInsets(i);
@@ -1707,21 +1715,22 @@ public class WindowInsetsCompat {
         private static Constructor<WindowInsets> sConstructor;
         private static boolean sConstructorFetched = false;
 
-        private WindowInsets mInsets;
+        private WindowInsets mPlatformInsets;
         private Insets mStableInsets;
 
         BuilderImpl20() {
-            mInsets = createWindowInsetsInstance();
+            mPlatformInsets = createWindowInsetsInstance();
         }
 
         BuilderImpl20(@NonNull WindowInsetsCompat insets) {
-            mInsets = insets.toWindowInsets();
+            super(insets);
+            mPlatformInsets = insets.toWindowInsets();
         }
 
         @Override
         void setSystemWindowInsets(@NonNull Insets insets) {
-            if (mInsets != null) {
-                mInsets = mInsets.replaceSystemWindowInsets(
+            if (mPlatformInsets != null) {
+                mPlatformInsets = mPlatformInsets.replaceSystemWindowInsets(
                         insets.left, insets.top, insets.right, insets.bottom);
             }
         }
@@ -1736,7 +1745,7 @@ public class WindowInsetsCompat {
         WindowInsetsCompat build() {
             applyInsetTypes();
             WindowInsetsCompat windowInsetsCompat = WindowInsetsCompat.toWindowInsetsCompat(
-                    mInsets);
+                    mPlatformInsets);
             windowInsetsCompat.setOverriddenInsets(this.mInsetsTypeMask);
             windowInsetsCompat.setStableInsets(mStableInsets);
             return windowInsetsCompat;
@@ -1801,10 +1810,12 @@ public class WindowInsetsCompat {
         final WindowInsets.Builder mPlatBuilder;
 
         BuilderImpl29() {
+            super();
             mPlatBuilder = new WindowInsets.Builder();
         }
 
         BuilderImpl29(@NonNull WindowInsetsCompat insets) {
+            super(insets);
             final WindowInsets platInsets = insets.toWindowInsets();
             mPlatBuilder = platInsets != null
                     ? new WindowInsets.Builder(platInsets)
@@ -1888,7 +1899,7 @@ public class WindowInsetsCompat {
      * Class that defines different types of sources causing window insets.
      */
     public static final class Type {
-        static final int FIRST = 1 << 0;
+        static final int FIRST = 1;
         static final int STATUS_BARS = FIRST;
         static final int NAVIGATION_BARS = 1 << 1;
         static final int CAPTION_BAR = 1 << 2;
@@ -2104,14 +2115,16 @@ public class WindowInsetsCompat {
         mImpl.copyRootViewBounds(rootView);
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess") // Reflection on private field
+    @SuppressLint("SoonBlockedPrivateApi") // mAttachInfo is only accessed on SDK 21 and 22
     @RequiresApi(21)
     static class Api21ReflectionHolder {
 
         private Api21ReflectionHolder() {
-            // privatex
+            // This class is not instantiable.
         }
 
-        private static Field sViewAttachInfoField;
+        private static Field sViewAttachInfoField; // Only accessed on SDK 21 and 222
         private static Field sStableInsets;
         private static Field sContentInsets;
         private static boolean sReflectionSucceeded;
@@ -2131,6 +2144,7 @@ public class WindowInsetsCompat {
             }
         }
 
+        // Only called on SDK 21 and 22
         @SuppressWarnings("deprecation")
         @Nullable
         public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {

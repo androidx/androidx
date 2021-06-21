@@ -18,6 +18,8 @@ package androidx.wear.watchface.complications.rendering;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertTrue;
+
 import android.graphics.Color;
 import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
@@ -31,11 +33,10 @@ import android.text.style.SuperscriptSpan;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** TextRenderer tests. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
 public class TextRendererTest {
 
@@ -77,6 +78,6 @@ public class TextRendererTest {
     public void applySpannAllowlistNotSpanned() {
         String text = "some test text";
 
-        assertThat(mTextRenderer.applySpanAllowlist(text)).isEqualTo(text);
+        assertTrue(mTextRenderer.applySpanAllowlist(text).toString().contentEquals(text));
     }
 }

@@ -48,7 +48,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
         private set
 
     internal val storageCount
-        get() = pages.sumBy { it.data.size }
+        get() = pages.sumOf { it.data.size }
 
     private var _placeholdersBefore = 0
 
@@ -110,12 +110,12 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
 
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
         return prependGenerationIdCh.consumeAsFlow()
-            .onStart { prependGenerationIdCh.offer(prependGenerationId) }
+            .onStart { prependGenerationIdCh.trySend(prependGenerationId) }
     }
 
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         return appendGenerationIdCh.consumeAsFlow()
-            .onStart { appendGenerationIdCh.offer(appendGenerationId) }
+            .onStart { appendGenerationIdCh.trySend(appendGenerationId) }
     }
 
     fun setSourceLoadState(type: LoadType, newState: LoadState): Boolean {
@@ -251,7 +251,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                 placeholdersBefore = event.placeholdersRemaining
 
                 prependGenerationId++
-                prependGenerationIdCh.offer(prependGenerationId)
+                prependGenerationIdCh.trySend(prependGenerationId)
             }
             APPEND -> {
                 repeat(event.pageCount) { _pages.removeAt(pages.size - 1) }
@@ -259,7 +259,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                 placeholdersAfter = event.placeholdersRemaining
 
                 appendGenerationId++
-                appendGenerationIdCh.offer(appendGenerationId)
+                appendGenerationIdCh.trySend(appendGenerationId)
             }
             else -> throw IllegalArgumentException("cannot drop ${event.loadType}")
         }
@@ -391,6 +391,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
      * Wrapper for [PageFetcherSnapshotState], which protects access behind a [Mutex] to prevent
      * race scenarios.
      */
+    @Suppress("SyntheticAccessor")
     internal class Holder<Key : Any, Value : Any>(
         private val config: PagingConfig
     ) {

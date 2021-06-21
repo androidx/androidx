@@ -27,6 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name="androidx.activity.integration.testapp.PipActivity"
+            android:exported="true"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="androidx.activity.integration.testapp"

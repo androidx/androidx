@@ -16,7 +16,9 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
@@ -26,7 +28,8 @@ import android.util.Log;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -44,7 +47,10 @@ import java.util.Objects;
  * {@link androidx.car.app.Screen#onGetTemplate()}, this template is
  * considered a refresh of a previous one if the title and messages have not changed.
  */
+@CarProtocol
 public final class MessageTemplate implements Template {
+    @Keep
+    private final boolean mIsLoading;
     @Keep
     @Nullable
     private final CarText mTitle;
@@ -62,6 +68,19 @@ public final class MessageTemplate implements Template {
     private final Action mHeaderAction;
     @Keep
     private final List<Action> mActionList;
+    @Keep
+    @Nullable
+    private final ActionStrip mActionStrip;
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    @RequiresCarApi(2)
+    public boolean isLoading() {
+        return mIsLoading;
+    }
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -85,6 +104,17 @@ public final class MessageTemplate implements Template {
     }
 
     /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
+    @RequiresCarApi(2)
+    @Nullable
+    public ActionStrip getActionStrip() {
+        return mActionStrip;
+    }
+
+    /**
      * Returns the message to display in the template.
      *
      * @see Builder#Builder(CharSequence)
@@ -93,7 +123,6 @@ public final class MessageTemplate implements Template {
     public CarText getMessage() {
         return requireNonNull(mMessage);
     }
-
 
     /**
      * Returns a debug message to display in the template or {@code null} if not set.
@@ -134,7 +163,8 @@ public final class MessageTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return hash(mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
+        return hash(mIsLoading, mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon,
+                mActionStrip);
     }
 
     @Override
@@ -147,35 +177,42 @@ public final class MessageTemplate implements Template {
         }
         MessageTemplate otherTemplate = (MessageTemplate) other;
 
-        return Objects.equals(mTitle, otherTemplate.mTitle)
+        return mIsLoading == otherTemplate.mIsLoading
+                && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mMessage, otherTemplate.mMessage)
                 && Objects.equals(mDebugMessage, otherTemplate.mDebugMessage)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionList, otherTemplate.mActionList)
-                && Objects.equals(mIcon, otherTemplate.mIcon);
+                && Objects.equals(mIcon, otherTemplate.mIcon)
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
     MessageTemplate(Builder builder) {
+        mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mMessage = builder.mMessage;
         mDebugMessage = builder.mDebugMessage;
         mIcon = builder.mIcon;
         mHeaderAction = builder.mHeaderAction;
+        mActionStrip = builder.mActionStrip;
         mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private MessageTemplate() {
+        mIsLoading = false;
         mTitle = null;
         mMessage = null;
         mDebugMessage = null;
         mIcon = null;
         mHeaderAction = null;
+        mActionStrip = null;
         mActionList = Collections.emptyList();
     }
 
     /** A builder of {@link MessageTemplate}. */
     public static final class Builder {
+        boolean mIsLoading;
         @Nullable
         CarText mTitle;
         CarText mMessage;
@@ -185,6 +222,8 @@ public final class MessageTemplate implements Template {
         CarIcon mIcon;
         @Nullable
         Action mHeaderAction;
+        @Nullable
+        ActionStrip mActionStrip;
         List<Action> mActionList = new ArrayList<>();
         @Nullable
         Throwable mDebugCause;
@@ -192,11 +231,26 @@ public final class MessageTemplate implements Template {
         String mDebugString;
 
         /**
+         * Sets whether the template is in a loading state.
+         *
+         * <p>If set to {@code true}, the UI shows a loading indicator where the icon
+         * would be otherwise. The caller is expected to call
+         * {@link androidx.car.app.Screen#invalidate()} and send the new template content to the
+         * host once the data is ready.
+         */
+        @RequiresCarApi(2)
+        @NonNull
+        public Builder setLoading(boolean isLoading) {
+            mIsLoading = isLoading;
+            return this;
+        }
+
+        /**
          * Sets the title of the template.
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -250,9 +304,10 @@ public final class MessageTemplate implements Template {
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * The provided icon should have a maximum size of 64 x 64 dp. If the icon exceeds this
-         * maximum size in either one of the dimensions, it will be scaled down and centered
-         * inside the bounding box while preserving the aspect ratio.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * icons targeting a 128 x 128 dp bounding box. If the icon exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -289,16 +344,44 @@ public final class MessageTemplate implements Template {
         }
 
         /**
+         * Sets the {@link ActionStrip} for this template or {@code null} to not display an {@link
+         * ActionStrip}.
+         *
+         * <p>Unless set with this method, the template will not have an action strip.
+         *
+         * <h4>Requirements</h4>
+         *
+         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
+         * {@link Action}s, one of them can contain a title as set via
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         *
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         */
+        @RequiresCarApi(2)
+        @NonNull
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
+            return this;
+        }
+
+        /**
          * Adds an {@link Action} to display along with the message.
          *
-         * <p>Any actions above the maximum limit of 2 will be ignored.
+         * <h4>Requirements</h4>
          *
-         * @throws NullPointerException if {@code action} is {@code null}
+         * This template allows up to 2 {@link Action}s in its body. The action's title color can
+         * be customized with {@link ForegroundCarColorSpan} instances, any other spans will be
+         * ignored by the host.
+         *
+         * @throws NullPointerException     if {@code action} is {@code null}
+         * @throws IllegalArgumentException if {@code action} does not meet the requirements
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
-            requireNonNull(action);
-            mActionList.add(action);
+            mActionList.add(requireNonNull(action));
+            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mActionList);
             return this;
         }
 
@@ -311,11 +394,16 @@ public final class MessageTemplate implements Template {
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
-         * @throws IllegalStateException if the message is empty, or if the template does not have
-         *                               either a title or header {@link Action} set
+         * @throws IllegalStateException if the message is empty, if the template does not have
+         *                               either a title or header {@link Action} set, or if the
+         *                               template is in loading state and an icon is specified.
          */
         @NonNull
         public MessageTemplate build() {
+            if (mIsLoading && mIcon != null) {
+                throw new IllegalStateException(
+                        "Template in a loading state can not have an icon");
+            }
             if (mMessage.isEmpty()) {
                 throw new IllegalStateException("Message cannot be empty");
             }
@@ -352,7 +440,6 @@ public final class MessageTemplate implements Template {
          * @param message the text message to display in the template
          * @throws NullPointerException if the {@code message} is {@code null}
          */
-        @ExperimentalCarApi
         public Builder(@NonNull CarText message) {
             mMessage = requireNonNull(message);
         }

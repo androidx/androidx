@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.core.view.ViewCompat;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
 
 import java.lang.annotation.Retention;
@@ -97,6 +98,18 @@ public abstract class FragmentTransaction {
             this.mOldMaxState = fragment.mMaxState;
             this.mCurrentMaxState = state;
         }
+
+        Op(Op op) {
+            this.mCmd = op.mCmd;
+            this.mFragment = op.mFragment;
+            this.mFromExpandedOp = op.mFromExpandedOp;
+            this.mEnterAnim = op.mEnterAnim;
+            this.mExitAnim = op.mExitAnim;
+            this.mPopEnterAnim = op.mPopEnterAnim;
+            this.mPopExitAnim = op.mPopExitAnim;
+            this.mOldMaxState = op.mOldMaxState;
+            this.mCurrentMaxState = op.mCurrentMaxState;
+        }
     }
 
     private final FragmentFactory mFragmentFactory;
@@ -137,6 +150,35 @@ public abstract class FragmentTransaction {
             @Nullable ClassLoader classLoader) {
         mFragmentFactory = fragmentFactory;
         mClassLoader = classLoader;
+    }
+
+    FragmentTransaction(@NonNull FragmentFactory fragmentFactory,
+            @Nullable ClassLoader classLoader, @NonNull FragmentTransaction ft) {
+        this(fragmentFactory, classLoader);
+        for (Op op : ft.mOps) {
+            mOps.add(new Op(op));
+        }
+        mEnterAnim = ft.mEnterAnim;
+        mExitAnim = ft.mExitAnim;
+        mPopEnterAnim = ft.mPopEnterAnim;
+        mPopExitAnim = ft.mPopExitAnim;
+        mTransition = ft.mTransition;
+        mAddToBackStack = ft.mAddToBackStack;
+        mAllowAddToBackStack = ft.mAllowAddToBackStack;
+        mName = ft.mName;
+        mBreadCrumbShortTitleRes = ft.mBreadCrumbShortTitleRes;
+        mBreadCrumbShortTitleText = ft.mBreadCrumbShortTitleText;
+        mBreadCrumbTitleRes = ft.mBreadCrumbTitleRes;
+        mBreadCrumbTitleText = ft.mBreadCrumbTitleText;
+        if (ft.mSharedElementSourceNames != null) {
+            mSharedElementSourceNames = new ArrayList<>();
+            mSharedElementSourceNames.addAll(ft.mSharedElementSourceNames);
+        }
+        if (ft.mSharedElementTargetNames != null) {
+            mSharedElementTargetNames = new ArrayList<>();
+            mSharedElementTargetNames.addAll(ft.mSharedElementTargetNames);
+        }
+        mReorderingAllowed = ft.mReorderingAllowed;
     }
 
     void addOp(Op op) {
@@ -253,6 +295,9 @@ public abstract class FragmentTransaction {
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
+        if (fragment.mPreviousWho != null) {
+            FragmentStrictMode.onFragmentReuse(fragment, fragment.mPreviousWho);
+        }
         final Class<?> fragmentClass = fragment.getClass();
         final int modifiers = fragmentClass.getModifiers();
         if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
@@ -547,7 +592,7 @@ public abstract class FragmentTransaction {
      * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
-     *  fragmentManager.beingTransaction()
+     *  fragmentManager.beginTransaction()
      *      .setCustomAnimations(enter1, exit1)
      *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
      *      .setCustomAnimations(enter2, exit2)
@@ -577,7 +622,7 @@ public abstract class FragmentTransaction {
      * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
-     *  fragmentManager.beingTransaction()
+     *  fragmentManager.beginTransaction()
      *      .setCustomAnimations(enter1, exit1, popEnter1, popExit1)
      *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
      *      .setCustomAnimations(enter2, exit2, popEnter2, popExit2)

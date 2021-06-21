@@ -18,7 +18,7 @@ package androidx.benchmark.junit4
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,19 +26,19 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class BenchmarkRuleTest {
+public class BenchmarkRuleTest {
     @get:Rule
-    val benchmarkRule = BenchmarkRule(enableReport = false)
+    public val benchmarkRule: BenchmarkRule = BenchmarkRule(enableReport = false)
 
     @Test
-    fun runWithTimingDisabled() {
+    public fun runWithTimingDisabled() {
         benchmarkRule.measureRepeated {
             runWithTimingDisabled {
                 Thread.sleep(5)
             }
         }
         val min = benchmarkRule.getState().getMinTimeNanos()
-        assertTrue(
+        Assert.assertTrue(
             "minimum $min should be less than 1ms",
             min < TimeUnit.MILLISECONDS.toNanos(1)
         )

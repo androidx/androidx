@@ -18,7 +18,7 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.CarColor.DEFAULT;
-import static androidx.car.app.model.constraints.CarColorConstraints.STANDARD_ONLY;
+import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAINED;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,7 +34,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -60,9 +61,10 @@ import java.util.Objects;
  * icon may be disallowed. If such restrictions apply, the documentation of the APIs that consume
  * the action will note them accordingly.
  */
+@CarProtocol
 public final class Action {
     /**
-     * The type of action represented by the {@link Action } instance.
+     * The type of action represented by the {@link Action} instance.
      *
      * @hide
      */
@@ -72,6 +74,7 @@ public final class Action {
                     TYPE_CUSTOM,
                     TYPE_APP_ICON,
                     TYPE_BACK,
+                    TYPE_PAN,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {
@@ -99,6 +102,11 @@ public final class Action {
     public static final int TYPE_BACK = 3 | FLAG_STANDARD;
 
     /**
+     * An action to toggle the pan mode in a map-based template.
+     */
+    public static final int TYPE_PAN = 4 | FLAG_STANDARD;
+
+    /**
      * A standard action to show the app's icon.
      *
      * <p>This action is non-interactive.
@@ -118,6 +126,20 @@ public final class Action {
      */
     @NonNull
     public static final Action BACK = new Action(TYPE_BACK);
+
+    /**
+     * A standard action to toggle the pan mode in a map-based template.
+     *
+     * <p>If the app does not provide a custom icon, a default pan icon will be used.
+     *
+     * <p>You can set a custom icon in a pan action with the following code:
+     *
+     * <pre>{@code
+     * Action panAction = new Action.Builder(Action.PAN).setIcon(customIcon).build();
+     * }</pre>
+     */
+    @NonNull
+    public static final Action PAN = new Action(TYPE_PAN);
 
     @Keep
     @Nullable
@@ -204,6 +226,8 @@ public final class Action {
                 return "APP_ICON";
             case TYPE_BACK:
                 return "BACK";
+            case TYPE_PAN:
+                return "PAN";
             default:
                 return "<unknown>";
         }
@@ -211,7 +235,7 @@ public final class Action {
 
     /** Convenience constructor for standard action singletons. */
     private Action(@ActionType int type) {
-        if (!isStandardActionType(type)) {
+        if (type == TYPE_CUSTOM) {
             throw new IllegalArgumentException(
                     "Standard action constructor used with non standard type");
         }
@@ -282,10 +306,10 @@ public final class Action {
         /**
          * Sets the title to display in the action.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Support for text spans depends on where the action is used. See the documentation
+         * of the specific APIs taking an {@link Action} for details.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -294,14 +318,15 @@ public final class Action {
         }
 
         /**
-         * Sets the title to display in the action.
+         * Sets the title to display in the action, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Support for text spans depends on where the action is used. For example,
+         * most templates taking an action support {@link ForegroundCarColorSpan}, but this may
+         * vary. See the documentation of the specific APIs taking an {@link Action} for details.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
          */
-        @ExperimentalCarApi
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
@@ -315,9 +340,10 @@ public final class Action {
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * The provided icon should have a maximum size of 36 x 36 dp. If the icon exceeds this
-         * maximum size in either one of the dimensions, it will be scaled down to be centered
-         * inside the bounding box while preserving the aspect ratio.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * icons targeting a 88 x 88 dp bounding box. If the icon exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -353,20 +379,18 @@ public final class Action {
          *
          * <h4>Requirements</h4>
          *
-         * <p>The host may ignore this color and use the default instead if the color does not
-         * pass the contrast requirements.
-         *
-         * <p>Note the color of the text cannot be specified. Host implementations may pick the
-         * dark or light versions of the given background color as needed.
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system. See
+         * the documentation on where the {@link Action} is added for more details on any other
+         * restriction(s) that might apply.
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
          *                        CarColor#DEFAULT} to let the host pick a default
-         * @throws IllegalArgumentException if {@code backgroundColor} is not a standard color
-         * @throws NullPointerException     if {@code backgroundColor} is {@code null}
+         * @throws NullPointerException if {@code backgroundColor} is {@code null}
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
-            STANDARD_ONLY.validateOrThrow(requireNonNull(backgroundColor));
+            UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
             mBackgroundColor = backgroundColor;
             return this;
         }
@@ -390,8 +414,8 @@ public final class Action {
             if ((mType == TYPE_APP_ICON || mType == TYPE_BACK)) {
                 if (mOnClickDelegate != null) {
                     throw new IllegalStateException(
-                            "An on-click listener can't be set on the standard back or app-icon "
-                                    + "action");
+                            "An on-click listener can't be set on the standard back or "
+                                    + "app-icon action");
                 }
 
                 if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.toString()))) {
@@ -401,11 +425,35 @@ public final class Action {
                 }
             }
 
+            if (mType == TYPE_PAN) {
+                if (mOnClickDelegate != null) {
+                    throw new IllegalStateException(
+                            "An on-click listener can't be set on the pan mode action");
+                }
+            }
+
             return new Action(this);
         }
 
         /** Creates an empty {@link Builder} instance. */
         public Builder() {
+        }
+
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given
+         * {@link Action} instance.
+         *
+         * @throws NullPointerException if {@code action} is {@code null}
+         */
+        @RequiresCarApi(2)
+        public Builder(@NonNull Action action) {
+            requireNonNull(action);
+            mType = action.getType();
+            mIcon = action.getIcon();
+            mTitle = action.getTitle();
+            mOnClickDelegate = action.getOnClickDelegate();
+            CarColor backgroundColor = action.getBackgroundColor();
+            mBackgroundColor = backgroundColor == null ? DEFAULT : backgroundColor;
         }
     }
 }

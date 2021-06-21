@@ -16,8 +16,11 @@
 
 package androidx.media.session;
 
+import static android.support.v4.media.session.MediaSessionCompat.PENDING_INTENT_FLAG_MUTABLE;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -36,6 +39,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import androidx.media.MediaBrowserServiceCompat;
 
 import java.util.List;
@@ -111,7 +115,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
                 getServiceComponentByAction(context, Intent.ACTION_MEDIA_BUTTON);
         if (mediaButtonServiceComponentName != null) {
             intent.setComponent(mediaButtonServiceComponentName);
-            startForegroundService(context, intent);
+            ContextCompat.startForegroundService(context, intent);
             return;
         }
         ComponentName mediaBrowserServiceComponentName = getServiceComponentByAction(context,
@@ -251,6 +255,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
      * @return Created pending intent, or null if the given component name is null or the
      *         {@code action} is unsupported/invalid.
      */
+    @SuppressLint("WrongConstant") // PENDING_INTENT_FLAG_MUTABLE
     public static PendingIntent buildMediaButtonPendingIntent(Context context,
             ComponentName mbrComponent, @MediaKeyAction long action) {
         if (mbrComponent == null) {
@@ -269,7 +274,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= 16) {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
-        return PendingIntent.getBroadcast(context, keyCode, intent, PendingIntent.FLAG_IMMUTABLE);
+        return PendingIntent.getBroadcast(context, keyCode, intent, PENDING_INTENT_FLAG_MUTABLE);
     }
 
     /**
@@ -290,14 +295,6 @@ public class MediaButtonReceiver extends BroadcastReceiver {
                     + Intent.ACTION_MEDIA_BUTTON + " was found, returning null.");
         }
         return null;
-    }
-
-    private static void startForegroundService(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
     }
 
     private static ComponentName getServiceComponentByAction(Context context, String action) {

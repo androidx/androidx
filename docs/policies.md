@@ -15,7 +15,7 @@ Policies and processes automated via tooling are noted in
 Libraries developed in AndroidX follow a consistent project naming and directory
 structure.
 
-Library groups should organize their modules into directories and module names
+Library groups should organize their projects into directories and project names
 (in brackets) as:
 
 ```
@@ -37,6 +37,27 @@ navigation/
   navigation-ui-ktx/ [navigation:navigation-ui-ktx]
   integration-tests/
     testapp/ [navigation:integration-tests:testapp]
+```
+
+### Project creator script {#project-creator}
+
+Note: The terms _project_, _module_, and _library_ are often used
+interchangeably within AndroidX, with project being the technical term used by
+Gradle to describe a build target, e.g. a library that maps to a single AAR.
+
+New projects can be created using our
+[project creation script](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/project-creator/?q=project-creator&ss=androidx%2Fplatform%2Fframeworks%2Fsupport)
+available in our repo.
+
+It will create a new project with the proper structure and configuration based
+on your project needs!
+
+To use it:
+
+```sh
+cd ~/androidx-main/framework/support && \
+cd development/project-creator && \
+./create_project.py androidx.foo foo-bar
 ```
 
 ## Terminology {#terminology}
@@ -91,24 +112,6 @@ supportLibrary {
 }
 ```
 
-#### Finalizing for release {#finalizing-for-release}
-
-When the artifact is ready for release, its versioned API file should be
-finalized to ensure that the subsequent versioned release conforms to the
-versioning policies.
-
-```
-./gradlew <module>:finalizeApi
-```
-
-This will prevent any subsequent changes to the API surface until the artifact
-version is updated. To update the artifact version and allow changes within the
-semantic versioning contract, simply update the version string in the artifact's
-`build.gradle` (see [Workflow](#workflow) introduction).
-
-To avoid breaking the development workflow, we recommend that API finalization
-and version string updates be submitted as a single CL.
-
 ## Dependencies {#dependencies}
 
 Artifacts may depend on other artifacts within AndroidX as well as sanctioned
@@ -129,6 +132,9 @@ your artifact has API-type dependencies on pre-release artifacts, ex.
 `1.1.0-alpha01`, then your artifact must also carry the `alpha` suffix. If you
 only have implementation-type dependencies, your artifact may carry either the
 `alpha` or `beta` suffix.
+
+Note: This does not apply to test dependencies: suffixes of test dependencies do
+_not_ carry over to your artifact.
 
 #### Pinned versions {#pinned-versions}
 

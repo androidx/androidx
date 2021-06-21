@@ -20,8 +20,10 @@ import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
+import androidx.navigation.contains
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.navDeepLink
+import androidx.navigation.navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest

@@ -7,6 +7,10 @@ The public documentation at
 the library - this page focuses on specifics to writing libraries in the
 AndroidX repo, and our continuous testing / triage process.
 
+This page is for MICRO benchmarks measuring CPU performance of small sections of
+code. If you're looking for measuring startup or jank, see the guide for
+MACRObenchmarks [here](macrobenchmarking).
+
 ### Writing the benchmark
 
 Benchmarks are just regular instrumentation tests! Just use the
@@ -67,9 +71,8 @@ public class ViewBenchmark {
 As in the public documentation, benchmarks in the AndroidX repo are test-only
 library modules. Differences for AndroidX repo:
 
+1.  Module must live in `integration-tests` group directory
 1.  Module name must end with `-benchmark` in `settings.gradle`.
-2.  You do not need to apply the benchmark plugin (it's pulled in automatically
-    from source)
 
 ### I'm lazy and want to start quickly
 
@@ -130,11 +133,11 @@ simplified and improved over time.
 
 #### Device
 
-Get an API 28+ device (Or a rooted API 27 device). The rest of this section is
-about *why* those constraints exist, skip if not interested.
+Get an API 29+ device. The rest of this section is about *why* those constraints
+exist, skip if not interested.
 
 Simpleperf has restrictions about where it can be used - Jetpack Benchmark will
-only support API 28+ for now, due to
+only support API 29+ for now, due to
 [platform/simpleperf constraints](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/android_application_profiling.md#prepare-an-android-application)
 (see last subsection titled "If you want to profile Java code"). Summary is:
 
@@ -145,9 +148,13 @@ only support API 28+ for now, due to
 -   26 (O): Requires compiled Java code, and wrapper script. We haven't
     investigated support.
 
--   27 (P): Can profile all Java code, but requires `userdebug`/rooted device
+-   27 (O.1): Can profile all Java code, but requires `userdebug`/rooted device
 
--   \>=28 (Q): Can profile all Java code, requires profileable (or
+-   28 (P): Can profile all Java code, requires debuggable (or
+    `userdebug`/rooted device, but this appears to not be supported by scripts
+    currently)
+
+-   \>=29 (Q): Can profile all Java code, requires profileable or debuggable (or
     `userdebug`/rooted device)
 
 We aren't planning to support profiling debuggable APK builds, since they're

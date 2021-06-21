@@ -512,12 +512,12 @@ public final class TextViewCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @NonNull
+    @Nullable
     public static ActionMode.Callback wrapCustomSelectionActionModeCallback(
             @NonNull final TextView textView,
-            @NonNull final ActionMode.Callback callback) {
+            @Nullable final ActionMode.Callback callback) {
         if (Build.VERSION.SDK_INT < 26 || Build.VERSION.SDK_INT > 27
-                || callback instanceof OreoCallback) {
+                || callback instanceof OreoCallback || callback == null) {
             // If the bug does not affect the current SDK version, or if
             // the callback was already wrapped, no need to wrap it.
             return callback;
@@ -527,6 +527,21 @@ public final class TextViewCompat {
         // Here we fix this, by removing the menu items created by the framework code, and
         // adding them (and the missing ones) back correctly.
         return new OreoCallback(callback, textView);
+    }
+
+
+    /**
+     * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    public static ActionMode.Callback unwrapCustomSelectionActionModeCallback(
+            @Nullable ActionMode.Callback callback) {
+        if (callback instanceof OreoCallback && Build.VERSION.SDK_INT >= 26) {
+            return ((OreoCallback) callback).getWrappedCallback();
+        }
+        return callback;
     }
 
     @RequiresApi(26)
@@ -571,6 +586,11 @@ public final class TextViewCompat {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mCallback.onDestroyActionMode(mode);
+        }
+
+        @NonNull
+        ActionMode.Callback getWrappedCallback() {
+            return mCallback;
         }
 
         private void recomputeProcessTextMenuItems(final Menu menu) {

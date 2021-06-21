@@ -28,7 +28,6 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
-import androidx.ads.identifier.AdvertisingIdNotAvailableException;
 import androidx.ads.identifier.MockAdvertisingIdService;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
 import androidx.ads.identifier.testing.MockPackageManagerHelper;
@@ -48,6 +47,7 @@ import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class HoldingConnectionClientTest {
     private static final String MOCK_SERVICE_NAME = MockAdvertisingIdService.class.getName();
 
@@ -138,7 +138,8 @@ public class HoldingConnectionClientTest {
         static boolean sGetServiceFromConnectionThrowInterruptedException = false;
 
         MockHoldingConnectionClient(Context context)
-                throws InterruptedException, TimeoutException, AdvertisingIdNotAvailableException,
+                throws InterruptedException, TimeoutException,
+                androidx.ads.identifier.AdvertisingIdNotAvailableException,
                 IOException {
             super(context);
         }

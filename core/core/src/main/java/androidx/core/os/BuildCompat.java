@@ -20,13 +20,41 @@ import android.os.Build;
 import android.os.Build.VERSION;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresOptIn;
+import androidx.annotation.RestrictTo;
 
 /**
  * This class contains additional platform version checking methods for targeting pre-release
  * versions of Android.
  */
 public class BuildCompat {
+
     private BuildCompat() {
+        // This class is non-instantiable.
+    }
+
+    /**
+     * Checks if the codename is a matching or higher version than the given build value.
+     * @param codename the requested build codename, e.g. {@code "O"} or {@code "OMR1"}
+     * @param buildCodename the value of {@link Build.VERSION#CODENAME}
+     *
+     * @return {@code true} if APIs from the requested codename are available in the build.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    protected static boolean isAtLeastPreReleaseCodename(@NonNull String codename,
+            @NonNull String buildCodename) {
+
+        // Special case "REL", which means the build is not a pre-release build.
+        if ("REL".equals(buildCodename)) {
+            return false;
+        }
+
+        // Otherwise lexically compare them.  Return true if the build codename is equal to or
+        // greater than the requested codename.
+        return buildCodename.compareTo(codename) >= 0;
     }
 
     /**
@@ -130,15 +158,38 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android S or a release version of
      * Android S or newer.
-     * <p>
-     * <strong>Note:</strong> When Android S is finalized for release, this method will be
-     * deprecated and all calls should be replaced with {@code Build.VERSION.SDK_INT >=
-     * Build.VERSION_CODES.S}.
      *
      * @return {@code true} if S APIs are available for use, {@code false} otherwise
      */
-    @ChecksSdkIntAtLeast(codename = "S")
+    @ChecksSdkIntAtLeast(api = 31, codename = "S")
     public static boolean isAtLeastS() {
-        return VERSION.CODENAME.equals("S");
+        return VERSION.SDK_INT >= 31 || isAtLeastPreReleaseCodename("S", VERSION.CODENAME);
     }
+
+    /**
+     * Checks if the device is running on a pre-release version of Android T or a release version of
+     * Android T or newer.
+     * <p>
+     * <strong>Note:</strong> When Android T is finalized for release, this method will be
+     * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
+     * Build.VERSION_CODES.T}.
+     *
+     * @return {@code true} if T APIs are available for use, {@code false} otherwise
+     */
+    @PrereleaseSdkCheck
+    @ChecksSdkIntAtLeast(codename = "T")
+    public static boolean isAtLeastT() {
+        return isAtLeastPreReleaseCodename("T", VERSION.CODENAME);
+    }
+
+    /**
+     * Experimental feature set for pre-release SDK checks.
+     * <p>
+     * APIs annotated as part of this feature set should only be used when building against
+     * pre-release platform SDKs. They are safe to ship in production apps and alpha libraries,
+     * but they must not be shipped in beta or later libraries as they <strong>will be
+     * removed</strong> after their respective SDKs are finalized for release.
+     */
+    @RequiresOptIn
+    public @interface PrereleaseSdkCheck { }
 }

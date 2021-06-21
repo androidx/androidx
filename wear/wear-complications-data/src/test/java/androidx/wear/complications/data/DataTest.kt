@@ -60,9 +60,11 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun shortTextComplicationData() {
-        val data = ShortTextComplicationData.Builder("text".complicationText)
+        val data = ShortTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
             .setTitle("title".complicationText)
-            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -77,9 +79,11 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun longTextComplicationData() {
-        val data = LongTextComplicationData.Builder("text".complicationText)
+        val data = LongTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
             .setTitle("title".complicationText)
-            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -94,9 +98,11 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun rangedValueComplicationData() {
-        val data = RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+        val data = RangedValueComplicationData.Builder(
+            value = 95f, min = 0f, max = 100f,
+            contentDescription = "content description".complicationText
+        )
             .setTitle("battery".complicationText)
-            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -115,8 +121,9 @@ public class AsWireComplicationDataTest {
     public fun monochromaticImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
         val image = MonochromaticImage.Builder(icon).build()
-        val data = MonochromaticImageComplicationData.Builder(image)
-            .setContentDescription("content description".complicationText).build()
+        val data = MonochromaticImageComplicationData.Builder(
+            image, "content description".complicationText
+        ).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
@@ -131,8 +138,9 @@ public class AsWireComplicationDataTest {
     public fun smallImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
-        val data = SmallImageComplicationData.Builder(image)
-            .setContentDescription("content description".complicationText).build()
+        val data = SmallImageComplicationData.Builder(
+            image, "content description".complicationText
+        ).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
@@ -147,9 +155,9 @@ public class AsWireComplicationDataTest {
     @Test
     public fun backgroundImageComplicationData() {
         val photoImage = Icon.createWithContentUri("someuri")
-        val data = PhotoImageComplicationData.Builder(photoImage)
-            .setContentDescription("content description".complicationText)
-            .build()
+        val data = PhotoImageComplicationData.Builder(
+            photoImage, "content description".complicationText
+        ).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
@@ -177,7 +185,7 @@ public class AsWireComplicationDataTest {
     private fun testRoundTripConversions(data: ComplicationData) {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                data.asWireComplicationData().asApiComplicationData().asWireComplicationData()
+                data.asWireComplicationData().toApiComplicationData().asWireComplicationData()
             )
     }
 }
@@ -294,7 +302,7 @@ public class FromWireComplicationDataTest {
     }
 
     private fun assertRoundtrip(wireData: WireComplicationData, type: ComplicationType) {
-        val data = wireData.asApiComplicationData()
+        val data = wireData.toApiComplicationData()
         assertThat(data.type).isEqualTo(type)
         ParcelableSubject.assertThat(data.asWireComplicationData()).hasSameSerializationAs(wireData)
     }
@@ -312,7 +320,7 @@ public class TapActionTest {
     @Test
     public fun shortTextComplicationData() {
         assertThat(
-            ShortTextComplicationData.Builder("text".complicationText)
+            ShortTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -321,7 +329,7 @@ public class TapActionTest {
     @Test
     public fun longTextComplicationData() {
         assertThat(
-            LongTextComplicationData.Builder("text".complicationText)
+            LongTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -330,7 +338,10 @@ public class TapActionTest {
     @Test
     public fun rangedValueComplicationData() {
         assertThat(
-            RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+            RangedValueComplicationData.Builder(
+                value = 95f, min = 0f, max = 100f,
+                contentDescription = ComplicationText.EMPTY
+            )
                 .setTapAction(mPendingIntent)
                 .build().asWireComplicationData().tapAction
         ).isEqualTo(mPendingIntent)
@@ -341,7 +352,7 @@ public class TapActionTest {
         val icon = Icon.createWithContentUri("someuri")
         val image = MonochromaticImage.Builder(icon).build()
         assertThat(
-            MonochromaticImageComplicationData.Builder(image)
+            MonochromaticImageComplicationData.Builder(image, ComplicationText.EMPTY)
                 .setTapAction(mPendingIntent)
                 .build()
                 .asWireComplicationData()
@@ -354,7 +365,8 @@ public class TapActionTest {
         val icon = Icon.createWithContentUri("someuri")
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
         assertThat(
-            SmallImageComplicationData.Builder(image).setTapAction(mPendingIntent).build()
+            SmallImageComplicationData.Builder(image, ComplicationText.EMPTY)
+                .setTapAction(mPendingIntent).build()
                 .asWireComplicationData()
                 .tapAction
         ).isEqualTo(mPendingIntent)
@@ -365,7 +377,8 @@ public class TapActionTest {
         val icon = Icon.createWithContentUri("someuri")
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
         assertThat(
-            SmallImageComplicationData.Builder(image).setTapAction(mPendingIntent).build()
+            SmallImageComplicationData.Builder(image, ComplicationText.EMPTY)
+                .setTapAction(mPendingIntent).build()
                 .asWireComplicationData()
                 .tapAction
         ).isEqualTo(mPendingIntent)
@@ -379,7 +392,9 @@ public class ValidTimeRangeTest {
 
     @Test
     public fun shortTextComplicationData() {
-        val data = ShortTextComplicationData.Builder("text".complicationText)
+        val data = ShortTextComplicationData.Builder(
+            "text".complicationText, ComplicationText.EMPTY
+        )
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -394,7 +409,7 @@ public class ValidTimeRangeTest {
 
     @Test
     public fun longTextComplicationData() {
-        val data = LongTextComplicationData.Builder("text".complicationText)
+        val data = LongTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -409,7 +424,10 @@ public class ValidTimeRangeTest {
 
     @Test
     public fun rangedValueComplicationData() {
-        val data = RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+        val data = RangedValueComplicationData.Builder(
+            value = 95f, min = 0f, max = 100f,
+            contentDescription = ComplicationText.EMPTY
+        )
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -428,7 +446,7 @@ public class ValidTimeRangeTest {
     public fun monochromaticImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
         val image = MonochromaticImage.Builder(icon).build()
-        val data = MonochromaticImageComplicationData.Builder(image)
+        val data = MonochromaticImageComplicationData.Builder(image, ComplicationText.EMPTY)
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -445,7 +463,7 @@ public class ValidTimeRangeTest {
     public fun smallImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
-        val data = SmallImageComplicationData.Builder(image)
+        val data = SmallImageComplicationData.Builder(image, ComplicationText.EMPTY)
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -462,7 +480,7 @@ public class ValidTimeRangeTest {
     @Test
     public fun photoImageComplicationData() {
         val photoImage = Icon.createWithContentUri("someuri")
-        val data = PhotoImageComplicationData.Builder(photoImage)
+        val data = PhotoImageComplicationData.Builder(photoImage, ComplicationText.EMPTY)
             .setValidTimeRange(TimeRange.between(testStartDateTimeMillis, testEndDateTimeMillis))
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())

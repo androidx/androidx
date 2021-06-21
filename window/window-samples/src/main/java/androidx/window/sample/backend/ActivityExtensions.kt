@@ -18,18 +18,13 @@ package androidx.window.sample.backend
 
 import android.app.Activity
 import android.graphics.Point
-import android.util.DisplayMetrics
+import androidx.window.WindowManager
 
 /**
  * Return a [Point] whose dimensions match the metrics of the window.
  * @return [Point] whose dimensions match the metrics of the window.
  */
-@Suppress("DEPRECATION")
 internal fun Activity.calculateWindowSizeExt(): Point {
-    val displayMetrics = DisplayMetrics()
-    // TODO(b/159454816) Replace with window metrics.
-    this.windowManager.defaultDisplay
-        .getMetrics(displayMetrics)
-
-    return Point(displayMetrics.widthPixels, displayMetrics.heightPixels)
+    val bounds = WindowManager(this).getCurrentWindowMetrics().bounds
+    return Point(bounds.width(), bounds.height())
 }

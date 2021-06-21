@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -47,6 +48,7 @@ class Controller3AForCaptureTest {
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testLock3AForCapture(): Unit = runBlocking {
         initGraphProcessor()
@@ -103,7 +105,7 @@ class Controller3AForCaptureTest {
         }
 
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by lock3AForCapture call.
@@ -125,6 +127,7 @@ class Controller3AForCaptureTest {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun testUnlock3APostCaptureAndroidMAndAbove(): Unit = runBlocking {
         initGraphProcessor()
 
@@ -180,7 +183,7 @@ class Controller3AForCaptureTest {
         }
 
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture
@@ -193,6 +196,7 @@ class Controller3AForCaptureTest {
             .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun testUnlock3APostCaptureAndroidLAndBelow(): Unit = runBlocking {
         initGraphProcessor()
 
@@ -217,7 +221,7 @@ class Controller3AForCaptureTest {
 
         cameraResponse.await()
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture

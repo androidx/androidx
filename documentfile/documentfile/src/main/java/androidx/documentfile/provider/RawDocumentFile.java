@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
@@ -36,7 +37,7 @@ class RawDocumentFile extends DocumentFile {
 
     @Override
     @Nullable
-    public DocumentFile createFile(String mimeType, String displayName) {
+    public DocumentFile createFile(@NonNull String mimeType, @NonNull String displayName) {
         // Tack on extension when valid MIME type provided
         final String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
         if (extension != null) {
@@ -44,8 +45,11 @@ class RawDocumentFile extends DocumentFile {
         }
         final File target = new File(mFile, displayName);
         try {
-            target.createNewFile();
-            return new RawDocumentFile(this, target);
+            if (target.createNewFile()) {
+                return new RawDocumentFile(this, target);
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             Log.w(TAG, "Failed to createFile: " + e);
             return null;
@@ -54,7 +58,7 @@ class RawDocumentFile extends DocumentFile {
 
     @Override
     @Nullable
-    public DocumentFile createDirectory(String displayName) {
+    public DocumentFile createDirectory(@NonNull String displayName) {
         final File target = new File(mFile, displayName);
         if (target.isDirectory() || target.mkdir()) {
             return new RawDocumentFile(this, target);
@@ -63,6 +67,7 @@ class RawDocumentFile extends DocumentFile {
         }
     }
 
+    @NonNull
     @Override
     public Uri getUri() {
         return Uri.fromFile(mFile);
@@ -129,20 +134,21 @@ class RawDocumentFile extends DocumentFile {
         return mFile.exists();
     }
 
+    @NonNull
     @Override
     public DocumentFile[] listFiles() {
-        final ArrayList<DocumentFile> results = new ArrayList<DocumentFile>();
+        final ArrayList<DocumentFile> results = new ArrayList<>();
         final File[] files = mFile.listFiles();
         if (files != null) {
             for (File file : files) {
                 results.add(new RawDocumentFile(this, file));
             }
         }
-        return results.toArray(new DocumentFile[results.size()]);
+        return results.toArray(new DocumentFile[0]);
     }
 
     @Override
-    public boolean renameTo(String displayName) {
+    public boolean renameTo(@NonNull String displayName) {
         final File target = new File(mFile.getParentFile(), displayName);
         if (mFile.renameTo(target)) {
             mFile = target;

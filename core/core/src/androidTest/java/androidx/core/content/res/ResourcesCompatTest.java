@@ -39,6 +39,7 @@ import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -97,37 +98,35 @@ public class ResourcesCompatTest {
                 unthemedColorStateList.getColorForState(
                         new int[]{android.R.attr.state_pressed}, 0));
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            // The following tests are only expected to pass on v23+ devices. The result of
-            // calling theme-aware getColorStateList() in pre-v23 is undefined.
-            final Resources.Theme yellowTheme = mResources.newTheme();
-            yellowTheme.applyStyle(R.style.YellowTheme, true);
-            final ColorStateList themedYellowColorStateList =
-                    ResourcesCompat.getColorStateList(mResources, R.color.complex_themed_selector,
-                            yellowTheme);
-            assertEquals("Themed yellow color state list load: default", 0xFFF0B000,
-                    themedYellowColorStateList.getDefaultColor());
-            assertEquals("Themed yellow color state list load: focused", 0xFFF0A020,
-                    themedYellowColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_focused}, 0));
-            assertEquals("Themed yellow color state list load: pressed", 0xFFE0A040,
-                    themedYellowColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_pressed}, 0));
+        final Resources.Theme yellowTheme = mResources.newTheme();
+        yellowTheme.applyStyle(R.style.YellowTheme, true);
+        final ColorStateList themedYellowColorStateList =
+                ResourcesCompat.getColorStateList(mResources, R.color.complex_themed_selector,
+                        yellowTheme);
+        assertEquals("Themed yellow color state list load: default", 0xFFF0B000,
+                themedYellowColorStateList.getDefaultColor());
+        assertEquals("Themed yellow color state list load: focused", 0xFFF0A020,
+                themedYellowColorStateList.getColorForState(
+                        new int[]{android.R.attr.state_focused}, 0));
+        assertEquals("Themed yellow color state list load: pressed", 0xFFE0A040,
+                themedYellowColorStateList.getColorForState(
+                        new int[]{android.R.attr.state_pressed}, 0));
 
-            final Resources.Theme lilacTheme = mResources.newTheme();
-            lilacTheme.applyStyle(R.style.LilacTheme, true);
-            final ColorStateList themedLilacColorStateList =
-                    ResourcesCompat.getColorStateList(mResources, R.color.complex_themed_selector,
-                            lilacTheme);
-            assertEquals("Themed lilac color state list load: default", 0xFFF080F0,
-                    themedLilacColorStateList.getDefaultColor());
-            assertEquals("Themed lilac color state list load: focused", 0xFFF070D0,
-                    themedLilacColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_focused}, 0));
-            assertEquals("Themed lilac color state list load: pressed", 0xFFE070A0,
-                    themedLilacColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_pressed}, 0));
-        }
+        // reloading the same resource with a different theme should not result in the cached CSL
+        // being returned; it should inflate a new one
+        final Resources.Theme lilacTheme = mResources.newTheme();
+        lilacTheme.applyStyle(R.style.LilacTheme, true);
+        final ColorStateList themedLilacColorStateList =
+                ResourcesCompat.getColorStateList(mResources, R.color.complex_themed_selector,
+                        lilacTheme);
+        assertEquals("Themed lilac color state list load: default", 0xFFF080F0,
+                themedLilacColorStateList.getDefaultColor());
+        assertEquals("Themed lilac color state list load: focused", 0xFFF070D0,
+                themedLilacColorStateList.getColorForState(
+                        new int[]{android.R.attr.state_focused}, 0));
+        assertEquals("Themed lilac color state list load: pressed", 0xFFE070A0,
+                themedLilacColorStateList.getColorForState(
+                        new int[]{android.R.attr.state_pressed}, 0));
     }
 
     @Test
@@ -454,6 +453,7 @@ public class ResourcesCompatTest {
         assertSame(font, font2);
     }
 
+    @FlakyTest(bugId = 190534138)
     @Test
     public void testSystemFontFamilyReturnsSystemFont() {
         Typeface typeface = ResourcesCompat.getFont(mContext, R.font.samplexmldownloadedfont);

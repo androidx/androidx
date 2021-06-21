@@ -37,9 +37,9 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -51,16 +51,21 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
-import androidx.camera.view.SensorRotationListener;
+import androidx.camera.view.RotationReceiver;
 import androidx.camera.view.video.ExperimentalVideo;
 import androidx.camera.view.video.OnVideoSavedCallback;
 import androidx.camera.view.video.OutputFileOptions;
 import androidx.camera.view.video.OutputFileResults;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -88,8 +93,9 @@ public class CameraControllerFragment extends Fragment {
     private ToggleButton mPinchToZoomToggle;
     private ToggleButton mTapToFocusToggle;
     private TextView mZoomStateText;
+    private TextView mFocusResultText;
     private TextView mTorchStateText;
-    private RotationListener mSensorRotationListener;
+    private SensorRotationReceiver mSensorRotationReceiver;
     private TextView mLuminance;
     private boolean mIsAnalyzerSet = true;
 
@@ -117,14 +123,14 @@ public class CameraControllerFragment extends Fragment {
 
     @NonNull
     @Override
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
-        mSensorRotationListener = new RotationListener(requireContext());
-        mSensorRotationListener.enable();
+        mSensorRotationReceiver = new SensorRotationReceiver(requireContext());
+        mSensorRotationReceiver.enable();
         mCameraController = new LifecycleCameraController(requireContext());
         checkFailedFuture(mCameraController.getInitializationFuture());
         runSafely(() -> mCameraController.bindToLifecycle(getViewLifecycleOwner()));
@@ -135,7 +141,6 @@ public class CameraControllerFragment extends Fragment {
         // Use compatible mode so StreamState is accurate.
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.setController(mCameraController);
-        mPreviewView.setOnClickListener(v -> toast("PreviewView clicked."));
 
         // Set up the button to add and remove the PreviewView
         mContainer = view.findViewById(R.id.container);
@@ -306,6 +311,13 @@ public class CameraControllerFragment extends Fragment {
         mCameraController.getZoomState().observe(getViewLifecycleOwner(),
                 this::updateZoomStateText);
 
+        mFocusResultText = view.findViewById(R.id.focus_result_text);
+        LiveData<Integer> focusMeteringResult =
+                mCameraController.getTapToFocusState();
+        updateFocusStateText(Objects.requireNonNull(focusMeteringResult.getValue()));
+        focusMeteringResult.observe(getViewLifecycleOwner(),
+                this::updateFocusStateText);
+
         mTorchStateText = view.findViewById(R.id.torch_state_text);
         updateTorchStateText(mCameraController.getTorchState().getValue());
         mCameraController.getTorchState().observe(getViewLifecycleOwner(),
@@ -321,8 +333,8 @@ public class CameraControllerFragment extends Fragment {
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
-        if (mSensorRotationListener != null) {
-            mSensorRotationListener.disable();
+        if (mSensorRotationReceiver != null) {
+            mSensorRotationReceiver.disable();
         }
     }
 
@@ -356,6 +368,30 @@ public class CameraControllerFragment extends Fragment {
         }
     }
 
+    private void updateFocusStateText(@NonNull Integer tapToFocusState) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String text = "";
+        switch (tapToFocusState) {
+            case CameraController.TAP_TO_FOCUS_NOT_STARTED:
+                text = "not started";
+                break;
+            case CameraController.TAP_TO_FOCUS_STARTED:
+                text = "started";
+                break;
+            case CameraController.TAP_TO_FOCUS_SUCCESSFUL:
+                text = "successful";
+                break;
+            case CameraController.TAP_TO_FOCUS_UNSUCCESSFUL:
+                text = "unsuccessful";
+                break;
+            case CameraController.TAP_TO_FOCUS_FAILED:
+                text = "failed";
+                break;
+        }
+        mFocusResultText.setText(
+                "Focus state: " + text + " time: " + dateFormat.format(new Date()));
+    }
+
     private void updateTorchStateText(@Nullable Integer torchState) {
         if (torchState == null) {
             mTorchStateText.setText("Torch state null");
@@ -367,7 +403,7 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Updates UI text based on the state of {@link #mCameraController}.
      */
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     private void updateUiText() {
         mFlashMode.setText(getFlashModeTextResId());
         final Integer lensFacing = mCameraController.getCameraSelector().getLensFacing();
@@ -424,7 +460,7 @@ public class CameraControllerFragment extends Fragment {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     private void onUseCaseToggled(CompoundButton compoundButton, boolean value) {
         if (mCaptureEnabledToggle == null || mAnalysisEnabledToggle == null
                 || mVideoEnabledToggle == null) {
@@ -451,11 +487,11 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Listens to accelerometer rotation change and pass it to tests.
      */
-    static class RotationListener extends SensorRotationListener {
+    static class SensorRotationReceiver extends RotationReceiver {
 
         private int mRotation;
 
-        RotationListener(@NonNull Context context) {
+        SensorRotationReceiver(@NonNull Context context) {
             super(context);
         }
 
@@ -498,7 +534,7 @@ public class CameraControllerFragment extends Fragment {
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     int getSensorRotation() {
-        return mSensorRotationListener.getRotation();
+        return mSensorRotationReceiver.getRotation();
     }
 
     @VisibleForTesting

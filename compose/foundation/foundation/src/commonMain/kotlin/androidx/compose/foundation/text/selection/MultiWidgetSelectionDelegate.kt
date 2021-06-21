@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import kotlin.math.max
 
 internal class MultiWidgetSelectionDelegate(
@@ -33,7 +34,7 @@ internal class MultiWidgetSelectionDelegate(
         startPosition: Offset,
         endPosition: Offset,
         containerLayoutCoordinates: LayoutCoordinates,
-        longPress: Boolean,
+        adjustment: SelectionAdjustment,
         previousSelection: Selection?,
         isStartHandle: Boolean
     ): Selection? {
@@ -49,10 +50,22 @@ internal class MultiWidgetSelectionDelegate(
         return getTextSelectionInfo(
             textLayoutResult = textLayoutResult,
             selectionCoordinates = Pair(startPx, endPx),
-            selectable = this,
-            wordBasedSelection = longPress,
+            selectableId = selectableId,
+            adjustment = adjustment,
             previousSelection = previousSelection,
             isStartHandle = isStartHandle
+        )
+    }
+
+    override fun getSelectAllSelection(): Selection? {
+        val textLayoutResult = layoutResultCallback() ?: return null
+
+        return getAssembledSelectionInfo(
+            startOffset = 0,
+            endOffset = textLayoutResult.layoutInput.text.length,
+            handlesCrossed = false,
+            selectableId = selectableId,
+            textLayoutResult = textLayoutResult
         )
     }
 
@@ -103,24 +116,38 @@ internal class MultiWidgetSelectionDelegate(
  * @param textLayoutResult a result of the text layout.
  * @param selectionCoordinates The positions of the start and end of the selection in Text
  * composable coordinate system.
- * @param selectable current [Selectable] for which the [Selection] is being calculated
- * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
- * the selection is modified by long press and drag gesture, the result selection will be
- * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
- * selection.
- * @param previousSelection previous selection result
- * @param isStartHandle true if the start handle is being dragged
  *
  * @return [Selection] of the current composable, or null if the composable is not selected.
  */
 internal fun getTextSelectionInfo(
     textLayoutResult: TextLayoutResult,
     selectionCoordinates: Pair<Offset, Offset>,
-    selectable: Selectable,
-    wordBasedSelection: Boolean,
+    selectableId: Long,
+    adjustment: SelectionAdjustment,
     previousSelection: Selection? = null,
     isStartHandle: Boolean = true
 ): Selection? {
+    val textRange = getTextSelectionRange(textLayoutResult, selectionCoordinates) ?: return null
+    val adjustedTextRange = adjustSelection(
+        textLayoutResult = textLayoutResult,
+        textRange = textRange,
+        isStartHandle = isStartHandle,
+        previousHandlesCrossed = previousSelection?.handlesCrossed ?: false,
+        adjustment = adjustment
+    )
+    return getAssembledSelectionInfo(
+        startOffset = adjustedTextRange.start,
+        endOffset = adjustedTextRange.end,
+        handlesCrossed = adjustedTextRange.reversed,
+        selectableId = selectableId,
+        textLayoutResult = textLayoutResult
+    )
+}
+
+internal fun getTextSelectionRange(
+    textLayoutResult: TextLayoutResult,
+    selectionCoordinates: Pair<Offset, Offset>
+): TextRange? {
     val startPosition = selectionCoordinates.first
     val endPosition = selectionCoordinates.second
 
@@ -140,124 +167,75 @@ internal fun getTextSelectionInfo(
         bounds.contains(Offset(endPosition.x, endPosition.y))
 
     val rawStartOffset =
-        if (containsWholeSelectionStart)
+        if (containsWholeSelectionStart) {
             textLayoutResult.getOffsetForPosition(startPosition).coerceIn(0, lastOffset)
-        else
-        // If the composable is selected, the start offset cannot be -1 for this composable. If the
-        // final start offset is still -1, it means this composable is not selected.
+        } else {
+            // If the composable is selected, the start offset cannot be -1 for this composable. If the
+            // final start offset is still -1, it means this composable is not selected.
             -1
+        }
     val rawEndOffset =
-        if (containsWholeSelectionEnd)
+        if (containsWholeSelectionEnd) {
             textLayoutResult.getOffsetForPosition(endPosition).coerceIn(0, lastOffset)
-        else
-        // If the composable is selected, the end offset cannot be -1 for this composable. If the
-        // final end offset is still -1, it means this composable is not selected.
+        } else {
+            // If the composable is selected, the end offset cannot be -1 for this composable. If the
+            // final end offset is still -1, it means this composable is not selected.
             -1
+        }
 
-    return getRefinedSelectionInfo(
+    return getRefinedSelectionRange(
         rawStartOffset = rawStartOffset,
         rawEndOffset = rawEndOffset,
-        containsWholeSelectionStart = containsWholeSelectionStart,
-        containsWholeSelectionEnd = containsWholeSelectionEnd,
         startPosition = startPosition,
         endPosition = endPosition,
         bounds = bounds,
-        textLayoutResult = textLayoutResult,
         lastOffset = lastOffset,
-        selectable = selectable,
-        wordBasedSelection = wordBasedSelection,
-        previousSelection = previousSelection,
-        isStartHandle = isStartHandle
     )
 }
 
 /**
  * This method refines the selection info by processing the initial raw selection info.
  *
- * @param rawStartOffset unprocessed start offset calculated directly from input position
- * @param rawEndOffset unprocessed end offset calculated directly from input position
- * @param containsWholeSelectionStart a flag to check if current composable contains the overall
- * selection start
- * @param containsWholeSelectionEnd a flag to check if current composable contains the overall
- * selection end
+ * @param rawStartOffset unprocessed start offset calculated directly from input position.
+ * A negative value of this parameter means that the start handle is not in this selectable.
+ * @param rawEndOffset unprocessed end offset calculated directly from input position. A negative
+ * value of this parameter means that the start handle is not in this selectable.
  * @param startPosition graphical position of the start of the selection, in composable's
  * coordinates.
  * @param endPosition graphical position of the end of the selection, in composable's coordinates.
  * @param bounds bounds of the current composable
- * @param textLayoutResult a result of the text layout.
  * @param lastOffset last offset of the text. It's actually the length of the text.
- * @param selectable current [Selectable] for which the [Selection] is being calculated
- * @param wordBasedSelection This flag is ignored if the selection handles are being dragged. If
- * the selection is modified by long press and drag gesture, the result selection will be
- * adjusted to word based selection. Otherwise, the selection will be adjusted to character based
- * selection.
- * @param previousSelection previous selection result
- * @param isStartHandle true if the start handle is being dragged
  *
  * @return [Selection] of the current composable, or null if the composable is not selected.
  */
-private fun getRefinedSelectionInfo(
+private fun getRefinedSelectionRange(
     rawStartOffset: Int,
     rawEndOffset: Int,
-    containsWholeSelectionStart: Boolean,
-    containsWholeSelectionEnd: Boolean,
     startPosition: Offset,
     endPosition: Offset,
     bounds: Rect,
-    textLayoutResult: TextLayoutResult,
-    lastOffset: Int,
-    selectable: Selectable,
-    wordBasedSelection: Boolean,
-    previousSelection: Selection? = null,
-    isStartHandle: Boolean = true
-): Selection? {
+    lastOffset: Int
+): TextRange? {
+    val containsWholeSelectionStart = rawStartOffset >= 0
+    val containsWholeSelectionEnd = rawEndOffset >= 0
+
     val shouldProcessAsSinglecomposable =
         containsWholeSelectionStart && containsWholeSelectionEnd
 
-    var (startOffset, endOffset, handlesCrossed) =
-        if (shouldProcessAsSinglecomposable) {
-            processAsSingleComposable(
-                rawStartOffset = rawStartOffset,
-                rawEndOffset = rawEndOffset,
-                previousSelection = previousSelection?.toTextRange(),
-                isStartHandle = isStartHandle,
-                lastOffset = lastOffset,
-                handlesCrossed = previousSelection?.handlesCrossed ?: false
-            )
-        } else {
-            processCrossComposable(
-                startPosition = startPosition,
-                endPosition = endPosition,
-                rawStartOffset = rawStartOffset,
-                rawEndOffset = rawEndOffset,
-                lastOffset = lastOffset,
-                bounds = bounds,
-                containsWholeSelectionStart = containsWholeSelectionStart,
-                containsWholeSelectionEnd = containsWholeSelectionEnd
-            )
-        }
-    // nothing is selected
-    if (startOffset == -1 && endOffset == -1) return null
-
-    // If under long press, update the selection to word-based.
-    if (wordBasedSelection) {
-        val (start, end) = updateWordBasedSelection(
-            textLayoutResult = textLayoutResult,
-            startOffset = startOffset,
-            endOffset = endOffset,
-            handlesCrossed = handlesCrossed
+    return if (shouldProcessAsSinglecomposable) {
+        TextRange(rawStartOffset, rawEndOffset)
+    } else {
+        processCrossComposable(
+            startPosition = startPosition,
+            endPosition = endPosition,
+            rawStartOffset = rawStartOffset,
+            rawEndOffset = rawEndOffset,
+            lastOffset = lastOffset,
+            bounds = bounds,
+            containsWholeSelectionStart = containsWholeSelectionStart,
+            containsWholeSelectionEnd = containsWholeSelectionEnd
         )
-        startOffset = start
-        endOffset = end
     }
-
-    return getAssembledSelectionInfo(
-        startOffset = startOffset,
-        endOffset = endOffset,
-        handlesCrossed = handlesCrossed,
-        selectableId = selectable.selectableId,
-        textLayoutResult = textLayoutResult
-    )
 }
 
 /**

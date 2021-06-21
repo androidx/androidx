@@ -1,13 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
-    apply from: "../buildSrc/build_dependencies.gradle"
-
     repositories {
         google()
         jcenter()
         maven {
-            url("https://androidx.dev/dokka/builds/6656073/artifacts/repository")
+            url("https://androidx.dev/dokka/builds/7299536/artifacts/repository")
             metadataSources {
                 mavenPom()
                 artifact()
@@ -16,10 +14,9 @@ buildscript {
     }
 
     dependencies {
-        classpath build_libs.agp
-        classpath build_libs.kotlin.gradle_plugin
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${build_versions.dokka}"
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${build_versions.dokka}"
+        classpath(libs.androidGradlePlugin)
+        classpath(libs.kotlinGradlePlugin)
+        classpath(libs.dokkaGradlePlugin)
     }
 }
 
@@ -29,14 +26,14 @@ allprojects {
         mavenCentral()
         jcenter()
         maven {
-            url("https://androidx.dev/metalava/builds/6604778/artifacts/repo/m2repository")
+            url("https://androidx.dev/metalava/builds/7255182/artifacts/repo/m2repository")
             metadataSources {
                 mavenPom()
                 artifact()
             }
         }
         maven {
-            url("https://androidx.dev/dokka/builds/6656073/artifacts/repository")
+            url("https://androidx.dev/dokka/builds/7299536/artifacts/repository")
             metadataSources {
                 mavenPom()
                 artifact()

@@ -28,7 +28,6 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
-import androidx.wear.complications.data.ComplicationType;
 
 import java.util.Map;
 
@@ -40,9 +39,10 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     public static final int ENABLED_UNKNOWN = -1;
     public static final int ENABLED_YES = 1;
     public static final int ENABLED_NO = 0;
+    public static final long NULL_ACCESSIBILITY_TRAVERSAL_INDEX = 0x100000000L;
 
     @ParcelField(1)
-    public int mComplicationId;
+    public int mComplicationSlotId;
 
     /**
      * VersionedParcelable doesn't support boxed Boolean so we set this to one of
@@ -53,28 +53,51 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
 
     @ParcelField(3)
     @Nullable
-    public Map<ComplicationType, RectF> mPerComplicationTypeBounds;
+    public Map<Integer, RectF> mPerComplicationTypeBounds;
+
+    /** Ideally this would be Integer but VersionedParcelable doesn't support that. */
+    @ParcelField(4)
+    long mAccessibilityTraversalIndex;
 
     ComplicationOverlayWireFormat() {
     }
 
     public ComplicationOverlayWireFormat(
-            int complicationId,
+            int complicationSlotId,
             @Nullable Boolean enabled,
-            @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds
+            @Nullable Map<Integer, RectF> perComplicationTypeBounds,
+            @Nullable Integer accessibilityTraversalIndex
     ) {
-        mComplicationId = complicationId;
+        mComplicationSlotId = complicationSlotId;
         if (enabled != null) {
             mEnabled = enabled ? ENABLED_YES : ENABLED_NO;
         } else {
             mEnabled = ENABLED_UNKNOWN;
         }
         mPerComplicationTypeBounds = perComplicationTypeBounds;
+        if (accessibilityTraversalIndex == null) {
+            mAccessibilityTraversalIndex = NULL_ACCESSIBILITY_TRAVERSAL_INDEX;
+        } else {
+            mAccessibilityTraversalIndex = accessibilityTraversalIndex;
+        }
     }
 
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    /**
+     * Returns the optional override to the accessibilityTraversalIndex used for sorting
+     * ContentDescriptionLabels. See ComplicationOverlay for details.
+     */
+    @Nullable
+    public Integer getAccessibilityTraversalIndex() {
+        if (mAccessibilityTraversalIndex == NULL_ACCESSIBILITY_TRAVERSAL_INDEX) {
+            return null;
+        } else {
+            return (int) mAccessibilityTraversalIndex;
+        }
     }
 
     /** Serializes this UserStyleWireFormat to the specified {@link Parcel}. */

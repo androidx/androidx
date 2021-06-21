@@ -133,7 +133,7 @@ class CaptureProcessorPipeline implements CaptureProcessor {
         // SettableImageProxyBundle and calls the post-processing CaptureProcessor to process it.
         Preconditions.checkNotNull(mSourceImageInfo);
         String tagBundleKey = mSourceImageInfo.getTagBundle().listKeys().iterator().next();
-        int captureId = mSourceImageInfo.getTagBundle().getTag(tagBundleKey);
+        int captureId = (Integer) mSourceImageInfo.getTagBundle().getTag(tagBundleKey);
         SettableImageProxy settableImageProxy =
                 new SettableImageProxy(imageProxy, resolution, mSourceImageInfo);
         mSourceImageInfo = null;

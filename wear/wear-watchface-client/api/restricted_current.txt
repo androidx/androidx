@@ -1,9 +1,9 @@
 // Signature format: 4.0
 package androidx.wear.watchface.client {
 
-  public final class ComplicationState {
-    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider, android.os.Bundle complicationConfigExtras);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ComplicationState(androidx.wear.watchface.data.ComplicationStateWireFormat complicationStateWireFormat);
+  public final class ComplicationSlotState {
+    ctor public ComplicationSlotState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationSlotBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider, android.os.Bundle complicationConfigExtras);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ComplicationSlotState(androidx.wear.watchface.data.ComplicationStateWireFormat complicationStateWireFormat);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
     method public android.os.Bundle getComplicationConfigExtras();
@@ -26,6 +26,14 @@ package androidx.wear.watchface.client {
     property public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
   }
 
+  public final class DefaultComplicationProviderPolicyAndType {
+    ctor public DefaultComplicationProviderPolicyAndType(androidx.wear.complications.DefaultComplicationProviderPolicy policy, androidx.wear.complications.data.ComplicationType type);
+    method public androidx.wear.complications.DefaultComplicationProviderPolicy getPolicy();
+    method public androidx.wear.complications.data.ComplicationType getType();
+    property public final androidx.wear.complications.DefaultComplicationProviderPolicy policy;
+    property public final androidx.wear.complications.data.ComplicationType type;
+  }
+
   public final class DeviceConfig {
     ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
@@ -38,26 +46,25 @@ package androidx.wear.watchface.client {
     property public final boolean hasLowBitAmbient;
   }
 
-  public interface EditorObserverCallback {
-    method public void onEditorStateChange(androidx.wear.watchface.client.EditorState editorState);
+  public interface EditorListener {
+    method public void onEditorStateChanged(androidx.wear.watchface.client.EditorState editorState);
   }
 
   public interface EditorServiceClient {
+    method public void addListener(androidx.wear.watchface.client.EditorListener editorListener, java.util.concurrent.Executor listenerExecutor);
     method public void closeEditor();
-    method public void registerObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
-    method public void registerObserver(optional java.util.concurrent.Executor? observerCallbackExecutor, androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
-    method public void unregisterObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+    method public void removeListener(androidx.wear.watchface.client.EditorListener editorListener);
   }
 
   public final class EditorState {
-    method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationData();
-    method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
-    method public String getWatchFaceInstanceId();
-    method public boolean hasCommitChanges();
-    property public final boolean commitChanges;
-    property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationData;
-    property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
-    property public final String watchFaceInstanceId;
+    method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationsData();
+    method public androidx.wear.watchface.style.UserStyleData getUserStyle();
+    method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
+    method public boolean shouldCommitChanges();
+    property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationsData;
+    property public final boolean shouldCommitChanges;
+    property public final androidx.wear.watchface.style.UserStyleData userStyle;
+    property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
   }
 
   public final class EditorStateKt {
@@ -65,99 +72,77 @@ package androidx.wear.watchface.client {
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
-    method public android.os.IBinder asBinder();
-    method public default static androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBinder(android.os.IBinder binder);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.HeadlessWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
+    method public default static androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBundle(android.os.Bundle bundle);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
-    method @RequiresApi(27) public android.graphics.Bitmap? takeComplicationScreenshot(int complicationId, androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
-    method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    method @AnyThread public boolean isConnectionAlive();
+    method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.HeadlessWatchFaceClient.ClientDisconnectListener listener);
+    method @RequiresApi(27) public android.graphics.Bitmap? renderComplicationToBitmap(int complicationSlotId, androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
+    method @RequiresApi(27) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
+    method public android.os.Bundle toBundle();
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
+    field public static final String BINDER_KEY = "HeadlessWatchFaceClient";
     field public static final androidx.wear.watchface.client.HeadlessWatchFaceClient.Companion Companion;
   }
 
+  public static interface HeadlessWatchFaceClient.ClientDisconnectListener {
+    method public void onClientDisconnected();
+  }
+
   public static final class HeadlessWatchFaceClient.Companion {
-    method public androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBinder(android.os.IBinder binder);
+    method public androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBundle(android.os.Bundle bundle);
   }
 
-  public interface InteractiveWatchFaceSysUiClient extends java.lang.AutoCloseable {
-    method public android.os.IBinder asBinder();
-    method public default static androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient createFromBinder(android.os.IBinder binder);
-    method public java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> getContentDescriptionLabels();
-    method public String getInstanceId();
-    method public long getPreviewReferenceTimeMillis();
-    method public void performAmbientTick();
-    method public void sendTouchEvent(int xPosition, int yPosition, @androidx.wear.watchface.client.TapType int tapType);
-    method public void setSystemState(androidx.wear.watchface.client.SystemState systemState);
-    method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
-    property public abstract java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> contentDescriptionLabels;
-    property public abstract String instanceId;
-    property public abstract long previewReferenceTimeMillis;
-    field public static final androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.Companion Companion;
-    field public static final int TAP_TYPE_TAP = 2; // 0x2
-    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
-    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
-  }
-
-  public static final class InteractiveWatchFaceSysUiClient.Companion {
-    method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient createFromBinder(android.os.IBinder binder);
-    field public static final int TAP_TYPE_TAP = 2; // 0x2
-    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
-    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
-  }
-
-  public static final class InteractiveWatchFaceSysUiClient.ContentDescriptionLabel {
-    ctor public InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(android.support.wearable.complications.TimeDependentText text, android.graphics.Rect bounds, android.app.PendingIntent? tapAction);
-    method public android.graphics.Rect getBounds();
-    method public android.app.PendingIntent? getTapAction();
-    method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
-    property public final android.graphics.Rect bounds;
-    property public final android.app.PendingIntent? tapAction;
-  }
-
-  public interface InteractiveWatchFaceWcsClient extends java.lang.AutoCloseable {
-    method public android.os.IBinder asBinder();
-    method public void bringAttentionToComplication(int complicationId);
-    method public default static androidx.wear.watchface.client.InteractiveWatchFaceWcsClient createFromBinder(android.os.IBinder binder);
+  public interface InteractiveWatchFaceClient extends java.lang.AutoCloseable {
+    method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
+    method public void displayPressedAnimation(int complicationSlotId);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
+    method public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
-    method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
-    method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> idToComplicationData);
-    method public void updateInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
-    method public void updateInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    method @AnyThread public boolean isConnectionAlive();
+    method public void performAmbientTick();
+    method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener);
+    method @RequiresApi(27) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
+    method public void sendTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType);
+    method public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState);
+    method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> slotIdToComplicationData);
+    method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
+    method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyleData userStyle);
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
+    property public abstract java.util.List<androidx.wear.watchface.ContentDescriptionLabel> contentDescriptionLabels;
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
-    field public static final androidx.wear.watchface.client.InteractiveWatchFaceWcsClient.Companion Companion;
+    field public static final androidx.wear.watchface.client.InteractiveWatchFaceClient.Companion Companion;
+    field public static final int TAP_TYPE_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_DOWN = 0; // 0x0
+    field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
-  public static final class InteractiveWatchFaceWcsClient.Companion {
-    method public androidx.wear.watchface.client.InteractiveWatchFaceWcsClient createFromBinder(android.os.IBinder binder);
+  public static interface InteractiveWatchFaceClient.ClientDisconnectListener {
+    method public void onClientDisconnected();
   }
 
-  public final class SystemState {
-    ctor public SystemState(boolean inAmbientMode, int interruptionFilter);
-    method public int getInterruptionFilter();
-    method public boolean inAmbientMode();
-    property public final boolean inAmbientMode;
-    property public final int interruptionFilter;
-  }
-
-  @IntDef({androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH_CANCEL, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TAP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface TapType {
+  public static final class InteractiveWatchFaceClient.Companion {
+    field public static final int TAP_TYPE_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_DOWN = 0; // 0x0
+    field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
-    method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
+    method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, @Px int surfaceWidth, @Px int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.DefaultComplicationProviderPolicyAndType> getDefaultComplicationProviderPoliciesAndType(android.content.ComponentName watchFaceName);
     method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
-    method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient? getInteractiveWatchFaceSysUiClientInstance(String instanceId);
-    method public kotlinx.coroutines.Deferred<androidx.wear.watchface.client.InteractiveWatchFaceWcsClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.SystemState systemState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
+    method public androidx.wear.watchface.client.InteractiveWatchFaceClient? getInteractiveWatchFaceClientInstance(String instanceId);
+    method public suspend Object? getOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, androidx.wear.watchface.style.UserStyleData? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient> p);
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;
   }
 
@@ -170,7 +155,21 @@ package androidx.wear.watchface.client {
   }
 
   public static final class WatchFaceControlClient.ServiceStartFailureException extends java.lang.Exception {
-    ctor public WatchFaceControlClient.ServiceStartFailureException();
+    ctor public WatchFaceControlClient.ServiceStartFailureException(optional String message);
+  }
+
+  public final class WatchFaceId {
+    ctor public WatchFaceId(String id);
+    method public String getId();
+    property public final String id;
+  }
+
+  public final class WatchUiState {
+    ctor public WatchUiState(boolean inAmbientMode, int interruptionFilter);
+    method public int getInterruptionFilter();
+    method public boolean inAmbientMode();
+    property public final boolean inAmbientMode;
+    property public final int interruptionFilter;
   }
 
 }

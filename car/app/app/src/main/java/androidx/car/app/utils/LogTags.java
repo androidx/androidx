@@ -42,6 +42,9 @@ public final class LogTags {
     /** Tag to use for serialization. */
     public static final String TAG_BUNDLER = TAG + ".Bun";
 
+    /** Tag to use for checking connection to a car head unit. */
+    public static final String TAG_CONNECTION_TO_CAR = TAG + ".Conn";
+
     private LogTags() {
     }
 }

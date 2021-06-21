@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 <resources>
+    <!-- Default style for NestedScrollView. Should be set in your theme. -->
+    <attr name="nestedScrollViewStyle" format="reference" />
+
     <!-- Attributes that are read when parsing a <fontfamily> tag. -->
     <declare-styleable name="FontFamily">
         <!-- The authority of the Font Provider to be used for the request. -->
@@ -157,5 +160,14 @@
         <attr name="android:offset" />
         <!-- The current color for the offset inside the gradient. -->
         <attr name="android:color" />
+    </declare-styleable>
+
+    <!-- Attributes that are read when parsing a <capability> tag. -->
+    <declare-styleable name="Capability">
+        <!-- Resource reference to the string array of query patterns for a custom capability. -->
+        <attr name="queryPatterns" format="reference" />
+        <!-- Indicates whether a parameter in a capability template can only contain a matched
+             shortcut id and not an arbitrary string. -->
+        <attr name="shortcutMatchRequired" format="boolean" />
     </declare-styleable>
 </resources>

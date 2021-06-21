@@ -17,13 +17,24 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+
 /**
  * Load the OEM extension implementation for HDR effect type.
+ *
+ * @deprecated Use
+ * {@link ExtensionsManager#isExtensionAvailable(CameraProvider, CameraSelector, int)}
+ * to check whether extension function can support with the given {@link CameraSelector}. Use
+ * {@link ExtensionsManager#getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}
+ * to get a {@link CameraSelector} for the specific extension mode, then use it to bind the use
+ * cases to a lifecycle owner.
  */
+@Deprecated
 public class HdrImageCaptureExtender extends ImageCaptureExtender {
     private static final String TAG = "HdrImageCaptureExtender";
 
@@ -67,7 +78,7 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
 
         VendorHdrImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new HdrImageCaptureExtenderImpl();
-            init(builder, mImpl, Extensions.EXTENSION_MODE_HDR);
+            init(builder, mImpl, ExtensionMode.HDR);
         }
     }
 
