@@ -344,7 +344,10 @@ class LimitOffsetPagingSourceTest {
                     key = 101,
                 )
             ) as PagingSource.LoadResult.Page
-            assertThat(result.data).isEmpty()
+            // should load the last page
+            assertThat(result.data).containsExactlyElementsIn(
+                itemsList.subList(85, 100)
+            )
         }
     }
 
@@ -644,6 +647,81 @@ class LimitOffsetPagingSourceTest {
             // initial load size 15. Refresh key should be (15/2 = 7) items before anchorPosition
             // (19 - 7 = 12)
             assertThat(refreshKey).isEqualTo(12)
+        }
+    }
+
+    @Test
+    fun refreshKey_largerThanItemCount() {
+        val pagingSource = LimitOffsetPagingSourceImpl(database)
+        dao.addAllItems(itemsList)
+        runBlocking {
+            // initial load, assume getRefreshKey returned invalid large key due to large number of
+            // items dropped
+            val result = pagingSource.load(
+                createLoadParam(
+                    LoadType.REFRESH,
+                    key = 250,
+                )
+            ) as PagingSource.LoadResult.Page
+
+            // should load last page
+            assertThat(result.data).containsExactlyElementsIn(
+                itemsList.subList(85, 100)
+            )
+        }
+    }
+
+    /**
+     * Tests the behavior if user was viewing items in the top of the database and those items
+     * were deleted.
+     *
+     * Currently, if anchorPosition is small enough (within bounds of 0 to loadSize/2), then on
+     * invalidation from dropped items at the top, refresh will load with offset = 0. If
+     * anchorPosition is larger than loadsize/2, then the refresh load's offset will
+     * be 0 to (anchorPosition - loadSize/2).
+     *
+     * Ideally, in the future Paging will be able to handle this case better.
+     */
+    @Test
+    fun refreshKey_topItemsDeleted_loadFromBeginning() {
+        val pagingSource = LimitOffsetPagingSourceImpl(database)
+        dao.addAllItems(itemsList)
+        runBlocking {
+            val result1 = pagingSource.load(
+                createLoadParam(
+                    LoadType.REFRESH,
+                    key = null,
+                )
+            ) as PagingSource.LoadResult.Page
+
+            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+
+            // items id 0 - 29 deleted (30 items removed)
+            dao.deleteTestItems()
+
+            val pagingSource2 = LimitOffsetPagingSourceImpl(database)
+            // assume user was viewing first few items with anchorPosition = 0
+            val refreshKey = pagingSource.getRefreshKey(
+                PagingState(
+                    pages = listOf(result1),
+                    anchorPosition = 0,
+                    config = CONFIG,
+                    leadingPlaceholderCount = 0,
+                )
+            )
+            val result2 = pagingSource2.load(
+                createLoadParam(
+                    LoadType.REFRESH,
+                    key = refreshKey,
+                )
+            ) as PagingSource.LoadResult.Page
+
+            // database should only have 70 items left
+            assertThat(pagingSource2.itemCount.get()).isEqualTo(70)
+            // first 30 items deleted, refresh should load starting from pos 31 (item id 30 - 45)
+            assertThat(result2.data).containsExactlyElementsIn(
+                itemsList.subList(30, 45)
+            )
         }
     }
 
