@@ -96,7 +96,7 @@ public class RemoteInputIntentHelper private constructor() {
         @JvmStatic
         @Nullable
         public fun getRemoteInputsExtra(intent: Intent): List<RemoteInput>? =
-            intent.getParcelableArrayListExtra(EXTRA_REMOTE_INPUTS)
+            intent.getParcelableArrayExtra(EXTRA_REMOTE_INPUTS)?.map { it as RemoteInput }
 
         /**
          * Checks whether the given [Intent] has extra for the array of [RemoteInput].
@@ -117,7 +117,7 @@ public class RemoteInputIntentHelper private constructor() {
         public fun putRemoteInputsExtra(
             intent: Intent,
             remoteInputs: List<RemoteInput>
-        ): Intent = intent.putExtra(EXTRA_REMOTE_INPUTS, ArrayList(remoteInputs))
+        ): Intent = intent.putExtra(EXTRA_REMOTE_INPUTS, remoteInputs.toTypedArray())
 
         /**
          * Returns the [CharSequence] from the given [Intent] that specifies what is displayed on
@@ -230,8 +230,8 @@ public class RemoteInputIntentHelper private constructor() {
          * creating Smart Reply choices within a RemoteInput session.
          *
          * @param intent The intent with given data.
-         * @return The array of [CharSequence] previously added with [putSmartReplyContext] or [
-         * .putSmartReplyContextExtra] or null if no value is found.
+         * @return The array of [CharSequence] previously added with [putSmartReplyContextExtra] or
+         * [putSmartReplyContextExtra] or null if no value is found.
          */
         @JvmStatic
         @Nullable
