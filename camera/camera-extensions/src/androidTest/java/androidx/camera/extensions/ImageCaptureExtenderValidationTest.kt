@@ -133,4 +133,25 @@ class ImageCaptureExtenderValidationTest(
         val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
         assertThat(impl.onPresetSession()).isNull()
     }
+
+    @Test
+    @Throws(
+        CameraInfoUnavailableException::class,
+        CameraAccessException::class
+    )
+    fun getEstimatedCaptureLatencyRangeTest() {
+        // getEstimatedCaptureLatencyRange supported since version 1.2
+        Assume.assumeTrue(
+            ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
+        )
+        Assume.assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing))
+
+        // Creates the ImageCaptureExtenderImpl to retrieve the estimated capture latency range
+        // from vendor library for the target effect mode.
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
+
+        // NoSuchMethodError will be thrown if getEstimatedCaptureLatencyRange is not implemented
+        // in vendor library, and then the test will fail.
+        impl.getEstimatedCaptureLatencyRange(null)
+    }
 }
