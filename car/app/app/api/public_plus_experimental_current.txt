@@ -262,13 +262,13 @@ package androidx.car.app.hardware.info {
     method public void addEnergyLevelListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.EnergyLevel!>);
     method public void addMileageListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Mileage!>);
     method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Speed!>);
-    method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Toll!>);
+    method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.TollCard!>);
     method public void getEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.EnergyProfile!>);
     method public void getModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Model!>);
     method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.EnergyLevel!>);
     method public void removeMileageListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Mileage!>);
     method public void removeSpeedListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Speed!>);
-    method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Toll!>);
+    method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.TollCard!>);
   }
 
   @androidx.car.app.annotations.RequiresCarApi(3) public interface CarSensors {
@@ -391,7 +391,21 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.Speed.Builder setSpeedDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Toll {
+  @Deprecated @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Toll {
+    method @Deprecated public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getCardState();
+    field @Deprecated public static final int TOLLCARD_STATE_INVALID = 2; // 0x2
+    field @Deprecated public static final int TOLLCARD_STATE_NOT_INSERTED = 3; // 0x3
+    field @Deprecated public static final int TOLLCARD_STATE_UNKNOWN = 0; // 0x0
+    field @Deprecated public static final int TOLLCARD_STATE_VALID = 1; // 0x1
+  }
+
+  @Deprecated public static final class Toll.Builder {
+    ctor @Deprecated public Toll.Builder();
+    method @Deprecated public androidx.car.app.hardware.info.Toll build();
+    method @Deprecated public androidx.car.app.hardware.info.Toll.Builder setCardState(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class TollCard {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getCardState();
     field public static final int TOLLCARD_STATE_INVALID = 2; // 0x2
     field public static final int TOLLCARD_STATE_NOT_INSERTED = 3; // 0x3
@@ -399,10 +413,10 @@ package androidx.car.app.hardware.info {
     field public static final int TOLLCARD_STATE_VALID = 1; // 0x1
   }
 
-  public static final class Toll.Builder {
-    ctor public Toll.Builder();
-    method public androidx.car.app.hardware.info.Toll build();
-    method public androidx.car.app.hardware.info.Toll.Builder setCardState(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+  public static final class TollCard.Builder {
+    ctor public TollCard.Builder();
+    method public androidx.car.app.hardware.info.TollCard build();
+    method public androidx.car.app.hardware.info.TollCard.Builder setCardState(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
   }
 
 }
