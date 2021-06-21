@@ -13,69 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:skipFile()
-
 package androidx.appsearch.localstorage.visibilitystore;
 
-import android.content.Context;
-import android.os.UserHandle;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.localstorage.AppSearchImpl;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO(b/169883602): figure out if we still need a VisibilityStore in localstorage depending on
- * how we refactor the AppSearchImpl-VisibilityStore relationship.
+ * An interface for classes that store and validate document visibility data.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class VisibilityStore {
+public interface VisibilityStore {
     /**
      * These cannot have any of the special characters used by AppSearchImpl (e.g. {@code
      * AppSearchImpl#PACKAGE_DELIMITER} or {@code AppSearchImpl#DATABASE_DELIMITER}.
      */
-    @VisibleForTesting
-    public static final String PACKAGE_NAME = "VS#Pkg";
+    String PACKAGE_NAME = "VS#Pkg";
 
     @VisibleForTesting
-    public static final String DATABASE_NAME = "VS#Db";
+    String DATABASE_NAME = "VS#Db";
 
-    /** No-op implementation in local storage. */
-    public VisibilityStore(@NonNull AppSearchImpl appSearchImpl, @NonNull Context context,
-            @Nullable UserHandle callerUserHandle) {
-    }
-
-    /** No-op implementation in local storage. */
-    public void initialize() throws AppSearchException {
-    }
-
-    /** No-op implementation in local storage. */
-    public void setVisibility(
+    /**
+     * Sets visibility settings for the given database. Any previous visibility settings will be
+     * overwritten.
+     *
+     * @param packageName Package of app that owns the schemas.
+     * @param databaseName Database that owns the schemas.
+     * @param schemasNotDisplayedBySystem Set of prefixed schemas that should be hidden from
+     *     platform surfaces.
+     * @param schemasVisibleToPackages Map of prefixed schemas to a list of package identifiers that
+     *     have access to the schema.
+     * @throws AppSearchException on AppSearchImpl error.
+     */
+    void setVisibility(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull Set<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
-            throws AppSearchException {
-    }
+            throws AppSearchException;
 
-    /** No-op implementation in local storage. */
-    public boolean isSchemaSearchableByCaller(
+    /**
+     * Checks whether the given package has access to system-surfaceable schemas.
+     *
+     * @param callerUid UID of the app that wants to see the data.
+     */
+    boolean isSchemaSearchableByCaller(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String prefixedSchema,
-            @NonNull String callerPackageName,
             int callerUid,
-            boolean callerHasSystemAccess) {
-        return false;
-    }
+            boolean callerHasSystemAccess);
 }
