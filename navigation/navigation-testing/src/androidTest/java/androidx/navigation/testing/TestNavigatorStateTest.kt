@@ -142,7 +142,7 @@ class TestNavigatorStateTest {
             navigatorExtras: Extras?
         ) {
             entries.forEach { entry ->
-                state.addWithTransition(entry)
+                state.pushWithTransition(entry)
             }
         }
 

@@ -116,7 +116,7 @@ public class DialogFragmentNavigator(
         dialogFragment.arguments = entry.arguments
         dialogFragment.lifecycle.addObserver(observer)
         dialogFragment.show(fragmentManager, entry.id)
-        state.add(entry)
+        state.push(entry)
     }
 
     override fun onAttach(state: NavigatorState) {
