@@ -1,25 +1,16 @@
 name: AndroidX Presubmits
 on:
   push:
-  pull_request_target:
-    types: ['labeled']
+  pull_request:
 
 jobs:
   setup:
-    # Both `run_workflow` and `retry_workflow` will trigger the workflow
-    if: ${{ (github.event_name == 'push' || contains(github.event.label.name, 'workflow')) }}
     runs-on: ubuntu-latest
     outputs:
       gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
       checkout_ref: ${{ steps.checkout-args.outputs.ref }}
       checkout_repo: ${{ steps.checkout-args.outputs.repository }}
     steps:
-      - name: "Start webhook"
-        uses: androidx/github-workflow-webhook-action@main
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
       - name: "Setup global constants"
         id: global-constants
         run: |
@@ -202,40 +193,3 @@ jobs:
         with:
           name: artifacts_${{ env.artifact-id }}
           path: ~/dist
-
-  teardown:
-    runs-on: ubuntu-latest
-    needs: [
-      setup,
-      lint,
-      build-modules
-    ]
-    if: always()
-    steps:
-      - name: Parse workflow status
-        id: workflow-status
-        run: |
-          set -x
-          if [ "${{ needs.lint.result }}" == "success" ]                  && \
-            [ "${{ needs.build-modules.result }}" == "success" ]
-          then
-            echo "::set-output name=result::success"
-          else
-            echo "::set-output name=result::failure"
-          fi
-
-      - name: Successful WebHook
-        if: steps.workflow-status.outputs.result == 'success'
-        uses: androidx/github-workflow-webhook-action@main
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
-
-      - name: Failure WebHook
-        if: steps.workflow-status.outputs.result == 'failure'
-        uses: androidx/github-workflow-webhook-action@main
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": false }'
