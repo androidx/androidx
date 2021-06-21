@@ -1,0 +1,1016 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getBiometricCallback`"
+        errorLine1="                mAuthenticationCallbackProvider.getBiometricCallback();"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="62"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getBiometricCallback`"
+        errorLine1="        assertThat(mAuthenticationCallbackProvider.getBiometricCallback()).isEqualTo(callback);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="63"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationResult`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricPrompt.AuthenticationResult.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="70"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `new android.hardware.biometrics.BiometricPrompt.CryptoObject`"
+        errorLine1="                new android.hardware.biometrics.BiometricPrompt.CryptoObject(mCipher);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="72"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationResult#getCryptoObject`"
+        errorLine1="        when(result.getCryptoObject()).thenReturn(crypto);"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="73"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationCallback#onAuthenticationSucceeded`"
+        errorLine1="        mAuthenticationCallbackProvider.getBiometricCallback().onAuthenticationSucceeded(result);"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="75"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getBiometricCallback`"
+        errorLine1="        mAuthenticationCallbackProvider.getBiometricCallback().onAuthenticationSucceeded(result);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="75"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getBiometricCallback`"
+        errorLine1="        mAuthenticationCallbackProvider.getBiometricCallback()"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="89"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationCallback#onAuthenticationError`"
+        errorLine1="                .onAuthenticationError(errorCode, errorMessage);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="90"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getBiometricCallback`"
+        errorLine1="        mAuthenticationCallbackProvider.getBiometricCallback()"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="102"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationCallback#onAuthenticationHelp`"
+        errorLine1="                .onAuthenticationHelp(helpCode, helpMessage);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="103"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationCallback#onAuthenticationFailed`"
+        errorLine1="        mAuthenticationCallbackProvider.getBiometricCallback().onAuthenticationFailed();"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="111"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `getBiometricCallback`"
+        errorLine1="        mAuthenticationCallbackProvider.getBiometricCallback().onAuthenticationFailed();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/AuthenticationCallbackProviderTest.java"
+            line="111"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricPrompt.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
+            line="169"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt#authenticate`"
+        errorLine1="        doThrow(NullPointerException.class).when(biometricPrompt).authenticate("
+        errorLine2="                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
+            line="170"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 16 (current min is 14): `android.os.CancellationSignal`"
+        errorLine1="                any(android.os.CancellationSignal.class),"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
+            line="171"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationCallback`"
+        errorLine1="                any(android.hardware.biometrics.BiometricPrompt.AuthenticationCallback.class));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
+            line="173"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `authenticateWithBiometricPrompt`"
+        errorLine1="        mFragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
+            line="176"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="59"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="60"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="81"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="82"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="104"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="105"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="127"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="128"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="169"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="170"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="207"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="208"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="245"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="246"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="284"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="285"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="323"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="324"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="358"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="359"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="381"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="382"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="404"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="405"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
+        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="444"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
+        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
+            line="445"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 16 (current min is 14): `android.os.CancellationSignal`"
+        errorLine1="                return mock(android.os.CancellationSignal.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="69"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
+        errorLine1="                provider.getBiometricCancellationSignal();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="85"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
+        errorLine1="        assertThat(provider.getBiometricCancellationSignal()).isEqualTo(cancellationSignal);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="86"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
+        errorLine1="        assertThat(provider.getBiometricCancellationSignal())"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="95"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.os.CancellationSignal#cancel`"
+        errorLine1="        verify(mBiometricCancellationSignal).cancel();"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="100"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
+        errorLine1="        assertThat(provider.getBiometricCancellationSignal())"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="130"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.os.CancellationSignal#cancel`"
+        errorLine1="        verify(mBiometricCancellationSignal).cancel();"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="137"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
+        errorLine1="                provider.getBiometricCancellationSignal();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="147"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.os.CancellationSignal#cancel`"
+        errorLine1="        doThrow(NullPointerException.class).when(biometricSignal).cancel();"
+        errorLine2="                                                                  ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="151"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `getBiometricCancellationSignal`"
+        errorLine1="        assertThat(provider.getBiometricCancellationSignal()).isNotEqualTo(biometricSignal);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
+            line="156"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `unwrapFromBiometricPrompt`"
+        errorLine1="        assertThat(CryptoObjectUtils.unwrapFromBiometricPrompt(null)).isNull();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="54"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `new android.hardware.biometrics.BiometricPrompt.CryptoObject`"
+        errorLine1="                new android.hardware.biometrics.BiometricPrompt.CryptoObject(mCipher);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="61"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `unwrapFromBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.unwrapFromBiometricPrompt(wrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="64"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `new android.hardware.biometrics.BiometricPrompt.CryptoObject`"
+        errorLine1="                new android.hardware.biometrics.BiometricPrompt.CryptoObject(mSignature);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="76"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `unwrapFromBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.unwrapFromBiometricPrompt(wrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="79"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `new android.hardware.biometrics.BiometricPrompt.CryptoObject`"
+        errorLine1="                new android.hardware.biometrics.BiometricPrompt.CryptoObject(mMac);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="91"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `unwrapFromBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.unwrapFromBiometricPrompt(wrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="94"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 30 (current min is 14): `android.security.identity.IdentityCredential`"
+        errorLine1="                mock(android.security.identity.IdentityCredential.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="106"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `new android.hardware.biometrics.BiometricPrompt.CryptoObject`"
+        errorLine1="                new android.hardware.biometrics.BiometricPrompt.CryptoObject(identityCredential);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="108"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `unwrapFromBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.unwrapFromBiometricPrompt(wrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="111"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `getIdentityCredential`"
+        errorLine1="        assertThat(unwrappedCrypto.getIdentityCredential()).isEqualTo(identityCredential);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="117"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `wrapForBiometricPrompt`"
+        errorLine1="        assertThat(CryptoObjectUtils.wrapForBiometricPrompt(null)).isNull();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="123"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `wrapForBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.wrapForBiometricPrompt(unwrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="133"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getCipher`"
+        errorLine1="        assertThat(wrappedCrypto.getCipher()).isEqualTo(mCipher);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="136"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getSignature`"
+        errorLine1="        assertThat(wrappedCrypto.getSignature()).isNull();"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="137"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getMac`"
+        errorLine1="        assertThat(wrappedCrypto.getMac()).isNull();"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="138"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `wrapForBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.wrapForBiometricPrompt(unwrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="148"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getCipher`"
+        errorLine1="        assertThat(wrappedCrypto.getCipher()).isNull();"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="151"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getSignature`"
+        errorLine1="        assertThat(wrappedCrypto.getSignature()).isEqualTo(mSignature);"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="152"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getMac`"
+        errorLine1="        assertThat(wrappedCrypto.getMac()).isNull();"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="153"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `wrapForBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.wrapForBiometricPrompt(unwrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="162"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getCipher`"
+        errorLine1="        assertThat(wrappedCrypto.getCipher()).isNull();"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="165"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getSignature`"
+        errorLine1="        assertThat(wrappedCrypto.getSignature()).isNull();"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="166"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getMac`"
+        errorLine1="        assertThat(wrappedCrypto.getMac()).isEqualTo(mMac);"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="167"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 30 (current min is 14): `android.security.identity.IdentityCredential`"
+        errorLine1="                mock(android.security.identity.IdentityCredential.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="174"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `CryptoObject`"
+        errorLine1="                new BiometricPrompt.CryptoObject(identityCredential);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="176"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `wrapForBiometricPrompt`"
+        errorLine1="                CryptoObjectUtils.wrapForBiometricPrompt(unwrappedCrypto);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="179"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getCipher`"
+        errorLine1="        assertThat(wrappedCrypto.getCipher()).isNull();"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="182"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getSignature`"
+        errorLine1="        assertThat(wrappedCrypto.getSignature()).isNull();"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="183"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getMac`"
+        errorLine1="        assertThat(wrappedCrypto.getMac()).isNull();"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="184"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.hardware.biometrics.BiometricPrompt.CryptoObject#getIdentityCredential`"
+        errorLine1="        assertThat(wrappedCrypto.getIdentityCredential()).isEqualTo(identityCredential);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="185"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 30 (current min is 14): `android.security.identity.IdentityCredential`"
+        errorLine1="                mock(android.security.identity.IdentityCredential.class);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="294"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `CryptoObject`"
+        errorLine1="                new BiometricPrompt.CryptoObject(identityCredential);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/CryptoObjectUtilsTest.java"
+            line="296"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.content.Context#getSystemService`"
+        errorLine1="        when(mContext.getSystemService(KeyguardManager.class)).thenReturn(mKeyguardManager);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/KeyguardUtilsTest.java"
+            line="54"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.content.Context#getSystemService`"
+        errorLine1="        when(mContext.getSystemService(KeyguardManager.class)).thenReturn(null);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/KeyguardUtilsTest.java"
+            line="68"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.content.Context#getSystemService`"
+        errorLine1="        when(mContext.getSystemService(any(Class.class))).thenReturn(mKeyguardManager);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/KeyguardUtilsTest.java"
+            line="95"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.app.KeyguardManager#isDeviceSecure`"
+        errorLine1="        when(mKeyguardManager.isDeviceSecure()).thenReturn(true);"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/KeyguardUtilsTest.java"
+            line="96"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `android.app.KeyguardManager#isKeyguardSecure`"
+        errorLine1="        when(mKeyguardManager.isKeyguardSecure()).thenReturn(true);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/biometric/KeyguardUtilsTest.java"
+            line="104"
+            column="31"/>
+    </issue>
+
+</issues>

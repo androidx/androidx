@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `new android.widget.FrameLayout`"
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/gridlayout/widget/TestContentView.java"
+            line="53"
+            column="9"/>
+    </issue>
 
     <issue
         id="UnknownNullness"

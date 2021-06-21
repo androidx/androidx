@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="LambdaLast"
@@ -8,7 +8,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="58"
+            line="59"
             column="13"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="75"
+            line="76"
             column="13"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="106"
+            line="107"
             column="13"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="55"
+            line="56"
             column="23"/>
     </issue>
 
@@ -50,17 +50,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            final Callable&lt;T> callable,"
         errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="56"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final RoomSQLiteQuery query,"
-        errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
             line="57"
@@ -70,11 +59,22 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final RoomSQLiteQuery query,"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"
+            line="58"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static &lt;T> ListenableFuture&lt;T> createListenableFuture("
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="71"
+            line="72"
             column="23"/>
     </issue>
 
@@ -83,17 +83,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            final RoomDatabase roomDatabase,"
         errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="72"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final Callable&lt;T> callable,"
-        errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
             line="73"
@@ -103,11 +92,22 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final Callable&lt;T> callable,"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"
+            line="74"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            final RoomSQLiteQuery query,"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="74"
+            line="75"
             column="19"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="85"
+            line="86"
             column="23"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="86"
+            line="87"
             column="19"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="88"
+            line="89"
             column="19"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="89"
+            line="90"
             column="19"/>
     </issue>
 

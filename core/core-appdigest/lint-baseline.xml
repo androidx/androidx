@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="NewApi"
@@ -109,6 +109,28 @@
             file="src/main/java/androidx/core/appdigest/Checksums.java"
             line="206"
             column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            getUiAutomation().adoptShellPermissionIdentity(Manifest.permission.INSTALL_PACKAGES);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
+            line="621"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="                getUiAutomation().dropShellPermissionIdentity();"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
+            line="637"
+            column="35"/>
     </issue>
 
     <issue

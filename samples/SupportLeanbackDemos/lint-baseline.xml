@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="MissingSuperCall"
@@ -706,17 +706,6 @@
     </issue>
 
     <issue
-        id="UnsupportedChromeOsHardware"
-        message="Expecting `android:required=&quot;false&quot;` for this hardware feature that may not be supported by all Chrome OS devices"
-        errorLine1="        android:required=&quot;true&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="9"
-            column="9"/>
-    </issue>
-
-    <issue
         id="SyntheticAccessor"
         message="Access to `private` member of class `ItemViewClickedListener` requires synthetic accessor"
         errorLine1="        setOnItemViewClickedListener(new ItemViewClickedListener());"
@@ -1273,7 +1262,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="291"
+            line="292"
             column="13"/>
     </issue>
 
@@ -1284,7 +1273,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="294"
+            line="295"
             column="13"/>
     </issue>
 
@@ -1295,7 +1284,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="419"
+            line="420"
             column="13"/>
     </issue>
 
@@ -1306,7 +1295,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="420"
+            line="421"
             column="13"/>
     </issue>
 
@@ -1317,7 +1306,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="422"
+            line="423"
             column="33"/>
     </issue>
 
@@ -1328,7 +1317,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="423"
+            line="424"
             column="13"/>
     </issue>
 
@@ -1339,7 +1328,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="448"
+            line="449"
             column="17"/>
     </issue>
 
@@ -1350,7 +1339,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="454"
+            line="455"
             column="13"/>
     </issue>
 
@@ -1361,7 +1350,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="569"
+            line="570"
             column="33"/>
     </issue>
 
@@ -1372,7 +1361,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="570"
+            line="571"
             column="62"/>
     </issue>
 
@@ -1383,7 +1372,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="570"
+            line="571"
             column="17"/>
     </issue>
 
@@ -1394,7 +1383,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="571"
+            line="572"
             column="25"/>
     </issue>
 
@@ -1405,7 +1394,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="576"
+            line="577"
             column="33"/>
     </issue>
 
@@ -1416,7 +1405,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="577"
+            line="578"
             column="65"/>
     </issue>
 
@@ -1427,7 +1416,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="577"
+            line="578"
             column="17"/>
     </issue>
 
@@ -1438,7 +1427,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="578"
+            line="579"
             column="25"/>
     </issue>
 
@@ -1449,7 +1438,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="621"
+            line="622"
             column="50"/>
     </issue>
 
@@ -1460,7 +1449,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="634"
+            line="635"
             column="13"/>
     </issue>
 
@@ -4804,7 +4793,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="83"
+            line="84"
             column="40"/>
     </issue>
 
@@ -4815,7 +4804,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="89"
+            line="90"
             column="40"/>
     </issue>
 
@@ -4826,7 +4815,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="95"
+            line="96"
             column="43"/>
     </issue>
 
@@ -4837,7 +4826,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="196"
+            line="197"
             column="16"/>
     </issue>
 
@@ -4848,7 +4837,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="196"
+            line="197"
             column="42"/>
     </issue>
 
@@ -4859,7 +4848,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="207"
+            line="208"
             column="37"/>
     </issue>
 
@@ -4870,7 +4859,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="207"
+            line="208"
             column="65"/>
     </issue>
 
@@ -4881,7 +4870,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="224"
+            line="225"
             column="43"/>
     </issue>
 
@@ -4892,7 +4881,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="269"
+            line="270"
             column="30"/>
     </issue>
 
@@ -4903,7 +4892,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="279"
+            line="280"
             column="16"/>
     </issue>
 
@@ -4914,7 +4903,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="279"
+            line="280"
             column="42"/>
     </issue>
 
@@ -4925,7 +4914,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="290"
+            line="291"
             column="37"/>
     </issue>
 
@@ -4936,7 +4925,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="290"
+            line="291"
             column="65"/>
     </issue>
 
@@ -4947,7 +4936,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="298"
+            line="299"
             column="43"/>
     </issue>
 
@@ -4958,7 +4947,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="298"
+            line="299"
             column="71"/>
     </issue>
 
@@ -4969,7 +4958,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="306"
+            line="307"
             column="43"/>
     </issue>
 
@@ -4980,7 +4969,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="327"
+            line="328"
             column="52"/>
     </issue>
 
@@ -4991,7 +4980,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="391"
+            line="392"
             column="16"/>
     </issue>
 
@@ -5002,7 +4991,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="407"
+            line="408"
             column="16"/>
     </issue>
 
@@ -5013,7 +5002,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="407"
+            line="408"
             column="42"/>
     </issue>
 
@@ -5024,7 +5013,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="418"
+            line="419"
             column="37"/>
     </issue>
 
@@ -5035,7 +5024,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="418"
+            line="419"
             column="65"/>
     </issue>
 
@@ -5046,7 +5035,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="428"
+            line="429"
             column="43"/>
     </issue>
 
@@ -5057,7 +5046,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="428"
+            line="429"
             column="71"/>
     </issue>
 
@@ -5068,7 +5057,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="437"
+            line="438"
             column="43"/>
     </issue>
 
@@ -5079,7 +5068,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="459"
+            line="460"
             column="52"/>
     </issue>
 
@@ -5090,7 +5079,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="479"
+            line="480"
             column="49"/>
     </issue>
 
@@ -5101,7 +5090,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="502"
+            line="503"
             column="16"/>
     </issue>
 
@@ -5112,7 +5101,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="502"
+            line="503"
             column="34"/>
     </issue>
 
@@ -5123,7 +5112,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="502"
+            line="503"
             column="59"/>
     </issue>
 
@@ -5134,7 +5123,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="503"
+            line="504"
             column="17"/>
     </issue>
 
@@ -5145,7 +5134,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="535"
+            line="536"
             column="16"/>
     </issue>
 
@@ -5156,7 +5145,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="535"
+            line="536"
             column="42"/>
     </issue>
 
@@ -5167,7 +5156,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="546"
+            line="547"
             column="16"/>
     </issue>
 
@@ -5178,7 +5167,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="556"
+            line="557"
             column="37"/>
     </issue>
 
@@ -5189,7 +5178,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="556"
+            line="557"
             column="65"/>
     </issue>
 
@@ -5200,7 +5189,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="583"
+            line="584"
             column="43"/>
     </issue>
 
@@ -5211,7 +5200,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="583"
+            line="584"
             column="71"/>
     </issue>
 
@@ -5222,7 +5211,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="590"
+            line="591"
             column="43"/>
     </issue>
 
@@ -5233,7 +5222,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="618"
+            line="619"
             column="16"/>
     </issue>
 
@@ -5244,7 +5233,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="618"
+            line="619"
             column="42"/>
     </issue>
 
@@ -5255,7 +5244,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="629"
+            line="630"
             column="37"/>
     </issue>
 
@@ -5266,7 +5255,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="629"
+            line="630"
             column="65"/>
     </issue>
 
@@ -5277,7 +5266,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="638"
+            line="639"
             column="43"/>
     </issue>
 

@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="UnsupportedChromeOsHardware"
-        message="Expecting `android:required=&quot;false&quot;` for this hardware feature that may not be supported by all Chrome OS devices"
-        errorLine1="    &lt;uses-feature android:name=&quot;android.hardware.camera&quot; />"
-        errorLine2="     ~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.os.Handler#hasCallbacks`"
+        errorLine1="        if (!mIdle &amp;&amp; !mHandler.hasCallbacks(mRunnable)) {"
+        errorLine2="                                ~~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="24"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="PermissionImpliesUnsupportedChromeOsHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera.autofocus&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="6"/>
+            file="src/androidTest/java/androidx/camera/integration/extensions/idlingresource/ViewIdlingResource.java"
+            line="78"
+            column="33"/>
     </issue>
 
     <issue
@@ -30,7 +19,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
-            line="281"
+            line="265"
             column="29"/>
     </issue>
 

@@ -1,5 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.util.ArraySet`"
+        errorLine1="        Set&lt;String> stringSetValue = new ArraySet&lt;>();"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/security/crypto/EncryptedSharedPreferencesTest.java"
+            line="144"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `ArraySet` to `Set` requires API level 23 (current min is 21)"
+        errorLine1="        Set&lt;String> stringSetValue = new ArraySet&lt;>();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/security/crypto/EncryptedSharedPreferencesTest.java"
+            line="144"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.util.ArraySet#valueAt`"
+        errorLine1="                ((ArraySet&lt;String>) stringSetValue).valueAt(0),"
+        errorLine2="                                                    ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/security/crypto/EncryptedSharedPreferencesTest.java"
+            line="189"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 23 (current min is 21): `android.util.ArraySet`"
+        errorLine1="                ((ArraySet&lt;String>) stringSetValue).valueAt(0),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/security/crypto/EncryptedSharedPreferencesTest.java"
+            line="189"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/security/crypto/MasterKeySecureTest.java"
+            line="57"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.app.KeyguardManager#isDeviceSecure`"
+        errorLine1="        Assume.assumeTrue(keyguardManager != null &amp;&amp; keyguardManager.isDeviceSecure());"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/security/crypto/MasterKeySecureTest.java"
+            line="58"
+            column="70"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"

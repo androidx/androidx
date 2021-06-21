@@ -1,5 +1,1138 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Optional#of`"
+        errorLine1="                return Optional.of(modeCompat);"
+        errorLine2="                                ~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="74"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Optional#empty`"
+        errorLine1="        return Optional.empty();"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="77"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 17 (current min is 14): `android.hardware.display.DisplayManager`"
+        errorLine1="        mDisplayManager = (DisplayManager) mContext.getSystemService(DISPLAY_SERVICE);"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="84"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.hardware.display.DisplayManager#getDisplay`"
+        errorLine1="        mDefaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="85"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Optional#get`"
+        errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
+        errorLine2="                                                                                           ~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="112"
+            column="92"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.hardware.display.DisplayManager#getDisplay`"
+        errorLine1="        Display secondDisplay = mDisplayManager.getDisplay(secondDisplayId);"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="123"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Optional#get`"
+        errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, secondDisplay)).get();"
+        errorLine2="                                                                                         ~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="130"
+            column="90"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Optional#get`"
+        errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
+        errorLine2="                                                                                           ~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="145"
+            column="92"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Optional#get`"
+        errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
+        errorLine2="                                                                                           ~~~">
+        <location
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
+            line="166"
+            column="92"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.lang.AutoCloseable#close`"
+        errorLine1="                closeable.close();"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/FileProviderTest.java"
+            line="466"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
+        errorLine1="        resolveInfo.providerInfo = new ProviderInfo();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/IntentCompatTest.java"
+            line="217"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
+        errorLine1="        resolveInfo.providerInfo.name = &quot;Name needed to keep toString() happy :)&quot;;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/IntentCompatTest.java"
+            line="218"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getImportance`"
+        errorLine1="            boolean equality = nc1.getImportance() == nc2.getImportance()"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="175"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getImportance`"
+        errorLine1="            boolean equality = nc1.getImportance() == nc2.getImportance()"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="175"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#canBypassDnd`"
+        errorLine1="                    &amp;&amp; nc1.canBypassDnd() == nc2.canBypassDnd()"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="176"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#canBypassDnd`"
+        errorLine1="                    &amp;&amp; nc1.canBypassDnd() == nc2.canBypassDnd()"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="176"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getLockscreenVisibility`"
+        errorLine1="                    &amp;&amp; nc1.getLockscreenVisibility() == nc2.getLockscreenVisibility()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="177"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getLockscreenVisibility`"
+        errorLine1="                    &amp;&amp; nc1.getLockscreenVisibility() == nc2.getLockscreenVisibility()"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="177"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getLightColor`"
+        errorLine1="                    &amp;&amp; nc1.getLightColor() == nc2.getLightColor()"
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="178"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getLightColor`"
+        errorLine1="                    &amp;&amp; nc1.getLightColor() == nc2.getLightColor()"
+        errorLine2="                                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="178"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="179"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getId`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="179"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getId`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
+        errorLine2="                                                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="179"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="180"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getName`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="180"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getName`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
+        errorLine2="                                                         ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="180"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="181"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getDescription`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="181"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getDescription`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
+        errorLine2="                                                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="181"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="182"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getSound`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="182"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getSound`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="182"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getVibrationPattern`"
+        errorLine1="                    &amp;&amp; Arrays.equals(nc1.getVibrationPattern(), nc2.getVibrationPattern())"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="183"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getVibrationPattern`"
+        errorLine1="                    &amp;&amp; Arrays.equals(nc1.getVibrationPattern(), nc2.getVibrationPattern())"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="183"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="184"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getGroup`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="184"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getGroup`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="184"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `java.util.Objects#equals`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getAudioAttributes(), nc2.getAudioAttributes());"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="185"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getAudioAttributes`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getAudioAttributes(), nc2.getAudioAttributes());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="185"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getAudioAttributes`"
+        errorLine1="                    &amp;&amp; Objects.equals(nc1.getAudioAttributes(), nc2.getAudioAttributes());"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="185"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getImportance`"
+        errorLine1="            assertEquals(expected.getImportance(), actual.getImportance());"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="200"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getLightColor`"
+        errorLine1="            assertEquals(expected.getLightColor(), actual.getLightColor());"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="201"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getId`"
+        errorLine1="            assertEquals(expected.getId(), actual.getId());"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="202"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getName`"
+        errorLine1="            assertEquals(expected.getName(), actual.getName());"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="203"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getDescription`"
+        errorLine1="            assertEquals(expected.getDescription(), actual.getDescription());"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="204"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getSound`"
+        errorLine1="            assertEquals(expected.getSound(), actual.getSound());"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="205"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getVibrationPattern`"
+        errorLine1="            assertArrayEquals(expected.getVibrationPattern(), actual.getVibrationPattern());"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="206"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getGroup`"
+        errorLine1="            assertEquals(expected.getGroup(), actual.getGroup());"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="207"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannel#getAudioAttributes`"
+        errorLine1="            assertEquals(expected.getAudioAttributes(), actual.getAudioAttributes());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
+            line="208"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannelGroup#getId`"
+        errorLine1="            assertEquals(expected.getId(), actual.getId());"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelGroupCompatTest.java"
+            line="113"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannelGroup#getName`"
+        errorLine1="            assertEquals(expected.getName(), actual.getName());"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationChannelGroupCompatTest.java"
+            line="114"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `addInvisibleAction`"
+        errorLine1="        Notification nWith = builder.addInvisibleAction(0, &quot;testAction&quot;, null)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="251"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getInvisibleActions`"
+        errorLine1="        List&lt;NotificationCompat.Action> actions = NotificationCompat.getInvisibleActions(nWith);"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="253"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 19): `android.graphics.drawable.Icon#getType`"
+        errorLine1="            assertEquals(Icon.TYPE_BITMAP, ((Icon) firstBuiltIcon).getType());"
+        errorLine2="                                                                   ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="1409"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 19): `android.graphics.drawable.Icon#getType`"
+        errorLine1="            assertEquals(Icon.TYPE_BITMAP, ((Icon) rebuiltIcon).getType());"
+        errorLine2="                                                                ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="1424"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getType`"
+        errorLine1="        assertEquals(Icon.TYPE_RESOURCE, firstBuiltIcon.getType());"
+        errorLine2="                                                        ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="1440"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getType`"
+        errorLine1="        assertEquals(Icon.TYPE_RESOURCE, rebuiltIcon.getType());"
+        errorLine2="                                                     ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="1450"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `Builder`"
+        errorLine1="                new NotificationCompat.BubbleMetadata.Builder(shortcutId)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="2017"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getInvisibleActions`"
+        errorLine1="                NotificationCompat.getInvisibleActions(notification);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
+            line="2229"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.app.Notification#extras`"
+        errorLine1="        assertBundleEquals(&quot;Notification.extras&quot;, n2.extras, n2.extras)"
+        errorLine2="                                                  ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
+            line="33"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.app.Notification#extras`"
+        errorLine1="        assertBundleEquals(&quot;Notification.extras&quot;, n2.extras, n2.extras)"
+        errorLine2="                                                             ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
+            line="33"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `COLOR_DODGE`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_DODGE, null);"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="100"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `COLOR_BURN`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_BURN, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="101"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `HARD_LIGHT`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HARD_LIGHT, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="102"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `SOFT_LIGHT`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SOFT_LIGHT, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="103"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `DIFFERENCE`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.DIFFERENCE, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="104"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `EXCLUSION`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.EXCLUSION, null);"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="105"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `MULTIPLY`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.MULTIPLY, null);"
+        errorLine2="                                                      ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="108"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `HUE`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HUE, null);"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="109"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `SATURATION`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SATURATION, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="110"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `COLOR`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR, null);"
+        errorLine2="                                                      ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="111"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `LUMINOSITY`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.LUMINOSITY, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="112"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 14): `android.graphics.Paint#getBlendMode`"
+        errorLine1="            assertEquals(blendMode, p.getBlendMode());"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="146"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setBreakStrategy`"
+        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE).build());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="70"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setBreakStrategy`"
+        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="72"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setHyphenationFrequency`"
+        errorLine1="                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL).build());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="73"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setBreakStrategy`"
+        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="75"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setHyphenationFrequency`"
+        errorLine1="                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="76"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 14): `setTextDirection`"
+        errorLine1="                .setTextDirection(LTR).build());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="77"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 18 (current min is 14): `android.text.TextDirectionHeuristics#LTR`"
+        errorLine1="                .setTextDirection(LTR).build());"
+        errorLine2="                                  ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="77"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getBreakStrategy`"
+        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE).build().getBreakStrategy());"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="83"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setBreakStrategy`"
+        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE).build().getBreakStrategy());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="83"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `setHyphenationFrequency`"
+        errorLine1="                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE).build()"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="85"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `getHyphenationFrequency`"
+        errorLine1="                .getHyphenationFrequency());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="86"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 14): `setTextDirection`"
+        errorLine1="        assertEquals(RTL, new Params.Builder(PAINT).setTextDirection(RTL).build()"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="87"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 18 (current min is 14): `android.text.TextDirectionHeuristics#RTL`"
+        errorLine1="        assertEquals(RTL, new Params.Builder(PAINT).setTextDirection(RTL).build()"
+        errorLine2="                     ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="87"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 18 (current min is 14): `android.text.TextDirectionHeuristics#RTL`"
+        errorLine1="        assertEquals(RTL, new Params.Builder(PAINT).setTextDirection(RTL).build()"
+        errorLine2="                                                                     ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="87"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 14): `getTextDirection`"
+        errorLine1="                .getTextDirection());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"
+            line="88"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 25 (current min is 14): `toShortcutInfo`"
+        errorLine1="                .toShortcutInfo());"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest.java"
+            line="471"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 25 (current min is 14): `toShortcutInfo`"
+        errorLine1="                .toShortcutInfo());"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest.java"
+            line="479"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 25 (current min is 14): `toShortcutInfo`"
+        errorLine1="                .toShortcutInfo());"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest.java"
+            line="487"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 25 (current min is 14): `toShortcutInfo`"
+        errorLine1="                .toShortcutInfo());"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest.java"
+            line="495"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 25 (current min is 14): `toShortcutInfo`"
+        errorLine1="                .toShortcutInfo());"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest.java"
+            line="503"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.telephony.SubscriptionManager#getDefaultSubscriptionId`"
+        errorLine1="                assertEquals(getDefaultSubscriptionId(), actual);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/telephony/TelephonyManagerCompatTest.java"
+            line="110"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `android.telephony.SubscriptionManager#getDefaultSubscriptionId`"
+        errorLine1="                assertEquals(expected, getDefaultSubscriptionId());"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/telephony/TelephonyManagerCompatTest.java"
+            line="112"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `new android.widget.FrameLayout`"
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/widget/TestContentView.java"
+            line="53"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 20 (current min is 14): `android.view.View#requestApplyInsets`"
+        errorLine1="        requestApplyInsets()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsCompatActivityTest.kt"
+            line="425"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        scenario.onActivity {"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="271"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `windowInsetsController`"
+        errorLine1="            windowInsetsController.systemBarsBehavior ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="272"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="275"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        scenario.onActivity {"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="288"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `windowInsetsController`"
+        errorLine1="            windowInsetsController.systemBarsBehavior ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="289"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="292"
+            column="25"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
@@ -3517,7 +4650,7 @@
         errorLine2="                                                      ~~~~~">
         <location
             file="src/main/java/androidx/core/provider/FontProvider.java"
-            line="139"
+            line="138"
             column="55"/>
     </issue>
 
@@ -4056,7 +5189,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="145"
+            line="148"
             column="36"/>
     </issue>
 
@@ -4078,7 +5211,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/IntentCompat.java"
-            line="108"
+            line="125"
             column="27"/>
     </issue>
 
@@ -4089,7 +5222,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/JobIntentService.java"
-            line="260"
+            line="265"
             column="33"/>
     </issue>
 
@@ -4100,7 +5233,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/JobIntentService.java"
-            line="267"
+            line="272"
             column="33"/>
     </issue>
 
@@ -4111,7 +5244,7 @@
         errorLine2="                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/util/LinkifyCompat.java"
-            line="260"
+            line="258"
             column="21"/>
     </issue>
 
@@ -4122,7 +5255,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/util/LinkifyCompat.java"
-            line="336"
+            line="333"
             column="28"/>
     </issue>
 
@@ -4419,7 +5552,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/MenuCompat.java"
-            line="51"
+            line="49"
             column="18"/>
     </issue>
 
@@ -7510,7 +8643,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="199"
+            line="197"
             column="28"/>
     </issue>
 
@@ -7521,7 +8654,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="200"
+            line="198"
             column="26"/>
     </issue>
 
@@ -7532,7 +8665,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="201"
+            line="199"
             column="26"/>
     </issue>
 
@@ -7543,7 +8676,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="202"
+            line="200"
             column="26"/>
     </issue>
 
@@ -7554,7 +8687,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="203"
+            line="201"
             column="26"/>
     </issue>
 
@@ -7565,7 +8698,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="215"
+            line="213"
             column="30"/>
     </issue>
 
@@ -7576,7 +8709,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="216"
+            line="214"
             column="32"/>
     </issue>
 
@@ -7587,7 +8720,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="217"
+            line="215"
             column="38"/>
     </issue>
 
@@ -7598,7 +8731,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="218"
+            line="216"
             column="45"/>
     </issue>
 
@@ -7609,7 +8742,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="294"
+            line="292"
             column="28"/>
     </issue>
 
@@ -7620,7 +8753,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="294"
+            line="292"
             column="71"/>
     </issue>
 
@@ -7631,7 +8764,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="297"
+            line="295"
             column="46"/>
     </issue>
 
@@ -7642,7 +8775,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="298"
+            line="296"
             column="46"/>
     </issue>
 
@@ -7653,7 +8786,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="306"
+            line="304"
             column="29"/>
     </issue>
 
@@ -7664,7 +8797,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="306"
+            line="304"
             column="74"/>
     </issue>
 
@@ -7675,7 +8808,7 @@
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="310"
+            line="308"
             column="29"/>
     </issue>
 
@@ -7686,7 +8819,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="310"
+            line="308"
             column="73"/>
     </issue>
 
@@ -7697,7 +8830,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="354"
+            line="352"
             column="55"/>
     </issue>
 
@@ -7708,7 +8841,7 @@
         errorLine2="                                                                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="355"
+            line="353"
             column="79"/>
     </issue>
 
@@ -7719,7 +8852,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="355"
+            line="353"
             column="32"/>
     </issue>
 
@@ -7730,7 +8863,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="359"
+            line="357"
             column="55"/>
     </issue>
 
@@ -7741,7 +8874,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="360"
+            line="358"
             column="32"/>
     </issue>
 
@@ -7752,7 +8885,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="360"
+            line="358"
             column="78"/>
     </issue>
 
@@ -7763,7 +8896,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="364"
+            line="362"
             column="74"/>
     </issue>
 
@@ -7774,7 +8907,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="368"
+            line="366"
             column="74"/>
     </issue>
 
@@ -7785,7 +8918,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="384"
+            line="382"
             column="55"/>
     </issue>
 
@@ -7796,7 +8929,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="385"
+            line="383"
             column="59"/>
     </issue>
 
@@ -7807,7 +8940,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="388"
+            line="386"
             column="52"/>
     </issue>
 
@@ -7818,7 +8951,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="390"
+            line="388"
             column="52"/>
     </issue>
 
@@ -7829,7 +8962,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="394"
+            line="392"
             column="59"/>
     </issue>
 
@@ -7840,7 +8973,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="440"
+            line="437"
             column="41"/>
     </issue>
 
@@ -7851,7 +8984,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="468"
+            line="465"
             column="38"/>
     </issue>
 
@@ -7862,7 +8995,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="470"
+            line="467"
             column="26"/>
     </issue>
 
@@ -7873,7 +9006,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="471"
+            line="468"
             column="26"/>
     </issue>
 
@@ -7884,7 +9017,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="472"
+            line="469"
             column="26"/>
     </issue>
 
@@ -7895,7 +9028,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="473"
+            line="470"
             column="26"/>
     </issue>
 
@@ -7906,7 +9039,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="532"
+            line="528"
             column="29"/>
     </issue>
 
@@ -7917,7 +9050,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="545"
+            line="540"
             column="29"/>
     </issue>
 
@@ -7928,7 +9061,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="558"
+            line="552"
             column="29"/>
     </issue>
 
@@ -8995,7 +10128,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="908"
+            line="907"
             column="41"/>
     </issue>
 
@@ -9006,7 +10139,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="915"
+            line="914"
             column="39"/>
     </issue>
 
@@ -9017,7 +10150,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="921"
+            line="920"
             column="43"/>
     </issue>
 
@@ -9028,7 +10161,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="928"
+            line="927"
             column="41"/>
     </issue>
 
@@ -9039,7 +10172,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="930"
+            line="929"
             column="35"/>
     </issue>
 
@@ -14183,7 +15316,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/JobIntentService.java"
-            line="463"
+            line="468"
             column="12"/>
     </issue>
 
@@ -14469,7 +15602,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/MenuCompat.java"
-            line="36"
+            line="35"
             column="40"/>
     </issue>
 
@@ -14480,7 +15613,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/core/view/MenuCompat.java"
-            line="47"
+            line="45"
             column="47"/>
     </issue>
 
@@ -16229,7 +17362,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="144"
+            line="143"
             column="20"/>
     </issue>
 
@@ -16240,7 +17373,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="162"
+            line="161"
             column="20"/>
     </issue>
 
@@ -16251,7 +17384,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="180"
+            line="179"
             column="20"/>
     </issue>
 
@@ -16262,7 +17395,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="431"
+            line="428"
             column="19"/>
     </issue>
 
@@ -16273,7 +17406,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="650"
+            line="644"
             column="19"/>
     </issue>
 
@@ -16284,7 +17417,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="677"
+            line="670"
             column="25"/>
     </issue>
 
@@ -16295,7 +17428,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="694"
+            line="686"
             column="28"/>
     </issue>
 
@@ -16306,7 +17439,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="713"
+            line="704"
             column="16"/>
     </issue>
 
@@ -16317,7 +17450,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="713"
+            line="704"
             column="49"/>
     </issue>
 
@@ -16328,7 +17461,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="723"
+            line="714"
             column="29"/>
     </issue>
 
@@ -16339,7 +17472,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="728"
+            line="719"
             column="27"/>
     </issue>
 
@@ -16350,7 +17483,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="733"
+            line="724"
             column="29"/>
     </issue>
 
@@ -16361,7 +17494,7 @@
         errorLine2="                                                        ~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="738"
+            line="729"
             column="57"/>
     </issue>
 
@@ -16372,7 +17505,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="758"
+            line="749"
             column="12"/>
     </issue>
 
@@ -17637,7 +18770,7 @@
         errorLine2="                                                                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompat.java"
-            line="174"
+            line="172"
             column="77"/>
     </issue>
 
@@ -18198,7 +19331,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="565"
+            line="542"
             column="49"/>
     </issue>
 
@@ -18209,7 +19342,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="578"
+            line="555"
             column="47"/>
     </issue>
 
@@ -18220,7 +19353,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="595"
+            line="572"
             column="41"/>
     </issue>
 
@@ -18231,7 +19364,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="615"
+            line="592"
             column="42"/>
     </issue>
 
@@ -18242,7 +19375,7 @@
         errorLine2="                                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="653"
+            line="632"
             column="53"/>
     </issue>
 
@@ -18253,7 +19386,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="653"
+            line="632"
             column="61"/>
     </issue>
 
@@ -18264,7 +19397,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="683"
+            line="664"
             column="55"/>
     </issue>
 
@@ -18275,7 +19408,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="683"
+            line="664"
             column="63"/>
     </issue>
 
@@ -18286,7 +19419,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1481"
+            line="1467"
             column="34"/>
     </issue>
 
@@ -18297,7 +19430,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1519"
+            line="1506"
             column="37"/>
     </issue>
 
@@ -18308,7 +19441,7 @@
         errorLine2="                                                                         ~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1519"
+            line="1506"
             column="74"/>
     </issue>
 
@@ -18319,7 +19452,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1541"
+            line="1530"
             column="36"/>
     </issue>
 
@@ -18330,7 +19463,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1710"
+            line="1698"
             column="36"/>
     </issue>
 
@@ -18341,7 +19474,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1745"
+            line="1735"
             column="48"/>
     </issue>
 
@@ -18352,7 +19485,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1761"
+            line="1752"
             column="49"/>
     </issue>
 
@@ -18363,7 +19496,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1775"
+            line="1766"
             column="40"/>
     </issue>
 
@@ -18374,7 +19507,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1965"
+            line="1958"
             column="41"/>
     </issue>
 
@@ -18385,7 +19518,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1978"
+            line="1972"
             column="41"/>
     </issue>
 
@@ -18396,7 +19529,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1998"
+            line="1994"
             column="36"/>
     </issue>
 
@@ -18407,7 +19540,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2103"
+            line="2100"
             column="40"/>
     </issue>
 
@@ -18418,7 +19551,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2118"
+            line="2117"
             column="40"/>
     </issue>
 
@@ -18440,7 +19573,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2148"
+            line="2149"
             column="29"/>
     </issue>
 
@@ -18451,7 +19584,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2162"
+            line="2164"
             column="29"/>
     </issue>
 
@@ -18462,7 +19595,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2174"
+            line="2177"
             column="36"/>
     </issue>
 
@@ -18473,7 +19606,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2187"
+            line="2191"
             column="37"/>
     </issue>
 
@@ -18484,7 +19617,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2200"
+            line="2205"
             column="37"/>
     </issue>
 
@@ -18495,7 +19628,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2212"
+            line="2218"
             column="34"/>
     </issue>
 
@@ -18506,7 +19639,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2224"
+            line="2231"
             column="34"/>
     </issue>
 
@@ -18517,7 +19650,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2235"
+            line="2242"
             column="35"/>
     </issue>
 
@@ -18528,7 +19661,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2250"
+            line="2258"
             column="34"/>
     </issue>
 
@@ -18539,7 +19672,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2262"
+            line="2271"
             column="35"/>
     </issue>
 
@@ -18550,7 +19683,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2277"
+            line="2287"
             column="34"/>
     </issue>
 
@@ -18561,7 +19694,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2285"
+            line="2295"
             column="37"/>
     </issue>
 
@@ -18572,7 +19705,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2293"
+            line="2303"
             column="38"/>
     </issue>
 
@@ -18583,7 +19716,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2301"
+            line="2311"
             column="38"/>
     </issue>
 
@@ -18594,7 +19727,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2309"
+            line="2319"
             column="35"/>
     </issue>
 
@@ -18605,7 +19738,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2317"
+            line="2327"
             column="35"/>
     </issue>
 
@@ -18616,7 +19749,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2325"
+            line="2335"
             column="30"/>
     </issue>
 
@@ -18627,7 +19760,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2333"
+            line="2343"
             column="30"/>
     </issue>
 
@@ -18638,7 +19771,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2456"
+            line="2467"
             column="55"/>
     </issue>
 
@@ -18649,7 +19782,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2497"
+            line="2508"
             column="45"/>
     </issue>
 
@@ -18660,7 +19793,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2511"
+            line="2522"
             column="52"/>
     </issue>
 
@@ -18671,7 +19804,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2841"
+            line="2853"
             column="49"/>
     </issue>
 
@@ -18682,7 +19815,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2856"
+            line="2869"
             column="37"/>
     </issue>
 

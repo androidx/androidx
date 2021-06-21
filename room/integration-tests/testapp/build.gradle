@@ -80,6 +80,9 @@ dependencies {
     implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
     implementation(libs.multidex)
 
+    // Workaround for b/191286558.
+    implementation(project(":annotation:annotation-experimental"))
+
     // libs.findbugs dependency resolves an app/testapp version conflict.
     implementation(libs.findbugs)
     implementation("androidx.recyclerview:recyclerview:1.0.0")

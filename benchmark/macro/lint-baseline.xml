@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 18): `StartupTimingMetric`"
+        errorLine1="    val metric = StartupTimingMetric()"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/StartupTimingMetricTest.kt"
+            line="90"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 18): `configure$lint_module`"
+        errorLine1="    metric.configure(packageName)"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/StartupTimingMetricTest.kt"
+            line="91"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 18): `getMetrics$lint_module`"
+        errorLine1="    return metric.getMetrics(packageName, tracePath)"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/StartupTimingMetricTest.kt"
+            line="93"
+            column="19"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"
@@ -8,7 +41,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/benchmark/macro/Macrobenchmark.kt"
-            line="49"
+            line="47"
             column="26"/>
     </issue>
 

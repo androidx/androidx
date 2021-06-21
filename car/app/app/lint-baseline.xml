@@ -1,9 +1,460 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertThat(actions.get(0).getIcon().getResId()).isEqualTo(icon1);"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"
+            line="209"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertThat(actions.get(1).getIcon().getResId()).isEqualTo(icon2);"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"
+            line="212"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
+            line="212"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine2="                                                                              ~~~">
+        <location
+            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
+            line="212"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
+            line="275"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine2="                                                                              ~~~">
+        <location
+            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
+            line="275"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/CarContextTest.java"
+            line="224"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
+        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
+        errorLine2="                                                                              ~~~">
+        <location
+            file="src/test/java/androidx/car/app/CarContextTest.java"
+            line="224"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.app.Notification#getChannelId`"
+        errorLine1="        assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
+            line="112"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.app.Notification#getChannelId`"
+        errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
+            line="137"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.app.Notification#getChannelId`"
+        errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
+            line="165"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.ZonedDateTime#parse`"
+        errorLine1="        ZonedDateTime zonedDateTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
+        errorLine2="                                                    ~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="135"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `create`"
+        errorLine1="        DateTimeWithZone dateTimeWithZone = DateTimeWithZone.create(zonedDateTime);"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="136"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `assertDateTimeWithZoneEquals`"
+        errorLine1="        assertDateTimeWithZoneEquals(zonedDateTime, dateTimeWithZone);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="138"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `create`"
+        errorLine1="                    DateTimeWithZone.create(null);"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="147"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#getSeconds`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                                                                            ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="156"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMillis`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="156"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#getSeconds`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                                                                            ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="174"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMillis`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="174"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#getSeconds`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                                                                            ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="193"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMillis`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="193"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#getSeconds`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                                                                            ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="212"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMillis`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
+            line="212"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `java.util.Collection#stream`"
+        errorLine1="                .stream()"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"
+            line="132"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `java.util.stream.Stream#mapToLong`"
+        errorLine1="                .mapToLong(List::size)"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"
+            line="133"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `java.util.stream.LongStream#sum`"
+        errorLine1="                .sum()).isEqualTo(6);"
+        errorLine2="                 ~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"
+            line="134"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 23): `android.content.pm.SigningInfo`"
+        errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
+            line="108"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 23): `android.content.pm.PackageInfo#signingInfo`"
+        errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
+            line="108"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `android.content.pm.SigningInfo#getSigningCertificateHistory`"
+        errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
+            line="109"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 23): `android.content.pm.PackageInfo#signingInfo`"
+        errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
+            line="109"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.ZonedDateTime#parse`"
+        errorLine1="        ZonedDateTime arrivalTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
+        errorLine2="                                                  ~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="69"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofHours`"
+        errorLine1="        Duration remainingTime = Duration.ofHours(10);"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="70"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `Builder`"
+        errorLine1="                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="73"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime("
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="73"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#getSeconds`"
+        errorLine1="        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());"
+        errorLine2="                                                                                     ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="77"
+            column="86"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `assertDateTimeWithZoneEquals`"
+        errorLine1="        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="78"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.ZonedDateTime#parse`"
+        errorLine1="        ZonedDateTime arrivalTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
+        errorLine2="                                                  ~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="115"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `Builder`"
+        errorLine1="                new TravelEstimate.Builder("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="119"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                        remainingDistance, arrivalTime).setRemainingTime("
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="120"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofSeconds`"
+        errorLine1="                        Duration.ofSeconds(REMAINING_TIME_UNKNOWN)).build();"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="121"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `assertDateTimeWithZoneEquals`"
+        errorLine1="        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
+            line="125"
+            column="9"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            enumName = (String) nameMethod.invoke(obj);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -14,7 +465,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            Object obj = converter.invoke(null, binder);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -25,7 +476,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return nameMethod.invoke(null, enumName);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

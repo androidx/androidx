@@ -1,5 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 14): `android.os.HandlerThread#quitSafely`"
+        errorLine1="        mHandlerThread.quitSafely();"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"
+            line="157"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentAuthorities`"
+        errorLine1="                sTriggeredContentAuthorities = getTriggeredContentAuthorities();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="304"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentUris`"
+        errorLine1="                sTriggeredContentUris = getTriggeredContentUris();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="305"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `getNetwork`"
+        errorLine1="                sNetwork = getNetwork();"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="325"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `addContentUriTrigger`"
+        errorLine1="                                .addContentUriTrigger(testUri1, true)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="367"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `addContentUriTrigger`"
+        errorLine1="                                .addContentUriTrigger(testUri2, false)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="368"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getContentUriTriggers`"
+        errorLine1="            assertThat(constraints.getContentUriTriggers(), is(new ContentUriTriggers()));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="391"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getContentUriTriggers`"
+        errorLine1="        assertThat(constraints.getContentUriTriggers().size(), is(0));"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="401"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getTriggeredContentAuthorities`"
+        errorLine1="        assertThat(worker.getTriggeredContentAuthorities(),"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkerWrapperTest.java"
+            line="919"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getTriggeredContentUris`"
+        errorLine1="        assertThat(worker.getTriggeredContentUris(),"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkerWrapperTest.java"
+            line="921"
+            column="27"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -113,12 +223,34 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        activityManager.getHistoricalProcessExitReasons("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="171"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        if (info.getReason() == REASON_USER_REQUESTED) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="180"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 19; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);"
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="337"
+            line="339"
             column="30"/>
     </issue>
 
@@ -239,7 +371,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="107"
+            line="106"
             column="25"/>
     </issue>
 
@@ -250,7 +382,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="114"
+            line="113"
             column="25"/>
     </issue>
 
@@ -261,7 +393,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="116"
+            line="115"
             column="21"/>
     </issue>
 
@@ -272,7 +404,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="117"
+            line="116"
             column="21"/>
     </issue>
 
@@ -283,7 +415,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="124"
+            line="123"
             column="21"/>
     </issue>
 
@@ -294,7 +426,18 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="125"
+            line="124"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            builder.setExpedited(true);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="130"
             column="21"/>
     </issue>
 
@@ -305,7 +448,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="139"
+            line="140"
             column="16"/>
     </issue>
 
@@ -393,7 +536,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="765"
+            line="767"
             column="71"/>
     </issue>
 
@@ -497,7 +640,8 @@
         <location
             file="src/main/java/androidx/work/impl/OperationImpl.java"
             line="61"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -512,7 +656,8 @@
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
             line="201"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -530,33 +675,11 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final V get(long timeout, TimeUnit unit)"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="355"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get(long timeout, TimeUnit unit)"
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
             line="355"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final V get() throws InterruptedException, ExecutionException {"
-        errorLine2="                 ~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"
-            line="469"
-            column="18"/>
     </issue>
 
     <issue
@@ -832,28 +955,6 @@
             file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
             line="83"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setState(T newState) {"
-        errorLine2="                         ~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="97"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T getInitialState();"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="124"
-            column="21"/>
     </issue>
 
     <issue
@@ -1816,7 +1917,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void postToMainThread(Runnable r) {"
+        errorLine1="    public void postToMainThread(Runnable runnable) {"
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
@@ -1838,7 +1939,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void executeOnBackgroundThread(Runnable r) {"
+        errorLine1="    public void executeOnBackgroundThread(Runnable runnable) {"
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
@@ -2073,7 +2174,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="209"
+            line="208"
             column="40"/>
     </issue>
 
@@ -2084,7 +2185,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="244"
+            line="243"
             column="19"/>
     </issue>
 
@@ -2095,7 +2196,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="316"
+            line="315"
             column="19"/>
     </issue>
 
@@ -2106,7 +2207,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="316"
+            line="315"
             column="56"/>
     </issue>
 
@@ -2117,7 +2218,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="355"
+            line="354"
             column="19"/>
     </issue>
 
@@ -2128,7 +2229,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="355"
+            line="354"
             column="68"/>
     </issue>
 
@@ -2143,36 +2244,4 @@
             column="16"/>
     </issue>
 
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        activityManager.getHistoricalProcessExitReasons("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="171"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        if (info.getReason() == REASON_USER_REQUESTED) {"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="180"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setExpedited(true);"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="129"
-            column="21"/>
-    </issue>
 </issues>
