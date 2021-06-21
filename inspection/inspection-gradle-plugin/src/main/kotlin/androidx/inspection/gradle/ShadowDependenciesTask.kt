@@ -16,7 +16,6 @@
 
 package androidx.inspection.gradle
 
-import com.android.build.gradle.api.BaseVariant
 import com.github.jengelman.gradle.plugins.shadow.relocation.RelocateClassContext
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
@@ -35,8 +34,9 @@ import java.util.jar.JarFile
 
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
+@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerShadowDependenciesTask(
-    variant: BaseVariant,
+    variant: com.android.build.gradle.api.BaseVariant,
     zipTask: TaskProvider<Copy>
 ): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
@@ -78,7 +78,10 @@ fun Project.registerShadowDependenciesTask(
  * Merges all runtime dependencies in one jar and removes module-info.class,
  * because jarjar and dx fail to process these classes.
  */
-private fun Project.registerUberJarTask(variant: BaseVariant): TaskProvider<Jar> {
+@Suppress("DEPRECATION") // BaseVariant
+private fun Project.registerUberJarTask(
+    variant: com.android.build.gradle.api.BaseVariant
+): TaskProvider<Jar> {
     return tasks.register("uberRuntimeDepsJar", Jar::class.java) {
         it.dependsOn(variant.assembleProvider)
         it.archiveClassifier.set("uberRuntimeDepsJar")
