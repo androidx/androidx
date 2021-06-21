@@ -844,7 +844,6 @@ public final class AppSearchImpl implements Closeable {
                             packageName,
                             databaseName,
                             prefixedSchema,
-                            callerPackageName,
                             callerUid,
                             callerHasSystemAccess);
                 }
